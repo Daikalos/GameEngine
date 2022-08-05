@@ -15,7 +15,7 @@ int main()
 
 	InputHandler input_handler;
 
-	input_handler.set_button_binding("drag", sf::Mouse::Button::Middle);
+	input_handler.set_button_binding(KeyName::Drag, sf::Mouse::Button::Middle);
 
 	ResourceManager resource_manager;
 

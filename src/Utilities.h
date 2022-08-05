@@ -5,6 +5,7 @@
 #include <math.h>
 #include <random>
 #include <chrono>
+#include <execution>
 
 namespace fge
 {
@@ -37,13 +38,13 @@ namespace fge
 	static T random(T min, T max)
 	{
 		std::uniform_real_distribution<T> uid(min, max);
-		return (T)uid(dre);
+		return uid(dre);
 	}
 	template<typename T, typename std::enable_if_t<!std::is_floating_point_v<T>>* = nullptr>
 	static T random(T min, T max)
 	{
 		std::uniform_int_distribution<T> uid(min, max);
-		return (T)uid(dre);
+		return uid(dre);
 	}
 
 	template<typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr>
@@ -55,7 +56,7 @@ namespace fge
 		for (T i = 0; i < size; ++i)
 			result.push_back(i);
 
-		std::shuffle(result.begin(), result.end(), dre);
+		std::shuffle(std::execution::par, result.begin(), result.end(), dre);
 
 		return result;
 	}

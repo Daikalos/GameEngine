@@ -7,6 +7,11 @@
 
 namespace fge
 {
+	enum KeyName
+	{
+		Drag,
+	};
+
 	// translates basic input from keyboard and mouse for more extensible usage
 	//
 	class InputHandler
@@ -20,43 +25,43 @@ namespace fge
 		bool update();
 
 	public:
-		inline bool get_button_pressed(sf::Mouse::Button button) const
+		inline bool get_button_pressed(const sf::Mouse::Button& button) const
 		{
 			if (button < 0 || button >= sf::Mouse::ButtonCount)
 				return false;
 
 			return _current_button_state[button] && !_previous_button_state[button];
 		}
-		inline bool get_button_released(sf::Mouse::Button button) const
+		inline bool get_button_released(const sf::Mouse::Button& button) const
 		{
 			if (button < 0 || button >= sf::Mouse::ButtonCount)
 				return false;
 
-			return !_current_button_state[sf::Mouse::Button::Left] && _previous_button_state[sf::Mouse::Button::Left];
+			return !_current_button_state[button] && _previous_button_state[button];
 		}
-		inline bool get_button_held(sf::Mouse::Button button) const
+		inline bool get_button_held(const sf::Mouse::Button& button) const
 		{
 			if (button < 0 || button >= sf::Mouse::ButtonCount)
 				return false;
 
-			return _current_button_state[sf::Mouse::Button::Left] && _previous_button_state[sf::Mouse::Button::Left];
+			return _current_button_state[button] && _previous_button_state[button];
 		}
 
-		inline bool get_key_pressed(sf::Keyboard::Key key) const
+		inline bool get_key_pressed(const sf::Keyboard::Key& key) const
 		{
 			if (key < 0 || key >= sf::Keyboard::Key::KeyCount)
 				return false;
 
 			return (_current_key_state[key] && !_previous_key_state[key]);
 		}
-		inline bool get_key_released(sf::Keyboard::Key key) const
+		inline bool get_key_released(const sf::Keyboard::Key& key) const
 		{
 			if (key < 0 || key >= sf::Keyboard::Key::KeyCount)
 				return false;
 
 			return (!_current_key_state[key] && _previous_key_state[key]);
 		}
-		inline bool get_key_held(sf::Keyboard::Key key) const
+		inline bool get_key_held(const sf::Keyboard::Key& key) const
 		{
 			if (key < 0 || key >= sf::Keyboard::Key::KeyCount)
 				return false;
@@ -64,14 +69,14 @@ namespace fge
 			return _current_key_state[key] && _previous_key_state[key];
 		}
 
-		inline bool get_key_pressed(const std::string& name) const { return _key_bindings.contains(name) && get_key_pressed(_key_bindings.at(name)); }
-		inline bool get_button_pressed(const std::string& name) const { return _button_bindings.contains(name) && get_button_pressed(_button_bindings.at(name)); }
+		inline bool get_key_pressed(const KeyName& name) const { return _key_bindings.contains(name) && get_key_pressed(_key_bindings.at(name)); }
+		inline bool get_button_pressed(const KeyName& name) const { return _button_bindings.contains(name) && get_button_pressed(_button_bindings.at(name)); }
 
-		inline bool get_key_released(const std::string& name) const { return _key_bindings.contains(name) && get_key_released(_key_bindings.at(name)); }
-		inline bool get_button_released(const std::string& name) const { return _button_bindings.contains(name) && get_button_released(_button_bindings.at(name)); }
+		inline bool get_key_released(const KeyName& name) const { return _key_bindings.contains(name) && get_key_released(_key_bindings.at(name)); }
+		inline bool get_button_released(const KeyName& name) const { return _button_bindings.contains(name) && get_button_released(_button_bindings.at(name)); }
 
-		inline bool get_key_held(const std::string& name) const	{ return _key_bindings.contains(name) && get_key_held(_key_bindings.at(name)); }
-		inline bool get_button_held(const std::string& name) const { return _button_bindings.contains(name) && get_button_held(_button_bindings.at(name)); }
+		inline bool get_key_held(const KeyName& name) const	{ return _key_bindings.contains(name) && get_key_held(_key_bindings.at(name)); }
+		inline bool get_button_held(const KeyName& name) const { return _button_bindings.contains(name) && get_button_held(_button_bindings.at(name)); }
 
 		inline bool get_scroll_up() const	{ return _scroll_delta > 0; }
 		inline bool get_scroll_down() const { return _scroll_delta < 0; }
@@ -81,11 +86,11 @@ namespace fge
 			_scroll_delta = scroll_delta;
 		}
 
-		void set_key_binding(std::string name, sf::Keyboard::Key key)
+		void set_key_binding(KeyName name, sf::Keyboard::Key key)
 		{
 			_key_bindings[name] = key;
 		}
-		void set_button_binding(std::string name, sf::Mouse::Button button)
+		void set_button_binding(KeyName name, sf::Mouse::Button button)
 		{
 			_button_bindings[name] = button;
 		}
@@ -99,8 +104,8 @@ namespace fge
 
 		float _scroll_delta;
 
-		std::unordered_map<std::string, sf::Keyboard::Key> _key_bindings;
-		std::unordered_map<std::string, sf::Mouse::Button> _button_bindings;
+		std::unordered_map<KeyName, sf::Keyboard::Key> _key_bindings;
+		std::unordered_map<KeyName, sf::Mouse::Button> _button_bindings;
 	};
 }
 
