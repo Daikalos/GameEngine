@@ -13,14 +13,14 @@ int main()
 	if (!window.initialize())
 		return false;
 
+	Camera camera(&window);
+
 	InputHandler input_handler;
 
-	input_handler.set_button_binding(KeyName::Drag, sf::Mouse::Button::Middle);
+	input_handler.set_button_binding(ButtonName::Drag, sf::Mouse::Button::Middle);
 
 	ResourceManager resource_manager;
 
-	Camera camera(&window);
-	
 	sf::Clock clock;
 	float physics_dt = 1.0f / 90.0f;
 	float dt = FLT_EPSILON;
@@ -42,10 +42,11 @@ int main()
 			switch (event.type)
 			{
 				case sf::Event::Closed:
+					isRunning = false;
 					window.close();
 					break;
 				case sf::Event::Resized:
-					window.set_resolution(event.size.width, event.size.height);
+
 					break;
 				case sf::Event::MouseWheelScrolled:
 					input_handler.set_scroll_delta(event.mouseWheelScroll.delta);

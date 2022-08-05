@@ -6,9 +6,11 @@
 #include "InputHandler.h"
 #include "Window.h"
 
+#include "../utilities/Vector.h"
+
 namespace fge
 {
-	class Camera
+	class Camera : public sf::View
 	{
 	public:
 		Camera() = delete;
@@ -20,7 +22,7 @@ namespace fge
 
 		template<typename T> sf::Vector2<T> view_to_world(const sf::Vector2<T>& position) const
 		{
-			return sf::Vector2<T>(get_view_matrix() * sf::Vector2f(position));
+			return sf::Vector2<T>(get_view_matrix() * position);
 		}
 
 	public:
@@ -39,10 +41,10 @@ namespace fge
 				.translate(sf::Vector2f(_window->getSize()) / -2.0f);
 		}
 
-		inline sf::Vector2i get_position() const { return _position; }
-		inline sf::Vector2i get_mouse_world_position() const { return view_to_world(sf::Mouse::getPosition(*_window)); }
+		inline sf::Vector2f get_position() const { return _position; }
+		inline sf::Vector2f get_mouse_world_position() const { return view_to_world(sf::Vector2f(sf::Mouse::getPosition(*_window))); }
 
-		inline void set_position(sf::Vector2i position)
+		inline void set_position(sf::Vector2f position)
 		{
 			_position = position;
 		}
@@ -52,15 +54,13 @@ namespace fge
 			_scale.y = scale;
 		}
 
-		inline sf::Vector2f get_scale() const { return _scale; }
-
 	private:
 		const Window* _window;
 
-		sf::Vector2i _position;
+		sf::Vector2f _position;
 		sf::Vector2f _scale;
 
-		sf::Vector2i _dragPos;
+		sf::Vector2f _dragPos;
 	};
 }
 

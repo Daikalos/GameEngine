@@ -118,6 +118,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +136,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,8 +154,8 @@
     <ClInclude Include="graphics\Sprite.h" />
     <ClInclude Include="graphics\SpriteBatch.h" />
     <ClInclude Include="graphics\TextureAtlas.h" />
-    <ClInclude Include="Utilities.h" />
-    <ClInclude Include="VecUtil.h" />
+    <ClInclude Include="utilities\Utilities.h" />
+    <ClInclude Include="utilities\Vector.h" />
     <ClInclude Include="window\Camera.h" />
     <ClInclude Include="window\InputHandler.h" />
     <ClInclude Include="window\Window.h" />

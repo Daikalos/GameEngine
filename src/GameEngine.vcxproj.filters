@@ -36,12 +36,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Utilities.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="VecUtil.h">
-      <Filter>header</Filter>
-    </ClInclude>
     <ClInclude Include="ExceptionHandler.h">
       <Filter>header</Filter>
     </ClInclude>
@@ -70,6 +64,12 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="graphics\Sprite.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\Utilities.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\Vector.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>
