@@ -45,9 +45,6 @@
     <ClInclude Include="ExceptionHandler.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\Sprite.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="graphics\Atlas.h">
       <Filter>header</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Window.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\Sprite.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>
