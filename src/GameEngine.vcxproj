@@ -145,23 +145,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Atlas.h" />
+    <ClInclude Include="Batch.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ExceptionHandler.h" />
+    <ClInclude Include="graphics\Atlas.h" />
+    <ClInclude Include="graphics\Batch.h" />
+    <ClInclude Include="graphics\ResourceManager.h" />
+    <ClInclude Include="graphics\Sprite.h" />
+    <ClInclude Include="graphics\SpriteBatch.h" />
+    <ClInclude Include="graphics\TextureAtlas.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="SpriteBatch.h" />
     <ClInclude Include="TextureAtlas.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="VecUtil.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="window\Camera.h" />
+    <ClInclude Include="window\InputHandler.h" />
+    <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Atlas.cpp" />
+    <ClCompile Include="Batch.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ExceptionHandler.cpp" />
+    <ClCompile Include="graphics\Atlas.cpp" />
+    <ClCompile Include="graphics\Batch.cpp" />
+    <ClCompile Include="graphics\ResourceManager.cpp" />
+    <ClCompile Include="graphics\Sprite.cpp" />
+    <ClCompile Include="graphics\SpriteBatch.cpp" />
+    <ClCompile Include="graphics\TextureAtlas.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="SpriteBatch.cpp" />
     <ClCompile Include="TextureAtlas.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="window\Camera.cpp" />
+    <ClCompile Include="window\InputHandler.cpp" />
+    <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,6 +10,9 @@ namespace fge
 		Window();
 		~Window();
 
+		void onCreate() override;
+		void onResize() override;
+
 		void refresh();
 
 		bool set_resolution(int x, int y);
@@ -19,16 +22,18 @@ namespace fge
 	public:
 		std::vector<sf::VideoMode> get_modes() const
 		{
-			return modes;
+			return _modes;
 		}
 		sf::View get_view() const
 		{
-			return view;
+			return _view;
 		}
 
 	private:
-		std::vector<sf::VideoMode> modes;
-		sf::ContextSettings settings;
-		sf::View view;
+		sf::View _view;
+
+		std::vector<sf::VideoMode> _modes;
+		sf::ContextSettings _settings;
+		bool _fullscreen;
 	};
 }

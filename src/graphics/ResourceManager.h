@@ -5,6 +5,9 @@
 #include <memory>
 #include <unordered_map>
 
+#include <iostream>
+#include <filesystem>
+
 namespace fge
 {
 	class ResourceManager
@@ -19,8 +22,13 @@ namespace fge
 		void load_texture(std::string name, std::string path);
 		void load_font(std::string name, std::string path);
 
-		void load_textures();
-		void load_fonts();
+		// loads all valid textures at given path, the name that is assigned will be based on the file name
+		//
+		void load_textures(std::string path, std::string prefix = std::string());
+
+		// loads all valid fonts at given path, the name that is assigned will be based on the file name
+		//
+		void load_fonts(std::string path, std::string prefix = std::string());
 
 		void clean_up();
 

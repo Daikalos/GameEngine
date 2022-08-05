@@ -9,6 +9,7 @@ namespace fge
 	class TextureAtlas
 	{
 	public:
+		bool load_from_file(const std::string& file_path);
 
 	private:
 		struct Atlas

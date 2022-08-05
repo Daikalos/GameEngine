@@ -3,9 +3,9 @@
 using namespace fge;
 
 Window::Window()
-	: modes(sf::VideoMode::getFullscreenModes()), view(getDefaultView())
+	: _view(getDefaultView()), _modes(sf::VideoMode::getFullscreenModes()), _fullscreen(false)
 {
-
+	
 }
 
 Window::~Window()
@@ -13,18 +13,28 @@ Window::~Window()
 
 }
 
+void Window::onCreate()
+{
+
+}
+
+void Window::onResize()
+{
+
+}
+
 void Window::refresh()
 {
-	modes = sf::VideoMode::getFullscreenModes();
+	_modes = sf::VideoMode::getFullscreenModes();
 }
 
 bool Window::set_resolution(int x, int y)
 {
-	for (const sf::VideoMode& mode : modes)
+	for (const sf::VideoMode& mode : _modes)
 		if (mode.size.x == x && mode.size.y == y)
 		{
-			view.setSize(sf::Vector2f(mode.size));
-			setView(view);
+			_view.setSize(sf::Vector2f(mode.size));
+			setView(_view);
 
 			return true;
 		}
@@ -34,18 +44,18 @@ bool Window::set_resolution(int x, int y)
 
 bool Window::initialize()
 {
-	if (!modes.size())
+	if (!_modes.size())
 		return false;
 
-	sf::VideoMode video_mode = modes.front();
+	sf::VideoMode video_mode = _modes.front();
 
 	if (!video_mode.isValid())
 		return false;
 
-	sf::RenderWindow window(sf::VideoMode(video_mode.size, 
+	create(sf::VideoMode(video_mode.size,
 		sf::VideoMode::getDesktopMode().bitsPerPixel), "Physics", sf::Style::None);
 
-	if (!window.setActive(true))
+	if (!setActive(true))
 		return false;
 
 	return true;

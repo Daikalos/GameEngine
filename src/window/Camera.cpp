@@ -3,7 +3,7 @@
 using namespace fge;
 
 Camera::Camera(const Window* window)
-	: _window(window), _position(sf::Vector2i(window->getSize()) / 2.0f), _scale({ 1.0f, 1.0f })
+	: _window(window), _position(sf::Vector2f(window->getSize()) / 2.0f), _scale({ 1.0f, 1.0f })
 {
 
 }

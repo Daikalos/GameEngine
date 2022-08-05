@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
 
-#include "Window.h"
-#include "Camera.h"
-#include "InputHandler.h"
-#include "ResourceManager.h"
+#include "window/Window.h"
+#include "window/Camera.h"
+#include "window/InputHandler.h"
+#include "graphics/ResourceManager.h"
 
 using namespace fge;
 
@@ -18,7 +18,6 @@ int main()
 	Camera camera(&window);
 	InputHandler input_handler;
 	
-
 	sf::Clock clock;
 	float physics_dt = 1.0f / 90.0f;
 	float dt = FLT_EPSILON;

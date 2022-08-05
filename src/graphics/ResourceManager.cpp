@@ -30,14 +30,6 @@ sf::Font* ResourceManager::request_font(std::string name, sf::Font* fallback) co
 
 	return fallback;
 }
-void ResourceManager::load_textures()
-{
-
-}
-void ResourceManager::load_fonts()
-{
-
-}
 
 void ResourceManager::clean_up()
 {
@@ -63,5 +55,27 @@ void ResourceManager::load_font(std::string name, std::string path)
 	{
 		_fonts.erase(name);
 		return;
+	}
+}
+
+void ResourceManager::load_textures(std::string path, std::string prefix)
+{
+	for (const auto& entry : std::filesystem::directory_iterator(path))
+	{
+		if (!entry.exists())
+			continue;
+
+		load_texture(prefix + entry.path().filename().string(), entry.path().string());
+	}
+
+}
+void ResourceManager::load_fonts(std::string path, std::string prefix)
+{
+	for (const auto& entry : std::filesystem::directory_iterator(path))
+	{
+		if (!entry.exists())
+			continue;
+
+		load_font(prefix + entry.path().filename().string(), entry.path().string());
 	}
 }

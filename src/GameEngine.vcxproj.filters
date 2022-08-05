@@ -22,6 +22,27 @@
     <ClCompile Include="Window.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="ExceptionHandler.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteBatch.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="Batch.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="Atlas.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\Atlas.cpp" />
+    <ClCompile Include="graphics\Batch.cpp" />
+    <ClCompile Include="graphics\ResourceManager.cpp" />
+    <ClCompile Include="graphics\Sprite.cpp" />
+    <ClCompile Include="graphics\SpriteBatch.cpp" />
+    <ClCompile Include="graphics\TextureAtlas.cpp" />
+    <ClCompile Include="window\Camera.cpp" />
+    <ClCompile Include="window\InputHandler.cpp" />
+    <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputHandler.h">
@@ -48,6 +69,27 @@
     <ClInclude Include="Window.h">
       <Filter>header</Filter>
     </ClInclude>
+    <ClInclude Include="ExceptionHandler.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteBatch.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="Batch.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="Atlas.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\Atlas.h" />
+    <ClInclude Include="graphics\Batch.h" />
+    <ClInclude Include="graphics\ResourceManager.h" />
+    <ClInclude Include="graphics\Sprite.h" />
+    <ClInclude Include="graphics\SpriteBatch.h" />
+    <ClInclude Include="graphics\TextureAtlas.h" />
+    <ClInclude Include="window\Camera.h" />
+    <ClInclude Include="window\InputHandler.h" />
+    <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
