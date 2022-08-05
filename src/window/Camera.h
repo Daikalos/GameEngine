@@ -5,7 +5,6 @@
 
 #include "InputHandler.h"
 #include "Window.h"
-#include "VecUtil.h"
 
 namespace fge
 {
@@ -36,7 +35,7 @@ namespace fge
 		{
 			return sf::Transform()
 				.translate(sf::Vector2f(_position))
-				.scale(1.0f / _scale)
+				.scale(sf::Vector2f(1.0f / _scale.x, 1.0f / _scale.y))
 				.translate(sf::Vector2f(_window->getSize()) / -2.0f);
 		}
 

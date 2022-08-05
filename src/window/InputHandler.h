@@ -1,7 +1,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+
 #include <unordered_map>
+#include <string>
 
 namespace fge
 {
@@ -18,21 +20,21 @@ namespace fge
 		bool update();
 
 	public:
-		inline bool get_button_pressed(sf::Mouse::Button button)
+		inline bool get_button_pressed(sf::Mouse::Button button) const
 		{
 			if (button < 0 || button >= sf::Mouse::ButtonCount)
 				return false;
 
 			return _current_button_state[button] && !_previous_button_state[button];
 		}
-		inline bool get_button_released(sf::Mouse::Button button)
+		inline bool get_button_released(sf::Mouse::Button button) const
 		{
 			if (button < 0 || button >= sf::Mouse::ButtonCount)
 				return false;
 
 			return !_current_button_state[sf::Mouse::Button::Left] && _previous_button_state[sf::Mouse::Button::Left];
 		}
-		inline bool get_button_held(sf::Mouse::Button button)
+		inline bool get_button_held(sf::Mouse::Button button) const
 		{
 			if (button < 0 || button >= sf::Mouse::ButtonCount)
 				return false;
@@ -62,14 +64,14 @@ namespace fge
 			return _current_key_state[key] && _previous_key_state[key];
 		}
 
-		inline bool get_key_pressed(std::string name)	  { return _key_bindings.contains(name) && get_key_pressed(_key_bindings[name]); }
-		inline bool get_button_pressed(std::string name)  { return _button_bindings.contains(name) && get_button_pressed(_button_bindings[name]); }
+		inline bool get_key_pressed(const std::string& name) const { return _key_bindings.contains(name) && get_key_pressed(_key_bindings.at(name)); }
+		inline bool get_button_pressed(const std::string& name) const { return _button_bindings.contains(name) && get_button_pressed(_button_bindings.at(name)); }
 
-		inline bool get_key_released(std::string name)	  { return _key_bindings.contains(name) && get_key_released(_key_bindings[name]); }
-		inline bool get_button_released(std::string name) { return _button_bindings.contains(name) && get_button_released(_button_bindings[name]); }
+		inline bool get_key_released(const std::string& name) const { return _key_bindings.contains(name) && get_key_released(_key_bindings.at(name)); }
+		inline bool get_button_released(const std::string& name) const { return _button_bindings.contains(name) && get_button_released(_button_bindings.at(name)); }
 
-		inline bool get_key_held(std::string name)		  { return _key_bindings.contains(name) && get_key_held(_key_bindings[name]); }
-		inline bool get_button_held(std::string name)	  { return _button_bindings.contains(name) && get_button_held(_button_bindings[name]); }
+		inline bool get_key_held(const std::string& name) const	{ return _key_bindings.contains(name) && get_key_held(_key_bindings.at(name)); }
+		inline bool get_button_held(const std::string& name) const { return _button_bindings.contains(name) && get_button_held(_button_bindings.at(name)); }
 
 		inline bool get_scroll_up() const	{ return _scroll_delta > 0; }
 		inline bool get_scroll_down() const { return _scroll_delta < 0; }

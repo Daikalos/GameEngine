@@ -13,10 +13,13 @@ int main()
 	if (!window.initialize())
 		return false;
 
+	InputHandler input_handler;
+
+	input_handler.set_button_binding("drag", sf::Mouse::Button::Middle);
+
 	ResourceManager resource_manager;
 
 	Camera camera(&window);
-	InputHandler input_handler;
 	
 	sf::Clock clock;
 	float physics_dt = 1.0f / 90.0f;
