@@ -5,7 +5,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace sfpl
+namespace fge
 {
 	class ResourceManager
 	{

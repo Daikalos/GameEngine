@@ -7,7 +7,7 @@
 #include "Window.h"
 #include "VecUtil.h"
 
-namespace sfpl
+namespace fge
 {
 	class Camera
 	{

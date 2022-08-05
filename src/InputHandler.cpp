@@ -1,16 +1,22 @@
 #include "InputHandler.h"
 
-using namespace sfpl;
+using namespace fge;
 
 InputHandler::InputHandler()
 {
-	memset(currentButtonState, false, sizeof(currentButtonState));
-	memset(previousButtonState, false, sizeof(previousButtonState));
+	memset(_current_button_state, false, sizeof(_current_button_state));
+	memset(_previous_button_state, false, sizeof(_previous_button_state));
 
-	memset(currentKeyState, false, sizeof(currentKeyState));
-	memset(previousKeyState, false, sizeof(previousKeyState));
+	memset(_current_key_state, false, sizeof(_current_key_state));
+	memset(_previous_key_state, false, sizeof(_previous_key_state));
 
-	scrollDelta = 0.0f;
+	for (unsigned short i = 0; i < sf::Mouse::ButtonCount; ++i)
+		_button_bindings[i] = static_cast<sf::Mouse::Button>(i);
+
+	for (unsigned short i = 0; i < sf::Keyboard::KeyCount; ++i)
+		_key_bindings[i] = static_cast<sf::Keyboard::Key>(i);
+
+	_scroll_delta = 0.0f;
 }
 
 InputHandler::~InputHandler()
@@ -20,19 +26,19 @@ InputHandler::~InputHandler()
 
 bool InputHandler::update()
 {
-	for (unsigned short i = 0; i < sf::Keyboard::KeyCount; ++i)
-	{
-		previousKeyState[i] = currentKeyState[i];
-		currentKeyState[i] = sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
-	}
-
 	for (unsigned short i = 0; i < sf::Mouse::ButtonCount; ++i)
 	{
-		previousButtonState[i] = currentButtonState[i];
-		currentButtonState[i] = sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
+		_previous_button_state[i] = _current_button_state[i];
+		_current_button_state[i] = sf::Mouse::isButtonPressed(_button_bindings[i]);
 	}
 
-	scrollDelta = 0.0f;
+	for (unsigned short i = 0; i < sf::Keyboard::KeyCount; ++i)
+	{
+		_previous_key_state[i] = _current_key_state[i];
+		_current_key_state[i] = sf::Keyboard::isKeyPressed(_key_bindings[i]);
+	}
+
+	_scroll_delta = 0.0f;
 
 	return true;
 }

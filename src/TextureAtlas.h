@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace sfpl
+namespace fge
 {
 	class TextureAtlas
 	{

@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 
-using namespace sfpl;
+using namespace fge;
 
 ResourceManager::ResourceManager()
 {

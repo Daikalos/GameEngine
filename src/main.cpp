@@ -5,7 +5,7 @@
 #include "InputHandler.h"
 #include "ResourceManager.h"
 
-using namespace sfpl;
+using namespace fge;
 
 int main()
 {
@@ -26,7 +26,8 @@ int main()
 
 	sf::Vector2i mouse_pos;
 
-	while (window.isOpen())
+	bool isRunning = true;
+	while (isRunning)
 	{
 		dt = std::fminf(clock.restart().asSeconds(), 0.075f);
 		accumulator += dt;
@@ -45,13 +46,12 @@ int main()
 					window.set_resolution(event.size.width, event.size.height);
 					break;
 				case sf::Event::MouseWheelScrolled:
-					input_handler.set_scrollDelta(event.mouseWheelScroll.delta);
+					input_handler.set_scroll_delta(event.mouseWheelScroll.delta);
 					break;
 			}
 		}
 
 		camera.update(input_handler);
-
 
 		while (accumulator >= physics_dt)
 		{

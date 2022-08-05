@@ -1,3 +1,3 @@
 #include "TextureAtlas.h"
 
-using namespace sfpl;
+using namespace fge;

@@ -6,7 +6,7 @@
 #include <random>
 #include <chrono>
 
-namespace sfpl
+namespace fge
 {
 	static thread_local std::mt19937_64 dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
@@ -63,6 +63,6 @@ namespace sfpl
 	static T random_arg(const Args&... args)
 	{
 		std::vector<T> x{ { args... } };
-		return x[util::random<size_t>(0, x.size() - 1)];
+		return x[random<size_t>(0, x.size() - 1)];
 	}
 }

@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace sfpl
+namespace fge
 {
 	class Sprite : public sf::Transformable
 	{

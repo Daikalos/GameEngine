@@ -1,6 +1,6 @@
 #include "Window.h"
 
-using namespace sfpl;
+using namespace fge;
 
 Window::Window()
 	: modes(sf::VideoMode::getFullscreenModes()), view(getDefaultView())
