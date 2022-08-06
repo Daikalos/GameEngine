@@ -34,6 +34,15 @@
     <ClCompile Include="window\Window.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\Texture.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="window\StateStack.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="window\State.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -70,6 +79,15 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="utilities\Vector.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\Texture.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="window\State.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="window\StateStack.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>

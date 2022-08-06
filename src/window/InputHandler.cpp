@@ -10,9 +10,6 @@ InputHandler::InputHandler()
 
 	memset(_current_key_state, false, sizeof(_current_key_state));
 	memset(_previous_key_state, false, sizeof(_previous_key_state));
-
-	memset(_key_bindings, 0, sizeof(_key_bindings));
-	memset(_button_bindings, 0, sizeof(_button_bindings));
 }
 
 InputHandler::~InputHandler()

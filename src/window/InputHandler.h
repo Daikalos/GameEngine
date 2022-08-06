@@ -81,13 +81,13 @@ namespace fge
 			return _current_key_state[key] && _previous_key_state[key];
 		}
 
-		inline bool get_key_pressed(const KeyName& name) const { return get_key_pressed(_key_bindings[name]); }
-		inline bool get_key_released(const KeyName& name) const { return get_key_released(_key_bindings[name]); }
-		inline bool get_key_held(const KeyName& name) const { return get_key_held(_key_bindings[name]); }
+		inline bool get_key_pressed(const KeyName& name) const { return _key_bindings.contains(name) && get_key_pressed(_key_bindings.at(name)); }
+		inline bool get_key_released(const KeyName& name) const { return _key_bindings.contains(name) && get_key_released(_key_bindings.at(name)); }
+		inline bool get_key_held(const KeyName& name) const { return _key_bindings.contains(name) && get_key_held(_key_bindings.at(name)); }
 
-		inline bool get_button_pressed(const ButtonName& name) const { return get_button_pressed(_button_bindings[name]); }
-		inline bool get_button_released(const ButtonName& name) const { return get_button_released(_button_bindings[name]); }
-		inline bool get_button_held(const ButtonName& name) const { return get_button_held(_button_bindings[name]); }
+		inline bool get_button_pressed(const ButtonName& name) const { return _button_bindings.contains(name) && get_button_pressed(_button_bindings.at(name)); }
+		inline bool get_button_released(const ButtonName& name) const { return _button_bindings.contains(name) && get_button_released(_button_bindings.at(name)); }
+		inline bool get_button_held(const ButtonName& name) const { return _button_bindings.contains(name) && get_button_held(_button_bindings.at(name)); }
 
 		inline bool get_scroll_up() const { return _scroll_delta > 0; }
 		inline bool get_scroll_down() const { return _scroll_delta < 0; }
@@ -115,8 +115,11 @@ namespace fge
 
 		float _scroll_delta;
 
-		sf::Keyboard::Key _key_bindings[KeyName::KeyNameCount];
-		sf::Mouse::Button _button_bindings[ButtonName::ButtonNameCount];
+		std::unordered_map<KeyName, sf::Keyboard::Key> _key_bindings;
+		std::unordered_map<ButtonName, sf::Mouse::Button> _button_bindings;
+
+		int _joystick_count;
+		bool _available_joysticks[sf::Joystick::Count];
 	};
 }
 
