@@ -37,11 +37,10 @@
     <ClCompile Include="window\StateStack.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="window\State.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="window\ResourceManager.cpp" />
+    <ClCompile Include="window\State.cpp" />
+    <ClCompile Include="base\Entity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -89,6 +88,7 @@
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="window\ResourceManager.h" />
     <ClInclude Include="window\States.h" />
+    <ClInclude Include="base\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

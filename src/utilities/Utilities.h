@@ -34,6 +34,13 @@ namespace fge
 		return val;
 	}
 
+	template<typename T>
+	static inline T map_to_range(const T& val, const T& minIn, const T& maxIn, const T& minOut, const T& maxOut)
+	{
+		float x = (val - minIn) / (maxIn - minIn);
+		return minOut + (maxOut - minOut) * x;
+	}
+
 	template<typename T, typename std::enable_if_t<std::is_floating_point_v<T>>* = nullptr>
 	static T random(T min, T max)
 	{

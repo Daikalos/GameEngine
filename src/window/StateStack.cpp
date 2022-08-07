@@ -30,17 +30,17 @@ void StateStack::handle_event(const sf::Event& event)
 	apply_pending_changes();
 }
 
-void StateStack::push_state(const States::ID& state_id)
+void StateStack::push(const States::ID& state_id)
 {
 	_pending_list.push_back(PendingChange(Action::Push, state_id));
 }
 
-void StateStack::pop_state()
+void StateStack::pop()
 {
 	_pending_list.push_back(PendingChange(Action::Pop));
 }
 
-void StateStack::clear_states()
+void StateStack::clear()
 {
 	_pending_list.push_back(PendingChange(Action::Clear));
 }

@@ -5,7 +5,7 @@
 
 #include <stack>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <functional>
 
 #include "State.h"
@@ -34,9 +34,9 @@ namespace fge
 		void draw();
 		void handle_event(const sf::Event& event);
 
-		void push_state(const States::ID& state_id);
-		void pop_state();
-		void clear_states();
+		void push(const States::ID& state_id);
+		void pop();
+		void clear();
 
 		bool is_empty() const
 		{
@@ -70,7 +70,7 @@ namespace fge
 		std::vector<PendingChange> _pending_list;
 
 		State::Context _context;
-		std::map<States::ID, std::function<State::ptr()>> _factories;
+		std::unordered_map<States::ID, std::function<State::ptr()>> _factories;
 
 		bool _is_paused{false};
 	};
@@ -81,6 +81,6 @@ namespace fge
 		_factories[state_id] = [this]()
 		{
 			return State::ptr(new T(*this, _context, args));
-		}
+		};
 	}
 }

@@ -22,6 +22,9 @@ void Application::run()
 	float dt_per_frame = 1.0f / 60.0f;
 	float accumulator = FLT_EPSILON;
 
+	int ticks = 0;
+	int death_spiral = 12; // guarantee prevention of infinite loop
+
 	while (_window.isOpen())
 	{
 		dt = std::fminf(clock.restart().asSeconds(), 0.075f);
@@ -29,10 +32,12 @@ void Application::run()
 
 		process_input();
 
-		while (accumulator >= dt_per_frame)
+		while (accumulator >= dt_per_frame && ticks < death_spiral)
 		{
-			update(dt_per_frame);
 			accumulator -= dt_per_frame;
+			++ticks;
+
+			update(dt_per_frame);
 
 			if (_state_stack.is_empty())
 				_window.close();
@@ -49,20 +54,9 @@ void Application::process_input()
 	sf::Event event;
 	while (_window.pollEvent(event))
 	{
+		_window.handle_event(event);
+		_input_handler.handle_event(event);
 		_state_stack.handle_event(event);
-
-		switch (event.type)
-		{
-		case sf::Event::Closed:
-			_window.close();
-			break;
-		case sf::Event::Resized:
-
-			break;
-		case sf::Event::MouseWheelScrolled:
-			_input_handler.set_scroll_delta(event.mouseWheelScroll.delta);
-			break;
-		}
 	}
 
 	_camera.update(_input_handler);
@@ -85,5 +79,6 @@ void Application::draw()
 
 void Application::register_states()
 {
+	// add states (e.g. gameover, win, play, paused)
 
 }

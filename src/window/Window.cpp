@@ -41,3 +41,13 @@ bool Window::initialize()
 
 	return true;
 }
+
+void Window::handle_event(const sf::Event& event)
+{
+	switch (event.type)
+	{
+	case sf::Event::Closed:
+		close();
+		break;
+	}
+}

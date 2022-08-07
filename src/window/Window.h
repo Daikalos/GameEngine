@@ -17,6 +17,7 @@ namespace fge
 		void onResize() override;
 
 		bool initialize();
+		void handle_event(const sf::Event& event);
 
 	public:
 		std::vector<sf::VideoMode> get_modes() const
