@@ -147,10 +147,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
     <ClInclude Include="graphics\Atlas.h" />
     <ClInclude Include="graphics\Batch.h" />
-    <ClInclude Include="graphics\ResourceManager.h" />
     <ClInclude Include="graphics\Sprite.h" />
     <ClInclude Include="graphics\SpriteBatch.h" />
     <ClInclude Include="graphics\TextureAtlas.h" />
@@ -158,16 +158,18 @@
     <ClInclude Include="utilities\Utilities.h" />
     <ClInclude Include="utilities\Vector.h" />
     <ClInclude Include="window\Camera.h" />
+    <ClInclude Include="window\States.h" />
     <ClInclude Include="window\InputHandler.h" />
+    <ClInclude Include="window\ResourceManager.h" />
     <ClInclude Include="window\State.h" />
     <ClInclude Include="window\StateStack.h" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="graphics\Atlas.cpp" />
     <ClCompile Include="graphics\Batch.cpp" />
-    <ClCompile Include="graphics\ResourceManager.cpp" />
     <ClCompile Include="graphics\Sprite.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
     <ClCompile Include="graphics\TextureAtlas.cpp" />
@@ -175,6 +177,7 @@
     <ClCompile Include="graphics\Texture.cpp" />
     <ClCompile Include="window\Camera.cpp" />
     <ClCompile Include="window\InputHandler.cpp" />
+    <ClCompile Include="window\ResourceManager.cpp" />
     <ClCompile Include="window\State.cpp" />
     <ClCompile Include="window\StateStack.cpp" />
     <ClCompile Include="window\Window.cpp" />
