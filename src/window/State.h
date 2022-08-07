@@ -26,8 +26,9 @@ namespace fge
 		};
 
 	public:
-		State(StateStack& stateStack, Context context)
+		explicit State(StateStack& stateStack, Context context)
 			: _stateStack(&stateStack), _context(context) {}
+
 		virtual ~State() {}
 
 		virtual void draw() = 0;
@@ -36,8 +37,8 @@ namespace fge
 
 		virtual void on_activate();
 		virtual void on_destroy();
-		virtual void is_game_paused();
-		virtual void set_game_paused(bool flag);
+		virtual void is_paused();
+		virtual void set_paused(bool flag);
 
 	private:
 		StateStack* _stateStack;

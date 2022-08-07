@@ -162,7 +162,7 @@
     <ClInclude Include="window\InputHandler.h" />
     <ClInclude Include="window\ResourceManager.h" />
     <ClInclude Include="window\State.h" />
-    <ClInclude Include="window\StateStack.h" />
+    <ClInclude Include="window\StateStack.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
