@@ -32,10 +32,10 @@ void Application::run()
 	{
 		dt = std::fminf(clock.restart().asSeconds(), 0.075f);
 		accumulator += dt;
-		ticks = 0;
 
 		process_input();
 
+		ticks = 0;
 		while (accumulator >= dt_per_frame && ticks < death_spiral)
 		{
 			accumulator -= dt_per_frame;
