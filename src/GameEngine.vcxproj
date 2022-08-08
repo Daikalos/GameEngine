@@ -148,6 +148,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base\Entity.h" />
+    <ClInclude Include="graphics\gui\Component.h" />
+    <ClInclude Include="graphics\gui\TextBox.h" />
+    <ClInclude Include="base\SceneNode.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
@@ -162,13 +165,15 @@
     <ClInclude Include="window\Camera.h" />
     <ClInclude Include="window\States.h" />
     <ClInclude Include="window\InputHandler.h" />
-    <ClInclude Include="window\ResourceManager.h" />
+    <ClInclude Include="window\ResourceHolder.hpp" />
     <ClInclude Include="window\State.h" />
     <ClInclude Include="window\StateStack.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\Entity.cpp" />
+    <ClCompile Include="graphics\gui\TextBox.cpp" />
+    <ClCompile Include="base\SceneNode.cpp" />
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="graphics\Atlas.cpp" />
@@ -180,7 +185,6 @@
     <ClCompile Include="graphics\Texture.cpp" />
     <ClCompile Include="window\Camera.cpp" />
     <ClCompile Include="window\InputHandler.cpp" />
-    <ClCompile Include="window\ResourceManager.cpp" />
     <ClCompile Include="window\State.cpp" />
     <ClCompile Include="window\StateStack.cpp" />
     <ClCompile Include="window\Window.cpp" />

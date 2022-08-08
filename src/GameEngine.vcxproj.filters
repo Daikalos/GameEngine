@@ -38,9 +38,10 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="window\Application.cpp" />
-    <ClCompile Include="window\ResourceManager.cpp" />
     <ClCompile Include="window\State.cpp" />
     <ClCompile Include="base\Entity.cpp" />
+    <ClCompile Include="graphics\gui\TextBox.cpp" />
+    <ClCompile Include="base\SceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -86,10 +87,13 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Application.h" />
-    <ClInclude Include="window\ResourceManager.h" />
+    <ClInclude Include="window\ResourceHolder.hpp" />
     <ClInclude Include="window\States.h" />
     <ClInclude Include="base\Entity.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
+    <ClInclude Include="graphics\gui\TextBox.h" />
+    <ClInclude Include="graphics\gui\Component.h" />
+    <ClInclude Include="base\SceneNode.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "InputHandler.h"
-#include "ResourceManager.h"
+#include "ResourceHolder.hpp"
 #include "States.h"
 
 namespace fge
@@ -19,24 +19,25 @@ namespace fge
 
 		struct Context // holds vital objects
 		{
-			Context(Window& window, Camera& camera, InputHandler& input_handler, ResourceManager& resource_manager) 
-				: _window(&window), _camera(&camera), _input_handler(&input_handler), _resource_manager(&resource_manager) { }
+			Context(Window& window, Camera& camera, InputHandler& input_handler, TextureHolder& texture_holder)
+				: _window(&window), _camera(&camera), _input_handler(&input_handler), _texture_holder(&texture_holder) { }
 
-			const Window* _window;
-			const Camera* _camera;
+			Window* _window;
+			Camera* _camera;
+
 			const InputHandler* _input_handler;
-			const ResourceManager* _resource_manager;
+			const TextureHolder* _texture_holder;
 		};
 
 	public:
 		explicit State(StateStack& state_stack, Context context)
-			: _state_stack(&state_stack), _context(context) {}
+			: _state_stack(&state_stack), _context(context) { }
 
 		virtual ~State() {}
 
-		virtual void draw() = 0;
 		virtual bool update(const float& dt) = 0;
 		virtual bool handle_event(const sf::Event& event) = 0;
+		virtual void draw() = 0;
 
 		virtual void on_activate();
 		virtual void on_destroy();
@@ -48,7 +49,7 @@ namespace fge
 		void request_stack_pop();
 		void request_stack_clear();
 
-		const Context& get_context() const
+		const Context& get_context()
 		{
 			return _context;
 		}

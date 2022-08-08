@@ -58,7 +58,7 @@ namespace fge
 	private:
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const States::ID& state_id = States::None)
+			explicit PendingChange(const Action& action, const States::ID& state_id = States::ID::None)
 				: _action(action), _state_id(state_id) { }
 
 			const Action _action;

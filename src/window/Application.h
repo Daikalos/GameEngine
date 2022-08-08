@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "InputHandler.h"
-#include "ResourceManager.h"
+#include "ResourceHolder.hpp"
 #include "StateStack.hpp"
 
 namespace fge
@@ -29,7 +29,7 @@ namespace fge
 		Window _window;
 		Camera _camera;
 		InputHandler _input_handler;
-		ResourceManager _resource_manager;
+		TextureHolder _texture_holder;
 		StateStack _state_stack;
 	};
 }

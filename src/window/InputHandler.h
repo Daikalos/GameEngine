@@ -251,16 +251,18 @@ namespace fge
 
 		float _joystick_axis[sf::Joystick::Count * sf::Joystick::AxisCount];
 
-		//////////////////////////////////// MISC
-
-		bool _keyboard_enabled;
-		bool _mouse_enabled;
-		bool _joystick_enabled;
+		//////////////////////////////////// BINDINGS
 
 		std::unordered_map<Binding::Key, sf::Keyboard::Key> _key_bindings;
 		std::unordered_map<Binding::Button, sf::Mouse::Button> _button_bindings;
 		std::unordered_map<Binding::JoystickButton, uint32_t, Binding::JoystickButton::Hash> _joystick_button_bindings;
 		std::unordered_map<Binding::JoystickAxis, uint32_t, Binding::JoystickAxis::Hash> _joystick_axis_bindings;
+
+		//////////////////////////////////// MISC
+
+		bool _keyboard_enabled;
+		bool _mouse_enabled;
+		bool _joystick_enabled;
 	};
 }
 

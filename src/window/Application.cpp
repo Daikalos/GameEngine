@@ -3,8 +3,8 @@
 using namespace fge;
 
 Application::Application()
-	: _window(), _camera(&_window), _input_handler(), _resource_manager(), 
-	_state_stack(State::Context(_window, _camera, _input_handler, _resource_manager))
+	: _window(), _camera(&_window), _input_handler(), _texture_holder(), 
+	_state_stack(State::Context(_window, _camera, _input_handler, _texture_holder))
 {
 
 }
