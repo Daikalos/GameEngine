@@ -55,8 +55,9 @@ void InputHandler::update()
 		for (uint32_t j = 0; j < sf::Joystick::AxisCount; ++j)
 		{
 			uint32_t k = j + i * sf::Joystick::AxisCount;
+			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(j);
 
-
+			_joystick_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) : 0.0f;
 		}
 	}
 }

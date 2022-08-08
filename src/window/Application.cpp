@@ -4,7 +4,7 @@ using namespace fge;
 
 Application::Application()
 	: _window(), _camera(&_window), _input_handler(), _resource_manager(), 
-	_state_stack(State::Context(_window, _input_handler, _resource_manager))
+	_state_stack(State::Context(_window, _camera, _input_handler, _resource_manager))
 {
 
 }
@@ -16,6 +16,9 @@ Application::~Application()
 
 void Application::run()
 {
+	if (!_window.initialize())
+		return;
+
 	sf::Clock clock;
 	float dt = FLT_EPSILON;
 

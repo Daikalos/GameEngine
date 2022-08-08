@@ -89,6 +89,7 @@
     <ClInclude Include="window\ResourceManager.h" />
     <ClInclude Include="window\States.h" />
     <ClInclude Include="base\Entity.h" />
+    <ClInclude Include="utilities\NonCopyable.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

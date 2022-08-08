@@ -1,9 +1,7 @@
 #pragma once
 
-#include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <stack>
 #include <vector>
 #include <unordered_map>
 #include <functional>
@@ -11,9 +9,11 @@
 #include "State.h"
 #include "States.h"
 
+#include "../utilities/NonCopyable.h"
+
 namespace fge
 {
-	class StateStack : private sf::NonCopyable
+	class StateStack : private NonCopyable
 	{
 	public:
 		enum Action

@@ -8,9 +8,11 @@
 #include <iostream>
 #include <filesystem>
 
+#include "../utilities/NonCopyable.h"
+
 namespace fge
 {
-	class ResourceManager
+	class ResourceManager : private NonCopyable
 	{
 	public:
 		ResourceManager();

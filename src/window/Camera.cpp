@@ -14,9 +14,9 @@ void Camera::update(const InputHandler& input_handler)
 	if (input_handler.get_key_pressed(sf::Keyboard::Key::Space))
 		set_position(sf::Vector2f(_window->getSize() / 2U));
 
-	if (input_handler.get_button_pressed(ButtonName::Drag))
+	if (input_handler.get_button_pressed(Binding::Button::Drag))
 		_dragPos = get_mouse_world_position();
-	if (input_handler.get_button_held(ButtonName::Drag))
+	if (input_handler.get_button_held(Binding::Button::Drag))
 		_position += (_dragPos - get_mouse_world_position());
 
 	setCenter(_position);

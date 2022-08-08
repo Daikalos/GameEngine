@@ -1,5 +1,7 @@
 #include "SpriteBatch.h"
 
+using namespace fge;
+
 SpriteBatch::SpriteBatch()
 {
 

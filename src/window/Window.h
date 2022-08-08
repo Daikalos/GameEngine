@@ -1,13 +1,14 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <SFML/System/NonCopyable.hpp>
+
+#include "../utilities/NonCopyable.h"
 
 namespace fge
 {
 	// allow for toggle fullscreen, change resolution, and other settings
 	//
-	class Window : public sf::RenderWindow, sf::NonCopyable
+	class Window : public sf::RenderWindow, NonCopyable
 	{
 	public:
 		Window();

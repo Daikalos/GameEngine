@@ -8,7 +8,7 @@ namespace fge
 	{
 	public:
 		Sprite();
-		Sprite(const sf::Texture);
+		Sprite(const sf::Texture a);
 
 	private:
 

@@ -6,18 +6,20 @@
 #include <unordered_set>
 #include <string>
 
+#include "../utilities/NonCopyable.h"
+
 namespace fge
 {
-	namespace Bindings
+	namespace Binding
 	{
-		enum Button : uint32_t
+		enum class Button : uint32_t
 		{
 			Drag,
 
 			ButtonBindingCount
 		};
 
-		enum Key : uint32_t
+		enum class Key : uint32_t
 		{
 			Up,
 			Left,
@@ -27,58 +29,99 @@ namespace fge
 			KeyBindingCount
 		};
 
-		namespace Joystick
+		enum class XboxButton : uint32_t
 		{
-			enum XboxButton : uint32_t
-			{
-				A,
-				B,
-				X,
-				Y,
-				LB,
-				RB,
-				Back,
-				Start,
-				L,
-				R,
+			A,
+			B,
+			X,
+			Y,
+			LB,
+			RB,
+			Back,
+			Start,
+			L,
+			R,
 
-				XboxButtonCount
+			XboxButtonCount
+		};
+		enum class PlaystationButton : uint32_t // not checked
+		{
+			A,
+			B,
+			X,
+			Y,
+			LB,
+			RB,
+			Back,
+			Start,
+			L,
+			R,
+
+			Playstation
+		};
+
+		enum class XboxAxis : uint32_t
+		{
+			LX,
+			LY,
+
+			XboxAxisCount
+		};
+		enum class PlaystationAxis : uint32_t
+		{
+
+		};
+
+		struct JoystickButton
+		{
+			JoystickButton(const XboxButton& xbox_button)
+				: _button(static_cast<uint32_t>(xbox_button)) { }
+			JoystickButton(const PlaystationButton& playstation_button)
+				: _button(static_cast<uint32_t>(playstation_button)) { }
+
+			bool operator==(const JoystickButton& other) const
+			{
+				return _button == other._button;
+			}
+
+			struct Hash
+			{
+				uint32_t operator()(const JoystickButton& joystick_button) const
+				{
+					return joystick_button._button;
+				}
 			};
 
-			enum XboxAxis : uint32_t
-			{
-				LX,
-				LY,
+			const uint32_t _button;
+		};
 
-				XboxAxisCount
+		struct JoystickAxis
+		{
+			JoystickAxis(const XboxButton& xbox_axis)
+				: _axis(static_cast<uint32_t>(xbox_axis)) { }
+			JoystickAxis(const PlaystationButton& playstation_axis)
+				: _axis(static_cast<uint32_t>(playstation_axis)) { }
+
+			bool operator==(const JoystickAxis& other) const
+			{
+				return _axis == other._axis;
+			}
+
+			struct Hash
+			{
+				uint32_t operator()(const JoystickAxis& joystick_axis) const
+				{
+					return joystick_axis._axis;
+				}
 			};
 
-			enum PlaystationButton : uint32_t // not checked
-			{
-				A,
-				B,
-				X,
-				Y,
-				LB,
-				RB,
-				Back,
-				Start,
-				L,
-				R,
-
-				Playstation
-			};
-
-			enum PlaystationAxis : uint32_t
-			{
-
-			};
+			const uint32_t _axis;
 		};
 	}
 
 	// translates basic input from keyboard and mouse for more extensible usage
 	//
-	class InputHandler
+	class InputHandler : NonCopyable
 	{
 	public:
 		InputHandler();
@@ -131,41 +174,45 @@ namespace fge
 			return get_joystick_button_pressed(id, button);
 		}
 
-		inline bool get_button_held(const Bindings::Button& bind) const { return _button_bindings.contains(bind) && get_button_held(_button_bindings.at(bind)); }
-		inline bool get_button_pressed(const Bindings::Button& bind) const { return _button_bindings.contains(bind) && get_button_pressed(_button_bindings.at(bind)); }
-		inline bool get_button_released(const Bindings::Button& bind) const { return _button_bindings.contains(bind) && get_button_released(_button_bindings.at(bind)); }
+		inline bool get_button_held(const Binding::Button& bind) const { return _button_bindings.contains(bind) && get_button_held(_button_bindings.at(bind)); }
+		inline bool get_button_pressed(const Binding::Button& bind) const { return _button_bindings.contains(bind) && get_button_pressed(_button_bindings.at(bind)); }
+		inline bool get_button_released(const Binding::Button& bind) const { return _button_bindings.contains(bind) && get_button_released(_button_bindings.at(bind)); }
 
 		inline bool get_scroll_up() const { return _scroll_delta > 0; }
 		inline bool get_scroll_down() const { return _scroll_delta < 0; }
 
-		inline bool get_key_held(const Bindings::Key& bind) const { return _key_bindings.contains(bind) && get_key_held(_key_bindings.at(bind)); }
-		inline bool get_key_pressed(const Bindings::Key& bind) const { return _key_bindings.contains(bind) && get_key_pressed(_key_bindings.at(bind)); }
-		inline bool get_key_released(const Bindings::Key& bind) const { return _key_bindings.contains(bind) && get_key_released(_key_bindings.at(bind)); }
+		inline bool get_key_held(const Binding::Key& bind) const { return _key_bindings.contains(bind) && get_key_held(_key_bindings.at(bind)); }
+		inline bool get_key_pressed(const Binding::Key& bind) const { return _key_bindings.contains(bind) && get_key_pressed(_key_bindings.at(bind)); }
+		inline bool get_key_released(const Binding::Key& bind) const { return _key_bindings.contains(bind) && get_key_released(_key_bindings.at(bind)); }
 
-		inline bool get_joystick_button_held(const uint32_t& id, const uint32_t& name) const
+		inline bool get_joystick_button_held(const uint32_t& id, const Binding::JoystickButton& name) const
 		{ 
-			return _joystick_bindings.contains(name) && get_joystick_button_held(id, _joystick_bindings.at(name));
+			return _joystick_button_bindings.contains(name) && get_joystick_button_held(id, _joystick_button_bindings.at(name));
 		}
-		inline bool get_joystick_button_pressed(const uint32_t& id, const uint32_t& name) const
+		inline bool get_joystick_button_pressed(const uint32_t& id, const Binding::JoystickButton& name) const
 		{
-			return _joystick_bindings.contains(name) && get_joystick_button_pressed(id, _joystick_bindings.at(name));
+			return _joystick_button_bindings.contains(name) && get_joystick_button_pressed(id, _joystick_button_bindings.at(name));
 		}
-		inline bool get_joystick_button_released(const uint32_t& id, const uint32_t& name) const
+		inline bool get_joystick_button_released(const uint32_t& id, const Binding::JoystickButton& name) const
 		{
-			return _joystick_bindings.contains(name) && get_joystick_button_released(id, _joystick_bindings.at(name));
+			return _joystick_button_bindings.contains(name) && get_joystick_button_released(id, _joystick_button_bindings.at(name));
 		}
 
-		void set_key_binding(const Bindings::Key& name, const sf::Keyboard::Key& key)
+		void set_key_binding(const Binding::Key& name, const sf::Keyboard::Key& key)
 		{
 			_key_bindings[name] = key;
 		}
-		void set_button_binding(const Bindings::Button& name, const sf::Mouse::Button& button)
+		void set_button_binding(const Binding::Button& name, const sf::Mouse::Button& button)
 		{
 			_button_bindings[name] = button;
 		}
-		void set_joystick_button_binding(const uint32_t& name, const uint32_t& button)
+		void set_joystick_button_binding(const Binding::JoystickButton& name, const uint32_t& button)
 		{
-			_joystick_bindings[name] = button;
+			_joystick_button_bindings[name] = button;
+		}
+		void set_joystick_axis_binding(const Binding::JoystickAxis& name, const uint32_t& axis)
+		{
+			_joystick_axis_bindings[name] = axis;
 		}
 
 		void set_keyboard_enabled(bool flag)
@@ -202,7 +249,7 @@ namespace fge
 		bool _current_button_joystick_state[sf::Joystick::Count * sf::Joystick::ButtonCount];
 		bool _previous_button_joystick_state[sf::Joystick::Count * sf::Joystick::ButtonCount];
 
-		sf::Vector2i _joystick_axis[sf::Joystick::Count * sf::Joystick::AxisCount];
+		float _joystick_axis[sf::Joystick::Count * sf::Joystick::AxisCount];
 
 		//////////////////////////////////// MISC
 
@@ -210,9 +257,10 @@ namespace fge
 		bool _mouse_enabled;
 		bool _joystick_enabled;
 
-		std::unordered_map<Bindings::Key, sf::Keyboard::Key> _key_bindings;
-		std::unordered_map<Bindings::Button, sf::Mouse::Button> _button_bindings;
-		std::unordered_map<uint32_t, uint32_t> _joystick_bindings;
+		std::unordered_map<Binding::Key, sf::Keyboard::Key> _key_bindings;
+		std::unordered_map<Binding::Button, sf::Mouse::Button> _button_bindings;
+		std::unordered_map<Binding::JoystickButton, uint32_t, Binding::JoystickButton::Hash> _joystick_button_bindings;
+		std::unordered_map<Binding::JoystickAxis, uint32_t, Binding::JoystickAxis::Hash> _joystick_axis_bindings;
 	};
 }
 

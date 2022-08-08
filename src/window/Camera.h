@@ -7,10 +7,11 @@
 #include "Window.h"
 
 #include "../utilities/Vector.h"
+#include "../utilities/NonCopyable.h"
 
 namespace fge
 {
-	class Camera : public sf::View
+	class Camera : public sf::View, NonCopyable
 	{
 	public:
 		Camera() = delete;
