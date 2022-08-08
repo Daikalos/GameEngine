@@ -1,25 +1,24 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <memory>
+
+#include "Component.h"
 
 class Entity // switch to component-based
 {
 public:
-	void set_velocity(sf::Vector2f velocity)
-	{
-		_velocity = velocity;
-	}
-	void set_velocity(float vx, float vy)
-	{
-		_velocity.x = vx;
-		_velocity.y = vy;
-	}
-	sf::Vector2f get_velocity() const
-	{
-		return _velocity;
-	}
+	using ptr = std::unique_ptr<Component>;
+
+public:
+	void update(const float& dt);
+	void handle_event(const sf::Event& event);
+	void draw();
+
+	void add_component(ptr component);
 
 private:
-	sf::Vector2f _velocity;
+	std::vector<ptr> _components;
 };
 

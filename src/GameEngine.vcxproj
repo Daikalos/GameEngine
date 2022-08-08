@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base\Entity.h" />
+    <ClInclude Include="base\Component.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="base\SceneNode.h" />
@@ -163,15 +164,16 @@
     <ClInclude Include="utilities\Utilities.h" />
     <ClInclude Include="utilities\Vector.h" />
     <ClInclude Include="window\Camera.h" />
-    <ClInclude Include="window\States.h" />
+    <ClInclude Include="base\States.h" />
     <ClInclude Include="window\InputHandler.h" />
     <ClInclude Include="window\ResourceHolder.hpp" />
-    <ClInclude Include="window\State.h" />
-    <ClInclude Include="window\StateStack.hpp" />
+    <ClInclude Include="base\State.h" />
+    <ClInclude Include="base\StateStack.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\Entity.cpp" />
+    <ClCompile Include="base\Component.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
     <ClCompile Include="window\Application.cpp" />
@@ -185,8 +187,8 @@
     <ClCompile Include="graphics\Texture.cpp" />
     <ClCompile Include="window\Camera.cpp" />
     <ClCompile Include="window\InputHandler.cpp" />
-    <ClCompile Include="window\State.cpp" />
-    <ClCompile Include="window\StateStack.cpp" />
+    <ClCompile Include="base\State.cpp" />
+    <ClCompile Include="base\StateStack.cpp" />
     <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

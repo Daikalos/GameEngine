@@ -34,14 +34,15 @@
     <ClCompile Include="graphics\Texture.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="window\StateStack.cpp">
+    <ClCompile Include="base\StateStack.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="window\Application.cpp" />
-    <ClCompile Include="window\State.cpp" />
+    <ClCompile Include="base\State.cpp" />
     <ClCompile Include="base\Entity.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
+    <ClCompile Include="base\Component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -80,20 +81,21 @@
     <ClInclude Include="graphics\Texture.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="window\State.h">
+    <ClInclude Include="base\State.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="window\StateStack.hpp">
+    <ClInclude Include="base\StateStack.hpp">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="window\ResourceHolder.hpp" />
-    <ClInclude Include="window\States.h" />
+    <ClInclude Include="base\States.h" />
     <ClInclude Include="base\Entity.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="base\SceneNode.h" />
+    <ClInclude Include="base\Component.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

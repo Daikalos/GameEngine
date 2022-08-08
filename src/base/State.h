@@ -2,10 +2,11 @@
 
 #include <memory>
 
-#include "Window.h"
-#include "Camera.h"
-#include "InputHandler.h"
-#include "ResourceHolder.hpp"
+#include "../window/Window.h"
+#include "../window/Camera.h"
+#include "../window/InputHandler.h"
+#include "../window/ResourceHolder.hpp"
+
 #include "States.h"
 
 namespace fge
