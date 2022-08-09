@@ -16,7 +16,7 @@ Goal is to then to create a game using this engine.
 - InputHandler
 - ResourceHolder
 - SpriteBatch
-- Component-based design
+- ECS design
 - ...
 
 <ins>Estimated Time of Completion</ins>

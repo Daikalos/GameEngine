@@ -152,6 +152,7 @@
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="base\SceneNode.h" />
+    <ClInclude Include="base\System.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="base\Component.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
+    <ClCompile Include="System.cpp" />
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="graphics\Atlas.cpp" />

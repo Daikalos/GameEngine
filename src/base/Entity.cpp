@@ -1,5 +1,7 @@
 #include "Entity.h"
 
+using namespace fge;
+
 void Entity::update(const float& dt)
 {
 	for (unsigned short i = 0; i < _components.size(); ++i)

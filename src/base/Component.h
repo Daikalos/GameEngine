@@ -2,15 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 
-class Component
+namespace fge
 {
-public:
-	virtual void update() = 0;
-	virtual void handle_event(const sf::Event& event) = 0;
-	virtual void draw() = 0;
-
-	virtual size_t get_id() = 0;
-
-private:
-};
+	struct Component // most basic component
+	{
+		sf::Vector2f _position;
+		sf::Vector2f _velocity;
+	};
+}
 
