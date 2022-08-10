@@ -39,11 +39,10 @@
     </ClCompile>
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="base\State.cpp" />
-    <ClCompile Include="base\Entity.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
-    <ClCompile Include="base\Component.cpp" />
-    <ClCompile Include="System.cpp" />
+    <ClCompile Include="ecs\Component.cpp" />
+    <ClCompile Include="ecs\System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -91,13 +90,15 @@
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="window\ResourceHolder.hpp" />
     <ClInclude Include="base\States.h" />
-    <ClInclude Include="base\Entity.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="base\SceneNode.h" />
-    <ClInclude Include="base\Component.h" />
-    <ClInclude Include="base\System.h" />
+    <ClInclude Include="ecs\Component.h" />
+    <ClInclude Include="ecs\System.h" />
+    <ClInclude Include="ecs\Identifiers.h" />
+    <ClInclude Include="ecs\TypeIdGenerator.h" />
+    <ClInclude Include="ecs\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

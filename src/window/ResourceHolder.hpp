@@ -22,7 +22,7 @@ namespace fge
 
 	};
 
-	template <typename Resource, typename Identifier>
+	template <class Resource, class Identifier>
 	class ResourceHolder : private NonCopyable
 	{
 	public:
@@ -34,7 +34,7 @@ namespace fge
 
 		void load(const Identifier& id, const std::string& path);
 
-		template <typename Parameter>
+		template <class Parameter>
 		void load(const Identifier& id, const std::string& path, const Parameter& second_param);
 
 		sf::Texture& get(const Identifier& id);

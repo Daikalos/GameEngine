@@ -6,7 +6,8 @@
 #include "Camera.h"
 #include "InputHandler.h"
 #include "ResourceHolder.hpp"
-#include "StateStack.hpp"
+
+#include "../base/StateStack.hpp"
 
 namespace fge
 {
