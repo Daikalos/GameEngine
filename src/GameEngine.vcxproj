@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ecs\Archetype.h" />
     <ClInclude Include="ecs\Component.h" />
     <ClInclude Include="ecs\Entity.h" />
     <ClInclude Include="ecs\Identifiers.h" />

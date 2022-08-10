@@ -33,13 +33,16 @@ void Application::run()
 		dt = std::fminf(clock.restart().asSeconds(), 0.075f);
 		accumulator += dt;
 
+		_input_handler.update(dt);
+
 		process_input();
 
+		_camera.update(_input_handler);
+
 		ticks = 0;
-		while (accumulator >= dt_per_frame && ticks < death_spiral)
+		while (accumulator >= dt_per_frame && ticks++ < death_spiral)
 		{
 			accumulator -= dt_per_frame;
-			++ticks;
 
 			update(dt_per_frame);
 
@@ -53,8 +56,6 @@ void Application::run()
 
 void Application::process_input()
 {
-	_input_handler.update();
-
 	sf::Event event;
 	while (_window.pollEvent(event))
 	{
@@ -62,8 +63,6 @@ void Application::process_input()
 		_input_handler.handle_event(event);
 		_state_stack.handle_event(event);
 	}
-
-	_camera.update(_input_handler);
 }
 
 void Application::update(const float& dt)

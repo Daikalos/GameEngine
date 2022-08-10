@@ -65,6 +65,9 @@ void InputHandler::update(const float& dt)
 
 			_previous_button_joystick_state[k] = _current_button_joystick_state[k];
 			_current_button_joystick_state[k] = _joystick_enabled && sf::Joystick::isButtonPressed(i, j);
+
+			_joystick_button_held_timer[k] = _current_button_joystick_state[k] ?
+				_joystick_button_held_timer[k] + (_joystick_button_held_timer[k] < _held_threshold ? dt : 0.0f) : 0.0f;
 		}
 
 		for (uint j = 0; j < sf::Joystick::AxisCount; ++j)

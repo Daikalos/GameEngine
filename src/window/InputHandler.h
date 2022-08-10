@@ -9,7 +9,7 @@
 #include "../utilities/NonCopyable.h"
 
 #define KEYBOARDMOUSE_ENABLED 1
-#define JOYSTICK_ENABLED 0
+#define JOYSTICK_ENABLED 1
 
 namespace fge
 {
@@ -144,58 +144,35 @@ namespace fge
 
 	public:
 #if KEYBOARDMOUSE_ENABLED
-		inline bool get_button_held(const sf::Mouse::Button& button) const
-		{
-			return _current_button_state[button] && _button_held_timer[button] >= _held_threshold;
-		}
-		inline bool get_button_pressed(const sf::Mouse::Button& button) const
-		{
-			return _current_button_state[button] && !_previous_button_state[button];
-		}
-		inline bool get_button_released(const sf::Mouse::Button& button) const
-		{
-			return !get_button_pressed(button);
-		}
-
 		inline bool get_scroll_up() const { return _scroll_delta > 0; }
 		inline bool get_scroll_down() const { return _scroll_delta < 0; }
 
-		inline bool get_key_held(const sf::Keyboard::Key& key) const
-		{
-			return _current_key_state[key] && _key_held_timer[key] >= _held_threshold;
-		}
-		inline bool get_key_pressed(const sf::Keyboard::Key& key) const
-		{
-			return _current_key_state[key] && !_previous_key_state[key];
-		}
-		inline bool get_key_released(const sf::Keyboard::Key& key) const
-		{
-			return !get_key_pressed(key);
-		}
+		inline bool get_button_held(const sf::Mouse::Button& button) const { return _current_button_state[button] && _button_held_timer[button] >= _held_threshold; }
+		inline bool get_button_pressed(const sf::Mouse::Button& button) const { return _current_button_state[button] && !_previous_button_state[button]; }
+		inline bool get_button_released(const sf::Mouse::Button& button) const { return !get_button_pressed(button); }
 
 		inline bool get_button_held(const Binding::Button& bind) const { return _button_bindings.contains(bind) && get_button_held(_button_bindings.at(bind)); }
 		inline bool get_button_pressed(const Binding::Button& bind) const { return _button_bindings.contains(bind) && get_button_pressed(_button_bindings.at(bind)); }
 		inline bool get_button_released(const Binding::Button& bind) const { return _button_bindings.contains(bind) && get_button_released(_button_bindings.at(bind)); }
 
+		void set_button_binding(const Binding::Button& name, const sf::Mouse::Button& button) { _button_bindings[name] = button; }
+
+		inline bool get_key_held(const sf::Keyboard::Key& key) const { return _current_key_state[key] && _key_held_timer[key] >= _held_threshold; }
+		inline bool get_key_pressed(const sf::Keyboard::Key& key) const { return _current_key_state[key] && !_previous_key_state[key]; }
+		inline bool get_key_released(const sf::Keyboard::Key& key) const { return !get_key_pressed(key); }
+
 		inline bool get_key_held(const Binding::Key& bind) const { return _key_bindings.contains(bind) && get_key_held(_key_bindings.at(bind)); }
 		inline bool get_key_pressed(const Binding::Key& bind) const { return _key_bindings.contains(bind) && get_key_pressed(_key_bindings.at(bind)); }
 		inline bool get_key_released(const Binding::Key& bind) const { return _key_bindings.contains(bind) && get_key_released(_key_bindings.at(bind)); }
 
-		void set_key_binding(const Binding::Key& name, const sf::Keyboard::Key& key)
-		{
-			_key_bindings[name] = key;
-		}
-		void set_button_binding(const Binding::Button& name, const sf::Mouse::Button& button)
-		{
-			_button_bindings[name] = button;
-		}
+		void set_key_binding(const Binding::Key& name, const sf::Keyboard::Key& key) { _key_bindings[name] = key; }
 #endif
 
 #if JOYSTICK_ENABLED
 		inline bool get_joystick_button_held(const uint& id, const uint& button) const
 		{
 			int index = button + id * sf::Joystick::ButtonCount;
-			return _current_button_joystick_state[index] && _previous_button_joystick_state[index];
+			return _current_button_joystick_state[index] && _joystick_button_held_timer[index] >= _held_threshold;;
 		}
 		inline bool get_joystick_button_pressed(const uint& id, const uint& button) const
 		{
@@ -207,23 +184,11 @@ namespace fge
 			return !get_joystick_button_pressed(id, button);
 		}
 
-		inline float get_joystick_axis(const uint& id, const uint& axis) const
-		{
-			return _joystick_axis[axis + id * sf::Joystick::AxisCount];
-		}
+		inline float get_joystick_axis(const uint& id, const uint& axis) const { return _joystick_axis[axis + id * sf::Joystick::AxisCount]; }
 
-		inline bool get_joystick_button_held(const uint& id, const Binding::JoystickButton& name) const
-		{
-			return _joystick_button_bindings.contains(name) && get_joystick_button_held(id, _joystick_button_bindings.at(name));
-		}
-		inline bool get_joystick_button_pressed(const uint& id, const Binding::JoystickButton& name) const
-		{
-			return _joystick_button_bindings.contains(name) && get_joystick_button_pressed(id, _joystick_button_bindings.at(name));
-		}
-		inline bool get_joystick_button_released(const uint& id, const Binding::JoystickButton& name) const
-		{
-			return _joystick_button_bindings.contains(name) && get_joystick_button_released(id, _joystick_button_bindings.at(name));
-		}
+		inline bool get_joystick_button_held(const uint& id, const Binding::JoystickButton& name) const { return _joystick_button_bindings.contains(name) && get_joystick_button_held(id, _joystick_button_bindings.at(name)); }
+		inline bool get_joystick_button_pressed(const uint& id, const Binding::JoystickButton& name) const { return _joystick_button_bindings.contains(name) && get_joystick_button_pressed(id, _joystick_button_bindings.at(name)); }
+		inline bool get_joystick_button_released(const uint& id, const Binding::JoystickButton& name) const { return _joystick_button_bindings.contains(name) && get_joystick_button_released(id, _joystick_button_bindings.at(name)); }
 
 		inline float get_joystick_axis(const uint& id, const Binding::JoystickAxis& name) const
 		{
@@ -233,30 +198,13 @@ namespace fge
 			return get_joystick_axis(id, _joystick_axis_bindings.at(name));
 		}
 
-		void set_joystick_button_binding(const Binding::JoystickButton& name, const uint& button)
-		{
-			_joystick_button_bindings[name] = button;
-		}
-		void set_joystick_axis_binding(const Binding::JoystickAxis& name, const uint& axis)
-		{
-			_joystick_axis_bindings[name] = axis;
-		}
+		void set_joystick_button_binding(const Binding::JoystickButton& name, const uint& button) { _joystick_button_bindings[name] = button; }
+		void set_joystick_axis_binding(const Binding::JoystickAxis& name, const uint& axis) { _joystick_axis_bindings[name] = axis; }
 #endif
 
-		//////////////////////
-
-		void set_keyboard_enabled(bool flag)
-		{
-			_keyboard_enabled = flag;
-		}
-		void set_mouse_enabled(bool flag)
-		{
-			_mouse_enabled = flag;
-		}
-		void set_joystick_enabled(bool flag)
-		{
-			_joystick_enabled = flag;
-		}
+		void set_keyboard_enabled(bool flag) { _keyboard_enabled = flag; }
+		void set_mouse_enabled(bool flag) { _mouse_enabled = flag; }
+		void set_joystick_enabled(bool flag) { _joystick_enabled = flag; }
 
 	private: // VARIABLES
 
@@ -267,7 +215,6 @@ namespace fge
 		float _held_threshold;
 
 #if KEYBOARDMOUSE_ENABLED
-
 		float _scroll_delta;
 
 		bool _current_button_state[sf::Mouse::ButtonCount];
@@ -280,11 +227,9 @@ namespace fge
 
 		std::unordered_map<Binding::Key, sf::Keyboard::Key> _key_bindings;
 		std::unordered_map<Binding::Button, sf::Mouse::Button> _button_bindings;
-
 #endif
 
 #if JOYSTICK_ENABLED
-
 		std::unordered_set<uint> _available_joysticks;
 
 		bool _current_button_joystick_state[sf::Joystick::Count * sf::Joystick::ButtonCount];

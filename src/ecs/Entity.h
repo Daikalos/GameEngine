@@ -5,6 +5,10 @@
 class Entity
 {
 public:
+	Entity();
+	virtual ~Entity();
+
+
 
 private:
 	EntityID _id;

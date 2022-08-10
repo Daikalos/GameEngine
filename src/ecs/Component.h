@@ -4,10 +4,10 @@
 
 namespace fge
 {
-	struct Component // most basic component
+	struct Component
 	{
-		sf::Vector2f _position;
-		sf::Vector2f _velocity;
+	public:
+
 	};
 }
 

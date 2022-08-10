@@ -99,6 +99,7 @@
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
     <ClInclude Include="ecs\Entity.h" />
+    <ClInclude Include="ecs\Archetype.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
