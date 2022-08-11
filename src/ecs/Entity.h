@@ -2,14 +2,17 @@
 
 #include "Identifiers.h"
 
-class Entity
+namespace fge
 {
-public:
-	Entity();
-	virtual ~Entity();
+	class Entity
+	{
+	public:
+		Entity();
+		virtual ~Entity();
 
 
 
-private:
-	EntityID _id;
-};
+	private:
+		EntityID _id;
+	};
+}

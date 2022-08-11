@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="ecs\Archetype.h" />
     <ClInclude Include="ecs\Component.h" />
+    <ClInclude Include="ecs\ECS.h" />
     <ClInclude Include="ecs\Entity.h" />
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
