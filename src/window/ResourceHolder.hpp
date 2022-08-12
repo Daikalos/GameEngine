@@ -37,8 +37,8 @@ namespace fge
 		template <class Parameter>
 		void load(const Identifier& id, const std::string& path, const Parameter& second_param);
 
-		sf::Texture& get(const Identifier& id);
-		const sf::Texture& get(const Identifier& id) const;
+		Resource& get(const Identifier& id);
+		const Resource& get(const Identifier& id) const;
 
 	private:
 		std::unordered_map<Identifier, ptr> _resources;
@@ -70,13 +70,13 @@ namespace fge
 	}
 
 	template<typename Resource, typename Identifier>
-	sf::Texture& ResourceHolder<Resource, Identifier>::get(const Identifier& id)
+	Resource& ResourceHolder<Resource, Identifier>::get(const Identifier& id)
 	{
 		return get(id);
 	}
 
 	template<typename Resource, typename Identifier>
-	const sf::Texture& ResourceHolder<Resource, Identifier>::get(const Identifier& name) const
+	const Resource& ResourceHolder<Resource, Identifier>::get(const Identifier& name) const
 	{
 		auto it = _resources.find(name);
 		assert(it != _resources.end());
