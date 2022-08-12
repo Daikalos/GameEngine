@@ -2,8 +2,11 @@
 
 using namespace fge;
 
-Application::Application()
-	: _window(), _camera(&_window), _input_handler(), _texture_holder(), 
+Application::Application(std::string name)
+	: _window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), false, 200), 
+	_camera(&_window), 
+	_input_handler(), 
+	_texture_holder(), 
 	_state_stack(State::Context(_window, _camera, _input_handler, _texture_holder))
 {
 
@@ -16,8 +19,7 @@ Application::~Application()
 
 void Application::run()
 {
-	if (!_window.initialize())
-		return;
+	_window.initialize();
 
 	sf::Clock clock;
 	float dt = FLT_EPSILON;

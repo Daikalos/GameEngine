@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <vector>
 
 #include "Identifiers.h"
 #include "Archetype.h"
@@ -8,6 +9,8 @@
 
 namespace fge
 {
+	class SystemBase;
+
 	class ECS
 	{
 	private:
@@ -20,7 +23,7 @@ namespace fge
 		using CompnentTypeIDBaseMap = std::unordered_map<ComponentTypeID, ComponentBase*>;
 		using EntityArchetypeMap = std::unordered_map<EntityID, Record>;				   
 		using ArchetypesArray = std::vector<Archetype*>;								   // find matching archetype to update matching entities
-		using SystemsArrayMap = std::unordered_map<std::uint8_t, std::vector<SystemBase>>; // map layer to array of systems (layer allows for controlling the order of calls)
+		using SystemsArrayMap = std::unordered_map<std::uint8_t, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
 
 	public:
 		ECS();

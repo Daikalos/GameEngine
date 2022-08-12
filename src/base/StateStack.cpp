@@ -1,4 +1,4 @@
-#include "StateStack.hpp"
+#include "StateStack.h"
 
 using namespace fge;
 

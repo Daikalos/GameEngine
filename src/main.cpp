@@ -2,7 +2,7 @@
 
 int main()
 {
-	fge::Application application;
+	fge::Application application("Game Engine");
 	application.run();
 
 	return 0;

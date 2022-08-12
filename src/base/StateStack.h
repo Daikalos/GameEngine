@@ -38,18 +38,9 @@ namespace fge
 		void pop();
 		void clear();
 
-		bool is_empty() const
-		{
-			return _stack.empty();
-		}
-		bool is_paused() const
-		{
-			return _is_paused;
-		}
-		void set_is_paused(bool flag)
-		{
-			_is_paused = flag;
-		}
+		bool is_empty() const { return _stack.empty(); }
+		bool is_paused() const { return _is_paused; }
+		void set_is_paused(bool flag) { _is_paused = flag; }
 
 	private:
 		State::ptr create_state(const States::ID& state_id);

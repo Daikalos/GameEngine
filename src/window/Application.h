@@ -7,14 +7,14 @@
 #include "InputHandler.h"
 #include "ResourceHolder.hpp"
 
-#include "../base/StateStack.hpp"
+#include "../base/StateStack.h"
 
 namespace fge
 {
 	class Application
 	{
 	public:
-		Application();
+		Application(std::string name);
 		~Application();
 
 		void run();

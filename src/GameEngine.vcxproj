@@ -173,7 +173,7 @@
     <ClInclude Include="window\InputHandler.h" />
     <ClInclude Include="window\ResourceHolder.hpp" />
     <ClInclude Include="base\State.h" />
-    <ClInclude Include="base\StateStack.hpp" />
+    <ClInclude Include="base\StateStack.h" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>

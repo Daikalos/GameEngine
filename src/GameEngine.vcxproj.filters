@@ -84,7 +84,7 @@
     <ClInclude Include="base\State.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="base\StateStack.hpp">
+    <ClInclude Include="base\StateStack.h">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Application.h" />
