@@ -4,7 +4,6 @@
 #include <SFML/OpenGL.hpp>
 
 #include "InputHandler.h"
-#include "Window.h"
 
 #include "../utilities/Vector.h"
 #include "../utilities/NonCopyable.h"
@@ -14,52 +13,58 @@ namespace fge
 	class Camera : public sf::View, NonCopyable
 	{
 	public:
-		Camera() = delete;
-		Camera(const Window* window);
+		Camera() : _position(0, 0), _scale(1, 1), _size(0, 0), _dragPos(0, 0) {}
+		~Camera() {}
 
 		// call after poll event
 		//
-		void update(const InputHandler& input_handler);
+		void update(const InputHandler& input_handler, const sf::RenderWindow& window);
+		void handle_event(const sf::Event& event);
 
-		template<typename T> sf::Vector2<T> view_to_world(const sf::Vector2<T>& position) const
+	public:
+		template<typename T> 
+		sf::Vector2<T> view_to_world(const sf::Vector2<T>& position) const
 		{
 			return sf::Vector2<T>(get_view_matrix() * position);
 		}
 
-	public:
-		inline const float* get_world_matrix() const
-		{
-			return sf::Transform()
-				.translate(sf::Vector2f(_window->getSize()) / 2.0f)
-				.scale(_scale)
-				.translate(sf::Vector2f(-_position)).getMatrix();
-		}
-		inline sf::Transform get_view_matrix() const
+		sf::Transform get_view_matrix() const
 		{
 			return sf::Transform()
 				.translate(sf::Vector2f(_position))
 				.scale(sf::Vector2f(1.0f / _scale.x, 1.0f / _scale.y))
-				.translate(sf::Vector2f(_window->getSize()) / -2.0f);
+				.translate(_size / -2.0f);
 		}
 
-		inline sf::Vector2f get_position() const { return _position; }
-		inline sf::Vector2f get_mouse_world_position() const { return view_to_world(sf::Vector2f(sf::Mouse::getPosition(*_window))); }
+		sf::Vector2f get_mouse_world_position(const sf::RenderWindow& window) const { return view_to_world(sf::Vector2f(sf::Mouse::getPosition(window))); }
 
-		inline void set_position(sf::Vector2f position)
+		sf::Vector2f get_position() const { return _position; }
+		sf::Vector2f get_scale() const { return _scale; }
+		sf::Vector2f get_size() const { return _size; }
+
+		void set_position(sf::Vector2f position)
 		{
+			setCenter(_position);
 			_position = position;
 		}
-		inline void set_scale(float scale)
+		void set_scale(sf::Vector2f scale)
 		{
-			_scale.x = scale;
-			_scale.y = scale;
+			setSize(_size * (1.0f / scale));
+			_scale = scale;
+		}
+		void set_size(sf::Vector2f size) 
+		{ 
+			_size = size;
+			setSize(_size);
 		}
 
 	private:
-		const Window* _window;
+		void set_letterbox_view(int width, int height);
 
+	private:
 		sf::Vector2f _position;
 		sf::Vector2f _scale;
+		sf::Vector2f _size;
 
 		sf::Vector2f _dragPos;
 	};

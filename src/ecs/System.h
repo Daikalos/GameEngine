@@ -6,9 +6,11 @@
 #include "Archetype.h"
 #include "ECS.h"
 
+#include "../utilities/NonCopyable.h"
+
 namespace fge
 {
-	class SystemBase
+	class SystemBase : private NonCopyable
 	{
 	public:
 		virtual ~SystemBase() {}

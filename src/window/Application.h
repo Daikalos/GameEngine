@@ -22,13 +22,13 @@ namespace fge
 	private:
 		void process_input();
 		void update(const float& dt);
-		void draw();
+		void draw(float interp);
 		
 		void register_states();
 
 	private:
-		Window _window;
 		Camera _camera;
+		Window _window;
 		InputHandler _input_handler;
 		TextureHolder _texture_holder;
 		StateStack _state_stack;
