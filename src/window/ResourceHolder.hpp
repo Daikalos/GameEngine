@@ -26,7 +26,7 @@ namespace fge
 	class ResourceHolder : private NonCopyable
 	{
 	public:
-		using ptr = std::unique_ptr<Resource>;
+		using ResourcePtr = std::unique_ptr<Resource>;
 
 	public:
 		ResourceHolder() { }
@@ -41,13 +41,13 @@ namespace fge
 		const Resource& get(const Identifier& id) const;
 
 	private:
-		std::unordered_map<Identifier, ptr> _resources;
+		std::unordered_map<Identifier, ResourcePtr> _resources;
 	};
 
 	template<typename Resource, typename Identifier>
 	void ResourceHolder<Resource, Identifier>::load(const Identifier& id, const std::string& path)
 	{
-		std::unique_ptr<Resource> resource(new Resource());
+		ResourcePtr resource(new Resource());
 
 		if (!resource->loadFromFile(path))
 			throw std::runtime_error("resource does not exist at " + path);
@@ -60,7 +60,7 @@ namespace fge
 	template<typename Parameter>
 	void ResourceHolder<Resource, Identifier>::load(const Identifier& id, const std::string& path, const Parameter& second_param)
 	{
-		std::unique_ptr<Resource> resource(new Resource());
+		ResourcePtr resource(new Resource());
 
 		if (!resource->loadFromFile(path, second_param))
 			throw std::runtime_error("resource does not exist at " + path);

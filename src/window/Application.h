@@ -7,6 +7,7 @@
 #include "InputHandler.h"
 #include "ResourceHolder.hpp"
 
+#include "../ecs/ECS.hpp"
 #include "../base/StateStack.h"
 
 namespace fge
@@ -14,14 +15,14 @@ namespace fge
 	class Application
 	{
 	public:
-		Application(std::string name);
+		Application(const std::string& name);
 		~Application();
 
 		void run();
 
 	private:
 		void process_input();
-		void update(const float& dt);
+		void update(float dt);
 		void draw(float interp);
 		
 		void register_states();

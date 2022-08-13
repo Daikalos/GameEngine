@@ -4,18 +4,19 @@
 
 #include "Identifiers.h"
 #include "Archetype.h"
-#include "ECS.h"
 
 #include "../utilities/NonCopyable.h"
 
 namespace fge
 {
+	class ECS;
+
 	class SystemBase : private NonCopyable
 	{
 	public:
 		virtual ~SystemBase() {}
 		virtual ArchetypeID get_key() const = 0;
-		virtual void update(const float& dt, Archetype* archetype) = 0;
+		virtual void update(float dt, Archetype* archetype) = 0;
 	};
 
 	template<class... Args>
@@ -44,6 +45,19 @@ namespace fge
 		: _ecs(&ecs), _func(), _func_set(false)
 	{
 		//_ecs.register_system(layer, this);
+	}
+
+	template<class... Ts>
+	ArchetypeID sort_keys(ArchetypeID types)
+	{
+		std::sort(types.begin(), types.end());
+		return types;
+	}
+
+	template<class... Ts>
+	inline ArchetypeID System<Ts...>::get_key() const
+	{
+		return sort_keys({{ Component<Ts>::get_type_id()... }});
 	}
 
 	template<class ...Args>

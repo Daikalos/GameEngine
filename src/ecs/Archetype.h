@@ -1,10 +1,12 @@
 #pragma once
 
+#include <memory>
+
 #include "Identifiers.h"
 
 namespace fge
 {
-	using ComponentData = unsigned char*;
+	using ComponentData = std::shared_ptr<unsigned char>;
 
 	struct Archetype // an archetype for every unique list of components for an entity
 	{

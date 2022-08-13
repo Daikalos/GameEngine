@@ -42,7 +42,7 @@ namespace fge
 			return dir.x * dir.x + dir.y * dir.y;
 		}
 
-		static constexpr sf::Vector2<T> normalize(sf::Vector2<T> vector, const float& radius = 1.0f)
+		static constexpr sf::Vector2<T> normalize(sf::Vector2<T> vector, float radius = 1.0f)
 		{
 			float len = length(vector);
 
@@ -54,14 +54,14 @@ namespace fge
 
 			return vector;
 		}
-		static constexpr sf::Vector2<T> limit(const sf::Vector2<T>& vector, const float& maxLength)
+		static constexpr sf::Vector2<T> limit(const sf::Vector2<T>& vector, float maxLength)
 		{
 			if (length(vector) > maxLength)
 				return normalize(vector, maxLength);
 
 			return vector;
 		}
-		static constexpr sf::Vector2<T> min(const sf::Vector2<T>& vector, const float& minLength)
+		static constexpr sf::Vector2<T> min(const sf::Vector2<T>& vector, float minLength)
 		{
 			if (length(vector) < minLength)
 				return normalize(vector, minLength);
@@ -72,7 +72,7 @@ namespace fge
 		{
 			return sf::Vector2<T>(to.x - from.x, to.y - from.y);
 		}
-		static constexpr sf::Vector2<T> rotate_point(const sf::Vector2<T>& point, const sf::Vector2<T>& center, const float& angle)
+		static constexpr sf::Vector2<T> rotate_point(const sf::Vector2<T>& point, const sf::Vector2<T>& center, float angle)
 		{
 			sf::Vector2<T> dir = direction(center, point);
 

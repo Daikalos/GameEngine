@@ -2,7 +2,7 @@
 
 using namespace fge;
 
-void StateStack::update(const float& dt)
+void StateStack::update(float dt)
 {
 	for (auto it = _stack.rbegin(); it != _stack.rend(); ++it)
 	{

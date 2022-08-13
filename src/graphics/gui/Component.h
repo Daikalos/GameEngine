@@ -47,7 +47,7 @@ namespace fge
 
 			virtual void capture_mouse_when_active() { }
 
-			virtual bool update(const float& dt) { return true; }
+			virtual bool update(float dt) { return true; }
 			virtual void handle_event(const sf::Event& event) = 0;
 			virtual bool draw() { return true; }
 

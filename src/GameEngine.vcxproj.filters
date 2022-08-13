@@ -42,7 +42,6 @@
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
     <ClCompile Include="ecs\Component.cpp" />
-    <ClCompile Include="ecs\System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -95,12 +94,12 @@
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="base\SceneNode.h" />
     <ClInclude Include="ecs\Component.h" />
-    <ClInclude Include="ecs\System.h" />
+    <ClInclude Include="ecs\System.hpp" />
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
-    <ClInclude Include="ecs\Entity.h" />
+    <ClInclude Include="ecs\Entity.hpp" />
     <ClInclude Include="ecs\Archetype.h" />
-    <ClInclude Include="ecs\ECS.h" />
+    <ClInclude Include="ecs\ECS.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

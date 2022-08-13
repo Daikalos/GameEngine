@@ -149,14 +149,14 @@
   <ItemGroup>
     <ClInclude Include="ecs\Archetype.h" />
     <ClInclude Include="ecs\Component.h" />
-    <ClInclude Include="ecs\ECS.h" />
-    <ClInclude Include="ecs\Entity.h" />
+    <ClInclude Include="ecs\ECS.hpp" />
+    <ClInclude Include="ecs\Entity.hpp" />
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="base\SceneNode.h" />
-    <ClInclude Include="ecs\System.h" />
+    <ClInclude Include="ecs\System.hpp" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
@@ -180,7 +180,6 @@
     <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
-    <ClCompile Include="ecs\System.cpp" />
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="graphics\Atlas.cpp" />

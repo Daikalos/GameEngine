@@ -43,6 +43,8 @@ namespace fge
 		void set_cursor_state(bool flag);
 
 	public:
+		// only gets modes that match the aspect ratio of the desktop
+		//
 		std::vector<sf::VideoMode> get_modes() const;
 
 	private:

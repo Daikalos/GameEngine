@@ -2,7 +2,7 @@
 
 using namespace fge;
 
-Application::Application(std::string name)
+Application::Application(const std::string& name)
 	: _camera(), 
 	_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200, _camera),
 	_input_handler(), 
@@ -83,7 +83,7 @@ void Application::process_input()
 	}
 }
 
-void Application::update(const float& dt)
+void Application::update(float dt)
 {
 	_state_stack.update(dt);
 }

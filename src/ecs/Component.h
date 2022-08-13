@@ -19,10 +19,11 @@ namespace fge
 		virtual std::size_t get_size() const = 0;
 	};
 
-	template<class T>
+	template<class C>
 	class Component : public ComponentBase
 	{
 	public:
+
 		virtual void construct_data(unsigned char* data) const override;
 		virtual void destroy_data(unsigned char* data) const override;
 		virtual void move_data(unsigned char* source, unsigned char* destination) const override;

@@ -4,7 +4,7 @@
 
 namespace fge
 {
-	template<class T>
+	template<class C>
 	class TypeIdGenerator // maybe look at re-using IDs
 	{
 	private:
@@ -19,6 +19,6 @@ namespace fge
 		}
 	};
 
-	template<class T>
-	IDType TypeIdGenerator<T>::_count = 0;
+	template<class C>
+	IDType TypeIdGenerator<C>::_count = 0;
 }

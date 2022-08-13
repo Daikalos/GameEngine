@@ -27,10 +27,10 @@ namespace fge
 		explicit StateStack(State::Context context)
 			: _context(context) { }
 
-		template<typename T, typename... Args>
+		template<class T, typename... Args>
 		void register_state(const States::ID& state_id, const Args&&... args);
 
-		void update(const float& dt);
+		void update(float dt);
 		void draw();
 		void handle_event(const sf::Event& event);
 
@@ -66,7 +66,7 @@ namespace fge
 		bool _is_paused{false};
 	};
 
-	template<typename T, typename... Args>
+	template<class T, typename... Args>
 	void StateStack::register_state(const States::ID& state_id, const Args&&... args)
 	{
 		_factories[state_id] = [this]()

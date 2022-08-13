@@ -36,7 +36,7 @@ namespace fge
 
 		virtual ~State() {}
 
-		virtual bool update(const float& dt) = 0;
+		virtual bool update(float dt) = 0;
 		virtual bool handle_event(const sf::Event& event) = 0;
 		virtual void draw() = 0;
 

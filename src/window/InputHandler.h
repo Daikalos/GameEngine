@@ -139,7 +139,7 @@ namespace fge
 
 		// call at start of loop before poll event
 		//
-		void update(const float& dt);
+		void update(float dt);
 		void handle_event(const sf::Event& event);
 
 	public:
