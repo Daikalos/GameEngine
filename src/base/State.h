@@ -16,18 +16,18 @@ namespace fge
 	class State
 	{
 	public:
-		typedef std::unique_ptr<State> ptr;
+		using ptr = std::unique_ptr<State>;
 
 		struct Context // holds vital objects
 		{
-			Context(Window& window, Camera& camera, InputHandler& input_handler, TextureHolder& texture_holder)
-				: _window(&window), _camera(&camera), _input_handler(&input_handler), _texture_holder(&texture_holder) { }
+			Context(Window& window, Camera& camera, InputHandler& input_handler, TextureHolder& texture_holder, FontHolder& font_holder)
+				: _window(&window), _camera(&camera), _input_handler(&input_handler), _texture_holder(&texture_holder), _font_holder(&font_holder) { }
 
 			Window* _window;
 			Camera* _camera;
-
-			const InputHandler* _input_handler;
-			const TextureHolder* _texture_holder;
+			InputHandler* _input_handler;
+			TextureHolder* _texture_holder;
+			FontHolder* _font_holder;
 		};
 
 	public:
@@ -36,14 +36,20 @@ namespace fge
 
 		virtual ~State() {}
 
-		virtual bool update(float dt) = 0;
 		virtual bool handle_event(const sf::Event& event) = 0;
+
+		virtual bool pre_update(float dt)					{ return true; }
+		virtual bool update(float dt) = 0;
+		virtual bool fixed_update(float dt)					{ return true; }
+		virtual bool post_update(float dt, float interp)	{ return true; }
+
 		virtual void draw() = 0;
 
-		virtual void on_activate();
-		virtual void on_destroy();
-		virtual void is_paused();
-		virtual void set_paused(bool flag);
+		virtual void on_activate()	{}
+		virtual void on_destroy()	{}
+
+		virtual bool is_paused() const		{ _state_stack->is_paused(); }
+		virtual void set_paused(bool flag)	{ _state_stack->set_paused(flag); }
 
 	protected:
 		void request_stack_push(States::ID state_id);

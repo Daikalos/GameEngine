@@ -22,8 +22,13 @@ namespace fge
 
 	private:
 		void process_input();
+
+		void pre_update(float dt);
 		void update(float dt);
-		void draw(float interp);
+		void fixed_update(float dt);
+		void post_update(float dt, float interp);
+
+		void draw();
 		
 		void register_states();
 

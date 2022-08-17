@@ -28,11 +28,16 @@ namespace fge
 			: _context(context) { }
 
 		template<class T, typename... Args>
-		void register_state(const States::ID& state_id, const Args&&... args);
+		void register_state(const States::ID& state_id, Args&&... args);
 
-		void update(float dt);
-		void draw();
 		void handle_event(const sf::Event& event);
+
+		void pre_update(float dt);
+		void update(float dt);
+		void fixed_update(float dt);
+		void post_update(float dt, float interp);
+
+		void draw();
 
 		void push(const States::ID& state_id);
 		void pop();
@@ -40,7 +45,7 @@ namespace fge
 
 		bool is_empty() const { return _stack.empty(); }
 		bool is_paused() const { return _is_paused; }
-		void set_is_paused(bool flag) { _is_paused = flag; }
+		void set_paused(bool flag) { _is_paused = flag; }
 
 	private:
 		State::ptr create_state(const States::ID& state_id);
@@ -67,11 +72,11 @@ namespace fge
 	};
 
 	template<class T, typename... Args>
-	void StateStack::register_state(const States::ID& state_id, const Args&&... args)
+	void StateStack::register_state(const States::ID& state_id, Args&&... args)
 	{
-		_factories[state_id] = [this]()
+		_factories[state_id] = [this, &args...]()
 		{
-			return State::ptr(new T(*this, _context, args));
+			return State::ptr(new T(*this, _context, std::forward<Args>(args)...));
 		};
 	}
 }

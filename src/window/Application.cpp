@@ -41,16 +41,23 @@ void Application::run()
 
 		_camera.update(_input_handler, _window);
 
+		pre_update(dt);
+
+		update(dt);
+
 		ticks = 0;
 		while (accumulator >= dt_per_frame && ticks++ < death_spiral)
 		{
 			accumulator -= dt_per_frame;
 
-			update(dt_per_frame);
-
-			//if (_state_stack.is_empty())
-			//	_window.close();
+			fixed_update(dt_per_frame);
 		}
+
+		float interp = accumulator / dt_per_frame;
+		post_update(dt, interp);
+
+		//if (_state_stack.is_empty())
+		//	_window.close();
 
 		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num1))
 			_window.set_border(WindowBorder::Windowed);
@@ -64,9 +71,7 @@ void Application::run()
 		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num5))
 			_window.set_resolution(2);
 
-		float interp = accumulator / dt_per_frame;
-
-		draw(interp);
+		draw();
 	}
 }
 
@@ -83,12 +88,27 @@ void Application::process_input()
 	}
 }
 
+void Application::pre_update(float dt)
+{
+	_state_stack.pre_update(dt);
+}
+
 void Application::update(float dt)
 {
 	_state_stack.update(dt);
 }
 
-void Application::draw(float interp)
+void Application::fixed_update(float dt)
+{
+	_state_stack.fixed_update(dt);
+}
+
+void Application::post_update(float dt, float interp)
+{
+	_state_stack.post_update(dt, interp);
+}
+
+void Application::draw()
 {
 	_window.clear();
 	_window.setView(_camera);

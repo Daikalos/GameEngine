@@ -7,31 +7,13 @@
     <ClCompile Include="ExceptionHandler.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\Sprite.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\Atlas.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\Batch.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="window\Camera.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="window\InputHandler.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\SpriteBatch.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\TextureAtlas.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="window\Window.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\Texture.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="base\StateStack.cpp">
@@ -42,15 +24,10 @@
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="base\SceneNode.cpp" />
     <ClCompile Include="ecs\Component.cpp" />
+    <ClCompile Include="graphics\SpriteBatch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\Atlas.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\Batch.h">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Camera.h">
@@ -59,25 +36,10 @@
     <ClInclude Include="window\InputHandler.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\SpriteBatch.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\TextureAtlas.h">
-      <Filter>header</Filter>
-    </ClInclude>
     <ClInclude Include="window\Window.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\Sprite.h">
-      <Filter>header</Filter>
-    </ClInclude>
     <ClInclude Include="utilities\Utilities.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="utilities\Vector.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\Texture.h">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="base\State.h">
@@ -100,6 +62,10 @@
     <ClInclude Include="ecs\Entity.hpp" />
     <ClInclude Include="ecs\Archetype.h" />
     <ClInclude Include="ecs\ECS.hpp" />
+    <ClInclude Include="graphics\SpriteBatch.h" />
+    <ClInclude Include="Utilities.hpp" />
+    <ClInclude Include="utilities\Rectangle.hpp" />
+    <ClInclude Include="utilities\VectorUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

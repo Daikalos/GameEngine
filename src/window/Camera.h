@@ -5,7 +5,7 @@
 
 #include "InputHandler.h"
 
-#include "../utilities/Vector.h"
+#include "../utilities/VectorUtilities.h"
 #include "../utilities/NonCopyable.h"
 
 namespace fge
@@ -31,8 +31,8 @@ namespace fge
 		sf::Transform get_view_matrix() const
 		{
 			return sf::Transform()
-				.translate(sf::Vector2f(_position))
-				.scale(sf::Vector2f(1.0f / _scale.x, 1.0f / _scale.y))
+				.translate(_position)
+				.scale(1.0f / _scale)
 				.translate(_size / -2.0f);
 		}
 

@@ -5,5 +5,5 @@ int main()
 	fge::Application application("Game Engine");
 	application.run();
 
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -2,11 +2,38 @@
 
 using namespace fge;
 
+void StateStack::pre_update(float dt)
+{
+	for (auto it = _stack.rbegin(); it != _stack.rend(); ++it)
+	{
+		if (!(*it)->pre_update(dt))
+			break;
+	}
+}
+
 void StateStack::update(float dt)
 {
 	for (auto it = _stack.rbegin(); it != _stack.rend(); ++it)
 	{
 		if (!(*it)->update(dt))
+			break;
+	}
+}
+
+void StateStack::fixed_update(float dt)
+{
+	for (auto it = _stack.rbegin(); it != _stack.rend(); ++it)
+	{
+		if (!(*it)->fixed_update(dt))
+			break;
+	}
+}
+
+void StateStack::post_update(float dt, float interp)
+{
+	for (auto it = _stack.rbegin(); it != _stack.rend(); ++it)
+	{
+		if (!(*it)->post_update(dt, interp))
 			break;
 	}
 
