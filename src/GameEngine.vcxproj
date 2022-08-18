@@ -155,13 +155,8 @@
     <ClInclude Include="ecs\TypeIdGenerator.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
-    <ClInclude Include="scene\SceneNode.h" />
     <ClInclude Include="ecs\System.hpp" />
     <ClInclude Include="graphics\SpriteBatch.h" />
-    <ClInclude Include="scene\SceneNode.h" />
-    <ClInclude Include="scene\State.h" />
-    <ClInclude Include="scene\States.h" />
-    <ClInclude Include="scene\StateStack.h" />
     <ClInclude Include="Utilities.hpp" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="utilities\Random.h" />
@@ -172,22 +167,20 @@
     <ClInclude Include="utilities\Utilities.h" />
     <ClInclude Include="window\Camera.h" />
     <ClInclude Include="scene\States.h" />
+	<ClInclude Include="scene\State.h" />
+    <ClInclude Include="scene\StateStack.h" />
+	<ClInclude Include="scene\SceneNode.h" />
+    <ClInclude Include="window\CameraBehaviour.hpp" />
     <ClInclude Include="window\CameraDrag.h" />
     <ClInclude Include="window\InputHandler.h" />
     <ClInclude Include="graphics\ResourceHolder.hpp" />
-    <ClInclude Include="scene\State.h" />
-    <ClInclude Include="scene\StateStack.h" />
     <ClInclude Include="utilities\Time.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
-    <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
-    <ClCompile Include="scene\SceneNode.cpp" />
-    <ClCompile Include="scene\State.cpp" />
-    <ClCompile Include="scene\StateStack.cpp" />
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="main.cpp" />
@@ -196,6 +189,7 @@
     <ClCompile Include="window\InputHandler.cpp" />
     <ClCompile Include="scene\State.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
+	<ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
