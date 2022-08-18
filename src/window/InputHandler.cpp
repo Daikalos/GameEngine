@@ -3,100 +3,113 @@
 using namespace fge;
 
 InputHandler::InputHandler()
-	: _mouse_enabled(true), _keyboard_enabled(true), _joystick_enabled(false), _held_threshold(0.1f)
+	: m_mouse_enabled(true), m_keyboard_enabled(true), m_joystick_enabled(false), m_held_threshold(0.1f)
 {
 #if KEYBOARDMOUSE_ENABLED
-	_scroll_delta = 0.0f;
+	m_scroll_delta = 0.0f;
 
-	memset(_current_button_state, false, sizeof(_current_button_state));
-	memset(_previous_button_state, false, sizeof(_previous_button_state));
+	memset(m_current_button_state, false, sizeof(m_current_button_state));
+	memset(m_previous_button_state, false, sizeof(m_previous_button_state));
 
-	memset(_current_key_state, false, sizeof(_current_key_state));
-	memset(_previous_key_state, false, sizeof(_previous_key_state));
+	memset(m_current_key_state, false, sizeof(m_current_key_state));
+	memset(m_previous_key_state, false, sizeof(m_previous_key_state));
 #endif
 
 #if JOYSTICK_ENABLED
-	memset(_current_button_joystick_state, false, sizeof(_current_button_joystick_state));
-	memset(_previous_button_joystick_state, false, sizeof(_previous_button_joystick_state));
+	memset(m_current_button_joystick_state, false, sizeof(m_current_button_joystick_state));
+	memset(m_previous_button_joystick_state, false, sizeof(m_previous_button_joystick_state));
 
-	_available_joysticks.reserve(sf::Joystick::Count);
+	m_available_joysticks.rehash(sf::Joystick::Count);
 
 	for (int i = 0; i < sf::Joystick::Count; ++i) // add already available joysticks
 		if (sf::Joystick::isConnected(i))
-			_available_joysticks.insert(i);
+			m_available_joysticks.insert(i);
 #endif
 }
 
-InputHandler::~InputHandler()
-{
-
-}
-
-void InputHandler::update(float dt)
+void InputHandler::Update(const Time& time)
 {
 #if KEYBOARDMOUSE_ENABLED
-	_scroll_delta = 0.0f;
+	m_scroll_delta = 0.0f;
 
 	for (uint i = 0; i < sf::Mouse::ButtonCount; ++i)
 	{
-		_previous_button_state[i] = _current_button_state[i];
-		_current_button_state[i] = _mouse_enabled && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
+		m_previous_button_state[i] = m_current_button_state[i];
+		m_current_button_state[i] = m_mouse_enabled && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
 
-		_button_held_timer[i] = _current_button_state[i] ? 
-			_button_held_timer[i] + (_button_held_timer[i] < _held_threshold ? dt : 0.0f) : 0.0f;
+		m_button_held_timer[i] = m_current_button_state[i] ? 
+			m_button_held_timer[i] + (m_button_held_timer[i] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
 	}
 
 	for (uint i = 0; i < sf::Keyboard::KeyCount; ++i)
 	{
-		_previous_key_state[i] = _current_key_state[i];
-		_current_key_state[i] = _keyboard_enabled && sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
+		m_previous_key_state[i] = m_current_key_state[i];
+		m_current_key_state[i] = m_keyboard_enabled && sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
 
-		_key_held_timer[i] = _current_key_state[i] ? 
-			_key_held_timer[i] + (_key_held_timer[i] < _held_threshold ? dt : 0.0f) : 0.0f;
+		m_key_held_timer[i] = m_current_key_state[i] ? 
+			m_key_held_timer[i] + (m_key_held_timer[i] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
 	}
 #endif
 
 #if JOYSTICK_ENABLED
-	for (const uint& i : _available_joysticks)
+	for (const uint& i : m_available_joysticks)
 	{
 		for (uint j = 0; j < sf::Joystick::getButtonCount(i); ++j)
 		{
 			uint k = j + i * sf::Joystick::ButtonCount;
 
-			_previous_button_joystick_state[k] = _current_button_joystick_state[k];
-			_current_button_joystick_state[k] = _joystick_enabled && sf::Joystick::isButtonPressed(i, j);
+			m_previous_button_joystick_state[k] = m_current_button_joystick_state[k];
+			m_current_button_joystick_state[k] = m_joystick_enabled && sf::Joystick::isButtonPressed(i, j);
 
-			_joystick_button_held_timer[k] = _current_button_joystick_state[k] ?
-				_joystick_button_held_timer[k] + (_joystick_button_held_timer[k] < _held_threshold ? dt : 0.0f) : 0.0f;
+			m_joystick_button_held_timer[k] = m_current_button_joystick_state[k] ?
+				m_joystick_button_held_timer[k] + (m_joystick_button_held_timer[k] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
 		}
 
 		for (uint j = 0; j < sf::Joystick::AxisCount; ++j)
 		{
 			uint k = j + i * sf::Joystick::AxisCount;
-			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(j);
 
-			_joystick_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) : 0.0f;
+			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(j);
+			m_joystick_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) : 0.0f;
 		}
 	}
 #endif
 }
 
-void InputHandler::handle_event(const sf::Event& event)
+void InputHandler::HandleEvent(const sf::Event& event)
 {
 	switch (event.type)
 	{
 #if KEYBOARDMOUSE_ENABLED
 	case sf::Event::MouseWheelScrolled:
-		_scroll_delta = event.mouseWheelScroll.delta;
+		m_scroll_delta = event.mouseWheelScroll.delta;
 		break;
 #endif
 
 #if JOYSTICK_ENABLED
 	case sf::Event::JoystickConnected:
-		_available_joysticks.insert(event.joystickConnect.joystickId);
+		m_available_joysticks.insert(event.joystickConnect.joystickId);
 		break;
 	case sf::Event::JoystickDisconnected:
-		_available_joysticks.erase(event.joystickConnect.joystickId);
+		{
+			for (uint i = 0; i < sf::Joystick::ButtonCount; ++i) // be sure to set all to default state
+			{
+				uint j = i + event.joystickConnect.joystickId * sf::Joystick::ButtonCount;
+
+				m_previous_button_joystick_state[j] = false;
+				m_current_button_joystick_state[j] = false;
+				m_joystick_button_held_timer[j] = 0.0f;
+			}
+
+			for (uint i = 0; i < sf::Joystick::AxisCount; ++i)
+			{
+				uint j = i + event.joystickConnect.joystickId * sf::Joystick::AxisCount;
+
+				m_joystick_axis[j] = 0.0f;
+			}
+
+			m_available_joysticks.erase(event.joystickConnect.joystickId);
+		}
 		break;
 #endif
 	}

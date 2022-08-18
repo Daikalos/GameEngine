@@ -10,8 +10,8 @@ namespace fge
 	class SceneNode : public sf::Drawable, public sf::Transformable, private NonCopyable
 	{
 	public:
-		typedef std::unique_ptr<SceneNode> ptr;
-		typedef std::pair<SceneNode*, SceneNode*> pair;
+		using ptr = typename std::unique_ptr<SceneNode>;
+		using pair = typename std::pair<SceneNode*, SceneNode*>;
 
 	public:
 

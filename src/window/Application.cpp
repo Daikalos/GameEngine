@@ -2,14 +2,14 @@
 
 using namespace fge;
 
-Application::Application(const std::string& name)
-	: _camera(), 
-	_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200, _camera),
-	_input_handler(), 
-	_texture_holder(), 
-	_state_stack(State::Context(_window, _camera, _input_handler, _texture_holder))
+Application::Application(const std::string& name) : 
+	m_camera(), 
+	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200, *m_camera),
+	m_input_handler(), 
+	m_texture_holder(), 
+	m_state_stack(State::Context(m_window, *m_camera, m_input_handler, m_texture_holder, m_font_holder))
 {
-	_input_handler.set_button_binding(fge::Binding::Button::Drag, sf::Mouse::Button::Middle);
+	m_input_handler.SetButtonBinding(Binds::Button::Drag, sf::Mouse::Button::Middle);
 }
 
 Application::~Application()
@@ -17,115 +17,109 @@ Application::~Application()
 
 }
 
-void Application::run()
+void Application::Run()
 {
-	_window.initialize();
+	m_window.Initialize();
 
-	sf::Clock clock;
-	float dt = FLT_EPSILON;
-
-	float dt_per_frame = 1.0f / 60.0f;
 	float accumulator = FLT_EPSILON;
 
 	int ticks = 0;
 	int death_spiral = 12; // guarantee prevention of infinite loop
 
-	while (_window.isOpen())
+	while (m_window.isOpen())
 	{
-		dt = std::fminf(clock.restart().asSeconds(), 0.075f);
-		accumulator += dt;
+		m_time.Update();
 
-		_input_handler.update(dt);
+		m_input_handler.Update(m_time);
+		ProcessEvents();
+		m_camera->Update(m_input_handler, m_window);
 
-		process_input();
+		PreUpdate();
 
-		_camera.update(_input_handler, _window);
-
-		pre_update(dt);
-
-		update(dt);
+		Update();
 
 		ticks = 0;
-		while (accumulator >= dt_per_frame && ticks++ < death_spiral)
-		{
-			accumulator -= dt_per_frame;
+		accumulator += m_time.GetDeltaTime(); // TODO: called after update may have unintended effects...
 
-			fixed_update(dt_per_frame);
+		while (accumulator >= m_time.GetFixedDeltaTime() && ticks++ < death_spiral)
+		{
+			accumulator -= m_time.GetFixedDeltaTime();
+			FixedUpdate();
 		}
 
-		float interp = accumulator / dt_per_frame;
-		post_update(dt, interp);
+		float interp = accumulator / m_time.GetFixedDeltaTime();
+		PostUpdate(interp);
 
 		//if (_state_stack.is_empty())
 		//	_window.close();
 
-		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num1))
-			_window.set_border(WindowBorder::Windowed);
-		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num2))
-			_window.set_border(WindowBorder::Fullscreen);
-		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num3))
-			_window.set_border(WindowBorder::BorderlessWindowed);
+		if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num1))
+			m_window.SetBorder(WindowBorder::Windowed);
+		if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num2))
+			m_window.SetBorder(WindowBorder::Fullscreen);
+		if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num3))
+			m_window.SetBorder(WindowBorder::BorderlessWindowed);
 
-		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num4))
-			_window.set_mode(sf::VideoMode::getFullscreenModes().back());
-		if (_input_handler.get_key_pressed(sf::Keyboard::Key::Num5))
-			_window.set_resolution(2);
+		if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num4))
+			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
+		if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num5))
+			m_window.SetResolution(2);
 
-		draw();
+		Draw();
 	}
 }
 
-void Application::process_input()
+void Application::ProcessEvents()
 {
 	sf::Event event;
-	while (_window.pollEvent(event))
+	while (m_window.pollEvent(event))
 	{
-		_input_handler.handle_event(event);
-		_window.handle_event(event);
-		_camera.handle_event(event);
+		m_input_handler.HandleEvent(event);
+		m_window.HandleEvent(event);
+		m_camera->HandleEvent(event);
 
-		_state_stack.handle_event(event);
+		m_state_stack.HandleEvent(event);
 	}
 }
 
-void Application::pre_update(float dt)
+void Application::PreUpdate()
 {
-	_state_stack.pre_update(dt);
+	m_state_stack.PreUpdate(m_time);
 }
 
-void Application::update(float dt)
+void Application::Update()
 {
-	_state_stack.update(dt);
+	m_state_stack.Update(m_time);
 }
 
-void Application::fixed_update(float dt)
+void Application::FixedUpdate()
 {
-	_state_stack.fixed_update(dt);
+	m_state_stack.FixedUpdate(m_time);
 }
 
-void Application::post_update(float dt, float interp)
+void Application::PostUpdate(float interp)
 {
-	_state_stack.post_update(dt, interp);
+	m_state_stack.PostUpdate(m_time, interp);
 }
 
-void Application::draw()
+void Application::Draw()
 {
-	_window.clear();
-	_window.setView(_camera);
+	m_window.clear();
+	m_window.setView(*m_camera);
 
 	sf::CircleShape circle;
 	circle.setFillColor(sf::Color::Red);
 	circle.setRadius(32.0f);
 	circle.setPosition(sf::Vector2f(0.0f, 0.f));
 
-	_window.draw(circle);
+	m_window.draw(circle);
 
-	_state_stack.draw();
+	m_state_stack.Draw();
 
-	_window.display();
+	m_window.display();
 }
 
-void Application::register_states()
+void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
 

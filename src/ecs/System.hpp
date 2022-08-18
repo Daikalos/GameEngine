@@ -6,6 +6,7 @@
 #include "Archetype.h"
 
 #include "../utilities/NonCopyable.h"
+#include "../utilities/Time.hpp"
 
 namespace fge
 {
@@ -15,8 +16,8 @@ namespace fge
 	{
 	public:
 		virtual ~SystemBase() {}
-		virtual ArchetypeID get_key() const = 0;
-		virtual void update(float dt, Archetype* archetype) = 0;
+		virtual ArchetypeID GetKey() const = 0;
+		virtual void Update(Time& time, Archetype* archetype) = 0;
 	};
 
 	template<class... Args>
@@ -24,47 +25,47 @@ namespace fge
 	{
 	public:
 		friend class ECS;
-		using Func = std::function<void(const float, const std::vector<EntityID>&, Args*...)>;
+		using Func = std::function<void(const Time& time, const std::vector<EntityID>&, Args*...)>;
 
 	public:
 		System(ECS& ecs, const std::uint8_t& layer);
 		// no virtual destructor because the system is not supposed to contain variables, only behaviors
 
-		virtual ArchetypeID get_key() const override;
+		virtual ArchetypeID GetKey() const override;
 
-		void set_update(Func func);
+		void SetUpdate(Func func);
 
 	protected:
-		ECS* _ecs;
-		Func _func;
-		bool _func_set;
+		ECS* m_ecs;
+		Func m_func;
+		bool m_func_set;
 	};
 
 	template<class ...Args>
 	System<Args...>::System(ECS& ecs, const std::uint8_t& layer)
-		: _ecs(&ecs), _func(), _func_set(false)
+		: m_ecs(&ecs), m_func(), m_func_set(false)
 	{
 		//_ecs.register_system(layer, this);
 	}
 
 	template<class... Ts>
-	ArchetypeID sort_keys(ArchetypeID types)
+	ArchetypeID SortKeys(ArchetypeID types)
 	{
 		std::sort(types.begin(), types.end());
 		return types;
 	}
 
 	template<class... Ts>
-	inline ArchetypeID System<Ts...>::get_key() const
+	inline ArchetypeID System<Ts...>::GetKey() const
 	{
-		return sort_keys({{ Component<Ts>::get_type_id()... }});
+		return SortKeys({{ Component<Ts>::GetTypeId()... }});
 	}
 
 	template<class ...Args>
-	void System<Args...>::set_update(Func func)
+	void System<Args...>::SetUpdate(Func func)
 	{
-		_func = func;
-		_func_set = true;
+		m_func = func;
+		m_func_set = true;
 	}
 }
 

@@ -3,14 +3,14 @@
 using namespace fge;
 
 Window::Window(std::string name, sf::VideoMode mode, WindowBorder window_border, sf::ContextSettings settings, bool vertical_sync, int frame_rate, Camera& camera)
-	: _name(name), _mode(mode), _window_border(window_border), _settings(settings), _vertical_sync(vertical_sync), _frame_rate(frame_rate), _camera(&camera)
+	: m_name(name), m_mode(mode), m_border(window_border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate), m_camera(&camera)
 {
-	std::vector<sf::VideoMode> modes = get_modes();
+	std::vector<sf::VideoMode> modes = GetModes();
 
 	if (!modes.size())
 		throw std::runtime_error("unable to retrieve supported video modes");
 
-	_mode = modes.front();
+	m_mode = modes.front();
 }
 
 Window::~Window()
@@ -18,21 +18,21 @@ Window::~Window()
 
 }
 
-void Window::initialize()
+void Window::Initialize()
 {
-	build(_window_border, _mode, _settings);
+	Build(m_border, m_mode, m_settings);
 
-	set_framerate(_frame_rate);
-	set_vertical_sync(_vertical_sync);
+	SetFramerate(m_frame_rate);
+	SetVerticalSync(m_vertical_sync);
 
 	if (!setActive(true))
 		throw std::runtime_error("window could not be activated");
 
-	_camera->set_size(sf::Vector2f(_mode.size));
-	_camera->set_position(_camera->get_size() / 2.0f);
+	m_camera->SetSize(sf::Vector2f(m_mode.size));
+	m_camera->SetPosition(m_camera->GetSize() / 2.0f);
 }
 
-void Window::handle_event(const sf::Event& event)
+void Window::HandleEvent(const sf::Event& event)
 {
 	switch (event.type)
 	{
@@ -42,73 +42,76 @@ void Window::handle_event(const sf::Event& event)
 	}
 }
 
-void Window::set_framerate(int frame_rate)
+void Window::SetFramerate(int frame_rate)
 {
-	_frame_rate = frame_rate;
-	setFramerateLimit(_vertical_sync ? 0 : _frame_rate);
+	m_frame_rate = frame_rate;
+	setFramerateLimit(m_vertical_sync ? 0 : m_frame_rate);
 }
 
-void Window::set_vertical_sync(bool flag)
+void Window::SetVerticalSync(bool flag)
 {
-	setFramerateLimit(flag ? 0 : _frame_rate);
+	setFramerateLimit(flag ? 0 : m_frame_rate);
 	setVerticalSyncEnabled(flag);
 }
 
-void Window::set_resolution(int index)
+void Window::SetResolution(int index)
 {
-	std::vector<sf::VideoMode> modes = get_modes();
+	std::vector<sf::VideoMode> modes = GetModes();
 
 	if (index >= modes.size())
 		throw std::runtime_error("index is out of range");
 
-	set_mode(modes[index]);
+	SetMode(modes[index]);
 }
 
-void Window::build(WindowBorder window_border, sf::VideoMode mode, sf::ContextSettings settings)
+void Window::Build(WindowBorder window_border, sf::VideoMode mode, sf::ContextSettings settings)
 {
-	_window_border = window_border;
-	_mode = mode;
-	_settings = settings;
+	m_border = window_border;
+	m_mode = mode;
+	m_settings = settings;
 
 	switch (window_border)
 	{
 	case WindowBorder::Windowed:
-		create(sf::VideoMode(_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel), _name, sf::Style::Close, _settings);
+		create(sf::VideoMode(m_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel),
+			m_name, sf::Style::Close, m_settings);
 		break;
 	case WindowBorder::Fullscreen:
-		create(sf::VideoMode(_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel), _name, sf::Style::Fullscreen, _settings);
+		create(sf::VideoMode(m_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel), 
+			m_name, sf::Style::Fullscreen, m_settings);
 		break;
 	case WindowBorder::BorderlessWindowed:
-		create(sf::VideoMode(_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel), _name, sf::Style::None, _settings);
+		create(sf::VideoMode(m_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel), 
+			m_name, sf::Style::None, m_settings);
 		break;
 	}
 }
 
-void Window::set_border(WindowBorder window_border)
+void Window::SetBorder(WindowBorder window_border)
 {
-	if (_window_border != window_border)
-		build(window_border, _mode, _settings);
+	if (m_border != window_border)
+		Build(window_border, m_mode, m_settings);
 }
-void Window::set_mode(sf::VideoMode mode)
+void Window::SetMode(sf::VideoMode mode)
 {
-	if (_mode != mode)
+	if (m_mode != mode)
 	{
-		build(_window_border, mode, _settings);
-		_camera->set_size(sf::Vector2f(mode.size));
+		Build(m_border, mode, m_settings);
+		m_camera->SetSize(sf::Vector2f(mode.size));
 	}
 }
-void Window::set_settings(sf::ContextSettings settings)
+void Window::SetSettings(sf::ContextSettings settings)
 {
-	build(_window_border, _mode, settings);
+	Build(m_border, m_mode, settings);
 }
 
-void Window::set_cursor_state(bool flag)
+void Window::SetCursorState(bool flag)
 {
 	setMouseCursorVisible(flag);
 	setMouseCursorGrabbed(!flag);
 }
 
-std::vector<sf::VideoMode> fge::Window::get_modes() const
+std::vector<sf::VideoMode> fge::Window::GetModes() const
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	float desktop_ratio = desktop.size.x / (float)desktop.size.y;

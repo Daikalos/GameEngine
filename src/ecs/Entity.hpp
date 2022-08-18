@@ -8,7 +8,7 @@ namespace fge
 	class Entity
 	{
 	public:
-		explicit Entity(ECS& ecs) : _id(ecs.get_new_id()), _ecs(&ecs) 
+		explicit Entity(ECS& ecs) : m_id(ecs.GetNewId()), m_ecs(&ecs) 
 		{
 			// register entity
 		}
@@ -27,11 +27,11 @@ namespace fge
 
 		EntityID get_id() const
 		{
-			return _id;
+			return m_id;
 		}
 
 	private:
-		EntityID _id;
-		ECS* _ecs;
+		EntityID	m_id;  // entity is just an id
+		ECS*		m_ecs;
 	};
 }

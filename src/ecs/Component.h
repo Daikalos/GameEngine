@@ -12,11 +12,11 @@ namespace fge
 	public:
 		virtual ~ComponentBase() { }
 
-		virtual void construct_data(unsigned char* data) const = 0;
-		virtual void destroy_data(unsigned char* data) const = 0;
-		virtual void move_data(unsigned char* source, unsigned char* destination) const = 0;
+		virtual void ConstructData(unsigned char* data) const = 0;
+		virtual void DestroyData(unsigned char* data) const = 0;
+		virtual void MoveData(unsigned char* source, unsigned char* destination) const = 0;
 
-		virtual std::size_t get_size() const = 0;
+		virtual std::size_t GetSize() const = 0;
 	};
 
 	template<class C>
@@ -24,13 +24,13 @@ namespace fge
 	{
 	public:
 
-		virtual void construct_data(unsigned char* data) const override;
-		virtual void destroy_data(unsigned char* data) const override;
-		virtual void move_data(unsigned char* source, unsigned char* destination) const override;
+		virtual void ConstructData(unsigned char* data) const override;
+		virtual void DestroyData(unsigned char* data) const override;
+		virtual void MoveData(unsigned char* source, unsigned char* destination) const override;
 
-		virtual std::size_t get_size() const override;
+		virtual std::size_t GetSize() const override;
 
-		static ComponentTypeID get_type_id();
+		static ComponentTypeID GetTypeId();
 	};
 }
 

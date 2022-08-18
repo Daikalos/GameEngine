@@ -9,13 +9,15 @@
 #include "Component.h"
 #include "System.hpp"
 
+#include "../utilities/Time.hpp"
+
 namespace fge
 {
 	class ECS
 	{
 	private:
-		using ComponentPtr = std::shared_ptr<ComponentBase>;
-		using ArchetypePtr = std::shared_ptr<Archetype>;
+		using ComponentPtr = typename std::shared_ptr<ComponentBase>;
+		using ArchetypePtr = typename std::shared_ptr<Archetype>;
 
 		struct Record
 		{
@@ -23,91 +25,91 @@ namespace fge
 			std::size_t index{0}; // where in the ArchetypesArray is the entity located in
 		};
 
-		using CompnentTypeIDBaseMap = std::unordered_map<ComponentTypeID, ComponentPtr>;
-		using EntityArchetypeMap = std::unordered_map<EntityID, Record>;				   
-		using ArchetypesArray = std::vector<ArchetypePtr>;										// find matching archetype to update matching entities
-		using SystemsArrayMap = std::unordered_map<std::uint8_t, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
+		using CompnentTypeIDBaseMap = typename std::unordered_map<ComponentTypeID, ComponentPtr>;
+		using EntityArchetypeMap	= typename std::unordered_map<EntityID, Record>;
+		using ArchetypesArray		= typename std::vector<ArchetypePtr>;									// find matching archetype to update matching entities
+		using SystemsArrayMap		= typename std::unordered_map<std::uint8_t, std::vector<SystemBase*>>;	// map layer to array of systems (layer allows for controlling the order of calls)
 
 	public:
-		ECS() : _entity_id_counter(1) {}
+		ECS() : m_entity_id_counter(1) {}
 		~ECS() {}
 
-		EntityID get_new_id();
+		EntityID GetNewId();
 
-		void run_systems(const std::uint8_t layer, const float dt);
+		void RunSystems(const std::uint8_t layer, Time& time);
 
 		template<class C>
-		void register_component();
-		void register_system(const std::uint8_t layer, SystemBase* system);
-		void register_entity(const EntityID entityId);
+		void RegisterComponent();
+		void RegisterSystem(const std::uint8_t layer, SystemBase* system);
+		void RegisterEntity(const EntityID entityId);
 
 		template<class C, typename... Args>
-		C* add_component(const EntityID entityId, Args&&... args);
+		C* AddComponent(const EntityID entityId, Args&&... args);
 		template<class C>
-		void remove_component(const EntityID entityid);
+		void RemoveComponent(const EntityID entityid);
 
 		template<class C>
-		bool is_component_registered();
+		bool IsComponentRegistered();
 		template<class C>
-		bool has_component(const EntityID entityId);
+		bool HasComponent(const EntityID entityId);
 
 		template<class C>
-		C* get_component(const EntityID entityId);
+		C* GetComponent(const EntityID entityId);
 
 		template<class... Ts>
-		std::vector<EntityID> get_entities_with();
+		std::vector<EntityID> GetEntitiesWith();
 
-		Archetype* get_archetype(const ArchetypeID& id);
+		Archetype* GetArchetype(const ArchetypeID& id);
 
 	private:
-		EntityID _entity_id_counter;
-		EntityArchetypeMap _entity_archetype_map;
-		ArchetypesArray _archetypes;
-		SystemsArrayMap _systems;
-		CompnentTypeIDBaseMap _component_map;
+		EntityID				m_entity_id_counter;
+		EntityArchetypeMap		m_entity_archetype_map;
+		ArchetypesArray			m_archetypes;			// find matching archetype to update matching entities
+		SystemsArrayMap			m_systems;				// map layer to array of systems (layer allows for controlling the order of calls)
+		CompnentTypeIDBaseMap	m_component_map;
 	};
 
-	inline EntityID ECS::get_new_id()
+	inline EntityID ECS::GetNewId()
 	{
-		return _entity_id_counter++;
+		return m_entity_id_counter++;
 	}
 
-	inline void ECS::run_systems(const std::uint8_t layer, const float dt)
+	inline void ECS::RunSystems(const std::uint8_t layer, Time& time)
 	{
-		for (SystemBase* system : _systems[layer])
+		for (SystemBase* system : m_systems[layer])
 		{
-			const ArchetypeID& key = system->get_key();
-			for (const ArchetypePtr& archetype : _archetypes)
+			const ArchetypeID& key = system->GetKey();
+			for (const ArchetypePtr& archetype : m_archetypes)
 			{
-				if (std::includes(archetype->_type.begin(), archetype->_type.end(), key.begin(), key.end()))
+				if (std::includes(archetype->m_type.begin(), archetype->m_type.end(), key.begin(), key.end()))
 				{
-					system->update(dt, archetype.get());
+					system->Update(time, archetype.get());
 				}
 			}
 		}
 	}
 
 	template<class C>
-	inline void ECS::register_component()
+	inline void ECS::RegisterComponent()
 	{
-		ComponentTypeID componentTypeId = Component<C>::get_type_id();
+		ComponentTypeID component_type_id = Component<C>::get_type_id();
 
-		if (_component_map.contains(componentTypeId))
+		if (_component_map.contains(component_type_id))
 			return;
 
-		_component_map.emplace(componentTypeId, comp_ptr(new Component<C>));
+		_component_map.emplace(component_type_id, comp_ptr(new Component<C>));
 	}
-	inline void ECS::register_system(const std::uint8_t layer, SystemBase* system)
+	inline void ECS::RegisterSystem(const std::uint8_t layer, SystemBase* system)
 	{
-		_systems[layer].push_back(system);
+		m_systems[layer].push_back(system);
 	}
-	inline void ECS::register_entity(const EntityID entityId)
+	inline void ECS::RegisterEntity(const EntityID entityId)
 	{
-		_entity_archetype_map[entityId] = Record();
+		m_entity_archetype_map[entityId] = Record();
 	}
 
 	template<class C, typename ...Args>
-	inline C* ECS::add_component(const EntityID entityId, Args && ...args)
+	inline C* ECS::AddComponent(const EntityID entityId, Args && ...args)
 	{
 		ComponentTypeID new_comp_type_id = Component<C>::get_type_id();
 
@@ -219,52 +221,52 @@ namespace fge
 	}
 
 	template<class C>
-	inline void ECS::remove_component(const EntityID entityid)
+	inline void ECS::RemoveComponent(const EntityID entityid)
 	{
 
 	}
 
 	template<class C>
-	inline bool ECS::is_component_registered()
+	inline bool ECS::IsComponentRegistered()
 	{
-		return _component_map.contains(Component<C>::get_type_id());
+		return _component_map.contains(Component<C>::GetTypeId());
 	}
 	template<class C>
-	inline bool ECS::has_component(const EntityID entityId)
+	inline bool ECS::HasComponent(const EntityID entityId)
 	{
 		return false;
 	}
 
-	inline Archetype* ECS::get_archetype(const ArchetypeID& id)
+	inline Archetype* ECS::GetArchetype(const ArchetypeID& id)
 	{
-		for (const ArchetypePtr& archetype : _archetypes)
+		for (const ArchetypePtr& archetype : m_archetypes)
 		{
-			if (archetype->_type == id)
+			if (archetype->m_type == id)
 				return archetype.get();
 		}
 
 		// archetype does not exist, create new one
 
 		ArchetypePtr new_archetype = ArchetypePtr(new Archetype());
-		new_archetype->_type = id;
+		new_archetype->m_type = id;
 
 		for (ArchetypeID::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type
 		{
-			new_archetype->_component_data.push_back(ComponentData(new unsigned char[0])); // C++17 supports array delete
-			new_archetype->_component_data_size.push_back(0);
+			new_archetype->m_component_data.push_back(ComponentData(new unsigned char[0])); // C++17 supports array delete
+			new_archetype->m_component_data_size.push_back(0);
 		}
 
-		return _archetypes.emplace_back(new_archetype).get();
+		return m_archetypes.emplace_back(new_archetype).get();
 	}
 
 	template<class C>
-	inline C* ECS::get_component(const EntityID entityId)
+	inline C* ECS::GetComponent(const EntityID entityId)
 	{
 		return nullptr;
 	}
 
 	template<class ...Ts>
-	inline std::vector<EntityID> ECS::get_entities_with()
+	inline std::vector<EntityID> ECS::GetEntitiesWith()
 	{
 		return std::vector<EntityID>();
 	}

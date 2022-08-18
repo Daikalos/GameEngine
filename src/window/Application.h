@@ -5,39 +5,42 @@
 #include "Window.h"
 #include "Camera.h"
 #include "InputHandler.h"
-#include "ResourceHolder.hpp"
 
 #include "../ecs/ECS.hpp"
-#include "../base/StateStack.h"
+#include "../scene/StateStack.h"
+#include "../graphics/ResourceHolder.hpp"
+#include "../utilities/Time.hpp"
 
 namespace fge
 {
-	class Application
+	class Application final
 	{
 	public:
 		Application(const std::string& name);
 		~Application();
 
-		void run();
+		void Run();
 
 	private:
-		void process_input();
+		void ProcessEvents();
 
-		void pre_update(float dt);
-		void update(float dt);
-		void fixed_update(float dt);
-		void post_update(float dt, float interp);
+		void PreUpdate();
+		void Update();
+		void FixedUpdate();
+		void PostUpdate(float interp);
 
-		void draw();
+		void Draw();
 		
-		void register_states();
+		void RegisterStates();
 
 	private:
-		Camera _camera;
-		Window _window;
-		InputHandler _input_handler;
-		TextureHolder _texture_holder;
-		StateStack _state_stack;
+		Time			m_time;
+		Camera*			m_camera; // TODO: solve creation
+		Window			m_window;
+		InputHandler	m_input_handler;
+		TextureHolder	m_texture_holder;
+		FontHolder		m_font_holder;
+		StateStack		m_state_stack;
 	};
 }
 

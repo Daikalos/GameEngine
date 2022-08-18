@@ -8,13 +8,13 @@ namespace fge
 	class TypeIdGenerator // maybe look at re-using IDs
 	{
 	private:
-		static IDType _count; // unique for every instance of the template
+		static IDType _count; // unique for every instance of C
 
 	public:
 		template<class U>
-		static const IDType get_new_id()
+		static const IDType GetNewId()
 		{
-			static const IDType id_counter = _count++;
+			static const IDType id_counter = _count++; // unique for every instance of U
 			return id_counter;
 		}
 	};

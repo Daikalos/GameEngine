@@ -32,54 +32,54 @@ namespace fge
 		ResourceHolder() { }
 		~ResourceHolder() { }
 
-		void load(const Identifier& id, const std::string& path);
+		void Load(const Identifier& id, const std::string& path);
 
 		template <class Parameter>
-		void load(const Identifier& id, const std::string& path, const Parameter& second_param);
+		void Load(const Identifier& id, const std::string& path, const Parameter& second_param);
 
-		Resource& get(const Identifier& id);
-		const Resource& get(const Identifier& id) const;
+		Resource& Get(const Identifier& id);
+		const Resource& Get(const Identifier& id) const;
 
 	private:
-		std::unordered_map<Identifier, ResourcePtr> _resources;
+		std::unordered_map<Identifier, ResourcePtr> m_resources;
 	};
 
 	template<typename Resource, typename Identifier>
-	void ResourceHolder<Resource, Identifier>::load(const Identifier& id, const std::string& path)
+	void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path)
 	{
 		ResourcePtr resource(new Resource());
 
 		if (!resource->loadFromFile(path))
 			throw std::runtime_error("resource does not exist at " + path);
 
-		auto inserted = _resources.insert(std::make_pair(id, std::move(resource)));
+		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
 		assert(inserted.second);
 	}
 
 	template<typename Resource, typename Identifier>
 	template<typename Parameter>
-	void ResourceHolder<Resource, Identifier>::load(const Identifier& id, const std::string& path, const Parameter& second_param)
+	void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path, const Parameter& second_param)
 	{
 		ResourcePtr resource(new Resource());
 
 		if (!resource->loadFromFile(path, second_param))
 			throw std::runtime_error("resource does not exist at " + path);
 
-		auto inserted = _resources.insert(std::make_pair(id, std::move(resource)));
+		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
 		assert(inserted.second);
 	}
 
 	template<typename Resource, typename Identifier>
-	Resource& ResourceHolder<Resource, Identifier>::get(const Identifier& id)
+	Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
 	{
 		return get(id);
 	}
 
 	template<typename Resource, typename Identifier>
-	const Resource& ResourceHolder<Resource, Identifier>::get(const Identifier& name) const
+	const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& name) const
 	{
-		auto it = _resources.find(name);
-		assert(it != _resources.end());
+		auto it = m_resources.find(name);
+		assert(it != m_resources.end());
 
 		return *it->second.get();
 	}

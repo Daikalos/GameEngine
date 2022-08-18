@@ -13,60 +13,59 @@ namespace fge
 	class Camera : public sf::View, NonCopyable
 	{
 	public:
-		Camera() : _position(0, 0), _scale(1, 1), _size(0, 0), _dragPos(0, 0) {}
-		~Camera() {}
+		Camera() : m_position(0, 0), m_scale(1, 1), m_size(0, 0) {}
+		virtual ~Camera() = default;
 
+		virtual void HandleEvent(const sf::Event& event);
+
+		///////////////////////////////////////////////
 		// call after poll event
-		//
-		void update(const InputHandler& input_handler, const sf::RenderWindow& window);
-		void handle_event(const sf::Event& event);
+		///////////////////////////////////////////////
+		virtual void Update(const InputHandler& input_handler, const sf::RenderWindow& window) = 0;
 
 	public:
-		template<typename T> 
-		sf::Vector2<T> view_to_world(const sf::Vector2<T>& position) const
-		{
-			return sf::Vector2<T>(get_view_matrix() * position);
-		}
-
-		sf::Transform get_view_matrix() const
+		sf::Transform GetViewMatrix() const
 		{
 			return sf::Transform()
-				.translate(_position)
-				.scale(1.0f / _scale)
-				.translate(_size / -2.0f);
+				.translate(m_position)
+				.scale(1.0f / m_scale)
+				.translate(m_size / -2.0f);
 		}
 
-		sf::Vector2f get_mouse_world_position(const sf::RenderWindow& window) const { return view_to_world(sf::Vector2f(sf::Mouse::getPosition(window))); }
-
-		sf::Vector2f get_position() const { return _position; }
-		sf::Vector2f get_scale() const { return _scale; }
-		sf::Vector2f get_size() const { return _size; }
-
-		void set_position(sf::Vector2f position)
+		sf::Vector2f ViewToWorld(const sf::Vector2f& position) const
 		{
-			setCenter(_position);
-			_position = position;
+			return GetViewMatrix() * position;
 		}
-		void set_scale(sf::Vector2f scale)
+
+		sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const { return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); }
+
+		sf::Vector2f GetPosition() const { return m_position; }
+		sf::Vector2f GetScale() const { return m_scale; }
+		sf::Vector2f GetSize() const { return m_size; }
+
+		void SetPosition(const sf::Vector2f& position)
 		{
-			setSize(_size * (1.0f / scale));
-			_scale = scale;
+			setCenter(m_position);
+			m_position = position;
 		}
-		void set_size(sf::Vector2f size) 
+		void SetScale(const sf::Vector2f& scale)
+		{
+			setSize(m_size * (1.0f / scale));
+			m_scale = scale;
+		}
+		void SetSize(const sf::Vector2f& size) 
 		{ 
-			_size = size;
-			setSize(_size);
+			m_size = size;
+			setSize(m_size * (1.0f / m_scale));
 		}
 
-	private:
-		void set_letterbox_view(int width, int height);
+	protected:
+		void SetLetterboxView(int width, int height);
 
-	private:
-		sf::Vector2f _position;
-		sf::Vector2f _scale;
-		sf::Vector2f _size;
-
-		sf::Vector2f _dragPos;
+	protected:
+		sf::Vector2f m_position;
+		sf::Vector2f m_scale;	 
+		sf::Vector2f m_size;
 	};
 }
 

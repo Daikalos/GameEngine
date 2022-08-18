@@ -8,11 +8,11 @@
 
 namespace fge
 {
-	enum class WindowBorder
+	enum class WindowBorder // settings for type of border
 	{
 		Windowed,
 		Fullscreen,
-		BorderlessWindowed
+		BorderlessWindowed // TODO : FIX BORDERLESS WINDOWED ON LOWER RESOLUTION
 	};
 
 	// allow for toggle fullscreen, change resolution, and other settings
@@ -23,38 +23,40 @@ namespace fge
 		Window(std::string name, sf::VideoMode mode, WindowBorder window_border, sf::ContextSettings settings, bool vertical_sync, int frame_rate, Camera& camera);
 		~Window();
 
-		void initialize();
-		void handle_event(const sf::Event& event);
+		void Initialize();
+		void HandleEvent(const sf::Event& event);
 
-		void set_framerate(int frame_rate);
-		void set_vertical_sync(bool flag);
+		void SetFramerate(int frame_rate);
+		void SetVerticalSync(bool flag);
 
-		void set_resolution(int index);
+		void SetResolution(int index);
 
-		void build(WindowBorder window_border, sf::VideoMode mode, sf::ContextSettings settings);
+		void Build(WindowBorder window_border, sf::VideoMode mode, sf::ContextSettings settings);
 
-		void set_border(WindowBorder window_border);
-		void set_mode(sf::VideoMode mode);
-		void set_settings(sf::ContextSettings settings);
+		void SetBorder(WindowBorder border);
+		void SetMode(sf::VideoMode mode);
+		void SetSettings(sf::ContextSettings settings);
 
+		///////////////////////////////////////////////
 		// false = hides and grabs the cursor
 		// true = shows and unhooks the cursor
-		//
-		void set_cursor_state(bool flag);
+		///////////////////////////////////////////////
+		void SetCursorState(bool flag);
 
 	public:
+		///////////////////////////////////////////////
 		// only gets modes that match the aspect ratio of the desktop
-		//
-		std::vector<sf::VideoMode> get_modes() const;
+		///////////////////////////////////////////////
+		std::vector<sf::VideoMode> GetModes() const;
 
 	private:
-		std::string _name;
-		sf::VideoMode _mode;
-		WindowBorder _window_border;
-		sf::ContextSettings _settings;
-		bool _vertical_sync;
-		int _frame_rate;
+		std::string			m_name;				// name of window
+		sf::VideoMode		m_mode;				// current mode set
+		WindowBorder		m_border;			// current border type
+		sf::ContextSettings m_settings;			// settings
+		bool				m_vertical_sync;	// vertical sync
+		int					m_frame_rate;		// maximum frame rate
 
-		Camera* _camera;
+		Camera*				m_camera;			// camera
 	};
 }
