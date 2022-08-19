@@ -71,17 +71,17 @@ namespace fge
 		bool GetScrollUp() const noexcept;
 		bool GetScrollDown() const noexcept;
 
-		bool GetButtonHeld(const sf::Mouse::Button& button) const noexcept;
-		bool GetButtonPressed(const sf::Mouse::Button& button) const noexcept;
-		bool GetButtonReleased(const sf::Mouse::Button& button) const noexcept;
+		bool GetButtonHeld(const sf::Mouse::Button& button) const;
+		bool GetButtonPressed(const sf::Mouse::Button& button) const;
+		bool GetButtonReleased(const sf::Mouse::Button& button) const;
 
 		bool GetButtonHeld(const Binds::Button& button) const;
 		bool GetButtonPressed(const Binds::Button& button) const;
 		bool GetButtonReleased(const Binds::Button& button) const;
 
-		bool GetKeyHeld(const sf::Keyboard::Key& key) const noexcept;
-		bool GetKeyPressed(const sf::Keyboard::Key& key) const noexcept;
-		bool GetKeyReleased(const sf::Keyboard::Key& key) const noexcept;
+		bool GetKeyHeld(const sf::Keyboard::Key& key) const;
+		bool GetKeyPressed(const sf::Keyboard::Key& key) const;
+		bool GetKeyReleased(const sf::Keyboard::Key& key) const;
 
 		bool GetKeyHeld(const Binds::Key& key) const;
 		bool GetKeyPressed(const Binds::Key& key) const;
@@ -94,9 +94,9 @@ namespace fge
 		void RemoveKeyBinding(const Binds::Key& name);
 #endif
 #if JOYSTICK_ENABLED
-		bool GetJoystickButtonHeld(const uint& id, const uint& button) const noexcept;
-		bool GetJoystickButtonPressed(const uint& id, const uint& button) const noexcept;
-		bool GetJoystickButtonReleased(const uint& id, const uint& button) const noexcept;
+		bool GetJoystickButtonHeld(const uint& id, const uint& button) const;
+		bool GetJoystickButtonPressed(const uint& id, const uint& button) const;
+		bool GetJoystickButtonReleased(const uint& id, const uint& button) const;
 
 		bool GetJoystickButtonHeld(const uint& id, const JoystickButton& name) const;
 		bool GetJoystickButtonPressed(const uint& id, const JoystickButton& name) const;

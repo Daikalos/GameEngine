@@ -173,7 +173,7 @@
     <ClInclude Include="scene\StateStack.h" />
     <ClInclude Include="scene\SceneNode.h" />
     <ClInclude Include="window\CameraBehaviour.hpp" />
-    <ClInclude Include="window\CameraBehaviours.h" />
+    <ClInclude Include="window\Cameras.h" />
     <ClInclude Include="window\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraLetterbox.h" />

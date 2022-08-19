@@ -7,6 +7,7 @@
 #include "../utilities/Time.hpp"
 
 #include "input/InputHandler.h"
+#include "Window.h"
 #include "Camera.h"
 
 namespace fge
@@ -43,10 +44,10 @@ namespace fge
 
 		virtual void HandleEvent(sf::Event event) = 0;
 
-		virtual bool PreUpdate(Time& time) { return true; }
-		virtual bool Update(Time& time) = 0;
-		virtual bool FixedUpdate(Time& time) { return true; }
-		virtual bool PostUpdate(Time& time, float interp) { return true; }
+		virtual bool PreUpdate(const Time& time) { return true; }
+		virtual bool Update(const Time& time) = 0;
+		virtual bool FixedUpdate(const Time& time) { return true; }
+		virtual bool PostUpdate(const Time& time, float interp) { return true; }
 
 	protected:
 		Camera* const	m_camera;

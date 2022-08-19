@@ -3,7 +3,7 @@
 using namespace fge;
 
 Application::Application(const std::string& name) : 
-	m_camera(), 
+	m_camera(CameraBehaviour::Context(m_window, m_input_handler)), 
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200, *m_camera),
 	m_input_handler(), 
 	m_texture_holder(), 
@@ -76,33 +76,32 @@ void Application::ProcessEvents()
 		m_input_handler.HandleEvent(event);
 		m_window.HandleEvent(event);
 		m_camera.HandleEvent(event);
-
 		m_state_stack.HandleEvent(event);
 	}
 }
 
 void Application::PreUpdate()
 {
-	m_camera.PreUpdate(m_input_handler, m_window);
 	m_state_stack.PreUpdate(m_time);
+	m_camera.PreUpdate(m_time);
 }
 
 void Application::Update()
 {
-	m_camera.Update(m_input_handler, m_window);
 	m_state_stack.Update(m_time);
+	m_camera.Update(m_time);
 }
 
 void Application::FixedUpdate()
 {
-	m_camera.FixedUpdate(m_input_handler, m_window);
 	m_state_stack.FixedUpdate(m_time);
+	m_camera.FixedUpdate(m_time);
 }
 
 void Application::PostUpdate(float interp)
 {
-	m_camera.PostUpdate(m_input_handler, m_window);
 	m_state_stack.PostUpdate(m_time, interp);
+	m_camera.PostUpdate(m_time, interp);
 }
 
 void Application::Draw()

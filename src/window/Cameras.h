@@ -8,6 +8,7 @@ namespace fge
 		{
 			None,
 			Follow,
+			Zoom,
 			Drag,
 			GoTo,
 		};

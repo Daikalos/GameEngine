@@ -116,25 +116,25 @@ void InputHandler::Update(const Time& time)
 }
 
 #if KEYBOARDMOUSE_ENABLED
-bool InputHandler::GetScrollUp() const noexcept
+bool InputHandler::GetScrollUp() const
 {
 	return m_scroll_delta > 0;
 }
 
-bool fge::InputHandler::GetScrollDown() const noexcept
+bool fge::InputHandler::GetScrollDown() const
 {
 	return m_scroll_delta < 0;
 }
 
-bool InputHandler::GetButtonHeld(const sf::Mouse::Button& button) const noexcept
+bool InputHandler::GetButtonHeld(const sf::Mouse::Button& button) const
 {
 	return m_current_button_state[button] && m_button_held_timer[button] >= m_held_threshold;
 }
-bool InputHandler::GetButtonPressed(const sf::Mouse::Button& button) const noexcept
+bool InputHandler::GetButtonPressed(const sf::Mouse::Button& button) const
 {
 	return m_current_button_state[button] && !m_previous_button_state[button];
 }
-bool InputHandler::GetButtonReleased(const sf::Mouse::Button& button) const noexcept
+bool InputHandler::GetButtonReleased(const sf::Mouse::Button& button) const
 {
 	return !GetButtonPressed(button);
 }
@@ -155,15 +155,15 @@ bool InputHandler::GetButtonReleased(const Binds::Button& button) const
 	return GetButtonReleased(m_button_bindings.at(button));
 }
 
-bool InputHandler::GetKeyHeld(const sf::Keyboard::Key& key) const noexcept
+bool InputHandler::GetKeyHeld(const sf::Keyboard::Key& key) const
 {
 	return m_current_key_state[key] && m_key_held_timer[key] >= m_held_threshold;
 }
-bool InputHandler::GetKeyPressed(const sf::Keyboard::Key& key) const noexcept
+bool InputHandler::GetKeyPressed(const sf::Keyboard::Key& key) const
 {
 	return m_current_key_state[key] && !m_previous_key_state[key];
 }
-bool InputHandler::GetKeyReleased(const sf::Keyboard::Key& key) const noexcept
+bool InputHandler::GetKeyReleased(const sf::Keyboard::Key& key) const
 {
 	return !GetKeyPressed(key);
 }
@@ -205,17 +205,17 @@ void InputHandler::RemoveKeyBinding(const Binds::Key& name)
 }
 #endif
 #if JOYSTICK_ENABLED
-bool InputHandler::GetJoystickButtonHeld(const uint& id, const uint& button) const noexcept
+bool InputHandler::GetJoystickButtonHeld(const uint& id, const uint& button) const
 {
 	int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_button_joystick_state[index] && m_joystick_button_held_timer[index] >= m_held_threshold;;
 }
-bool fge::InputHandler::GetJoystickButtonPressed(const uint& id, const uint& button) const noexcept
+bool fge::InputHandler::GetJoystickButtonPressed(const uint& id, const uint& button) const
 {
 	int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_button_joystick_state[index] && !m_previous_button_joystick_state[index];
 }
-bool InputHandler::GetJoystickButtonReleased(const uint& id, const uint& button) const noexcept
+bool InputHandler::GetJoystickButtonReleased(const uint& id, const uint& button) const
 {
 	return !GetJoystickButtonPressed(id, button);
 }

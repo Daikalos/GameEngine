@@ -59,13 +59,13 @@ void Window::SetResolution(int index)
 	SetMode(modes[index]);
 }
 
-void Window::Build(WindowBorder window_border, sf::VideoMode mode, sf::ContextSettings settings)
+void Window::Build(WindowBorder border, sf::VideoMode mode, sf::ContextSettings settings)
 {
-	m_border = window_border;
+	m_border = border;
 	m_mode = mode;
 	m_settings = settings;
 
-	switch (window_border)
+	switch (border)
 	{
 	case WindowBorder::Windowed:
 		create(sf::VideoMode(m_mode.size, sf::VideoMode::getDesktopMode().bitsPerPixel),
@@ -82,10 +82,10 @@ void Window::Build(WindowBorder window_border, sf::VideoMode mode, sf::ContextSe
 	}
 }
 
-void Window::SetBorder(WindowBorder window_border)
+void Window::SetBorder(WindowBorder border)
 {
-	if (m_border != window_border)
-		Build(window_border, m_mode, m_settings);
+	if (m_border != border)
+		Build(border, m_mode, m_settings);
 }
 void Window::SetMode(sf::VideoMode mode)
 {

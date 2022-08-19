@@ -17,9 +17,9 @@ namespace fge
 	class StateStack : private NonCopyable
 	{
 	private:
-		using Func = typename std::function<State::Ptr()>;
+		using Stack = typename std::vector<State::Ptr>;
+		using Factory = typename std::unordered_map<States::ID, State::Func>;
 
-	public:
 		enum Action
 		{
 			Push,
@@ -27,9 +27,17 @@ namespace fge
 			Clear
 		};
 
+		struct PendingChange
+		{
+			explicit PendingChange(const Action& action, const States::ID& state_id = States::ID::None)
+				: action(action), state_id(state_id) { }
+
+			const Action action;
+			const States::ID state_id;
+		};
+
 	public:
-		explicit StateStack(State::Context context)
-			: m_context(context) { }
+		explicit StateStack(State::Context context);
 
 		template<class T, typename... Args>
 		void RegisterState(const States::ID& state_id, Args&&... args);
@@ -57,21 +65,11 @@ namespace fge
 		void ApplyPendingChanges();
 
 	private:
-		struct PendingChange
-		{
-			explicit PendingChange(const Action& action, const States::ID& state_id = States::ID::None)
-				: action(action), state_id(state_id) { }
+		State::Context				m_context;
 
-			const Action action;
-			const States::ID state_id;
-		};
-
-	private:
-		std::vector<State::Ptr>							m_stack;
-		std::vector<PendingChange>						m_pending_list;
-
-		State::Context									m_context;
-		std::unordered_map<States::ID, Func>			m_factories; // factory for storing functions that creates the registered object
+		Stack						m_stack;
+		Factory						m_factory; // factory for storing functions that creates the registered object
+		std::vector<PendingChange>	m_pending_list;
 
 		bool m_paused{false};
 	};
@@ -79,7 +77,7 @@ namespace fge
 	template<class T, typename... Args>
 	void StateStack::RegisterState(const States::ID& state_id, Args&&... args)
 	{
-		m_factories[state_id] = [this, &args...]()
+		m_factory[state_id] = [this, &args...]()
 		{
 			return State::ptr(new T(*this, _context, std::forward<Args>(args)...));
 		};

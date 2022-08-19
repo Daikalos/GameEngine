@@ -2,42 +2,10 @@
 
 using namespace fge;
 
-Camera::Camera() : m_position(0, 0), m_scale(1, 1), m_size(0, 0)
+Camera::Camera(CameraBehaviour::Context context) 
+	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0)
 {
 
-}
-
-void Camera::HandleEvent(const sf::Event& event)
-{
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->FixedUpdate(time))
-			break;
-	}
-
-	switch (event.type)
-	{
-	case sf::Event::Resized:
-		SetLetterboxView(event.size.width, event.size.height);
-		break;
-	}
-}
-
-void Camera::PreUpdate()
-{
-	m_camera_behaviour->PreUpdate();
-}
-void Camera::Update()
-{
-	m_camera_behaviour->Update();
-}
-void Camera::FixedUpdate()
-{
-	m_camera_behaviour->FixedUpdate();
-}
-void Camera::PostUpdate()
-{
-	m_camera_behaviour->PostUpdate();
 }
 
 sf::Transform Camera::GetViewMatrix() const
@@ -64,9 +32,8 @@ sf::Vector2f fge::Camera::GetPosition() const noexcept
 }
 sf::Vector2f fge::Camera::GetScale() const noexcept
 {
-	return m_scale
+	return m_scale;
 }
-
 sf::Vector2f fge::Camera::GetSize() const noexcept
 {
 	return m_size;
@@ -86,6 +53,107 @@ void Camera::SetSize(const sf::Vector2f& size)
 {
 	m_size = size;
 	setSize(m_size * (1.0f / m_scale));
+}
+
+void Camera::HandleEvent(const sf::Event& event)
+{
+	switch (event.type)
+	{
+	case sf::Event::Resized:
+		SetLetterboxView(event.size.width, event.size.height);
+		break;
+	}
+}
+
+void Camera::PreUpdate(const Time& time)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->PreUpdate(time))
+			break;
+	}
+}
+void Camera::Update(const Time& time)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->Update(time))
+			break;
+	}
+}
+void Camera::FixedUpdate(const Time& time)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->FixedUpdate(time))
+			break;
+	}
+}
+void Camera::PostUpdate(const Time& time, float interp)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->PostUpdate(time, interp))
+			break;
+	}
+}
+
+void Camera::Push(const Cameras::ID& camera_id)
+{
+	m_pending_list.push_back(PendingChange(Action::Push, camera_id));
+}
+void Camera::Erase(const Cameras::ID& camera_id)
+{
+	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
+}
+void Camera::Pop()
+{
+	m_pending_list.push_back(PendingChange(Action::Pop));
+}
+void Camera::Clear()
+{
+	m_pending_list.push_back(PendingChange(Action::Clear));
+}
+
+CameraBehaviour::Ptr fge::Camera::CreateCamera(const Cameras::ID& camera_id)
+{
+	auto found = m_factory.find(camera_id);
+	assert(found != m_factory.end());
+
+	return found->second();
+}
+
+void Camera::ApplyPendingChanges()
+{
+	for (const PendingChange& change : m_pending_list)
+	{
+		switch (change.action)
+		{
+		case Action::Push:
+			m_stack.push_back(CreateCamera(change.camera_id));
+			m_stack.back()->OnActivate();
+			break;
+		case Action::Pop:
+		{
+			m_stack.back()->OnDestroy();
+			m_stack.pop_back();
+
+			if (!m_stack.empty())
+				m_stack.back()->OnActivate();
+		}
+		break;
+		case Action::Clear:
+		{
+			for (CameraBehaviour::Ptr& state : m_stack)
+				state->OnDestroy();
+
+			m_stack.clear();
+		}
+		break;
+		}
+	}
+
+	m_pending_list.clear();
 }
 
 void Camera::SetLetterboxView(int width, int height)

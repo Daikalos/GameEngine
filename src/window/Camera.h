@@ -11,7 +11,7 @@
 
 #include "input/InputHandler.h"
 #include "CameraBehaviour.hpp"
-#include "CameraBehaviours.h"
+#include "Cameras.h"
 
 namespace fge
 {
@@ -21,16 +21,25 @@ namespace fge
 		using Stack = typename std::vector<CameraBehaviour::Ptr>;
 		using Factory = typename std::unordered_map<Cameras::ID, CameraBehaviour::Func>;
 
-	public:
 		enum Action
 		{
 			Push,
+			Erase,
 			Pop,
 			Clear
 		};
 
+		struct PendingChange
+		{
+			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None)
+				: action(action), camera_id(camera_id) { }
+
+			const Action action;
+			const Cameras::ID camera_id;
+		};
+
 	public:
-		Camera();
+		explicit Camera(CameraBehaviour::Context context);
 
 	public:
 		sf::Transform GetViewMatrix() const;
@@ -51,12 +60,13 @@ namespace fge
 
 		void HandleEvent(const sf::Event& event);
 
-		void PreUpdate();
-		void Update();
-		void FixedUpdate();
-		void PostUpdate();
+		void PreUpdate(const Time& time);
+		void Update(const Time& time);
+		void FixedUpdate(const Time& time);
+		void PostUpdate(const Time& time, float interp);
 
 		void Push(const Cameras::ID& camera_id);
+		void Erase(const Cameras::ID& camera_id);
 		void Pop();
 		void Clear();
 
@@ -67,18 +77,21 @@ namespace fge
 		void SetLetterboxView(int width, int height);
 
 	private:
-		sf::Vector2f	m_position;
-		sf::Vector2f	m_scale;	 
-		sf::Vector2f	m_size;
+		CameraBehaviour::Context	m_context;
 
-		Stack			m_stack; // stack of camera behaviours
-		Factory			m_factory;
+		sf::Vector2f				m_position;
+		sf::Vector2f				m_scale;	 
+		sf::Vector2f				m_size;
+
+		Stack						m_stack;	// stack of camera behaviours
+		Factory						m_factory;	// stores funcs to creating camera behaviours
+		std::vector<PendingChange>	m_pending_list;
 	};
 
 	template<class T, typename ...Args>
 	void Camera::RegisterCamera(const Cameras::ID& camera_id, Args && ...args)
 	{
-		m_factories[camera_id] = [this, &args...]()
+		m_factory[camera_id] = [this, &args...]()
 		{
 			return CameraBehaviour::Ptr(new T(*this, _context, std::forward<Args>(args)...));
 		};

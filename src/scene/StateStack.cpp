@@ -2,6 +2,9 @@
 
 using namespace fge;
 
+StateStack::StateStack(State::Context context)
+	: m_context(context) { }
+
 void StateStack::PreUpdate(Time& time)
 {
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
@@ -72,8 +75,8 @@ void StateStack::Clear()
 
 State::Ptr StateStack::CreateState(const States::ID& state_id)
 {
-	auto found = m_factories.find(state_id);
-	assert(found != m_factories.end());
+	auto found = m_factory.find(state_id);
+	assert(found != m_factory.end());
 
 	return found->second();
 }
@@ -99,7 +102,7 @@ void StateStack::ApplyPendingChanges()
 			break;
 		case Action::Clear:
 			{
-				for (State::ptr& state : m_stack)
+				for (State::Ptr& state : m_stack)
 					state->OnDestroy();
 
 				m_stack.clear();
