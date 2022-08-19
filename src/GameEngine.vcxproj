@@ -153,6 +153,7 @@
     <ClInclude Include="ecs\Entity.hpp" />
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
+    <ClInclude Include="graphics\Animation.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="ecs\System.hpp" />
@@ -165,14 +166,18 @@
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
     <ClInclude Include="utilities\Utilities.h" />
+    <ClInclude Include="window\input\Binds.h" />
     <ClInclude Include="window\Camera.h" />
     <ClInclude Include="scene\States.h" />
-	<ClInclude Include="scene\State.h" />
+    <ClInclude Include="scene\State.h" />
     <ClInclude Include="scene\StateStack.h" />
-	<ClInclude Include="scene\SceneNode.h" />
+    <ClInclude Include="scene\SceneNode.h" />
     <ClInclude Include="window\CameraBehaviour.hpp" />
+    <ClInclude Include="window\CameraBehaviours.h" />
     <ClInclude Include="window\CameraDrag.h" />
-    <ClInclude Include="window\InputHandler.h" />
+    <ClInclude Include="window\cameras\CameraDrag.h" />
+    <ClInclude Include="window\cameras\CameraLetterbox.h" />
+    <ClInclude Include="window\input\InputHandler.h" />
     <ClInclude Include="graphics\ResourceHolder.hpp" />
     <ClInclude Include="utilities\Time.hpp" />
     <ClInclude Include="window\Window.h" />
@@ -186,10 +191,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="window\Camera.cpp" />
     <ClCompile Include="window\CameraDrag.cpp" />
-    <ClCompile Include="window\InputHandler.cpp" />
+    <ClCompile Include="window\input\InputHandler.cpp" />
     <ClCompile Include="scene\State.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
-	<ClCompile Include="scene\SceneNode.cpp" />
+    <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

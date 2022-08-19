@@ -10,7 +10,7 @@
     <ClCompile Include="window\Camera.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="window\InputHandler.cpp">
+    <ClCompile Include="window\input\InputHandler.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="window\Window.cpp">
@@ -37,7 +37,7 @@
     <ClInclude Include="window\Camera.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="window\InputHandler.h">
+    <ClInclude Include="window\input\InputHandler.h">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Window.h">
@@ -77,6 +77,12 @@
     <ClInclude Include="scene\State.h" />
     <ClInclude Include="scene\States.h" />
     <ClInclude Include="scene\StateStack.h" />
+    <ClInclude Include="window\CameraBehaviour.hpp" />
+    <ClInclude Include="graphics\Animation.h" />
+    <ClInclude Include="window\CameraBehaviours.h" />
+    <ClInclude Include="window\cameras\CameraLetterbox.h" />
+    <ClInclude Include="window\cameras\CameraDrag.h" />
+    <ClInclude Include="window\input\Binds.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

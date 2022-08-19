@@ -2,26 +2,30 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Camera.h"
-
 #include "../utilities/NonCopyable.h"
+
+#include "Camera.h"
 
 namespace fge
 {
-	enum class WindowBorder // settings for type of border
+	////////////////////////////////////////////////////////////
+	// settings for type of border
+	////////////////////////////////////////////////////////////
+	enum class WindowBorder
 	{
 		Windowed,
 		Fullscreen,
 		BorderlessWindowed // TODO : FIX BORDERLESS WINDOWED ON LOWER RESOLUTION
 	};
 
-	// allow for toggle fullscreen, change resolution, and other settings
-	//
+	////////////////////////////////////////////////////////////
+	// Expanded to allow for toggle fullscreen, 
+	// change resolution, and other settings
+	////////////////////////////////////////////////////////////
 	class Window : public sf::RenderWindow, NonCopyable
 	{
 	public:
-		Window(std::string name, sf::VideoMode mode, WindowBorder window_border, sf::ContextSettings settings, bool vertical_sync, int frame_rate, Camera& camera);
-		~Window();
+		Window(std::string& name, sf::VideoMode& mode, WindowBorder& window_border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate, Camera& camera);
 
 		void Initialize();
 		void HandleEvent(const sf::Event& event);
@@ -37,16 +41,18 @@ namespace fge
 		void SetMode(sf::VideoMode mode);
 		void SetSettings(sf::ContextSettings settings);
 
-		///////////////////////////////////////////////
-		// false = hides and grabs the cursor
+		////////////////////////////////////////////////////////////
 		// true = shows and unhooks the cursor
-		///////////////////////////////////////////////
+		// false = hides and grabs the cursor
+		////////////////////////////////////////////////////////////
 		void SetCursorState(bool flag);
 
 	public:
-		///////////////////////////////////////////////
-		// only gets modes that match the aspect ratio of the desktop
-		///////////////////////////////////////////////
+
+		////////////////////////////////////////////////////////////
+		// only gets modes that match the aspect ratio of 
+		// the desktop
+		////////////////////////////////////////////////////////////
 		std::vector<sf::VideoMode> GetModes() const;
 
 	private:

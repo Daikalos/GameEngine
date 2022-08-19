@@ -3,69 +3,85 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
-#include "InputHandler.h"
+#include <unordered_map>
+#include <memory>
 
 #include "../utilities/VectorUtilities.h"
 #include "../utilities/NonCopyable.h"
 
+#include "input/InputHandler.h"
+#include "CameraBehaviour.hpp"
+#include "CameraBehaviours.h"
+
 namespace fge
 {
-	class Camera : public sf::View, NonCopyable
+	class Camera final : public sf::View, NonCopyable
 	{
-	public:
-		Camera() : m_position(0, 0), m_scale(1, 1), m_size(0, 0) {}
-		virtual ~Camera() = default;
-
-		virtual void HandleEvent(const sf::Event& event);
-
-		///////////////////////////////////////////////
-		// call after poll event
-		///////////////////////////////////////////////
-		virtual void Update(const InputHandler& input_handler, const sf::RenderWindow& window) = 0;
+	private:
+		using Stack = typename std::vector<CameraBehaviour::Ptr>;
+		using Factory = typename std::unordered_map<Cameras::ID, CameraBehaviour::Func>;
 
 	public:
-		sf::Transform GetViewMatrix() const
+		enum Action
 		{
-			return sf::Transform()
-				.translate(m_position)
-				.scale(1.0f / m_scale)
-				.translate(m_size / -2.0f);
-		}
+			Push,
+			Pop,
+			Clear
+		};
 
-		sf::Vector2f ViewToWorld(const sf::Vector2f& position) const
-		{
-			return GetViewMatrix() * position;
-		}
+	public:
+		Camera();
 
-		sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const { return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); }
+	public:
+		sf::Transform GetViewMatrix() const;
+		sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
+		sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const;
 
-		sf::Vector2f GetPosition() const { return m_position; }
-		sf::Vector2f GetScale() const { return m_scale; }
-		sf::Vector2f GetSize() const { return m_size; }
+		sf::Vector2f GetPosition() const noexcept;
+		sf::Vector2f GetScale() const noexcept;
+		sf::Vector2f GetSize() const noexcept;
 
-		void SetPosition(const sf::Vector2f& position)
-		{
-			setCenter(m_position);
-			m_position = position;
-		}
-		void SetScale(const sf::Vector2f& scale)
-		{
-			setSize(m_size * (1.0f / scale));
-			m_scale = scale;
-		}
-		void SetSize(const sf::Vector2f& size) 
-		{ 
-			m_size = size;
-			setSize(m_size * (1.0f / m_scale));
-		}
+		void SetPosition(const sf::Vector2f& position);
+		void SetScale(const sf::Vector2f& scale);
+		void SetSize(const sf::Vector2f& size);
 
-	protected:
+	public:
+		template<class T, typename... Args>
+		void RegisterCamera(const Cameras::ID& camera_id, Args&&... args);
+
+		void HandleEvent(const sf::Event& event);
+
+		void PreUpdate();
+		void Update();
+		void FixedUpdate();
+		void PostUpdate();
+
+		void Push(const Cameras::ID& camera_id);
+		void Pop();
+		void Clear();
+
+	private:
+		CameraBehaviour::Ptr CreateCamera(const Cameras::ID& camera_id);
+		void ApplyPendingChanges();
+
 		void SetLetterboxView(int width, int height);
 
-	protected:
-		sf::Vector2f m_position;
-		sf::Vector2f m_scale;	 
-		sf::Vector2f m_size;
+	private:
+		sf::Vector2f	m_position;
+		sf::Vector2f	m_scale;	 
+		sf::Vector2f	m_size;
+
+		Stack			m_stack; // stack of camera behaviours
+		Factory			m_factory;
 	};
+
+	template<class T, typename ...Args>
+	void Camera::RegisterCamera(const Cameras::ID& camera_id, Args && ...args)
+	{
+		m_factories[camera_id] = [this, &args...]()
+		{
+			return CameraBehaviour::Ptr(new T(*this, _context, std::forward<Args>(args)...));
+		};
+	}
 }
 

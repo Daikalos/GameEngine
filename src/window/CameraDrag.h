@@ -1,16 +1,15 @@
 #pragma once
 
-
+#include "CameraBehaviour.hpp"
 #include "Camera.h"
 #include "InputHandler.h"
 
 namespace fge
 {
-	class CameraDrag final : public Camera
+	class CameraDrag final : public CameraBehaviour
 	{
 	public:
-		CameraDrag() : Camera(), m_dragPos(0, 0) { }
-		~CameraDrag() = default;
+		CameraDrag(Camera* const camera, const InputHandler& input_handler, const sf::RenderWindow& window);
 
 		virtual void Update(const InputHandler& input_handler, const sf::RenderWindow& window) override;
 

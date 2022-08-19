@@ -17,29 +17,27 @@ namespace fge
 			m_delta_time(float()), m_fixed_delta_time(DEFAULT_FIXED_DELTATIME), m_scaled_time(DEFAULT_SCALED_TIME), 
 			m_total_time(float()), m_total_run_time(float()) { }
 
-		~Time() = default;
-
-		inline float GetDeltaTime() const
+		constexpr float GetDeltaTime() const
 		{
 			return m_delta_time * m_scaled_time;
 		}
-		inline float GetRealDeltaTime() const noexcept
+		constexpr float GetRealDeltaTime() const noexcept
 		{
 			return m_delta_time;
 		}
-		inline float GetFixedDeltaTime() const noexcept
+		constexpr float GetFixedDeltaTime() const noexcept
 		{
 			return m_fixed_delta_time;
 		}
-		inline float GetScaledTime() const noexcept
+		constexpr float GetScaledTime() const noexcept
 		{
 			return m_scaled_time;
 		}
-		inline float GetTotalTime() const noexcept
+		constexpr float GetTotalTime() const noexcept
 		{
 			return m_total_time;
 		}
-		inline float GetTotalRunTime() const noexcept
+		constexpr float GetTotalRunTime() const noexcept
 		{
 			return m_total_run_time;
 		}

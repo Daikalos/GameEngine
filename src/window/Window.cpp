@@ -2,8 +2,8 @@
 
 using namespace fge;
 
-Window::Window(std::string name, sf::VideoMode mode, WindowBorder window_border, sf::ContextSettings settings, bool vertical_sync, int frame_rate, Camera& camera)
-	: m_name(name), m_mode(mode), m_border(window_border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate), m_camera(&camera)
+Window::Window(std::string& name, sf::VideoMode& mode, WindowBorder& border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate, Camera& camera)
+	: m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate), m_camera(&camera)
 {
 	std::vector<sf::VideoMode> modes = GetModes();
 
@@ -11,11 +11,6 @@ Window::Window(std::string name, sf::VideoMode mode, WindowBorder window_border,
 		throw std::runtime_error("unable to retrieve supported video modes");
 
 	m_mode = modes.front();
-}
-
-Window::~Window()
-{
-
 }
 
 void Window::Initialize()
@@ -128,5 +123,5 @@ std::vector<sf::VideoMode> fge::Window::GetModes() const
 			valid_modes.push_back(mode);
 	}
 
-	return valid_modes;
+	return std::move(valid_modes);
 }

@@ -17,7 +17,7 @@ namespace fge
 	class StateStack : private NonCopyable
 	{
 	private:
-		using FuncStatePtr = typename std::function<State::ptr()>;
+		using Func = typename std::function<State::Ptr()>;
 
 	public:
 		enum Action
@@ -53,7 +53,7 @@ namespace fge
 		void SetPaused(bool flag) { m_paused = flag; }
 
 	private:
-		State::ptr CreateState(const States::ID& state_id);
+		State::Ptr CreateState(const States::ID& state_id);
 		void ApplyPendingChanges();
 
 	private:
@@ -67,11 +67,11 @@ namespace fge
 		};
 
 	private:
-		std::vector<State::ptr>							m_stack;
+		std::vector<State::Ptr>							m_stack;
 		std::vector<PendingChange>						m_pending_list;
 
 		State::Context									m_context;
-		std::unordered_map<States::ID, FuncStatePtr>	m_factories; // factory for storing functions that creates the registered object
+		std::unordered_map<States::ID, Func>			m_factories; // factory for storing functions that creates the registered object
 
 		bool m_paused{false};
 	};
@@ -79,7 +79,7 @@ namespace fge
 	template<class T, typename... Args>
 	void StateStack::RegisterState(const States::ID& state_id, Args&&... args)
 	{
-		_factories[state_id] = [this, &args...]()
+		m_factories[state_id] = [this, &args...]()
 		{
 			return State::ptr(new T(*this, _context, std::forward<Args>(args)...));
 		};

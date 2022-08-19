@@ -42,7 +42,7 @@ void StateStack::PostUpdate(Time& time, float interp)
 
 void StateStack::Draw()
 {
-	for (State::ptr& state : m_stack)
+	for (State::Ptr& state : m_stack)
 		state->draw();
 }
 
@@ -70,7 +70,7 @@ void StateStack::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-State::ptr StateStack::CreateState(const States::ID& state_id)
+State::Ptr StateStack::CreateState(const States::ID& state_id)
 {
 	auto found = m_factories.find(state_id);
 	assert(found != m_factories.end());
@@ -86,6 +86,7 @@ void StateStack::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateState(change.state_id));
+			m_stack.back()->OnActivate();
 			break;
 		case Action::Pop:
 			{

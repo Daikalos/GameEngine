@@ -9,20 +9,20 @@
 template<typename T> struct v2
 {
 public:
-	static inline const sf::Vector2<T> direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	static inline const sf::Vector2<T> Direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
 		return sf::Vector2<T>(to.x - from.x, to.y - from.y);
 	}
 
-	static inline float length(const sf::Vector2<T>& vector)
+	static inline float Length(const sf::Vector2<T>& vector)
 	{
 		return std::sqrtf(vector.x * vector.x + vector.y * vector.y);
 	}
-	static inline float length_sq(const sf::Vector2<T>& vector)
+	static inline float LengthSq(const sf::Vector2<T>& vector)
 	{
 		return vector.x * vector.x + vector.y * vector.y;
 	}
-	static inline float length_opt(const sf::Vector2<T>& vector)
+	static inline float LengthOpt(const sf::Vector2<T>& vector)
 	{
 		T dx = std::fabsf(vector.x);
 		T dy = std::fabsf(vector.y);
@@ -33,42 +33,42 @@ public:
 		return 1007.f / 1024.f * dx + 441.f / 1024.f * dy;
 	}
 
-	static inline float length(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	static inline float Length(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
-		return length(direction(from, to));
+		return Length(Direction(from, to));
 	}
-	static inline float length_sq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	static inline float LengthSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
-		return length_sq(direction(from, to));
+		return LengthSq(Direction(from, to));
 	}
-	static inline float length_opt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	static inline float LengthOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
-		return length_opt(direction(from, to));
+		return LengthOpt(Direction(from, to));
 	}
 
-	static inline float angle(const sf::Vector2<T>& vector)
+	static inline float Angle(const sf::Vector2<T>& vector)
 	{
 		return atan2f(vector.y, vector.x);
 	}
-	static inline float angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+	static inline float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
-		return acosf(dot(lhs, rhs) / (length(lhs) * length(rhs)));
+		return acosf(Dot(lhs, rhs) / (Length(lhs) * Length(rhs)));
 	}
-	static inline float angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float lhs_length, float rhs_length)
+	static inline float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float lhs_length, float rhs_length)
 	{
-		return acosf(dot(lhs, rhs) / (lhs_length * rhs_length));
+		return acosf(Dot(lhs, rhs) / (lhs_length * rhs_length));
 	}
 
-	static inline float dot(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+	static inline float Dot(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
 		return lhs.x * rhs.x + lhs.y * rhs.y;
 	}
-	static inline float cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+	static inline float Cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
 		return lhs.x * rhs.y - lhs.y * rhs.x;
 	}
 
-	static inline sf::Vector2<T> normalize(sf::Vector2<T> vector, float radius = 1.0f)
+	static inline sf::Vector2<T> Normalize(sf::Vector2<T> vector, float radius = 1.0f)
 	{
 		float len = length(vector);
 
@@ -81,30 +81,30 @@ public:
 		return vector;
 	}
 
-	static inline sf::Vector2<T> limit(const sf::Vector2<T>& vector, float max_length)
+	static inline sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float max_length)
 	{
-		if (length(vector) > max_length)
-			return normalize(vector, max_length);
+		if (Length(vector) > max_length)
+			return Normalize(vector, max_length);
 
 		return vector;
 	}
 
-	static inline sf::Vector2<T> clamp(const sf::Vector2<T>& vector, float max_length, float min_length)
+	static inline sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float max_length, float min_length)
 	{
-		float l = length(vector);
+		float l = Length(vector);
 
 		if (l > max_length)
-			return normalize(vector, max_length);
-
+			return Normalize(vector, max_length);
 		if (l < min_length)
-			return normalize(vector, min_length);
+			return Normalize(vector, min_length);
 
 		return vector;
 	}
 
-	static inline sf::Vector2<T> rotate_point(const sf::Vector2<T>& point, const sf::Vector2<T>& center, float angle)
+
+	static inline sf::Vector2<T> RotatePoint(const sf::Vector2<T>& point, const sf::Vector2<T>& center, float angle)
 	{
-		sf::Vector2<T> dir = direction(center, point);
+		sf::Vector2<T> dir = Direction(center, point);
 
 		float s = sinf(angle);
 		float c = cosf(angle);
@@ -114,26 +114,22 @@ public:
 			(dir.x * s + dir.y * c) + center.y);
 	}
 
-	static inline sf::Vector2<T> abs(sf::Vector2<T> vector)
+	static inline sf::Vector2<T> Abs(sf::Vector2<T> vector)
 	{
 		return sf::Vector2<T>(std::fabsf(vector.x), std::fabsf(vector.y));
 	}
-	static inline sf::Vector2<T> floor(sf::Vector2<T> vector)
+	static inline sf::Vector2<T> Floor(sf::Vector2<T> vector)
 	{
 		return sf::Vector2<T>(std::floorf(vector.x), std::floorf(vector.y));
 	}
 
-	static inline float lerp(float a, float b, float f)
-	{
-		return (a * (1.0f - f)) + (b * f);
-	}
-	static inline const sf::Vector2<T> lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float a)
+	static inline const sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float a)
 	{
 		return sf::Vector3<T>(
 			lerp(lhs.x, rhs.x, a),
 			lerp(lhs.y, rhs.y, a));
 	}
-	static inline sf::Vector3<T> lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, float a)
+	static inline sf::Vector3<T> Lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, float a)
 	{
 		return sf::Vector3<T>(
 			lerp(lhs.x, rhs.x, a),

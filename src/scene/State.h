@@ -16,7 +16,8 @@ namespace fge
 	class State
 	{
 	public:
-		using ptr = typename std::unique_ptr<State>;
+		using Ptr = typename std::unique_ptr<State>;
+		using Func = typename std::function<Ptr()>;
 
 		struct Context // holds vital objects
 		{

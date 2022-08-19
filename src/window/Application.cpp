@@ -29,10 +29,9 @@ void Application::Run()
 	while (m_window.isOpen())
 	{
 		m_time.Update();
-
 		m_input_handler.Update(m_time);
+
 		ProcessEvents();
-		m_camera->Update(m_input_handler, m_window);
 
 		PreUpdate();
 
@@ -76,7 +75,7 @@ void Application::ProcessEvents()
 	{
 		m_input_handler.HandleEvent(event);
 		m_window.HandleEvent(event);
-		m_camera->HandleEvent(event);
+		m_camera.HandleEvent(event);
 
 		m_state_stack.HandleEvent(event);
 	}
@@ -84,35 +83,32 @@ void Application::ProcessEvents()
 
 void Application::PreUpdate()
 {
+	m_camera.PreUpdate(m_input_handler, m_window);
 	m_state_stack.PreUpdate(m_time);
 }
 
 void Application::Update()
 {
+	m_camera.Update(m_input_handler, m_window);
 	m_state_stack.Update(m_time);
 }
 
 void Application::FixedUpdate()
 {
+	m_camera.FixedUpdate(m_input_handler, m_window);
 	m_state_stack.FixedUpdate(m_time);
 }
 
 void Application::PostUpdate(float interp)
 {
+	m_camera.PostUpdate(m_input_handler, m_window);
 	m_state_stack.PostUpdate(m_time, interp);
 }
 
 void Application::Draw()
 {
 	m_window.clear();
-	m_window.setView(*m_camera);
-
-	sf::CircleShape circle;
-	circle.setFillColor(sf::Color::Red);
-	circle.setRadius(32.0f);
-	circle.setPosition(sf::Vector2f(0.0f, 0.f));
-
-	m_window.draw(circle);
+	m_window.setView(m_camera);
 
 	m_state_stack.Draw();
 

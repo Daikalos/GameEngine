@@ -4,7 +4,7 @@
 
 #include "Window.h"
 #include "Camera.h"
-#include "InputHandler.h"
+#include "input/InputHandler.h"
 
 #include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
@@ -35,7 +35,7 @@ namespace fge
 
 	private:
 		Time			m_time;
-		Camera*			m_camera; // TODO: solve creation
+		Camera			m_camera;
 		Window			m_window;
 		InputHandler	m_input_handler;
 		TextureHolder	m_texture_holder;
