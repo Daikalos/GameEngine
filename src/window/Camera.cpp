@@ -109,7 +109,7 @@ void Camera::PostUpdate(const Time& time, float interp)
 
 void Camera::Erase(const Cameras::ID& camera_id)
 {
-	m_pending_list.push_back(PendingChange<float>(Action::Erase, camera_id, 0.0f));
+	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
 }
 void Camera::Pop()
 {

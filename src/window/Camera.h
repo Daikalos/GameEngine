@@ -28,17 +28,17 @@ namespace fge
 			Clear
 		};
 
-		template<typename...  Args>
+		//template<typename...  Args>
 		struct PendingChange
 		{
-			using Ptr = typename std::unique_ptr<PendingChange>;
+			//using Ptr = typename std::unique_ptr<PendingChange>;
 
-			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None, Args&&... args)
-				: action(action), camera_id(camera_id), args(std::forward<Args>(args)...) { }
+			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None)//, Args&&... args)
+				: action(action), camera_id(camera_id) {}//, args(std::forward<Args>(args)...) { }
 
 			const Action				action;
 			const Cameras::ID			camera_id;
-			const std::tuple<Args...>	args;
+			//const std::tuple<Args...>	args;
 		};
 
 	public:

@@ -159,6 +159,7 @@
     <ClInclude Include="ecs\System.hpp" />
     <ClInclude Include="graphics\Resources.h" />
     <ClInclude Include="graphics\SpriteBatch.h" />
+    <ClInclude Include="test\TestState.h" />
     <ClInclude Include="Utilities.hpp" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="utilities\Random.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
+    <ClCompile Include="test\TestState.cpp" />
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="main.cpp" />

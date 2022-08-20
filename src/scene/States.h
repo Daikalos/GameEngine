@@ -7,6 +7,7 @@ namespace fge
 		enum class ID
 		{
 			None,
+			Test,
 			Title,
 			Menu,
 			Game,

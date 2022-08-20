@@ -77,9 +77,9 @@ namespace fge
 	template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<State, T>, bool>>
 	inline void StateStack::RegisterState(const States::ID& state_id, Args&&... args)
 	{
-		m_factory[state_id] = [this, &args...]()
+		m_factory[state_id] = [&state_id, this, &args...]()
 		{
-			return State::ptr(new T(state_id, *this, m_context, std::forward<Args>(args)...));
+			return State::Ptr(new T(state_id, *this, m_context, std::forward<Args>(args)...));
 		};
 	}
 }
