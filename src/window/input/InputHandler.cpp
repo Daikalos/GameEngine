@@ -116,12 +116,12 @@ void InputHandler::Update(const Time& time)
 }
 
 #if KEYBOARDMOUSE_ENABLED
-bool InputHandler::GetScrollUp() const
+bool InputHandler::GetScrollUp() const noexcept
 {
 	return m_scroll_delta > 0;
 }
 
-bool fge::InputHandler::GetScrollDown() const
+bool fge::InputHandler::GetScrollDown() const noexcept
 {
 	return m_scroll_delta < 0;
 }

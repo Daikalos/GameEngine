@@ -50,18 +50,9 @@ namespace fge
 
 		virtual void draw() = 0;
 
-		virtual bool IsPaused() const		{ m_state_stack->IsPaused(); }
-		virtual void SetPaused(bool flag)	{ m_state_stack->SetPaused(flag); }
-
 	protected:
-		void RequestStackPush(States::ID state_id);
-		void RequestStackPop();
-		void RequestStackClear();
-
-		const Context& GetContext()
-		{
-			return m_context;
-		}
+		const Context& GetContext() const	{ return m_context; }
+		StateStack& GetStack() const		{ return *m_state_stack; }
 
 	private:
 		States::ID	m_id;

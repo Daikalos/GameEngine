@@ -7,6 +7,8 @@ namespace fge
 	template<typename T>
 	struct Rect
 	{
+		static_assert(std::is_arithmetic_v<T>, "only arithmetic type allowed");
+
 		Rect() = default;
 		Rect(T left, T top, T right, T bot)
 			: top_left({ left, top }), bot_right({ right, bot }) { };

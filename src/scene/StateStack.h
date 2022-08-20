@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <functional>
 
-#include "State.h"
+#include "State.hpp"
 #include "States.h"
 
 #include "../utilities/NonCopyable.h"
@@ -20,7 +20,7 @@ namespace fge
 		using Stack = typename std::vector<State::Ptr>;
 		using Factory = typename std::unordered_map<States::ID, State::Func>;
 
-		enum Action
+		enum class Action
 		{
 			Push,
 			Pop,
@@ -32,8 +32,8 @@ namespace fge
 			explicit PendingChange(const Action& action, const States::ID& state_id = States::ID::None)
 				: action(action), state_id(state_id) { }
 
-			const Action action;
-			const States::ID state_id;
+			const Action		action;
+			const States::ID	state_id;
 		};
 
 	public:
@@ -79,7 +79,7 @@ namespace fge
 	{
 		m_factory[state_id] = [this, &args...]()
 		{
-			return State::ptr(new T(state_id, *this, _context, std::forward<Args>(args)...));
+			return State::ptr(new T(state_id, *this, m_context, std::forward<Args>(args)...));
 		};
 	}
 }

@@ -2,8 +2,14 @@
 
 using namespace fge;
 
-Window::Window(std::string& name, sf::VideoMode& mode, WindowBorder& border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate)
-	: m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate)
+Window::Window(
+	std::string& name,
+	const sf::VideoMode& mode,
+	const WindowBorder& border,
+	const sf::ContextSettings& settings,
+	bool vertical_sync, int frame_rate) : 
+	m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), 
+	m_vertical_sync(vertical_sync), m_frame_rate(frame_rate)
 {
 	std::vector<sf::VideoMode> modes = GetModes();
 

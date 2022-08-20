@@ -20,7 +20,6 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="window\Application.cpp" />
-    <ClCompile Include="scene\State.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="ecs\Component.cpp" />
@@ -45,7 +44,7 @@
     <ClInclude Include="utilities\Utilities.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="scene\State.h">
+    <ClInclude Include="scene\State.hpp">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="scene\StateStack.h">

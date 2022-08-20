@@ -2,7 +2,7 @@
 
 using namespace fge;
 
-Application::Application(const std::string& name) : 
+Application::Application(std::string& name) : 
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200),
 	m_camera(CameraBehaviour::Context(m_window, m_input_handler)),
 	m_state_stack(State::Context(m_window, m_camera, m_input_handler, m_texture_holder, m_font_holder))
@@ -18,6 +18,7 @@ Application::~Application()
 void Application::Run()
 {
 	m_window.Initialize();
+	m_time.Reset();
 
 	float accumulator = FLT_EPSILON;
 

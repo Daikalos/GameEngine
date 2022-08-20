@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SFML/System/Clock.hpp>
-#include <type_traits>
 
 #include "NonCopyable.h"
 
@@ -45,6 +44,13 @@ namespace fge
 		void SetScaledTime(const float value)
 		{
 			m_scaled_time = value;
+		}
+
+		void Reset()
+		{
+			m_clock.restart();
+			m_fixed_delta_time = DEFAULT_FIXED_DELTATIME;
+			m_scaled_time = DEFAULT_SCALED_TIME;
 		}
 
 		////////////////////////////////////////////////////////

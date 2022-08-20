@@ -111,7 +111,7 @@ namespace fge
 	template<class C, typename ...Args>
 	inline C* ECS::AddComponent(const EntityID entityId, Args && ...args)
 	{
-		ComponentTypeID new_comp_type_id = Component<C>::get_type_id();
+		ComponentTypeID new_comp_type_id = Component<C>::GetTypeId();
 
 		assert(is_component_registered<C>()); // component should be registered
 
@@ -133,7 +133,7 @@ namespace fge
 
 			std::sort(new_archetype_id.begin(), new_archetype_id.end());
 
-			new_archetype = get_archetype(new_archetype_id);
+			new_archetype = GetArchetype(new_archetype_id);
 
 			for (std::size_t i = 0; i < new_archetype_id.size(); ++i) // for every component in the new archetype
 			{

@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../ecs/ECS.hpp"
+//#include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
@@ -15,7 +15,7 @@ namespace fge
 	class Application final
 	{
 	public:
-		Application(const std::string& name);
+		Application(std::string& name);
 		~Application();
 
 		void Run();

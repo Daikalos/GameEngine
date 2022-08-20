@@ -8,7 +8,6 @@
 
 #include "../utilities/VectorUtilities.h"
 #include "../utilities/NonCopyable.h"
-#include "input/InputHandler.h"
 #include "CameraBehaviour.hpp"
 #include "Cameras.h"
 
@@ -20,7 +19,7 @@ namespace fge
 		using Stack = typename std::vector<CameraBehaviour::Ptr>;
 		using Factory = typename std::unordered_map<Cameras::ID, CameraBehaviour::Func>;
 
-		enum Action
+		enum class Action
 		{
 			Push,
 			Pop,
@@ -80,7 +79,7 @@ namespace fge
 		sf::Vector2f				m_size;
 
 		Stack						m_stack;		// stack of camera behaviours
-		Factory						m_factory;		// stores funcs to creating camera behaviours
+		Factory						m_factory;		// stores funcs for creating camera behaviours
 		std::vector<PendingChange>	m_pending_list;
 	};
 

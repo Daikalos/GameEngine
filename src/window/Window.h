@@ -23,7 +23,12 @@ namespace fge
 	class Window : public sf::RenderWindow, NonCopyable
 	{
 	public:
-		Window(std::string& name, sf::VideoMode& mode, WindowBorder& window_border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate);
+		Window(
+			std::string& name, 
+			const sf::VideoMode& mode, 
+			const WindowBorder& window_border, 
+			const sf::ContextSettings& settings, 
+			bool vertical_sync, int frame_rate);
 
 		void Initialize();
 		void HandleEvent(const sf::Event& event);
