@@ -123,5 +123,5 @@ std::vector<sf::VideoMode> fge::Window::GetModes() const
 			valid_modes.push_back(mode);
 	}
 
-	return std::move(valid_modes);
+	return valid_modes;
 }

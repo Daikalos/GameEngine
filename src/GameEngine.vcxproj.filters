@@ -81,6 +81,7 @@
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\input\Binds.h" />
     <ClInclude Include="window\cameras\CameraZoom.h" />
+    <ClInclude Include="graphics\Resources.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

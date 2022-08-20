@@ -8,7 +8,8 @@
 
 namespace fge
 {
-	template<typename T> struct v2
+	template<typename T> 
+	struct v2
 	{
 	public:
 		static inline const sf::Vector2<T> Direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
@@ -143,9 +144,9 @@ namespace fge
 		v2() = delete;
 	};
 
-	typedef v2<int> v2i;
-	typedef v2<float> v2f;
-	typedef v2<double> v2d;
+	using v2i = typename v2<int>;
+	using v2f = typename v2<float>;
+	using v2d = typename v2<double>;
 
 	template <typename T>
 	static inline sf::Vector2<T> operator /=(sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)

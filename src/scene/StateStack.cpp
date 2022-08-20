@@ -23,6 +23,8 @@ void StateStack::PreUpdate(Time& time)
 		if (!(*it)->PreUpdate(time))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 
 void StateStack::Update(Time& time)
@@ -32,6 +34,8 @@ void StateStack::Update(Time& time)
 		if (!(*it)->Update(time))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 
 void StateStack::FixedUpdate(Time& time)
@@ -41,6 +45,8 @@ void StateStack::FixedUpdate(Time& time)
 		if (!(*it)->FixedUpdate(time))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 
 void StateStack::PostUpdate(Time& time, float interp)
@@ -89,6 +95,7 @@ void StateStack::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateState(change.state_id));
+			m_stack.back()->OnCreate();
 			break;
 		case Action::Pop:
 			{

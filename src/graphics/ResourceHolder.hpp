@@ -6,23 +6,11 @@
 #include <memory>
 #include <unordered_map>
 
-#include <iostream>
-#include <filesystem>
-
 #include "../utilities/NonCopyable.h"
+#include "Resources.h"
 
 namespace fge
 {
-	enum class TextureID
-	{
-
-	};
-
-	enum class FontID
-	{
-
-	};
-
 	template <class Resource, class Identifier>
 	class ResourceHolder : private NonCopyable
 	{
@@ -39,7 +27,7 @@ namespace fge
 		Resource Load(const std::string& path, const Parameter& second_param);
 
 		void Load(const Identifier& id, const std::string& path);
-		auto LoadAsync(const Identifier& id, const std::string& path);
+		//auto LoadAsync(const Identifier& id, const std::string& path);
 
 		template <class Parameter>
 		void Load(const Identifier& id, const std::string& path, const Parameter& second_param);
@@ -82,11 +70,11 @@ namespace fge
 		assert(inserted.second);
 	}
 
-	template<class Resource, class Identifier>
-	inline auto ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
-	{
-		return std::async(std::launch::async, &ResourceHolder<Resource, Identifier>::Load, std::ref(id), std::ref(path));
-	}
+	//template<class Resource, class Identifier>
+	//inline auto ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
+	//{
+	//	return std::async(std::launch::async, &ResourceHolder<Resource, Identifier>::Load, std::ref(id), std::ref(path));
+	//}
 
 	template<typename Resource, typename Identifier>
 	template<typename Parameter>
@@ -112,7 +100,7 @@ namespace fge
 		return *it->second.get();
 	}
 
-	using TextureHolder = ResourceHolder<sf::Texture, TextureID>;
-	using FontHolder = ResourceHolder<sf::Font, FontID>;
+	using TextureHolder = ResourceHolder<sf::Texture, Texture::ID>;
+	using FontHolder = ResourceHolder<sf::Font, Font::ID>;
 }
 

@@ -1,7 +1,14 @@
 #pragma once
 
-class ExceptionHandler
+namespace fge
 {
+	class ExceptionHandler
+	{
+	public:
+		ExceptionHandler* Instance;
 
-};
+	private:
+
+	};
+}
 

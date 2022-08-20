@@ -41,11 +41,11 @@ namespace fge
 	public:
 		CameraBehaviour(Cameras::ID id, Camera& camera, Context context) :
 			m_id(id), m_camera(&camera), m_context(context) { }
-
 		virtual ~CameraBehaviour() = default;
 
 		Cameras::ID GetId() const noexcept { return m_id; }
 
+		virtual void OnCreate() {}
 		virtual void OnActivate() {}
 		virtual void OnDestroy() {}
 

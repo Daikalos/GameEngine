@@ -73,6 +73,8 @@ void Camera::PreUpdate(const Time& time)
 		if (!(*it)->PreUpdate(time))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 void Camera::Update(const Time& time)
 {
@@ -81,6 +83,8 @@ void Camera::Update(const Time& time)
 		if (!(*it)->Update(time))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 void Camera::FixedUpdate(const Time& time)
 {
@@ -89,6 +93,8 @@ void Camera::FixedUpdate(const Time& time)
 		if (!(*it)->FixedUpdate(time))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 void Camera::PostUpdate(const Time& time, float interp)
 {
@@ -101,13 +107,9 @@ void Camera::PostUpdate(const Time& time, float interp)
 	ApplyPendingChanges();
 }
 
-void Camera::Push(const Cameras::ID& camera_id)
-{
-	m_pending_list.push_back(PendingChange(Action::Push, camera_id));
-}
 void Camera::Erase(const Cameras::ID& camera_id)
 {
-	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
+	m_pending_list.push_back(PendingChange<float>(Action::Erase, camera_id, 0.0f));
 }
 void Camera::Pop()
 {
@@ -118,7 +120,16 @@ void Camera::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-CameraBehaviour::Ptr fge::Camera::CreateCamera(const Cameras::ID& camera_id)
+CameraBehaviour* Camera::GetBehaviour(const Cameras::ID& camera_id)
+{
+	for (const CameraBehaviour::Ptr& behaviour : m_stack)
+		if (behaviour->GetId() == camera_id)
+			return behaviour.get();
+
+	return nullptr;
+}
+
+CameraBehaviour::Ptr Camera::CreateBehaviour(const Cameras::ID& camera_id)
 {
 	auto found = m_factory.find(camera_id);
 	assert(found != m_factory.end());
@@ -133,7 +144,8 @@ void Camera::ApplyPendingChanges()
 		switch (change.action)
 		{
 		case Action::Push:
-			m_stack.push_back(CreateCamera(change.camera_id));
+			m_stack.push_back(CreateBehaviour(change.camera_id));
+			m_stack.back()->OnCreate();
 			break;
 		case Action::Pop:
 			{

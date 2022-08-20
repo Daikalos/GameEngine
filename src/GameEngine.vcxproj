@@ -157,6 +157,7 @@
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="ecs\System.hpp" />
+    <ClInclude Include="graphics\Resources.h" />
     <ClInclude Include="graphics\SpriteBatch.h" />
     <ClInclude Include="Utilities.hpp" />
     <ClInclude Include="utilities\NonCopyable.h" />

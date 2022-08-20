@@ -38,6 +38,7 @@ namespace fge
 
 		States::ID GetId() const noexcept { return m_id; }
 
+		virtual void OnCreate() {}
 		virtual void OnActivate() {}
 		virtual void OnDestroy() {}
 
