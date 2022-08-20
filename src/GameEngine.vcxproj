@@ -166,6 +166,7 @@
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
     <ClInclude Include="utilities\Utilities.h" />
+    <ClInclude Include="window\cameras\CameraZoom.h" />
     <ClInclude Include="window\input\Binds.h" />
     <ClInclude Include="window\Camera.h" />
     <ClInclude Include="scene\States.h" />
@@ -174,7 +175,6 @@
     <ClInclude Include="scene\SceneNode.h" />
     <ClInclude Include="window\CameraBehaviour.hpp" />
     <ClInclude Include="window\Cameras.h" />
-    <ClInclude Include="window\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraLetterbox.h" />
     <ClInclude Include="window\input\InputHandler.h" />
@@ -190,7 +190,6 @@
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="window\Camera.cpp" />
-    <ClCompile Include="window\CameraDrag.cpp" />
     <ClCompile Include="window\input\InputHandler.cpp" />
     <ClCompile Include="scene\State.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />

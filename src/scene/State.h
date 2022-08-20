@@ -32,22 +32,23 @@ namespace fge
 		};
 
 	public:
-		explicit State(StateStack& state_stack, Context context)
-			: m_state_stack(&state_stack), m_context(context) { }
-
+		explicit State(States::ID id, StateStack& state_stack, Context context)
+			: m_id(id), m_state_stack(&state_stack), m_context(context) { }
 		virtual ~State() {}
+
+		States::ID GetId() const noexcept { return m_id; }
+
+		virtual void OnActivate() {}
+		virtual void OnDestroy() {}
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
 
-		virtual bool PreUpdate(Time& time)				{ return true; }
+		virtual bool PreUpdate(Time& time)					{ return true; }
 		virtual bool Update(Time& time) = 0;
 		virtual bool FixedUpdate(Time& time)				{ return true; }
 		virtual bool PostUpdate(Time& time, float interp)	{ return true; }
 
 		virtual void draw() = 0;
-
-		virtual void OnActivate()	{}
-		virtual void OnDestroy()	{}
 
 		virtual bool IsPaused() const		{ m_state_stack->IsPaused(); }
 		virtual void SetPaused(bool flag)	{ m_state_stack->SetPaused(flag); }
@@ -63,7 +64,8 @@ namespace fge
 		}
 
 	private:
+		States::ID	m_id;
 		StateStack* m_state_stack;
-		Context m_context;
+		Context		m_context;
 	};
 }

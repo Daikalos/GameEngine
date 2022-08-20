@@ -39,7 +39,7 @@ namespace fge
 	public:
 		explicit StateStack(State::Context context);
 
-		template<class T, typename... Args>
+		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<State, T>, bool> = true>
 		void RegisterState(const States::ID& state_id, Args&&... args);
 
 		void HandleEvent(const sf::Event& event);
@@ -67,19 +67,19 @@ namespace fge
 	private:
 		State::Context				m_context;
 
-		Stack						m_stack;
-		Factory						m_factory; // factory for storing functions that creates the registered object
-		std::vector<PendingChange>	m_pending_list;
+		Stack						m_stack;		// all states are stored here
+		Factory						m_factory;		// factory for storing functions that creates the registered object
+		std::vector<PendingChange>	m_pending_list; // pending list of changes to the stack, applied last in the update
 
 		bool m_paused{false};
 	};
 
-	template<class T, typename... Args>
-	void StateStack::RegisterState(const States::ID& state_id, Args&&... args)
+	template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<State, T>, bool>>
+	inline void StateStack::RegisterState(const States::ID& state_id, Args&&... args)
 	{
 		m_factory[state_id] = [this, &args...]()
 		{
-			return State::ptr(new T(*this, _context, std::forward<Args>(args)...));
+			return State::ptr(new T(state_id, *this, _context, std::forward<Args>(args)...));
 		};
 	}
 }

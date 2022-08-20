@@ -25,7 +25,7 @@ namespace fge
 
 		}
 
-		EntityID get_id() const
+		EntityID GetId() const
 		{
 			return m_id;
 		}

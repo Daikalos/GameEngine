@@ -4,8 +4,6 @@
 
 #include "../utilities/NonCopyable.h"
 
-#include "Camera.h"
-
 namespace fge
 {
 	////////////////////////////////////////////////////////////
@@ -25,7 +23,7 @@ namespace fge
 	class Window : public sf::RenderWindow, NonCopyable
 	{
 	public:
-		Window(std::string& name, sf::VideoMode& mode, WindowBorder& window_border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate, Camera& camera);
+		Window(std::string& name, sf::VideoMode& mode, WindowBorder& window_border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate);
 
 		void Initialize();
 		void HandleEvent(const sf::Event& event);
@@ -62,7 +60,5 @@ namespace fge
 		sf::ContextSettings m_settings;			// settings
 		bool				m_vertical_sync;	// vertical sync
 		int					m_frame_rate;		// maximum frame rate
-
-		Camera*				m_camera;			// camera
 	};
 }

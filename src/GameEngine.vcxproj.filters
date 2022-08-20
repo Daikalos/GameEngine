@@ -25,7 +25,6 @@
     <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
-    <ClCompile Include="window\CameraDrag.cpp" />
     <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="scene\State.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
@@ -72,7 +71,6 @@
     <ClInclude Include="utilities\VectorUtilities.h" />
     <ClInclude Include="utilities\Time.hpp" />
     <ClInclude Include="utilities\Random.h" />
-    <ClInclude Include="window\CameraDrag.h" />
     <ClInclude Include="scene\SceneNode.h" />
     <ClInclude Include="scene\State.h" />
     <ClInclude Include="scene\States.h" />
@@ -83,6 +81,7 @@
     <ClInclude Include="window\cameras\CameraLetterbox.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\input\Binds.h" />
+    <ClInclude Include="window\cameras\CameraZoom.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

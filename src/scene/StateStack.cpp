@@ -5,6 +5,17 @@ using namespace fge;
 StateStack::StateStack(State::Context context)
 	: m_context(context) { }
 
+void StateStack::HandleEvent(const sf::Event& event)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->HandleEvent(event))
+			break;
+	}
+
+	ApplyPendingChanges();
+}
+
 void StateStack::PreUpdate(Time& time)
 {
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
@@ -49,17 +60,6 @@ void StateStack::Draw()
 		state->draw();
 }
 
-void StateStack::HandleEvent(const sf::Event& event)
-{
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->HandleEvent(event))
-			break;
-	}
-
-	ApplyPendingChanges();
-}
-
 void StateStack::Push(const States::ID& state_id)
 {
 	m_pending_list.push_back(PendingChange(Action::Push, state_id));
@@ -89,7 +89,6 @@ void StateStack::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateState(change.state_id));
-			m_stack.back()->OnActivate();
 			break;
 		case Action::Pop:
 			{

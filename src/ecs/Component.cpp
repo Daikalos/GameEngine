@@ -30,5 +30,5 @@ std::size_t Component<C>::GetSize() const
 template<class C>
 ComponentTypeID Component<C>::GetTypeId()
 {
-	return TypeIdGenerator<ComponentBase>::get_new_id<C>();
+	return TypeIdGenerator<ComponentBase>::GetNewId<C>();
 }

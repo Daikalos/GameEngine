@@ -57,12 +57,13 @@ void Camera::SetSize(const sf::Vector2f& size)
 
 void Camera::HandleEvent(const sf::Event& event)
 {
-	switch (event.type)
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
-	case sf::Event::Resized:
-		SetLetterboxView(event.size.width, event.size.height);
-		break;
+		if (!(*it)->HandleEvent(event))
+			break;
 	}
+
+	ApplyPendingChanges();
 }
 
 void Camera::PreUpdate(const Time& time)
@@ -96,6 +97,8 @@ void Camera::PostUpdate(const Time& time, float interp)
 		if (!(*it)->PostUpdate(time, interp))
 			break;
 	}
+
+	ApplyPendingChanges();
 }
 
 void Camera::Push(const Cameras::ID& camera_id)
@@ -131,51 +134,31 @@ void Camera::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateCamera(change.camera_id));
-			m_stack.back()->OnActivate();
 			break;
 		case Action::Pop:
-		{
-			m_stack.back()->OnDestroy();
-			m_stack.pop_back();
+			{
+				m_stack.back()->OnDestroy();
+				m_stack.pop_back();
 
-			if (!m_stack.empty())
-				m_stack.back()->OnActivate();
-		}
-		break;
+				if (!m_stack.empty())
+					m_stack.back()->OnActivate();
+			}
+			break;
+		case Action::Erase:
+			{
+				
+			}
+			break;
 		case Action::Clear:
-		{
-			for (CameraBehaviour::Ptr& state : m_stack)
-				state->OnDestroy();
+			{
+				for (CameraBehaviour::Ptr& state : m_stack)
+					state->OnDestroy();
 
-			m_stack.clear();
-		}
-		break;
+				m_stack.clear();
+			}
+			break;
 		}
 	}
 
 	m_pending_list.clear();
-}
-
-void Camera::SetLetterboxView(int width, int height)
-{
-	float window_ratio = width / (float)height;
-	float view_ratio = getSize().x / (float)getSize().y;
-
-	float size_x = 1.0f;
-	float size_y = 1.0f;
-	float pos_x = 0.0f;
-	float pos_y = 0.0f;
-
-	if (window_ratio >= view_ratio)
-	{
-		size_x = view_ratio / window_ratio;
-		pos_x = (1.0f - size_x) / 2.0f;
-	}
-	else
-	{
-		size_y = window_ratio / view_ratio;
-		pos_y = (1.0f - size_y) / 2.0f;
-	}
-
-	setViewport(sf::FloatRect(sf::Vector2f(pos_x, pos_y), sf::Vector2f(size_x, size_y)));	
 }

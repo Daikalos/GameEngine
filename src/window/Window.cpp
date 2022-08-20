@@ -2,8 +2,8 @@
 
 using namespace fge;
 
-Window::Window(std::string& name, sf::VideoMode& mode, WindowBorder& border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate, Camera& camera)
-	: m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate), m_camera(&camera)
+Window::Window(std::string& name, sf::VideoMode& mode, WindowBorder& border, sf::ContextSettings& settings, bool vertical_sync, int frame_rate)
+	: m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate)
 {
 	std::vector<sf::VideoMode> modes = GetModes();
 
@@ -22,9 +22,6 @@ void Window::Initialize()
 
 	if (!setActive(true))
 		throw std::runtime_error("window could not be activated");
-
-	m_camera->SetSize(sf::Vector2f(m_mode.size));
-	m_camera->SetPosition(m_camera->GetSize() / 2.0f);
 }
 
 void Window::HandleEvent(const sf::Event& event)
@@ -90,10 +87,7 @@ void Window::SetBorder(WindowBorder border)
 void Window::SetMode(sf::VideoMode mode)
 {
 	if (m_mode != mode)
-	{
 		Build(m_border, mode, m_settings);
-		m_camera->SetSize(sf::Vector2f(mode.size));
-	}
 }
 void Window::SetSettings(sf::ContextSettings settings)
 {

@@ -3,11 +3,9 @@
 using namespace fge;
 
 Application::Application(const std::string& name) : 
-	m_camera(CameraBehaviour::Context(m_window, m_input_handler)), 
-	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200, *m_camera),
-	m_input_handler(), 
-	m_texture_holder(), 
-	m_state_stack(State::Context(m_window, *m_camera, m_input_handler, m_texture_holder, m_font_holder))
+	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Fullscreen, sf::ContextSettings(), true, 200),
+	m_camera(CameraBehaviour::Context(m_window, m_input_handler)),
+	m_state_stack(State::Context(m_window, m_camera, m_input_handler, m_texture_holder, m_font_holder))
 {
 	m_input_handler.SetButtonBinding(Binds::Button::Drag, sf::Mouse::Button::Middle);
 }

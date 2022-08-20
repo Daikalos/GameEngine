@@ -2,14 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Window.h"
-#include "Camera.h"
-#include "input/InputHandler.h"
-
 #include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
+#include "input/InputHandler.h"
+#include "Window.h"
+#include "Camera.h"
 
 namespace fge
 {
@@ -34,13 +33,13 @@ namespace fge
 		void RegisterStates();
 
 	private:
-		Time			m_time;
-		Camera			m_camera;
 		Window			m_window;
+		Camera			m_camera;
+		StateStack		m_state_stack;
 		InputHandler	m_input_handler;
 		TextureHolder	m_texture_holder;
 		FontHolder		m_font_holder;
-		StateStack		m_state_stack;
+		Time			m_time;
 	};
 }
 

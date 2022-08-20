@@ -33,7 +33,10 @@ namespace fge
 		ResourceHolder() { }
 		~ResourceHolder() { }
 
-		ResourcePtr Load(const std::string& path);
+		Resource Load(const std::string& path);
+
+		template <class Parameter>
+		Resource Load(const std::string& path, const Parameter& second_param);
 
 		void Load(const Identifier& id, const std::string& path);
 		auto LoadAsync(const Identifier& id, const std::string& path);
@@ -49,50 +52,59 @@ namespace fge
 	};
 
 	template<class Resource, class Identifier>
-	ResourceHolder<Resource, Identifier>::ResourcePtr ResourceHolder<Resource, Identifier>::Load(const std::string& path)
+	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string& path)
 	{
-		ResourcePtr resource(new Resource());
+		Resource resource;
 
-		if (!resource->loadFromFile(path))
+		if (!resource.loadFromFile(path))
+			throw std::runtime_error("resource does not exist at " + path);
+
+		return std::move(resource);
+	}
+
+	template<class Resource, class Identifier>
+	template<class Parameter>
+	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string& path, const Parameter& second_param)
+	{
+		Resource resource;
+
+		if (!resource.loadFromFile(path, second_param))
 			throw std::runtime_error("resource does not exist at " + path);
 
 		return std::move(resource);
 	}
 
 	template<typename Resource, typename Identifier>
-	void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path)
+	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path)
 	{
-		auto inserted = m_resources.insert(std::make_pair(id, Load(path));
+		ResourcePtr resource = ResourcePtr(new Resource(Load(path)));
+		auto inserted = m_resources.insert(std::make_pair(id, resource));
 		assert(inserted.second);
 	}
 
 	template<class Resource, class Identifier>
-	auto ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
+	inline auto ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
 	{
 		return std::async(std::launch::async, &ResourceHolder<Resource, Identifier>::Load, std::ref(id), std::ref(path));
 	}
 
 	template<typename Resource, typename Identifier>
 	template<typename Parameter>
-	void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path, const Parameter& second_param)
+	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path, const Parameter& second_param)
 	{
-		ResourcePtr resource(new Resource());
-
-		if (!resource->loadFromFile(path, second_param))
-			throw std::runtime_error("resource does not exist at " + path);
-
-		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
+		ResourcePtr resource = ResourcePtr(new Resource(Load(path, second_param)));
+		auto inserted = m_resources.insert(std::make_pair(id, resource));
 		assert(inserted.second);
 	}
 
 	template<typename Resource, typename Identifier>
-	Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
+	inline Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
 	{
-		return get(id);
+		return Get(id);
 	}
 
 	template<typename Resource, typename Identifier>
-	const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id) const
+	inline const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id) const
 	{
 		auto it = m_resources.find(id);
 		assert(it != m_resources.end());

@@ -8,7 +8,6 @@
 
 #include "../utilities/VectorUtilities.h"
 #include "../utilities/NonCopyable.h"
-
 #include "input/InputHandler.h"
 #include "CameraBehaviour.hpp"
 #include "Cameras.h"
@@ -24,8 +23,8 @@ namespace fge
 		enum Action
 		{
 			Push,
-			Erase,
 			Pop,
+			Erase,
 			Clear
 		};
 
@@ -34,14 +33,13 @@ namespace fge
 			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None)
 				: action(action), camera_id(camera_id) { }
 
-			const Action action;
-			const Cameras::ID camera_id;
+			const Action		action;
+			const Cameras::ID	camera_id;
 		};
 
 	public:
 		explicit Camera(CameraBehaviour::Context context);
 
-	public:
 		sf::Transform GetViewMatrix() const;
 		sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
 		sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const;
@@ -55,7 +53,7 @@ namespace fge
 		void SetSize(const sf::Vector2f& size);
 
 	public:
-		template<class T, typename... Args>
+		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool> = true>
 		void RegisterCamera(const Cameras::ID& camera_id, Args&&... args);
 
 		void HandleEvent(const sf::Event& event);
@@ -74,8 +72,6 @@ namespace fge
 		CameraBehaviour::Ptr CreateCamera(const Cameras::ID& camera_id);
 		void ApplyPendingChanges();
 
-		void SetLetterboxView(int width, int height);
-
 	private:
 		CameraBehaviour::Context	m_context;
 
@@ -83,17 +79,17 @@ namespace fge
 		sf::Vector2f				m_scale;	 
 		sf::Vector2f				m_size;
 
-		Stack						m_stack;	// stack of camera behaviours
-		Factory						m_factory;	// stores funcs to creating camera behaviours
+		Stack						m_stack;		// stack of camera behaviours
+		Factory						m_factory;		// stores funcs to creating camera behaviours
 		std::vector<PendingChange>	m_pending_list;
 	};
 
-	template<class T, typename ...Args>
-	void Camera::RegisterCamera(const Cameras::ID& camera_id, Args && ...args)
+	template<class T, typename ...Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool>>
+	inline void Camera::RegisterCamera(const Cameras::ID& camera_id, Args&&... args)
 	{
 		m_factory[camera_id] = [this, &args...]()
 		{
-			return CameraBehaviour::Ptr(new T(*this, _context, std::forward<Args>(args)...));
+			return CameraBehaviour::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
 		};
 	}
 }

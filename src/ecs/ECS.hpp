@@ -94,10 +94,10 @@ namespace fge
 	{
 		ComponentTypeID component_type_id = Component<C>::get_type_id();
 
-		if (_component_map.contains(component_type_id))
+		if (m_component_map.contains(component_type_id))
 			return;
 
-		_component_map.emplace(component_type_id, comp_ptr(new Component<C>));
+		m_component_map.emplace(component_type_id, comp_ptr(new Component<C>));
 	}
 	inline void ECS::RegisterSystem(const std::uint8_t layer, SystemBase* system)
 	{
@@ -115,9 +115,9 @@ namespace fge
 
 		assert(is_component_registered<C>()); // component should be registered
 
-		const std::size_t& comp_data_size = _component_map[new_comp_type_id]->get_size();
+		const std::size_t& comp_data_size = m_component_map[new_comp_type_id]->GetSize();
 
-		Record& record = _entity_archetype_map[entityId];
+		Record& record = m_entity_archetype_map[entityId];
 		Archetype* old_archetype = record.archetype;
 
 		C* new_component = nullptr;
@@ -126,10 +126,10 @@ namespace fge
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
 			// cant add multiple of the same component to same entity
-			assert(std::find(old_archetype->_type.begin(), old_archetype->_type.end(), new_comp_type_id) == old_archetype->_type.end());
+			assert(std::find(old_archetype->m_type.begin(), old_archetype->m_type.end(), new_comp_type_id) == old_archetype->m_type.end());
 
-			ArchetypeID new_archetype_id = old_archetype->_type; // creates new archetype id
-			new_archetype_id.push_back(new_comp_type_id);		 // adds the component to this new archetype
+			ArchetypeID new_archetype_id = old_archetype->m_type;	// creates new archetype id
+			new_archetype_id.push_back(new_comp_type_id);			// adds the component to this new archetype
 
 			std::sort(new_archetype_id.begin(), new_archetype_id.end());
 
@@ -138,42 +138,42 @@ namespace fge
 			for (std::size_t i = 0; i < new_archetype_id.size(); ++i) // for every component in the new archetype
 			{
 				const ComponentTypeID& new_comp_id = new_archetype_id[i];
-				const ComponentBase* const new_comp = _component_map[new_comp_id];
-				const std::size_t& new_comp_data_size = new_comp->get_size();
+				const ComponentBase* const new_comp = m_component_map[new_comp_id];
+				const std::size_t& new_comp_data_size = new_comp->GetSize();
 
-				std::size_t current_size = new_archetype->_entitity_ids.size() * new_comp_data_size;
+				std::size_t current_size = new_archetype->m_entitity_ids.size() * new_comp_data_size;
 				std::size_t new_size = current_size + new_comp_data_size;
 
-				if (new_size > new_archetype->_component_data_size[i]) // make room to fit old data
+				if (new_size > new_archetype->m_component_data_size[i]) // make room to fit old data
 				{
-					new_archetype->_component_data_size[i] *= 2;
-					new_archetype->_component_data_size[i] += new_comp_data_size;
+					new_archetype->m_component_data_size[i] *= 2;
+					new_archetype->m_component_data_size[i] += new_comp_data_size;
 
-					ComponentData new_data = ComponentData(new unsigned char[new_archetype->_component_data_size[i]]);
+					ComponentData new_data = ComponentData(new unsigned char[new_archetype->m_component_data_size[i]]);
 
-					for (std::size_t j = 0; j < new_archetype->_entitity_ids.size(); ++j)
+					for (std::size_t j = 0; j < new_archetype->m_entitity_ids.size(); ++j)
 					{
-						new_comp->move_data(
-							&new_archetype->_component_data[i][j * comp_data_size], 
+						new_comp->MoveData(
+							&new_archetype->m_component_data[i][j * comp_data_size], 
 							&new_data[j * comp_data_size]);
-						new_comp->destroy_data(&new_archetype->_component_data[i][j * comp_data_size]);
+						new_comp->DestroyData(&new_archetype->m_component_data[i][j * comp_data_size]);
 					}
 
-					new_archetype->_component_data[i] = new_data;
+					new_archetype->m_component_data[i] = new_data;
 				}
 
-				for (std::size_t j = 0; j < old_archetype->_type.size(); ++i) // move data from old to new if it exists
+				for (std::size_t j = 0; j < old_archetype->m_type.size(); ++i) // move data from old to new if it exists
 				{
-					const ComponentTypeID& old_comp_id = old_archetype->_type[i];
+					const ComponentTypeID& old_comp_id = old_archetype->m_type[i];
 					if (old_comp_id == new_comp_id)
 					{
-						const ComponentBase* const old_comp = _component_map[old_comp_id];
-						const std::size_t& old_comp_data_size = old_comp->get_size();
+						const ComponentBase* const old_comp = m_component_map[old_comp_id];
+						const std::size_t& old_comp_data_size = old_comp->GetSize();
 
-						old_comp->move_data(
-							&old_archetype->_component_data[j][record.index * old_comp_data_size],
-							&new_archetype->_component_data[i][current_size]);
-						old_comp->destroy_data(&old_archetype->_component_data[j][record.index * old_comp_data_size]);
+						old_comp->MoveData(
+							&old_archetype->m_component_data[j][record.index * old_comp_data_size],
+							&new_archetype->m_component_data[i][current_size]);
+						old_comp->DestroyData(&old_archetype->m_component_data[j][record.index * old_comp_data_size]);
 
 						break;
 					}
@@ -187,34 +187,34 @@ namespace fge
 			ArchetypeID new_archetype_id(1, new_comp_type_id);
 			new_archetype = get_archetype(new_archetype_id); // construct new archetype using the id
 
-			const ComponentBase* const new_comp = _component_map[new_comp_type_id];
+			const ComponentBase* const new_comp = m_component_map[new_comp_type_id];
 
-			std::size_t current_size = new_archetype->_entitity_ids.size() * comp_data_size;
+			std::size_t current_size = new_archetype->m_entitity_ids.size() * comp_data_size;
 			std::size_t new_size = current_size + comp_data_size;
 
-			if (new_size > new_archetype->_component_data_size[0]) // make room and move over existing data
+			if (new_size > new_archetype->m_component_data_size[0]) // make room and move over existing data
 			{
-				new_archetype->_component_data_size[0] *= 2;
-				new_archetype->_component_data_size[0] += comp_data_size;
+				new_archetype->m_component_data_size[0] *= 2;
+				new_archetype->m_component_data_size[0] += comp_data_size;
 
-				ComponentData new_data = ComponentData(new unsigned char[new_archetype->_component_data_size[0]]);
+				ComponentData new_data = ComponentData(new unsigned char[new_archetype->m_component_data_size[0]]);
 
-				for (std::size_t i = 0; i < new_archetype->_entitity_ids.size(); ++i)
+				for (std::size_t i = 0; i < new_archetype->m_entitity_ids.size(); ++i)
 				{
-					new_comp->move_data(
-						&new_archetype->_component_data[0][i * comp_data_size], 
+					new_comp->MoveData(
+						&new_archetype->m_component_data[0][i * comp_data_size], 
 						&new_data[i * comp_data_size]);
-					new_comp->destroy_data(&new_archetype->_component_data[0][i * comp_data_size]);
+					new_comp->DestroyData(&new_archetype->m_component_data[0][i * comp_data_size]);
 				}
 
-				new_archetype->_component_data[0] = new_data;
+				new_archetype->m_component_data[0] = new_data;
 			}
 
-			new_component = new (&new_archetype->_component_data[0][current_size]) C(std::forward<Args>(args)...);
+			new_component = new (&new_archetype->m_component_data[0][current_size]) C(std::forward<Args>(args)...);
 		}
 
-		new_archetype->_entitity_ids.push_back(entityId);
-		record.index = new_archetype->_entitity_ids.size() - 1;
+		new_archetype->m_entitity_ids.push_back(entityId);
+		record.index = new_archetype->m_entitity_ids.size() - 1;
 		record.archetype = new_archetype;
 
 		return new_component;
@@ -229,7 +229,7 @@ namespace fge
 	template<class C>
 	inline bool ECS::IsComponentRegistered()
 	{
-		return _component_map.contains(Component<C>::GetTypeId());
+		return m_component_map.contains(Component<C>::GetTypeId());
 	}
 	template<class C>
 	inline bool ECS::HasComponent(const EntityID entityId)
