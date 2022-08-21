@@ -6,10 +6,10 @@
 
 namespace fge
 {
-	class TestState : public State
+	class StateTest : public State
 	{
 	public:
-		explicit TestState(States::ID id, StateStack& state_stack, Context context)
+		explicit StateTest(States::ID id, StateStack& state_stack, Context context)
 			: State(id, state_stack, context)
 		{
 			std::cout << "test" << std::endl;

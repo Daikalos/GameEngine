@@ -45,8 +45,16 @@ namespace fge
 
 		Cameras::ID GetId() const noexcept { return m_id; }
 
-		virtual void OnCreate() {}
+		////////////////////////////////////////////////////////////
+		// OnActivate is called whenever the behaviour is put as 
+		// last in the stack
+		////////////////////////////////////////////////////////////
 		virtual void OnActivate() {}
+
+		////////////////////////////////////////////////////////////
+		// OnDestroy is called when the behaviour is removed from
+		// the stack
+		////////////////////////////////////////////////////////////
 		virtual void OnDestroy() {}
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;

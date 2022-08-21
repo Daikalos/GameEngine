@@ -10,7 +10,7 @@
 #include "Window.h"
 #include "Camera.h"
 
-#include "../test/TestState.h"
+#include "../test/StateTest.h"
 
 namespace fge
 {

@@ -24,6 +24,7 @@ namespace fge
 		{
 			Push,
 			Pop,
+			Erase,
 			Clear
 		};
 

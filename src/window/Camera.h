@@ -28,17 +28,13 @@ namespace fge
 			Clear
 		};
 
-		//template<typename...  Args>
 		struct PendingChange
 		{
-			//using Ptr = typename std::unique_ptr<PendingChange>;
-
-			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None)//, Args&&... args)
-				: action(action), camera_id(camera_id) {}//, args(std::forward<Args>(args)...) { }
+			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None)
+				: action(action), camera_id(camera_id) {}
 
 			const Action				action;
 			const Cameras::ID			camera_id;
-			//const std::tuple<Args...>	args;
 		};
 
 	public:
@@ -64,15 +60,15 @@ namespace fge
 		void FixedUpdate(const Time& time);
 		void PostUpdate(const Time& time, float interp);
 
-		template<typename... Args>
-		void Push(const Cameras::ID& camera_id, Args&&... args);
-		void Erase(const Cameras::ID& camera_id);
+		void Push(const Cameras::ID& camera_id);
 		void Pop();
+		void Erase(const Cameras::ID& camera_id);
 		void Clear();
+
+		CameraBehaviour* GetBehaviour(const Cameras::ID& camera_id);
 
 		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool> = true>
 		void RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args);
-		CameraBehaviour* GetBehaviour(const Cameras::ID& camera_id);
 
 	private:
 		CameraBehaviour::Ptr CreateBehaviour(const Cameras::ID& camera_id);
@@ -89,12 +85,6 @@ namespace fge
 		Factory						m_factory;		// stores funcs for creating camera behaviours
 		std::vector<PendingChange>	m_pending_list; // TODO: ALLOW FOR STORING VARIADIC PARAMETERS AND PASS THEM TO ONCREATE FOR BEHAVIOUR CHILDREN, dunno if possible even, should reconsider structure if not
 	};
-
-	template<typename ...Args>
-	inline void Camera::Push(const Cameras::ID& camera_id, Args&&... args)
-	{
-		m_pending_list.push_back(PendingChange(Action::Push, camera_id, std::forward<Args>(args)...));
-	}
 
 	template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool>>
 	inline void Camera::RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args)

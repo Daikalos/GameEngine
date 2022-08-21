@@ -95,7 +95,6 @@ void StateStack::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateState(change.state_id));
-			m_stack.back()->OnCreate();
 			break;
 		case Action::Pop:
 			{

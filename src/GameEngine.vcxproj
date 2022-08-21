@@ -153,13 +153,14 @@
     <ClInclude Include="ecs\Entity.hpp" />
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
+    <ClInclude Include="game\scenes\StateLoading.h" />
     <ClInclude Include="graphics\Animation.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="ecs\System.hpp" />
     <ClInclude Include="graphics\Resources.h" />
     <ClInclude Include="graphics\SpriteBatch.h" />
-    <ClInclude Include="test\TestState.h" />
+    <ClInclude Include="test\StateTest.h" />
     <ClInclude Include="Utilities.hpp" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="utilities\Random.h" />
@@ -186,9 +187,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ecs\Component.cpp" />
+    <ClCompile Include="game\scenes\StateLoading.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
-    <ClCompile Include="test\TestState.cpp" />
+    <ClCompile Include="test\StateTest.cpp" />
     <ClCompile Include="window\Application.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="main.cpp" />

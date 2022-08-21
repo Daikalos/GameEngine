@@ -123,6 +123,7 @@ namespace fge
 
 #if KEYBOARDMOUSE_ENABLED
 		float	m_scroll_delta;
+		float	m_mouse_sensitivity;
 
 		bool	m_current_button_state[sf::Mouse::ButtonCount];
 		bool	m_previous_button_state[sf::Mouse::ButtonCount];

@@ -26,7 +26,8 @@
     <ClCompile Include="graphics\SpriteBatch.cpp" />
     <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
-    <ClCompile Include="test\TestState.cpp" />
+    <ClCompile Include="test\StateTest.cpp" />
+    <ClCompile Include="game\scenes\StateLoading.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExceptionHandler.h">
@@ -81,7 +82,8 @@
     <ClInclude Include="window\input\Binds.h" />
     <ClInclude Include="window\cameras\CameraZoom.h" />
     <ClInclude Include="graphics\Resources.h" />
-    <ClInclude Include="test\TestState.h" />
+    <ClInclude Include="test\StateTest.h" />
+    <ClInclude Include="game\scenes\StateLoading.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

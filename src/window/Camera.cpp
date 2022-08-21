@@ -107,13 +107,17 @@ void Camera::PostUpdate(const Time& time, float interp)
 	ApplyPendingChanges();
 }
 
-void Camera::Erase(const Cameras::ID& camera_id)
+void Camera::Push(const Cameras::ID& camera_id)
 {
-	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
+	m_pending_list.push_back(PendingChange(Action::Push, camera_id));
 }
 void Camera::Pop()
 {
 	m_pending_list.push_back(PendingChange(Action::Pop));
+}
+void Camera::Erase(const Cameras::ID& camera_id)
+{
+	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
 }
 void Camera::Clear()
 {
@@ -145,7 +149,6 @@ void Camera::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateBehaviour(change.camera_id));
-			m_stack.back()->OnCreate();
 			break;
 		case Action::Pop:
 			{
@@ -158,7 +161,22 @@ void Camera::ApplyPendingChanges()
 			break;
 		case Action::Erase:
 			{
-				
+				auto it = std::find_if(m_stack.begin(), m_stack.end(), [&change](const CameraBehaviour::Ptr& ptr)
+					{ return ptr->GetId() == change.camera_id; });
+
+				if (it != m_stack.end()) // if found
+				{
+					int pos = it - m_stack.begin();
+
+					(*it)->OnDestroy();
+					m_stack.erase(it);
+
+					if (pos == m_stack.size() - 1) // if this was the last, activate the newer
+					{
+						if (!m_stack.empty())
+							m_stack.back()->OnActivate();
+					}
+				}
 			}
 			break;
 		case Action::Clear:

@@ -38,8 +38,16 @@ namespace fge
 
 		States::ID GetId() const noexcept { return m_id; }
 
-		virtual void OnCreate() {}
+		////////////////////////////////////////////////////////////
+		// OnActivate is called whenever the state is put as 
+		// last in the stack
+		////////////////////////////////////////////////////////////
 		virtual void OnActivate() {}
+
+		////////////////////////////////////////////////////////////
+		// OnDestroy is called when the state is removed from
+		// the stack
+		////////////////////////////////////////////////////////////
 		virtual void OnDestroy() {}
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
