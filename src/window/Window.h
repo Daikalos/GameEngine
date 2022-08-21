@@ -13,7 +13,7 @@ namespace fge
 	{
 		Windowed,
 		Fullscreen,
-		BorderlessWindowed // TODO : FIX BORDERLESS WINDOWED ON LOWER RESOLUTION
+		BorderlessWindowed // TODO : FIX BORDERLESS WINDOWED ON LOWER RESOLUTION, ALSO LOOK FOR SOLUTION ON FULLSCREEN AT MAX RESOLUTION
 	};
 
 	////////////////////////////////////////////////////////////

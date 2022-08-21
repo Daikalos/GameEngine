@@ -7,7 +7,7 @@ namespace fge
 	template<typename T>
 	struct Rect
 	{
-		static_assert(std::is_arithmetic_v<T>, "only arithmetic type allowed");
+		static_assert(std::is_arithmetic_v<T>, "Only arithmetic type allowed");
 
 		Rect() = default;
 		Rect(T left, T top, T right, T bot)
@@ -20,6 +20,19 @@ namespace fge
 			top_left(sf::Vector2<T>(rect.top_left)),
 			bot_right(sf::Vector2<T>(rect.bot_right)) { };
 
+		template<typename U>
+		explicit Rect(Rect<U>&& rect) :
+			top_left(sf::Vector2<T>(std::move(rect.top_left))),
+			bot_right(sf::Vector2<T>(std::move(rect.bot_right))) { };
+
+		Rect<T> operator-()
+		{
+			Rect<T> result(*this);
+			result.top_left = -top_left;
+			result.bot_right = -bot_right;
+			return result;
+		}
+
 		Rect<T>& operator+=(const Rect<T>& rhs)
 		{
 			top_left += rhs.top_left;
@@ -27,18 +40,29 @@ namespace fge
 
 			return *this;
 		}
+		Rect<T>& operator-=(const Rect<T>& rhs)
+		{
+			return *this += -rhs;
+		}
+
 		Rect<T> operator+(const Rect<T>& rhs) const
 		{
 			return (Rect<T>(*this) += rhs);
 		}
+		Rect<T> operator-(const Rect<T>& rhs) const
+		{
+			return (Rect<T>(*this) -= rhs);
+		}
 
 		constexpr bool Intersects(const Rect<T>& other)
 		{
-
+			return !(left > other.right || other.left > right || 
+				top > other.bot || other.top > bot);
 		}
 		constexpr bool Contains(const Rect<T>& other)
 		{
-
+			return (other.right <= right && other.left <= left &&
+				other.top <= top && other.bot <= bot);
 		}
 
 		constexpr T Width() const { return (right - left); }

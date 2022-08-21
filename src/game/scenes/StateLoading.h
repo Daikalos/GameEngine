@@ -6,10 +6,10 @@
 class StateLoading final : public fge::State
 {
 public:
-	virtual bool HandleEvent(const sf::Event& event) override;
-	virtual bool Update(fge::Time& time) override;
-	virtual void draw() override;
+	bool HandleEvent(const sf::Event& event) override;
+	bool Update(fge::Time& time) override;
+	void draw() override;
 
-private:
 
-}
+
+};

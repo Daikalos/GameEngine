@@ -171,11 +171,8 @@ void Camera::ApplyPendingChanges()
 					(*it)->OnDestroy();
 					m_stack.erase(it);
 
-					if (pos == m_stack.size() - 1) // if this was the last, activate the newer
-					{
-						if (!m_stack.empty())
+					if (!m_stack.empty() && pos == m_stack.size() - 1) // if this was the last, activate the newer
 							m_stack.back()->OnActivate();
-					}
 				}
 			}
 			break;

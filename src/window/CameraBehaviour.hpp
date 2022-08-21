@@ -17,7 +17,8 @@ namespace fge
 	// Behaviour for the camera, e.g., attach, dragging, 
 	// lerp, shake, letterboxview, etc. The idea for Camera
 	// Behaviour is to allow for multiple types of behaviours
-	// for the camera that can be easily altered
+	// or effects for the camera that can be easily added or 
+	// removed
 	////////////////////////////////////////////////////////////
 	class CameraBehaviour : private NonCopyable
 	{

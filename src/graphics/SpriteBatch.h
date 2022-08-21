@@ -20,40 +20,40 @@ namespace fge
 		{
 			Quad() = default;
 
-			const sf::Texture* _texture{nullptr};
-			float _depth{ 0.0f };
-			RectFloat _rect;
+			const sf::Texture*	m_texture{nullptr};
+			float				m_depth{ 0.0f };
+			RectFloat			m_rect;
 		};
 
 		struct Batch
 		{
 			Batch() = default;
 
-			const sf::Texture* _texture{ nullptr };
-			std::size_t _count{ 0 };
-			std::size_t _offset{ 0 };
+			const sf::Texture*	m_texture{nullptr};
+			std::size_t			m_count{0};
+			std::size_t			m_offset{0};
 		};
 
 	public:
 		SpriteBatch() = default;
 		~SpriteBatch() = default;
 
-		void begin(SortMode sort_mode = SortMode::Deferred);
-		void draw(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, float depth = 0.0f);
-		void end();
+		void Begin(SortMode sort_mode = SortMode::Deferred);
+		void Draw(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, float depth = 0.0f);
+		void End();
 
-		void clear();
-
-	private:
-		void sort_quads();
-		void create_batches();
+		void Clear();
 
 	private:
-		std::vector<Batch> _batches;
-		std::vector<Quad> _quads;
-		std::vector<sf::Vertex> _vertices;
+		void SortQuads();
+		void CreateBatches();
 
-		SortMode _sort_mode;
+	private:
+		std::vector<Batch>		m_batches;
+		std::vector<Quad>		m_quads;
+		std::vector<sf::Vertex> m_mvertices;
+
+		SortMode				m_sort_mode;
 	};
 }
 

@@ -2,6 +2,10 @@
 
 namespace fge
 {
+	////////////////////////////////////////////////////////////
+	// Contains a set of unique binds used to set the binds
+	// in the InputHandler, e.g., Attack is LMB
+	////////////////////////////////////////////////////////////
 	namespace Binds
 	{
 #if defined(KEYBOARDMOUSE_ENABLED) && KEYBOARDMOUSE_ENABLED

@@ -120,7 +120,6 @@ bool InputHandler::GetScrollUp() const noexcept
 {
 	return m_scroll_delta > 0;
 }
-
 bool fge::InputHandler::GetScrollDown() const noexcept
 {
 	return m_scroll_delta < 0;

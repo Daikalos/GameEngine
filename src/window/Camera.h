@@ -14,6 +14,12 @@
 
 namespace fge
 {
+	////////////////////////////////////////////////////////////
+	// Expanded camera containing a variety of functionalities,
+	// most notably is the ability to contain a multitude of
+	// behaviours. Is treated as a unique entity rather than
+	// being part of the ECS design.
+	////////////////////////////////////////////////////////////
 	class Camera final : public sf::View, NonCopyable
 	{
 	private:
@@ -60,6 +66,9 @@ namespace fge
 		void FixedUpdate(const Time& time);
 		void PostUpdate(const Time& time, float interp);
 
+
+		template<class T, typename... Args>
+		void Create(const Cameras::ID& camera_id, Args&&... args);
 		void Push(const Cameras::ID& camera_id);
 		void Pop();
 		void Erase(const Cameras::ID& camera_id);
@@ -85,6 +94,13 @@ namespace fge
 		Factory						m_factory;		// stores funcs for creating camera behaviours
 		std::vector<PendingChange>	m_pending_list; // TODO: ALLOW FOR STORING VARIADIC PARAMETERS AND PASS THEM TO ONCREATE FOR BEHAVIOUR CHILDREN, dunno if possible even, should reconsider structure if not
 	};
+
+	template<class T, typename ...Args>
+	inline void Camera::Create(const Cameras::ID& camera_id, Args&&... args)
+	{
+		RegisterBehaviour(camera_id, std::forward<Args>(args)...);
+		Push(camera_id);
+	}
 
 	template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool>>
 	inline void Camera::RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args)

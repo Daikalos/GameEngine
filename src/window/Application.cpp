@@ -120,5 +120,5 @@ void Application::Draw()
 void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
-	m_state_stack.RegisterState<TestState>(States::ID::Test);
+	m_state_stack.RegisterState<StateTest>(States::ID::Test);
 }
