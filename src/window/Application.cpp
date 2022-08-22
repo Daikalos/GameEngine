@@ -124,9 +124,9 @@ void Application::RegisterStates()
 
 void Application::RegisterControls()
 {
-	m_controls.Add<DefKeyboard>(Input::Keyboard);
-	m_controls.Add<DefMouse>(Input::Mouse);
-	m_controls.Add<XboxHandler>(Input::Joystick);
+	m_controls.Add<DefKeyboard>();
+	m_controls.Add<DefMouse>();
+	m_controls.Add<XboxHandler>();
 
 	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
 }

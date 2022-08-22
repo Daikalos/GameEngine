@@ -1,7 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <vector>
+#include <unordered_map>
+#include <typeindex>
 #include <memory>
 
 #include "../../utilities/NonCopyable.h"
@@ -19,7 +20,7 @@ namespace fge
 	{
 	public:
 		using Ptr		= std::unique_ptr<InputHandler>;
-		using Controls	= std::vector<Ptr>;
+		using Controls	= std::unordered_map<std::type_index, Ptr>;
 
 	public:
 		InputHandler() {}
