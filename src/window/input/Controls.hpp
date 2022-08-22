@@ -48,12 +48,12 @@ namespace fge
 		template<class T>
 		T& Get(const Input& input)
 		{
-			return *static_cast<T*>(m_controls.at(static_cast<uint32_t>(input)).get());
+			return *static_cast<T*>(m_controls.at(static_cast<uint32_t>(input)).get()); // static cast of T assumes that T and input matches
 		}
 		template<class T>
 		const T& Get(const Input& input) const
 		{
-			return const_cast<Controls*>(this)->Get(input); // static cast of T assumes that T and input matches
+			return const_cast<Controls*>(this)->Get(input);
 		}
 
 		template<class T, typename... Args>
