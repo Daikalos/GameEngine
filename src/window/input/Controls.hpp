@@ -38,14 +38,12 @@ namespace fge
 		void Update(const Time& time)
 		{
 			for (auto& control : m_controls)
-				if (control.second.get()) // check if defined
-					control.second->Update(time);
+				control.second->Update(time);
 		}
 		void HandleEvent(const sf::Event& event)
 		{
 			for (auto& control : m_controls)
-				if (control.second.get())
-					control.second->HandleEvent(event);
+				control.second->HandleEvent(event);
 		}
 
 	private:
