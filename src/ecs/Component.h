@@ -7,6 +7,10 @@
 
 namespace fge
 {
+	////////////////////////////////////////////////////////////
+	// unsigned char* is used for representing a binary data 
+	// buffer, where each element is a single byte. 
+	////////////////////////////////////////////////////////////
 	class ComponentBase
 	{
 	public:

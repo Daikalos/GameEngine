@@ -9,23 +9,23 @@ namespace fge
 	{
 		static_assert(std::is_arithmetic_v<T>, "Only arithmetic type allowed");
 
-		Rect() = default;
-		Rect(T left, T top, T right, T bot)
-			: top_left({ left, top }), bot_right({ right, bot }) { };
-		Rect(sf::Vector2<T> top_left, sf::Vector2<T> bot_right)
-			: top_left(top_left), bot_right(bot_right) { };
+		constexpr Rect() = default;
+		constexpr Rect(T left, T top, T right, T bot)
+			: top_left({ left, top }), bot_right({ right, bot }) {};
+		constexpr Rect(sf::Vector2<T> top_left, sf::Vector2<T> bot_right)
+			: top_left(top_left), bot_right(bot_right) {};
 
 		template<typename U>
-		explicit Rect(const Rect<U>& rect) :
+		constexpr explicit Rect(const Rect<U>& rect) :
 			top_left(sf::Vector2<T>(rect.top_left)),
 			bot_right(sf::Vector2<T>(rect.bot_right)) { };
 
 		template<typename U>
-		explicit Rect(Rect<U>&& rect) :
-			top_left(sf::Vector2<T>(std::move(rect.top_left))),
-			bot_right(sf::Vector2<T>(std::move(rect.bot_right))) { };
+		constexpr explicit Rect(Rect<U>&& rect) :
+			top_left(std::move(sf::Vector2<T>(rect.top_left))),
+			bot_right(std::move(sf::Vector2<T>(rect.bot_right))) { };
 
-		Rect<T> operator-()
+		constexpr Rect<T> operator-()
 		{
 			Rect<T> result(*this);
 			result.top_left = -top_left;
@@ -33,43 +33,57 @@ namespace fge
 			return result;
 		}
 
-		Rect<T>& operator+=(const Rect<T>& rhs)
+		constexpr Rect<T>& operator+=(const Rect<T>& rhs)
 		{
 			top_left += rhs.top_left;
 			bot_right += rhs.bot_right;
 
 			return *this;
 		}
-		Rect<T>& operator-=(const Rect<T>& rhs)
+		constexpr Rect<T>& operator-=(const Rect<T>& rhs)
 		{
 			return *this += -rhs;
 		}
 
-		Rect<T> operator+(const Rect<T>& rhs) const
+		constexpr Rect<T> operator+(const Rect<T>& rhs) const
 		{
 			return (Rect<T>(*this) += rhs);
 		}
-		Rect<T> operator-(const Rect<T>& rhs) const
+		constexpr Rect<T> operator-(const Rect<T>& rhs) const
 		{
-			return (Rect<T>(*this) -= rhs);
+			return *this + -rhs;
 		}
 
 		constexpr bool Intersects(const Rect<T>& other)
 		{
-			return !(left > other.right || other.left > right || 
-				top > other.bot || other.top > bot);
+			return !(left > other.right || right < other.left || 
+				top > other.bot || bot < other.top);
 		}
 		constexpr bool Contains(const Rect<T>& other)
 		{
-			return (other.right <= right && other.left <= left &&
-				other.top <= top && other.bot <= bot);
+			return (right >= other.left && left <= other.right &&
+				top >= other.top && bot <= other.bot);
+		}
+		constexpr bool Contains(const sf::Vector2<T>& other)
+		{
+			return !(left > other.x || right < other.x ||
+				top > other.y || bot < other.top);
+		}
+
+		constexpr sf::Vector2<T>& GetPosition()
+		{
+			return GetPosition();
+		}
+		constexpr const sf::Vector2<T>& GetPosition() const
+		{
+			return top_left;
 		}
 
 		constexpr T Width() const { return (right - left); }
 		constexpr T Height() const { return (bot - top); }
 
-		constexpr sf::Vector2<T> Size() const { return sf::Vector2<T>(Width(), Height()); }
-		constexpr T Count() const { return Width() * Height(); }
+		constexpr sf::Vector2<T> GetSize() const { return sf::Vector2<T>(Width(), Height()); }
+		constexpr T GetArea() const { return Width() * Height(); }
 
 		union
 		{

@@ -1,14 +1,15 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace fge
 {
 	////////////////////////////////////////////////////////////
 	// Contains a set of unique binds used to set the binds
 	// in the InputHandler, e.g., Attack is LMB
 	////////////////////////////////////////////////////////////
-	namespace Binds
+	namespace bn
 	{
-#if defined(KEYBOARDMOUSE_ENABLED) && KEYBOARDMOUSE_ENABLED
 		enum class Button : uint32_t
 		{
 			Drag,
@@ -25,9 +26,7 @@ namespace fge
 
 			KeyBindingCount
 		};
-#endif
 
-#if defined(JOYSTICK_ENABLED) && JOYSTICK_ENABLED
 		enum class XboxButton : uint32_t
 		{
 			A,
@@ -70,6 +69,5 @@ namespace fge
 		{
 
 		};
-#endif
 	}
 }

@@ -1,14 +1,20 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <unordered_map>
 
 //#include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
-#include "input/InputHandler.h"
+#include "input/Binds.h"
 #include "Window.h"
 #include "Camera.h"
+
+#include "input/Controls.hpp"
+#include "input/KeyboardHandler.hpp"
+#include "input/JoystickHandler.hpp"
+#include "input/MouseHandler.hpp"
 
 #include "../test/StateTest.h"
 
@@ -33,15 +39,16 @@ namespace fge
 		void Draw();
 		
 		void RegisterStates();
+		void RegisterControls();
 
 	private:
 		Window			m_window;
 		Camera			m_camera;
 		StateStack		m_state_stack;
-		InputHandler	m_input_handler;
 		TextureHolder	m_texture_holder;
 		FontHolder		m_font_holder;
 		Time			m_time;
+		Controls		m_controls;
 	};
 }
 

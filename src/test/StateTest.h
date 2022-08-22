@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../scene/State.hpp"
-
 #include <iostream>
+
+#include "../scene/State.hpp"
+#include "../utilities/Random.h"
 
 namespace fge
 {
@@ -12,7 +13,7 @@ namespace fge
 		explicit StateTest(States::ID id, StateStack& state_stack, Context context)
 			: State(id, state_stack, context)
 		{
-			std::cout << "test" << std::endl;
+			
 		}
 
 		virtual bool HandleEvent(const sf::Event& event) override;

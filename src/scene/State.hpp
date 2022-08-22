@@ -4,7 +4,7 @@
 
 #include "../window/Window.h"
 #include "../window/Camera.h"
-
+#include "../window/input/Controls.hpp"
 #include "../graphics/ResourceHolder.hpp"
 
 #include "States.h"
@@ -21,14 +21,14 @@ namespace fge
 
 		struct Context // holds vital objects
 		{
-			Context(Window& window, Camera& camera, InputHandler& input_handler, TextureHolder& texture_holder, FontHolder& font_holder)
-				: window(&window), camera(&camera), input_handler(&input_handler), texture_holder(&texture_holder), font_holder(&font_holder) { }
+			Context(Window& window, Camera& camera, Controls& controls, TextureHolder& texture_holder, FontHolder& font_holder)
+				: window(&window), camera(&camera), controls(&controls), texture_holder(&texture_holder), font_holder(&font_holder) { }
 
-			Window* const			window;
-			Camera*	const			camera;
-			InputHandler* const		input_handler;
-			TextureHolder* const	texture_holder;
-			FontHolder*	const		font_holder;
+			Window* const				window;
+			Camera*	const				camera;
+			Controls* const				controls;
+			TextureHolder* const		texture_holder;
+			FontHolder*	const			font_holder;
 		};
 
 	public:

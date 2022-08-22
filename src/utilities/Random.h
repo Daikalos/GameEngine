@@ -11,37 +11,44 @@ namespace fge
 		static thread_local std::mt19937_64 dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
 		template<typename T, typename std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-		static inline T random(const T min, const T max)
+		static constexpr T random(const T min, const T max)
 		{
 			std::uniform_real_distribution<T> uid(min, max);
-			return (T)uid(dre);
+			return uid(dre);
 		}
 		template<typename T, typename std::enable_if_t<!std::is_floating_point_v<T>, bool> = true>
-		static inline T random(const T min, const T max)
+		static constexpr T random(const T min, const T max)
 		{
 			std::uniform_int_distribution<T> uid(min, max);
-			return (T)uid(dre);
+			return uid(dre);
 		}
 
-		template<typename T, typename std::enable_if_t<std::is_integral_v<T>, bool> = true>
-		static inline std::vector<T> random(const T size)
+		////////////////////////////////////////////////////////////
+		// Creates a list of values up to size that are then 
+		// shuffled and finally returned
+		////////////////////////////////////////////////////////////
+		template<typename T>
+		static constexpr std::vector<T> random(const T size)
 		{
 			std::vector<T> result;
 			result.reserve(size);
 
 			for (T i = 0; i < size; ++i)
-				result.push_back(i);
+				result.emplace_back(i);
 
 			std::shuffle(result.begin(), result.end(), dre);
 
 			return result;
 		}
 
-		template<typename T, typename... Args, typename std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-		static inline T random_arg(Args&&... args)
+		////////////////////////////////////////////////////////////
+		// Returns a random T from the given set of arguments
+		////////////////////////////////////////////////////////////
+		template<typename T, typename... Args>
+		static constexpr T random_arg(const T& arg0, Args&&... args)
 		{
-			std::vector<T> x{ { std::forward<Args>(args)... } };
-			return x[util::random<size_t>(0, x.size() - 1)];
+			std::vector<T> vector{ { arg0, std::forward<Args>(args)... } };
+			return vector[random<size_t>(0LLU, vector.size() - 1)];
 		}
 	}
 }

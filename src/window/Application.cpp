@@ -4,12 +4,11 @@ using namespace fge;
 
 Application::Application(std::string& name) : 
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), true, 200),
-	m_camera(CameraBehaviour::Context(m_window, m_input_handler)),
-	m_state_stack(State::Context(m_window, m_camera, m_input_handler, m_texture_holder, m_font_holder))
+	m_camera(CameraBehaviour::Context(m_window, m_controls)),
+	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
 {
 	RegisterStates();
-
-	m_input_handler.SetButtonBinding(Binds::Button::Drag, sf::Mouse::Button::Middle);
+	RegisterControls();
 
 	m_state_stack.Push(States::ID::Test);
 }
@@ -32,7 +31,7 @@ void Application::Run()
 	while (m_window.isOpen())
 	{
 		m_time.Update();
-		m_input_handler.Update(m_time);
+		m_controls.Update(m_time);
 
 		ProcessEvents();
 
@@ -55,17 +54,17 @@ void Application::Run()
 		//if (_state_stack.is_empty())
 		//	_window.close();
 
-		//if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num1))
-		//	m_window.SetBorder(WindowBorder::Windowed);
-		//if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num2))
-		//	m_window.SetBorder(WindowBorder::Fullscreen);
-		//if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num3))
-		//	m_window.SetBorder(WindowBorder::BorderlessWindowed);
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num1))
+			m_window.SetBorder(WindowBorder::Windowed);
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num2))
+			m_window.SetBorder(WindowBorder::Fullscreen);
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num3))
+			m_window.SetBorder(WindowBorder::BorderlessWindowed);
 
-		//if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num4))
-		//	m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
-		//if (m_input_handler.GetKeyPressed(sf::Keyboard::Key::Num5))
-		//	m_window.SetResolution(2);
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num4))
+			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num5))
+			m_window.SetResolution(2);
 
 		Draw();
 	}
@@ -76,7 +75,7 @@ void Application::ProcessEvents()
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{
-		m_input_handler.HandleEvent(event);
+		m_controls.HandleEvent(event);
 		m_window.HandleEvent(event);
 		m_camera.HandleEvent(event);
 		m_state_stack.HandleEvent(event);
@@ -111,7 +110,7 @@ void Application::Draw()
 {
 	m_window.clear();
 	m_window.setView(m_camera);
-
+	
 	m_state_stack.Draw();
 
 	m_window.display();
@@ -121,4 +120,13 @@ void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
 	m_state_stack.RegisterState<StateTest>(States::ID::Test);
+}
+
+void Application::RegisterControls()
+{
+	m_controls.Add<DefKeyboard>(Input::Keyboard);
+	m_controls.Add<DefMouse>(Input::Mouse);
+	m_controls.Add<XboxHandler>(Input::Joystick);
+
+	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
 }

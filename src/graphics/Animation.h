@@ -3,4 +3,8 @@
 namespace fge
 {
 
+	class Animation
+	{
+
+	};
 }

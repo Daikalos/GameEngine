@@ -20,8 +20,8 @@ namespace fge
 		{
 			Quad() = default;
 
-			const sf::Texture*	m_texture{nullptr};
-			float				m_depth{ 0.0f };
+			const sf::Texture*	m_texture	{nullptr};
+			float				m_depth		{0.0f};
 			RectFloat			m_rect;
 		};
 
@@ -29,9 +29,9 @@ namespace fge
 		{
 			Batch() = default;
 
-			const sf::Texture*	m_texture{nullptr};
-			std::size_t			m_count{0};
-			std::size_t			m_offset{0};
+			const sf::Texture*	m_texture	{nullptr};
+			std::size_t			m_count		{0};
+			std::size_t			m_offset	{0};
 		};
 
 	public:

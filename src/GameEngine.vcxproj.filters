@@ -10,9 +10,6 @@
     <ClCompile Include="window\Camera.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="window\input\InputHandler.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="window\Window.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -36,7 +33,7 @@
     <ClInclude Include="window\Camera.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="window\input\InputHandler.h">
+    <ClInclude Include="window\input\InputHandler.hpp">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="window\Window.h">
@@ -84,6 +81,12 @@
     <ClInclude Include="graphics\Resources.h" />
     <ClInclude Include="test\StateTest.h" />
     <ClInclude Include="game\scenes\StateLoading.h" />
+    <ClInclude Include="window\cameras\CameraShake.h" />
+    <ClInclude Include="window\cameras\CameraGoTo.h" />
+    <ClInclude Include="window\input\JoystickHandler.hpp" />
+    <ClInclude Include="window\input\MouseHandler.hpp" />
+    <ClInclude Include="window\input\KeyboardHandler.hpp" />
+    <ClInclude Include="window\input\Controls.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

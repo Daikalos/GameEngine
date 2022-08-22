@@ -5,7 +5,7 @@
 
 #include "../utilities/NonCopyable.h"
 #include "../utilities/Time.hpp"
-#include "input/InputHandler.h"
+#include "../window/input/Controls.hpp"
 #include "Window.h"
 #include "Cameras.h"
 
@@ -28,12 +28,14 @@ namespace fge
 
 		struct Context // holds vital objects
 		{
-			Context(const Window& window, const InputHandler& input_handler)
-				: window(&window), input_handler(&input_handler) { }
+			Context(const Window& window, const Controls& controls)
+				: window(&window), controls(&controls) { }
 
-			const Window* 			window;
-			const InputHandler* 	input_handler;
+			const Window*	window;
+			const Controls*	controls;
 		};
+
+		struct OnCreateArgs { };
 
 	protected:
 		Camera& GetCamera() const { return *m_camera; }

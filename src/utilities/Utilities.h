@@ -23,20 +23,9 @@ namespace fge
 		}
 
 		template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-		static constexpr T lerp(const T a, const T b, const float f)
+		static constexpr T lerp(const T a, const T b, const double f)
 		{
 			return (a * (1.0f - f)) + (b * f);
-		}
-
-		template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-		static constexpr T Clamp(const T val, const T min, const T max)
-		{
-			if (val < min)
-				return min;
-			if (val > max)
-				return max;
-
-			return val;
 		}
 
 		template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
@@ -56,14 +45,14 @@ namespace fge
 		template<typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
 		static constexpr T MapToRange(const T val, const T minIn, const T maxIn, const T minOut, const T maxOut)
 		{
-			float x = (val - minIn) / (maxIn - minIn);
+			double x = (val - minIn) / (maxIn - minIn);
 			return minOut + (maxOut - minOut) * x;
 		}
 
 		template<typename T, typename std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 		static constexpr T SetPrecision(const T val, const int places)
 		{
-			float n = std::powf(10.0f, (float)places);
+			double n = std::pow(10.0, (double)places);
 			return std::roundf(val * n) / n;
 		}
 
