@@ -20,7 +20,7 @@ namespace fge
 					m_available_joysticks.insert(i);
 		}
 
-		void Update(const Time& time) override
+		void Update(const Time& time, bool focus) override
 		{
 			for (const uint32_t& i : m_available_joysticks)
 			{
@@ -29,7 +29,7 @@ namespace fge
 					const uint32_t k = j + i * sf::Joystick::ButtonCount;
 
 					m_previous_button_joystick_state[k] = m_current_button_joystick_state[k];
-					m_current_button_joystick_state[k] = m_enabled && sf::Joystick::isButtonPressed(i, j);
+					m_current_button_joystick_state[k] = focus && m_enabled && sf::Joystick::isButtonPressed(i, j);
 
 					m_joystick_button_held_timer[k] = m_current_button_joystick_state[k] ?
 						m_joystick_button_held_timer[k] + (m_joystick_button_held_timer[k] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;

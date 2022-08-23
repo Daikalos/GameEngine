@@ -58,15 +58,26 @@ namespace fge
 		void Update(const Time& time)
 		{
 			for (auto& control : m_controls)
-				control.second->Update(time);
+				control.second->Update(time, m_focus);
 		}
 		void HandleEvent(const sf::Event& event)
 		{
+			switch (event.type)
+			{
+			case sf::Event::GainedFocus:
+				m_focus = true;
+				break;
+			case sf::Event::LostFocus:
+				m_focus = false;
+				break;
+			}
+
 			for (auto& control : m_controls)
 				control.second->HandleEvent(event);
 		}
 
 	private:
 		InputHandler::Controls m_controls;
+		bool m_focus{true}; // buttons/keys are not registered if not in focus
 	};
 }

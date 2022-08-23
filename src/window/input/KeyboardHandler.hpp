@@ -10,12 +10,12 @@ namespace fge
 	class KeyboardHandler : public InputHandler
 	{
 	public:
-		void Update(const Time& time) override
+		void Update(const Time& time, bool focus) override
 		{
 			for (uint32_t i = 0; i < sf::Keyboard::KeyCount; ++i)
 			{
 				m_previous_key_state[i] = m_current_key_state[i];
-				m_current_key_state[i] = m_enabled && sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
+				m_current_key_state[i] = focus && m_enabled && sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
 
 				m_key_held_timer[i] = m_current_key_state[i] ?
 					m_key_held_timer[i] + (m_key_held_timer[i] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
