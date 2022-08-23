@@ -16,7 +16,7 @@ namespace fge
 	// Main class for Keyboard, Mouse, and Joystick that
 	// have been expanded for extended usage, e.g., binds
 	////////////////////////////////////////////////////////////
-	class InputHandler
+	class InputHandler : NonCopyable
 	{
 	public:
 		using Ptr		= std::unique_ptr<InputHandler>;

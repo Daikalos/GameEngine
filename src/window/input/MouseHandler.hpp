@@ -6,7 +6,7 @@
 
 namespace fge
 {
-	template<class B>
+	template<class B, typename std::enable_if_t<std::is_enum_v<B>, bool> = true>
 	class MouseHandler : public InputHandler
 	{
 	public:

@@ -25,7 +25,33 @@ namespace fge
 			top_left(std::move(sf::Vector2<T>(rect.top_left))),
 			bot_right(std::move(sf::Vector2<T>(rect.bot_right))) { };
 
-		constexpr Rect<T> operator-()
+		constexpr T Width() const { return (right - left); }
+		constexpr T Height() const { return (bot - top); }
+
+		constexpr sf::Vector2<T> GetSize() const 
+		{ 
+			return sf::Vector2<T>(Width(), Height()); 
+		}
+		constexpr T GetArea() const 
+		{ 
+			return Width() * Height(); 
+		}
+
+		constexpr sf::Vector2<T>& GetPosition()
+		{
+			return top_left;
+		}
+		constexpr const sf::Vector2<T>& GetPosition() const
+		{
+			return const_cast<Rect<T>*>(this)->GetPosition();
+		}
+
+		constexpr sf::Vector2<T> GetOrigin() const
+		{
+			return top_left + sf::Vector2<T>(Width() / 2.0f, Height() / 2.0f);
+		}
+
+		constexpr Rect<T> operator-() const
 		{
 			Rect<T> result(*this);
 			result.top_left = -top_left;
@@ -54,36 +80,21 @@ namespace fge
 			return *this + -rhs;
 		}
 
-		constexpr bool Intersects(const Rect<T>& other)
+		constexpr bool Overlaps(const Rect<T>& other) const
 		{
-			return !(left > other.right || right < other.left || 
-				top > other.bot || bot < other.top);
+			return (left < other.right && right >= other.left &&
+				top < other.bot && top >= other.top);
 		}
-		constexpr bool Contains(const Rect<T>& other)
+		constexpr bool Contains(const Rect<T>& other) const
 		{
-			return (right >= other.left && left <= other.right &&
-				top >= other.top && bot <= other.bot);
+			return (other.left >= left && other.right < right &&
+				other.top >= top && other.bot < bot);
 		}
-		constexpr bool Contains(const sf::Vector2<T>& other)
+		constexpr bool Contains(const sf::Vector2<T>& other) const
 		{
-			return !(left > other.x || right < other.x ||
-				top > other.y || bot < other.top);
+			return !(other.x < left || other.x >= right ||
+				other.y < top || other.y >= bot);
 		}
-
-		constexpr sf::Vector2<T>& GetPosition()
-		{
-			return GetPosition();
-		}
-		constexpr const sf::Vector2<T>& GetPosition() const
-		{
-			return top_left;
-		}
-
-		constexpr T Width() const { return (right - left); }
-		constexpr T Height() const { return (bot - top); }
-
-		constexpr sf::Vector2<T> GetSize() const { return sf::Vector2<T>(Width(), Height()); }
-		constexpr T GetArea() const { return Width() * Height(); }
 
 		union
 		{

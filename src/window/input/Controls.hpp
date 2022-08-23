@@ -7,12 +7,12 @@ namespace fge
 {
 	////////////////////////////////////////////////////////////
 	// Neat wrapper around controls to prevent having to
-	// cast all the time to access each controller
+	// cast all the time to access each controller.
 	////////////////////////////////////////////////////////////
 	class Controls final : NonCopyable
 	{
 	public:
-		template<class T> // unfortunately we cannot check if T derives from InputHandler, will have to create custom trait for that
+		template<class T, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
 		T& Get()
 		{
 			if (!m_controls.contains(typeid(T)))
@@ -20,13 +20,13 @@ namespace fge
 
 			return *static_cast<T*>(m_controls[typeid(T)].get());
 		}
-		template<class T>
+		template<class T, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
 		const T& Get() const
 		{
 			return const_cast<Controls*>(this)->Get();
 		}
 
-		template<class T, typename... Args>
+		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
 		void Add(Args&&... args)
 		{
 			if (m_controls.contains(typeid(T)))

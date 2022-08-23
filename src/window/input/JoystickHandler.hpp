@@ -7,7 +7,7 @@
 
 namespace fge
 {
-	template<typename JB, typename JA>
+	template<typename JB, typename JA, typename std::enable_if_t<std::is_enum_v<JB> && std::is_enum_v<JA>, bool> = true>
 	class JoystickHandler : public InputHandler
 	{
 	public:
@@ -76,41 +76,41 @@ namespace fge
 		}
 
 	public:
-		bool GetButtonHeld(const uint32_t& id, const uint32_t& button) const
+		bool GetHeld(const uint32_t& id, const uint32_t& button) const
 		{
 			const int index = button + id * sf::Joystick::ButtonCount;
 			return m_current_button_joystick_state[index] && m_joystick_button_held_timer[index] >= m_held_threshold;;
 		}
-		bool GetButtonPressed(const uint32_t& id, const uint32_t& button) const
+		bool GetPressed(const uint32_t& id, const uint32_t& button) const
 		{
 			const int index = button + id * sf::Joystick::ButtonCount;
 			return m_current_button_joystick_state[index] && !m_previous_button_joystick_state[index];
 		}
-		bool GetButtonReleased(const uint32_t& id, const uint32_t& button) const
+		bool GetReleased(const uint32_t& id, const uint32_t& button) const
 		{
-			return !GetButtonPressed(id, button);
+			return !GetPressed(id, button);
 		}
 
-		bool GetButtonHeld(const uint32_t& id, const JB& name) const
+		bool GetHeld(const uint32_t& id, const JB& name) const
 		{
 			if (!m_joystick_button_bindings.contains(name))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
 
-			return GetButtonHeld(id, m_joystick_button_bindings.at(name));
+			return GetHeld(id, m_joystick_button_bindings.at(name));
 		}
-		bool GetButtonPressed(const uint32_t& id, const JB& name) const
+		bool GetPressed(const uint32_t& id, const JB& name) const
 		{
 			if (!m_joystick_button_bindings.contains(name))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
 
-			return GetButtonPressed(id, m_joystick_button_bindings.at(name));
+			return GetPressed(id, m_joystick_button_bindings.at(name));
 		}
-		bool GetButtonReleased(const uint32_t& id, const JB& name) const
+		bool GetReleased(const uint32_t& id, const JB& name) const
 		{
 			if (!m_joystick_button_bindings.contains(name))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
 
-			return GetButtonReleased(id, m_joystick_button_bindings.at(name));
+			return GetReleased(id, m_joystick_button_bindings.at(name));
 		}
 
 		float GetAxis(const uint32_t& id, const uint32_t& axis) const

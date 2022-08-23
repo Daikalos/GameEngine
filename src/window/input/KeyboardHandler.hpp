@@ -6,7 +6,7 @@
 
 namespace fge
 {
-	template<class K>
+	template<class K, typename std::enable_if_t<std::is_enum_v<K>, bool> = true>
 	class KeyboardHandler : public InputHandler
 	{
 	public:
@@ -75,9 +75,9 @@ namespace fge
 		}
 
 	private:
-		bool	m_current_key_state[sf::Keyboard::KeyCount]		= {false};
-		bool	m_previous_key_state[sf::Keyboard::KeyCount]	= {false};
-		float	m_key_held_timer[sf::Keyboard::KeyCount]		= {0.0f};
+		bool	m_current_key_state		[sf::Keyboard::KeyCount]	= {false};
+		bool	m_previous_key_state	[sf::Keyboard::KeyCount]	= {false};
+		float	m_key_held_timer		[sf::Keyboard::KeyCount]	= {0.0f};
 
 		std::unordered_map<K, sf::Keyboard::Key> m_key_bindings; // bindings for keys
 	};
