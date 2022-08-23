@@ -76,7 +76,7 @@
     <ClInclude Include="window\Cameras.h" />
     <ClInclude Include="window\cameras\CameraLetterbox.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
-    <ClInclude Include="window\input\Binds.h" />
+    <ClInclude Include="window\Binds.h" />
     <ClInclude Include="window\cameras\CameraZoom.h" />
     <ClInclude Include="graphics\Resources.h" />
     <ClInclude Include="test\StateTest.h" />
@@ -87,6 +87,7 @@
     <ClInclude Include="window\input\MouseHandler.hpp" />
     <ClInclude Include="window\input\KeyboardHandler.hpp" />
     <ClInclude Include="window\input\Controls.hpp" />
+    <ClInclude Include="utilities\QuadTree.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

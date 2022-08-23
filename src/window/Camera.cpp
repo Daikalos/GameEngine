@@ -26,6 +26,11 @@ sf::Vector2f Camera::GetMouseWorldPosition(const sf::RenderWindow& window) const
 	return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); 
 }
 
+sf::Vector2f fge::Camera::GetOrigin() const
+{
+	return GetPosition() + GetSize() / 2.0f;
+}
+
 sf::Vector2f fge::Camera::GetPosition() const noexcept
 {
 	return m_position;
@@ -41,7 +46,7 @@ sf::Vector2f fge::Camera::GetSize() const noexcept
 
 void Camera::SetPosition(const sf::Vector2f& position)
 {
-	setCenter(m_position);
+	setCenter(position);
 	m_position = position;
 }
 void Camera::SetScale(const sf::Vector2f& scale)
@@ -51,8 +56,8 @@ void Camera::SetScale(const sf::Vector2f& scale)
 }
 void Camera::SetSize(const sf::Vector2f& size)
 {
+	setSize(size * (1.0f / m_scale));
 	m_size = size;
-	setSize(m_size * (1.0f / m_scale));
 }
 
 void Camera::HandleEvent(const sf::Event& event)

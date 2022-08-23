@@ -7,21 +7,34 @@
 #include "../scene/StateStack.h"
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
-#include "input/Binds.h"
 #include "Window.h"
 #include "Camera.h"
+#include "Binds.h"
 
 #include "input/Controls.hpp"
 #include "input/KeyboardHandler.hpp"
 #include "input/JoystickHandler.hpp"
 #include "input/MouseHandler.hpp"
 
+#include "../Utilities.hpp"
+
 #include "../test/StateTest.h"
+
+static const std::string DATA_FOLDER = "../data/";
+static const std::string AUDIO_FOLDER = DATA_FOLDER + "audio/";
+static const std::string TEXTURE_FOLDER = DATA_FOLDER + "textures/";
 
 namespace fge
 {
 	class Application final
 	{
+	private:
+		using DefKeyboard = typename KeyboardHandler<bn::Key>;
+		using DefMouse = typename MouseHandler<bn::Button>;
+
+		using XboxHandler = typename JoystickHandler<bn::XboxButton, bn::XboxAxis>;
+		using PsHandler = typename JoystickHandler<bn::PlaystationButton, bn::PlaystationAxis>;
+
 	public:
 		Application(std::string& name);
 		~Application();
@@ -40,6 +53,7 @@ namespace fge
 		
 		void RegisterStates();
 		void RegisterControls();
+		void LoadMainTextures();
 
 	private:
 		Window			m_window;

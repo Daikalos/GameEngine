@@ -50,13 +50,13 @@ namespace fge
 		////////////////////////////////////////////////////////////
 		void SetCursorState(bool flag);
 
-	public:
-
 		////////////////////////////////////////////////////////////
 		// only gets modes that match the aspect ratio of 
 		// the desktop
 		////////////////////////////////////////////////////////////
 		std::vector<sf::VideoMode> GetModes() const;
+
+		sf::Vector2i GetOrigin() const;
 
 	private:
 		std::string			m_name;				// name of window

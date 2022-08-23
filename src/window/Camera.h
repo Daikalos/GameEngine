@@ -50,6 +50,8 @@ namespace fge
 		sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
 		sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const;
 
+		sf::Vector2f GetOrigin() const;
+
 		sf::Vector2f GetPosition() const noexcept;
 		sf::Vector2f GetScale() const noexcept;
 		sf::Vector2f GetSize() const noexcept;
@@ -65,7 +67,6 @@ namespace fge
 		void Update(const Time& time);
 		void FixedUpdate(const Time& time);
 		void PostUpdate(const Time& time, float interp);
-
 
 		template<class T, typename... Args>
 		void Create(const Cameras::ID& camera_id, Args&&... args);

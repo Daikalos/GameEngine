@@ -28,6 +28,8 @@ void Window::Initialize()
 
 	if (!setActive(true))
 		throw std::runtime_error("window could not be activated");
+
+	SetCursorState(false); // invisible as default, MouseHandler is used instead
 }
 
 void Window::HandleEvent(const sf::Event& event)
@@ -36,6 +38,20 @@ void Window::HandleEvent(const sf::Event& event)
 	{
 	case sf::Event::Closed:
 		close();
+		break;
+	case sf::Event::GainedFocus:
+		setMouseCursorVisible(false);
+		break;
+	case sf::Event::LostFocus:
+		setMouseCursorVisible(true);
+		break;
+	case sf::Event::MouseLeft:
+		if (hasFocus())
+			setMouseCursorVisible(true);
+		break;
+	case sf::Event::MouseEntered:
+		if (hasFocus())
+			setMouseCursorVisible(false);
 		break;
 	}
 }
@@ -104,6 +120,11 @@ void Window::SetCursorState(bool flag)
 {
 	setMouseCursorVisible(flag);
 	setMouseCursorGrabbed(!flag);
+}
+
+sf::Vector2i Window::GetOrigin() const
+{
+	return getPosition() + sf::Vector2i(getSize().x / 2, getSize().y / 2);
 }
 
 std::vector<sf::VideoMode> fge::Window::GetModes() const

@@ -6,7 +6,10 @@ namespace fge
 	{
 		enum class ID
 		{
+			None,
+			Cursor,
 
+			Count
 		};
 	}
 
@@ -14,7 +17,10 @@ namespace fge
 	{
 		enum class ID
 		{
+			None,
 
+
+			Count
 		};
 	}
 }

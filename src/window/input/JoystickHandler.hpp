@@ -161,7 +161,4 @@ namespace fge
 		std::unordered_map<JB, uint32_t> m_joystick_button_bindings;	// bindings for joystick buttons
 		std::unordered_map<JA, uint32_t> m_joystick_axis_bindings;	// bindings for joystick axis
 	};
-
-	using XboxHandler	= typename JoystickHandler<bn::XboxButton, bn::XboxAxis>;
-	using PsHandler		= typename JoystickHandler<bn::PlaystationButton, bn::PlaystationAxis>;
 }

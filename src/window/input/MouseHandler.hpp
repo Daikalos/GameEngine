@@ -1,8 +1,14 @@
 #pragma once
 
+#include <SFML/Window/Cursor.hpp>
 #include <unordered_map>
 
 #include "InputHandler.hpp"
+
+#include "../Camera.h"
+#include "../Window.h"
+
+#include <iostream>
 
 namespace fge
 {
@@ -10,9 +16,36 @@ namespace fge
 	class MouseHandler : public InputHandler
 	{
 	public:
+		MouseHandler(const Window& window, const Camera& camera)
+			: m_window(&window), m_camera(&camera)
+		{
+			m_cursor_pos = sf::Vector2f(m_window->GetOrigin());
+			sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
+		}
+
 		void Update(const Time& time) override
 		{
 			m_scroll_delta = 0.0f;
+
+			if (m_in_focus)
+			{
+				m_mouse_pos = sf::Mouse::getPosition(*m_window);
+				m_mouse_delta = m_mouse_pos - m_window->GetOrigin();
+				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // TODO: acts buggy if window origin is outside screen, maybe fix in future
+
+				m_cursor_pos += sf::Vector2f(m_mouse_delta) * m_mouse_sensitivity;
+
+				if (m_cursor_pos.x < 0.0f)
+					m_cursor_pos.x = 0.0f;
+				if (m_cursor_pos.y < 0.0f)
+					m_cursor_pos.y = 0.0f;
+				if (m_cursor_pos.x > m_window->getSize().x)
+					m_cursor_pos.x = m_window->getSize().x;
+				if (m_cursor_pos.y > m_window->getSize().y)
+					m_cursor_pos.y = m_window->getSize().y;
+
+				m_cursor.setPosition(m_cursor_pos);
+			}
 
 			for (uint32_t i = 0; i < sf::Mouse::ButtonCount; ++i)
 			{
@@ -30,12 +63,42 @@ namespace fge
 			case sf::Event::MouseWheelScrolled:
 				m_scroll_delta = event.mouseWheelScroll.delta;
 				break;
+			case sf::Event::GainedFocus:
+				m_in_focus = true;
+				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
+				break;
+			case sf::Event::LostFocus:
+				m_in_focus = false;
+				break;
 			}
+		}
+		void Draw(sf::RenderWindow& window)
+		{
+			window.draw(m_cursor);
 		}
 
 	public:
-		bool GetScrollUp() const noexcept { return m_scroll_delta > 0; }
-		bool GetScrollDown() const noexcept { return m_scroll_delta < 0; }
+		sf::Vector2i GetPosition() const
+		{
+			return m_mouse_pos;
+		}
+		sf::Vector2i GetDelta() const
+		{
+			return m_mouse_delta;
+		}
+
+		void SetCursor(const sf::Texture& texture)
+		{
+			m_cursor.setTexture(texture);
+		}
+
+		void SetMouseSensitivity(float val)
+		{
+			m_mouse_sensitivity = val;
+		}
+
+		bool GetScrollUp() const noexcept { return m_scroll_delta > m_scroll_threshold; }
+		bool GetScrollDown() const noexcept { return m_scroll_delta < -m_scroll_threshold; }
 
 		bool GetHeld(const sf::Mouse::Button& button) const
 		{
@@ -85,15 +148,26 @@ namespace fge
 		}
 
 	private:
-		float	m_scroll_delta		{0.0f};
-		float	m_mouse_sensitivity	{1.0f}; // TODO: implement
+		const Window* m_window		{nullptr};
+		const Camera* m_camera		{nullptr};
 
-		bool	m_current_button_state[sf::Mouse::ButtonCount]	= {false};
-		bool	m_previous_button_state[sf::Mouse::ButtonCount] = {false};
-		float	m_button_held_timer[sf::Mouse::ButtonCount]		= {0.0f};
+		float	m_scroll_delta		{0.0f};
+		float	m_scroll_threshold	{0.01f};	// threshold before scroll is considered for up/down
+		float	m_mouse_sensitivity	{1.0f};		// TODO: implement
+
+		sf::Vector2i m_mouse_pos;
+		sf::Vector2i m_mouse_delta;
+		sf::Vector2f m_cursor_pos;
+		
+		sf::Sprite m_cursor;
+
+		bool m_in_focus	{true};
+		bool m_locked	{false};
+
+		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
+		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};
+		float	m_button_held_timer		[sf::Mouse::ButtonCount] = {0.0f};
 
 		std::unordered_map<B, sf::Mouse::Button> m_button_bindings;	// bindings for buttons
 	};
-
-	using DefMouse = typename MouseHandler<bn::Button>;
 }

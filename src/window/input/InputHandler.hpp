@@ -8,8 +8,6 @@
 #include "../../utilities/NonCopyable.h"
 #include "../../utilities/Time.hpp"
 
-#include "Binds.h"
-
 namespace fge
 {
 	////////////////////////////////////////////////////////////

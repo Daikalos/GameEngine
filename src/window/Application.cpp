@@ -7,10 +7,7 @@ Application::Application(std::string& name) :
 	m_camera(CameraBehaviour::Context(m_window, m_controls)),
 	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
 {
-	RegisterStates();
-	RegisterControls();
 
-	m_state_stack.Push(States::ID::Test);
 }
 
 Application::~Application()
@@ -20,8 +17,20 @@ Application::~Application()
 
 void Application::Run()
 {
+	//////////////////////-INITIALIZE-//////////////////////////
+
 	m_window.Initialize();
-	m_time.Reset();
+
+	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
+	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
+
+	RegisterStates();
+	RegisterControls();
+	LoadMainTextures();
+
+	m_state_stack.Push(States::ID::Test);
+
+	////////////////////////////////////////////////////////////
 
 	float accumulator = FLT_EPSILON;
 
@@ -53,6 +62,11 @@ void Application::Run()
 
 		//if (_state_stack.is_empty())
 		//	_window.close();
+
+		if (m_controls.Get<DefMouse>().GetScrollUp())
+			std::cout << "a";
+		if (m_controls.Get<DefMouse>().GetScrollDown())
+			std::cout << "b";
 
 		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num1))
 			m_window.SetBorder(WindowBorder::Windowed);
@@ -109,8 +123,12 @@ void Application::PostUpdate(float interp)
 void Application::Draw()
 {
 	m_window.clear();
+	m_window.setView(m_window.getDefaultView());
+
+	m_controls.Get<DefMouse>().Draw(m_window); // draw cursor
+
 	m_window.setView(m_camera);
-	
+
 	m_state_stack.Draw();
 
 	m_window.display();
@@ -125,8 +143,15 @@ void Application::RegisterStates()
 void Application::RegisterControls()
 {
 	m_controls.Add<DefKeyboard>();
-	m_controls.Add<DefMouse>();
+	m_controls.Add<DefMouse>(m_window, m_camera);
 	m_controls.Add<XboxHandler>();
 
 	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
+}
+
+void Application::LoadMainTextures()
+{
+	m_texture_holder.Load(Texture::ID::Cursor, TEXTURE_FOLDER + "cursor.png");
+
+	m_controls.Get<DefMouse>().SetCursor(m_texture_holder.Get(Texture::ID::Cursor));
 }

@@ -35,7 +35,7 @@ namespace fge
 			const Controls*	controls;
 		};
 
-		struct OnCreateArgs { };
+		struct OnCreateArgs { }; // TODO: maybe pass structs as args instead??
 
 	protected:
 		Camera& GetCamera() const { return *m_camera; }

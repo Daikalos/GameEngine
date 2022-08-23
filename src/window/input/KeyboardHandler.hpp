@@ -81,6 +81,4 @@ namespace fge
 
 		std::unordered_map<K, sf::Keyboard::Key> m_key_bindings; // bindings for keys
 	};
-
-	using DefKeyboard = typename KeyboardHandler<bn::Key>;
 }

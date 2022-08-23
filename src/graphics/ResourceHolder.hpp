@@ -66,7 +66,7 @@ namespace fge
 	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path)
 	{
 		ResourcePtr resource = ResourcePtr(new Resource(Load(path)));
-		auto inserted = m_resources.insert(std::make_pair(id, resource));
+		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
 		assert(inserted.second);
 	}
 
@@ -81,23 +81,23 @@ namespace fge
 	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path, const Parameter& second_param)
 	{
 		ResourcePtr resource = ResourcePtr(new Resource(Load(path, second_param)));
-		auto inserted = m_resources.insert(std::make_pair(id, resource));
+		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
 		assert(inserted.second);
 	}
 
 	template<typename Resource, typename Identifier>
 	inline Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
 	{
-		return Get(id);
+		auto it = m_resources.find(id);
+		assert(it != m_resources.end());
+
+		return *it->second.get();
 	}
 
 	template<typename Resource, typename Identifier>
 	inline const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id) const
 	{
-		auto it = m_resources.find(id);
-		assert(it != m_resources.end());
-
-		return *it->second.get();
+		return const_cast<ResourceHolder<Resource, Identifier>*>(this)->Get(id);
 	}
 
 	using TextureHolder = ResourceHolder<sf::Texture, Texture::ID>;
