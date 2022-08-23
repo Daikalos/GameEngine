@@ -3,7 +3,7 @@
 using namespace fge;
 
 Application::Application(std::string& name) : 
-	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), true, 200),
+	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
 	m_camera(CameraBehaviour::Context(m_window, m_controls)),
 	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
 {
@@ -78,6 +78,10 @@ void Application::Run()
 		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num4))
 			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
 		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num5))
+			m_window.SetResolution(0);
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num6))
+			m_window.SetResolution(1);
+		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num7))
 			m_window.SetResolution(2);
 
 		Draw();
@@ -122,7 +126,7 @@ void Application::PostUpdate(float interp)
 
 void Application::Draw()
 {
-	m_window.clear();
+	m_window.clear(sf::Color::Black);
 	m_window.setView(m_window.getDefaultView());
 
 	m_controls.Get<DefMouse>().Draw(m_window); // draw cursor

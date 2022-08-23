@@ -3,13 +3,8 @@
 using namespace fge;
 
 Window::Window(
-	std::string& name,
-	const sf::VideoMode& mode,
-	const WindowBorder& border,
-	const sf::ContextSettings& settings,
-	bool vertical_sync, int frame_rate) : 
-	m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), 
-	m_vertical_sync(vertical_sync), m_frame_rate(frame_rate)
+	std::string& name, const sf::VideoMode& mode, const WindowBorder& border, const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) : 
+	m_name(std::move(name)), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate)
 {
 	std::vector<sf::VideoMode> modes = GetModes();
 
@@ -23,11 +18,11 @@ void Window::Initialize()
 {
 	Build(m_border, m_mode, m_settings);
 
-	SetFramerate(m_frame_rate);
-	SetVerticalSync(m_vertical_sync);
-
 	if (!setActive(true))
 		throw std::runtime_error("window could not be activated");
+
+	SetFramerate(m_frame_rate);
+	SetVerticalSync(m_vertical_sync);
 
 	SetCursorState(false); // invisible as default, MouseHandler is used instead
 }
@@ -99,6 +94,9 @@ void Window::Build(WindowBorder border, sf::VideoMode mode, sf::ContextSettings 
 			m_name, sf::Style::None, m_settings);
 		break;
 	}
+
+	SetFramerate(m_frame_rate);
+	SetVerticalSync(m_vertical_sync);
 }
 
 void Window::SetBorder(WindowBorder border)
@@ -124,7 +122,7 @@ void Window::SetCursorState(bool flag)
 
 sf::Vector2i Window::GetOrigin() const
 {
-	return getPosition() + sf::Vector2i(getSize().x / 2, getSize().y / 2);
+	return sf::Vector2i(getSize() / 2u);
 }
 
 std::vector<sf::VideoMode> fge::Window::GetModes() const
