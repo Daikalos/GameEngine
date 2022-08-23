@@ -27,7 +27,7 @@ namespace fge
 		////////////////////////////////////////////////////////////
 		// Always put before handle event
 		////////////////////////////////////////////////////////////
-		virtual void Update(const Time& time, bool focus) = 0;
+		virtual void Update(const Time& time, bool focus = true) = 0;
 		virtual void HandleEvent(const sf::Event& event) = 0;
 
 	public:
