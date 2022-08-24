@@ -32,11 +32,11 @@ namespace fge
 		};
 
 	public:
-		explicit State(States::ID id, StateStack& state_stack, Context context)
+		explicit State(sts::ID id, StateStack& state_stack, Context context)
 			: m_id(id), m_state_stack(&state_stack), m_context(context) { }
 		virtual ~State() {}
 
-		States::ID GetId() const noexcept { return m_id; }
+		sts::ID GetId() const noexcept { return m_id; }
 
 		////////////////////////////////////////////////////////////
 		// OnActivate is called whenever the state is put as 
@@ -64,7 +64,7 @@ namespace fge
 		StateStack& GetStack() const		{ return *m_state_stack; }
 
 	private:
-		States::ID	m_id;
+		sts::ID	m_id;
 		StateStack* m_state_stack;
 		Context		m_context;
 	};

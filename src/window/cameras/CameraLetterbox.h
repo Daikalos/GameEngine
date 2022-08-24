@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../CameraBehaviour.hpp"
-#include "../Cameras.h"
+#include "../cm.h"
 #include "../Camera.h"
 
 namespace fge
@@ -9,7 +9,7 @@ namespace fge
 	class CameraLetterbox final : public CameraBehaviour
 	{
 	public:
-		CameraLetterbox(Cameras::ID id, Camera& camera, Context context) :
+		CameraLetterbox(cm::ID id, Camera& camera, Context context) :
 			CameraBehaviour(id, camera, context) { }
 
 	private:

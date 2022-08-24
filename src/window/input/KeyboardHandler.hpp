@@ -6,7 +6,11 @@
 
 namespace fge
 {
-	template<class K, typename std::enable_if_t<std::is_enum_v<K>, bool> = true>
+	////////////////////////////////////////////////////////////
+	// Handles all of the keyboard input, only supports one
+	// keyboard at a time
+	////////////////////////////////////////////////////////////
+	template<Enum K>
 	class KeyboardHandler : public InputHandler
 	{
 	public:
@@ -42,23 +46,14 @@ namespace fge
 
 		bool Held(const K& key) const
 		{
-			if (!m_key_bindings.contains(key))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(key)) + "] does not exist");
-
 			return Held(m_key_bindings.at(key));
 		}
 		bool Pressed(const K& key) const
 		{
-			if (!m_key_bindings.contains(key))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(key)) + "] does not exist");
-
 			return Pressed(m_key_bindings.at(key));
 		}
 		bool Released(const K& key) const
 		{
-			if (!m_key_bindings.contains(key))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(key)) + "] does not exist");
-
 			return Released(m_key_bindings.at(key));
 		}
 
@@ -68,9 +63,6 @@ namespace fge
 		}
 		void RemoveBinding(const K& name)
 		{
-			if (!m_key_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name)) + "] does not exist");
-
 			m_key_bindings.erase(name);
 		}
 

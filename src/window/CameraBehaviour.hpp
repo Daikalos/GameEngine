@@ -42,11 +42,11 @@ namespace fge
 		const Context& GetContext() const { return m_context; }
 
 	public:
-		CameraBehaviour(Cameras::ID id, Camera& camera, Context context) :
+		CameraBehaviour(cm::ID id, Camera& camera, Context context) :
 			m_id(id), m_camera(&camera), m_context(context) { }
 		virtual ~CameraBehaviour() = default;
 
-		Cameras::ID GetId() const noexcept { return m_id; }
+		cm::ID GetId() const noexcept { return m_id; }
 
 		////////////////////////////////////////////////////////////
 		// OnActivate is called whenever the behaviour is put as 
@@ -68,7 +68,7 @@ namespace fge
 		virtual bool PostUpdate(const Time& time, float interp) { return true; }
 
 	private:
-		Cameras::ID		m_id;
+		cm::ID		m_id;
 		Camera* const	m_camera;
 		Context			m_context;
 	};

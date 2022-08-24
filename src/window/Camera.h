@@ -25,7 +25,7 @@ namespace fge
 	{
 	private:
 		using Stack = typename std::vector<CameraBehaviour::Ptr>;
-		using Factory = typename std::unordered_map<Cameras::ID, CameraBehaviour::Func>;
+		using Factory = typename std::unordered_map<cm::ID, CameraBehaviour::Func>;
 
 		enum class Action
 		{
@@ -37,11 +37,11 @@ namespace fge
 
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const Cameras::ID& camera_id = Cameras::ID::None)
+			explicit PendingChange(const Action& action, const cm::ID& camera_id = cm::ID::None)
 				: action(action), camera_id(camera_id) {}
 
 			const Action				action;
-			const Cameras::ID			camera_id;
+			const cm::ID			camera_id;
 		};
 
 	public:
@@ -70,19 +70,19 @@ namespace fge
 		void PostUpdate(const Time& time, float interp);
 
 		template<class T, typename... Args>
-		void Create(const Cameras::ID& camera_id, Args&&... args);
-		void Push(const Cameras::ID& camera_id);
+		void Create(const cm::ID& camera_id, Args&&... args);
+		void Push(const cm::ID& camera_id);
 		void Pop();
-		void Erase(const Cameras::ID& camera_id);
+		void Erase(const cm::ID& camera_id);
 		void Clear();
 
-		CameraBehaviour* GetBehaviour(const Cameras::ID& camera_id);
+		CameraBehaviour* GetBehaviour(const cm::ID& camera_id);
 
-		template<class T, typename... Args>
-		void RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args) requires std::derived_from<T, CameraBehaviour>;
+		template<std::derived_from<CameraBehaviour> T, typename... Args>
+		void RegisterBehaviour(const cm::ID& camera_id, Args&&... args);
 
 	private:
-		CameraBehaviour::Ptr CreateBehaviour(const Cameras::ID& camera_id);
+		CameraBehaviour::Ptr CreateBehaviour(const cm::ID& camera_id);
 		void ApplyPendingChanges();
 
 	private:
@@ -98,14 +98,14 @@ namespace fge
 	};
 
 	template<class T, typename ...Args>
-	inline void Camera::Create(const Cameras::ID& camera_id, Args&&... args)
+	inline void Camera::Create(const cm::ID& camera_id, Args&&... args)
 	{
 		RegisterBehaviour(camera_id, std::forward<Args>(args)...);
 		Push(camera_id);
 	}
 
-	template<class T, typename... Args>
-	inline void Camera::RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args) requires std::derived_from<T, CameraBehaviour>
+	template<std::derived_from<CameraBehaviour> T, typename... Args>
+	inline void Camera::RegisterBehaviour(const cm::ID& camera_id, Args&&... args)
 	{
 		m_factory[camera_id] = [this, &args...]()
 		{

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../CameraBehaviour.hpp"
-#include "../Cameras.h"
+#include "../cm.h"
 #include "../Camera.h"
 
 namespace fge
@@ -9,7 +9,7 @@ namespace fge
 	class CameraZoom final : public CameraBehaviour
 	{
 	public:
-		CameraZoom(Cameras::ID id, Camera& camera, Context context) :
+		CameraZoom(cm::ID id, Camera& camera, Context context) :
 			CameraBehaviour(id, camera, context) { }
 
 	private:

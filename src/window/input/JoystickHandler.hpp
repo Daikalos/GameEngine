@@ -7,7 +7,11 @@
 
 namespace fge
 {
-	template<typename JB, typename JA, typename std::enable_if_t<std::is_enum_v<JB> && std::is_enum_v<JA>, bool> = true>
+	////////////////////////////////////////////////////////////
+	// Handles all of the joystick input, has support for 
+	// several joysticks.
+	////////////////////////////////////////////////////////////
+	template<Enum JB, Enum JA>
 	class JoystickHandler : public InputHandler
 	{
 	public:
@@ -91,25 +95,16 @@ namespace fge
 			return !Pressed(id, button);
 		}
 
-		bool Held(const uint32_t& id, const JB& name) const
+		bool Held(const uint32_t& id, const JB& button) const
 		{
-			if (!m_joystick_button_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
-
-			return Held(id, m_joystick_button_bindings.at(name));
+			return Held(id, m_joystick_button_bindings.at(button));
 		}
 		bool Pressed(const uint32_t& id, const JB& name) const
 		{
-			if (!m_joystick_button_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
-
 			return Pressed(id, m_joystick_button_bindings.at(name));
 		}
 		bool Released(const uint32_t& id, const JB& name) const
 		{
-			if (!m_joystick_button_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
-
 			return Released(id, m_joystick_button_bindings.at(name));
 		}
 
@@ -117,12 +112,9 @@ namespace fge
 		{
 			return m_joystick_axis[axis + id * sf::Joystick::AxisCount];
 		}
-		float Axis(const uint32_t& id, const JA& name) const
+		float Axis(const uint32_t& id, const JA& axis) const
 		{
-			if (!m_joystick_axis_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_axis)) + "] does not exist");
-
-			return Axis(id, m_joystick_axis_bindings.at(name));
+			return Axis(id, m_joystick_axis_bindings.at(axis));
 		}
 
 		void SetButtonBinding(const JB& name, const uint32_t& button)
@@ -134,19 +126,13 @@ namespace fge
 			m_joystick_axis_bindings[name] = axis;
 		}
 
-		void RemoveButtonBinding(const JB& name)
+		void RemoveButtonBinding(const JB& button)
 		{
-			if (!m_joystick_button_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_axis)) + "] does not exist");
-
-			m_joystick_button_bindings.erase(name);
+			m_joystick_button_bindings.erase(button);
 		}
-		void RemoveAxisBinding(const JA& name)
+		void RemoveAxisBinding(const JA& axis)
 		{
-			if (!m_joystick_axis_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_axis)) + "] does not exist");
-
-			m_joystick_axis_bindings.erase(name);
+			m_joystick_axis_bindings.erase(axis);
 		}
 
 	private:

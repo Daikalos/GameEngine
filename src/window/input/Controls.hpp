@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FGEConcepts.hpp>
+#include <FGE/Concepts.hpp>
 
 #include "../../utilities/NonCopyable.h"
 #include "../Window.h"
@@ -16,8 +16,8 @@ namespace fge
 	class Controls final : NonCopyable
 	{
 	public:
-		template<class T>
-		auto& Get() requires std::derived_from<T, InputHandler>
+		template<std::derived_from<InputHandler> T >
+		auto& Get()
 		{
 			const auto& id = typeid(T);
 
@@ -26,8 +26,8 @@ namespace fge
 
 			return *static_cast<T*>(m_controls[id].get());
 		}
-		template<class T>
-		const auto& Get() const requires std::derived_from<T, InputHandler>
+		template<std::derived_from<InputHandler> T>
+		const auto& Get() const
 		{
 			return const_cast<Controls*>(this)->Get();
 		}
@@ -35,8 +35,8 @@ namespace fge
 		////////////////////////////////////////////////////////////
 		// Add the type T that derives InputHandler to the controls
 		////////////////////////////////////////////////////////////
-		template<class T, typename... Args>
-		void Add(Args&&... args) requires std::derived_from<T, InputHandler>
+		template<std::derived_from<InputHandler> T, typename... Args>
+		void Add(Args&&... args)
 		{
 			const auto& id = typeid(T);
 
@@ -46,8 +46,8 @@ namespace fge
 			m_controls[id] = InputHandler::Ptr(new T(std::forward<Args>(args)...));
 		}
 
-		template<class T>
-		void Remove() requires std::derived_from<T, InputHandler>
+		template<std::derived_from<InputHandler> T>
+		void Remove()
 		{
 			const auto& id = typeid(T);
 

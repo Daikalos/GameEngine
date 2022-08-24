@@ -2,6 +2,7 @@
 
 #include <SFML/Window/Cursor.hpp>
 #include <unordered_map>
+#include <FGE/Concepts.hpp>
 
 #include "InputHandler.hpp"
 
@@ -12,7 +13,23 @@
 
 namespace fge
 {
-	template<class B, typename std::enable_if_t<std::is_enum_v<B>, bool> = true>
+	namespace cst
+	{
+		enum class ID : uint32_t
+		{
+			None,
+			Idle,
+			Click,
+			Loading,
+			Grab
+		};
+	}
+
+	////////////////////////////////////////////////////////////
+	// Handles all of the mouse input, only supports one mouse
+	// at a time. Also features a custom cursor.
+	////////////////////////////////////////////////////////////
+	template<Enum B>
 	class MouseHandler : public InputHandler
 	{
 	public:
@@ -88,6 +105,10 @@ namespace fge
 		{
 			m_cursor.setTexture(texture);
 		}
+		void SetCursorState(cst::ID cursor_state)
+		{
+			m_cursor_state = cursor_state;
+		}
 		void SetCursorVisible(bool flag)
 		{
 			m_cursor_visible = flag;
@@ -115,23 +136,14 @@ namespace fge
 
 		bool Held(const B& button) const
 		{
-			if (!m_button_bindings.contains(button))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(button)) + "] does not exist"); // note: only prints value and not name
-
 			return Held(m_button_bindings.at(button));
 		}
 		bool Pressed(const B& button) const
 		{
-			if (!m_button_bindings.contains(button))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(button)) + "] does not exist");
-
 			return Pressed(m_button_bindings.at(button));
 		}
 		bool Released(const B& button) const
 		{
-			if (!m_button_bindings.contains(button))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(button)) + "] does not exist");
-
 			return Released(m_button_bindings.at(button));
 		}
 
@@ -141,9 +153,6 @@ namespace fge
 		}
 		void RemoveBinding(const B& name)
 		{
-			if (!m_button_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name)) + "] does not exist");
-
 			m_button_bindings.erase(name);
 		}
 
@@ -152,6 +161,7 @@ namespace fge
 		const Camera* m_camera		{nullptr};
 
 		sf::Sprite m_cursor;
+		cst::ID m_cursor_state;
 
 		sf::Vector2i m_mouse_pos;
 		sf::Vector2i m_mouse_delta;

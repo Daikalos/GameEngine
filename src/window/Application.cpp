@@ -24,11 +24,11 @@ void Application::Run()
 	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
 	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
 
-	RegisterStates();
+	Registersts();
 	RegisterControls();
 	LoadMainTextures();
 
-	m_state_stack.Push(States::ID::Test);
+	m_state_stack.Push(sts::ID::Test);
 
 	////////////////////////////////////////////////////////////
 
@@ -138,10 +138,10 @@ void Application::Draw()
 	m_window.display();
 }
 
-void Application::RegisterStates()
+void Application::Registersts()
 {
 	// add states (e.g. gameover, win, play, paused)
-	m_state_stack.RegisterState<StateTest>(States::ID::Test);
+	m_state_stack.RegisterState<StateTest>(sts::ID::Test);
 }
 
 void Application::RegisterControls()

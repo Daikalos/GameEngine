@@ -4,20 +4,22 @@
 #include <unordered_map>
 #include <string_view>
 
+#include "../Utilities.hpp"
+
 //#include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
+
+#include "input/KeyboardHandler.hpp"
+#include "input/JoystickHandler.hpp"
+#include "input/MouseHandler.hpp"
+
 #include "Window.h"
 #include "Camera.h"
 #include "Binds.h"
 
 #include "input/Controls.hpp"
-#include "input/KeyboardHandler.hpp"
-#include "input/JoystickHandler.hpp"
-#include "input/MouseHandler.hpp"
-
-#include "../Utilities.hpp"
 
 #include "../test/StateTest.h"
 
@@ -52,7 +54,7 @@ namespace fge
 
 		void Draw();
 		
-		void RegisterStates();
+		void Registersts();
 		void RegisterControls();
 		void LoadMainTextures();
 

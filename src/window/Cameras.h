@@ -2,7 +2,7 @@
 
 namespace fge
 {
-	namespace Cameras
+	namespace cm
 	{
 		////////////////////////////////////////////////////////////
 		// IDs for a types of behaviours

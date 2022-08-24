@@ -2,7 +2,7 @@
 
 #define _USE_MATH_DEFINES
 
-#include <FGEConcepts.hpp>
+#include <FGE/Concepts.hpp>
 
 #include <math.h>
 #include <random>
@@ -15,26 +15,26 @@ namespace fge
 	////////////////////////////////////////////////////////////
 	namespace util
 	{
-		template<typename T>
-		static constexpr T ToRadians(const T degrees) requires Arithmetic<T>
+		template<std::floating_point T>
+		static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees
 		{
-			return T(degrees * (float(M_PI) / 180.0f));
+			return degrees * (M_PI / T(180.0));
 		}
 
-		template<typename T>
-		static constexpr T ToDegrees(const T radians) requires Arithmetic<T>
+		template<std::floating_point T>
+		static constexpr T ToDegrees(const T radians)
 		{
-			return T(radians * (180.0f / float(M_PI)));
+			return radians * (T(180.0) / M_PI);
 		}
 
-		template<typename T>
-		static constexpr T lerp(const T a, const T b, const double f) requires Arithmetic<T>
+		template<Arithmetic T>
+		static constexpr auto lerp(const T a, const T b, const double f)
 		{
-			return (a * (1.0f - f)) + (b * f);
+			return (a * (1.0 - f)) + (b * f);
 		}
 
-		template<typename T>
-		static constexpr T Wrap(T val, const T min, const T max) requires std::integral<T>
+		template<std::integral T>
+		static constexpr auto Wrap(T val, const T min, const T max)
 		{
 			if (val > min && val < max)
 				return val;
@@ -46,8 +46,8 @@ namespace fge
 
 			return min + ((val - min) % range_size);
 		}
-		template<typename T>
-		static constexpr T Wrap(T val, const T min, const T max) requires std::floating_point<T>
+		template<std::floating_point T>
+		static constexpr auto Wrap(T val, const T min, const T max)
 		{
 			if (val > min && val < max)
 				return val;
@@ -60,15 +60,15 @@ namespace fge
 			return min + std::fmod(val - min, max - min);
 		}
 
-		template<typename T>
-		static constexpr T MapToRange(const T val, const T minIn, const T maxIn, const T minOut, const T maxOut) requires Arithmetic<T>
+		template<Arithmetic T>
+		static constexpr auto MapToRange(const T val, const T minIn, const T maxIn, const T minOut, const T maxOut)
 		{
 			double x = (val - minIn) / (maxIn - minIn);
 			return minOut + (maxOut - minOut) * x;
 		}
 
-		template<typename T>
-		static constexpr T SetPrecision(const T val, const int places) requires Arithmetic<T>
+		template<Arithmetic T>
+		static constexpr auto SetPrecision(const T val, const int places)
 		{
 			double n = std::pow(10.0, (double)places);
 			return std::roundf(val * n) / n;
