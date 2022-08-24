@@ -1,5 +1,7 @@
 #pragma once
 
+#include <FGEConcepts.hpp>
+
 #include "../../utilities/NonCopyable.h"
 #include "../Window.h"
 #include "InputHandler.hpp"
@@ -14,18 +16,18 @@ namespace fge
 	class Controls final : NonCopyable
 	{
 	public:
-		template<class T, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
-		T& Get()
+		template<class T>
+		auto& Get() requires std::derived_from<T, InputHandler>
 		{
-			const std::type_info& id = typeid(T);
+			const auto& id = typeid(T);
 
 			if (!m_controls.contains(id))
 				throw std::runtime_error("T has not been added to map");
 
 			return *static_cast<T*>(m_controls[id].get());
 		}
-		template<class T, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
-		const T& Get() const
+		template<class T>
+		const auto& Get() const requires std::derived_from<T, InputHandler>
 		{
 			return const_cast<Controls*>(this)->Get();
 		}
@@ -33,10 +35,10 @@ namespace fge
 		////////////////////////////////////////////////////////////
 		// Add the type T that derives InputHandler to the controls
 		////////////////////////////////////////////////////////////
-		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
-		void Add(Args&&... args)
+		template<class T, typename... Args>
+		void Add(Args&&... args) requires std::derived_from<T, InputHandler>
 		{
-			const std::type_info& id = typeid(T);
+			const auto& id = typeid(T);
 
 			if (m_controls.contains(id))
 				throw std::runtime_error("There is already an object defined");
@@ -44,10 +46,10 @@ namespace fge
 			m_controls[id] = InputHandler::Ptr(new T(std::forward<Args>(args)...));
 		}
 
-		template<class T, typename std::enable_if_t<std::is_base_of_v<InputHandler, T>, bool> = true>
-		void Remove()
+		template<class T>
+		void Remove() requires std::derived_from<T, InputHandler>
 		{
-			const std::type_info& id = typeid(T);
+			const auto& id = typeid(T);
 
 			if (!m_controls.contains(id))
 				throw std::runtime_error("The object of type T does not exist");
@@ -64,12 +66,8 @@ namespace fge
 		{
 			switch (event.type)
 			{
-			case sf::Event::GainedFocus:
-				m_focus = true;
-				break;
-			case sf::Event::LostFocus:
-				m_focus = false;
-				break;
+			case sf::Event::GainedFocus: m_focus = true; break;
+			case sf::Event::LostFocus: m_focus = false; break;
 			}
 
 			for (auto& control : m_controls)

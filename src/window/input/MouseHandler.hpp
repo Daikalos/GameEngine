@@ -97,42 +97,42 @@ namespace fge
 			m_mouse_sensitivity = val;
 		}
 
-		bool GetScrollUp() const noexcept { return m_scroll_delta > m_scroll_threshold; }
-		bool GetScrollDown() const noexcept { return m_scroll_delta < -m_scroll_threshold; }
+		bool ScrollUp() const noexcept { return m_scroll_delta > m_scroll_threshold; }
+		bool ScrollDown() const noexcept { return m_scroll_delta < -m_scroll_threshold; }
 
-		bool GetHeld(const sf::Mouse::Button& button) const
+		bool Held(const sf::Mouse::Button& button) const
 		{
 			return m_current_button_state[button] && m_button_held_timer[button] >= m_held_threshold;
 		}
-		bool GetPressed(const sf::Mouse::Button& button) const
+		bool Pressed(const sf::Mouse::Button& button) const
 		{
 			return m_current_button_state[button] && !m_previous_button_state[button];
 		}
-		bool GetReleased(const sf::Mouse::Button& button) const
+		bool Released(const sf::Mouse::Button& button) const
 		{
-			return !GetPressed(button);
+			return !Pressed(button);
 		}
 
-		bool GetHeld(const B& button) const
+		bool Held(const B& button) const
 		{
 			if (!m_button_bindings.contains(button))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(button)) + "] does not exist"); // note: only prints value and not name
 
-			return GetHeld(m_button_bindings.at(button));
+			return Held(m_button_bindings.at(button));
 		}
-		bool GetPressed(const B& button) const
+		bool Pressed(const B& button) const
 		{
 			if (!m_button_bindings.contains(button))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(button)) + "] does not exist");
 
-			return GetPressed(m_button_bindings.at(button));
+			return Pressed(m_button_bindings.at(button));
 		}
-		bool GetReleased(const B& button) const
+		bool Released(const B& button) const
 		{
 			if (!m_button_bindings.contains(button))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(button)) + "] does not exist");
 
-			return GetReleased(m_button_bindings.at(button));
+			return Released(m_button_bindings.at(button));
 		}
 
 		void SetBinding(const B& name, const sf::Mouse::Button& button)

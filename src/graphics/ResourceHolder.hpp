@@ -5,6 +5,7 @@
 #include <future>
 #include <memory>
 #include <unordered_map>
+#include <string_view>
 
 #include "../utilities/NonCopyable.h"
 #include "Resources.h"
@@ -21,16 +22,16 @@ namespace fge
 		ResourceHolder() { }
 		~ResourceHolder() { }
 
-		Resource Load(const std::string& path);
+		Resource Load(const std::string_view path);
 
 		template <class Parameter>
-		Resource Load(const std::string& path, const Parameter& second_param);
+		Resource Load(const std::string_view path, const Parameter& second_param);
 
-		void Load(const Identifier& id, const std::string& path);
+		void Load(const Identifier& id, const std::string_view path);
 		//auto LoadAsync(const Identifier& id, const std::string& path);
 
 		template <class Parameter>
-		void Load(const Identifier& id, const std::string& path, const Parameter& second_param);
+		void Load(const Identifier& id, const std::string_view path, const Parameter& second_param);
 
 		Resource& Get(const Identifier& id);
 		const Resource& Get(const Identifier& id) const;
@@ -40,30 +41,30 @@ namespace fge
 	};
 
 	template<class Resource, class Identifier>
-	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string& path)
+	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path)
 	{
 		Resource resource;
 
 		if (!resource.loadFromFile(path))
-			throw std::runtime_error("resource does not exist at " + path);
+			throw std::runtime_error("resource does not exist at " + std::string(path));
 
 		return std::move(resource);
 	}
 
 	template<class Resource, class Identifier>
 	template<class Parameter>
-	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string& path, const Parameter& second_param)
+	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path, const Parameter& second_param)
 	{
 		Resource resource;
 
 		if (!resource.loadFromFile(path, second_param))
-			throw std::runtime_error("resource does not exist at " + path);
+			throw std::runtime_error("resource does not exist at " + std::string(path));
 
 		return std::move(resource);
 	}
 
 	template<typename Resource, typename Identifier>
-	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path)
+	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path)
 	{
 		ResourcePtr resource = ResourcePtr(new Resource(Load(path)));
 		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
@@ -78,7 +79,7 @@ namespace fge
 
 	template<typename Resource, typename Identifier>
 	template<typename Parameter>
-	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string& path, const Parameter& second_param)
+	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path, const Parameter& second_param)
 	{
 		ResourcePtr resource = ResourcePtr(new Resource(Load(path, second_param)));
 		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));

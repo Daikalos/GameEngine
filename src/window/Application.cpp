@@ -2,7 +2,7 @@
 
 using namespace fge;
 
-Application::Application(std::string& name) : 
+Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
 	m_camera(CameraBehaviour::Context(m_window, m_controls)),
 	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
@@ -60,28 +60,28 @@ void Application::Run()
 		float interp = accumulator / m_time.GetFixedDeltaTime();
 		PostUpdate(interp);
 
-		//if (_state_stack.is_empty())
-		//	_window.close();
+		if (m_state_stack.IsEmpty())
+			m_window.close();
 
-		if (m_controls.Get<DefMouse>().GetScrollUp())
+		if (m_controls.Get<DefMouse>().ScrollUp())
 			std::cout << "a";
-		if (m_controls.Get<DefMouse>().GetScrollDown())
+		if (m_controls.Get<DefMouse>().ScrollDown())
 			std::cout << "b";
 
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num1))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num1))
 			m_window.SetBorder(WindowBorder::Windowed);
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num2))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num2))
 			m_window.SetBorder(WindowBorder::Fullscreen);
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num3))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num3))
 			m_window.SetBorder(WindowBorder::BorderlessWindowed);
 
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num4))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num4))
 			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num5))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num5))
 			m_window.SetResolution(0);
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num6))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num6))
 			m_window.SetResolution(1);
-		if (m_controls.Get<DefKeyboard>().GetPressed(sf::Keyboard::Key::Num7))
+		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num7))
 			m_window.SetResolution(2);
 
 		Draw();

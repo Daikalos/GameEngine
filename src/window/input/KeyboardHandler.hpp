@@ -27,39 +27,39 @@ namespace fge
 		}
 
 	public:
-		bool GetHeld(const sf::Keyboard::Key& key) const
+		bool Held(const sf::Keyboard::Key& key) const
 		{
 			return m_current_key_state[key] && m_key_held_timer[key] >= m_held_threshold;
 		}
-		bool GetPressed(const sf::Keyboard::Key& key) const
+		bool Pressed(const sf::Keyboard::Key& key) const
 		{
 			return m_current_key_state[key] && !m_previous_key_state[key];
 		}
-		bool GetReleased(const sf::Keyboard::Key& key) const
+		bool Released(const sf::Keyboard::Key& key) const
 		{
-			return !GetPressed(key);
+			return !Pressed(key);
 		}
 
-		bool GetHeld(const K& key) const
+		bool Held(const K& key) const
 		{
 			if (!m_key_bindings.contains(key))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(key)) + "] does not exist");
 
-			return GetHeld(m_key_bindings.at(key));
+			return Held(m_key_bindings.at(key));
 		}
-		bool GetPressed(const K& key) const
+		bool Pressed(const K& key) const
 		{
 			if (!m_key_bindings.contains(key))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(key)) + "] does not exist");
 
-			return GetPressed(m_key_bindings.at(key));
+			return Pressed(m_key_bindings.at(key));
 		}
-		bool GetReleased(const K& key) const
+		bool Released(const K& key) const
 		{
 			if (!m_key_bindings.contains(key))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(key)) + "] does not exist");
 
-			return GetReleased(m_key_bindings.at(key));
+			return Released(m_key_bindings.at(key));
 		}
 
 		void SetBinding(const K& name, const sf::Keyboard::Key& key)

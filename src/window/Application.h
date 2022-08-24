@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
+#include <string_view>
 
 //#include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
@@ -36,7 +37,7 @@ namespace fge
 		using PsHandler = typename JoystickHandler<bn::PlaystationButton, bn::PlaystationAxis>;
 
 	public:
-		Application(std::string& name);
+		Application(std::string_view name);
 		~Application();
 
 		void Run();

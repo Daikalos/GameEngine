@@ -5,6 +5,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <concepts>
 #include <type_traits>
 
 #include "../utilities/VectorUtilities.h"
@@ -77,8 +78,8 @@ namespace fge
 
 		CameraBehaviour* GetBehaviour(const Cameras::ID& camera_id);
 
-		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool> = true>
-		void RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args);
+		template<class T, typename... Args>
+		void RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args) requires std::derived_from<T, CameraBehaviour>;
 
 	private:
 		CameraBehaviour::Ptr CreateBehaviour(const Cameras::ID& camera_id);
@@ -103,8 +104,8 @@ namespace fge
 		Push(camera_id);
 	}
 
-	template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<CameraBehaviour, T>, bool>>
-	inline void Camera::RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args)
+	template<class T, typename... Args>
+	inline void Camera::RegisterBehaviour(const Cameras::ID& camera_id, Args&&... args) requires std::derived_from<T, CameraBehaviour>
 	{
 		m_factory[camera_id] = [this, &args...]()
 		{

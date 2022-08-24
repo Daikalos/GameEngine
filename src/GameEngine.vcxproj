@@ -166,6 +166,7 @@
     <ClInclude Include="utilities\QuadTree.hpp" />
     <ClInclude Include="utilities\Random.h" />
     <ClInclude Include="utilities\Rectangle.hpp" />
+    <ClInclude Include="utilities\StringUtilities.h" />
     <ClInclude Include="utilities\VectorUtilities.h" />
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />

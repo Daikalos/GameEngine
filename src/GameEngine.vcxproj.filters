@@ -88,6 +88,7 @@
     <ClInclude Include="window\input\KeyboardHandler.hpp" />
     <ClInclude Include="window\input\Controls.hpp" />
     <ClInclude Include="utilities\QuadTree.hpp" />
+    <ClInclude Include="utilities\StringUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

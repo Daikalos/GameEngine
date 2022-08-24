@@ -76,53 +76,53 @@ namespace fge
 		}
 
 	public:
-		bool GetHeld(const uint32_t& id, const uint32_t& button) const
+		bool Held(const uint32_t& id, const uint32_t& button) const
 		{
 			const int index = button + id * sf::Joystick::ButtonCount;
 			return m_current_button_joystick_state[index] && m_joystick_button_held_timer[index] >= m_held_threshold;;
 		}
-		bool GetPressed(const uint32_t& id, const uint32_t& button) const
+		bool Pressed(const uint32_t& id, const uint32_t& button) const
 		{
 			const int index = button + id * sf::Joystick::ButtonCount;
 			return m_current_button_joystick_state[index] && !m_previous_button_joystick_state[index];
 		}
-		bool GetReleased(const uint32_t& id, const uint32_t& button) const
+		bool Released(const uint32_t& id, const uint32_t& button) const
 		{
-			return !GetPressed(id, button);
+			return !Pressed(id, button);
 		}
 
-		bool GetHeld(const uint32_t& id, const JB& name) const
-		{
-			if (!m_joystick_button_bindings.contains(name))
-				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
-
-			return GetHeld(id, m_joystick_button_bindings.at(name));
-		}
-		bool GetPressed(const uint32_t& id, const JB& name) const
+		bool Held(const uint32_t& id, const JB& name) const
 		{
 			if (!m_joystick_button_bindings.contains(name))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
 
-			return GetPressed(id, m_joystick_button_bindings.at(name));
+			return Held(id, m_joystick_button_bindings.at(name));
 		}
-		bool GetReleased(const uint32_t& id, const JB& name) const
+		bool Pressed(const uint32_t& id, const JB& name) const
 		{
 			if (!m_joystick_button_bindings.contains(name))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
 
-			return GetReleased(id, m_joystick_button_bindings.at(name));
+			return Pressed(id, m_joystick_button_bindings.at(name));
+		}
+		bool Released(const uint32_t& id, const JB& name) const
+		{
+			if (!m_joystick_button_bindings.contains(name))
+				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_button)) + "] does not exist");
+
+			return Released(id, m_joystick_button_bindings.at(name));
 		}
 
-		float GetAxis(const uint32_t& id, const uint32_t& axis) const
+		float Axis(const uint32_t& id, const uint32_t& axis) const
 		{
 			return m_joystick_axis[axis + id * sf::Joystick::AxisCount];
 		}
-		float GetAxis(const uint32_t& id, const JA& name) const
+		float Axis(const uint32_t& id, const JA& name) const
 		{
 			if (!m_joystick_axis_bindings.contains(name))
 				throw std::runtime_error("The binding: [" + std::to_string(static_cast<uint32_t>(name.m_axis)) + "] does not exist");
 
-			return GetAxis(id, m_joystick_axis_bindings.at(name));
+			return Axis(id, m_joystick_axis_bindings.at(name));
 		}
 
 		void SetButtonBinding(const JB& name, const uint32_t& button)

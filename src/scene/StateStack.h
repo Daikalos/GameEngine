@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <concepts>
 #include <functional>
 
 #include "State.hpp"
@@ -40,8 +41,8 @@ namespace fge
 	public:
 		explicit StateStack(State::Context context);
 
-		template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<State, T>, bool> = true>
-		void RegisterState(const States::ID& state_id, Args&&... args);
+		template<class T, typename... Args>
+		void RegisterState(const States::ID& state_id, Args&&... args) requires std::derived_from<T, State>;
 
 		void HandleEvent(const sf::Event& event);
 
@@ -75,8 +76,8 @@ namespace fge
 		bool m_paused{false};
 	};
 
-	template<class T, typename... Args, typename std::enable_if_t<std::is_base_of_v<State, T>, bool>>
-	inline void StateStack::RegisterState(const States::ID& state_id, Args&&... args)
+	template<class T, typename... Args>
+	inline void StateStack::RegisterState(const States::ID& state_id, Args&&... args) requires std::derived_from<T, State>
 	{
 		m_factory[state_id] = [&state_id, this, &args...]()
 		{

@@ -3,6 +3,7 @@
 #define _USE_MATH_DEFINES
 
 #include <SFML/Graphics.hpp>
+#include <FGEConcepts.hpp>
 
 #include "Utilities.h"
 
@@ -11,23 +12,23 @@ namespace fge
 	namespace vu
 	{
 		template<typename T>
-		static constexpr sf::Vector2<T> Direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr sf::Vector2<T> Direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to) requires Arithmetic<T>
 		{
 			return sf::Vector2<T>(to.x - from.x, to.y - from.y);
 		}
 
 		template<typename T>
-		static constexpr float Distance(const sf::Vector2<T>& vector)
+		static constexpr float Distance(const sf::Vector2<T>& vector) requires Arithmetic<T>
 		{
 			return std::sqrtf(vector.x * vector.x + vector.y * vector.y);
 		}
 		template<typename T>
-		static constexpr float DistanceSq(const sf::Vector2<T>& vector)
+		static constexpr float DistanceSq(const sf::Vector2<T>& vector) requires Arithmetic<T>
 		{
 			return vector.x * vector.x + vector.y * vector.y;
 		}
 		template<typename T>
-		static constexpr float DistanceOpt(const sf::Vector2<T>& vector)
+		static constexpr float DistanceOpt(const sf::Vector2<T>& vector) requires Arithmetic<T>
 		{
 			T dx = std::fabsf(vector.x);
 			T dy = std::fabsf(vector.y);
@@ -39,50 +40,50 @@ namespace fge
 		}
 
 		template<typename T>
-		static constexpr float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to) requires Arithmetic<T>
 		{
 			return Distance(Direction(from, to));
 		}
 		template<typename T>
-		static constexpr float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to) requires Arithmetic<T>
 		{
 			return DistanceSq(Direction(from, to));
 		}
 		template<typename T>
-		static constexpr float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to) requires Arithmetic<T>
 		{
 			return DistanceOpt(Direction(from, to));
 		}
 
 		template<typename T>
-		static constexpr float Angle(const sf::Vector2<T>& vector)
+		static constexpr float Angle(const sf::Vector2<T>& vector) requires Arithmetic<T>
 		{
 			return atan2f(vector.y, vector.x);
 		}
 		template<typename T>
-		static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float lhs_length, float rhs_length)
+		static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float lhs_length, float rhs_length) requires Arithmetic<T>
 		{
 			return acosf(Dot(lhs, rhs) / (lhs_length * rhs_length));
 		}
 		template<typename T>
-		static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+		static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 		{
 			return Angle(lhs, rhs, Distance(lhs), Distance(rhs));
 		}
 
 		template<typename T>
-		static constexpr float Dot(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+		static constexpr float Dot(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 		{
 			return lhs.x * rhs.x + lhs.y * rhs.y;
 		}
 		template<typename T>
-		static constexpr float Cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+		static constexpr float Cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 		{
 			return lhs.x * rhs.y - lhs.y * rhs.x;
 		}
 
 		template<typename T>
-		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, float length, float radius)
+		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, float length, float radius) requires Arithmetic<T>
 		{
 			if (length < FLT_EPSILON)
 				return vector;
@@ -93,13 +94,13 @@ namespace fge
 			return vector;
 		}
 		template<typename T>
-		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, float radius = 1.0f)
+		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, float radius = 1.0f) requires Arithmetic<T>
 		{
 			return Normalize(vector, Distance(vector), radius);
 		}
 
 		template<typename T>
-		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float length, float max_length)
+		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float length, float max_length) requires Arithmetic<T>
 		{
 			if (length > max_length)
 				return Normalize(vector, length, max_length);
@@ -107,13 +108,13 @@ namespace fge
 			return vector;
 		}
 		template<typename T>
-		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float max_length)
+		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float max_length) requires Arithmetic<T>
 		{
 			return Limit(vector, Distance(vector), max_length);
 		}
 
 		template<typename T>
-		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float length, float max_length, float min_length)
+		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float length, float max_length, float min_length) requires Arithmetic<T>
 		{
 			if (length > max_length)
 				return Normalize(vector, length, max_length);
@@ -123,13 +124,13 @@ namespace fge
 			return vector;
 		}
 		template<typename T>
-		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float max_length, float min_length)
+		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float max_length, float min_length) requires Arithmetic<T>
 		{
 			return Clamp(vector, Distance(vector), max_length, min_length);
 		}
 
 		template<typename T>
-		static constexpr sf::Vector2<T> RotatePoint(const sf::Vector2<T>& point, const sf::Vector2<T>& center, float angle)
+		static constexpr sf::Vector2<T> RotatePoint(const sf::Vector2<T>& point, const sf::Vector2<T>& center, float angle) requires Arithmetic<T>
 		{
 			sf::Vector2<T> dir = Direction(center, point);
 
@@ -142,25 +143,25 @@ namespace fge
 		}
 
 		template<typename T>
-		static constexpr sf::Vector2<T> Abs(sf::Vector2<T> vector)
+		static constexpr sf::Vector2<T> Abs(sf::Vector2<T> vector) requires Arithmetic<T>
 		{
 			return sf::Vector2<T>(std::fabsf(vector.x), std::fabsf(vector.y));
 		}
 		template<typename T>
-		static constexpr sf::Vector2<T> Floor(sf::Vector2<T> vector)
+		static constexpr sf::Vector2<T> Floor(sf::Vector2<T> vector) requires Arithmetic<T>
 		{
 			return sf::Vector2<T>(std::floorf(vector.x), std::floorf(vector.y));
 		}
 
 		template<typename T>
-		static constexpr const sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float a)
+		static constexpr const sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float a) requires Arithmetic<T>
 		{
 			return sf::Vector3<T>(
 				lerp(lhs.x, rhs.x, a),
 				lerp(lhs.y, rhs.y, a));
 		}
 		template<typename T>
-		static constexpr sf::Vector3<T> Lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, float a)
+		static constexpr sf::Vector3<T> Lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, float a) requires Arithmetic<T>
 		{
 			return sf::Vector3<T>(
 				lerp(lhs.x, rhs.x, a),
@@ -172,14 +173,14 @@ namespace fge
 	// operator overloads that SFML is missing
 
 	template <typename T>
-	static constexpr sf::Vector2<T> operator /=(sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+	static constexpr sf::Vector2<T> operator /=(sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 	{
 		lhs.x /= rhs.x;
 		lhs.y /= rhs.y;
 		return lhs;
 	}
 	template <typename T>
-	static constexpr sf::Vector2<T> operator /(float lhs, const sf::Vector2<T>& rhs)
+	static constexpr sf::Vector2<T> operator /(float lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 	{
 		sf::Vector2<T> result = { lhs, lhs };
 		result.x /= rhs.x;
@@ -187,7 +188,7 @@ namespace fge
 		return result;
 	}
 	template <typename T>
-	static constexpr sf::Vector2<T> operator /(sf::Vector2<T> lhs, const sf::Vector2<T>& rhs)
+	static constexpr sf::Vector2<T> operator /(sf::Vector2<T> lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 	{
 		lhs.x /= rhs.x;
 		lhs.y /= rhs.y;
@@ -195,7 +196,7 @@ namespace fge
 	}
 
 	template <typename T>
-	static constexpr sf::Vector2<T> operator *(sf::Vector2<T> lhs, const sf::Vector2<T>& rhs)
+	static constexpr sf::Vector2<T> operator *(sf::Vector2<T> lhs, const sf::Vector2<T>& rhs) requires Arithmetic<T>
 	{
 		lhs.x *= rhs.x;
 		lhs.y *= rhs.y;
@@ -203,7 +204,7 @@ namespace fge
 	}
 
 	template <typename T>
-	static constexpr sf::Vector3<T> operator *(sf::Vector3<T> lhs, const sf::Vector3<T>& rhs)
+	static constexpr sf::Vector3<T> operator *(sf::Vector3<T> lhs, const sf::Vector3<T>& rhs) requires Arithmetic<T>
 	{
 		lhs.x *= rhs.x;
 		lhs.y *= rhs.y;

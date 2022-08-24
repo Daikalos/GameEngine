@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <string_view>
 
 #include "../utilities/NonCopyable.h"
 
@@ -24,11 +25,13 @@ namespace fge
 	{
 	public:
 		Window(
-			std::string& name, 
+			std::string_view name,
 			const sf::VideoMode& mode, 
 			const WindowBorder& window_border, 
 			const sf::ContextSettings& settings, 
 			bool vertical_sync, int frame_rate);
+
+		void onCreate() override;
 
 		void Initialize();
 		void HandleEvent(const sf::Event& event);
