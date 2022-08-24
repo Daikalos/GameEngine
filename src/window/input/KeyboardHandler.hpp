@@ -10,7 +10,6 @@ namespace fge
 	// Handles all of the keyboard input, only supports one
 	// keyboard at a time
 	////////////////////////////////////////////////////////////
-	template<Enum K>
 	class KeyboardHandler : public InputHandler
 	{
 	public:
@@ -44,6 +43,20 @@ namespace fge
 			return !Pressed(key);
 		}
 
+	private:
+		bool	m_current_key_state		[sf::Keyboard::KeyCount]	= {false};
+		bool	m_previous_key_state	[sf::Keyboard::KeyCount]	= {false};
+		float	m_key_held_timer		[sf::Keyboard::KeyCount]	= {0.0f};
+	};
+
+	template<Enum K>
+	class KeyboardHandlerBindable : public KeyboardHandler
+	{
+	public:
+		using KeyboardHandler::Held; // make them visible for overloading
+		using KeyboardHandler::Pressed;
+		using KeyboardHandler::Released;
+
 		bool Held(const K& key) const
 		{
 			return Held(m_key_bindings.at(key));
@@ -67,10 +80,6 @@ namespace fge
 		}
 
 	private:
-		bool	m_current_key_state		[sf::Keyboard::KeyCount]	= {false};
-		bool	m_previous_key_state	[sf::Keyboard::KeyCount]	= {false};
-		float	m_key_held_timer		[sf::Keyboard::KeyCount]	= {0.0f};
-
 		std::unordered_map<K, sf::Keyboard::Key> m_key_bindings; // bindings for keys
 	};
 }

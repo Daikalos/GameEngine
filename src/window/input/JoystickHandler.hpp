@@ -11,7 +11,6 @@ namespace fge
 	// Handles all of the joystick input, has support for 
 	// several joysticks.
 	////////////////////////////////////////////////////////////
-	template<Enum JB, Enum JA>
 	class JoystickHandler : public InputHandler
 	{
 	public:
@@ -95,6 +94,30 @@ namespace fge
 			return !Pressed(id, button);
 		}
 
+		float Axis(const uint32_t& id, const uint32_t& axis) const
+		{
+			return m_joystick_axis[axis + id * sf::Joystick::AxisCount];
+		}
+
+	private:
+		std::unordered_set<uint32_t> m_available_joysticks; // list of indices of the currently available joysticks
+
+		bool	m_current_button_joystick_state		[sf::Joystick::Count * sf::Joystick::ButtonCount] = {false};
+		bool	m_previous_button_joystick_state	[sf::Joystick::Count * sf::Joystick::ButtonCount] = {false};;
+		float	m_joystick_button_held_timer		[sf::Joystick::Count * sf::Joystick::ButtonCount] = {0.0f};;
+
+		float	m_joystick_axis						[sf::Joystick::Count * sf::Joystick::AxisCount] = {0.0f};
+	};
+
+	template<Enum JB, Enum JA>
+	class JoystickHandlerBindable : public JoystickHandler
+	{
+	public:
+		using JoystickHandler::Held; // make them visible for overloading
+		using JoystickHandler::Pressed;
+		using JoystickHandler::Released;
+		using JoystickHandler::Axis;
+
 		bool Held(const uint32_t& id, const JB& button) const
 		{
 			return Held(id, m_joystick_button_bindings.at(button));
@@ -108,10 +131,6 @@ namespace fge
 			return Released(id, m_joystick_button_bindings.at(name));
 		}
 
-		float Axis(const uint32_t& id, const uint32_t& axis) const
-		{
-			return m_joystick_axis[axis + id * sf::Joystick::AxisCount];
-		}
 		float Axis(const uint32_t& id, const JA& axis) const
 		{
 			return Axis(id, m_joystick_axis_bindings.at(axis));
@@ -136,15 +155,7 @@ namespace fge
 		}
 
 	private:
-		std::unordered_set<uint32_t> m_available_joysticks; // list of indices of the currently available joysticks
-
-		bool	m_current_button_joystick_state		[sf::Joystick::Count * sf::Joystick::ButtonCount] = {false};
-		bool	m_previous_button_joystick_state	[sf::Joystick::Count * sf::Joystick::ButtonCount] = {false};;
-		float	m_joystick_button_held_timer		[sf::Joystick::Count * sf::Joystick::ButtonCount] = {0.0f};;
-
-		float	m_joystick_axis						[sf::Joystick::Count * sf::Joystick::AxisCount] = {0.0f};
-
 		std::unordered_map<JB, uint32_t> m_joystick_button_bindings;	// bindings for joystick buttons
-		std::unordered_map<JA, uint32_t> m_joystick_axis_bindings;	// bindings for joystick axis
+		std::unordered_map<JA, uint32_t> m_joystick_axis_bindings;		// bindings for joystick axis
 	};
 }

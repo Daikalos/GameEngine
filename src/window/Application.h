@@ -32,11 +32,11 @@ namespace fge
 	class Application final
 	{
 	private:
-		using DefKeyboard = typename KeyboardHandler<bn::Key>;
-		using DefMouse = typename MouseHandler<bn::Button>;
+		using DefKeyboard = typename KeyboardHandlerBindable<bn::Key>;
+		using DefMouse = typename MouseHandlerBindable<bn::Button>;
 
-		using XboxHandler = typename JoystickHandler<bn::XboxButton, bn::XboxAxis>;
-		using PsHandler = typename JoystickHandler<bn::PlaystationButton, bn::PlaystationAxis>;
+		using XboxHandler = typename JoystickHandlerBindable<bn::XboxButton, bn::XboxAxis>;
+		using PsHandler = typename JoystickHandlerBindable<bn::PlaystationButton, bn::PlaystationAxis>;
 
 	public:
 		Application(std::string_view name);

@@ -15,9 +15,8 @@ namespace fge
 {
 	////////////////////////////////////////////////////////////
 	// Handles all of the mouse input, only supports one mouse
-	// at a time. Also features a custom cursor.
+	// at a time. 
 	////////////////////////////////////////////////////////////
-	template<Enum B>
 	class MouseHandler : public InputHandler
 	{
 	public:
@@ -61,6 +60,23 @@ namespace fge
 			return !Pressed(button);
 		}
 
+	private:
+		float	m_scroll_delta		{0.0f};
+		float	m_scroll_threshold	{0.01f}; // threshold before scroll is considered for up/down
+
+		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
+		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};
+		float	m_button_held_timer		[sf::Mouse::ButtonCount] = {0.0f};
+	};
+
+	template<Enum B>
+	class MouseHandlerBindable : public MouseHandler
+	{
+	public:
+		using MouseHandler::Held;
+		using MouseHandler::Pressed;
+		using MouseHandler::Released;
+
 		bool Held(const B& button) const
 		{
 			return Held(m_button_bindings.at(button));
@@ -84,13 +100,6 @@ namespace fge
 		}
 
 	private:
-		float	m_scroll_delta		{0.0f};
-		float	m_scroll_threshold	{0.01f}; // threshold before scroll is considered for up/down
-
-		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
-		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};
-		float	m_button_held_timer		[sf::Mouse::ButtonCount] = {0.0f};
-
 		std::unordered_map<B, sf::Mouse::Button> m_button_bindings;	// bindings for buttons
 	};
 }
