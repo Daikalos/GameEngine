@@ -16,15 +16,10 @@ namespace fge
 	class Controls final : NonCopyable
 	{
 	public:
-		template<std::derived_from<InputHandler> T >
+		template<std::derived_from<InputHandler> T>
 		auto& Get()
 		{
-			const auto& id = typeid(T);
-
-			if (!m_controls.contains(id))
-				throw std::runtime_error("T has not been added to map");
-
-			return *static_cast<T*>(m_controls[id].get());
+			return *static_cast<T*>(m_controls.at(typeid(T)).get());
 		}
 		template<std::derived_from<InputHandler> T>
 		const auto& Get() const
@@ -43,7 +38,10 @@ namespace fge
 			if (m_controls.contains(id))
 				throw std::runtime_error("There is already an object defined");
 
-			m_controls[id] = InputHandler::Ptr(new T(std::forward<Args>(args)...));
+			auto ptr = InputHandler::Ptr(new T(std::forward<Args>(args)...));
+
+			m_controls_list.push_back(ptr.get());
+			m_controls[id] = std::move(ptr);
 		}
 
 		template<std::derived_from<InputHandler> T>
@@ -52,15 +50,30 @@ namespace fge
 			const auto& id = typeid(T);
 
 			if (!m_controls.contains(id))
-				throw std::runtime_error("The object of type T does not exist");
+				throw std::runtime_error("The object of type T does not exist in map");
 
+			auto ptr = &Get<T>();
+
+			auto it = std::find_if(m_controls_list.begin(), m_controls_list.end(), [&ptr](const InputHandler* input_handler)
+				{ return ptr == input_handler; });
+
+			if (it == m_controls_list.end())
+				throw std::runtime_error("The object of type T does not exist in list");
+
+			m_controls_list.erase(it);
 			m_controls.erase(id);
+		}
+
+		template<std::derived_from<InputHandler> T>
+		bool Exists() const
+		{
+			return m_controls.contains(typeid(T));
 		}
 
 		void Update(const Time& time)
 		{
-			for (auto& control : m_controls)
-				control.second->Update(time, m_focus);
+			for (auto& control : m_controls_list)
+				control->Update(time, m_focus);
 		}
 		void HandleEvent(const sf::Event& event)
 		{
@@ -70,12 +83,13 @@ namespace fge
 			case sf::Event::LostFocus: m_focus = false; break;
 			}
 
-			for (auto& control : m_controls)
-				control.second->HandleEvent(event);
+			for (auto& control : m_controls_list)
+				control->HandleEvent(event);
 		}
 
 	private:
 		InputHandler::Controls m_controls;
+		std::vector<InputHandler*> m_controls_list;
 		bool m_focus{true}; // buttons/keys are not registered if not in focus
 	};
 }

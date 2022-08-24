@@ -2,7 +2,7 @@
 
 namespace fge
 {
-	namespace sts
+	namespace state
 	{
 		enum class ID
 		{

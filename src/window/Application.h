@@ -66,7 +66,6 @@ namespace fge
 		FontHolder		m_font_holder;
 		Time			m_time;
 		Controls		m_controls;
-		MouseCursor		m_mouse_cursor;
 	};
 }
 

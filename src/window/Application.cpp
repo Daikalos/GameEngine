@@ -5,8 +5,7 @@ using namespace fge;
 Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
 	m_camera(CameraBehaviour::Context(m_window, m_controls)),
-	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder)),
-	m_mouse_cursor(m_window, m_camera)
+	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
 {
 
 }
@@ -25,13 +24,12 @@ void Application::Run()
 	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
 	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
 
-	m_mouse_cursor.Initialize();
-
-	RegisterStates();
-	RegisterControls();
 	LoadMainTextures();
 
-	m_state_stack.Push(sts::ID::Test);
+	RegisterControls();
+	RegisterStates();
+
+	m_state_stack.Push(state::ID::Test);
 
 	////////////////////////////////////////////////////////////
 
@@ -45,7 +43,6 @@ void Application::Run()
 		m_time.Update();
 
 		m_controls.Update(m_time);
-		m_mouse_cursor.Update(m_time);
 
 		ProcessEvents();
 
@@ -69,9 +66,9 @@ void Application::Run()
 			m_window.close();
 
 		if (m_controls.Get<DefMouse>().ScrollUp())
-			std::cout << "a";
+			m_controls.Remove<MouseCursor>();
 		if (m_controls.Get<DefMouse>().ScrollDown())
-			std::cout << "b";
+			m_controls.Add<MouseCursor>(m_window, m_camera, m_texture_holder);
 
 		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num1))
 			m_window.SetBorder(WindowBorder::Windowed);
@@ -134,7 +131,9 @@ void Application::Draw()
 	m_window.clear(sf::Color::Black);
 	m_window.setView(m_window.getDefaultView());
 
-	m_mouse_cursor.Draw();
+	if (m_controls.Exists<MouseCursor>())
+		m_controls.Get<MouseCursor>().Draw();
+
 	// draw gui
 
 	m_window.setView(m_camera);
@@ -147,13 +146,14 @@ void Application::Draw()
 void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
-	m_state_stack.RegisterState<StateTest>(sts::ID::Test);
+	m_state_stack.RegisterState<StateTest>(state::ID::Test);
 }
 
 void Application::RegisterControls()
 {
 	m_controls.Add<DefKeyboard>();
 	m_controls.Add<DefMouse>();
+	m_controls.Add<MouseCursor>(m_window, m_camera, m_texture_holder);
 	m_controls.Add<XboxHandler>();
 
 	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
@@ -162,6 +162,4 @@ void Application::RegisterControls()
 void Application::LoadMainTextures()
 {
 	m_texture_holder.Load(Texture::ID::IdleCursor, TEXTURE_FOLDER + "cursor.png");
-
-	m_mouse_cursor.SetCursor(m_texture_holder.Get(Texture::ID::IdleCursor));
 }

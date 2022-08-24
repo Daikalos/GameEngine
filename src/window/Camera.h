@@ -25,7 +25,7 @@ namespace fge
 	{
 	private:
 		using Stack = typename std::vector<CameraBehaviour::Ptr>;
-		using Factory = typename std::unordered_map<cm::ID, CameraBehaviour::Func>;
+		using Factory = typename std::unordered_map<camera::ID, CameraBehaviour::Func>;
 
 		enum class Action
 		{
@@ -37,11 +37,11 @@ namespace fge
 
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const cm::ID& camera_id = cm::ID::None)
+			explicit PendingChange(const Action& action, const camera::ID& camera_id = camera::ID::None)
 				: action(action), camera_id(camera_id) {}
 
-			const Action				action;
-			const cm::ID			camera_id;
+			const Action		action;
+			const camera::ID	camera_id;
 		};
 
 	public:
@@ -70,19 +70,19 @@ namespace fge
 		void PostUpdate(const Time& time, float interp);
 
 		template<class T, typename... Args>
-		void Create(const cm::ID& camera_id, Args&&... args);
-		void Push(const cm::ID& camera_id);
+		void Create(const camera::ID& camera_id, Args&&... args);
+		void Push(const camera::ID& camera_id);
 		void Pop();
-		void Erase(const cm::ID& camera_id);
+		void Erase(const camera::ID& camera_id);
 		void Clear();
 
-		CameraBehaviour* GetBehaviour(const cm::ID& camera_id);
+		CameraBehaviour* GetBehaviour(const camera::ID& camera_id);
 
 		template<std::derived_from<CameraBehaviour> T, typename... Args>
-		void RegisterBehaviour(const cm::ID& camera_id, Args&&... args);
+		void RegisterBehaviour(const camera::ID& camera_id, Args&&... args);
 
 	private:
-		CameraBehaviour::Ptr CreateBehaviour(const cm::ID& camera_id);
+		CameraBehaviour::Ptr CreateBehaviour(const camera::ID& camera_id);
 		void ApplyPendingChanges();
 
 	private:
@@ -98,14 +98,14 @@ namespace fge
 	};
 
 	template<class T, typename ...Args>
-	inline void Camera::Create(const cm::ID& camera_id, Args&&... args)
+	inline void Camera::Create(const camera::ID& camera_id, Args&&... args)
 	{
 		RegisterBehaviour(camera_id, std::forward<Args>(args)...);
 		Push(camera_id);
 	}
 
 	template<std::derived_from<CameraBehaviour> T, typename... Args>
-	inline void Camera::RegisterBehaviour(const cm::ID& camera_id, Args&&... args)
+	inline void Camera::RegisterBehaviour(const camera::ID& camera_id, Args&&... args)
 	{
 		m_factory[camera_id] = [this, &args...]()
 		{

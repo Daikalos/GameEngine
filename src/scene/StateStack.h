@@ -19,7 +19,7 @@ namespace fge
 	{
 	private:
 		using Stack = typename std::vector<State::Ptr>;
-		using Factory = typename std::unordered_map<sts::ID, State::Func>;
+		using Factory = typename std::unordered_map<state::ID, State::Func>;
 
 		enum class Action
 		{
@@ -31,18 +31,18 @@ namespace fge
 
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const sts::ID& state_id = sts::ID::None)
+			explicit PendingChange(const Action& action, const state::ID& state_id = state::ID::None)
 				: action(action), state_id(state_id) { }
 
 			const Action		action;
-			const sts::ID	state_id;
+			const state::ID		state_id;
 		};
 
 	public:
 		explicit StateStack(State::Context context);
 
 		template<std::derived_from<State> T, typename... Args>
-		void RegisterState(const sts::ID& state_id, Args&&... args);
+		void RegisterState(const state::ID& state_id, Args&&... args);
 
 		void HandleEvent(const sf::Event& event);
 
@@ -53,7 +53,7 @@ namespace fge
 
 		void Draw();
 
-		void Push(const sts::ID& state_id);
+		void Push(const state::ID& state_id);
 		void Pop();
 		void Clear();
 
@@ -63,7 +63,7 @@ namespace fge
 		void SetPaused(bool flag) { m_paused = flag; }
 
 	private:
-		State::Ptr CreateState(const sts::ID& state_id);
+		State::Ptr CreateState(const state::ID& state_id);
 		void ApplyPendingChanges();
 
 	private:
@@ -77,7 +77,7 @@ namespace fge
 	};
 
 	template<std::derived_from<State> T, typename... Args>
-	inline void StateStack::RegisterState(const sts::ID& state_id, Args&&... args)
+	inline void StateStack::RegisterState(const state::ID& state_id, Args&&... args)
 	{
 		m_factory[state_id] = [&state_id, this, &args...]()
 		{

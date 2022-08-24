@@ -112,7 +112,7 @@ void Camera::PostUpdate(const Time& time, float interp)
 	ApplyPendingChanges();
 }
 
-void Camera::Push(const cm::ID& camera_id)
+void Camera::Push(const camera::ID& camera_id)
 {
 	m_pending_list.push_back(PendingChange(Action::Push, camera_id));
 }
@@ -120,7 +120,7 @@ void Camera::Pop()
 {
 	m_pending_list.push_back(PendingChange(Action::Pop));
 }
-void Camera::Erase(const cm::ID& camera_id)
+void Camera::Erase(const camera::ID& camera_id)
 {
 	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
 }
@@ -129,7 +129,7 @@ void Camera::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-CameraBehaviour* Camera::GetBehaviour(const cm::ID& camera_id)
+CameraBehaviour* Camera::GetBehaviour(const camera::ID& camera_id)
 {
 	for (const CameraBehaviour::Ptr& behaviour : m_stack)
 		if (behaviour->GetId() == camera_id)
@@ -138,7 +138,7 @@ CameraBehaviour* Camera::GetBehaviour(const cm::ID& camera_id)
 	return nullptr;
 }
 
-CameraBehaviour::Ptr Camera::CreateBehaviour(const cm::ID& camera_id)
+CameraBehaviour::Ptr Camera::CreateBehaviour(const camera::ID& camera_id)
 {
 	auto found = m_factory.find(camera_id);
 	assert(found != m_factory.end());

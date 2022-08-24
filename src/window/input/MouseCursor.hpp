@@ -2,8 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../../Utilities.hpp"
+#include "InputHandler.hpp"
 
+#include "../../graphics/ResourceHolder.hpp"
+#include "../../graphics/Resources.h"
+
+#include "../../Utilities.hpp"
 #include "../Window.h"
 #include "../Camera.h"
 
@@ -21,21 +25,21 @@ namespace fge
 		};
 	}
 
-	class MouseCursor
+	class MouseCursor : public InputHandler
 	{
 	public:
-		MouseCursor(Window& window, const Camera& camera)
-			: m_window(&window), m_camera(&camera) { }
-
-		void Initialize()
-		{
+		MouseCursor(Window& window, const Camera& camera, const TextureHolder& texture_holder)
+			: m_window(&window), m_camera(&camera), m_texture_holder(&texture_holder)
+		{ 
 			m_cursor_pos = sf::Vector2f(m_window->GetOrigin());
 			sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
+
+			SetCursor(m_texture_holder->Get(Texture::ID::IdleCursor));
 		}
 
-		void Update(const Time& time)
+		void Update(const Time& time, bool focus) override
 		{
-			if (m_focus)
+			if (m_enabled && m_focus)
 			{
 				m_mouse_pos = sf::Mouse::getPosition(*m_window);
 				m_mouse_delta = m_mouse_pos - m_window->GetOrigin();
@@ -96,19 +100,20 @@ namespace fge
 		}
 
 	private:
-		Window*			m_window			{nullptr};
-		const Camera*	m_camera			{nullptr};
+		Window*					m_window			{nullptr};
+		const Camera*			m_camera			{nullptr};
+		const TextureHolder*	m_texture_holder	{nullptr};
 
-		sf::Sprite		m_cursor;
-		cst::ID			m_cursor_state		{cst::ID::Idle};
+		sf::Sprite				m_cursor;
+		cst::ID					m_cursor_state		{cst::ID::Idle};
 
-		sf::Vector2i	m_mouse_pos;
-		sf::Vector2i	m_mouse_delta;
-		sf::Vector2f	m_cursor_pos;
+		sf::Vector2i			m_mouse_pos;
+		sf::Vector2i			m_mouse_delta;
+		sf::Vector2f			m_cursor_pos;
 
-		float			m_mouse_sensitivity	{1.0f};
+		float					m_mouse_sensitivity	{1.0f};
 
-		bool			m_cursor_visible	{true};
-		bool			m_focus				{true};
+		bool					m_cursor_visible	{true};
+		bool					m_focus				{true};
 	};
 }

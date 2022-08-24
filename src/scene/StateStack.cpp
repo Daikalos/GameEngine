@@ -66,7 +66,7 @@ void StateStack::Draw()
 		state->draw();
 }
 
-void StateStack::Push(const sts::ID& state_id)
+void StateStack::Push(const state::ID& state_id)
 {
 	m_pending_list.push_back(PendingChange(Action::Push, state_id));
 }
@@ -79,7 +79,7 @@ void StateStack::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-State::Ptr StateStack::CreateState(const sts::ID& state_id)
+State::Ptr StateStack::CreateState(const state::ID& state_id)
 {
 	auto found = m_factory.find(state_id);
 	assert(found != m_factory.end());

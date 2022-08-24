@@ -10,7 +10,7 @@ namespace fge
 	class StateTest : public State
 	{
 	public:
-		explicit StateTest(sts::ID id, StateStack& state_stack, Context context)
+		explicit StateTest(state::ID id, StateStack& state_stack, Context context)
 			: State(id, state_stack, context)
 		{
 			
