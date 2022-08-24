@@ -4,6 +4,7 @@
 
 #include "../../utilities/NonCopyable.h"
 #include "../Window.h"
+
 #include "InputHandler.hpp"
 
 namespace fge

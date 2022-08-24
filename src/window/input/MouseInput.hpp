@@ -17,7 +17,7 @@ namespace fge
 	// Handles all of the mouse input, only supports one mouse
 	// at a time. 
 	////////////////////////////////////////////////////////////
-	class MouseHandler : public InputHandler
+	class MouseInput : public InputHandler
 	{
 	public:
 		void Update(const Time& time, bool focus) override
@@ -67,39 +67,5 @@ namespace fge
 		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
 		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};
 		float	m_button_held_timer		[sf::Mouse::ButtonCount] = {0.0f};
-	};
-
-	template<Enum B>
-	class MouseHandlerBindable : public MouseHandler
-	{
-	public:
-		using MouseHandler::Held;
-		using MouseHandler::Pressed;
-		using MouseHandler::Released;
-
-		bool Held(const B& button) const
-		{
-			return Held(m_button_bindings.at(button));
-		}
-		bool Pressed(const B& button) const
-		{
-			return Pressed(m_button_bindings.at(button));
-		}
-		bool Released(const B& button) const
-		{
-			return Released(m_button_bindings.at(button));
-		}
-
-		void SetBinding(const B& name, const sf::Mouse::Button& button)
-		{
-			m_button_bindings[name] = button;
-		}
-		void RemoveBinding(const B& name)
-		{
-			m_button_bindings.erase(name);
-		}
-
-	private:
-		std::unordered_map<B, sf::Mouse::Button> m_button_bindings;	// bindings for buttons
 	};
 }

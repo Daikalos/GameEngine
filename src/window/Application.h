@@ -11,11 +11,7 @@
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
 
-#include "input/KeyboardHandler.hpp"
-#include "input/JoystickHandler.hpp"
-#include "input/MouseHandler.hpp"
-#include "input/MouseCursor.hpp"
-#include "input/Controls.hpp"
+#include "Input.hpp"
 
 #include "Window.h"
 #include "Camera.h"
@@ -32,11 +28,11 @@ namespace fge
 	class Application final
 	{
 	private:
-		using DefKeyboard = typename KeyboardHandlerBindable<bn::Key>;
-		using DefMouse = typename MouseHandlerBindable<bn::Button>;
+		using DefKeyboard = typename KeyboardInputBindable<bn::Key>;
+		using DefMouse = typename MouseInputBindable<bn::Button>;
 
-		using XboxHandler = typename JoystickHandlerBindable<bn::XboxButton, bn::XboxAxis>;
-		using PsHandler = typename JoystickHandlerBindable<bn::PlaystationButton, bn::PlaystationAxis>;
+		using XboxHandler = typename JoystickInputBindable<bn::XboxButton, bn::XboxAxis>;
+		using PsHandler = typename JoystickInputBindable<bn::PlaystationButton, bn::PlaystationAxis>;
 
 	public:
 		Application(std::string_view name);

@@ -184,14 +184,18 @@
     <ClInclude Include="window\Cameras.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraLetterbox.h" />
+    <ClInclude Include="window\Input.hpp" />
     <ClInclude Include="window\input\Controls.hpp" />
     <ClInclude Include="window\input\InputHandler.hpp" />
     <ClInclude Include="graphics\ResourceHolder.hpp" />
     <ClInclude Include="utilities\Time.hpp" />
-    <ClInclude Include="window\input\JoystickHandler.hpp" />
-    <ClInclude Include="window\input\KeyboardHandler.hpp" />
+    <ClInclude Include="window\input\JoystickInput.hpp" />
+    <ClInclude Include="window\input\JoystickInputBindable.hpp" />
+    <ClInclude Include="window\input\KeyboardInput.hpp" />
+    <ClInclude Include="window\input\KeyboardInputBindable.hpp" />
     <ClInclude Include="window\input\MouseCursor.hpp" />
-    <ClInclude Include="window\input\MouseHandler.hpp" />
+    <ClInclude Include="window\input\MouseInput.hpp" />
+    <ClInclude Include="window\input\MouseInputBindable.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>

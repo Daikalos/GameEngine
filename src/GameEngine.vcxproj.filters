@@ -83,13 +83,17 @@
     <ClInclude Include="game\scenes\StateLoading.h" />
     <ClInclude Include="window\cameras\CameraShake.h" />
     <ClInclude Include="window\cameras\CameraGoTo.h" />
-    <ClInclude Include="window\input\JoystickHandler.hpp" />
-    <ClInclude Include="window\input\MouseHandler.hpp" />
-    <ClInclude Include="window\input\KeyboardHandler.hpp" />
+    <ClInclude Include="window\input\JoystickInput.hpp" />
+    <ClInclude Include="window\input\MouseInput.hpp" />
+    <ClInclude Include="window\input\KeyboardInput.hpp" />
     <ClInclude Include="window\input\Controls.hpp" />
     <ClInclude Include="utilities\QuadTree.hpp" />
     <ClInclude Include="utilities\StringUtilities.h" />
     <ClInclude Include="window\input\MouseCursor.hpp" />
+    <ClInclude Include="window\input\JoystickInputBindable.hpp" />
+    <ClInclude Include="window\input\KeyboardInputBindable.hpp" />
+    <ClInclude Include="window\input\MouseInputBindable.hpp" />
+    <ClInclude Include="window\Input.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
