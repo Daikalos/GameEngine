@@ -89,6 +89,7 @@
     <ClInclude Include="window\input\Controls.hpp" />
     <ClInclude Include="utilities\QuadTree.hpp" />
     <ClInclude Include="utilities\StringUtilities.h" />
+    <ClInclude Include="window\input\MouseCursor.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

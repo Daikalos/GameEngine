@@ -13,18 +13,6 @@
 
 namespace fge
 {
-	namespace cst
-	{
-		enum class ID : uint32_t
-		{
-			None,
-			Idle,
-			Click,
-			Loading,
-			Grab
-		};
-	}
-
 	////////////////////////////////////////////////////////////
 	// Handles all of the mouse input, only supports one mouse
 	// at a time. Also features a custom cursor.
@@ -33,36 +21,9 @@ namespace fge
 	class MouseHandler : public InputHandler
 	{
 	public:
-		MouseHandler(const Window& window, const Camera& camera)
-			: m_window(&window), m_camera(&camera)
-		{
-			m_cursor_pos = sf::Vector2f(m_window->GetOrigin());
-			sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
-		}
-
 		void Update(const Time& time, bool focus) override
 		{
 			m_scroll_delta = 0.0f;
-
-			if (focus)
-			{
-				m_mouse_pos = sf::Mouse::getPosition(*m_window);
-				m_mouse_delta = m_mouse_pos - m_window->GetOrigin();
-				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // TODO: acts buggy if window origin is outside screen, maybe fix in future
-
-				m_cursor_pos += sf::Vector2f(m_mouse_delta) * m_mouse_sensitivity;
-
-				if (m_cursor_pos.x < 0.0f)
-					m_cursor_pos.x = 0.0f;
-				if (m_cursor_pos.y < 0.0f)
-					m_cursor_pos.y = 0.0f;
-				if (m_cursor_pos.x > m_window->getSize().x)
-					m_cursor_pos.x = m_window->getSize().x;
-				if (m_cursor_pos.y > m_window->getSize().y)
-					m_cursor_pos.y = m_window->getSize().y;
-
-				m_cursor.setPosition(m_cursor_pos);
-			}
 
 			for (uint32_t i = 0; i < sf::Mouse::ButtonCount; ++i)
 			{
@@ -80,44 +41,10 @@ namespace fge
 			case sf::Event::MouseWheelScrolled:
 				m_scroll_delta = event.mouseWheelScroll.delta;
 				break;
-			case sf::Event::GainedFocus:
-				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
-				break;
 			}
-		}
-		void Draw(sf::RenderWindow& window)
-		{
-			if (m_cursor_visible)
-				window.draw(m_cursor);
 		}
 
 	public:
-		sf::Vector2i GetPosition() const
-		{
-			return m_mouse_pos;
-		}
-		sf::Vector2i GetDelta() const
-		{
-			return m_mouse_delta;
-		}
-
-		void SetCursor(const sf::Texture& texture)
-		{
-			m_cursor.setTexture(texture);
-		}
-		void SetCursorState(cst::ID cursor_state)
-		{
-			m_cursor_state = cursor_state;
-		}
-		void SetCursorVisible(bool flag)
-		{
-			m_cursor_visible = flag;
-		}
-		void SetMouseSensitivity(float val)
-		{
-			m_mouse_sensitivity = val;
-		}
-
 		bool ScrollUp() const noexcept { return m_scroll_delta > m_scroll_threshold; }
 		bool ScrollDown() const noexcept { return m_scroll_delta < -m_scroll_threshold; }
 
@@ -157,21 +84,8 @@ namespace fge
 		}
 
 	private:
-		const Window* m_window		{nullptr};
-		const Camera* m_camera		{nullptr};
-
-		sf::Sprite m_cursor;
-		cst::ID m_cursor_state;
-
-		sf::Vector2i m_mouse_pos;
-		sf::Vector2i m_mouse_delta;
-		sf::Vector2f m_cursor_pos;
-
-		bool m_cursor_visible		{true};
-
 		float	m_scroll_delta		{0.0f};
 		float	m_scroll_threshold	{0.01f}; // threshold before scroll is considered for up/down
-		float	m_mouse_sensitivity	{1.0f};	
 
 		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
 		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};

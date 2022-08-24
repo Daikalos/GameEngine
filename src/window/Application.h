@@ -14,12 +14,12 @@
 #include "input/KeyboardHandler.hpp"
 #include "input/JoystickHandler.hpp"
 #include "input/MouseHandler.hpp"
+#include "input/MouseCursor.hpp"
+#include "input/Controls.hpp"
 
 #include "Window.h"
 #include "Camera.h"
 #include "Binds.h"
-
-#include "input/Controls.hpp"
 
 #include "../test/StateTest.h"
 
@@ -54,7 +54,7 @@ namespace fge
 
 		void Draw();
 		
-		void Registersts();
+		void RegisterStates();
 		void RegisterControls();
 		void LoadMainTextures();
 
@@ -66,6 +66,7 @@ namespace fge
 		FontHolder		m_font_holder;
 		Time			m_time;
 		Controls		m_controls;
+		MouseCursor		m_mouse_cursor;
 	};
 }
 

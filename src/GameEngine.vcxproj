@@ -190,6 +190,7 @@
     <ClInclude Include="utilities\Time.hpp" />
     <ClInclude Include="window\input\JoystickHandler.hpp" />
     <ClInclude Include="window\input\KeyboardHandler.hpp" />
+    <ClInclude Include="window\input\MouseCursor.hpp" />
     <ClInclude Include="window\input\MouseHandler.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>

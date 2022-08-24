@@ -5,7 +5,8 @@ using namespace fge;
 Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
 	m_camera(CameraBehaviour::Context(m_window, m_controls)),
-	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
+	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder)),
+	m_mouse_cursor(m_window, m_camera)
 {
 
 }
@@ -24,7 +25,9 @@ void Application::Run()
 	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
 	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
 
-	Registersts();
+	m_mouse_cursor.Initialize();
+
+	RegisterStates();
 	RegisterControls();
 	LoadMainTextures();
 
@@ -40,7 +43,9 @@ void Application::Run()
 	while (m_window.isOpen())
 	{
 		m_time.Update();
+
 		m_controls.Update(m_time);
+		m_mouse_cursor.Update(m_time);
 
 		ProcessEvents();
 
@@ -129,7 +134,8 @@ void Application::Draw()
 	m_window.clear(sf::Color::Black);
 	m_window.setView(m_window.getDefaultView());
 
-	m_controls.Get<DefMouse>().Draw(m_window); // draw cursor
+	m_mouse_cursor.Draw();
+	// draw gui
 
 	m_window.setView(m_camera);
 
@@ -138,7 +144,7 @@ void Application::Draw()
 	m_window.display();
 }
 
-void Application::Registersts()
+void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
 	m_state_stack.RegisterState<StateTest>(sts::ID::Test);
@@ -147,7 +153,7 @@ void Application::Registersts()
 void Application::RegisterControls()
 {
 	m_controls.Add<DefKeyboard>();
-	m_controls.Add<DefMouse>(m_window, m_camera);
+	m_controls.Add<DefMouse>();
 	m_controls.Add<XboxHandler>();
 
 	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
@@ -155,7 +161,7 @@ void Application::RegisterControls()
 
 void Application::LoadMainTextures()
 {
-	m_texture_holder.Load(Texture::ID::Cursor, TEXTURE_FOLDER + "cursor.png");
+	m_texture_holder.Load(Texture::ID::IdleCursor, TEXTURE_FOLDER + "cursor.png");
 
-	m_controls.Get<DefMouse>().SetCursor(m_texture_holder.Get(Texture::ID::Cursor));
+	m_mouse_cursor.SetCursor(m_texture_holder.Get(Texture::ID::IdleCursor));
 }

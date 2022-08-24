@@ -7,7 +7,7 @@ namespace fge
 		enum class ID
 		{
 			None,
-			Cursor,
+			IdleCursor,
 
 			Count
 		};
