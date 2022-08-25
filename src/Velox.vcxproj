@@ -169,6 +169,7 @@
     <ClInclude Include="utilities\Random.h" />
     <ClInclude Include="utilities\Rectangle.hpp" />
     <ClInclude Include="utilities\StringUtilities.h" />
+    <ClInclude Include="utilities\ThreadPool.h" />
     <ClInclude Include="utilities\VectorUtilities.h" />
     <ClInclude Include="window\Application.h" />
     <ClInclude Include="ExceptionHandler.h" />
@@ -186,18 +187,18 @@
     <ClInclude Include="window\Cameras.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraLetterbox.h" />
-    <ClInclude Include="window\Input.hpp" />
-    <ClInclude Include="window\input\Controls.hpp" />
-    <ClInclude Include="window\input\InputHandler.hpp" />
+    <ClInclude Include="Input.hpp" />
+    <ClInclude Include="input\Controls.hpp" />
+    <ClInclude Include="input\InputHandler.hpp" />
     <ClInclude Include="graphics\ResourceHolder.hpp" />
     <ClInclude Include="utilities\Time.hpp" />
-    <ClInclude Include="window\input\JoystickInput.hpp" />
-    <ClInclude Include="window\input\JoystickInputBindable.hpp" />
-    <ClInclude Include="window\input\KeyboardInput.hpp" />
-    <ClInclude Include="window\input\KeyboardInputBindable.hpp" />
-    <ClInclude Include="window\input\MouseCursor.hpp" />
-    <ClInclude Include="window\input\MouseInput.hpp" />
-    <ClInclude Include="window\input\MouseInputBindable.hpp" />
+    <ClInclude Include="input\JoystickInput.hpp" />
+    <ClInclude Include="input\JoystickInputBindable.hpp" />
+    <ClInclude Include="input\KeyboardInput.hpp" />
+    <ClInclude Include="input\KeyboardInputBindable.hpp" />
+    <ClInclude Include="input\MouseCursor.hpp" />
+    <ClInclude Include="input\MouseInput.hpp" />
+    <ClInclude Include="input\MouseInputBindable.hpp" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>

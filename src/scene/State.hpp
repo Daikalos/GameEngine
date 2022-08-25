@@ -2,9 +2,9 @@
 
 #include <memory>
 
+#include "../Input.hpp"
 #include "../window/Window.h"
 #include "../window/Camera.h"
-#include "../window/input/Controls.hpp"
 #include "../graphics/ResourceHolder.hpp"
 
 #include "States.h"

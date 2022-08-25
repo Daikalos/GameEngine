@@ -4,9 +4,6 @@
 
 #include "InputHandler.hpp"
 
-#include "../Camera.h"
-#include "../Window.h"
-
 namespace vlx
 {
 	////////////////////////////////////////////////////////////
@@ -57,8 +54,8 @@ namespace vlx
 		}
 
 	private:
-		float	m_scroll_delta		{0.0f};
-		float	m_scroll_threshold	{0.01f}; // threshold before scroll is considered for up/down
+		float	m_scroll_delta			{0.0f};
+		float	m_scroll_threshold		{0.01f}; // threshold before scroll is considered for up/down
 
 		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
 		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};

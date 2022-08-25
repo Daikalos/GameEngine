@@ -2,9 +2,10 @@
 
 #include <vector>
 
-#include "../../utilities/Benchmark.h"
-#include "../../utilities/ContainerUtilities.h"
 #include "InputHandler.hpp"
+
+#include "../utilities/Benchmark.h"
+#include "../utilities/ContainerUtilities.h"
 
 namespace vlx
 {

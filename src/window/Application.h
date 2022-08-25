@@ -5,13 +5,12 @@
 #include <string_view>
 
 #include "../Utilities.hpp"
+#include "../Input.hpp"
 
 //#include "../ecs/ECS.hpp"
 #include "../scene/StateStack.h"
 #include "../graphics/ResourceHolder.hpp"
 #include "../utilities/Time.hpp"
-
-#include "Input.hpp"
 
 #include "Window.h"
 #include "Camera.h"

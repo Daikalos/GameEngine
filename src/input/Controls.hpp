@@ -2,9 +2,8 @@
 
 #include <Velox/Concepts.hpp>
 
-#include "../../utilities/NonCopyable.h"
-#include "../../utilities/ContainerUtilities.h"
-#include "../Window.h"
+#include "../utilities/NonCopyable.h"
+#include "../utilities/ContainerUtilities.h"
 
 #include "InputHandler.hpp"
 
@@ -34,7 +33,7 @@ namespace vlx
 		// pass valid args if the constructor has parameters
 		////////////////////////////////////////////////////////////
 		template<std::derived_from<InputHandler> T, typename... Args>
-		void Add(Args&&... args)
+		void Add(Args&&... args) requires std::constructible_from<T, Args...>
 		{
 			const auto& id = typeid(T);
 

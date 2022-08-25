@@ -10,6 +10,7 @@
 
 #include "../utilities/VectorUtilities.h"
 #include "../utilities/NonCopyable.h"
+
 #include "CameraBehaviour.hpp"
 #include "Cameras.h"
 

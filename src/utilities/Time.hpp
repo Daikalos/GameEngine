@@ -21,8 +21,8 @@ namespace vlx
 		constexpr float GetFixedDeltaTime() const noexcept		{ return m_fixed_delta_time * m_scaled_time; }
 		constexpr float GetRealFixedDeltaTime() const noexcept	{ return m_fixed_delta_time; }
 		constexpr float GetScaledTime() const noexcept			{ return m_scaled_time; }
-		constexpr float GetTotalTime() const noexcept			{ return m_total_time; }
-		constexpr float GetTotalRunTime() const noexcept		{ return m_total_run_time; }
+		constexpr long double GetTotalTime() const noexcept		{ return m_total_time; }
+		constexpr long double GetTotalRunTime() const noexcept	{ return m_total_run_time; }
 
 		void SetScaledTime(const float value)					{ m_scaled_time = value; }
 
@@ -49,8 +49,8 @@ namespace vlx
 		float		m_fixed_delta_time;	// fixed delta time for physics etc. (Is set to 1/60 as default)
 		float		m_scaled_time;		// scaled time (set to 1 as default)
 
-		double		m_total_time;		// total time in seconds the applicaton has ran
-		double		m_total_run_time;	// total time the application has ran considering scaled time
+		long double	m_total_time;		// total time in seconds the applicaton has ran
+		long double	m_total_run_time;	// total time the application has ran considering scaled time
 
 		sf::Clock	m_clock;
 	};

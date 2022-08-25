@@ -5,8 +5,8 @@
 #include <typeindex>
 #include <memory>
 
-#include "../../utilities/NonCopyable.h"
-#include "../../utilities/Time.hpp"
+#include "../utilities/NonCopyable.h"
+#include "../utilities/Time.hpp"
 
 namespace vlx
 {

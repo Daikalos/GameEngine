@@ -71,7 +71,7 @@ namespace vlx
 		static constexpr auto SetPrecision(const T val, const int places)
 		{
 			double n = std::pow(10.0, (double)places);
-			return std::roundf(val * n) / n;
+			return std::round(val * n) / n;
 		}
 	}
 }

@@ -4,12 +4,10 @@
 
 #include "InputHandler.hpp"
 
-#include "../../graphics/ResourceHolder.hpp"
-#include "../../graphics/Resources.h"
-
-#include "../../Utilities.hpp"
-#include "../Window.h"
-#include "../Camera.h"
+#include "../graphics/ResourceHolder.hpp"
+#include "../graphics/Resources.h"
+#include "../window/Window.h"
+#include "../Utilities.hpp"
 
 namespace vlx
 {
@@ -28,8 +26,8 @@ namespace vlx
 	class MouseCursor : public InputHandler
 	{
 	public:
-		MouseCursor(Window& window, const Camera& camera, const TextureHolder& texture_holder)
-			: m_window(&window), m_camera(&camera), m_texture_holder(&texture_holder)
+		MouseCursor(Window& window, const TextureHolder& texture_holder)
+			: m_window(&window), m_texture_holder(&texture_holder)
 		{ 
 			m_cursor_pos = sf::Vector2f(m_window->GetOrigin());
 			sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
@@ -97,7 +95,6 @@ namespace vlx
 
 	private:
 		Window*					m_window			{nullptr};
-		const Camera*			m_camera			{nullptr};
 		const TextureHolder*	m_texture_holder	{nullptr};
 
 		sf::Sprite				m_cursor;

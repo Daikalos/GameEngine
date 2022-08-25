@@ -5,7 +5,8 @@
 
 #include "../utilities/NonCopyable.h"
 #include "../utilities/Time.hpp"
-#include "../window/input/Controls.hpp"
+#include "../Input.hpp"
+
 #include "Window.h"
 #include "Cameras.h"
 

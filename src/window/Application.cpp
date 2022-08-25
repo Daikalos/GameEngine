@@ -19,8 +19,6 @@ void Application::Run()
 {
 	//////////////////////-INITIALIZE-//////////////////////////
 
-	bm::Begin();
-
 	m_window.Initialize();
 
 	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
@@ -33,8 +31,15 @@ void Application::Run()
 
 	m_state_stack.Push(state::ID::Test);
 
-	bm::End();
+	bm::Begin("test");
 
+	std::vector<std::size_t> a;
+	while (a.size() < 100000000)
+	{
+		a.push_back(0);
+	}
+
+	bm::End();
 
 	////////////////////////////////////////////////////////////
 
@@ -73,7 +78,7 @@ void Application::Run()
 		if (m_controls.Get<DefMouse>().ScrollUp())
 			m_controls.Remove<MouseCursor>();
 		if (m_controls.Get<DefMouse>().ScrollDown())
-			m_controls.Add<MouseCursor>(m_window, m_camera, m_texture_holder);
+			m_controls.Add<MouseCursor>(m_window, m_texture_holder);
 
 		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num1))
 			m_window.SetBorder(WindowBorder::Windowed);
@@ -158,7 +163,7 @@ void Application::RegisterControls()
 {
 	m_controls.Add<DefKeyboard>();
 	m_controls.Add<DefMouse>();
-	m_controls.Add<MouseCursor>(m_window, m_camera, m_texture_holder);
+	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
 	m_controls.Add<XboxHandler>();
 
 	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
