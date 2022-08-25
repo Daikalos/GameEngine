@@ -3,6 +3,7 @@
 #include <FGE/Concepts.hpp>
 
 #include "../../utilities/NonCopyable.h"
+#include "../../utilities/ContainerUtilities.h"
 #include "../Window.h"
 
 #include "InputHandler.hpp"
@@ -29,7 +30,8 @@ namespace fge
 		}
 
 		////////////////////////////////////////////////////////////
-		// Add the type T that derives InputHandler to the controls
+		// Add the type T that derives InputHandler to the controls,
+		// pass valid args if the constructor has parameters
 		////////////////////////////////////////////////////////////
 		template<std::derived_from<InputHandler> T, typename... Args>
 		void Add(Args&&... args)
@@ -53,15 +55,11 @@ namespace fge
 			if (!m_controls.contains(id))
 				throw std::runtime_error("The object of type T does not exist in map");
 
-			auto ptr = &Get<T>();
+			bool result = cu::Erase(m_controls_list, &Get<T>());
 
-			auto it = std::find_if(m_controls_list.begin(), m_controls_list.end(), [&ptr](const InputHandler* input_handler)
-				{ return ptr == input_handler; });
-
-			if (it == m_controls_list.end())
+			if (!result)
 				throw std::runtime_error("The object of type T does not exist in list");
 
-			m_controls_list.erase(it);
 			m_controls.erase(id);
 		}
 
@@ -90,7 +88,7 @@ namespace fge
 
 	private:
 		InputHandler::Controls m_controls;
-		std::vector<InputHandler*> m_controls_list;
+		std::vector<InputHandler*> m_controls_list; // no idea if this improves performance, will have to do a comparison
 		bool m_focus{true}; // buttons/keys are not registered if not in focus
 	};
 }

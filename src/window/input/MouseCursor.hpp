@@ -39,7 +39,7 @@ namespace fge
 
 		void Update(const Time& time, bool focus) override
 		{
-			if (m_enabled && m_focus)
+			if (m_enabled && focus)
 			{
 				m_mouse_pos = sf::Mouse::getPosition(*m_window);
 				m_mouse_delta = m_mouse_pos - m_window->GetOrigin();
@@ -64,11 +64,7 @@ namespace fge
 			switch (event.type)
 			{
 			case sf::Event::GainedFocus: 
-				m_focus = true; 
 				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // set cursor to middle of screen to prevent inaccurate delta values
-				break;
-			case sf::Event::LostFocus:
-				m_focus = false; 
 				break;
 			}
 		}
@@ -114,6 +110,5 @@ namespace fge
 		float					m_mouse_sensitivity	{1.0f};
 
 		bool					m_cursor_visible	{true};
-		bool					m_focus				{true};
 	};
 }

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <unordered_map>
-#include <unordered_set>
+#include <vector>
 
+#include "../../utilities/Benchmark.h"
+#include "../../utilities/ContainerUtilities.h"
 #include "InputHandler.hpp"
 
 namespace fge
@@ -16,11 +17,11 @@ namespace fge
 	public:
 		JoystickInput()
 		{
-			m_available_joysticks.rehash(sf::Joystick::Count);
+			m_available_joysticks.reserve(sf::Joystick::Count);
 
 			for (int i = 0; i < sf::Joystick::Count; ++i) // add already available joysticks
 				if (sf::Joystick::isConnected(i))
-					m_available_joysticks.insert(i);
+					m_available_joysticks.push_back(i);
 		}
 
 		void Update(const Time& time, bool focus) override
@@ -52,7 +53,7 @@ namespace fge
 			switch (event.type)
 			{
 			case sf::Event::JoystickConnected:
-				m_available_joysticks.insert(event.joystickConnect.joystickId);
+				m_available_joysticks.push_back(event.joystickConnect.joystickId);
 				break;
 			case sf::Event::JoystickDisconnected:
 			{
@@ -72,7 +73,7 @@ namespace fge
 					m_joystick_axis[j] = 0.0f;
 				}
 
-				m_available_joysticks.erase(event.joystickConnect.joystickId);
+				cu::Erase(m_available_joysticks, event.joystickConnect.joystickId);
 			}
 			break;
 			}
@@ -100,7 +101,7 @@ namespace fge
 		}
 
 	private:
-		std::unordered_set<uint32_t> m_available_joysticks; // list of indices of the currently available joysticks
+		std::vector<uint32_t> m_available_joysticks; // list of indexes of the currently available joysticks
 
 		bool	m_current_button_joystick_state		[sf::Joystick::Count * sf::Joystick::ButtonCount] = {false};
 		bool	m_previous_button_joystick_state	[sf::Joystick::Count * sf::Joystick::ButtonCount] = {false};;

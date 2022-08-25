@@ -1,6 +1,8 @@
 #pragma once
 
+#include <unordered_map>
 #include <FGE/Concepts.hpp>
+
 #include "JoystickInput.hpp"
 
 namespace fge

@@ -19,6 +19,8 @@ void Application::Run()
 {
 	//////////////////////-INITIALIZE-//////////////////////////
 
+	bm::Begin();
+
 	m_window.Initialize();
 
 	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
@@ -30,6 +32,9 @@ void Application::Run()
 	RegisterStates();
 
 	m_state_stack.Push(state::ID::Test);
+
+	bm::End();
+
 
 	////////////////////////////////////////////////////////////
 

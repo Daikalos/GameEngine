@@ -94,6 +94,8 @@
     <ClInclude Include="window\input\KeyboardInputBindable.hpp" />
     <ClInclude Include="window\input\MouseInputBindable.hpp" />
     <ClInclude Include="window\Input.hpp" />
+    <ClInclude Include="utilities\ContainerUtilities.h" />
+    <ClInclude Include="utilities\Benchmark.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

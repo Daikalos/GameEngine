@@ -162,6 +162,8 @@
     <ClInclude Include="graphics\SpriteBatch.h" />
     <ClInclude Include="test\StateTest.h" />
     <ClInclude Include="Utilities.hpp" />
+    <ClInclude Include="utilities\Benchmark.h" />
+    <ClInclude Include="utilities\ContainerUtilities.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
     <ClInclude Include="utilities\QuadTree.hpp" />
     <ClInclude Include="utilities\Random.h" />

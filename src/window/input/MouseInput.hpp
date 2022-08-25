@@ -1,15 +1,11 @@
 #pragma once
 
 #include <SFML/Window/Cursor.hpp>
-#include <unordered_map>
-#include <FGE/Concepts.hpp>
 
 #include "InputHandler.hpp"
 
 #include "../Camera.h"
 #include "../Window.h"
-
-#include <iostream>
 
 namespace fge
 {
