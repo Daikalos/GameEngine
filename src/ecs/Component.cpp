@@ -1,6 +1,6 @@
 #include "Component.h"
 
-using namespace fge;
+using namespace vlx;
 
 template<class C>
 void Component<C>::ConstructData(unsigned char* data) const

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <thread>
 
-namespace fge
+namespace vlx
 {
 	// TODO: MEASURE CPU, GPU, AND MEMORY USAGE WHILE ACTIVE
 

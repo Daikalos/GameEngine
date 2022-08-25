@@ -1,6 +1,6 @@
 #include "SpriteBatch.h"
 
-using namespace fge;
+using namespace vlx;
 
 void SpriteBatch::Begin(SortMode sort_mode)
 {

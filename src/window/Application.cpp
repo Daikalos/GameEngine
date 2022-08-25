@@ -1,6 +1,6 @@
 #include "Application.h"
 
-using namespace fge;
+using namespace vlx;
 
 Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),

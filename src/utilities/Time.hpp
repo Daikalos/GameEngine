@@ -4,7 +4,7 @@
 
 #include "NonCopyable.h"
 
-namespace fge
+namespace vlx
 {
 	static const float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
 	static const float DEFAULT_SCALED_TIME = 1.0f;

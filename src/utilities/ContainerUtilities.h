@@ -3,7 +3,7 @@
 #include <vector>
 #include <FGE/Concepts.hpp>
 
-namespace fge
+namespace vlx
 {
 	namespace cu
 	{

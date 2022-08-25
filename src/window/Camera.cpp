@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-using namespace fge;
+using namespace vlx;
 
 Camera::Camera(CameraBehaviour::Context context) 
 	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0)
@@ -26,20 +26,20 @@ sf::Vector2f Camera::GetMouseWorldPosition(const sf::RenderWindow& window) const
 	return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); 
 }
 
-sf::Vector2f fge::Camera::GetOrigin() const
+sf::Vector2f vlx::Camera::GetOrigin() const
 {
 	return GetPosition() + GetSize() / 2.0f;
 }
 
-sf::Vector2f fge::Camera::GetPosition() const noexcept
+sf::Vector2f vlx::Camera::GetPosition() const noexcept
 {
 	return m_position;
 }
-sf::Vector2f fge::Camera::GetScale() const noexcept
+sf::Vector2f vlx::Camera::GetScale() const noexcept
 {
 	return m_scale;
 }
-sf::Vector2f fge::Camera::GetSize() const noexcept
+sf::Vector2f vlx::Camera::GetSize() const noexcept
 {
 	return m_size;
 }

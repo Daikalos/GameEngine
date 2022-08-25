@@ -8,7 +8,7 @@
 #include "../utilities/NonCopyable.h"
 #include "../utilities/Time.hpp"
 
-namespace fge
+namespace vlx
 {
 	class ECS;
 

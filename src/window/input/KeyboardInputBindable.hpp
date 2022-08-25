@@ -5,7 +5,7 @@
 
 #include "KeyboardInput.hpp"
 
-namespace fge
+namespace vlx
 {
 	template<Enum K>
 	class KeyboardInputBindable : public KeyboardInput

@@ -10,7 +10,7 @@
 #include "../utilities/NonCopyable.h"
 #include "Resources.h"
 
-namespace fge
+namespace vlx
 {
 	template <class Resource, class Identifier>
 	class ResourceHolder : private NonCopyable

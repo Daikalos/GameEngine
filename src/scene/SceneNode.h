@@ -5,7 +5,7 @@
 
 #include "../utilities/NonCopyable.h"
 
-namespace fge
+namespace vlx
 {
 	class SceneNode : public sf::Drawable, public sf::Transformable, private NonCopyable
 	{

@@ -7,7 +7,7 @@
 
 #include "Utilities.h"
 
-namespace fge
+namespace vlx
 {
 	namespace vu
 	{

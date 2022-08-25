@@ -5,7 +5,7 @@
 #include "../scene/State.hpp"
 #include "../utilities/Random.h"
 
-namespace fge
+namespace vlx
 {
 	class StateTest : public State
 	{

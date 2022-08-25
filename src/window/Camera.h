@@ -13,7 +13,7 @@
 #include "CameraBehaviour.hpp"
 #include "Cameras.h"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// Expanded camera containing a variety of functionalities,

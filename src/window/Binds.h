@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// Contains a set of unique binds used to set the binds

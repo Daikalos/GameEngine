@@ -1,6 +1,6 @@
 #include "StateStack.h"
 
-using namespace fge;
+using namespace vlx;
 
 StateStack::StateStack(State::Context context)
 	: m_context(context) { }

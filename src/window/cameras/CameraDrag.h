@@ -4,7 +4,7 @@
 #include "../cm.h"
 #include "../Camera.h"
 
-namespace fge
+namespace vlx
 {
 	class CameraDrag final : public CameraBehaviour
 	{

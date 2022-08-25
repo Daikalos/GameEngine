@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace fge
+namespace vlx
 {
 	template<typename T>
 	struct Rect

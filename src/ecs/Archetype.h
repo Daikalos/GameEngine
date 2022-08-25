@@ -4,7 +4,7 @@
 
 #include "Identifiers.h"
 
-namespace fge
+namespace vlx
 {
 	using ComponentData = std::shared_ptr<unsigned char>;
 

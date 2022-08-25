@@ -1,6 +1,6 @@
 #include "StateTest.h"
 
-using namespace fge;
+using namespace vlx;
 
 bool StateTest::HandleEvent(const sf::Event& event)
 {

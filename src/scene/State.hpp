@@ -9,7 +9,7 @@
 
 #include "States.h"
 
-namespace fge
+namespace vlx
 {
 	class StateStack;
 

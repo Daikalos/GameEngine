@@ -3,7 +3,7 @@
 #include "Identifiers.h"
 #include "ECS.hpp"
 
-namespace fge
+namespace vlx
 {
 	class Entity
 	{

@@ -6,7 +6,7 @@ int main()
 {
 	std::string application_name = "Velox";
 
-	fge::Application application(application_name);
+	vlx::Application application(application_name);
 	application.Run();
 
 	return EXIT_SUCCESS;

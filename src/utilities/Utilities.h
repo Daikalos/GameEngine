@@ -8,7 +8,7 @@
 #include <random>
 #include <chrono>
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// General utility class

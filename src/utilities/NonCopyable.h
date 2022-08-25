@@ -1,6 +1,6 @@
 #pragma once
 
-namespace fge
+namespace vlx
 {
 	class NonCopyable // custom NonCopyable because sfml's gives weird linking error
 	{

@@ -5,7 +5,7 @@
 
 #include "../utilities/NonCopyable.h"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// settings for type of border

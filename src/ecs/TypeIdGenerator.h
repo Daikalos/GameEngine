@@ -2,7 +2,7 @@
 
 #include "Identifiers.h"
 
-namespace fge
+namespace vlx
 {
 	template<class C>
 	class TypeIdGenerator // maybe look at re-using IDs

@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "../Utilities.hpp"
 
-namespace fge
+namespace vlx
 {
 	class SpriteBatch
 	{

@@ -9,7 +9,7 @@
 #include "Window.h"
 #include "Cameras.h"
 
-namespace fge
+namespace vlx
 {
 	class Camera;
 

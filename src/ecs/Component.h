@@ -5,7 +5,7 @@
 #include "Identifiers.h"
 #include "TypeIdGenerator.h"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// unsigned char* is used for representing a binary data 

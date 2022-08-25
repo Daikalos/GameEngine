@@ -11,7 +11,7 @@
 #include "../Window.h"
 #include "../Camera.h"
 
-namespace fge
+namespace vlx
 {
 	namespace cst
 	{

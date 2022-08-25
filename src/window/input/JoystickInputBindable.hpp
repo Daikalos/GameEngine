@@ -5,7 +5,7 @@
 
 #include "JoystickInput.hpp"
 
-namespace fge
+namespace vlx
 {
 	template<Enum JB, Enum JA>
 	class JoystickInputBindable : public JoystickInput

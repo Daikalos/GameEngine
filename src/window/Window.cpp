@@ -1,6 +1,6 @@
 #include "Window.h"
 #include <iostream>
-using namespace fge;
+using namespace vlx;
 
 Window::Window(
 	std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
@@ -127,7 +127,7 @@ sf::Vector2i Window::GetOrigin() const
 	return sf::Vector2i(getSize() / 2u);
 }
 
-std::vector<sf::VideoMode> fge::Window::GetModes() const
+std::vector<sf::VideoMode> vlx::Window::GetModes() const
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	float desktop_ratio = desktop.size.x / (float)desktop.size.y;

@@ -4,7 +4,7 @@
 #include <random>
 #include <chrono>
 
-namespace fge
+namespace vlx
 {
 	namespace rnd
 	{

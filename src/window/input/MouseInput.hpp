@@ -7,7 +7,7 @@
 #include "../Camera.h"
 #include "../Window.h"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// Handles all of the mouse input, only supports one mouse

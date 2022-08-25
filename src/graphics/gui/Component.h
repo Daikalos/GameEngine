@@ -4,7 +4,7 @@
 
 #include "../../utilities/NonCopyable.h"
 
-namespace fge
+namespace vlx
 {
 	namespace gui
 	{

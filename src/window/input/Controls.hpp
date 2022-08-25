@@ -8,7 +8,7 @@
 
 #include "InputHandler.hpp"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// Neat wrapper around controls to prevent having to

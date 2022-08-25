@@ -23,7 +23,7 @@ static const std::string DATA_FOLDER = "../data/";
 static const std::string AUDIO_FOLDER = DATA_FOLDER + "audio/";
 static const std::string TEXTURE_FOLDER = DATA_FOLDER + "textures/";
 
-namespace fge
+namespace vlx
 {
 	class Application final
 	{

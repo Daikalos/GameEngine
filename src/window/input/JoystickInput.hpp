@@ -6,7 +6,7 @@
 #include "../../utilities/ContainerUtilities.h"
 #include "InputHandler.hpp"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// Handles all of the joystick input, has support for 

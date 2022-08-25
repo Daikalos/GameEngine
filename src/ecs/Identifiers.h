@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace fge
+namespace vlx
 {
 	using IDType = std::uint32_t;
 

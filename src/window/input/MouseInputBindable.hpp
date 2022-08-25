@@ -5,7 +5,7 @@
 
 #include "MouseInput.hpp"
 
-namespace fge
+namespace vlx
 {
 	template<Enum B>
 	class MouseInputBindable : public MouseInput

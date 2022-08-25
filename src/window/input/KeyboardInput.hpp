@@ -2,7 +2,7 @@
 
 #include "InputHandler.hpp"
 
-namespace fge
+namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// Handles all of the keyboard input, only supports one
