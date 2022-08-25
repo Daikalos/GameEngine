@@ -4,7 +4,7 @@
 
 int main()
 {
-	std::string application_name = "Game Engine";
+	std::string application_name = "Velox";
 
 	fge::Application application(application_name);
 	application.Run();
