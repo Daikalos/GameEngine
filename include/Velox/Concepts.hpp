@@ -3,7 +3,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace fge
+namespace vlx
 {
 	template<typename T>
 	concept Arithmetic = std::is_arithmetic_v<T>;

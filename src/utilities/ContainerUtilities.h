@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <FGE/Concepts.hpp>
+#include <Velox/Concepts.hpp>
 
 namespace vlx
 {
