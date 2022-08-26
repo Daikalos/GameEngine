@@ -1,16 +1,15 @@
 # Velox Game Engine
 
-Simple 2D game engine with its foundation in SFML containing a variety of functionalities for expanded usage. Some functions of the engine is also based on the book "SFML Game Development (2013)" by Jan Haller, Henrik Vogelius Hansson, and Artur Moreira.
+Simple 2D game engine with its foundation in SFML that provides a variety of functionalities for expanded usage. Some functions of the engine are also based on the book “SFML Game Development (2013)” by Jan Haller, Henrik Vogelius Hansson, and Artur Moreira.
 
-Goal is to then to create a game using this engine.
-
-- Application
+Examples of planned features:
+- Application             
 - Physics
 - Collisions
 - Animations
 - Graphical User Interface
 - Entities
-- StateStack
+- StateStack                
 - Networking
 - Audio
 - InputHandler
@@ -18,6 +17,8 @@ Goal is to then to create a game using this engine.
 - SpriteBatch
 - ECS design
 - ...
+
+Goal is to then to create a game using this engine.
 
 <ins>Estimated Time of Completion</ins>
 
