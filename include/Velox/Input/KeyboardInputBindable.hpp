@@ -1,14 +1,15 @@
 #pragma once
 
+#include <Velox/Utilities.hpp>
+
 #include <unordered_map>
-#include <Velox/Concepts.hpp>
 
 #include "KeyboardInput.hpp"
 
 namespace vlx
 {
 	template<Enum K>
-	class KeyboardInputBindable : public KeyboardInput
+	class KeyboardInputBindable final : public KeyboardInput
 	{
 	public:
 		using KeyboardInput::Held; // make them visible for overloading

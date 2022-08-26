@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <Velox/Concepts.hpp>
+
+#include "Concepts.h"
 
 namespace vlx
 {

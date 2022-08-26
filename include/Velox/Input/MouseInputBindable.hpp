@@ -1,14 +1,15 @@
 #pragma once
 
+#include <Velox/Utilities.hpp>
+
 #include <unordered_map>
-#include <Velox/Concepts.hpp>
 
 #include "MouseInput.hpp"
 
 namespace vlx
 {
 	template<Enum B>
-	class MouseInputBindable : public MouseInput
+	class MouseInputBindable final : public MouseInput
 	{
 	public:
 		using MouseInput::Held;

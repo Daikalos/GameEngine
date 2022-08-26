@@ -3,13 +3,12 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
+#include <Velox/Utilities.hpp>
+
 #include <unordered_map>
 #include <memory>
 #include <concepts>
 #include <type_traits>
-
-#include "../utilities/VectorUtilities.h"
-#include "../utilities/NonCopyable.h"
 
 #include "CameraBehaviour.hpp"
 #include "Cameras.h"

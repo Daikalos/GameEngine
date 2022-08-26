@@ -1,14 +1,15 @@
 #pragma once
 
+#include <Velox/Utilities.hpp>
+
 #include <unordered_map>
-#include <Velox/Concepts.hpp>
 
 #include "JoystickInput.hpp"
 
 namespace vlx
 {
 	template<Enum JB, Enum JA>
-	class JoystickInputBindable : public JoystickInput
+	class JoystickInputBindable final : public JoystickInput
 	{
 	public:
 		using JoystickInput::Held; // make them visible for overloading

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Velox/Concepts.hpp>
-
-#include "../utilities/NonCopyable.h"
-#include "../utilities/ContainerUtilities.h"
+#include <Velox/Utilities.hpp>
 
 #include "InputHandler.hpp"
 

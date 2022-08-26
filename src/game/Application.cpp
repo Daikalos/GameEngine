@@ -31,16 +31,6 @@ void Application::Run()
 
 	m_state_stack.Push(state::ID::Test);
 
-	bm::Begin("test");
-
-	std::vector<std::size_t> a;
-	while (a.size() < 100000000)
-	{
-		a.push_back(0);
-	}
-
-	bm::End();
-
 	////////////////////////////////////////////////////////////
 
 	float accumulator = FLT_EPSILON;

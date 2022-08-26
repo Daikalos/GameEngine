@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "../scene/State.hpp"
-#include "../utilities/Random.h"
+#include <Velox/Scene/State.hpp>
+#include <Velox/Utilities.hpp>
 
 namespace vlx
 {

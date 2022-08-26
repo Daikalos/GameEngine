@@ -14,7 +14,7 @@
 #include <Psapi.h>
 #include <Pdh.h>
 
-#include "Utilities.h"
+#include "ArithmeticUtils.h"
 
 namespace vlx
 {
@@ -108,14 +108,14 @@ namespace vlx
 
 				std::cout << "BENCHMARK BEGIN" << "\n";
 				std::cout << "INITIAL RAM: " << initial_ram << "MB\n";
-				std::cout << "INITIAL CPU: " << util::SetPrecision(initial_cpu * 100, 3) << "%\n";
+				std::cout << "INITIAL CPU: " << au::SetPrecision(initial_cpu * 100, 3) << "%\n";
 				std::cout << "\n";
 
 				std::cout << "BENCHMARK END" << "\n";
 				std::cout << "RAM TOTAL: " << ram_average << "MB\n";
 				std::cout << "RAM USED: " << ram_usage << "MB\n";
-				std::cout << "CPU TOTAL: " << util::SetPrecision(cpu_average * 100, 3) << "%\n";
-				std::cout << "CPU USED: " << util::SetPrecision(cpu_usage * 100, 3) << "%\n";
+				std::cout << "CPU TOTAL: " << au::SetPrecision(cpu_average * 100, 3) << "%\n";
+				std::cout << "CPU USED: " << au::SetPrecision(cpu_usage * 100, 3) << "%\n";
 				std::cout << "\n";
 			}
 

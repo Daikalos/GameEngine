@@ -153,15 +153,15 @@
     <ClInclude Include="ecs\Entity.hpp" />
     <ClInclude Include="ecs\Identifiers.h" />
     <ClInclude Include="ecs\TypeIdGenerator.h" />
+    <ClInclude Include="game\Binds.h" />
     <ClInclude Include="game\scenes\StateLoading.h" />
+    <ClInclude Include="game\scenes\StateTest.h" />
     <ClInclude Include="graphics\Animation.h" />
     <ClInclude Include="graphics\gui\Component.h" />
     <ClInclude Include="graphics\gui\TextBox.h" />
     <ClInclude Include="ecs\System.hpp" />
     <ClInclude Include="graphics\Resources.h" />
     <ClInclude Include="graphics\SpriteBatch.h" />
-    <ClInclude Include="test\StateTest.h" />
-    <ClInclude Include="Utilities.hpp" />
     <ClInclude Include="utilities\Benchmark.h" />
     <ClInclude Include="utilities\ContainerUtilities.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
@@ -171,8 +171,7 @@
     <ClInclude Include="utilities\StringUtilities.h" />
     <ClInclude Include="utilities\ThreadPool.h" />
     <ClInclude Include="utilities\VectorUtilities.h" />
-    <ClInclude Include="window\Application.h" />
-    <ClInclude Include="ExceptionHandler.h" />
+    <ClInclude Include="game\Application.h" />
     <ClInclude Include="utilities\Utilities.h" />
     <ClInclude Include="window\cameras\CameraGoTo.h" />
     <ClInclude Include="window\cameras\CameraShake.h" />
@@ -187,7 +186,6 @@
     <ClInclude Include="window\Cameras.h" />
     <ClInclude Include="window\cameras\CameraDrag.h" />
     <ClInclude Include="window\cameras\CameraLetterbox.h" />
-    <ClInclude Include="Input.hpp" />
     <ClInclude Include="input\Controls.hpp" />
     <ClInclude Include="input\InputHandler.hpp" />
     <ClInclude Include="graphics\ResourceHolder.hpp" />
@@ -204,11 +202,10 @@
   <ItemGroup>
     <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="game\scenes\StateLoading.cpp" />
+    <ClCompile Include="game\scenes\StateTest.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
-    <ClCompile Include="test\StateTest.cpp" />
-    <ClCompile Include="window\Application.cpp" />
-    <ClCompile Include="ExceptionHandler.cpp" />
+    <ClCompile Include="game\Application.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="window\Camera.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />

@@ -2,18 +2,18 @@
 
 #define _USE_MATH_DEFINES
 
-#include <Velox/Concepts.hpp>
-
 #include <math.h>
 #include <random>
 #include <chrono>
 
+#include "Concepts.h"
+
 namespace vlx
 {
 	////////////////////////////////////////////////////////////
-	// General utility class
+	// General utility class for arithmetic numbers
 	////////////////////////////////////////////////////////////
-	namespace util
+	namespace au
 	{
 		template<std::floating_point T>
 		static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees

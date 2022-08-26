@@ -3,14 +3,25 @@
 #define _USE_MATH_DEFINES
 
 #include <SFML/Graphics.hpp>
-#include <Velox/Concepts.hpp>
 
-#include "Utilities.h"
+#include "ArithmeticUtils.h"
+#include "Concepts.h"
 
 namespace vlx
 {
 	namespace vu
 	{
+		template<Arithmetic T>
+		static constexpr auto Dot(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+		{
+			return lhs.x * rhs.x + lhs.y * rhs.y;
+		}
+		template<Arithmetic T>
+		static constexpr auto Cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+		{
+			return lhs.x * rhs.y - lhs.y * rhs.x;
+		}
+
 		template<Arithmetic T>
 		static constexpr sf::Vector2<T> Direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 		{
@@ -40,50 +51,39 @@ namespace vlx
 		}
 
 		template<Arithmetic T>
-		static constexpr float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr const float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 		{
 			return Distance(Direction(from, to));
 		}
 		template<Arithmetic T>
-		static constexpr float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr const float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 		{
 			return DistanceSq(Direction(from, to));
 		}
 		template<Arithmetic T>
-		static constexpr float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+		static constexpr const float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 		{
 			return DistanceOpt(Direction(from, to));
 		}
 
 		template<Arithmetic T>
-		static constexpr float Angle(const sf::Vector2<T>& vector)
+		static constexpr const float Angle(const sf::Vector2<T>& vector)
 		{
 			return atan2f(vector.y, vector.x);
 		}
 		template<Arithmetic T>
-		static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float lhs_length, float rhs_length)
+		static constexpr const float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float lhs_length, const float rhs_length)
 		{
 			return acosf(Dot(lhs, rhs) / (lhs_length * rhs_length));
 		}
 		template<Arithmetic T>
-		static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+		static constexpr const float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 		{
 			return Angle(lhs, rhs, Distance(lhs), Distance(rhs));
 		}
 
 		template<Arithmetic T>
-		static constexpr float Dot(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
-		{
-			return lhs.x * rhs.x + lhs.y * rhs.y;
-		}
-		template<Arithmetic T>
-		static constexpr float Cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
-		{
-			return lhs.x * rhs.y - lhs.y * rhs.x;
-		}
-
-		template<Arithmetic T>
-		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, float length, float radius)
+		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, const float length, const float radius)
 		{
 			if (length < FLT_EPSILON)
 				return vector;
@@ -94,13 +94,13 @@ namespace vlx
 			return vector;
 		}
 		template<Arithmetic T>
-		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, float radius = 1.0f)
+		static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, const float radius = 1.0f)
 		{
 			return Normalize(vector, Distance(vector), radius);
 		}
 
 		template<Arithmetic T>
-		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float length, float max_length)
+		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, const float length, const float max_length)
 		{
 			if (length > max_length)
 				return Normalize(vector, length, max_length);
@@ -108,13 +108,13 @@ namespace vlx
 			return vector;
 		}
 		template<Arithmetic T>
-		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, float max_length)
+		static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, const float max_length)
 		{
 			return Limit(vector, Distance(vector), max_length);
 		}
 
 		template<Arithmetic T>
-		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float length, float max_length, float min_length)
+		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, const float length, const float max_length, const float min_length)
 		{
 			if (length > max_length)
 				return Normalize(vector, length, max_length);
@@ -124,18 +124,18 @@ namespace vlx
 			return vector;
 		}
 		template<Arithmetic T>
-		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, float max_length, float min_length)
+		static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, const float max_length, const float min_length)
 		{
 			return Clamp(vector, Distance(vector), max_length, min_length);
 		}
 
 		template<Arithmetic T>
-		static constexpr sf::Vector2<T> RotatePoint(const sf::Vector2<T>& point, const sf::Vector2<T>& center, float angle)
+		static constexpr sf::Vector2<T> RotatePoint(const sf::Vector2<T>& point, const sf::Vector2<T>& center, const float angle)
 		{
-			sf::Vector2<T> dir = Direction(center, point);
+			const sf::Vector2<T> dir = Direction(center, point);
 
-			float s = sinf(angle);
-			float c = cosf(angle);
+			const float s = sinf(angle);
+			const float c = cosf(angle);
 
 			return sf::Vector2<T>(
 				(dir.x * c - dir.y * s) + center.x,
@@ -154,14 +154,14 @@ namespace vlx
 		}
 
 		template<Arithmetic T>
-		static constexpr const sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, float a)
+		static constexpr const sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float a)
 		{
 			return sf::Vector3<T>(
 				lerp(lhs.x, rhs.x, a),
 				lerp(lhs.y, rhs.y, a));
 		}
 		template<Arithmetic T>
-		static constexpr sf::Vector3<T> Lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, float a)
+		static constexpr sf::Vector3<T> Lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, const float a)
 		{
 			return sf::Vector3<T>(
 				lerp(lhs.x, rhs.x, a),
@@ -180,7 +180,7 @@ namespace vlx
 		return lhs;
 	}
 	template <Arithmetic T>
-	static constexpr sf::Vector2<T> operator /(float lhs, const sf::Vector2<T>& rhs)
+	static constexpr sf::Vector2<T> operator /(const float lhs, const sf::Vector2<T>& rhs)
 	{
 		sf::Vector2<T> result = { lhs, lhs };
 		result.x /= rhs.x;

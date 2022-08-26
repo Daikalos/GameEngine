@@ -1,5 +1,5 @@
-#include "Window.h"
-#include <iostream>
+#include <Velox/Window/Window.h>
+
 using namespace vlx;
 
 Window::Window(

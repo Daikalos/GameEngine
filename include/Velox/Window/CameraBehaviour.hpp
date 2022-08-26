@@ -1,11 +1,11 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <functional>
 
-#include "../utilities/NonCopyable.h"
-#include "../utilities/Time.hpp"
-#include "../Input.hpp"
+#include <Velox/Utilities.hpp>
+#include <Velox/Input.hpp>
+
+#include <functional>
 
 #include "Window.h"
 #include "Cameras.h"

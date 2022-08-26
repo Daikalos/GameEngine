@@ -1,9 +1,10 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <string_view>
 
-#include "../utilities/NonCopyable.h"
+#include <Velox/Utilities.hpp>
+
+#include <string_view>
 
 namespace vlx
 {
@@ -21,7 +22,7 @@ namespace vlx
 	// Expanded to allow for toggle fullscreen, 
 	// change resolution, and other settings
 	////////////////////////////////////////////////////////////
-	class Window : public sf::RenderWindow, NonCopyable
+	class Window final : public sf::RenderWindow, NonCopyable
 	{
 	public:
 		Window(

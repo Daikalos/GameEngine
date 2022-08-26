@@ -4,29 +4,27 @@
     <ClCompile Include="main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="ExceptionHandler.cpp" />
     <ClCompile Include="window\Camera.cpp" />
     <ClCompile Include="window\Window.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
-    <ClCompile Include="window\Application.cpp" />
+    <ClCompile Include="game\Application.cpp" />
     <ClCompile Include="graphics\gui\TextBox.cpp" />
     <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="ecs\Component.cpp" />
     <ClCompile Include="graphics\SpriteBatch.cpp" />
     <ClCompile Include="scene\SceneNode.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
-    <ClCompile Include="test\StateTest.cpp" />
     <ClCompile Include="game\scenes\StateLoading.cpp" />
+    <ClCompile Include="game\scenes\StateTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExceptionHandler.h" />
     <ClInclude Include="window\Camera.h" />
     <ClInclude Include="input\InputHandler.hpp" />
     <ClInclude Include="window\Window.h" />
     <ClInclude Include="utilities\Utilities.h" />
     <ClInclude Include="scene\State.hpp" />
     <ClInclude Include="scene\StateStack.h" />
-    <ClInclude Include="window\Application.h" />
+    <ClInclude Include="game\Application.h" />
     <ClInclude Include="graphics\ResourceHolder.hpp" />
     <ClInclude Include="scene\States.h" />
     <ClInclude Include="utilities\NonCopyable.h" />
@@ -41,7 +39,6 @@
     <ClInclude Include="ecs\Archetype.h" />
     <ClInclude Include="ecs\ECS.hpp" />
     <ClInclude Include="graphics\SpriteBatch.h" />
-    <ClInclude Include="Utilities.hpp" />
     <ClInclude Include="utilities\Rectangle.hpp" />
     <ClInclude Include="utilities\VectorUtilities.h" />
     <ClInclude Include="utilities\Time.hpp" />
@@ -57,7 +54,6 @@
     <ClInclude Include="window\Binds.h" />
     <ClInclude Include="window\cameras\CameraZoom.h" />
     <ClInclude Include="graphics\Resources.h" />
-    <ClInclude Include="test\StateTest.h" />
     <ClInclude Include="game\scenes\StateLoading.h" />
     <ClInclude Include="window\cameras\CameraShake.h" />
     <ClInclude Include="window\cameras\CameraGoTo.h" />
@@ -71,10 +67,11 @@
     <ClInclude Include="input\JoystickInputBindable.hpp" />
     <ClInclude Include="input\KeyboardInputBindable.hpp" />
     <ClInclude Include="input\MouseInputBindable.hpp" />
-    <ClInclude Include="Input.hpp" />
     <ClInclude Include="utilities\ContainerUtilities.h" />
     <ClInclude Include="utilities\Benchmark.h" />
     <ClInclude Include="utilities\ThreadPool.h" />
+    <ClInclude Include="game\Binds.h" />
+    <ClInclude Include="game\scenes\StateTest.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

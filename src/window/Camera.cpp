@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include <Velox/Window/Camera.h>
 
 using namespace vlx;
 

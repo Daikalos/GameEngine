@@ -1,11 +1,10 @@
 #pragma once
 
+#include <Velox/Utilities.hpp>
+
 #include <vector>
 
 #include "InputHandler.hpp"
-
-#include "../utilities/Benchmark.h"
-#include "../utilities/ContainerUtilities.h"
 
 namespace vlx
 {

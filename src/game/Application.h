@@ -4,19 +4,19 @@
 #include <unordered_map>
 #include <string_view>
 
-#include "../Utilities.hpp"
-#include "../Input.hpp"
+#include <Velox/Utilities.hpp>
+#include <Velox/Input.hpp>
 
 //#include "../ecs/ECS.hpp"
-#include "../scene/StateStack.h"
-#include "../graphics/ResourceHolder.hpp"
-#include "../utilities/Time.hpp"
+#include <Velox/Scene/StateStack.h>
+#include <Velox/Graphics/ResourceHolder.hpp>
+#include <Velox/Graphics/ResourceHolder.hpp>
 
-#include "Window.h"
-#include "Camera.h"
+#include <Velox/Window/Camera.h>
+#include <Velox/Window/Window.h>
+
 #include "Binds.h"
-
-#include "../test/StateTest.h"
+#include "scenes/StateTest.h"
 
 static const std::string DATA_FOLDER = "../data/";
 static const std::string AUDIO_FOLDER = DATA_FOLDER + "audio/";
