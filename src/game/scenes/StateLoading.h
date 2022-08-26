@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../scene/State.hpp"
-#include "../../utilities/Time.hpp"
+#include <Velox/Scene/State.hpp>
+#include <Velox/Utilities.hpp>
 
 class StateLoading final : public vlx::State
 {
