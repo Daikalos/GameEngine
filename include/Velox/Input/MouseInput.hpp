@@ -22,8 +22,8 @@ namespace vlx
 				m_previous_button_state[i] = m_current_button_state[i];
 				m_current_button_state[i] = focus && m_enabled && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
 
-				m_button_held_timer[i] = m_current_button_state[i] ?
-					m_button_held_timer[i] + (m_button_held_timer[i] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
+				m_held_timer[i] = m_current_button_state[i] ?
+					m_held_timer[i] + (m_held_timer[i] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
 			}
 		}
 		void HandleEvent(const sf::Event& event) override
@@ -42,7 +42,7 @@ namespace vlx
 
 		bool Held(sf::Mouse::Button button) const
 		{
-			return m_current_button_state[button] && m_button_held_timer[button] >= m_held_threshold;
+			return m_current_button_state[button] && m_held_timer[button] >= m_held_threshold;
 		}
 		bool Pressed(sf::Mouse::Button button) const
 		{
@@ -59,6 +59,6 @@ namespace vlx
 
 		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
 		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};
-		float	m_button_held_timer		[sf::Mouse::ButtonCount] = {0.0f};
+		float	m_held_timer			[sf::Mouse::ButtonCount] = {0.0f};
 	};
 }
