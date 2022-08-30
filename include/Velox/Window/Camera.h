@@ -47,15 +47,18 @@ namespace vlx
 	public:
 		explicit Camera(CameraBehaviour::Context context);
 
-		constexpr sf::Transform GetViewMatrix() const;
-		constexpr sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
-		constexpr sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const;
+		[[nodiscard]] constexpr sf::Transform GetViewMatrix() const;
+		[[nodiscard]] constexpr sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
+		[[nodiscard]] constexpr sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
 
-		constexpr sf::Vector2f GetOrigin() const;
+		[[nodiscard]] constexpr sf::Vector2f GetOrigin() const;
 
-		constexpr sf::Vector2f GetPosition() const noexcept;
-		constexpr sf::Vector2f GetScale() const noexcept;
-		constexpr sf::Vector2f GetSize() const noexcept;
+		[[nodiscard]] constexpr sf::Vector2f GetPosition() const noexcept;
+		[[nodiscard]] constexpr sf::Vector2f GetScale() const noexcept;
+		[[nodiscard]] constexpr sf::Vector2f GetSize() const noexcept;
+
+		[[nodiscard]] CameraBehaviour* GetBehaviour(camera::ID camera_id);
+		[[nodiscard]] const CameraBehaviour* GetBehaviour(camera::ID camera_id) const;
 
 		void SetPosition(const sf::Vector2f& position);
 		void SetScale(const sf::Vector2f& scale);
@@ -73,8 +76,6 @@ namespace vlx
 		void Pop();
 		void Erase(const camera::ID& camera_id);
 		void Clear();
-
-		CameraBehaviour* GetBehaviour(const camera::ID& camera_id);
 
 		template<std::derived_from<CameraBehaviour> T, typename... Args>
 		void RegisterBehaviour(const camera::ID& camera_id, Args&&... args);
@@ -104,40 +105,37 @@ namespace vlx
 		};
 	}
 
-	inline constexpr sf::Transform Camera::GetViewMatrix() const
+	[[nodiscard]] inline constexpr sf::Transform Camera::GetViewMatrix() const
 	{
 		return sf::Transform()
 			.translate(m_position)
 			.scale(1.0f / m_scale)
 			.translate(m_size / -2.0f);
 	}
+	[[nodiscard]] inline constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const { return GetViewMatrix() * position; }
+	[[nodiscard]] inline constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const { return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); }
 
-	inline constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const
-	{
-		return GetViewMatrix() * position;
-	}
+	[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetOrigin() const { return GetPosition() + GetSize() / 2.0f; }
 
-	inline constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::RenderWindow& window) const
-	{
-		return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window)));
-	}
+	[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetPosition() const noexcept { return m_position; }
+	[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetScale() const noexcept { return m_scale; }
+	[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetSize() const noexcept { return m_size; }
 
-	inline constexpr sf::Vector2f vlx::Camera::GetOrigin() const
+	[[nodiscard]] inline CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id)
 	{
-		return GetPosition() + GetSize() / 2.0f;
-	}
+		for (const CameraBehaviour::Ptr& behaviour : m_stack)
+			if (behaviour->GetId() == camera_id)
+				return behaviour.get();
 
-	inline constexpr sf::Vector2f vlx::Camera::GetPosition() const noexcept
-	{
-		return m_position;
+		return nullptr;
 	}
-	inline constexpr sf::Vector2f vlx::Camera::GetScale() const noexcept
+	[[nodiscard]] inline const CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id) const
 	{
-		return m_scale;
-	}
-	inline constexpr sf::Vector2f vlx::Camera::GetSize() const noexcept
-	{
-		return m_size;
+		for (const CameraBehaviour::Ptr& behaviour : m_stack)
+			if (behaviour->GetId() == camera_id)
+				return behaviour.get();
+
+		return nullptr;
 	}
 }
 

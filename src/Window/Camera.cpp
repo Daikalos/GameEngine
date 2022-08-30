@@ -93,15 +93,6 @@ void Camera::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-CameraBehaviour* Camera::GetBehaviour(const camera::ID& camera_id)
-{
-	for (const CameraBehaviour::Ptr& behaviour : m_stack)
-		if (behaviour->GetId() == camera_id)
-			return behaviour.get();
-
-	return nullptr;
-}
-
 CameraBehaviour::Ptr Camera::CreateBehaviour(const camera::ID& camera_id)
 {
 	auto found = m_factory.find(camera_id);

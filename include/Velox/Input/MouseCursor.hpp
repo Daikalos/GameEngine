@@ -40,23 +40,22 @@ namespace vlx
 			if (m_enabled && focus)
 			{
 				m_mouse_pos = sf::Mouse::getPosition(*m_window);
-				m_mouse_delta = m_mouse_pos - m_window->GetOrigin();
+				m_mouse_delta = sf::Vector2f(m_mouse_pos - m_window->GetOrigin());
 				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // TODO: acts buggy if window origin is outside screen, maybe fix in future
 
-				const sf::Vector2f ratio(
-					m_window->getSize().x / (float)m_desktop_mode.size.x, 
-					m_window->getSize().y / (float)m_desktop_mode.size.y);
+				m_cursor_pos += m_mouse_delta * m_window->GetRatioCmp() * m_mouse_sensitivity;
 
-				m_cursor_pos += sf::Vector2f(m_mouse_delta) * ratio * m_mouse_sensitivity;
-
-				if (m_cursor_pos.x < 0.0f)
-					m_cursor_pos.x = 0.0f;
-				if (m_cursor_pos.y < 0.0f)
-					m_cursor_pos.y = 0.0f;
-				if (m_cursor_pos.x > m_window->getSize().x)
-					m_cursor_pos.x = m_window->getSize().x;
-				if (m_cursor_pos.y > m_window->getSize().y)
-					m_cursor_pos.y = m_window->getSize().y;
+				if (m_locked)
+				{
+					if (m_cursor_pos.x < 0.0f)
+						m_cursor_pos.x = 0.0f;
+					if (m_cursor_pos.y < 0.0f)
+						m_cursor_pos.y = 0.0f;
+					if (m_cursor_pos.x > m_window->getSize().x)
+						m_cursor_pos.x = m_window->getSize().x;
+					if (m_cursor_pos.y > m_window->getSize().y)
+						m_cursor_pos.y = m_window->getSize().y;
+				}
 
 				m_cursor.setPosition(m_cursor_pos);
 			}
@@ -66,7 +65,13 @@ namespace vlx
 			switch (event.type)
 			{
 			case sf::Event::GainedFocus: 
+				m_cursor_pos = sf::Vector2f(sf::Mouse::getPosition(*m_window));
+				m_cursor.setPosition(m_cursor_pos);
+
 				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // set cursor to middle of screen to prevent inaccurate delta values
+				break;
+			case sf::Event::LostFocus:
+				sf::Mouse::setPosition(sf::Vector2i(m_cursor_pos), *m_window);
 				break;
 			}
 		}
@@ -77,9 +82,9 @@ namespace vlx
 		}
 
 	public:
-		[[nodiscard]] constexpr sf::Vector2f GetPosition() const noexcept { return m_cursor_pos; }
 		[[nodiscard]] constexpr sf::Vector2i GetMousePosition() const noexcept { return m_mouse_pos; }
-		[[nodiscard]] constexpr sf::Vector2i GetDelta() const noexcept { return m_mouse_delta; }
+		[[nodiscard]] constexpr sf::Vector2f GetDelta() const noexcept { return m_mouse_delta; }
+		[[nodiscard]] constexpr sf::Vector2f GetPosition() const noexcept { return m_cursor_pos; }
 
 		void SetCursor(const sf::Texture& texture)
 		{
@@ -89,13 +94,17 @@ namespace vlx
 		{
 			m_cursor_state = cursor_state;
 		}
+		void SetMouseSensitivity(float val)
+		{
+			m_mouse_sensitivity = val;
+		}
 		void SetCursorVisible(bool flag)
 		{
 			m_cursor_visible = flag;
 		}
-		void SetMouseSensitivity(float val)
+		void SetCursorLocked(bool flag)
 		{
-			m_mouse_sensitivity = val;
+			m_locked = flag;
 		}
 
 	private:
@@ -105,14 +114,13 @@ namespace vlx
 		sf::Sprite				m_cursor;
 		cst::ID					m_cursor_state		{cst::ID::Idle};
 
-		sf::VideoMode			m_desktop_mode		{sf::VideoMode::getDesktopMode()};
-
 		sf::Vector2i			m_mouse_pos;
-		sf::Vector2i			m_mouse_delta;
+		sf::Vector2f			m_mouse_delta;
 		sf::Vector2f			m_cursor_pos;
 
 		float					m_mouse_sensitivity	{1.0f};
 
 		bool					m_cursor_visible	{true};
+		bool					m_locked			{true}; // locks the cursor inside the window if true
 	};
 }

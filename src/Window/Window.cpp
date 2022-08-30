@@ -4,29 +4,61 @@ using namespace vlx;
 
 Window::Window(
 	std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
-	m_name(name), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate)
+	m_name(name), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate) {}
+
+[[nodiscard]] std::vector<sf::VideoMode> Window::GetValidModes(bool update) const
 {
-	std::vector<sf::VideoMode> modes = GetModes();
+	if (update || !m_cached_modes.size())
+	{
+		const sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+		float desktop_ratio = desktop.size.x / (float)desktop.size.y;
 
-	if (!modes.size())
-		throw std::runtime_error("unable to retrieve supported video modes");
+		std::vector<sf::VideoMode> fullscreen_modes = sf::VideoMode::getFullscreenModes();
 
-	m_mode = modes.front();
+		std::vector<sf::VideoMode> valid_modes;
+		valid_modes.reserve(fullscreen_modes.size());
+
+		for (const sf::VideoMode& mode : fullscreen_modes)
+		{
+			float ratio = mode.size.x / (float)mode.size.y;
+			if (std::fabsf(desktop_ratio - ratio) <= FLT_EPSILON)
+				valid_modes.push_back(mode);
+		}
+
+		return valid_modes;
+	}
+
+	return m_cached_modes;
+}
+
+void Window::SetCursorState(bool flag)
+{
+	setMouseCursorVisible(flag);
+	setMouseCursorGrabbed(!flag);
 }
 
 void Window::onCreate()
 {
-	sf::RenderWindow::onCreate(); // call base class
+	sf::RenderWindow::onCreate(); // must call base class
 
 	SetFramerate(m_frame_rate);
 	SetVerticalSync(m_vertical_sync);
 
 	SetCursorState(false); // invisible as default, MouseHandler is used instead
+	
+	m_ratio_cmp = sf::Vector2f(
+		getSize().x / (float)sf::VideoMode::getDesktopMode().size.x,
+		getSize().y / (float)sf::VideoMode::getDesktopMode().size.y);
 }
 
 void Window::Initialize()
 {
-	Build(m_border, m_mode, m_settings);
+	std::vector<sf::VideoMode> modes = GetValidModes();
+
+	if (!modes.size())
+		throw std::runtime_error("unable to retrieve supported video modes");
+
+	Build(m_border, modes.front(), m_settings);
 
 	if (!setActive(true))
 		throw std::runtime_error("window could not be activated");
@@ -70,7 +102,7 @@ void Window::SetVerticalSync(bool flag)
 
 void Window::SetResolution(int index)
 {
-	std::vector<sf::VideoMode> modes = GetModes();
+	std::vector<sf::VideoMode> modes = GetValidModes();
 
 	if (index >= modes.size())
 		throw std::runtime_error("index is out of range");
@@ -114,35 +146,4 @@ void Window::SetMode(sf::VideoMode mode)
 void Window::SetSettings(sf::ContextSettings settings)
 {
 	Build(m_border, m_mode, settings);
-}
-
-void Window::SetCursorState(bool flag)
-{
-	setMouseCursorVisible(flag);
-	setMouseCursorGrabbed(!flag);
-}
-
-sf::Vector2i Window::GetOrigin() const
-{
-	return sf::Vector2i(getSize() / 2u);
-}
-
-std::vector<sf::VideoMode> vlx::Window::GetModes() const
-{
-	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	float desktop_ratio = desktop.size.x / (float)desktop.size.y;
-
-	std::vector<sf::VideoMode> fullscreen_modes = sf::VideoMode::getFullscreenModes();
-
-	std::vector<sf::VideoMode> valid_modes;
-	valid_modes.reserve(fullscreen_modes.size());
-
-	for (const sf::VideoMode& mode : fullscreen_modes)
-	{
-		float ratio = mode.size.x / (float)mode.size.y;
-		if (std::fabsf(desktop_ratio - ratio) <= FLT_EPSILON)
-			valid_modes.push_back(mode);
-	}
-
-	return valid_modes;
 }

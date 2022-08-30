@@ -27,8 +27,10 @@ namespace vlx
 
 			sf::Vector2f position = GetCamera().GetPosition();
 
+			if (mouse_input.Pressed(bn::Button::Drag))
+				m_drag_pos = position + (mouse_cursor.GetPosition() / GetCamera().GetScale() / window->GetRatioCmp());
 			if (mouse_input.Held(bn::Button::Drag))
-				position -= sf::Vector2f(mouse_cursor.GetDelta()) / GetCamera().GetScale();
+				position = (m_drag_pos - (mouse_cursor.GetPosition() / GetCamera().GetScale() / window->GetRatioCmp()));
 
 			GetCamera().SetPosition(position);
 
@@ -36,6 +38,6 @@ namespace vlx
 		}
 
 	private:
-		sf::Vector2i m_drag_pos;
+		sf::Vector2f m_drag_pos;
 	};
 }
