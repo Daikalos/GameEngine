@@ -17,8 +17,8 @@ namespace vlx
 	class InputHandler : NonCopyable
 	{
 	public:
-		using Ptr		= std::unique_ptr<InputHandler>;
-		using Controls	= std::unordered_map<std::type_index, Ptr>;
+		using Ptr			= std::unique_ptr<InputHandler>;
+		using ControlMap	= std::unordered_map<std::type_index, Ptr>;
 
 	public:
 		InputHandler() {}

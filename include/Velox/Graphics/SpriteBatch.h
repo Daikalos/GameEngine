@@ -51,7 +51,7 @@ namespace vlx
 	private:
 		std::vector<Batch>		m_batches;
 		std::vector<Quad>		m_quads;
-		std::vector<sf::Vertex> m_mvertices;
+		std::vector<sf::Vertex> m_vertices;
 
 		SortMode				m_sort_mode;
 	};

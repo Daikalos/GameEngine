@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../CameraBehaviour.hpp"
-#include "../cm.h"
-#include "../Camera.h"
+#include <Velox/Window/CameraBehaviour.hpp>
+#include <Velox/Window/Camera.h>
+#include <Velox/Window/Cameras.h>
 
 namespace vlx
 {
 	class CameraZoom final : public CameraBehaviour
 	{
 	public:
-		CameraZoom(cm::ID id, Camera& camera, Context context) :
+		CameraZoom(camera::ID id, Camera& camera, Context context) :
 			CameraBehaviour(id, camera, context) { }
 
 	private:
@@ -21,13 +21,13 @@ namespace vlx
 		bool Update(const Time& time) override
 		{
 			const Window* window = GetContext().window;
-			const InputHandler* input_handler = GetContext().input_handler;
+			const auto& mouse_input = GetContext().controls->Get<MouseInputBindable>();
 
 			sf::Vector2f scale = GetCamera().GetScale();
 
-			if (input_handler->GetScrollUp())
+			if (mouse_input.ScrollUp())
 				scale += sf::Vector2f(0.1f, 0.1f);
-			if (input_handler->GetScrollDown())
+			if (mouse_input.ScrollDown())
 				scale -= sf::Vector2f(0.1f, 0.1f);
 
 			GetCamera().SetScale(scale);

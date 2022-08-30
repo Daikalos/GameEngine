@@ -80,22 +80,22 @@ namespace vlx
 		}
 
 	public:
-		bool Held(const uint32_t& id, const uint32_t& button) const
+		bool Held(uint32_t id, uint32_t button) const
 		{
 			const int index = button + id * sf::Joystick::ButtonCount;
 			return m_current_button_joystick_state[index] && m_joystick_button_held_timer[index] >= m_held_threshold;;
 		}
-		bool Pressed(const uint32_t& id, const uint32_t& button) const
+		bool Pressed(uint32_t id, uint32_t button) const
 		{
 			const int index = button + id * sf::Joystick::ButtonCount;
 			return m_current_button_joystick_state[index] && !m_previous_button_joystick_state[index];
 		}
-		bool Released(const uint32_t& id, const uint32_t& button) const
+		bool Released(uint32_t id, uint32_t button) const
 		{
 			return !Pressed(id, button);
 		}
 
-		float Axis(const uint32_t& id, const uint32_t& axis) const
+		float Axis(uint32_t id, uint32_t axis) const
 		{
 			return m_joystick_axis[axis + id * sf::Joystick::AxisCount];
 		}

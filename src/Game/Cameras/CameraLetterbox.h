@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../CameraBehaviour.hpp"
-#include "../cm.h"
-#include "../Camera.h"
+#include <Velox/Window/CameraBehaviour.hpp>
+#include <Velox/Window/Camera.h>
+#include <Velox/Window/Cameras.h>
 
 namespace vlx
 {
 	class CameraLetterbox final : public CameraBehaviour
 	{
 	public:
-		CameraLetterbox(cm::ID id, Camera& camera, Context context) :
+		CameraLetterbox(camera::ID id, Camera& camera, Context context) :
 			CameraBehaviour(id, camera, context) { }
 
 	private:

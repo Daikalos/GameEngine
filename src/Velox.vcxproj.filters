@@ -12,14 +12,19 @@
     <ClCompile Include="Scene\SceneNode.cpp" />
     <ClCompile Include="Graphics\SpriteBatch.cpp" />
     <ClCompile Include="scene\StateStack.cpp" />
-    <ClCompile Include="Game\scenes\StateLoading.cpp" />
-    <ClCompile Include="Game\scenes\StateTest.cpp" />
+    <ClCompile Include="Game\Scenes\StateLoading.cpp" />
+    <ClCompile Include="Game\Scenes\StateTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Application.h" />
-    <ClInclude Include="Game\scenes\StateLoading.h" />
+    <ClInclude Include="Game\Scenes\StateLoading.h" />
     <ClInclude Include="Game\Binds.h" />
-    <ClInclude Include="Game\scenes\StateTest.h" />
+    <ClInclude Include="Game\Scenes\StateTest.h" />
+    <ClInclude Include="Game\Cameras\CameraDrag.h" />
+    <ClInclude Include="Game\Cameras\CameraGoTo.h" />
+    <ClInclude Include="Game\Cameras\CameraLetterbox.h" />
+    <ClInclude Include="Game\Cameras\CameraShake.h" />
+    <ClInclude Include="Game\Cameras\CameraZoom.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -21,12 +21,12 @@ namespace vlx
 
 		struct Context // holds vital objects
 		{
-			Context(Window& window, Camera& camera, Controls& controls, TextureHolder& texture_holder, FontHolder& font_holder)
+			Context(Window& window, Camera& camera, ControlMap& controls, TextureHolder& texture_holder, FontHolder& font_holder)
 				: window(&window), camera(&camera), controls(&controls), texture_holder(&texture_holder), font_holder(&font_holder) { }
 
 			Window* const				window;
 			Camera*	const				camera;
-			Controls* const				controls;
+			ControlMap* const			controls;
 			TextureHolder* const		texture_holder;
 			FontHolder*	const			font_holder;
 		};

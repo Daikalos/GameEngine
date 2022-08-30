@@ -5,40 +5,62 @@
 #include <unordered_map>
 
 #include "KeyboardInput.hpp"
+#include "Binds.hpp"
 
 namespace vlx
 {
-	template<Enum K>
 	class KeyboardInputBindable final : public KeyboardInput
 	{
+	private:
+		template<Enum Bind>
+		using KeyboardBinds = Binds<Bind, sf::Keyboard::Key>;
+
 	public:
 		using KeyboardInput::Held; // make them visible for overloading
 		using KeyboardInput::Pressed;
 		using KeyboardInput::Released;
 
-		bool Held(const K& key) const
+		template<Enum Bind>
+		bool Held(Bind name) const
 		{
-			return Held(m_key_bindings.at(key));
+			auto& binds = Get<Bind>();
+			return binds.GetEnabled() && Held(binds.at(name));
 		}
-		bool Pressed(const K& key) const
+		template<Enum Bind>
+		bool Pressed(Bind name) const
 		{
-			return Pressed(m_key_bindings.at(key));
+			auto& binds = Get<Bind>();
+			return binds.GetEnabled() && Pressed(binds.at(name));
 		}
-		bool Released(const K& key) const
+		template<Enum Bind>
+		bool Released(Bind name) const
 		{
-			return Released(m_key_bindings.at(key));
+			auto& binds = Get<Bind>();
+			return binds.GetEnabled() && Released(binds.at(name));
 		}
 
-		void SetBinding(const K& name, const sf::Keyboard::Key& key)
+		////////////////////////////////////////////////////////////
+		// Add the bind for later input, must be done before any
+		// operations are performed using the bind
+		////////////////////////////////////////////////////////////
+		template<Enum Bind>
+		void Add()
 		{
-			m_key_bindings[name] = key;
+			m_binds[typeid(Bind)] = BindsBase::Ptr(new KeyboardBinds<Bind>());
 		}
-		void RemoveBinding(const K& name)
+
+		template<Enum Bind>
+		KeyboardBinds<Bind>& Get()
 		{
-			m_key_bindings.erase(name);
+			return *static_cast<KeyboardBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
+		}
+		template<Enum Bind>
+		const KeyboardBinds<Bind>& Get() const
+		{
+			return const_cast<KeyboardInputBindable*>(this)->Get<Bind>();
 		}
 
 	private:
-		std::unordered_map<K, sf::Keyboard::Key> m_key_bindings; // bindings for keys
+		std::unordered_map<std::type_index, BindsBase::Ptr> m_binds;
 	};
 }

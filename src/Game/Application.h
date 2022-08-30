@@ -18,6 +18,9 @@
 #include "Binds.h"
 #include "scenes/StateTest.h"
 
+#include "Cameras/CameraDrag.h"
+#include "Cameras/CameraZoom.h"
+
 static const std::string DATA_FOLDER = "../data/";
 static const std::string AUDIO_FOLDER = DATA_FOLDER + "audio/";
 static const std::string TEXTURE_FOLDER = DATA_FOLDER + "textures/";
@@ -26,13 +29,6 @@ namespace vlx
 {
 	class Application final
 	{
-	private:
-		using DefKeyboard = typename KeyboardInputBindable<bn::Key>;
-		using DefMouse = typename MouseInputBindable<bn::Button>;
-
-		using XboxHandler = typename JoystickInputBindable<bn::XboxButton, bn::XboxAxis>;
-		using PsHandler = typename JoystickInputBindable<bn::PlaystationButton, bn::PlaystationAxis>;
-
 	public:
 		Application(std::string_view name);
 		~Application();
@@ -60,7 +56,7 @@ namespace vlx
 		TextureHolder	m_texture_holder;
 		FontHolder		m_font_holder;
 		Time			m_time;
-		Controls		m_controls;
+		ControlMap		m_controls;
 	};
 }
 

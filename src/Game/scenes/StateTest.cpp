@@ -14,5 +14,9 @@ bool StateTest::Update(Time& time)
 
 void StateTest::draw()
 {
-
+    sf::CircleShape circle;
+    circle.setPosition(sf::Vector2f(250.0f, 250.0f));
+    circle.setRadius(100.0f);
+    circle.setFillColor(sf::Color::Red);
+    GetContext().window->draw(circle);
 }

@@ -47,15 +47,15 @@ namespace vlx
 	public:
 		explicit Camera(CameraBehaviour::Context context);
 
-		sf::Transform GetViewMatrix() const;
-		sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
-		sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const;
+		constexpr sf::Transform GetViewMatrix() const;
+		constexpr sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
+		constexpr sf::Vector2f GetMouseWorldPosition(const sf::RenderWindow& window) const;
 
-		sf::Vector2f GetOrigin() const;
+		constexpr sf::Vector2f GetOrigin() const;
 
-		sf::Vector2f GetPosition() const noexcept;
-		sf::Vector2f GetScale() const noexcept;
-		sf::Vector2f GetSize() const noexcept;
+		constexpr sf::Vector2f GetPosition() const noexcept;
+		constexpr sf::Vector2f GetScale() const noexcept;
+		constexpr sf::Vector2f GetSize() const noexcept;
 
 		void SetPosition(const sf::Vector2f& position);
 		void SetScale(const sf::Vector2f& scale);
@@ -69,8 +69,6 @@ namespace vlx
 		void FixedUpdate(const Time& time);
 		void PostUpdate(const Time& time, float interp);
 
-		template<class T, typename... Args>
-		void Create(const camera::ID& camera_id, Args&&... args);
 		void Push(const camera::ID& camera_id);
 		void Pop();
 		void Erase(const camera::ID& camera_id);
@@ -97,20 +95,49 @@ namespace vlx
 		std::vector<PendingChange>	m_pending_list; // TODO: ALLOW FOR STORING VARIADIC PARAMETERS AND PASS THEM TO ONCREATE FOR BEHAVIOUR CHILDREN, dunno if possible even, should reconsider structure if not
 	};
 
-	template<class T, typename ...Args>
-	inline void Camera::Create(const camera::ID& camera_id, Args&&... args)
-	{
-		RegisterBehaviour(camera_id, std::forward<Args>(args)...);
-		Push(camera_id);
-	}
-
 	template<std::derived_from<CameraBehaviour> T, typename... Args>
 	inline void Camera::RegisterBehaviour(const camera::ID& camera_id, Args&&... args)
 	{
-		m_factory[camera_id] = [this, &args...]()
+		m_factory[camera_id] = [this, &camera_id, &args...]()
 		{
 			return CameraBehaviour::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
 		};
+	}
+
+	inline constexpr sf::Transform Camera::GetViewMatrix() const
+	{
+		return sf::Transform()
+			.translate(m_position)
+			.scale(1.0f / m_scale)
+			.translate(m_size / -2.0f);
+	}
+
+	inline constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const
+	{
+		return GetViewMatrix() * position;
+	}
+
+	inline constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::RenderWindow& window) const
+	{
+		return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window)));
+	}
+
+	inline constexpr sf::Vector2f vlx::Camera::GetOrigin() const
+	{
+		return GetPosition() + GetSize() / 2.0f;
+	}
+
+	inline constexpr sf::Vector2f vlx::Camera::GetPosition() const noexcept
+	{
+		return m_position;
+	}
+	inline constexpr sf::Vector2f vlx::Camera::GetScale() const noexcept
+	{
+		return m_scale;
+	}
+	inline constexpr sf::Vector2f vlx::Camera::GetSize() const noexcept
+	{
+		return m_size;
 	}
 }
 

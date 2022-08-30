@@ -5,40 +5,62 @@
 #include <unordered_map>
 
 #include "MouseInput.hpp"
+#include "Binds.hpp"
 
 namespace vlx
 {
-	template<Enum B>
 	class MouseInputBindable final : public MouseInput
 	{
+	private:
+		template<Enum Bind>
+		using MouseBinds = Binds<Bind, sf::Mouse::Button>;
+
 	public:
 		using MouseInput::Held;
 		using MouseInput::Pressed;
 		using MouseInput::Released;
 
-		bool Held(const B& button) const
+		template<Enum Bind>
+		bool Held(Bind name) const
 		{
-			return Held(m_button_bindings.at(button));
+			auto& binds = Get<Bind>();
+			return binds.GetEnabled() && Held(binds.At(name));
 		}
-		bool Pressed(const B& button) const
+		template<Enum Bind>
+		bool Pressed(Bind name) const
 		{
-			return Pressed(m_button_bindings.at(button));
+			auto& binds = Get<Bind>();
+			return binds.GetEnabled() && Pressed(binds.At(name));
 		}
-		bool Released(const B& button) const
+		template<Enum Bind>
+		bool Released(Bind name) const
 		{
-			return Released(m_button_bindings.at(button));
+			auto& binds = Get<Bind>();
+			return binds.GetEnabled() && Released(binds.At(name));
 		}
 
-		void SetBinding(const B& name, const sf::Mouse::Button& button)
+		////////////////////////////////////////////////////////////
+		// Add the bind for later input, must be done before any
+		// operations are performed using the bind
+		////////////////////////////////////////////////////////////
+		template<Enum Bind>
+		void Add()
 		{
-			m_button_bindings[name] = button;
+			m_binds[typeid(Bind)] = BindsBase::Ptr(new MouseBinds<Bind>());
 		}
-		void RemoveBinding(const B& name)
+
+		template<Enum Bind>
+		MouseBinds<Bind>& Get()
 		{
-			m_button_bindings.erase(name);
+			return *static_cast<MouseBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
+		}
+		template<Enum Bind>
+		const MouseBinds<Bind>& Get() const
+		{
+			return const_cast<MouseInputBindable*>(this)->Get<Bind>();
 		}
 
 	private:
-		std::unordered_map<B, sf::Mouse::Button> m_button_bindings;	// bindings for buttons
+		std::unordered_map<std::type_index, BindsBase::Ptr> m_binds;
 	};
 }

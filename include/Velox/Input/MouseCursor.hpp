@@ -43,7 +43,11 @@ namespace vlx
 				m_mouse_delta = m_mouse_pos - m_window->GetOrigin();
 				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // TODO: acts buggy if window origin is outside screen, maybe fix in future
 
-				m_cursor_pos += sf::Vector2f(m_mouse_delta) * m_mouse_sensitivity;
+				const sf::Vector2f ratio(
+					m_window->getSize().x / (float)m_desktop_mode.size.x, 
+					m_window->getSize().y / (float)m_desktop_mode.size.y);
+
+				m_cursor_pos += sf::Vector2f(m_mouse_delta) * ratio * m_mouse_sensitivity;
 
 				if (m_cursor_pos.x < 0.0f)
 					m_cursor_pos.x = 0.0f;
@@ -73,8 +77,9 @@ namespace vlx
 		}
 
 	public:
-		sf::Vector2i GetPosition() const	{ return m_mouse_pos; }
-		sf::Vector2i GetDelta() const		{ return m_mouse_delta; }
+		[[nodiscard]] constexpr sf::Vector2f GetPosition() const noexcept { return m_cursor_pos; }
+		[[nodiscard]] constexpr sf::Vector2i GetMousePosition() const noexcept { return m_mouse_pos; }
+		[[nodiscard]] constexpr sf::Vector2i GetDelta() const noexcept { return m_mouse_delta; }
 
 		void SetCursor(const sf::Texture& texture)
 		{
@@ -99,6 +104,8 @@ namespace vlx
 
 		sf::Sprite				m_cursor;
 		cst::ID					m_cursor_state		{cst::ID::Idle};
+
+		sf::VideoMode			m_desktop_mode		{sf::VideoMode::getDesktopMode()};
 
 		sf::Vector2i			m_mouse_pos;
 		sf::Vector2i			m_mouse_delta;

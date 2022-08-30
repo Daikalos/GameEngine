@@ -37,18 +37,18 @@ namespace vlx
 		}
 
 	public:
-		bool ScrollUp() const noexcept { return m_scroll_delta > m_scroll_threshold; }
-		bool ScrollDown() const noexcept { return m_scroll_delta < -m_scroll_threshold; }
+		constexpr bool ScrollUp() const noexcept { return m_scroll_delta > m_scroll_threshold; }
+		constexpr bool ScrollDown() const noexcept { return m_scroll_delta < -m_scroll_threshold; }
 
-		bool Held(const sf::Mouse::Button& button) const
+		bool Held(sf::Mouse::Button button) const
 		{
 			return m_current_button_state[button] && m_button_held_timer[button] >= m_held_threshold;
 		}
-		bool Pressed(const sf::Mouse::Button& button) const
+		bool Pressed(sf::Mouse::Button button) const
 		{
 			return m_current_button_state[button] && !m_previous_button_state[button];
 		}
-		bool Released(const sf::Mouse::Button& button) const
+		bool Released(sf::Mouse::Button button) const
 		{
 			return !Pressed(button);
 		}

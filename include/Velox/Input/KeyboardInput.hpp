@@ -28,15 +28,15 @@ namespace vlx
 		}
 
 	public:
-		bool Held(const sf::Keyboard::Key& key) const
+		bool Held(sf::Keyboard::Key key) const
 		{
 			return m_current_key_state[key] && m_key_held_timer[key] >= m_held_threshold;
 		}
-		bool Pressed(const sf::Keyboard::Key& key) const
+		bool Pressed(sf::Keyboard::Key key) const
 		{
 			return m_current_key_state[key] && !m_previous_key_state[key];
 		}
-		bool Released(const sf::Keyboard::Key& key) const
+		bool Released(sf::Keyboard::Key key) const
 		{
 			return !Pressed(key);
 		}

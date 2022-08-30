@@ -42,7 +42,7 @@ void Application::Run()
 	{
 		m_time.Update();
 
-		m_controls.Update(m_time);
+		m_controls.UpdateAll(m_time, m_window.hasFocus());
 
 		ProcessEvents();
 
@@ -65,25 +65,25 @@ void Application::Run()
 		if (m_state_stack.IsEmpty())
 			m_window.close();
 
-		if (m_controls.Get<DefMouse>().ScrollUp())
-			m_controls.Remove<MouseCursor>();
-		if (m_controls.Get<DefMouse>().ScrollDown())
-			m_controls.Add<MouseCursor>(m_window, m_texture_holder);
+		//if (m_controls.Get<DefMouse>().ScrollUp())
+		//	m_controls.Remove<MouseCursor>();
+		//if (m_controls.Get<DefMouse>().ScrollDown())
+		//	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
 
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num1))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num1))
 			m_window.SetBorder(WindowBorder::Windowed);
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num2))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num2))
 			m_window.SetBorder(WindowBorder::Fullscreen);
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num3))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num3))
 			m_window.SetBorder(WindowBorder::BorderlessWindowed);
 
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num4))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num4))
 			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num5))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num5))
 			m_window.SetResolution(0);
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num6))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num6))
 			m_window.SetResolution(1);
-		if (m_controls.Get<DefKeyboard>().Pressed(sf::Keyboard::Key::Num7))
+		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num7))
 			m_window.SetResolution(2);
 
 		Draw();
@@ -95,7 +95,7 @@ void Application::ProcessEvents()
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{
-		m_controls.HandleEvent(event);
+		m_controls.HandleEventAll(event);
 		m_window.HandleEvent(event);
 		m_camera.HandleEvent(event);
 		m_state_stack.HandleEvent(event);
@@ -129,16 +129,14 @@ void Application::PostUpdate(float interp)
 void Application::Draw()
 {
 	m_window.clear(sf::Color::Black);
+	m_window.setView(m_camera);
+
+	m_state_stack.Draw();
+
 	m_window.setView(m_window.getDefaultView());
 
 	if (m_controls.Exists<MouseCursor>())
 		m_controls.Get<MouseCursor>().Draw();
-
-	// draw gui
-
-	m_window.setView(m_camera);
-
-	m_state_stack.Draw();
 
 	m_window.display();
 }
@@ -147,16 +145,26 @@ void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
 	m_state_stack.RegisterState<StateTest>(state::ID::Test);
+
+	m_camera.RegisterBehaviour<CameraDrag>(camera::ID::Drag);
+	m_camera.RegisterBehaviour<CameraZoom>(camera::ID::Zoom);
+
+	m_camera.Push(camera::ID::Drag);
+	m_camera.Push(camera::ID::Zoom);
 }
 
 void Application::RegisterControls()
 {
-	m_controls.Add<DefKeyboard>();
-	m_controls.Add<DefMouse>();
+	m_controls.Add<KeyboardInputBindable>();
+	m_controls.Add<MouseInputBindable>();
+	m_controls.Add<JoystickInputBindable>();
 	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
-	m_controls.Add<XboxHandler>();
 
-	m_controls.Get<DefMouse>().SetBinding(bn::Button::Drag, sf::Mouse::Button::Middle);
+	m_controls.Get<KeyboardInputBindable>().Add<bn::Key>();
+	m_controls.Get<MouseInputBindable>().Add<bn::Button>();
+	m_controls.Get<JoystickInputBindable>().Add<bn::XboxButton>();
+
+	m_controls.Get<MouseInputBindable>().Get<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
 }
 
 void Application::LoadMainTextures()

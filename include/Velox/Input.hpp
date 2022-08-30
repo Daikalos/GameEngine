@@ -7,4 +7,4 @@
 #include "Input/JoystickInputBindable.hpp"
 #include "Input/MouseInputBindable.hpp"
 #include "Input/MouseCursor.hpp"
-#include "Input/Controls.hpp"
+#include "Input/ControlMap.hpp"

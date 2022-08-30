@@ -73,7 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\$(PlatformTarget)\Intermediates\</IntDir>
-    <IncludePath>$(SolutionDir)\ext;$(SolutionDir)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\ext;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -119,6 +119,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,13 +149,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Game\Binds.h" />
-    <ClInclude Include="Game\scenes\StateLoading.h" />
-    <ClInclude Include="Game\scenes\StateTest.h" />
+    <ClInclude Include="Game\Cameras\CameraDrag.h" />
+    <ClInclude Include="Game\Cameras\CameraGoTo.h" />
+    <ClInclude Include="Game\Cameras\CameraLetterbox.h" />
+    <ClInclude Include="Game\Cameras\CameraShake.h" />
+    <ClInclude Include="Game\Cameras\CameraZoom.h" />
+    <ClInclude Include="Game\Scenes\StateLoading.h" />
+    <ClInclude Include="Game\Scenes\StateTest.h" />
     <ClInclude Include="Game\Application.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\scenes\StateLoading.cpp" />
-    <ClCompile Include="Game\scenes\StateTest.cpp" />
+    <ClCompile Include="Game\Scenes\StateLoading.cpp" />
+    <ClCompile Include="Game\Scenes\StateTest.cpp" />
     <ClCompile Include="Graphics\gui\TextBox.cpp" />
     <ClCompile Include="Graphics\SpriteBatch.cpp" />
     <ClCompile Include="Game\Application.cpp" />

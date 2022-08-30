@@ -10,4 +10,7 @@ namespace vlx
 
 	template<typename T>
 	concept Enum = std::is_enum_v<T>;
+
+	template<typename T>
+	concept ArithEnum = Arithmetic<T> || Enum<T>;
 }

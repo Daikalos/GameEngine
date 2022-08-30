@@ -29,11 +29,11 @@ namespace vlx
 
 		struct Context // holds vital objects
 		{
-			Context(const Window& window, const Controls& controls)
+			Context(const Window& window, const ControlMap& controls)
 				: window(&window), controls(&controls) { }
 
-			const Window*	window;
-			const Controls*	controls;
+			const Window*		window;
+			const ControlMap*	controls;
 		};
 
 		struct OnCreateArgs { }; // TODO: maybe pass structs as args instead??

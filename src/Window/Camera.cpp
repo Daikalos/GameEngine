@@ -8,42 +8,6 @@ Camera::Camera(CameraBehaviour::Context context)
 
 }
 
-sf::Transform Camera::GetViewMatrix() const
-{
-	return sf::Transform()
-		.translate(m_position)
-		.scale(1.0f / m_scale)
-		.translate(m_size / -2.0f);
-}
-
-sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const
-{
-	return GetViewMatrix() * position;
-}
-
-sf::Vector2f Camera::GetMouseWorldPosition(const sf::RenderWindow& window) const 
-{ 
-	return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); 
-}
-
-sf::Vector2f vlx::Camera::GetOrigin() const
-{
-	return GetPosition() + GetSize() / 2.0f;
-}
-
-sf::Vector2f vlx::Camera::GetPosition() const noexcept
-{
-	return m_position;
-}
-sf::Vector2f vlx::Camera::GetScale() const noexcept
-{
-	return m_scale;
-}
-sf::Vector2f vlx::Camera::GetSize() const noexcept
-{
-	return m_size;
-}
-
 void Camera::SetPosition(const sf::Vector2f& position)
 {
 	setCenter(position);

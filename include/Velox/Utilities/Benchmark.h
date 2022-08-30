@@ -166,23 +166,19 @@ namespace vlx
 
 		static void Begin(const std::string_view message = "BENCHMARK PROFILE")
 		{
-			std::unique_lock<std::mutex> lock(mutex);
+			std::lock_guard<std::mutex> lock(mutex);
 
 			queue.push(MeasureSystem::Ptr(new MeasureSystem(message)));
-
-			lock.unlock();
 		}
 
 		static void End()
 		{
-			std::unique_lock<std::mutex> lock(mutex);
+			std::lock_guard<std::mutex> lock(mutex);
 
 			if (!queue.size())
 				throw std::runtime_error("cant end something when there is no beginning");
 
 			queue.pop();
-
-			lock.unlock();
 		}
 
 		template<class F, typename... Args>
