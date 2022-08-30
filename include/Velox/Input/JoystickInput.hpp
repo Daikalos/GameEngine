@@ -66,7 +66,8 @@ namespace vlx
 
 				memset(m_axis + dest_axis, 0.0f, sizeof(float) * sf::Joystick::AxisCount);
 
-				cu::Erase(m_available, event.joystickConnect.joystickId);
+				if (cu::Erase(m_available, event.joystickConnect.joystickId) == m_available.end())
+					std::puts("A nonexisting joystick has been asked to be removed");
 			}
 			break;
 			}

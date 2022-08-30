@@ -20,6 +20,9 @@ namespace vlx
 
 		bool Update(const Time& time) override
 		{
+			if (!GetContext().controls->Exists<MouseCursor>()) 
+				return true;
+
 			const Window* window = GetContext().window;
 
 			const auto& mouse_input = GetContext().controls->Get<MouseInputBindable>();

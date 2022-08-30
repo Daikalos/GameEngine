@@ -9,17 +9,30 @@ namespace vlx
 	namespace cu
 	{
 		template<class T, std::equality_comparable_with<T> U>
-		static bool Erase(std::vector<T>& vector, const U& val)
+		static constexpr auto Erase(std::vector<T>& vector, const U& compare)
 		{
-			auto it = std::find_if(vector.begin(), vector.end(), [&val](const T& value)
-				{ return val == value; });
+			auto it = std::find_if(vector.begin(), vector.end(), [&compare](const T& value)
+				{ return compare == value; });
 
 			if (it == vector.end())
-				return false;
+				return it;
 
 			vector.erase(it);
 
-			return true;
+			return it;
+		}
+
+		template<class T, class Func>
+		static constexpr auto Erase(std::vector<T>& vector, Func&& pred)
+		{
+			auto it = std::find_if(vector.begin(), vector.end(), pred);
+
+			if (it == vector.end())
+				return it;
+
+			vector.erase(it);
+
+			return it;
 		}
 	}
 }

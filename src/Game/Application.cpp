@@ -65,9 +65,9 @@ void Application::Run()
 		if (m_state_stack.IsEmpty())
 			m_window.close();
 
-		//if (m_controls.Get<DefMouse>().ScrollUp())
+		//if (m_controls.Get<MouseInputBindable>().ScrollUp())
 		//	m_controls.Remove<MouseCursor>();
-		//if (m_controls.Get<DefMouse>().ScrollDown())
+		//if (m_controls.Get<MouseInputBindable>().ScrollDown())
 		//	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
 
 		if (m_controls.Get<KeyboardInputBindable>().Pressed(sf::Keyboard::Key::Num1))
