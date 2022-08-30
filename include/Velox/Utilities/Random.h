@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Concepts.h"
+
 #include <type_traits>
 #include <random>
 #include <chrono>
+#include <array>
 
 namespace vlx
 {
@@ -10,14 +13,14 @@ namespace vlx
 	{
 		static thread_local std::mt19937_64 dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
-		template<typename T, typename std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-		static constexpr T random(const T min, const T max)
+		template<std::floating_point T>
+		[[nodiscard]] static constexpr T random(const T min, const T max)
 		{
 			std::uniform_real_distribution<T> uid(min, max);
 			return uid(dre);
 		}
-		template<typename T, typename std::enable_if_t<!std::is_floating_point_v<T>, bool> = true>
-		static constexpr T random(const T min, const T max)
+		template<std::integral T>
+		[[nodiscard]] static constexpr T random(const T min, const T max)
 		{
 			std::uniform_int_distribution<T> uid(min, max);
 			return uid(dre);
@@ -27,14 +30,13 @@ namespace vlx
 		// Creates a list of values up to size that are then 
 		// shuffled and finally returned
 		////////////////////////////////////////////////////////////
-		template<typename T>
-		static constexpr std::vector<T> random(const T size)
+		template<Arithmetic N>
+		[[nodiscard]] static constexpr auto random(const N size)
 		{
-			std::vector<T> result;
-			result.reserve(size);
+			std::array<N, size> result;
 
-			for (T i = 0; i < size; ++i)
-				result.emplace_back(i);
+			for (N i = 0; i < size; ++i)
+				result[i] = i;
 
 			std::shuffle(result.begin(), result.end(), dre);
 
@@ -45,10 +47,11 @@ namespace vlx
 		// Returns a random T from the given set of arguments
 		////////////////////////////////////////////////////////////
 		template<typename T, typename... Args>
-		static constexpr T random_arg(const T& arg0, Args&&... args)
+		[[nodiscard]] static constexpr T random_arg(const T& arg0, Args&&... args) requires SameType<T, Args...>
 		{
-			std::vector<T> vector{ { arg0, std::forward<Args>(args)... } };
-			return vector[random<size_t>(0LLU, vector.size() - 1)];
+			const std::size_t size = sizeof...(args) + 1;
+			const T arr[size] = { arg0, std::forward<Args>(args)... };
+			return arr[random<std::size_t>(0LLU, size - 1)];
 		}
 	}
 }

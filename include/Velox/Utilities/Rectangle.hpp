@@ -2,13 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Concepts.h"
+
 namespace vlx
 {
-	template<typename T>
+	template<Arithmetic T>
 	struct Rect
 	{
-		static_assert(std::is_arithmetic_v<T>, "Only arithmetic type allowed");
-
 		constexpr Rect() = default;
 		constexpr Rect(T left, T top, T right, T bot)
 			: top_left({ left, top }), bot_right({ right, bot }) {};
@@ -25,30 +25,46 @@ namespace vlx
 			top_left(std::move(sf::Vector2<T>(rect.top_left))),
 			bot_right(std::move(sf::Vector2<T>(rect.bot_right))) { };
 
-		constexpr T Width() const noexcept { return (right - left); }
-		constexpr T Height() const noexcept { return (bot - top); }
+		[[nodiscard]] constexpr T Width() const noexcept { return (right - left); }
+		[[nodiscard]] constexpr T Height() const noexcept { return (bot - top); }
 
-		constexpr sf::Vector2<T> GetSize() const noexcept
+		[[nodiscard]] constexpr sf::Vector2<T> GetSize() const noexcept
 		{ 
 			return sf::Vector2<T>(Width(), Height()); 
 		}
-		constexpr T GetArea() const noexcept
+		[[nodiscard]] constexpr T GetArea() const noexcept
 		{ 
 			return Width() * Height(); 
 		}
 
-		constexpr sf::Vector2<T>& GetPosition() noexcept
+		[[nodiscard]] constexpr sf::Vector2<T>& GetPosition() noexcept
 		{
 			return top_left;
 		}
-		constexpr const sf::Vector2<T>& GetPosition() const noexcept
+		[[nodiscard]] constexpr const sf::Vector2<T>& GetPosition() const noexcept
 		{
 			return const_cast<Rect<T>*>(this)->GetPosition();
 		}
 
-		constexpr sf::Vector2<T> GetOrigin() const noexcept
+		[[nodiscard]] constexpr sf::Vector2<T> GetOrigin() const noexcept
 		{
 			return top_left + sf::Vector2<T>(Width() / 2.0f, Height() / 2.0f);
+		}
+
+		[[nodiscard]] constexpr bool Overlaps(const Rect<T>& other) const noexcept
+		{
+			return (left < other.right&& right >= other.left &&
+				top < other.bot&& top >= other.top);
+		}
+		[[nodiscard]] constexpr bool Contains(const Rect<T>& other) const noexcept
+		{
+			return (other.left >= left && other.right < right&&
+				other.top >= top && other.bot < bot);
+		}
+		[[nodiscard]] constexpr bool Contains(const sf::Vector2<T>& other) const noexcept
+		{
+			return !(other.x < left || other.x >= right ||
+				other.y < top || other.y >= bot);
 		}
 
 		constexpr Rect<T> operator-() const noexcept
@@ -78,22 +94,6 @@ namespace vlx
 		constexpr Rect<T> operator-(const Rect<T>& rhs) const noexcept
 		{
 			return *this + -rhs;
-		}
-
-		constexpr bool Overlaps(const Rect<T>& other) const noexcept
-		{
-			return (left < other.right && right >= other.left &&
-				top < other.bot && top >= other.top);
-		}
-		constexpr bool Contains(const Rect<T>& other) const noexcept
-		{
-			return (other.left >= left && other.right < right &&
-				other.top >= top && other.bot < bot);
-		}
-		constexpr bool Contains(const sf::Vector2<T>& other) const noexcept
-		{
-			return !(other.x < left || other.x >= right ||
-				other.y < top || other.y >= bot);
 		}
 
 		union

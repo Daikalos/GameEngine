@@ -16,25 +16,25 @@ namespace vlx
 	namespace au
 	{
 		template<std::floating_point T>
-		static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees
+		[[nodiscard]] static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees
 		{
 			return degrees * (M_PI / T(180.0));
 		}
 
 		template<std::floating_point T>
-		static constexpr T ToDegrees(const T radians)
+		[[nodiscard]] static constexpr T ToDegrees(const T radians)
 		{
 			return radians * (T(180.0) / M_PI);
 		}
 
 		template<Arithmetic T>
-		static constexpr auto lerp(const T a, const T b, const double f)
+		[[nodiscard]] static constexpr auto lerp(const T a, const T b, const double f)
 		{
 			return (a * (1.0 - f)) + (b * f);
 		}
 
 		template<std::integral T>
-		static constexpr auto Wrap(T val, const T min, const T max)
+		[[nodiscard]] static constexpr auto Wrap(T val, const T min, const T max)
 		{
 			if (val > min && val < max)
 				return val;
@@ -47,7 +47,7 @@ namespace vlx
 			return min + ((val - min) % range_size);
 		}
 		template<std::floating_point T>
-		static constexpr auto Wrap(T val, const T min, const T max)
+		[[nodiscard]] static constexpr auto Wrap(T val, const T min, const T max)
 		{
 			if (val > min && val < max)
 				return val;
@@ -61,14 +61,14 @@ namespace vlx
 		}
 
 		template<Arithmetic T>
-		static constexpr auto MapToRange(const T val, const T minIn, const T maxIn, const T minOut, const T maxOut)
+		[[nodiscard]] static constexpr auto MapToRange(const T val, const T minIn, const T maxIn, const T minOut, const T maxOut)
 		{
 			double x = (val - minIn) / (maxIn - minIn);
 			return minOut + (maxOut - minOut) * x;
 		}
 
 		template<Arithmetic T>
-		static constexpr auto SetPrecision(const T val, const int places)
+		[[nodiscard]] static constexpr auto SetPrecision(const T val, const int places)
 		{
 			double n = std::pow(10.0, (double)places);
 			return std::round(val * n) / n;

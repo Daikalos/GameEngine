@@ -16,15 +16,16 @@ namespace vlx
 			m_delta_time(float()), m_fixed_delta_time(DEFAULT_FIXED_DELTATIME), m_scaled_time(DEFAULT_SCALED_TIME), 
 			m_total_time(float()), m_total_run_time(float()) { }
 
-		constexpr float GetDeltaTime() const					{ return m_delta_time * m_scaled_time; }
-		constexpr float GetRealDeltaTime() const noexcept		{ return m_delta_time; }
-		constexpr float GetFixedDeltaTime() const noexcept		{ return m_fixed_delta_time * m_scaled_time; }
-		constexpr float GetRealFixedDeltaTime() const noexcept	{ return m_fixed_delta_time; }
-		constexpr float GetScaledTime() const noexcept			{ return m_scaled_time; }
-		constexpr long double GetTotalTime() const noexcept		{ return m_total_time; }
-		constexpr long double GetTotalRunTime() const noexcept	{ return m_total_run_time; }
+		[[nodiscard]] constexpr float GetDeltaTime() const						{ return m_delta_time * m_scaled_time; }
+		[[nodiscard]] constexpr float GetRealDeltaTime() const noexcept			{ return m_delta_time; }
+		[[nodiscard]] constexpr float GetFixedDeltaTime() const noexcept		{ return m_fixed_delta_time * m_scaled_time; }
+		[[nodiscard]] constexpr float GetRealFixedDeltaTime() const noexcept	{ return m_fixed_delta_time; }
+		[[nodiscard]] constexpr float GetScaledTime() const noexcept			{ return m_scaled_time; }
+		[[nodiscard]] constexpr long double GetTotalTime() const noexcept		{ return m_total_time; }
+		[[nodiscard]] constexpr long double GetTotalRunTime() const noexcept	{ return m_total_run_time; }
+		[[nodiscard]] constexpr int GetFramerate() const noexcept				{ return 1.0f / GetRealDeltaTime(); }
 
-		void SetScaledTime(const float value)					{ m_scaled_time = value; }
+		void SetScaledTime(const float value)									{ m_scaled_time = value; }
 
 		void Reset()
 		{
@@ -50,7 +51,7 @@ namespace vlx
 		float		m_scaled_time;		// scaled time (set to 1 as default)
 
 		long double	m_total_time;		// total time in seconds the applicaton has ran
-		long double	m_total_run_time;	// total time the application has ran considering scaled time
+		long double	m_total_run_time;	// total time the application has ran factoring in scaled time
 
 		sf::Clock	m_clock;
 	};

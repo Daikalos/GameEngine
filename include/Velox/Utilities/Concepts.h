@@ -13,4 +13,7 @@ namespace vlx
 
 	template<typename T>
 	concept ArithEnum = Arithmetic<T> || Enum<T>;
+
+	template<typename T, typename... Args>
+	concept SameType = std::conjunction_v<std::is_same<T, Args>...>;
 }
