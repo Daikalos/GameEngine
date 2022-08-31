@@ -23,7 +23,7 @@ namespace vlx
 	// Expanded to allow for toggle fullscreen, 
 	// change resolution, and other settings
 	////////////////////////////////////////////////////////////
-	class VELOX_API_EXPORT Window final : public sf::RenderWindow, NonCopyable
+	class VELOX_API Window final : public sf::RenderWindow, NonCopyable
 	{
 	public:
 		Window(

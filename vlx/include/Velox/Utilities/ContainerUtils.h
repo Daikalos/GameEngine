@@ -27,7 +27,7 @@ namespace vlx
 		{
 			auto it = std::find_if(vector.begin(), vector.end(), pred);
 
-			if (it == vector.end())
+			if (it == vector.end()) // do not erase if not found
 				return it;
 
 			vector.erase(it);

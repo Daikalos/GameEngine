@@ -22,7 +22,7 @@ namespace vlx
 	// behaviours. Is treated as a unique entity rather than
 	// being part of the ECS design.
 	////////////////////////////////////////////////////////////
-	class VELOX_API_EXPORT Camera final : public sf::View, private NonCopyable
+	class VELOX_API Camera final : public sf::View, private NonCopyable
 	{
 	private:
 		using Stack = typename std::vector<CameraBehaviour::Ptr>;

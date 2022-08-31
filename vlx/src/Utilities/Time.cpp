@@ -11,7 +11,7 @@ using namespace vlx;
 [[nodiscard]] constexpr long double Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
 [[nodiscard]] constexpr int Time::GetFramerate() const noexcept				{ return 1.0f / GetRealDeltaTime(); }
 
-void Time::SetScaledTime(const float value) 
+void Time::SetScaledTime(const float value) noexcept
 { 
 	m_scaled_time = value; 
 }

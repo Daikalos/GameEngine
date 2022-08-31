@@ -13,7 +13,7 @@ namespace vlx
 	// Handles all of the joystick input, has support for 
 	// several joysticks.
 	////////////////////////////////////////////////////////////
-	class VELOX_API_EXPORT JoystickInput : public InputHandler
+	class VELOX_API JoystickInput : public InputHandler
 	{
 	public:
 		JoystickInput();

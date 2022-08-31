@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "../Input.hpp"
-#include "../window/Window.h"
-#include "../window/Camera.h"
-#include "../graphics/ResourceHolder.hpp"
+#include <Velox/Input/ControlMap.h>
+#include <Velox/Window/Window.h>
+#include <Velox/Window/Camera.h>
+#include <Velox/Graphics/ResourceHolder.hpp>
 
 #include "States.h"
 
@@ -32,40 +32,59 @@ namespace vlx
 		};
 
 	public:
-		explicit State(state::ID id, StateStack& state_stack, Context context)
-			: m_id(id), m_state_stack(&state_stack), m_context(context) { }
-		virtual ~State() {}
+		explicit State(state::ID id, StateStack& state_stack, Context context);
+		virtual ~State() = default;
 
-		state::ID GetId() const noexcept { return m_id; }
+	public:
+		state::ID GetId() const noexcept;
 
+	protected:
+		const Context& GetContext() const;
+		StateStack& GetStack() const;
+
+	public:
 		////////////////////////////////////////////////////////////
 		// OnActivate is called whenever the state is put as 
 		// last in the stack
 		////////////////////////////////////////////////////////////
-		virtual void OnActivate() {}
+		virtual void OnActivate();
 
 		////////////////////////////////////////////////////////////
 		// OnDestroy is called when the state is removed from
 		// the stack
 		////////////////////////////////////////////////////////////
-		virtual void OnDestroy() {}
+		virtual void OnDestroy();
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
 
-		virtual bool PreUpdate(Time& time)					{ return true; }
+		virtual bool PreUpdate(Time& time);
 		virtual bool Update(Time& time) = 0;
-		virtual bool FixedUpdate(Time& time)				{ return true; }
-		virtual bool PostUpdate(Time& time, float interp)	{ return true; }
+		virtual bool FixedUpdate(Time& time);
+		virtual bool PostUpdate(Time& time, float interp);
 
 		virtual void draw() = 0;
-
-	protected:
-		const Context& GetContext() const	{ return m_context; }
-		StateStack& GetStack() const		{ return *m_state_stack; }
 
 	private:
 		state::ID	m_id;
 		StateStack* m_state_stack;
 		Context		m_context;
 	};
+
+	inline State::State(state::ID id, StateStack& state_stack, Context context)
+		: m_id(id), m_state_stack(&state_stack), m_context(context) { }
+
+	inline state::ID State::GetId() const noexcept
+	{ 
+		return m_id; 
+	}
+
+	inline const State::Context& State::GetContext() const { return m_context; }
+	inline StateStack& State::GetStack() const { return *m_state_stack; }
+
+	inline void State::OnActivate() {}
+	inline void State::OnDestroy() {}
+
+	inline bool State::PreUpdate(Time& time)					{ return true; }
+	inline bool State::FixedUpdate(Time& time)					{ return true; }
+	inline bool State::PostUpdate(Time& time, float interp)	{ return true; }
 }

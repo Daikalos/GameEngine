@@ -15,7 +15,7 @@
 
 namespace vlx
 {
-	class VELOX_API_EXPORT StateStack : private NonCopyable
+	class VELOX_API StateStack : private NonCopyable
 	{
 	private:
 		using Stack = typename std::vector<State::Ptr>;

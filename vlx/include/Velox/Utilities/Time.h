@@ -12,7 +12,7 @@ namespace vlx
 	static const float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
 	static const float DEFAULT_SCALED_TIME = 1.0f;
 
-	class VELOX_API_EXPORT Time final : public NonCopyable
+	class VELOX_API Time final : public NonCopyable
 	{
 	public:
 		[[nodiscard]] constexpr float GetDeltaTime() const noexcept;
@@ -24,7 +24,7 @@ namespace vlx
 		[[nodiscard]] constexpr long double GetTotalRunTime() const noexcept;
 		[[nodiscard]] constexpr int GetFramerate() const noexcept;
 
-		void SetScaledTime(const float value);
+		void SetScaledTime(const float value) noexcept;
 
 	public:
 		void Reset();

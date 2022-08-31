@@ -23,7 +23,7 @@ namespace vlx
 		};
 	}
 
-	class VELOX_API_EXPORT MouseCursor : public InputHandler
+	class VELOX_API MouseCursor : public InputHandler
 	{
 	public:
 		MouseCursor(Window& window, const TextureHolder& texture_holder);

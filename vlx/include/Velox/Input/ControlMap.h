@@ -33,8 +33,8 @@ namespace vlx
 		template<std::derived_from<InputHandler> T>
 		bool Exists() const;
 
-		VELOX_API_EXPORT void UpdateAll(const Time& time, const bool focus);
-		VELOX_API_EXPORT void HandleEventAll(const sf::Event& event);
+		VELOX_API void UpdateAll(const Time& time, const bool focus);
+		VELOX_API void HandleEventAll(const sf::Event& event);
 
 	private:
 		InputHandler::ControlMap m_controls;

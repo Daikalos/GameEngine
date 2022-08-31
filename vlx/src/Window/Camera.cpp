@@ -8,32 +8,41 @@ Camera::Camera(CameraBehaviour::Context context)
 
 }
 
-[[nodiscard]] inline constexpr sf::Transform Camera::GetViewMatrix() const
+[[nodiscard]] constexpr sf::Transform Camera::GetViewMatrix() const
 {
 	return sf::Transform()
 		.translate(m_position)
 		.scale(1.0f / m_scale)
 		.translate(m_size / -2.0f);
 }
-[[nodiscard]] inline constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
+[[nodiscard]] constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
 { 
 	return GetViewMatrix() * position; 
 }
-[[nodiscard]] inline constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
+[[nodiscard]] constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
 { 
 	return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); 
 }
 
-[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetPosition() const noexcept { return m_position; }
-[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetScale() const noexcept { return m_scale; }
-[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetSize() const noexcept { return m_size; }
+[[nodiscard]] constexpr sf::Vector2f Camera::GetPosition() const noexcept 
+{ 
+	return m_position; 
+}
+[[nodiscard]] constexpr sf::Vector2f Camera::GetScale() const noexcept 
+{ 
+	return m_scale; 
+}
+[[nodiscard]] constexpr sf::Vector2f Camera::GetSize() const noexcept 
+{ 
+	return m_size; 
+}
 
-[[nodiscard]] inline constexpr sf::Vector2f vlx::Camera::GetOrigin() const
+[[nodiscard]] constexpr sf::Vector2f Camera::GetOrigin() const
 {
 	return GetPosition() + GetSize() / 2.0f;
 }
 
-[[nodiscard]] inline CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id)
+[[nodiscard]] CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id)
 {
 	for (const CameraBehaviour::Ptr& behaviour : m_stack)
 		if (behaviour->GetId() == camera_id)
@@ -41,13 +50,9 @@ Camera::Camera(CameraBehaviour::Context context)
 
 	return nullptr;
 }
-[[nodiscard]] inline const CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id) const
+[[nodiscard]] const CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id) const
 {
-	for (const CameraBehaviour::Ptr& behaviour : m_stack)
-		if (behaviour->GetId() == camera_id)
-			return behaviour.get();
-
-	return nullptr;
+	return const_cast<Camera*>(this)->GetBehaviour(camera_id);
 }
 
 void Camera::SetPosition(const sf::Vector2f& position)
@@ -139,12 +144,20 @@ CameraBehaviour::Ptr Camera::CreateBehaviour(const camera::ID& camera_id)
 {
 	auto found = m_factory.find(camera_id);
 	assert(found != m_factory.end());
-
 	return found->second();
 }
 
 void Camera::ApplyPendingChanges()
 {
+	const auto pop = [this]()
+	{
+		m_stack.back()->OnDestroy();
+		m_stack.pop_back();
+
+		if (!m_stack.empty())
+			m_stack.back()->OnActivate();
+	};
+
 	for (const PendingChange& change : m_pending_list)
 	{
 		switch (change.action)
@@ -153,13 +166,7 @@ void Camera::ApplyPendingChanges()
 			m_stack.push_back(CreateBehaviour(change.camera_id));
 			break;
 		case Action::Pop:
-			{
-				m_stack.back()->OnDestroy();
-				m_stack.pop_back();
-
-				if (!m_stack.empty())
-					m_stack.back()->OnActivate();
-			}
+			pop();
 			break;
 		case Action::Erase:
 			{
@@ -168,13 +175,13 @@ void Camera::ApplyPendingChanges()
 
 				if (it != m_stack.end()) // if found
 				{
-					int pos = it - m_stack.begin();
-
-					(*it)->OnDestroy();
-					m_stack.erase(it);
-
-					if (!m_stack.empty() && pos == m_stack.size() - 1) // if this was the last, activate the newer
-							m_stack.back()->OnActivate();
+					if (it != m_stack.end() - 1) // if not last
+					{
+						(*it)->OnDestroy();
+						m_stack.erase(it);
+					}
+					else // if this is the last
+						pop();
 				}
 			}
 			break;

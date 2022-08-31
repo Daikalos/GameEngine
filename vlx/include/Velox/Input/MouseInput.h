@@ -12,7 +12,7 @@ namespace vlx
 	// Handles all of the mouse input, only supports one mouse
 	// at a time. 
 	////////////////////////////////////////////////////////////
-	class VELOX_API_EXPORT MouseInput : public InputHandler
+	class VELOX_API MouseInput : public InputHandler
 	{
 	public:
 		void Update(const Time& time, const bool focus) override;

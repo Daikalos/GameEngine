@@ -8,7 +8,7 @@ namespace vlx
 	// Handles all of the keyboard input, only supports one
 	// keyboard at a time
 	////////////////////////////////////////////////////////////
-	class VELOX_API_EXPORT KeyboardInput : public InputHandler
+	class VELOX_API KeyboardInput : public InputHandler
 	{
 	public:
 		void Update(const Time& time, const bool focus) override;

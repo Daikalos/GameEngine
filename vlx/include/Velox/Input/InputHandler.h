@@ -15,7 +15,7 @@ namespace vlx
 	// Main class for Keyboard, Mouse, and Joystick that
 	// have been expanded for extended usage, e.g., binds
 	////////////////////////////////////////////////////////////
-	class VELOX_API_EXPORT InputHandler : private NonCopyable
+	class VELOX_API InputHandler : private NonCopyable
 	{
 	public:
 		using Ptr			= std::unique_ptr<InputHandler>;
