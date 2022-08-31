@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\Window\Camera.cpp" />
+    <ClCompile Include="src\Window\Window.cpp" />
+    <ClCompile Include="src\Scene\StateStack.cpp" />
+    <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
+    <ClCompile Include="src\Scene\SceneNode.cpp" />
+    <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
+    <ClCompile Include="src\scene\StateStack.cpp" />
+    <ClCompile Include="src\Input\InputHandler.cpp" />
+    <ClCompile Include="src\Input\ControlMap.cpp" />
+    <ClCompile Include="src\Input\JoystickInput.cpp" />
+    <ClCompile Include="src\Input\KeyboardInput.cpp" />
+    <ClCompile Include="src\Input\MouseCursor.cpp" />
+    <ClCompile Include="src\Input\MouseInput.cpp" />
+    <ClCompile Include="src\Utilities\Time.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Velox\ECS\Archetype.h" />
+    <ClInclude Include="include\Velox\ECS\Component.h" />
+    <ClInclude Include="include\Velox\ECS\ECS.hpp" />
+    <ClInclude Include="include\Velox\ECS\Entity.hpp" />
+    <ClInclude Include="include\Velox\ECS\Identifiers.h" />
+    <ClInclude Include="include\Velox\ECS\System.hpp" />
+    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.h" />
+    <ClInclude Include="include\Velox\Graphics\Animation.h" />
+    <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
+    <ClInclude Include="include\Velox\Graphics\Resources.h" />
+    <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
+    <ClInclude Include="include\Velox\Input\Binds.hpp" />
+    <ClInclude Include="include\Velox\Input\ControlMap.h" />
+    <ClInclude Include="include\Velox\Input\InputHandler.h" />
+    <ClInclude Include="include\Velox\Input\JoystickInput.h" />
+    <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
+    <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
+    <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
+    <ClInclude Include="include\Velox\Input\MouseCursor.h" />
+    <ClInclude Include="include\Velox\Input\MouseInput.h" />
+    <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
+    <ClInclude Include="include\Velox\Scene\SceneNode.h" />
+    <ClInclude Include="include\Velox\Scene\State.hpp" />
+    <ClInclude Include="include\Velox\Scene\States.h" />
+    <ClInclude Include="include\Velox\Scene\StateStack.h" />
+    <ClInclude Include="include\Velox\Utilities\ArithmeticUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
+    <ClInclude Include="include\Velox\Utilities\Concepts.h" />
+    <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
+    <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
+    <ClInclude Include="include\Velox\Utilities\Random.h" />
+    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
+    <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
+    <ClInclude Include="include\Velox\Utilities\Time.h" />
+    <ClInclude Include="include\Velox\Utilities\VectorUtils.h" />
+    <ClInclude Include="include\Velox\Window\Camera.h" />
+    <ClInclude Include="include\Velox\Window\CameraBehaviour.hpp" />
+    <ClInclude Include="include\Velox\Window\Cameras.h" />
+    <ClInclude Include="include\Velox\Window\Window.h" />
+    <ClInclude Include="include\Velox\Input.hpp" />
+    <ClInclude Include="include\Velox\Utilities.hpp" />
+    <ClInclude Include="include\Velox\Config.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="header">
+      <UniqueIdentifier>{f73e0388-b7ce-44e8-ab5f-96a600071d9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{e75c2c96-1db8-4935-941d-1dfd7a5d492b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

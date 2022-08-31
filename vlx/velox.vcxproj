@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{587e7b81-a3ed-4c18-8bc1-2decee473640}</ProjectGuid>
+    <RootNamespace>velox</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)dbg\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\$(PlatformTarget)\Intermediates\</IntDir>
+    <IncludePath>$(SolutionDir)\ext;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)-d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)dbg\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\$(PlatformTarget)\Intermediates\</IntDir>
+    <IncludePath>$(SolutionDir)\ext;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)vlx\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>sfml-system-d.lib;sfml-window-d.lib;sfml-main-d.lib;sfml-graphics-d.lib;sfml-network-d.lib;sfml-audio-d.lib;openal32.lib;opengl32.lib;flac.lib;freetype.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\vlx\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>sfml-system.lib;sfml-window.lib;sfml-main.lib;sfml-graphics.lib;sfml-network.lib;sfml-audio.lib;openal32.lib;opengl32.lib;flac.lib;freetype.lib;ogg.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Velox\Config.hpp" />
+    <ClInclude Include="include\Velox\ECS\Archetype.h" />
+    <ClInclude Include="include\Velox\ECS\Component.h" />
+    <ClInclude Include="include\Velox\ECS\ECS.hpp" />
+    <ClInclude Include="include\Velox\ECS\Entity.hpp" />
+    <ClInclude Include="include\Velox\ECS\Identifiers.h" />
+    <ClInclude Include="include\Velox\ECS\System.hpp" />
+    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.h" />
+    <ClInclude Include="include\Velox\Graphics\Animation.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
+    <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
+    <ClInclude Include="include\Velox\Graphics\Resources.h" />
+    <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
+    <ClInclude Include="include\Velox\Input.hpp" />
+    <ClInclude Include="include\Velox\Input\Binds.hpp" />
+    <ClInclude Include="include\Velox\Input\ControlMap.h" />
+    <ClInclude Include="include\Velox\Input\InputHandler.h" />
+    <ClInclude Include="include\Velox\Input\JoystickInput.h" />
+    <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
+    <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
+    <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
+    <ClInclude Include="include\Velox\Input\MouseCursor.h" />
+    <ClInclude Include="include\Velox\Input\MouseInput.h" />
+    <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
+    <ClInclude Include="include\Velox\Scene\SceneNode.h" />
+    <ClInclude Include="include\Velox\Scene\State.hpp" />
+    <ClInclude Include="include\Velox\Scene\States.h" />
+    <ClInclude Include="include\Velox\Scene\StateStack.h" />
+    <ClInclude Include="include\Velox\Utilities.hpp" />
+    <ClInclude Include="include\Velox\Utilities\ArithmeticUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
+    <ClInclude Include="include\Velox\Utilities\Concepts.h" />
+    <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
+    <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
+    <ClInclude Include="include\Velox\Utilities\Random.h" />
+    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
+    <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
+    <ClInclude Include="include\Velox\Utilities\Time.h" />
+    <ClInclude Include="include\Velox\Utilities\VectorUtils.h" />
+    <ClInclude Include="include\Velox\Window\Camera.h" />
+    <ClInclude Include="include\Velox\Window\CameraBehaviour.hpp" />
+    <ClInclude Include="include\Velox\Window\Cameras.h" />
+    <ClInclude Include="include\Velox\Window\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
+    <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
+    <ClCompile Include="src\Input\ControlMap.cpp" />
+    <ClCompile Include="src\Input\InputHandler.cpp" />
+    <ClCompile Include="src\Input\JoystickInput.cpp" />
+    <ClCompile Include="src\Input\KeyboardInput.cpp" />
+    <ClCompile Include="src\Input\MouseCursor.cpp" />
+    <ClCompile Include="src\Input\MouseInput.cpp" />
+    <ClCompile Include="src\Utilities\Time.cpp" />
+    <ClCompile Include="src\Window\Camera.cpp" />
+    <ClCompile Include="src\Scene\StateStack.cpp" />
+    <ClCompile Include="src\Scene\SceneNode.cpp" />
+    <ClCompile Include="src\Window\Window.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
