@@ -1,9 +1,12 @@
 #pragma once
 
-#include <Velox/ECS/Identifiers.hpp>
-#include <Velox/ECS/TypeIdGenerator.hpp>
-#include <Velox/ECS/System.hpp>
-#include <Velox/ECS/Archetype.h>
-#include <Velox/ECS/Component.h>
-#include <Velox/ECS/Entity.hpp>
-#include <Velox/ECS/EntityAdmin.h>
+#include "ECS/Identifiers.hpp"
+#include "ECS/TypeIdGenerator.hpp"
+#include "ECS/System.hpp"
+#include "ECS/Archetype.hpp"
+#include "ECS/Component.hpp"
+#include "ECS/Entity.h"
+#include "ECS/EntityAdmin.h"
+
+#include "ECS/Components/Transform.h"
+#include "ECS/Components/Velocity.h"

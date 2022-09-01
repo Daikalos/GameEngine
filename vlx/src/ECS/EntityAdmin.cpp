@@ -34,11 +34,11 @@ void EntityAdmin::RunSystems(const std::uint8_t layer, Time& time)
 	for (SystemBase* system : m_systems[layer])
 	{
 		const ArchetypeID& key = system->GetKey();
-		for (const ArchetypePtr& archetype : m_archetypes)
+		for (ArchetypePtr& archetype : m_archetypes)
 		{
 			if (std::includes(archetype->m_type.begin(), archetype->m_type.end(), key.begin(), key.end()))
 			{
-				system->Update(time, archetype.get());
+				system->DoAction(time, archetype.get());
 			}
 		}
 	}
@@ -73,7 +73,7 @@ Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 
 	for (ArchetypeID::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type
 	{
-		new_archetype->m_component_data.push_back(ComponentData(new unsigned char[0])); // C++17 supports array delete
+		new_archetype->m_component_data.push_back(ComponentData(new unsigned char[0]));
 		new_archetype->m_component_data_size.push_back(0);
 	}
 

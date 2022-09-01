@@ -8,8 +8,8 @@
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"
-#include "Archetype.h"
-#include "Component.h"
+#include "Archetype.hpp"
+#include "Component.hpp"
 #include "System.hpp"
 
 namespace vlx
@@ -31,7 +31,7 @@ namespace vlx
 		struct Record
 		{
 			Archetype*	archetype	{nullptr};
-			std::size_t index		{0}; // where in the ArchetypesArray is the entity located in
+			std::size_t index		{0}; // where in the archetype array is the entity located in
 		};
 
 		using CompnentTypeIDBaseMap = typename std::unordered_map<ComponentTypeID, ComponentPtr>;
@@ -45,11 +45,7 @@ namespace vlx
 
 		VELOX_API EntityID GetNewId();
 
-		VELOX_API void PreUpdate(const std::uint8_t layer, Time& time);
-		VELOX_API void Update(const std::uint8_t layer, Time& time);
-		VELOX_API void FixedUpdate(const std::uint8_t layer, Time& time);
-		VELOX_API void PostUpdate(const std::uint8_t layer, Time& time);
-		VELOX_API void Draw(const std::uint8_t layer, Time& time);
+		VELOX_API void RunSystems(const std::uint8_t layer, Time& time);
 
 		VELOX_API void RegisterSystem(const std::uint8_t layer, SystemBase* system);
 		VELOX_API void RegisterEntity(const EntityID entity_id);
@@ -76,12 +72,12 @@ namespace vlx
 		std::vector<EntityID> GetEntitiesWith();
 
 	private:
-		Archetype* GetArchetype(const ArchetypeID& id);
+		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
 
 		////////////////////////////////////////////////////////////
 		// Helper function for increasing the capacity
 		////////////////////////////////////////////////////////////
-		void MakeRoom(Archetype* new_archetype, const ComponentBase* new_comp, const size_t data_size, const size_t i);
+		VELOX_API void MakeRoom(Archetype* new_archetype, const ComponentBase* new_comp, const size_t data_size, const size_t i);
 
 	private:
 		EntityID				m_entity_id_counter;
@@ -163,12 +159,12 @@ namespace vlx
 					MakeRoom(new_archetype, new_comp, new_comp_data_size, i);
 
 				bool old_found = false;
-				for (std::size_t j = 0; j < old_archetype->m_type.size(); ++i) // only move data from old to new if it exists
+				for (std::size_t j = 0; j < old_archetype->m_type.size(); ++j) // only move data from old to new if it exists
 				{
-					const ComponentTypeID& old_comp_id = old_archetype->m_type[i];
+					const ComponentTypeID& old_comp_id = old_archetype->m_type[j];
 					if (old_comp_id == new_comp_id)
 					{
-						const ComponentBase* const old_comp = m_component_map[old_comp_id].get();
+						const ComponentBase* old_comp = m_component_map[old_comp_id].get();
 						const std::size_t& old_comp_data_size = old_comp->GetSize();
 
 						old_comp->MoveDestroyData(
@@ -207,7 +203,7 @@ namespace vlx
 
 					old_comp->MoveDestroyData(
 						&old_archetype->m_component_data[i][j * old_comp_data_size],
-						new_data[ri * old_comp_data_size]);
+						&new_data[ri * old_comp_data_size]);
 
 					++ri;
 				}
@@ -230,7 +226,7 @@ namespace vlx
 			ArchetypeID new_archetype_id(1, new_comp_type_id);	// construct archetype with the component id
 			new_archetype = GetArchetype(new_archetype_id);		// construct new archetype using the id
 
-			const ComponentBase* new_comp = m_component_map[new_comp_type_id];
+			const ComponentBase* new_comp = m_component_map[new_comp_type_id].get();
 
 			const std::size_t current_size = new_archetype->m_entity_ids.size() * comp_data_size;
 			const std::size_t new_size = current_size + comp_data_size;
@@ -258,7 +254,7 @@ namespace vlx
 		if (!m_entity_archetype_map.contains(entity_id))
 			return;
 
-		ComponentTypeID comp_type_id = Component<C>::GetTypeID();
+		ComponentTypeID comp_type_id = Component<C>::GetTypeId();
 
 		Record& record = m_entity_archetype_map[entity_id];
 		Archetype* old_archetype = record.archetype;

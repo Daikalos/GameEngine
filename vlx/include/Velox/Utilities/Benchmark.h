@@ -15,6 +15,7 @@
 #include <Pdh.h>
 
 #include "ArithmeticUtils.h"
+#include "StringUtils.h"
 
 namespace vlx
 {
@@ -22,7 +23,6 @@ namespace vlx
 
 	namespace bm
 	{
-#if _DEBUG
 		static constexpr long double kilobyte(const std::size_t bytes) { return bytes / 1024; }
 		static constexpr long double megabyte(const std::size_t bytes) { return kilobyte(bytes) / 1024; }
 		static constexpr long double gigabyte(const std::size_t bytes) { return megabyte(bytes) / 1024; }
@@ -86,44 +86,57 @@ namespace vlx
 				long double cpu_average = 0.0;
 				long double cpu_usage = 0.0;
 
-				std::size_t total_samples = 0;
+				std::size_t total_ram_samples = 0;
+				std::size_t total_cpu_samples = 0;
 
 				while (m_active)
 				{
-					total_ram_size += megabyte(pmc.WorkingSetSize); // we measure in megabytes
-					total_cpu_size += GetCPU();
+					GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 
-					++total_samples;
+					long double ram = pmc.WorkingSetSize;
+					long double cpu = GetCPU();
+
+					total_ram_size += megabyte(ram); // we measure in megabytes
+					total_cpu_size += cpu;
+
+					if (ram > LDBL_EPSILON)
+						++total_ram_samples;
+
+					if (cpu > LDBL_EPSILON)
+						++total_cpu_samples;
 				}
 
-				ram_average = total_ram_size / total_samples;
+				ram_average = total_ram_samples != 0 ? total_ram_size / total_ram_samples : 0.0f;
 				ram_usage = ram_average - initial_ram;
 
-				cpu_average = total_cpu_size / total_samples;
+				cpu_average = total_cpu_samples != 0 ? total_cpu_size / total_cpu_samples : 0.0f;
 				cpu_usage = cpu_average - initial_cpu;
 
 				// -- print relevant information --
 
-				std::cout << m_message << "\n\n";
+				std::puts(m_message.data());
+				std::puts("");
 
-				std::cout << "BENCHMARK BEGIN" << "\n";
-				std::cout << "INITIAL RAM: " << initial_ram << "MB\n";
-				std::cout << "INITIAL CPU: " << au::SetPrecision(initial_cpu * 100, 3) << "%\n";
-				std::cout << "\n";
+				std::puts("BENCHMARK BEGIN");
+				std::puts("");
+				std::puts(std::string("INITIAL RAM: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(initial_ram, 3))) + "MB").c_str());
+				std::puts(std::string("INITIAL CPU: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(initial_cpu, 3))) + "%").c_str());
+				std::puts("");
 
-				std::cout << "BENCHMARK END" << "\n";
-				std::cout << "RAM TOTAL: " << ram_average << "MB\n";
-				std::cout << "RAM USED: " << ram_usage << "MB\n";
-				std::cout << "CPU TOTAL: " << au::SetPrecision(cpu_average * 100, 3) << "%\n";
-				std::cout << "CPU USED: " << au::SetPrecision(cpu_usage * 100, 3) << "%\n";
-				std::cout << "\n";
+				std::puts("BENCHMARK END");
+				std::puts("");
+				std::puts(std::string("RAM TOTAL: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(ram_average, 3)))	+ "MB").c_str());
+				std::puts(std::string("RAM USED: "	+ su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(ram_usage, 3)))		+ "MB").c_str());
+				std::puts(std::string("CPU TOTAL: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(cpu_average, 3)))	+ "%").c_str());
+				std::puts(std::string("CPU USED: "	+ su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(cpu_usage, 3)))		+ "%").c_str());
+				std::puts("");
 			}
 
-			double GetCPU()
+			long double GetCPU()
 			{
 				FILETIME file_time, file_sys, file_user;
 				ULARGE_INTEGER now, sys, user;
-				double percent;
+				long double percent;
 
 				GetSystemTimeAsFileTime(&file_time);
 				memcpy(&now, &file_time, sizeof(FILETIME));
@@ -132,8 +145,8 @@ namespace vlx
 				memcpy(&sys, &file_sys, sizeof(FILETIME));
 				memcpy(&user, &file_user, sizeof(FILETIME));
 
-				percent = (sys.QuadPart - m_last_sys_cpu.QuadPart) +
-					(user.QuadPart - m_last_user_cpu.QuadPart);
+				percent = (sys.QuadPart - m_last_sys_cpu.QuadPart) + (user.QuadPart - m_last_user_cpu.QuadPart);
+
 				percent /= (now.QuadPart - m_last_cpu.QuadPart);
 				percent /= m_num_processors;
 
@@ -142,7 +155,7 @@ namespace vlx
 				m_last_sys_cpu = sys;
 
 				if (isnan(percent) || isinf(percent))
-					return 0.0f;
+					return 0.0;
 
 				return percent;
 			}
@@ -190,6 +203,5 @@ namespace vlx
 
 			End();
 		}
-#endif
 	}
 }

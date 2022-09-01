@@ -11,7 +11,7 @@ namespace vlx
 		template<class T, std::equality_comparable_with<T> U>
 		[[nodiscard]] static constexpr auto Erase(std::vector<T>& vector, const U& compare)
 		{
-			auto it = std::find_if(vector.begin(), vector.end(), compare);
+			auto it = std::find(vector.begin(), vector.end(), compare);
 
 			if (it == vector.end())
 				return it;
@@ -37,12 +37,12 @@ namespace vlx
 		template<class T, std::equality_comparable_with<T> U>
 		[[nodiscard]] static constexpr auto SwapPop(std::vector<T>& vector, const U& compare)
 		{
-			auto it = std::find_if(vector.begin(), vector.end(), compare);
+			auto it = std::find(vector.begin(), vector.end(), compare);
 
 			if (it == vector.end())
 				return it;
 				
-			std::iter_swap(it, vector.back());
+			std::iter_swap(it, vector.end() - 1);
 			vector.pop_back();
 
 			return it;
@@ -56,7 +56,7 @@ namespace vlx
 			if (it == vector.end())
 				return it;
 
-			std::iter_swap(it, vector.back());
+			std::iter_swap(it, vector.end() - 1);
 			vector.pop_back();
 
 			return it;
