@@ -46,21 +46,21 @@ namespace vlx
 	template<Enum Bind>
 	inline bool KeyboardBindable::Held(const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Held(binds.at(name));
 	}
 
 	template<Enum Bind>
 	inline bool KeyboardBindable::Pressed(const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Pressed(binds.at(name));
 	}
 
 	template<Enum Bind>
 	inline bool KeyboardBindable::Released(const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Released(binds.at(name));
 	}
 

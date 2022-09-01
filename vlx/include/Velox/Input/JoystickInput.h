@@ -31,10 +31,10 @@ namespace vlx
 	private:
 		std::vector<uint32_t> m_available; // list of indexes of the currently available joysticks
 
-		bool	m_current_button_state	[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};
-		bool	m_previous_button_state	[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};;
-		float	m_held_timer			[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {0.0f};;
+		bool	m_current_state		[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};
+		bool	m_previous_state	[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};
+		float	m_held_time			[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {0.0f};
 
-		float	m_axis					[sf::Joystick::Count * sf::Joystick::AxisCount]		= {0.0f};
+		float	m_axis				[sf::Joystick::Count * sf::Joystick::AxisCount]		= {0.0f};
 	};
 }

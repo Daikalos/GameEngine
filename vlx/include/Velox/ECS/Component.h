@@ -2,8 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Identifiers.h"
-#include "TypeIdGenerator.h"
+#include "Identifiers.hpp"
+#include "TypeIdGenerator.hpp"
 
 namespace vlx
 {
@@ -20,19 +20,22 @@ namespace vlx
 		virtual void DestroyData(unsigned char* data) const = 0;
 		virtual void MoveData(unsigned char* source, unsigned char* destination) const = 0;
 
-		virtual std::size_t GetSize() const = 0;
+		virtual void MoveDestroyData(unsigned char* source, unsigned char* destination) const = 0;
+
+		virtual constexpr std::size_t GetSize() const noexcept = 0;
 	};
 
 	template<class C>
 	class Component : public ComponentBase
 	{
 	public:
-
 		virtual void ConstructData(unsigned char* data) const override;
 		virtual void DestroyData(unsigned char* data) const override;
 		virtual void MoveData(unsigned char* source, unsigned char* destination) const override;
 
-		virtual std::size_t GetSize() const override;
+		virtual void MoveDestroyData(unsigned char* source, unsigned char* destination) const override;
+
+		virtual constexpr std::size_t GetSize() const noexcept override;
 
 		static ComponentTypeID GetTypeId();
 	};
@@ -57,7 +60,14 @@ namespace vlx
 	}
 
 	template<class C>
-	inline::size_t Component<C>::GetSize() const
+	inline void Component<C>::MoveDestroyData(unsigned char* source, unsigned char* destination) const
+	{
+		MoveData(source, destination);
+		DestroyData(source);
+	}
+
+	template<class C>
+	inline constexpr std::size_t Component<C>::GetSize() const noexcept
 	{
 		return sizeof(C);
 	}

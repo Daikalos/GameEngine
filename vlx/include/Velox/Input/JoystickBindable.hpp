@@ -50,32 +50,28 @@ namespace vlx
 	template<Enum Bind>
 	inline bool JoystickBindable::Held(const std::uint32_t id, const Bind name) const
 	{
-		auto& binds = m_binds.at(typeid(Bind));
-
-		if (!binds.GetEnabled())
-			return false;
-
-		return Held(id, binds.At(name));
+		const auto& binds = Get<Bind>();
+		return binds.GetEnabled() && Held(id, binds.At(name));
 	}
 
 	template<Enum Bind>
 	inline bool JoystickBindable::Pressed(const std::uint32_t id, const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Pressed(id, binds.At(name));
 	}
 
 	template<Enum Bind>
 	inline bool JoystickBindable::Released(const std::uint32_t id, const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Released(id, binds.At(name));
 	}
 
 	template<Enum Bind>
 	inline float JoystickBindable::Axis(const std::uint32_t id, const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Axis(id, binds.At(name));
 	}
 

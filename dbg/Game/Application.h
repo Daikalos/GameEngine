@@ -7,7 +7,7 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Input.hpp>
 
-//#include "../ecs/ECS.hpp"
+#include <Velox/ECS/ECS.hpp>
 #include <Velox/Scene/StateStack.h>
 #include <Velox/Graphics/ResourceHolder.hpp>
 #include <Velox/Graphics/ResourceHolder.hpp>

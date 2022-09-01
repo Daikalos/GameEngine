@@ -27,11 +27,11 @@ namespace vlx
 		bool Released(const sf::Mouse::Button button) const;
 
 	private:
-		float	m_scroll_delta			{0.0f};
-		float	m_scroll_threshold		{0.01f}; // threshold before scroll is considered up/down
+		float	m_scroll_delta		{0.0f};
+		float	m_scroll_threshold	{0.01f}; // threshold before scroll is considered up/down
 
-		bool	m_current_button_state	[sf::Mouse::ButtonCount] = {false};
-		bool	m_previous_button_state	[sf::Mouse::ButtonCount] = {false};
-		float	m_held_timer			[sf::Mouse::ButtonCount] = {0.0f};
+		bool	m_current_state		[sf::Mouse::ButtonCount] = {false};
+		bool	m_previous_state	[sf::Mouse::ButtonCount] = {false};
+		float	m_held_time			[sf::Mouse::ButtonCount] = {0.0f};
 	};
 }

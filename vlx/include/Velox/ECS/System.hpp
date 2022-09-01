@@ -2,11 +2,10 @@
 
 #include <functional>
 
-#include "Identifiers.h"
-#include "Archetype.h"
+#include <Velox/Utilities.hpp>
 
-#include "../utilities/NonCopyable.h"
-#include "../utilities/Time.hpp"
+#include "Identifiers.hpp"
+#include "Archetype.h"
 
 namespace vlx
 {
@@ -16,8 +15,15 @@ namespace vlx
 	{
 	public:
 		virtual ~SystemBase() {}
+
 		virtual ArchetypeID GetKey() const = 0;
+
+	protected:
+		virtual void PreUpdate(Time& time, Archetype* archetype) = 0;
 		virtual void Update(Time& time, Archetype* archetype) = 0;
+		virtual void FixedUpdate(Time& time, Archetype* archetype) = 0;
+		virtual void PostUpdate(Time& time, Archetype* archetype) = 0;
+		virtual void Draw(float interp, Archetype* archetype) = 0;
 	};
 
 	template<class... Args>
@@ -25,47 +31,40 @@ namespace vlx
 	{
 	public:
 		friend class ECS;
-		using Func = std::function<void(const Time& time, const std::vector<EntityID>&, Args*...)>;
 
 	public:
 		System(ECS& ecs, const std::uint8_t& layer);
-		// no virtual destructor because the system is not supposed to contain variables, only behaviors
 
-		virtual ArchetypeID GetKey() const override;
+		ArchetypeID GetKey() const override;
 
-		void SetUpdate(Func func);
+	protected:
+		void PreUpdate(Time& time, Archetype* archetype) override;
+		void Update(Time& time, Archetype* archetype) override;
+		void FixedUpdate(Time& time, Archetype* archetype) override;
+		void PostUpdate(Time& time, Archetype* archetype) override;
+		void Draw(float interp, Archetype* archetype) override; // TODO: here
 
 	protected:
 		ECS* m_ecs;
-		Func m_func;
-		bool m_func_set;
 	};
 
 	template<class ...Args>
-	System<Args...>::System(ECS& ecs, const std::uint8_t& layer)
-		: m_ecs(&ecs), m_func(), m_func_set(false)
+	inline System<Args...>::System(ECS& ecs, const std::uint8_t& layer) : m_ecs(&ecs)
 	{
-		//_ecs.register_system(layer, this);
+		m_ecs->RegisterSystem(layer, this);
 	}
 
-	template<class... Ts>
-	ArchetypeID SortKeys(ArchetypeID types)
+	template<class... Cs>
+	inline ArchetypeID SortKeys(ArchetypeID types)
 	{
 		std::sort(types.begin(), types.end());
 		return types;
 	}
 
-	template<class... Ts>
-	inline ArchetypeID System<Ts...>::GetKey() const
+	template<class... Cs>
+	inline ArchetypeID System<Cs...>::GetKey() const
 	{
-		return SortKeys({{ Component<Ts>::GetTypeId()... }});
-	}
-
-	template<class ...Args>
-	void System<Args...>::SetUpdate(Func func)
-	{
-		m_func = func;
-		m_func_set = true;
-	}
+		return SortKeys({{ Component<Cs>::GetTypeId()... }});
+	}	
 }
 

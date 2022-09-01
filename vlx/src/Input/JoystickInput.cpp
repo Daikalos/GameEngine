@@ -19,11 +19,15 @@ void JoystickInput::Update(const Time& time, const bool focus)
 		{
 			const uint32_t k = j + i * sf::Joystick::ButtonCount;
 
-			m_previous_button_state[k] = m_current_button_state[k];
-			m_current_button_state[k] = focus && m_enabled && sf::Joystick::isButtonPressed(i, j);
+			bool& prev_state = m_previous_state[k];
+			bool& curr_state = m_current_state[k];
+			float& held_time = m_held_time[k];
 
-			m_held_timer[k] = m_current_button_state[k] ?
-				m_held_timer[k] + (m_held_timer[k] < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
+			prev_state = curr_state;
+			curr_state = focus && m_enabled && sf::Joystick::isButtonPressed(i, j);
+
+			held_time = curr_state ?
+				held_time + (held_time < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
 		}
 
 		for (uint32_t j = 0; j < sf::Joystick::AxisCount; ++j)
@@ -48,9 +52,9 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 		const int dest_btn = event.joystickConnect.joystickId * sf::Joystick::ButtonCount;
 		const int dest_axis = event.joystickConnect.joystickId * sf::Joystick::AxisCount;
 
-		memset(m_previous_button_state + dest_btn, false, sizeof(bool) * sf::Joystick::ButtonCount); // be sure to set all to default state
-		memset(m_current_button_state + dest_btn, false, sizeof(bool) * sf::Joystick::ButtonCount);
-		memset(m_held_timer + dest_btn, 0.0f, sizeof(float) * sf::Joystick::ButtonCount);
+		memset(m_previous_state + dest_btn, false, sizeof(bool) * sf::Joystick::ButtonCount); // be sure to set all to default state
+		memset(m_current_state + dest_btn, false, sizeof(bool) * sf::Joystick::ButtonCount);
+		memset(m_held_time + dest_btn, 0.0f, sizeof(float) * sf::Joystick::ButtonCount);
 
 		memset(m_axis + dest_axis, 0.0f, sizeof(float) * sf::Joystick::AxisCount);
 
@@ -64,17 +68,17 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 bool JoystickInput::Held(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
-	return m_current_button_state[index] && m_held_timer[index] >= m_held_threshold;;
+	return m_current_state[index] && m_held_time[index] >= m_held_threshold;;
 }
 bool JoystickInput::Pressed(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
-	return m_current_button_state[index] && !m_previous_button_state[index];
+	return m_current_state[index] && !m_previous_state[index];
 }
 bool JoystickInput::Released(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
-	return m_current_button_state[index] && !m_previous_button_state[index];
+	return m_current_state[index] && !m_previous_state[index];
 }
 
 float JoystickInput::Axis(const uint32_t id, const uint32_t axis) const

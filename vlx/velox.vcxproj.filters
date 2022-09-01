@@ -15,15 +15,16 @@
     <ClCompile Include="src\Input\MouseCursor.cpp" />
     <ClCompile Include="src\Input\MouseInput.cpp" />
     <ClCompile Include="src\Utilities\Time.cpp" />
+    <ClCompile Include="src\ECS\EntityAdmin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.h" />
     <ClInclude Include="include\Velox\ECS\Component.h" />
-    <ClInclude Include="include\Velox\ECS\ECS.hpp" />
+    <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
     <ClInclude Include="include\Velox\ECS\Entity.hpp" />
-    <ClInclude Include="include\Velox\ECS\Identifiers.h" />
+    <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
-    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.h" />
+    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.hpp" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
@@ -63,6 +64,7 @@
     <ClInclude Include="include\Velox\Input.hpp" />
     <ClInclude Include="include\Velox\Utilities.hpp" />
     <ClInclude Include="include\Velox\Config.hpp" />
+    <ClInclude Include="include\Velox\ECS.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

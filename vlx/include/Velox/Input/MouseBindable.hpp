@@ -46,19 +46,19 @@ namespace vlx
 	template<Enum Bind>
 	inline bool MouseBindable::Held(const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Held(binds.At(name));
 	}
 	template<Enum Bind>
 	inline bool MouseBindable::Pressed(const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Pressed(binds.At(name));
 	}
 	template<Enum Bind>
 	inline bool MouseBindable::Released(const Bind name) const
 	{
-		auto& binds = Get<Bind>();
+		const auto& binds = Get<Bind>();
 		return binds.GetEnabled() && Released(binds.At(name));
 	}
 

@@ -20,8 +20,8 @@ namespace vlx
 		bool Released(const sf::Keyboard::Key key) const;
 
 	private:
-		bool	m_current_state		[sf::Keyboard::KeyCount]	= {false};
-		bool	m_previous_state	[sf::Keyboard::KeyCount]	= {false};
-		float	m_held_timer		[sf::Keyboard::KeyCount]	= {0.0f};
+		bool	m_current_state		[sf::Keyboard::KeyCount] = {false};
+		bool	m_previous_state	[sf::Keyboard::KeyCount] = {false};
+		float	m_held_time			[sf::Keyboard::KeyCount] = {0.0f};
 	};
 }

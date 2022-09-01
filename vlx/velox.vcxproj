@@ -151,13 +151,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\Config.hpp" />
+    <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.h" />
     <ClInclude Include="include\Velox\ECS\Component.h" />
-    <ClInclude Include="include\Velox\ECS\ECS.hpp" />
+    <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
     <ClInclude Include="include\Velox\ECS\Entity.hpp" />
-    <ClInclude Include="include\Velox\ECS\Identifiers.h" />
+    <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
-    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.h" />
+    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.hpp" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
@@ -198,6 +199,7 @@
     <ClInclude Include="include\Velox\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
