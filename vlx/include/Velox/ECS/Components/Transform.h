@@ -2,9 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 
-struct Transform
+namespace vlx
 {
-	sf::Vector2f position;
-	sf::Vector2f scale;
-	float rotation{0.0f};
-};
+	struct Transform
+	{
+		sf::Vector2f position;
+		sf::Vector2f scale;
+		float rotation{ 0.0f };
+	};
+}

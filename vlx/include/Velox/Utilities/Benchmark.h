@@ -33,36 +33,17 @@ namespace vlx
 			using Ptr = std::unique_ptr<MeasureSystem>;
 
 		public:
-			MeasureSystem(const std::string_view message) :  
-				m_message(message)
+			MeasureSystem(const std::string_view message) 
+				: m_message(message)
 			{ 
-				SYSTEM_INFO sys_info;
-
-				GetSystemInfo(&sys_info);
-				m_num_processors = sys_info.dwNumberOfProcessors;
-
-				m_self = GetCurrentProcess();
-
 				m_active = true;
 				m_thread = std::thread(&MeasureSystem::Loop, this);
-
-				m_time_begin = std::chrono::high_resolution_clock::now();
 			}
 
 			~MeasureSystem()
 			{
-				auto time_end = std::chrono::high_resolution_clock::now();
-
 				m_active = false;
 				m_thread.join();
-
-				auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - m_time_begin);
-				std::chrono::duration<double, std::milli> ms_double = time_end - m_time_begin;
-
-				std::cout << "TOTAL RUN TIME" << "\n";
-				std::cout << ms_int << "\n";
-				std::cout << ms_double << "\n";
-				std::cout << "\n";
 			}
 
 			void Loop()
@@ -70,8 +51,8 @@ namespace vlx
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 
-				long double initial_ram = Megabyte(pmc.WorkingSetSize);
-				long double initial_cpu = GetCPU();
+				const long double initial_ram = Megabyte(pmc.WorkingSetSize);
+				const long double initial_cpu = GetCPU();
 
 				long double total_ram_size	= 0.0;
 				long double total_cpu_size	= 0.0;
@@ -86,6 +67,12 @@ namespace vlx
 
 				std::size_t total_ram_samples = 0;
 				std::size_t total_cpu_samples = 0;
+
+				SYSTEM_INFO sys_info;
+				GetSystemInfo(&sys_info);
+				m_num_processors = sys_info.dwNumberOfProcessors;
+
+				auto m_time_begin = std::chrono::high_resolution_clock::now();
 
 				while (m_active)
 				{
@@ -104,10 +91,15 @@ namespace vlx
 						++total_cpu_samples;
 				}
 
-				ram_average = total_ram_samples != 0 ? total_ram_size / total_ram_samples : 0.0f;
+				auto time_end = std::chrono::high_resolution_clock::now();
+
+				auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - m_time_begin);
+				std::chrono::duration<double, std::milli> ms_double = time_end - m_time_begin;
+
+				ram_average = total_ram_samples != 0 ? total_ram_size / total_ram_samples : 0.0;
 				ram_usage = ram_average - initial_ram;
 
-				cpu_average = total_cpu_samples != 0 ? total_cpu_size / total_cpu_samples : 0.0f;
+				cpu_average = total_cpu_samples != 0 ? total_cpu_size / total_cpu_samples : 0.0;
 				cpu_usage = cpu_average - initial_cpu;
 
 				GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
@@ -116,24 +108,32 @@ namespace vlx
 
 				// -- print relevant information --
 
+				const std::function<std::string(long double, int)> print = [](const long double val, const int places) -> std::string
+					{ return su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(val, places))); };
+
 				std::puts(m_message.data());
 				std::puts("");
 
 				std::puts("BENCHMARK BEGIN");
 				std::puts("");
-				std::puts(std::string("INITIAL RAM: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(initial_ram, 2))) + "MB").c_str());
-				std::puts(std::string("INITIAL CPU: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(initial_cpu, 2))) + "%").c_str());
+				std::puts(std::string("INITIAL RAM: " + print(initial_ram, 2) + "MB").c_str());
+				std::puts(std::string("INITIAL CPU: " + print(initial_cpu, 2) + "%").c_str());
 				std::puts("");
 
 				std::puts("BENCHMARK END");
 				std::puts("");
-				std::puts(std::string("RAM TOTAL: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(ram_average, 2)))	+ "MB").c_str());
-				std::puts(std::string("RAM USED: "	+ su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(ram_usage, 2)))		+ "MB").c_str());
-				std::puts(std::string("RAM CURR: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(ram_curr, 2)))		+ "MB").c_str());
-				std::puts(std::string("RAM DIFF: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(ram_diff, 2)))		+ "MB").c_str());
-				std::puts(std::string("CPU TOTAL: " + su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(cpu_average, 2)))	+ "%").c_str());
-				std::puts(std::string("CPU USED: "	+ su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(cpu_usage, 2)))		+ "%").c_str());
+				std::puts(std::string("RAM TOTAL: "	+ print(ram_average, 2)	+ "MB").c_str());
+				std::puts(std::string("RAM USED: "	+ print(ram_usage, 2)	+ "MB").c_str());
+				std::puts(std::string("RAM CURR: "	+ print(ram_curr, 2)	+ "MB").c_str());
+				std::puts(std::string("RAM DIFF: "	+ print(ram_diff, 2)	+ "MB").c_str());
+				std::puts(std::string("CPU TOTAL: " + print(cpu_average, 2)	+ "%").c_str());
+				std::puts(std::string("CPU USED: "	+ print(cpu_usage, 2)	+ "%").c_str());
 				std::puts("");
+
+				std::puts("TOTAL RUN TIME");
+				std::cout << ms_int << "\n";
+				std::cout << ms_double << "\n";
+				std::cout << "\n";
 			}
 
 			long double GetCPU()
@@ -145,12 +145,11 @@ namespace vlx
 				GetSystemTimeAsFileTime(&file_time);
 				memcpy(&now, &file_time, sizeof(FILETIME));
 
-				GetProcessTimes(m_self, &file_time, &file_time, &file_sys, &file_user);
+				GetProcessTimes(GetCurrentProcess(), &file_time, &file_time, &file_sys, &file_user);
 				memcpy(&sys, &file_sys, sizeof(FILETIME));
 				memcpy(&user, &file_user, sizeof(FILETIME));
 
 				percent = (sys.QuadPart - m_last_sys_cpu.QuadPart) + (user.QuadPart - m_last_user_cpu.QuadPart);
-
 				percent /= (now.QuadPart - m_last_cpu.QuadPart);
 				percent /= m_num_processors;
 
@@ -166,7 +165,6 @@ namespace vlx
 
 		private:
 			const std::string_view					m_message;
-			std::chrono::steady_clock::time_point	m_time_begin;
 
 			std::thread								m_thread;
 			bool									m_active{false};
@@ -175,7 +173,6 @@ namespace vlx
 			ULARGE_INTEGER							m_last_sys_cpu;
 			ULARGE_INTEGER							m_last_user_cpu;
 			int										m_num_processors;
-			HANDLE									m_self;
 		};
 
 		static std::queue<MeasureSystem::Ptr> queue;
@@ -185,14 +182,14 @@ namespace vlx
 		{
 			std::lock_guard<std::mutex> lock(mutex);
 
-			queue.push(MeasureSystem::Ptr(new MeasureSystem(message)));
+			queue.push(std::make_unique<MeasureSystem>(message));
 		}
 
 		static void End()
 		{
 			std::lock_guard<std::mutex> lock(mutex);
 
-			if (!queue.size())
+			if (queue.empty())
 				throw std::runtime_error("cant end something when there is no beginning");
 
 			queue.pop();

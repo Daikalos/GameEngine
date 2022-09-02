@@ -154,6 +154,7 @@
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
     <ClInclude Include="include\Velox\ECS\Component.hpp" />
+    <ClInclude Include="include\Velox\ECS\Components\Drawable.h" />
     <ClInclude Include="include\Velox\ECS\Components\Transform.h" />
     <ClInclude Include="include\Velox\ECS\Components\Velocity.h" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />

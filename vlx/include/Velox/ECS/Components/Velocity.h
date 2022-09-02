@@ -2,7 +2,10 @@
 
 #include <SFML/Graphics.hpp>
 
-struct Velocity
+namespace vlx
 {
-	sf::Vector2f velocity;
-};
+	struct Velocity
+	{
+		sf::Vector2f velocity;
+	};
+}

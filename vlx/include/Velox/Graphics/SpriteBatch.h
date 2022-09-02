@@ -1,7 +1,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "../Utilities.hpp"
+
+#include <Velox/Utilities.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
@@ -18,8 +20,6 @@ namespace vlx
 
 		struct Quad
 		{
-			Quad() = default;
-
 			const sf::Texture*	m_texture	{nullptr};
 			float				m_depth		{0.0f};
 			RectFloat			m_rect;
@@ -27,17 +27,12 @@ namespace vlx
 
 		struct Batch
 		{
-			Batch() = default;
-
 			const sf::Texture*	m_texture	{nullptr};
 			std::size_t			m_count		{0};
 			std::size_t			m_offset	{0};
 		};
 
 	public:
-		SpriteBatch() = default;
-		~SpriteBatch() = default;
-
 		void Begin(SortMode sort_mode = SortMode::Deferred);
 		void Draw(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, float depth = 0.0f);
 		void End();
@@ -53,7 +48,7 @@ namespace vlx
 		std::vector<Quad>		m_quads;
 		std::vector<sf::Vertex> m_vertices;
 
-		SortMode				m_sort_mode;
+		SortMode				m_sort_mode{SortMode::Deferred};
 	};
 }
 

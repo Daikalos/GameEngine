@@ -33,6 +33,22 @@ void Application::Run()
 
 	////////////////////////////////////////////////////////////
 
+	bm::Begin();
+
+	{
+		EntityAdmin entity_admin;
+
+		entity_admin.RegisterComponent<Transform>();
+
+		for (int i = 0; i < 50000; ++i)
+		{
+			Entity entity(entity_admin);
+			entity.Add<Transform>(sf::Vector2f(0, 0), sf::Vector2f(0, 0), 0.0f);
+		}
+	}
+
+	bm::End();
+
 	float accumulator = FLT_EPSILON;
 
 	int ticks = 0;

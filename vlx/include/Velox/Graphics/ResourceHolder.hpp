@@ -28,7 +28,7 @@ namespace vlx
 		Resource Load(const std::string_view path, const Parameter& second_param);
 
 		void Load(const Identifier& id, const std::string_view path);
-		//auto LoadAsync(const Identifier& id, const std::string& path);
+		std::future<Resource> LoadAsync(const Identifier& id, const std::string& path);
 
 		template <class Parameter>
 		void Load(const Identifier& id, const std::string_view path, const Parameter& second_param);
@@ -71,11 +71,11 @@ namespace vlx
 		assert(inserted.second);
 	}
 
-	//template<class Resource, class Identifier>
-	//inline auto ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
-	//{
-	//	return std::async(std::launch::async, &ResourceHolder<Resource, Identifier>::Load, std::ref(id), std::ref(path));
-	//}
+	template<class Resource, class Identifier>
+	inline std::future<Resource> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
+	{
+		return std::async(std::launch::async, &ResourceHolder<Resource, Identifier>::Load, std::ref(id), std::ref(path));
+	}
 
 	template<typename Resource, typename Identifier>
 	template<typename Parameter>

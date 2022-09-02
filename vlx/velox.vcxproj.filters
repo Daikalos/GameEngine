@@ -68,6 +68,7 @@
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Components\Transform.h" />
     <ClInclude Include="include\Velox\ECS\Components\Velocity.h" />
+    <ClInclude Include="include\Velox\ECS\Components\Drawable.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
