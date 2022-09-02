@@ -8,6 +8,11 @@ Entity::Entity(EntityAdmin& entity_admin)
 	m_entity_admin->RegisterEntity(m_id);
 }
 
+Entity::~Entity()
+{
+	m_entity_admin->RemoveEntity(m_id);
+}
+
 constexpr EntityID Entity::GetId() const
 {
 	return m_id;

@@ -8,7 +8,7 @@
 namespace vlx
 {
 	////////////////////////////////////////////////////////////
-	// unsigned char* is used for representing a binary data 
+	// DataPtr is used for representing a binary data 
 	// buffer, where each element is a single byte. 
 	////////////////////////////////////////////////////////////
 	class ComponentBase
@@ -16,11 +16,11 @@ namespace vlx
 	public:
 		virtual ~ComponentBase() { }
 
-		virtual void ConstructData(unsigned char* data) const = 0;
-		virtual void DestroyData(unsigned char* data) const = 0;
-		virtual void MoveData(unsigned char* source, unsigned char* destination) const = 0;
+		virtual void ConstructData(DataPtr data) const = 0;
+		virtual void DestroyData(DataPtr data) const = 0;
+		virtual void MoveData(DataPtr source, DataPtr destination) const = 0;
 
-		virtual void MoveDestroyData(unsigned char* source, unsigned char* destination) const = 0;
+		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const = 0;
 
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
 	};
@@ -29,11 +29,15 @@ namespace vlx
 	class Component : public ComponentBase
 	{
 	public:
-		virtual void ConstructData(unsigned char* data) const override;
-		virtual void DestroyData(unsigned char* data) const override;
-		virtual void MoveData(unsigned char* source, unsigned char* destination) const override;
+		virtual void ConstructData(DataPtr data) const override;
+		virtual void DestroyData(DataPtr data) const override;
+		virtual void MoveData(DataPtr source, DataPtr destination) const override;
 
-		virtual void MoveDestroyData(unsigned char* source, unsigned char* destination) const override;
+		////////////////////////////////////////////////////////////
+		// Small helper function for moving and then destroying 
+		// source
+		////////////////////////////////////////////////////////////
+		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const override;
 
 		virtual constexpr std::size_t GetSize() const noexcept override;
 
@@ -41,26 +45,26 @@ namespace vlx
 	};
 
 	template<class C>
-	inline void Component<C>::ConstructData(unsigned char* data) const
+	inline void Component<C>::ConstructData(DataPtr data) const
 	{
-		new (&data[0]) C(); // construct object C at data in memory which will give its values
+		new (data) C(); // construct object C at data in memory which will give its values
 	}
 
 	template<class C>
-	inline void Component<C>::DestroyData(unsigned char* data) const
+	inline void Component<C>::DestroyData(DataPtr data) const
 	{
-		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal)
+		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
 		data_location->~C();
 	}
 
 	template<class C>
-	inline void Component<C>::MoveData(unsigned char* source, unsigned char* destination) const
+	inline void Component<C>::MoveData(DataPtr source, DataPtr destination) const
 	{
-		new (&destination[0]) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
+		new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
 	}
 
 	template<class C>
-	inline void Component<C>::MoveDestroyData(unsigned char* source, unsigned char* destination) const
+	inline void Component<C>::MoveDestroyData(DataPtr source, DataPtr destination) const
 	{
 		MoveData(source, destination);
 		DestroyData(source);

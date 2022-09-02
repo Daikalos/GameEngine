@@ -5,11 +5,13 @@
 
 namespace vlx
 {
-	using IDType = std::uint32_t;
+	using IDType			= typename std::uint32_t;
+	using ByteArray			= typename unsigned char[];
+	using DataPtr			= typename unsigned char*;
 
-	using EntityID = IDType;
-	using ComponentTypeID = IDType;
-	using ArchetypeID = std::vector<ComponentTypeID>;
+	using EntityID			= typename IDType;
+	using ComponentTypeID	= typename IDType;
+	using ArchetypeID		= typename std::vector<ComponentTypeID>;
 
 	const IDType NULL_ENTITY = NULL;
 }

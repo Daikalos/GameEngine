@@ -33,24 +33,6 @@ void Application::Run()
 
 	////////////////////////////////////////////////////////////
 
-	EntityAdmin entity_admin;
-
-	entity_admin.RegisterComponent<Transform>();
-	entity_admin.RegisterComponent<Velocity>();
-
-	bm::Begin();
-
-	for (int i = 0; i < 10000; ++i)
-	{
-		Entity ent1(entity_admin);
-		ent1.Add<Transform>(sf::Vector2f(10.0f, 15.0f), sf::Vector2f(1.0f, 1.0f), 0.0f);
-		ent1.Add<Velocity>(sf::Vector2f(0.0f, 0.0f));
-
-		ent1.Remove<Transform>();
-	}
-
-	bm::End();
-
 	float accumulator = FLT_EPSILON;
 
 	int ticks = 0;
@@ -151,7 +133,7 @@ void Application::Draw()
 
 	m_state_stack.Draw();
 
-	m_window.setView(m_window.getDefaultView());
+	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 
 	if (m_controls.Exists<MouseCursor>())
 		m_controls.Get<MouseCursor>().Draw();

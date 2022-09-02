@@ -7,10 +7,11 @@
 
 namespace vlx
 {
-	class Entity
+	class Entity final
 	{
 	public:
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
+		VELOX_API ~Entity();
 
 		VELOX_API constexpr EntityID GetId() const;
 

@@ -6,7 +6,7 @@
 
 namespace vlx
 {
-	using ComponentData = std::unique_ptr<unsigned char[]>;
+	using ComponentData = std::unique_ptr<ByteArray>;
 
 	struct Archetype // an archetype for every unique list of components for an entity
 	{

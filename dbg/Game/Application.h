@@ -57,6 +57,7 @@ namespace vlx
 		FontHolder		m_font_holder;
 		Time			m_time;
 		ControlMap		m_controls;
+		EntityAdmin		m_entity_admin;
 	};
 }
 
