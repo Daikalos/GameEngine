@@ -180,7 +180,7 @@
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
     <ClInclude Include="include\Velox\Scene\SceneNode.h" />
-    <ClInclude Include="include\Velox\Scene\State.hpp" />
+    <ClInclude Include="include\Velox\Scene\State.h" />
     <ClInclude Include="include\Velox\Scene\States.h" />
     <ClInclude Include="include\Velox\Scene\StateStack.h" />
     <ClInclude Include="include\Velox\Utilities.hpp" />
@@ -212,6 +212,7 @@
     <ClCompile Include="src\Input\KeyboardInput.cpp" />
     <ClCompile Include="src\Input\MouseCursor.cpp" />
     <ClCompile Include="src\Input\MouseInput.cpp" />
+    <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Utilities\Time.cpp" />
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <Velox/Scene/State.hpp>
+#include <Velox/Scene/State.h>
 #include <Velox/Utilities.hpp>
 
 namespace vlx

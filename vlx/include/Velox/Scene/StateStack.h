@@ -10,7 +10,7 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
-#include "State.hpp"
+#include "State.h"
 #include "States.h"
 
 namespace vlx

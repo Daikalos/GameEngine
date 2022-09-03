@@ -174,7 +174,7 @@ void Application::RegisterControls()
 	m_controls.Add<KeyboardBindable>();
 	m_controls.Add<MouseBindable>();
 	m_controls.Add<JoystickBindable>();
-	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
+	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor));
 
 	m_controls.Get<KeyboardBindable>().Add<bn::Key>();
 	m_controls.Get<MouseBindable>().Add<bn::Button>();

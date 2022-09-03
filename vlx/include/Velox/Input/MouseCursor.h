@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 
 #include <Velox/Graphics/ResourceHolder.hpp>
-#include <Velox/Graphics/Resources.h>
 #include <Velox/Window/Window.h>
 #include <Velox/Utilities.hpp>
 
@@ -26,7 +25,7 @@ namespace vlx
 	class VELOX_API MouseCursor : public InputHandler
 	{
 	public:
-		MouseCursor(Window& window, const TextureHolder& texture_holder);
+		MouseCursor(Window& window, const sf::Texture& texture);
 
 		void Update(const Time& time, const bool focus) override;
 		void HandleEvent(const sf::Event& event) override;
@@ -45,7 +44,6 @@ namespace vlx
 
 	private:
 		Window*					m_window			{nullptr};
-		const TextureHolder*	m_texture_holder	{nullptr};
 
 		sf::Sprite				m_cursor;
 		cst::ID					m_cursor_state		{cst::ID::Idle};

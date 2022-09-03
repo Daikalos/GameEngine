@@ -2,13 +2,12 @@
 
 using namespace vlx;
 
-MouseCursor::MouseCursor(Window& window, const TextureHolder& texture_holder)
-	: m_window(&window), m_texture_holder(&texture_holder)
+MouseCursor::MouseCursor(Window& window, const sf::Texture& default_texture) : m_window(&window)
 {
 	m_cursor_pos = sf::Vector2f(m_window->GetOrigin());
 	sf::Mouse::setPosition(m_window->GetOrigin(), *m_window);
 
-	SetCursor(m_texture_holder->Get(Texture::ID::IdleCursor));
+	SetCursor(default_texture);
 }
 
 void MouseCursor::Update(const Time& time, const bool focus)

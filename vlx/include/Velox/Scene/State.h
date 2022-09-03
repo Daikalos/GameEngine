@@ -6,6 +6,7 @@
 #include <Velox/Window/Window.h>
 #include <Velox/Window/Camera.h>
 #include <Velox/Graphics/ResourceHolder.hpp>
+#include <Velox/Config.hpp>
 
 #include "States.h"
 
@@ -13,7 +14,7 @@ namespace vlx
 {
 	class StateStack;
 
-	class State
+	class VELOX_API State
 	{
 	public:
 		using Ptr = typename std::unique_ptr<State>;
@@ -33,14 +34,14 @@ namespace vlx
 
 	public:
 		explicit State(state::ID id, StateStack& state_stack, Context context);
-		virtual ~State() = default;
+		virtual ~State();
 
 	public:
-		state::ID GetId() const noexcept;
+		[[nodiscard]] state::ID GetId() const noexcept;
 
 	protected:
-		const Context& GetContext() const;
-		StateStack& GetStack() const;
+		[[nodiscard]] const Context& GetContext() const;
+		[[nodiscard]] StateStack& GetStack() const;
 
 	public:
 		////////////////////////////////////////////////////////////
@@ -69,22 +70,4 @@ namespace vlx
 		StateStack* m_state_stack;
 		Context		m_context;
 	};
-
-	inline State::State(state::ID id, StateStack& state_stack, Context context)
-		: m_id(id), m_state_stack(&state_stack), m_context(context) { }
-
-	inline state::ID State::GetId() const noexcept
-	{ 
-		return m_id; 
-	}
-
-	inline const State::Context& State::GetContext() const { return m_context; }
-	inline StateStack& State::GetStack() const { return *m_state_stack; }
-
-	inline void State::OnActivate() {}
-	inline void State::OnDestroy() {}
-
-	inline bool State::PreUpdate(Time& time)					{ return true; }
-	inline bool State::FixedUpdate(Time& time)					{ return true; }
-	inline bool State::PostUpdate(Time& time, float interp)	{ return true; }
 }

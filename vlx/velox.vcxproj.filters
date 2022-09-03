@@ -17,6 +17,7 @@
     <ClCompile Include="src\Utilities\Time.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
+    <ClCompile Include="src\Scene\State.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -28,7 +29,6 @@
     <ClInclude Include="include\Velox\ECS\TypeIdGenerator.hpp" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
-    <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
@@ -43,7 +43,7 @@
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
     <ClInclude Include="include\Velox\Scene\SceneNode.h" />
-    <ClInclude Include="include\Velox\Scene\State.hpp" />
+    <ClInclude Include="include\Velox\Scene\State.h" />
     <ClInclude Include="include\Velox\Scene\States.h" />
     <ClInclude Include="include\Velox\Scene\StateStack.h" />
     <ClInclude Include="include\Velox\Utilities\ArithmeticUtils.h" />
@@ -69,6 +69,7 @@
     <ClInclude Include="include\Velox\ECS\Components\Transform.h" />
     <ClInclude Include="include\Velox\ECS\Components\Velocity.h" />
     <ClInclude Include="include\Velox\ECS\Components\Drawable.h" />
+    <ClInclude Include="include\Velox\Graphics\Resources.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
