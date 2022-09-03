@@ -95,7 +95,7 @@ namespace vlx
 		if (m_component_map.contains(component_type_id))
 			return;
 
-		m_component_map.emplace(component_type_id, ComponentPtr(new Component<C>));
+		m_component_map.emplace(component_type_id, std::make_unique<Component<C>>());
 	}
 
 	template<class C>

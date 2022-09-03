@@ -13,13 +13,11 @@ EntityAdmin::~EntityAdmin()
 	{
 		for (std::size_t i = 0; i < archetype->m_type.size(); ++i)
 		{
-			const ComponentBase* const comp = m_component_map[archetype->m_type[i]].get();
+			const ComponentBase* comp = m_component_map[archetype->m_type[i]].get();
 			const std::size_t& data_size = comp->GetSize();
 
 			for (std::size_t j = 0; j < archetype->m_entity_ids.size(); ++j)
-			{
 				comp->DestroyData(&archetype->m_component_data[i][j * data_size]);
-			}
 		}
 	}
 }

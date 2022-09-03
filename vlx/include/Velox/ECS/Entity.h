@@ -25,7 +25,7 @@ namespace vlx
 		void Remove();
 
 	private:
-		EntityID		m_id;  // entity is just an id
+		EntityID		m_id; // entity is just an id
 		EntityAdmin*	m_entity_admin;
 	};
 

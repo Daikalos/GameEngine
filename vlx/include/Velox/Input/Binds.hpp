@@ -75,7 +75,12 @@ namespace vlx
 	template<ArithEnum Bind, ArithEnum Reg>
 	inline Reg& Binds<Bind, Reg>::At(Bind name)
 	{
-		return m_binds.at(name);
+		auto it = m_binds.find(name);
+
+		if (it == m_binds.end())
+			throw std::runtime_error("value could not be found");
+
+		return it->second;
 	}
 
 	template<ArithEnum Bind, ArithEnum Reg>
