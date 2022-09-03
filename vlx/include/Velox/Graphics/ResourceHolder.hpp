@@ -6,41 +6,41 @@
 #include <memory>
 #include <unordered_map>
 #include <string_view>
+#include <thread>
 
-#include "../utilities/NonCopyable.h"
+#include <Velox/Utilities.hpp>
+
 #include "Resources.h"
 
 namespace vlx
 {
-	template <class Resource, class Identifier>
+	template <IsLoadable Resource, Enum Identifier>
 	class ResourceHolder : private NonCopyable
 	{
 	public:
 		using ResourcePtr = typename std::unique_ptr<Resource>;
 
 	public:
-		ResourceHolder() { }
-		~ResourceHolder() { }
-
-		Resource Load(const std::string_view path);
-
-		template <class Parameter>
-		Resource Load(const std::string_view path, const Parameter& second_param);
-
 		void Load(const Identifier& id, const std::string_view path);
-		std::future<Resource> LoadAsync(const Identifier& id, const std::string& path);
-
 		template <class Parameter>
 		void Load(const Identifier& id, const std::string_view path, const Parameter& second_param);
+
+		std::future<void> LoadAsync(const Identifier& id, const std::string_view path);
 
 		Resource& Get(const Identifier& id);
 		const Resource& Get(const Identifier& id) const;
 
 	private:
+		Resource Load(const std::string_view path);
+		template<class Parameter>
+		Resource Load(const std::string_view path, const Parameter& second_param);
+
+	private:
 		std::unordered_map<Identifier, ResourcePtr> m_resources;
+		std::mutex m_mutex;
 	};
 
-	template<class Resource, class Identifier>
+	template<IsLoadable Resource, Enum Identifier>
 	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path)
 	{
 		Resource resource;
@@ -48,10 +48,10 @@ namespace vlx
 		if (!resource.loadFromFile(path))
 			throw std::runtime_error("resource does not exist at " + std::string(path));
 
-		return std::move(resource);
+		return resource;
 	}
 
-	template<class Resource, class Identifier>
+	template<IsLoadable Resource, Enum Identifier>
 	template<class Parameter>
 	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path, const Parameter& second_param)
 	{
@@ -60,42 +60,45 @@ namespace vlx
 		if (!resource.loadFromFile(path, second_param))
 			throw std::runtime_error("resource does not exist at " + std::string(path));
 
-		return std::move(resource);
+		return resource;
 	}
 
-	template<typename Resource, typename Identifier>
+	template<IsLoadable Resource, Enum Identifier>
 	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path)
 	{
-		ResourcePtr resource = ResourcePtr(new Resource(Load(path)));
+		ResourcePtr resource = std::make_unique<Resource>(Load(path));
 		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
 		assert(inserted.second);
 	}
 
-	template<class Resource, class Identifier>
-	inline std::future<Resource> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
-	{
-		return std::async(std::launch::async, &ResourceHolder<Resource, Identifier>::Load, std::ref(id), std::ref(path));
-	}
-
-	template<typename Resource, typename Identifier>
+	template<IsLoadable Resource, Enum Identifier>
 	template<typename Parameter>
 	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path, const Parameter& second_param)
 	{
-		ResourcePtr resource = ResourcePtr(new Resource(Load(path, second_param)));
+		ResourcePtr resource = std::make_unique<Resource>(Load(path, second_param));
 		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
 		assert(inserted.second);
 	}
 
-	template<typename Resource, typename Identifier>
-	inline Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
+	template<IsLoadable Resource, Enum Identifier>
+	inline std::future<void> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string_view path)
 	{
-		auto it = m_resources.find(id);
-		assert(it != m_resources.end());
+		static const auto load = [this](const Identifier& id, const std::string path)
+		{
+			std::lock_guard lock(m_mutex);
+			Load(id, path);
+		};
 
-		return *it->second.get();
+		return std::async(std::launch::async, load, id, std::string(path)); // create local copy of path because it will be later destroyed
 	}
 
-	template<typename Resource, typename Identifier>
+	template<IsLoadable Resource, Enum Identifier>
+	inline Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
+	{
+		return *m_resources.at(id).get();
+	}
+
+	template<IsLoadable Resource, Enum Identifier>
 	inline const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id) const
 	{
 		return const_cast<ResourceHolder<Resource, Identifier>*>(this)->Get(id);

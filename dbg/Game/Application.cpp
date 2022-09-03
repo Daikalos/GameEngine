@@ -185,5 +185,7 @@ void Application::RegisterControls()
 
 void Application::LoadMainTextures()
 {
-	m_texture_holder.Load(Texture::ID::IdleCursor, TEXTURE_FOLDER + "cursor.png");
+	auto load = m_texture_holder.LoadAsync(Texture::ID::IdleCursor, TEXTURE_FOLDER + "cursor.png");
+
+	load.wait();
 }

@@ -55,7 +55,7 @@ namespace vlx
 	template<std::derived_from<InputHandler> T, typename... Args>
 	inline void ControlMap::Add(Args&&... args) requires std::constructible_from<T, Args...>
 	{
-		m_controls[typeid(T)] = InputHandler::Ptr(new T(std::forward<Args>(args)...));
+		m_controls[typeid(T)] = std::make_unique<T>(std::forward<Args>(args)...);
 	}
 
 	template<std::derived_from<InputHandler> T>
