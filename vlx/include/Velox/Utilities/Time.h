@@ -20,11 +20,13 @@ namespace vlx
 		[[nodiscard]] constexpr float GetFixedDeltaTime() const noexcept;
 		[[nodiscard]] constexpr float GetRealFixedDeltaTime() const noexcept;
 		[[nodiscard]] constexpr float GetScaledTime() const noexcept;
+		[[nodiscard]] constexpr float GetInterp() const noexcept;
 		[[nodiscard]] constexpr long double GetTotalTime() const noexcept;
 		[[nodiscard]] constexpr long double GetTotalRunTime() const noexcept;
 		[[nodiscard]] constexpr int GetFramerate() const noexcept;
 
 		void SetScaledTime(const float value) noexcept;
+		void SetInterp(const float value) noexcept;
 
 	public:
 		void Reset();
@@ -38,6 +40,7 @@ namespace vlx
 		float		m_delta_time		{0.0f};						// total time it took for previous loop
 		float		m_fixed_delta_time	{DEFAULT_FIXED_DELTATIME};	// fixed delta time for physics etc. (Is set to 1/60 as default)
 		float		m_scaled_time		{DEFAULT_SCALED_TIME};		// scaled time (set to 1 as default)
+		float		m_interp			{0.0f};
 
 		long double	m_total_time		{0.0};	// total time in seconds the applicaton has ran
 		long double	m_total_run_time	{0.0};	// total time the application has ran factoring in scaled time

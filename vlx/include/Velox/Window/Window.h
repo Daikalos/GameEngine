@@ -38,7 +38,7 @@ namespace vlx
 		// only gets modes that match the aspect ratio of 
 		// the desktop
 		////////////////////////////////////////////////////////////
-		[[nodiscard]] std::vector<sf::VideoMode> GetValidModes(bool update = true) const;
+		[[nodiscard]] std::vector<sf::VideoMode> GetValidModes(bool update = false) const;
 
 		[[nodiscard]] constexpr sf::Vector2i GetOrigin() const noexcept;
 		[[nodiscard]] constexpr sf::Vector2f GetRatioCmp() const noexcept;
@@ -67,14 +67,15 @@ namespace vlx
 		void SetSettings(sf::ContextSettings settings);
 
 	private:
-		std::string			m_name;				// name of window
-		sf::VideoMode		m_mode;				// current mode set
-		WindowBorder		m_border;			// current border type
-		sf::ContextSettings m_settings;			// settings
-		sf::Vector2f		m_ratio_cmp;		// current ratio in percentage when compared to desktop
-		bool				m_vertical_sync;	// vertical sync
-		int					m_frame_rate;		// maximum frame rate
+		std::string			m_name;										// name of window
+		sf::VideoMode		m_mode;										// current mode set
+		WindowBorder		m_border		{WindowBorder::Windowed};	// current border type
+		sf::ContextSettings m_settings;									// settings
+		sf::Vector2f		m_ratio_cmp;								// current ratio in percentage when compared to default desktop mode
+		bool				m_vertical_sync	{false};					// vertical sync
+		int					m_frame_rate	{144};						// maximum frame rate
+		bool				m_hide_cursor	{false};
 
-		std::vector<sf::VideoMode> m_cached_modes;
+		mutable std::vector<sf::VideoMode> m_cached_modes;
 	};
 }

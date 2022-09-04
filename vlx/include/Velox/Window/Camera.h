@@ -11,7 +11,7 @@
 #include <concepts>
 #include <type_traits>
 
-#include "CameraBehaviour.hpp"
+#include "CameraBehaviour.h"
 #include "Cameras.h"
 
 namespace vlx
@@ -71,7 +71,7 @@ namespace vlx
 		void PreUpdate(const Time& time);
 		void Update(const Time& time);
 		void FixedUpdate(const Time& time);
-		void PostUpdate(const Time& time, float interp);
+		void PostUpdate(const Time& time);
 
 		void Push(const camera::ID& camera_id);
 		void Pop();

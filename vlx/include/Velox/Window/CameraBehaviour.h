@@ -5,6 +5,7 @@
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Input.hpp>
+#include <Velox/Config.hpp>
 
 #include "Window.h"
 #include "Cameras.h"
@@ -20,7 +21,7 @@ namespace vlx
 	// or effects for the camera that can be easily added or 
 	// removed
 	////////////////////////////////////////////////////////////
-	class CameraBehaviour : private NonCopyable
+	class VELOX_API CameraBehaviour : private NonCopyable
 	{
 	public:
 		using Ptr = typename std::unique_ptr<CameraBehaviour>;
@@ -35,37 +36,35 @@ namespace vlx
 			const ControlMap*	controls;
 		};
 
-		struct OnCreateArgs { }; // TODO: maybe pass structs as args instead??
+	public:
+		CameraBehaviour(camera::ID id, Camera& camera, Context context);
+		virtual ~CameraBehaviour();
+
+		camera::ID GetId() const noexcept;
 
 	protected:
-		Camera& GetCamera() const { return *m_camera; }
-		const Context& GetContext() const { return m_context; }
+		Camera& GetCamera() const;
+		const Context& GetContext() const;
 
 	public:
-		CameraBehaviour(camera::ID id, Camera& camera, Context context) :
-			m_id(id), m_camera(&camera), m_context(context) { }
-		virtual ~CameraBehaviour() = default;
-
-		camera::ID GetId() const noexcept { return m_id; }
-
 		////////////////////////////////////////////////////////////
 		// OnActivate is called whenever the behaviour is put as 
 		// last in the stack
 		////////////////////////////////////////////////////////////
-		virtual void OnActivate() {}
+		virtual void OnActivate();
 
 		////////////////////////////////////////////////////////////
 		// OnDestroy is called when the behaviour is removed from
 		// the stack
 		////////////////////////////////////////////////////////////
-		virtual void OnDestroy() {}
+		virtual void OnDestroy();
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
 
-		virtual bool PreUpdate(const Time& time)				{ return true; }
+		virtual bool PreUpdate(const Time& time);
 		virtual bool Update(const Time& time) = 0;
-		virtual bool FixedUpdate(const Time& time)				{ return true; }
-		virtual bool PostUpdate(const Time& time, float interp) { return true; }
+		virtual bool FixedUpdate(const Time& time);
+		virtual bool PostUpdate(const Time& time);
 
 	private:
 		camera::ID		m_id;

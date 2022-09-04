@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Window/CameraBehaviour.hpp>
+#include <Velox/Window/CameraBehaviour.h>
 #include <Velox/Window/Camera.h>
 #include <Velox/Window/Cameras.h>
 

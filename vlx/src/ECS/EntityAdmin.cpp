@@ -88,7 +88,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 		for (std::size_t j = 0, ri = 0; j < old_archetype->m_entity_ids.size(); ++j)
 		{
-			if (ri == record.index)
+			if (j == record.index)
 				continue;
 
 			old_comp->MoveDestroyData(
@@ -100,6 +100,8 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 		old_archetype->m_component_data[i] = std::move(new_data);
 	}
+
+	m_entity_archetype_map.erase(entity_id);
 
 	auto it = std::find(old_archetype->m_entity_ids.begin(), old_archetype->m_entity_ids.end(), entity_id);
 
@@ -125,7 +127,7 @@ Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 
 	// archetype does not exist, create new one
 
-	ArchetypePtr new_archetype = std::make_unique<Archetype>();
+	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
 	new_archetype->m_type = id;
 
 	for (ArchetypeID::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type

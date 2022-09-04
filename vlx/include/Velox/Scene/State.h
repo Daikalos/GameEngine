@@ -61,7 +61,7 @@ namespace vlx
 		virtual bool PreUpdate(Time& time);
 		virtual bool Update(Time& time) = 0;
 		virtual bool FixedUpdate(Time& time);
-		virtual bool PostUpdate(Time& time, float interp);
+		virtual bool PostUpdate(Time& time);
 
 		virtual void draw() = 0;
 

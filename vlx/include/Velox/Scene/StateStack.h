@@ -49,7 +49,7 @@ namespace vlx
 		void PreUpdate(Time& time);
 		void Update(Time& time);
 		void FixedUpdate(Time& time);
-		void PostUpdate(Time& time, float interp);
+		void PostUpdate(Time& time);
 
 		void Draw();
 

@@ -25,4 +25,7 @@ namespace vlx
 	{
 		{ resource.loadFromFile(path) } -> std::same_as<bool>;
 	};
+
+	template<typename... Args>
+	concept MustExist = sizeof...(Args) > 0;
 }

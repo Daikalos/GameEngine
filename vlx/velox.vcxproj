@@ -197,7 +197,7 @@
     <ClInclude Include="include\Velox\Utilities\Time.h" />
     <ClInclude Include="include\Velox\Utilities\VectorUtils.h" />
     <ClInclude Include="include\Velox\Window\Camera.h" />
-    <ClInclude Include="include\Velox\Window\CameraBehaviour.hpp" />
+    <ClInclude Include="include\Velox\Window\CameraBehaviour.h" />
     <ClInclude Include="include\Velox\Window\Cameras.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />
   </ItemGroup>
@@ -217,6 +217,7 @@
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\Scene\SceneNode.cpp" />
+    <ClCompile Include="src\Window\CameraBehaviour.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

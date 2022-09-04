@@ -112,11 +112,11 @@ void Camera::FixedUpdate(const Time& time)
 
 	ApplyPendingChanges();
 }
-void Camera::PostUpdate(const Time& time, float interp)
+void Camera::PostUpdate(const Time& time)
 {
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
-		if (!(*it)->PostUpdate(time, interp))
+		if (!(*it)->PostUpdate(time))
 			break;
 	}
 

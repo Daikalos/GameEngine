@@ -49,11 +49,11 @@ void StateStack::FixedUpdate(Time& time)
 	ApplyPendingChanges();
 }
 
-void StateStack::PostUpdate(Time& time, float interp)
+void StateStack::PostUpdate(Time& time)
 {
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
-		if (!(*it)->PostUpdate(time, interp))
+		if (!(*it)->PostUpdate(time))
 			break;
 	}
 

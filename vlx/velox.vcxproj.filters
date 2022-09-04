@@ -18,6 +18,7 @@
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
+    <ClCompile Include="src\Window\CameraBehaviour.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -59,7 +60,7 @@
     <ClInclude Include="include\Velox\Utilities\Time.h" />
     <ClInclude Include="include\Velox\Utilities\VectorUtils.h" />
     <ClInclude Include="include\Velox\Window\Camera.h" />
-    <ClInclude Include="include\Velox\Window\CameraBehaviour.hpp" />
+    <ClInclude Include="include\Velox\Window\CameraBehaviour.h" />
     <ClInclude Include="include\Velox\Window\Cameras.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />
     <ClInclude Include="include\Velox\Input.hpp" />

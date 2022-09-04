@@ -44,7 +44,7 @@ bool State::FixedUpdate(Time& time)
 { 
 	return true; 
 }
-bool State::PostUpdate(Time& time, float interp)
+bool State::PostUpdate(Time& time)
 { 
 	return true; 
 }

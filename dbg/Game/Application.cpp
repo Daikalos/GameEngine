@@ -35,16 +35,32 @@ void Application::Run()
 
 	bm::Begin();
 
+	for (int j = 0; j < 50; ++j)
 	{
 		EntityAdmin entity_admin;
 
 		entity_admin.RegisterComponent<Transform>();
 
-		for (int i = 0; i < 50000; ++i)
+		std::vector<Entity> entities;
+
+		for (int i = 0; i < 5; ++i)
 		{
-			Entity entity(entity_admin);
-			entity.Add<Transform>(sf::Vector2f(0, 0), sf::Vector2f(0, 0), 0.0f);
+			Entity& entity = entities.emplace_back(entity_admin); 
+			entity.Add<Transform>(sf::Vector2f(0, 0), sf::Vector2f(0, 0), rnd::random(0.0f, 10.0f));
 		}
+
+		System<Transform> system(entity_admin, 0);
+		 
+		system.Action([](Time& time, std::span<const EntityID> entities, Transform* transform)
+			{
+				std::puts(std::to_string(entities.size()).c_str());
+				for (int i = 0; i < entities.size(); ++i)
+				{
+					std::puts(std::to_string(transform[i].rotation).c_str());
+				}
+			});
+
+		entity_admin.RunSystems(0, m_time);
 	}
 
 	bm::End();
@@ -76,7 +92,9 @@ void Application::Run()
 		}
 
 		float interp = accumulator / m_time.GetFixedDeltaTime();
-		PostUpdate(interp);
+		m_time.SetInterp(interp);
+
+		PostUpdate();
 
 		if (m_state_stack.IsEmpty())
 			m_window.close();
@@ -136,10 +154,10 @@ void Application::FixedUpdate()
 	m_camera.FixedUpdate(m_time);
 }
 
-void Application::PostUpdate(float interp)
+void Application::PostUpdate()
 {
-	m_state_stack.PostUpdate(m_time, interp);
-	m_camera.PostUpdate(m_time, interp);
+	m_state_stack.PostUpdate(m_time);
+	m_camera.PostUpdate(m_time);
 }
 
 void Application::Draw()

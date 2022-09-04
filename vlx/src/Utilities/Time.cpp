@@ -7,6 +7,7 @@ using namespace vlx;
 [[nodiscard]] constexpr float Time::GetFixedDeltaTime() const noexcept		{ return m_fixed_delta_time * m_scaled_time; }
 [[nodiscard]] constexpr float Time::GetRealFixedDeltaTime() const noexcept	{ return m_fixed_delta_time; }
 [[nodiscard]] constexpr float Time::GetScaledTime() const noexcept			{ return m_scaled_time; }
+[[nodiscard]] constexpr float Time::GetInterp() const noexcept				{ return m_interp; }
 [[nodiscard]] constexpr long double Time::GetTotalTime() const noexcept		{ return m_total_time; }
 [[nodiscard]] constexpr long double Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
 [[nodiscard]] constexpr int Time::GetFramerate() const noexcept				{ return 1.0f / GetRealDeltaTime(); }
@@ -14,6 +15,11 @@ using namespace vlx;
 void Time::SetScaledTime(const float value) noexcept
 { 
 	m_scaled_time = value; 
+}
+
+void Time::SetInterp(const float value) noexcept
+{
+	m_interp = value;
 }
 
 void Time::Reset()

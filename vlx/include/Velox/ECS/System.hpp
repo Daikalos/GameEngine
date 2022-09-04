@@ -26,7 +26,7 @@ namespace vlx
 		virtual void DoAction(Time& time, Archetype* archetype) = 0;
 	};
 
-	template<class... Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	class System : public SystemBase
 	{
 	public:
@@ -54,7 +54,7 @@ namespace vlx
 		bool			m_func_set{false};
 	};
 
-	template<class... Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint8_t& layer) 
 		: m_entity_admin(&entity_admin)
 	{
@@ -67,13 +67,13 @@ namespace vlx
 		return types;
 	}
 
-	template<class... Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	inline ArchetypeID System<Cs...>::GetKey() const
 	{
 		return SortKeys({{ Component<Cs>::GetTypeId()... }});
 	}	
 
-	template<class... Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
@@ -81,7 +81,7 @@ namespace vlx
 	}
 
 
-	template<class... Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype)
 	{
 		if (m_func_set)
@@ -93,31 +93,31 @@ namespace vlx
 		}
 	}
 
-	template<class ...Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	template<std::size_t Index, typename T, typename... Ts>
-	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts ...ts) requires (Index != sizeof...(Cs))
+	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index != sizeof...(Cs))
 	{
-		using IthT = std::tuple_element<Index, std::tuple<Cs...>>::type; // get type of element at index in tuple
+		using SysCompType = typename std::tuple_element<Index, std::tuple<Cs...>>::type; // get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
-		ComponentTypeID this_type_cs = Component<IthT>::GetTypeID();
-		ComponentTypeID this_archetype_id = archetype_ids[index2];
+		ComponentTypeID comp_id = Component<SysCompType>::GetTypeId();	// get the id for the type of element at index
+		ComponentTypeID archetype_comp_id = archetype_ids[index2];		// id for component in the archetype
 
-		while (this_type_cs != this_archetype_id && index2 < archetype_ids.size())
+		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found
 		{
-			this_archetype_id = archetype_ids[++index2];
+			archetype_comp_id = archetype_ids[++index2];
 		}
 
 		if (index2 == archetype_ids.size())
 			throw std::runtime_error("System was executed against an incorrect Archetype");
 
-		DoAction<Index + 1>(time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<IthT*>(&t[index2][0]));
+		DoAction<Index + 1>(time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
-	template<class ...Cs>
+	template<class... Cs> requires MustExist<Cs...>
 	template<std::size_t Index, typename T, typename... Ts>
-	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts ...ts) requires (Index == sizeof...(Cs))
+	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index == sizeof...(Cs))
 	{
 		m_func(time, entity_ids, ts...);
 	}

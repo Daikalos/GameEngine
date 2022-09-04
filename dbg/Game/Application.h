@@ -41,7 +41,7 @@ namespace vlx
 		void PreUpdate();
 		void Update();
 		void FixedUpdate();
-		void PostUpdate(float interp);
+		void PostUpdate();
 
 		void Draw();
 		
