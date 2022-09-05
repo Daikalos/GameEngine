@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <Velox/Config.hpp>
+#include <Velox/Utilities.hpp>
 #include <Velox/Graphics/Resources.h>
 #include <Velox/Graphics/SpriteBatch.h>
 
@@ -11,15 +12,20 @@ namespace vlx
 	class VELOX_API Drawable
 	{
 	public:
-		Drawable();
+		Drawable(const sf::Texture* texture, float depth = 0.0f);
 		~Drawable();
 
-		void Draw(SpriteBatch& sprite_batch);
+	public:
+		[[nodiscard]] constexpr const sf::Texture* const GetTexture() const noexcept;
+		[[nodiscard]] constexpr const float GetDepth() const noexcept;
+
+		void SetDepth(float value) noexcept;
+
+	public:
+		void Draw();
 
 	private:
-		sf::Texture m_texture;
-		Texture::ID m_texture_id;
-		bool		m_texture_loaded;
-		float		m_depth;
+		sf::Sprite			m_sprite;
+		float				m_depth{0.0f};
 	};
 }

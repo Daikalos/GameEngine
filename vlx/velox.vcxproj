@@ -200,11 +200,14 @@
     <ClInclude Include="include\Velox\Window\CameraBehaviour.h" />
     <ClInclude Include="include\Velox\Window\Cameras.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />
+    <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ECS\Components\Drawable.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
+    <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />

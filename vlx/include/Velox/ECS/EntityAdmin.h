@@ -77,7 +77,7 @@ namespace vlx
 		////////////////////////////////////////////////////////////
 		// Helper function for increasing the capacity
 		////////////////////////////////////////////////////////////
-		VELOX_API void MakeRoom(Archetype* new_archetype, const ComponentBase* new_comp, const size_t data_size, const size_t i);
+		VELOX_API void MakeRoom(Archetype* archetype, const ComponentBase* component, const size_t data_size, const size_t i);
 
 	private:
 		EntityID				m_entity_id_counter;
@@ -219,7 +219,7 @@ namespace vlx
 					--m_entity_archetype_map[eid].index;
 				});
 
-			old_archetype->m_entity_ids.erase(it);
+			old_archetype->m_entity_ids.erase(it); // may result in dangling empty archetypes, but is better than having to continously reallocate new memory
 		}
 		else // if the entity has no archetype, first component
 		{

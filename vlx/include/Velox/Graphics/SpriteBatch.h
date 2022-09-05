@@ -2,15 +2,19 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <numeric>
+
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
+#include <Velox/ECS/Components/Drawable.h>
+#include <Velox/ECS/Components/Transform.h>
 
 namespace vlx
 {
-	class SpriteBatch
+	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	public:
-		enum class SortMode
+		enum class SortMode : std::uint16_t
 		{
 			Deferred,
 			BackToFront,
@@ -18,37 +22,47 @@ namespace vlx
 			Texture,
 		};
 
-		struct Quad
+	private:
+		struct Glyph
 		{
+			Glyph(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, const sf::Color& color, float depth = 0.0f);
+			Glyph(const vlx::Drawable& drawable, const Transform& transform, float depth = 0.0f);
+
 			const sf::Texture*	m_texture	{nullptr};
 			float				m_depth		{0.0f};
-			RectFloat			m_rect;
 		};
 
-		struct Batch
+		struct BatchInfo
 		{
 			const sf::Texture*	m_texture	{nullptr};
-			std::size_t			m_count		{0};
+			const sf::Shader*	m_shader	{nullptr};
 			std::size_t			m_offset	{0};
+			std::size_t			m_count		{0};
 		};
 
 	public:
-		void Begin(SortMode sort_mode = SortMode::Deferred);
-		void Draw(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, float depth = 0.0f);
-		void End();
+		void SetSortMode(const SortMode sort_mode);
+
+		void Batch(const sf::Texture* texture, const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Color& color, float depth = 0.0f);
+		void Batch(const vlx::Drawable& drawable, const Transform& transform, float depth = 0.0f);
+
+		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 		void Clear();
 
 	private:
-		void SortQuads();
-		void CreateBatches();
+		void SortGlyphs() const;
+		void CreateBatches() const;
 
 	private:
-		std::vector<Batch>		m_batches;
-		std::vector<Quad>		m_quads;
-		std::vector<sf::Vertex> m_vertices;
+		std::vector<Glyph>		m_glyphs;
+		std::vector<BatchInfo>	m_batches;
 
-		SortMode				m_sort_mode{SortMode::Deferred};
+		sf::VertexArray			m_vertices;
+		mutable sf::VertexArray m_sorted_vertices;
+
+		SortMode				m_sort_mode			{SortMode::Deferred};
+		mutable bool			m_update_required	{true};
 	};
 }
 

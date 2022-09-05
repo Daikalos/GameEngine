@@ -48,7 +48,8 @@ void EntityAdmin::RegisterSystem(const std::uint8_t layer, SystemBase* system)
 }
 void EntityAdmin::RegisterEntity(const EntityID entity_id)
 {
-	m_entity_archetype_map[entity_id] = Record();
+	auto insert = m_entity_archetype_map.insert(std::make_pair(entity_id, Record()));
+	assert(insert.second);
 }
 
 void EntityAdmin::RemoveEntity(const EntityID entity_id)
@@ -139,18 +140,18 @@ Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 	return m_archetypes.emplace_back(std::move(new_archetype)).get();
 }
 
-void EntityAdmin::MakeRoom(Archetype* new_archetype, const ComponentBase* new_comp, const size_t data_size, const size_t i)
+void EntityAdmin::MakeRoom(Archetype* archetype, const ComponentBase* component, const size_t data_size, const size_t i)
 {
-	new_archetype->m_component_data_size[i] *= 2;
-	new_archetype->m_component_data_size[i] += data_size;
+	archetype->m_component_data_size[i] *= 2;
+	archetype->m_component_data_size[i] += data_size;
 
-	ComponentData new_data = std::make_unique<ByteArray>(new_archetype->m_component_data_size[i]);
+	ComponentData new_data = std::make_unique<ByteArray>(archetype->m_component_data_size[i]);
 
-	for (std::size_t j = 0; j < new_archetype->m_entity_ids.size(); ++j)
+	for (std::size_t j = 0; j < archetype->m_entity_ids.size(); ++j)
 	{
-		new_comp->MoveDestroyData(
-			&new_archetype->m_component_data[i][j * data_size], &new_data[j * data_size]);
+		component->MoveDestroyData(
+			&archetype->m_component_data[i][j * data_size], &new_data[j * data_size]);
 	}
 
-	new_archetype->m_component_data[i] = std::move(new_data);
+	archetype->m_component_data[i] = std::move(new_data);
 }

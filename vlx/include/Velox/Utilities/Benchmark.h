@@ -72,7 +72,7 @@ namespace vlx
 				GetSystemInfo(&sys_info);
 				m_num_processors = sys_info.dwNumberOfProcessors;
 
-				auto m_time_begin = std::chrono::high_resolution_clock::now();
+				sf::Clock time_begin;
 
 				while (m_active)
 				{
@@ -91,10 +91,7 @@ namespace vlx
 						++total_cpu_samples;
 				}
 
-				auto time_end = std::chrono::high_resolution_clock::now();
-
-				auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - m_time_begin);
-				std::chrono::duration<double, std::milli> ms_double = time_end - m_time_begin;
+				auto time = time_begin.getElapsedTime().asMilliseconds();
 
 				ram_average = total_ram_samples != 0 ? total_ram_size / total_ram_samples : 0.0;
 				ram_usage = ram_average - initial_ram;
@@ -131,8 +128,7 @@ namespace vlx
 				std::puts("");
 
 				std::puts("TOTAL RUN TIME");
-				std::cout << ms_int << "\n";
-				std::cout << ms_double << "\n";
+				std::cout << time << "ms\n";
 				std::cout << "\n";
 			}
 

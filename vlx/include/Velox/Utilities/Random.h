@@ -6,6 +6,7 @@
 #include <random>
 #include <chrono>
 #include <array>
+#include <numeric>
 
 namespace vlx
 {
@@ -35,9 +36,7 @@ namespace vlx
 		{
 			std::array<N, size> result;
 
-			for (N i = 0; i < size; ++i)
-				result[i] = i;
-
+			std::iota(result.begin(), result.end(), 0);
 			std::shuffle(result.begin(), result.end(), dre);
 
 			return result;
