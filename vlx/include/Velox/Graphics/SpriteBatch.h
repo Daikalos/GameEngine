@@ -6,7 +6,7 @@
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
-#include <Velox/ECS/Components/Drawable.h>
+#include <Velox/ECS/Components/Sprite.h>
 #include <Velox/ECS/Components/Transform.h>
 
 namespace vlx
@@ -26,7 +26,7 @@ namespace vlx
 		struct Glyph
 		{
 			Glyph(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, const sf::Color& color, float depth = 0.0f);
-			Glyph(const vlx::Drawable& drawable, const Transform& transform, float depth = 0.0f);
+			Glyph(const Sprite& sprite, const Transform& transform, float depth = 0.0f);
 
 			const sf::Texture*	m_texture	{nullptr};
 			float				m_depth		{0.0f};
@@ -44,7 +44,7 @@ namespace vlx
 		void SetSortMode(const SortMode sort_mode);
 
 		void Batch(const sf::Texture* texture, const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Color& color, float depth = 0.0f);
-		void Batch(const vlx::Drawable& drawable, const Transform& transform, float depth = 0.0f);
+		void Batch(const Sprite& sprite, const Transform& transform, float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 

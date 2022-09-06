@@ -20,7 +20,7 @@
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Window\CameraBehaviour.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
-    <ClCompile Include="src\ECS\Components\Drawable.cpp" />
+    <ClCompile Include="src\ECS\Components\Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -71,7 +71,7 @@
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Components\Transform.h" />
     <ClInclude Include="include\Velox\ECS\Components\Velocity.h" />
-    <ClInclude Include="include\Velox\ECS\Components\Drawable.h" />
+    <ClInclude Include="include\Velox\ECS\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>

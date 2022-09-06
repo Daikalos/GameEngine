@@ -26,7 +26,7 @@ namespace vlx
 		virtual void DoAction(Time& time, Archetype* archetype) = 0;
 	};
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	class System : public SystemBase
 	{
 	public:
@@ -54,7 +54,7 @@ namespace vlx
 		bool			m_func_set{false};
 	};
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint8_t& layer) 
 		: m_entity_admin(&entity_admin)
 	{
@@ -67,13 +67,13 @@ namespace vlx
 		return types;
 	}
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	inline ArchetypeID System<Cs...>::GetKey() const
 	{
 		return SortKeys({{ Component<Cs>::GetTypeId()... }});
 	}	
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
@@ -81,7 +81,7 @@ namespace vlx
 	}
 
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype)
 	{
 		if (m_func_set)
@@ -93,7 +93,7 @@ namespace vlx
 		}
 	}
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	template<std::size_t Index, typename T, typename... Ts>
 	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index != sizeof...(Cs))
 	{
@@ -115,7 +115,7 @@ namespace vlx
 		DoAction<Index + 1>(time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
-	template<class... Cs> requires MustExist<Cs...>
+	template<class... Cs> requires Exists<Cs...>
 	template<std::size_t Index, typename T, typename... Ts>
 	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index == sizeof...(Cs))
 	{

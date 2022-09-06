@@ -56,6 +56,13 @@ namespace vlx
 			return true;
 		}
 
+		void OnCreate(const std::vector<std::byte>& data) override
+		{
+			float a;
+			cu::UnpackArray(data, a);
+			std::puts(std::to_string(a).c_str());
+		}
+
 	private:
 		sf::Vector2f	m_drag_pos;
 		sf::Vector2f	m_prev_scale;

@@ -20,12 +20,15 @@ namespace vlx
 	template<typename T>
 	concept StringType = std::is_convertible_v<T, std::string_view>;
 
-	template<typename Resource>
+	template<typename... Args>
+	concept Exists = sizeof...(Args) > 0;
+
+	template<std::size_t sz, typename... Args>
+	concept SameSize = requires { sz == (sizeof(Args) + ... + 0); };
+
+	template<class Resource>
 	concept IsLoadable = requires(Resource&& resource, std::filesystem::path&& path)
 	{
 		{ resource.loadFromFile(path) } -> std::same_as<bool>;
 	};
-
-	template<typename... Args>
-	concept MustExist = sizeof...(Args) > 0;
 }

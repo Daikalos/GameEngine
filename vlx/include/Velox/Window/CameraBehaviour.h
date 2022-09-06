@@ -27,17 +27,16 @@ namespace vlx
 		using Ptr = typename std::unique_ptr<CameraBehaviour>;
 		using Func = typename std::function<Ptr()>;
 
-		struct Context // holds vital objects
+		struct VELOX_API Context // holds vital objects
 		{
-			Context(const Window& window, const ControlMap& controls)
-				: window(&window), controls(&controls) { }
+			Context(const Window& window, const ControlMap& controls);
 
 			const Window*		window;
 			const ControlMap*	controls;
 		};
 
 	public:
-		CameraBehaviour(camera::ID id, Camera& camera, Context context);
+		CameraBehaviour(const camera::ID id, Camera& camera, Context context);
 		virtual ~CameraBehaviour();
 
 		camera::ID GetId() const noexcept;
@@ -47,6 +46,8 @@ namespace vlx
 		const Context& GetContext() const;
 
 	public:
+		virtual void OnCreate(const std::vector<std::byte>& data);
+
 		////////////////////////////////////////////////////////////
 		// OnActivate is called whenever the behaviour is put as 
 		// last in the stack

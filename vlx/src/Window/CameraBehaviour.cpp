@@ -2,16 +2,16 @@
 
 using namespace vlx;
 
-CameraBehaviour::CameraBehaviour(camera::ID id, Camera& camera, Context context) :
-			m_id(id), m_camera(&camera), m_context(context)
-{ 
+CameraBehaviour::Context::Context(const Window& window, const ControlMap& controls)
+	: window(&window), controls(&controls) {}
 
-}
+CameraBehaviour::CameraBehaviour(const camera::ID id, Camera& camera, Context context) :
+			m_id(id), m_camera(&camera), m_context(context) {}
 
-CameraBehaviour::~CameraBehaviour()
+CameraBehaviour::~CameraBehaviour() 
 {
 
-};
+}
 
 camera::ID CameraBehaviour::GetId() const noexcept 
 {
@@ -27,6 +27,10 @@ const CameraBehaviour::Context& CameraBehaviour::GetContext() const
 	return m_context; 
 }
 
+void CameraBehaviour::OnCreate(const std::vector<std::byte>& data)
+{
+
+}
 void CameraBehaviour::OnActivate() 
 {
 

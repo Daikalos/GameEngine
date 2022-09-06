@@ -38,11 +38,18 @@ namespace vlx
 
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const camera::ID& camera_id = camera::ID::None)
-				: action(action), camera_id(camera_id) {}
+			VELOX_API explicit PendingChange(const Action& action, const camera::ID camera_id = camera::ID::None);
 
-			const Action		action;
-			const camera::ID	camera_id;
+			template<typename... Args>
+			void InsertData(Args&&... args)
+			{
+				data = cu::PackArray(std::forward<Args>(args)...);
+			}
+
+			const Action			action;
+			const camera::ID		camera_id;
+
+			std::vector<std::byte> data;
 		};
 
 	public:
@@ -73,16 +80,17 @@ namespace vlx
 		void FixedUpdate(const Time& time);
 		void PostUpdate(const Time& time);
 
-		void Push(const camera::ID& camera_id);
+		template<typename... Args>
+		void Push(const camera::ID camera_id, Args&&... args);
 		void Pop();
-		void Erase(const camera::ID& camera_id);
+		void Erase(const camera::ID camera_id);
 		void Clear();
 
 		template<std::derived_from<CameraBehaviour> T, typename... Args>
-		void RegisterBehaviour(const camera::ID& camera_id, Args&&... args);
+		void RegisterBehaviour(const camera::ID camera_id, Args&&... args);
 
 	private:
-		CameraBehaviour::Ptr CreateBehaviour(const camera::ID& camera_id);
+		CameraBehaviour::Ptr CreateBehaviour(const camera::ID camera_id);
 		void ApplyPendingChanges();
 
 	private:
@@ -98,12 +106,21 @@ namespace vlx
 	};
 
 	template<std::derived_from<CameraBehaviour> T, typename... Args>
-	inline void Camera::RegisterBehaviour(const camera::ID& camera_id, Args&&... args)
+	inline void Camera::RegisterBehaviour(const camera::ID camera_id, Args&&... args)
 	{
 		m_factory[camera_id] = [this, &camera_id, &args...]()
 		{
 			return CameraBehaviour::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
 		};
+	}
+
+	template<typename... Args>
+	inline void Camera::Push(const camera::ID camera_id, Args&&... args)
+	{
+		m_pending_list.push_back(PendingChange(Action::Push, camera_id));
+
+		if constexpr (Exists<Args...>)
+			m_pending_list.back().InsertData(std::forward<Args>(args)...);
 	}
 }
 

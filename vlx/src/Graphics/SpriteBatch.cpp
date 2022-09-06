@@ -8,8 +8,8 @@ SpriteBatch::Glyph::Glyph(const RectFloat& dest_rect, const RectFloat& uv_rect, 
 	
 }
 
-SpriteBatch::Glyph::Glyph(const vlx::Drawable& drawable, const Transform& transform, float depth)
-	: m_texture(drawable.GetTexture()), m_depth(depth)
+SpriteBatch::Glyph::Glyph(const Sprite& sprite, const Transform& transform, float depth)
+	: m_texture(sprite.GetTexture()), m_depth(depth)
 {
 
 }
@@ -25,9 +25,9 @@ void SpriteBatch::Batch(const sf::Texture* texture, const RectFloat& dest_rect, 
 	m_glyphs.emplace_back(dest_rect, uv_rect, texture, color, depth);
 }
 
-void SpriteBatch::Batch(const vlx::Drawable& drawable, const Transform& transform, float depth)
+void SpriteBatch::Batch(const Sprite& sprite, const Transform& transform, float depth)
 {
-	m_glyphs.emplace_back(drawable, transform, depth);
+	m_glyphs.emplace_back(sprite, transform, depth);
 }
 
 void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
@@ -81,36 +81,36 @@ void SpriteBatch::SortGlyphs() const
 
 void SpriteBatch::CreateBatches() const
 {
-	std::vector<sf::Vertex> vertices;
-	vertices.resize(m_glyps.size() * 6);
+	//std::vector<sf::Vertex> vertices;
+	//vertices.resize(m_glyps.size() * 6);
 
-	if (!m_glyps.empty())
-		return;
+	//if (!m_glyps.empty())
+	//	return;
 
-	int offset = 0;
-	int cv = 0;
+	//int offset = 0;
+	//int cv = 0;
 
-	m_batches.emplace_back(m_glyps.front().m_texture, offset, 6);
+	//m_batches.emplace_back(m_glyps.front().m_texture, offset, 6);
 
-	std::vector<sf::Vertex>& quad_vertices = m_glyps.front().m_vertices;
-	vertices[cv++] = quad_vertices[0];
-	vertices[cv++] = quad_vertices[2];
-	vertices[cv++] = quad_vertices[3];
-	vertices[cv++] = quad_vertices[3];
-	vertices[cv++] = quad_vertices[1];
-	vertices[cv++] = quad_vertices[0];
+	//std::vector<sf::Vertex>& quad_vertices = m_glyps.front().m_vertices;
+	//vertices[cv++] = quad_vertices[0];
+	//vertices[cv++] = quad_vertices[2];
+	//vertices[cv++] = quad_vertices[3];
+	//vertices[cv++] = quad_vertices[3];
+	//vertices[cv++] = quad_vertices[1];
+	//vertices[cv++] = quad_vertices[0];
 
-	for (int i = 1; i < m_glyps.size(); ++i)
-	{
-		if (m_quads[i].m_texture != m_quads[i - 1].m_texture)
-		{
-			m_batches.emplace_back(m_quads[i].m_texture, offset, 6);
-		}
-		else
-		{
-			m_batches.back().m_count += 6;
-		}
-	}
+	//for (int i = 1; i < m_glyps.size(); ++i)
+	//{
+	//	if (m_quads[i].m_texture != m_quads[i - 1].m_texture)
+	//	{
+	//		m_batches.emplace_back(m_quads[i].m_texture, offset, 6);
+	//	}
+	//	else
+	//	{
+	//		m_batches.back().m_count += 6;
+	//	}
+	//}
 }
 
 void SpriteBatch::Clear()

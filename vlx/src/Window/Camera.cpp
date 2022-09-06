@@ -2,11 +2,11 @@
 
 using namespace vlx;
 
-Camera::Camera(CameraBehaviour::Context context) 
-	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0)
-{
+Camera::PendingChange::PendingChange(const Action& action, const camera::ID camera_id)
+	: action(action), camera_id(camera_id) {}
 
-}
+Camera::Camera(CameraBehaviour::Context context) 
+	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0) {}
 
 [[nodiscard]] constexpr sf::Transform Camera::GetViewMatrix() const
 {
@@ -123,15 +123,11 @@ void Camera::PostUpdate(const Time& time)
 	ApplyPendingChanges();
 }
 
-void Camera::Push(const camera::ID& camera_id)
-{
-	m_pending_list.push_back(PendingChange(Action::Push, camera_id));
-}
 void Camera::Pop()
 {
 	m_pending_list.push_back(PendingChange(Action::Pop));
 }
-void Camera::Erase(const camera::ID& camera_id)
+void Camera::Erase(const camera::ID camera_id)
 {
 	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
 }
@@ -140,7 +136,7 @@ void Camera::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-CameraBehaviour::Ptr Camera::CreateBehaviour(const camera::ID& camera_id)
+CameraBehaviour::Ptr Camera::CreateBehaviour(const camera::ID camera_id)
 {
 	auto found = m_factory.find(camera_id);
 	assert(found != m_factory.end());
@@ -164,6 +160,7 @@ void Camera::ApplyPendingChanges()
 		{
 		case Action::Push:
 			m_stack.push_back(CreateBehaviour(change.camera_id));
+			m_stack.back()->OnCreate(change.data);
 			break;
 		case Action::Pop:
 			pop();
