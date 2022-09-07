@@ -21,7 +21,7 @@ namespace vlx
 		bool Update(const Time& time) override
 		{
 			const Window* window = GetContext().window;
-			const auto& mouse_input = GetContext().controls->Get<MouseBindable>();
+			const auto& mouse_input = GetContext().controls->Get<MouseInput>();
 
 			sf::Vector2f scale = GetCamera().GetScale();
 

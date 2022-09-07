@@ -106,20 +106,20 @@ void Application::Run()
 		//if (m_controls.Get<MouseInputBindable>().ScrollDown())
 		//	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
 
-		if (m_controls.Get<KeyboardBindable>().Pressed(sf::Keyboard::Key::Num1))
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num1))
 			m_window.SetBorder(WindowBorder::Windowed);
-		if (m_controls.Get<KeyboardBindable>().Pressed(sf::Keyboard::Key::Num2))
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num2))
 			m_window.SetBorder(WindowBorder::Fullscreen);
-		if (m_controls.Get<KeyboardBindable>().Pressed(sf::Keyboard::Key::Num3))
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num3))
 			m_window.SetBorder(WindowBorder::BorderlessWindowed);
 
-		if (m_controls.Get<KeyboardBindable>().Released(sf::Keyboard::Key::Num4))
+		if (m_controls.Get<KeyboardInput>().Released(sf::Keyboard::Key::Num4))
 			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
-		if (m_controls.Get<KeyboardBindable>().Pressed(sf::Keyboard::Key::Num5))
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num5))
 			m_window.SetResolution(0);
-		if (m_controls.Get<KeyboardBindable>().Pressed(sf::Keyboard::Key::Num6))
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num6))
 			m_window.SetResolution(1);
-		if (m_controls.Get<KeyboardBindable>().Pressed(sf::Keyboard::Key::Num7))
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num7))
 			m_window.SetResolution(2);
 
 		Draw();
@@ -191,16 +191,16 @@ void Application::RegisterStates()
 
 void Application::RegisterControls()
 {
-	m_controls.Add<KeyboardBindable>();
-	m_controls.Add<MouseBindable>();
-	m_controls.Add<JoystickBindable>();
+	m_controls.Add<KeyboardInput>();
+	m_controls.Add<MouseInput>();
+	m_controls.Add<JoystickInput>();
 	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor));
 
-	m_controls.Get<KeyboardBindable>().Add<bn::Key>();
-	m_controls.Get<MouseBindable>().Add<bn::Button>();
-	m_controls.Get<JoystickBindable>().Add<bn::XboxButton>();
+	m_controls.Get<KeyboardInput>().Add<bn::Key>();
+	m_controls.Get<MouseInput>().Add<bn::Button>();
+	m_controls.Get<JoystickInput>().Add<bn::XboxButton>();
 
-	m_controls.Get<MouseBindable>().Get<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
+	m_controls.Get<MouseInput>().Get<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
 }
 
 void Application::LoadMainTextures()

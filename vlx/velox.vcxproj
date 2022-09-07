@@ -173,12 +173,9 @@
     <ClInclude Include="include\Velox\Input\ControlMap.h" />
     <ClInclude Include="include\Velox\Input\InputHandler.h" />
     <ClInclude Include="include\Velox\Input\JoystickInput.h" />
-    <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
-    <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
     <ClInclude Include="include\Velox\Input\MouseCursor.h" />
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
-    <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
     <ClInclude Include="include\Velox\Scene\SceneNode.h" />
     <ClInclude Include="include\Velox\Scene\State.h" />
     <ClInclude Include="include\Velox\Scene\States.h" />

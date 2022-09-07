@@ -65,23 +65,23 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 	}
 }
 
-bool JoystickInput::Held(const uint32_t id, const uint32_t button) const
+[[nodiscard]] bool JoystickInput::Held(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_state[index] && m_held_time[index] >= m_held_threshold;;
 }
-bool JoystickInput::Pressed(const uint32_t id, const uint32_t button) const
+[[nodiscard]] bool JoystickInput::Pressed(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_state[index] && !m_previous_state[index];
 }
-bool JoystickInput::Released(const uint32_t id, const uint32_t button) const
+[[nodiscard]] bool JoystickInput::Released(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_state[index] && !m_previous_state[index];
 }
 
-float JoystickInput::Axis(const uint32_t id, const uint32_t axis) const
+[[nodiscard]] float JoystickInput::Axis(const uint32_t id, const uint32_t axis) const
 {
 	return m_axis[axis + id * sf::Joystick::AxisCount];
 }

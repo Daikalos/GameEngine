@@ -1,10 +1,11 @@
 #pragma once
 
-#include <SFML/Window/Cursor.hpp>
+#include <unordered_map>
 
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
+#include "Binds.hpp"
 
 namespace vlx
 {
@@ -12,19 +13,42 @@ namespace vlx
 	// Handles all of the mouse input, only supports one mouse
 	// at a time. 
 	////////////////////////////////////////////////////////////
-	class VELOX_API MouseInput : public InputHandler
+	class MouseInput final : public InputHandler
 	{
-	public:
-		void Update(const Time& time, const bool focus) override;
-		void HandleEvent(const sf::Event& event) override;
+	private:
+		template<Enum Bind>
+		using MouseBinds = Binds<Bind, sf::Mouse::Button>;
 
 	public:
-		constexpr bool ScrollUp() const noexcept;
-		constexpr bool ScrollDown() const noexcept;
+		VELOX_API void Update(const Time& time, const bool focus) override;
+		VELOX_API void HandleEvent(const sf::Event& event) override;
 
-		bool Held(const sf::Mouse::Button button) const;
-		bool Pressed(const sf::Mouse::Button button) const;
-		bool Released(const sf::Mouse::Button button) const;
+	public:
+		VELOX_API [[nodiscard]] bool ScrollUp() const noexcept;
+		VELOX_API [[nodiscard]] bool ScrollDown() const noexcept;
+
+		VELOX_API [[nodiscard]] bool Held(const sf::Mouse::Button button) const;
+		VELOX_API [[nodiscard]] bool Pressed(const sf::Mouse::Button button) const;
+		VELOX_API [[nodiscard]] bool Released(const sf::Mouse::Button button) const;
+
+		template<Enum Bind>
+		[[nodiscard]] bool Held(const Bind name) const;
+		template<Enum Bind>
+		[[nodiscard]] bool Pressed(const Bind name) const;
+		template<Enum Bind>
+		[[nodiscard]] bool Released(const Bind name) const;
+
+		template<Enum Bind>
+		[[nodiscard]] MouseBinds<Bind>& Get();
+		template<Enum Bind>
+		[[nodiscard]] const MouseBinds<Bind>& Get() const;
+
+		////////////////////////////////////////////////////////////
+		// Add the bind for later input, must be done before any
+		// operations are performed using the bind
+		////////////////////////////////////////////////////////////
+		template<Enum Bind>
+		void Add();
 
 	private:
 		float	m_scroll_delta		{0.0f};
@@ -33,5 +57,43 @@ namespace vlx
 		bool	m_current_state		[sf::Mouse::ButtonCount] = {false};
 		bool	m_previous_state	[sf::Mouse::ButtonCount] = {false};
 		float	m_held_time			[sf::Mouse::ButtonCount] = {0.0f};
+
+		std::unordered_map<std::type_index, BindsBase::Ptr> m_binds;
 	};
+
+	template<Enum Bind>
+	[[nodiscard]] inline bool MouseInput::Held(const Bind name) const
+	{
+		const auto& binds = Get<Bind>();
+		return binds.GetEnabled() && Held(binds.At(name));
+	}
+	template<Enum Bind>
+	[[nodiscard]] inline bool MouseInput::Pressed(const Bind name) const
+	{
+		const auto& binds = Get<Bind>();
+		return binds.GetEnabled() && Pressed(binds.At(name));
+	}
+	template<Enum Bind>
+	[[nodiscard]] inline bool MouseInput::Released(const Bind name) const
+	{
+		const auto& binds = Get<Bind>();
+		return binds.GetEnabled() && Released(binds.At(name));
+	}
+
+	template<Enum Bind>
+	[[nodiscard]] inline MouseInput::MouseBinds<Bind>& MouseInput::Get()
+	{
+		return *static_cast<MouseBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
+	}
+	template<Enum Bind>
+	[[nodiscard]] inline const MouseInput::MouseBinds<Bind>& MouseInput::Get() const
+	{
+		return const_cast<MouseInput*>(this)->Get<Bind>();
+	}
+
+	template<Enum Bind>
+	inline void MouseInput::Add()
+	{
+		m_binds[typeid(Bind)] = std::make_unique<MouseBinds<Bind>>();
+	}
 }

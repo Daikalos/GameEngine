@@ -29,24 +29,24 @@ void MouseInput::HandleEvent(const sf::Event& event)
 	}
 }
 
-constexpr bool MouseInput::ScrollUp() const noexcept
+[[nodiscard]] bool MouseInput::ScrollUp() const noexcept
 { 
 	return m_scroll_delta > m_scroll_threshold; 
 }
-constexpr bool MouseInput::ScrollDown() const noexcept
+[[nodiscard]] bool MouseInput::ScrollDown() const noexcept
 { 
 	return m_scroll_delta < -m_scroll_threshold; 
 }
 
-bool MouseInput::Held(const sf::Mouse::Button button) const
+[[nodiscard]] bool MouseInput::Held(const sf::Mouse::Button button) const
 {
 	return m_current_state[button] && m_held_time[button] >= m_held_threshold;
 }
-bool MouseInput::Pressed(const sf::Mouse::Button button) const
+[[nodiscard]] bool MouseInput::Pressed(const sf::Mouse::Button button) const
 {
 	return m_current_state[button] && !m_previous_state[button];
 }
-bool MouseInput::Released(const sf::Mouse::Button button) const
+[[nodiscard]] bool MouseInput::Released(const sf::Mouse::Button button) const
 {
 	return !m_current_state[button] && m_previous_state[button];
 }

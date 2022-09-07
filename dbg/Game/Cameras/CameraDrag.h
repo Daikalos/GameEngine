@@ -25,7 +25,7 @@ namespace vlx
 
 			const Window* window = GetContext().window;
 
-			const auto& mouse_input = GetContext().controls->Get<MouseBindable>();
+			const auto& mouse_input = GetContext().controls->Get<MouseInput>();
 			const auto& mouse_cursor = GetContext().controls->Get<MouseCursor>();
 
 			sf::Vector2f position = GetCamera().GetPosition();
@@ -54,13 +54,6 @@ namespace vlx
 			m_prev_scale = GetCamera().GetScale();
 
 			return true;
-		}
-
-		void OnCreate(const std::vector<std::byte>& data) override
-		{
-			float a;
-			cu::UnpackArray(data, a);
-			std::puts(std::to_string(a).c_str());
 		}
 
 	private:
