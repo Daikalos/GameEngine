@@ -185,6 +185,7 @@
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />
     <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\Event.h" />
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
     <ClInclude Include="include\Velox\Utilities\Random.h" />

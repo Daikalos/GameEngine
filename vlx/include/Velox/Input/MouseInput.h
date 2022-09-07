@@ -22,6 +22,7 @@ namespace vlx
 	public:
 		VELOX_API void Update(const Time& time, const bool focus) override;
 		VELOX_API void HandleEvent(const sf::Event& event) override;
+		VELOX_API void ExecuteFuncs() override;
 
 	public:
 		VELOX_API [[nodiscard]] bool ScrollUp() const noexcept;

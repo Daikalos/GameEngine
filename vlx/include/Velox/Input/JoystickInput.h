@@ -26,6 +26,7 @@ namespace vlx
 
 		VELOX_API void Update(const Time& time, const bool focus) override;
 		VELOX_API void HandleEvent(const sf::Event& event) override;
+		VELOX_API void ExecuteFuncs() override;
 
 	public:
 		VELOX_API [[nodiscard]] bool Held(const uint32_t id, const uint32_t button) const;

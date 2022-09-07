@@ -29,6 +29,11 @@ void MouseInput::HandleEvent(const sf::Event& event)
 	}
 }
 
+void MouseInput::ExecuteFuncs()
+{
+
+}
+
 [[nodiscard]] bool MouseInput::ScrollUp() const noexcept
 { 
 	return m_scroll_delta > m_scroll_threshold; 

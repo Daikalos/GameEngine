@@ -146,6 +146,7 @@ void Application::PreUpdate()
 
 void Application::Update()
 {
+	m_controls.Get<KeyboardInput>().ExecuteFuncs();
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 }
@@ -189,6 +190,11 @@ void Application::RegisterStates()
 	m_camera.Push(camera::ID::Zoom);
 }
 
+void Application::test()
+{
+	std::puts("a");
+}
+
 void Application::RegisterControls()
 {
 	m_controls.Add<KeyboardInput>();
@@ -199,6 +205,8 @@ void Application::RegisterControls()
 	m_controls.Get<KeyboardInput>().Add<bn::Key>();
 	m_controls.Get<MouseInput>().Add<bn::Button>();
 	m_controls.Get<JoystickInput>().Add<bn::XboxButton>();
+
+	m_controls.Get<KeyboardInput>().AddFunc(sf::Keyboard::H, BE_Pressed, std::bind(&Application::test, this));
 
 	m_controls.Get<MouseInput>().Get<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
 }

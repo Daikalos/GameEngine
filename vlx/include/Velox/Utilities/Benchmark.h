@@ -51,7 +51,7 @@ namespace vlx
 				PROCESS_MEMORY_COUNTERS_EX pmc;
 				GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 
-				const long double initial_ram = Megabyte(pmc.WorkingSetSize);
+				const long double initial_ram = Megabyte((long double)pmc.WorkingSetSize);
 				const long double initial_cpu = GetCPU();
 
 				long double total_ram_size	= 0.0;
@@ -78,7 +78,7 @@ namespace vlx
 				{
 					GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 
-					const long double ram = Megabyte(pmc.WorkingSetSize);
+					const long double ram = Megabyte((long double)pmc.WorkingSetSize);
 					const long double cpu = GetCPU();
 
 					total_ram_size += ram; // we measure in megabytes
@@ -100,7 +100,7 @@ namespace vlx
 				cpu_usage = cpu_average - initial_cpu;
 
 				GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-				ram_curr = Megabyte(pmc.WorkingSetSize);
+				ram_curr = Megabyte((long double)pmc.WorkingSetSize);
 				ram_diff = ram_curr - initial_ram;
 
 				// -- print relevant information --

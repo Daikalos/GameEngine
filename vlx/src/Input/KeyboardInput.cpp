@@ -23,6 +23,35 @@ void KeyboardInput::HandleEvent(const sf::Event& event)
 
 }
 
+void vlx::KeyboardInput::ExecuteFuncs()
+{
+	for (auto rit = m_btn_funcs.rbegin(); rit != m_btn_funcs.rend(); ++rit)
+	{
+		const sf::Keyboard::Key& key = rit->first;
+		const InputHandler::ButtonFuncs& button_funcs = rit->second;
+
+		for (ButtonEvent event = BE_Begin; event != BE_End; ++event)
+		{
+			bool triggered = false;
+
+			switch (event)
+			{
+			case BE_Pressed:	triggered = Pressed(key);	break;
+			case BE_Released:	triggered = Released(key);	break;
+			case BE_Held:		triggered = Held(key);		break;
+			}
+
+			if (!triggered)
+				continue;
+
+			for (const auto& func : button_funcs[event])
+			{
+				func();
+			}
+		}
+	}
+}
+
 [[nodiscard]] bool KeyboardInput::Held(const sf::Keyboard::Key key) const
 {
 	return m_current_state[key] && m_held_time[key] >= m_held_threshold;

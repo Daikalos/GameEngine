@@ -49,6 +49,8 @@ namespace vlx
 		void RegisterControls();
 		void LoadMainTextures();
 
+		void test();
+
 	private:
 		Window			m_window;
 		Camera			m_camera;
