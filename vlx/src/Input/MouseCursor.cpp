@@ -52,11 +52,6 @@ void MouseCursor::HandleEvent(const sf::Event& event)
 	}
 }
 
-void MouseCursor::ExecuteFuncs()
-{
-
-}
-
 void MouseCursor::Draw()
 {
 	if (m_cursor_visible)

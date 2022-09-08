@@ -22,7 +22,6 @@ namespace vlx
 	public:
 		VELOX_API void Update(const Time& time, const bool focus) override;
 		VELOX_API void HandleEvent(const sf::Event& event) override;
-		VELOX_API void ExecuteFuncs() override;
 
 	public:
 		VELOX_API [[nodiscard]] bool ScrollUp() const noexcept;
@@ -40,16 +39,16 @@ namespace vlx
 		[[nodiscard]] bool Released(const Bind name) const;
 
 		template<Enum Bind>
-		[[nodiscard]] MouseBinds<Bind>& Get();
+		[[nodiscard]] MouseBinds<Bind>& GetMap();
 		template<Enum Bind>
-		[[nodiscard]] const MouseBinds<Bind>& Get() const;
+		[[nodiscard]] const MouseBinds<Bind>& GetMap() const;
 
 		////////////////////////////////////////////////////////////
 		// Add the bind for later input, must be done before any
 		// operations are performed using the bind
 		////////////////////////////////////////////////////////////
 		template<Enum Bind>
-		void Add();
+		void AddMap();
 
 	private:
 		float	m_scroll_delta		{0.0f};
@@ -65,35 +64,35 @@ namespace vlx
 	template<Enum Bind>
 	[[nodiscard]] inline bool MouseInput::Held(const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Held(binds.At(name));
 	}
 	template<Enum Bind>
 	[[nodiscard]] inline bool MouseInput::Pressed(const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Pressed(binds.At(name));
 	}
 	template<Enum Bind>
 	[[nodiscard]] inline bool MouseInput::Released(const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Released(binds.At(name));
 	}
 
 	template<Enum Bind>
-	[[nodiscard]] inline MouseInput::MouseBinds<Bind>& MouseInput::Get()
+	[[nodiscard]] inline MouseInput::MouseBinds<Bind>& MouseInput::GetMap()
 	{
 		return *static_cast<MouseBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline const MouseInput::MouseBinds<Bind>& MouseInput::Get() const
+	[[nodiscard]] inline const MouseInput::MouseBinds<Bind>& MouseInput::GetMap() const
 	{
-		return const_cast<MouseInput*>(this)->Get<Bind>();
+		return const_cast<MouseInput*>(this)->GetMap<Bind>();
 	}
 
 	template<Enum Bind>
-	inline void MouseInput::Add()
+	inline void MouseInput::AddMap()
 	{
 		m_binds[typeid(Bind)] = std::make_unique<MouseBinds<Bind>>();
 	}

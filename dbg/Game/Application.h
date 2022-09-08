@@ -60,6 +60,8 @@ namespace vlx
 		Time			m_time;
 		ControlMap		m_controls;
 		EntityAdmin		m_entity_admin;
+
+		ButtonFunction<KeyboardInput, sf::Keyboard::Key> m_button_funcs;
 	};
 }
 

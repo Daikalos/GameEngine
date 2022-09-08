@@ -146,7 +146,7 @@ void Application::PreUpdate()
 
 void Application::Update()
 {
-	m_controls.Get<KeyboardInput>().ExecuteFuncs();
+	m_button_funcs();
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 }
@@ -202,13 +202,17 @@ void Application::RegisterControls()
 	m_controls.Add<JoystickInput>();
 	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor));
 
-	m_controls.Get<KeyboardInput>().Add<bn::Key>();
-	m_controls.Get<MouseInput>().Add<bn::Button>();
-	m_controls.Get<JoystickInput>().Add<bn::XboxButton>();
+	m_button_funcs = ButtonFunction<KeyboardInput, sf::Keyboard::Key>(&m_controls.Get<KeyboardInput>());
 
-	m_controls.Get<KeyboardInput>().AddFunc(sf::Keyboard::H, BE_Pressed, std::bind(&Application::test, this));
+	m_controls.Get<KeyboardInput>().AddMap<bn::Key>();
+	m_controls.Get<MouseInput>().AddMap<bn::Button>();
+	m_controls.Get<JoystickInput>().AddMap<bn::XboxButton>();
 
-	m_controls.Get<MouseInput>().Get<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
+	m_controls.Get<KeyboardInput>().GetMap<bn::Key>().Set(bn::Key::Left, sf::Keyboard::A);
+
+	m_button_funcs.Add(bn::Key::Left, BE_Pressed, &Application::test, this);
+
+	m_controls.Get<MouseInput>().GetMap<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
 }
 
 void Application::LoadMainTextures()

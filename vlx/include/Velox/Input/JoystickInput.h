@@ -26,7 +26,6 @@ namespace vlx
 
 		VELOX_API void Update(const Time& time, const bool focus) override;
 		VELOX_API void HandleEvent(const sf::Event& event) override;
-		VELOX_API void ExecuteFuncs() override;
 
 	public:
 		VELOX_API [[nodiscard]] bool Held(const uint32_t id, const uint32_t button) const;
@@ -46,16 +45,16 @@ namespace vlx
 		[[nodiscard]] float Axis(const std::uint32_t id, const Bind name) const;
 
 		template<Enum Bind>
-		[[nodiscard]] JoystickBinds<Bind>& Get();
+		[[nodiscard]] JoystickBinds<Bind>& GetMap();
 		template<Enum Bind>
-		[[nodiscard]] const JoystickBinds<Bind>& Get() const;
+		[[nodiscard]] const JoystickBinds<Bind>& GetMap() const;
 
 		////////////////////////////////////////////////////////////
 		// Add the bind for later input, must be done before any
 		// operations are performed using the bind
 		////////////////////////////////////////////////////////////
 		template<Enum Bind>
-		void Add();
+		void AddMap();
 
 	private:
 		std::vector<uint32_t> m_available; // list of indexes of the currently available joysticks
@@ -78,36 +77,36 @@ namespace vlx
 	template<Enum Bind>
 	[[nodiscard]] inline bool JoystickInput::Pressed(const std::uint32_t id, const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Pressed(id, binds.At(name));
 	}
 	template<Enum Bind>
 	[[nodiscard]] inline bool JoystickInput::Released(const std::uint32_t id, const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Released(id, binds.At(name));
 	}
 
 	template<Enum Bind>
 	[[nodiscard]] inline float JoystickInput::Axis(const std::uint32_t id, const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Axis(id, binds.At(name));
 	}
 
 	template<Enum Bind>
-	[[nodiscard]] inline JoystickInput::JoystickBinds<Bind>& JoystickInput::Get()
+	[[nodiscard]] inline JoystickInput::JoystickBinds<Bind>& JoystickInput::GetMap()
 	{
 		return *static_cast<JoystickBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline const JoystickInput::JoystickBinds<Bind>& JoystickInput::Get() const
+	[[nodiscard]] inline const JoystickInput::JoystickBinds<Bind>& JoystickInput::GetMap() const
 	{
-		return const_cast<JoystickInput*>(this)->Get<Bind>();
+		return const_cast<JoystickInput*>(this)->GetMap<Bind>();
 	}
 
 	template<Enum Bind>
-	inline void JoystickInput::Add()
+	inline void JoystickInput::AddMap()
 	{
 		m_binds[typeid(Bind)] = std::make_unique<JoystickBinds<Bind>>();
 	}

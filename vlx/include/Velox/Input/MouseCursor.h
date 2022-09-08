@@ -29,7 +29,6 @@ namespace vlx
 
 		void Update(const Time& time, const bool focus) override;
 		void HandleEvent(const sf::Event& event) override;
-		void ExecuteFuncs() override;
 
 		void Draw();
 

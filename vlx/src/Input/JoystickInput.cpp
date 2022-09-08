@@ -65,11 +65,6 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 	}
 }
 
-void JoystickInput::ExecuteFuncs()
-{
-
-}
-
 [[nodiscard]] bool JoystickInput::Held(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;

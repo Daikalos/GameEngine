@@ -27,8 +27,16 @@ namespace vlx
 	concept SameSize = requires { sz == (sizeof(Args) + ... + 0); };
 
 	template<class Resource>
-	concept IsLoadable = requires(Resource&& resource, std::filesystem::path&& path)
+	concept IsLoadable = requires(Resource&& resource)
 	{
-		{ resource.loadFromFile(path) } -> std::same_as<bool>;
+		{ resource.loadFromFile( std::filesystem::path() ) } -> std::same_as<bool>;
+	};
+
+	template<class Input, typename Bind>
+	concept IsButtonInput = requires(Input&& input, Bind&& bind)
+	{
+		{ input.Pressed(bind) } -> std::same_as<bool>;
+		{ input.Released(bind) } -> std::same_as<bool>;
+		{ input.Held(bind) } -> std::same_as<bool>;
 	};
 }
