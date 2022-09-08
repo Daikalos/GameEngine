@@ -202,7 +202,7 @@ void Application::RegisterControls()
 	m_controls.Add<JoystickInput>();
 	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor));
 
-	m_button_funcs = ButtonFunction<KeyboardInput, sf::Keyboard::Key>(&m_controls.Get<KeyboardInput>());
+	m_button_funcs = BtnFunc<KeyboardInput, sf::Keyboard::Key>(&m_controls.Get<KeyboardInput>());
 
 	m_controls.Get<KeyboardInput>().AddMap<bn::Key>();
 	m_controls.Get<MouseInput>().AddMap<bn::Button>();

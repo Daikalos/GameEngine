@@ -61,7 +61,7 @@ namespace vlx
 		ControlMap		m_controls;
 		EntityAdmin		m_entity_admin;
 
-		ButtonFunction<KeyboardInput, sf::Keyboard::Key> m_button_funcs;
+		BtnFunc<KeyboardInput, sf::Keyboard::Key> m_button_funcs;
 	};
 }
 

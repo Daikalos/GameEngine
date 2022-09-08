@@ -72,7 +72,7 @@
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
     <ClInclude Include="include\Velox\Utilities\WeakEvent.hpp" />
-    <ClInclude Include="include\Velox\Input\ButtonFunction.h" />
+    <ClInclude Include="include\Velox\Input\BtnFunc.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -5,4 +5,4 @@
 #include "Input/MouseInput.h"
 #include "Input/JoystickInput.h"
 #include "Input/MouseCursor.h"
-#include "Input/ButtonFunction.h"
+#include "Input/BtnFunc.hpp"

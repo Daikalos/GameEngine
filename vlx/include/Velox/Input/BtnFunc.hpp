@@ -8,13 +8,13 @@ namespace vlx
 {
 	enum ButtonEvent : std::uint16_t
 	{
-		BE_Begin = 0,
+		BE_Begin	= 0,
 
-		BE_Pressed = 0,
+		BE_Pressed	= 0,
 		BE_Released = 1,
-		BE_Held = 2,
+		BE_Held		= 2,
 
-		BE_End = 3
+		BE_End		= 3
 	};
 
 	inline ButtonEvent& operator++(ButtonEvent& button_event)
@@ -24,15 +24,15 @@ namespace vlx
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
-	class ButtonFunction final
+	class BtnFunc final
 	{
 	public:
 		using ButtonFunc	= typename std::array<std::function<void()>, BE_End>;
 		using BoundFunc		= typename std::pair<ButtonType, ButtonFunc>;
 
 	public:
-		ButtonFunction() = default;
-		ButtonFunction(const T* input);
+		BtnFunc() = default;
+		BtnFunc(const T* input);
 	
 		template<typename Func, class U>
 		void Add(ButtonType button, ButtonEvent event, Func&& func, U* object);
@@ -50,11 +50,11 @@ namespace vlx
 	};
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
-	inline ButtonFunction<T, ButtonType>::ButtonFunction(const T* input) : m_input(input) {}
+	inline BtnFunc<T, ButtonType>::BtnFunc(const T* input) : m_input(input) {}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<typename Func, class U>
-	inline void ButtonFunction<T, ButtonType>::Add(ButtonType key, ButtonEvent event, Func&& func, U* object)
+	inline void BtnFunc<T, ButtonType>::Add(ButtonType key, ButtonEvent event, Func&& func, U* object)
 	{
 		ButtonFunc& funcs = m_funcs.emplace_back(key, ButtonFunc()).second;
 		funcs[event] = std::bind(std::forward<Func>(func), object);
@@ -62,14 +62,14 @@ namespace vlx
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<Enum Bind, typename Func, class U>
-	inline void ButtonFunction<T, ButtonType>::Add(Bind key, ButtonEvent event, Func&& func, U* object)
+	inline void BtnFunc<T, ButtonType>::Add(Bind key, ButtonEvent event, Func&& func, U* object)
 	{
 		const auto& binds = m_input->GetMap<Bind>();
 		Add(binds.At(key), event, std::forward<Func>(func), object);
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
-	inline void ButtonFunction<T, ButtonType>::Execute()
+	inline void BtnFunc<T, ButtonType>::Execute()
 	{
 		for (const auto& pair : m_funcs)
 		{
@@ -97,7 +97,7 @@ namespace vlx
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
-	inline void ButtonFunction<T, ButtonType>::operator()()
+	inline void BtnFunc<T, ButtonType>::operator()()
 	{
 		Execute();
 	}
