@@ -71,7 +71,7 @@ namespace vlx
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	inline void ButtonFunction<T, ButtonType>::Execute()
 	{
-		for (const BoundFunc& pair : m_funcs)
+		for (const auto& pair : m_funcs)
 		{
 			const ButtonType& key = pair.first;
 			auto& button_func = pair.second;
