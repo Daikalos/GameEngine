@@ -83,7 +83,7 @@ namespace vlx
 	template<IsLoadable Resource, Enum Identifier>
 	inline std::future<void> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string_view path)
 	{
-		static const auto load = [this](const Identifier& id, const std::string_view path)
+		const auto load = [this](const Identifier& id, const std::string_view path)
 		{
 			ResourcePtr resource = std::make_unique<Resource>(Load(path));
 
