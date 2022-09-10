@@ -12,6 +12,9 @@
 #include <Velox/Graphics/ResourceHolder.hpp>
 #include <Velox/Graphics/ResourceHolder.hpp>
 
+#include <Velox/Components/Texture.h>
+#include <Velox/Components/Velocity.h>
+
 #include <Velox/Window/Camera.h>
 #include <Velox/Window/Window.h>
 

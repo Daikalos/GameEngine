@@ -6,7 +6,7 @@ Window::Window(
 	std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
 	m_name(name.data()), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate) {}
 
-[[nodiscard]] std::vector<sf::VideoMode> Window::GetValidModes(bool update) const
+[[nodiscard]] const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 {
 	if (update || m_cached_modes.empty())
 	{
@@ -25,7 +25,7 @@ Window::Window(
 				valid_modes.push_back(mode);
 		}
 
-		return (m_cached_modes = std::move(valid_modes));
+		m_cached_modes = std::move(valid_modes);
 	}
 
 	return m_cached_modes;
@@ -99,14 +99,16 @@ void Window::HandleEvent(const sf::Event& event)
 
 void Window::SetFramerate(int frame_rate)
 {
+	setFramerateLimit(m_vertical_sync ? 0 : frame_rate);
 	m_frame_rate = frame_rate;
-	setFramerateLimit(m_vertical_sync ? 0 : m_frame_rate);
 }
 
 void Window::SetVerticalSync(bool flag)
 {
 	setFramerateLimit(flag ? 0 : m_frame_rate);
 	setVerticalSyncEnabled(flag);
+
+	m_vertical_sync = flag;
 }
 
 void Window::SetResolution(int index)

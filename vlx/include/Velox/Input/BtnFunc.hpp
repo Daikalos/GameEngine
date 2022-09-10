@@ -31,7 +31,6 @@ namespace vlx
 		using BoundFunc		= typename std::pair<ButtonType, ButtonFunc>;
 
 	public:
-		BtnFunc() = default;
 		BtnFunc(const T* input);
 	
 		template<typename Func, class U>
@@ -74,7 +73,7 @@ namespace vlx
 		for (const auto& pair : m_funcs)
 		{
 			const ButtonType& key = pair.first;
-			auto& button_func = pair.second;
+			const auto& button_func = pair.second;
 
 			for (ButtonEvent event = BE_Begin; event != BE_End; ++event)
 			{

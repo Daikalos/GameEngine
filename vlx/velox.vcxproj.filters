@@ -20,7 +20,7 @@
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Window\CameraBehaviour.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
-    <ClCompile Include="src\ECS\Components\Sprite.cpp" />
+    <ClCompile Include="src\Components\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -53,7 +53,6 @@
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
     <ClInclude Include="include\Velox\Utilities\Random.h" />
-    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
     <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
     <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
     <ClInclude Include="include\Velox\Utilities\Time.h" />
@@ -66,13 +65,13 @@
     <ClInclude Include="include\Velox\Utilities.hpp" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
-    <ClInclude Include="include\Velox\ECS\Components\Transform.h" />
-    <ClInclude Include="include\Velox\ECS\Components\Velocity.h" />
-    <ClInclude Include="include\Velox\ECS\Components\Sprite.h" />
+    <ClInclude Include="include\Velox\Components\Velocity.h" />
+    <ClInclude Include="include\Velox\Components\Texture.h" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
     <ClInclude Include="include\Velox\Utilities\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Input\BtnFunc.hpp" />
+    <ClInclude Include="include\Velox\Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

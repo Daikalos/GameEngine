@@ -154,9 +154,9 @@
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
     <ClInclude Include="include\Velox\ECS\Component.hpp" />
-    <ClInclude Include="include\Velox\ECS\Components\Sprite.h" />
-    <ClInclude Include="include\Velox\ECS\Components\Transform.h" />
-    <ClInclude Include="include\Velox\ECS\Components\Velocity.h" />
+    <ClInclude Include="include\Velox\Components\Texture.h" />
+    <ClInclude Include="include\Velox\Components\Transform.h" />
+    <ClInclude Include="include\Velox\Components\Velocity.h" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
@@ -190,7 +190,6 @@
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
     <ClInclude Include="include\Velox\Utilities\Random.h" />
-    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
     <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
     <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
     <ClInclude Include="include\Velox\Utilities\Time.h" />
@@ -202,7 +201,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ECS\Components\Sprite.cpp" />
+    <ClCompile Include="src\Components\Texture.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />

@@ -2,32 +2,29 @@
 
 using namespace vlx;
 
-SpriteBatch::Glyph::Glyph(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, const sf::Color& color, float depth)
-	: m_texture(texture), m_depth(depth)
-{
-	
-}
-
-SpriteBatch::Glyph::Glyph(const Sprite& sprite, const Transform& transform, float depth)
-	: m_texture(sprite.GetTexture()), m_depth(depth)
-{
-
-}
-
 void SpriteBatch::SetSortMode(const SortMode sort_mode)
 {
 	m_sort_mode = sort_mode;
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const sf::Texture* texture, const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Color& color, float depth)
+void SpriteBatch::AddTriangle(const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const sf::Transform& transform, const sf::Texture& texture, float depth)
 {
-	m_glyphs.emplace_back(dest_rect, uv_rect, texture, color, depth);
+	m_glyphs.emplace_back(texture, depth);
+
+	m_vertices.append({ });
+
+	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const Sprite& sprite, const Transform& transform, float depth)
+void SpriteBatch::Batch(const Sprite& sprite, float depth)
 {
-	m_glyphs.emplace_back(sprite, transform, depth);
+	//m_glyphs.emplace_back(sprite.GetTexture(), depth);
+
+	//m_vertices.append({});
+	//m_vertices.append({});
+	//m_vertices.append({});
+	//m_vertices.append({});
 }
 
 void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
@@ -43,12 +40,12 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 	sf::RenderStates states_copy(states);
 	for (std::size_t i = 0, start = 0; i < m_batches.size(); ++i)
 	{
-		states_copy.texture = m_batches[i].m_texture;
-		states_copy.shader = m_batches[i].m_shader;
+		states_copy.texture = m_batches[i].texture;
+		states_copy.shader = m_batches[i].shader;
 
-		target.draw(&m_sorted_vertices[start], m_batches[i].m_count, sf::Triangles, states_copy);
+		target.draw(&m_sorted_vertices[start], m_batches[i].count, sf::Triangles, states_copy);
 
-		start += m_batches[i].m_count;
+		start += m_batches[i].count;
 	}
 }
 

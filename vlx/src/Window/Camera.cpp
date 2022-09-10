@@ -8,12 +8,19 @@ Camera::PendingChange::PendingChange(const Action& action, const camera::ID came
 Camera::Camera(CameraBehaviour::Context context) 
 	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0) {}
 
-[[nodiscard]] constexpr sf::Transform Camera::GetViewMatrix() const
+[[nodiscard]] constexpr const sf::Transform& Camera::GetViewMatrix() const
 {
-	return sf::Transform()
-		.translate(m_position)
-		.scale(1.0f / m_scale)
-		.translate(m_size / -2.0f);
+	if (m_update_transform)
+	{
+		m_transform = sf::Transform()
+			.translate(m_position)
+			.scale(1.0f / m_scale)
+			.translate(m_size / -2.0f);
+
+		m_update_transform = false;
+	}
+
+	return m_transform;
 }
 [[nodiscard]] constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
 { 
@@ -59,16 +66,22 @@ void Camera::SetPosition(const sf::Vector2f& position)
 {
 	setCenter(position);
 	m_position = position;
+
+	m_update_transform = true;
 }
 void Camera::SetScale(const sf::Vector2f& scale)
 {
 	setSize(m_size * (1.0f / scale));
 	m_scale = scale;
+
+	m_update_transform = true;
 }
 void Camera::SetSize(const sf::Vector2f& size)
 {
 	setSize(size * (1.0f / m_scale));
 	m_size = size;
+
+	m_update_transform = true;
 }
 
 void Camera::HandleEvent(const sf::Event& event)

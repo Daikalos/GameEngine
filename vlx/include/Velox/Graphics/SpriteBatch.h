@@ -7,7 +7,6 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/ECS/Components/Sprite.h>
-#include <Velox/ECS/Components/Transform.h>
 
 namespace vlx
 {
@@ -25,26 +24,23 @@ namespace vlx
 	private:
 		struct Glyph
 		{
-			Glyph(const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Texture* texture, const sf::Color& color, float depth = 0.0f);
-			Glyph(const Sprite& sprite, const Transform& transform, float depth = 0.0f);
-
-			const sf::Texture*	m_texture	{nullptr};
-			float				m_depth		{0.0f};
+			const sf::Texture*	texture	{nullptr};
+			float				depth		{0.0f};
 		};
 
 		struct BatchInfo
 		{
-			const sf::Texture*	m_texture	{nullptr};
-			const sf::Shader*	m_shader	{nullptr};
-			std::size_t			m_offset	{0};
-			std::size_t			m_count		{0};
+			const sf::Texture*	texture	{nullptr};
+			const sf::Shader*	shader	{nullptr};
+			std::size_t			count		{0};
 		};
 
 	public:
 		void SetSortMode(const SortMode sort_mode);
 
-		void Batch(const sf::Texture* texture, const RectFloat& dest_rect, const RectFloat& uv_rect, const sf::Color& color, float depth = 0.0f);
-		void Batch(const Sprite& sprite, const Transform& transform, float depth = 0.0f);
+		void AddTriangle(const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const sf::Transform& transform, const sf::Texture& texture, float depth);
+
+		void Batch(const Sprite& sprite, float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 

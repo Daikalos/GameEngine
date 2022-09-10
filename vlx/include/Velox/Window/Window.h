@@ -38,7 +38,7 @@ namespace vlx
 		// only gets modes that match the aspect ratio of 
 		// the desktop
 		////////////////////////////////////////////////////////////
-		[[nodiscard]] std::vector<sf::VideoMode> GetValidModes(bool update = false) const;
+		[[nodiscard]] const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
 
 		[[nodiscard]] constexpr sf::Vector2i GetOrigin() const noexcept;
 		[[nodiscard]] constexpr sf::Vector2f GetRatioCmp() const noexcept;

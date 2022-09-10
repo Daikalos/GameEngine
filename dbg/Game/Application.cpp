@@ -39,7 +39,6 @@ void Application::Run()
 	{
 		EntityAdmin entity_admin;
 
-		entity_admin.RegisterComponent<Transform>();
 		entity_admin.RegisterComponent<Velocity>();
 
 		std::vector<Entity> entities;
@@ -47,20 +46,9 @@ void Application::Run()
 		for (int i = 0; i < 10; ++i)
 		{
 			Entity& entity = entities.emplace_back(entity_admin); 
-			entity.Add<Transform>(sf::Vector2f(0, 0), sf::Vector2f(0, 0), rnd::random(0.0f, 10.0f));
 			entity.Add<Velocity>(sf::Vector2f(rnd::random(0.0f, 5.0f), 0.0f));
 		}
 
-		System<Transform> system(entity_admin, 0);
-		 
-		system.Action([](Time& time, std::span<const EntityID> entities, Transform* transform)
-			{
-				std::puts(std::to_string(entities.size()).c_str());
-				for (int i = 0; i < entities.size(); ++i)
-				{
-					std::puts(std::to_string(transform[i].rotation).c_str());
-				}
-			});
 
 		entity_admin.RunSystems(0, m_time);
 	}

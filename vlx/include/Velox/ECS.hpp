@@ -7,6 +7,3 @@
 #include "ECS/Component.hpp"
 #include "ECS/Entity.h"
 #include "ECS/EntityAdmin.h"
-
-#include "ECS/Components/Transform.h"
-#include "ECS/Components/Velocity.h"

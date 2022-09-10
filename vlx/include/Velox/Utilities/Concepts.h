@@ -33,10 +33,10 @@ namespace vlx
 	};
 
 	template<class Input, typename Bind>
-	concept IsButtonInput = requires(Input&& input, Bind&& bind)
+	concept IsButtonInput = requires(Input&& input)
 	{
-		{ input.Pressed(bind) } -> std::same_as<bool>;
-		{ input.Released(bind) } -> std::same_as<bool>;
-		{ input.Held(bind) } -> std::same_as<bool>;
+		{ input.Pressed(Bind()) } -> std::same_as<bool>;
+		{ input.Released(Bind()) } -> std::same_as<bool>;
+		{ input.Held(Bind()) } -> std::same_as<bool>;
 	};
 }

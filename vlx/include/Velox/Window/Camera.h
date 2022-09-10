@@ -55,7 +55,7 @@ namespace vlx
 	public:
 		explicit Camera(CameraBehaviour::Context context);
 
-		[[nodiscard]] constexpr sf::Transform GetViewMatrix() const;
+		[[nodiscard]] constexpr const sf::Transform& GetViewMatrix() const;
 		[[nodiscard]] constexpr sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
 		[[nodiscard]] constexpr sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
 
@@ -100,9 +100,12 @@ namespace vlx
 		sf::Vector2f				m_scale;	 
 		sf::Vector2f				m_size;
 
+		mutable sf::Transform		m_transform;
+		mutable bool				m_update_transform{true};
+
 		Stack						m_stack;		// stack of camera behaviours
 		Factory						m_factory;		// stores funcs for creating camera behaviours
-		std::vector<PendingChange>	m_pending_list; // TODO: ALLOW FOR STORING VARIADIC PARAMETERS AND PASS THEM TO ONCREATE FOR BEHAVIOUR CHILDREN, dunno if possible even, should reconsider structure if not
+		std::vector<PendingChange>	m_pending_list;
 	};
 
 	template<std::derived_from<CameraBehaviour> T, typename... Args>
@@ -117,10 +120,10 @@ namespace vlx
 	template<typename... Args>
 	inline void Camera::Push(const camera::ID camera_id, Args&&... args)
 	{
-		m_pending_list.push_back(PendingChange(Action::Push, camera_id));
+		const auto& pending = m_pending_list.emplace_back(Action::Push, camera_id);
 
 		if constexpr (Exists<Args...>)
-			m_pending_list.back().InsertData(std::forward<Args>(args)...);
+			pending.InsertData(std::forward<Args>(args)...);
 	}
 }
 

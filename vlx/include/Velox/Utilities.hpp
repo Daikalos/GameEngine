@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Utilities/Rectangle.hpp"
 #include "Utilities/NonCopyable.h"
 #include "Utilities/Time.h"
 #include "Utilities/Random.h"
