@@ -150,11 +150,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
     <ClInclude Include="include\Velox\ECS\Component.hpp" />
-    <ClInclude Include="include\Velox\Components\Texture.h" />
+    <ClInclude Include="include\Velox\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Components\Transform.h" />
     <ClInclude Include="include\Velox\Components\Velocity.h" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
@@ -201,7 +202,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Components\Texture.cpp" />
+    <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />

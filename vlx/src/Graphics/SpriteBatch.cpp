@@ -8,23 +8,49 @@ void SpriteBatch::SetSortMode(const SortMode sort_mode)
 	m_update_required = true;
 }
 
-void SpriteBatch::AddTriangle(const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const sf::Transform& transform, const sf::Texture& texture, float depth)
+void SpriteBatch::AddTriangle(const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const Transform& transform, const sf::Texture* texture, const sf::Shader* shader, float depth = 0.0f)
 {
-	m_glyphs.emplace_back(texture, depth);
+	m_triangles.emplace_back(texture, shader, depth);
 
-	m_vertices.append({ });
+	m_vertices.append({ transform.getTransform() * v0.position, v0.color, v0.texCoords });
+	m_vertices.append({ transform.getTransform() * v1.position, v1.color, v1.texCoords });
+	m_vertices.append({ transform.getTransform() * v2.position, v2.color, v2.texCoords });
 
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const Sprite& sprite, float depth)
+void SpriteBatch::Batch(const IBatchable& batchable, float depth)
 {
-	//m_glyphs.emplace_back(sprite.GetTexture(), depth);
+	batchable.Batch(*this, depth);
+}
 
-	//m_vertices.append({});
-	//m_vertices.append({});
-	//m_vertices.append({});
-	//m_vertices.append({});
+void SpriteBatch::Batch(const sf::VertexArray& vertices, sf::PrimitiveType type, const sf::Texture* texture, const sf::Shader* shader, const Transform& transform, float depth = 0.0f)
+{
+	const bool supported = type == sf::Triangles || type == sf::TriangleStrip || type == sf::TriangleFan;
+
+	if (!supported)
+		throw std::runtime_error("this primitive is not supported");
+
+	const std::size_t count = vertices.getVertexCount();
+
+	if (!count)
+		return;
+
+	switch (type)
+	{
+	case sf::Triangles:
+		for (std::size_t i = 2; i < count; i += 3)
+			AddTriangle(vertices[i - 2], vertices[i - 1], vertices[i], transform, texture, shader, depth);
+		break;
+	case sf::TriangleStrip:
+		for (std::size_t i = 2; i < count; ++i)
+			AddTriangle(vertices[i - 2], vertices[i - 1], vertices[i], transform, texture, shader, depth);
+		break;
+	case sf::TriangleFan:
+		for (std::size_t i = 2; i < count; ++i)
+			AddTriangle(vertices[0], vertices[i - 1], vertices[i], transform, texture, shader, depth);
+		break;
+	}
 }
 
 void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
@@ -112,5 +138,10 @@ void SpriteBatch::CreateBatches() const
 
 void SpriteBatch::Clear()
 {
+	m_triangles.clear();
+	m_batches.clear();
+	m_vertices.clear();
+	m_sorted_vertices.clear();
 
+	m_update_required = false;
 }
