@@ -24,9 +24,6 @@ namespace vlx
 
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
-	public:
-		SpriteBatch();
-
 	private:
 		struct VELOX_API Triangle
 		{
