@@ -29,17 +29,6 @@ namespace vlx
 		{
 			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d);
 
-			//Triangle& operator=(const Triangle& rhs)
-			//{
-			//	std::copy(std::begin(rhs.vertices), std::end(rhs.vertices), vertices);
-
-			//	texture = rhs.texture;
-			//	shader = rhs.shader;
-			//	depth = rhs.depth;
-
-			//	return *this;
-			//}
-
 			sf::Vertex			vertices[TRIANGLE_COUNT];
 
 			const sf::Texture*	texture	{nullptr};
