@@ -134,7 +134,6 @@ void Application::PreUpdate()
 
 void Application::Update()
 {
-	m_button_funcs();
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 }
@@ -158,6 +157,28 @@ void Application::Draw()
 
 	m_state_stack.Draw();
 
+	m_sprite_batch.SetSortMode(SortMode::FrontToBack);
+
+	Sprite sprite1(m_texture_holder.Get(Texture::ID::IdleCursor));
+	sprite1.SetColor(sf::Color::Red);
+	Sprite sprite2(m_texture_holder.Get(Texture::ID::IdleCursor));
+	sprite2.SetColor(sf::Color::Blue);
+	Sprite sprite3(m_texture_holder.Get(Texture::ID::IdleCursor), -10.0f);
+	sprite3.SetColor(sf::Color::Green);
+
+	Transform transform1 = Transform();
+	transform1.setPosition(sf::Vector2f(-10.0f, 0.0f));
+	Transform transform2 = Transform();
+	transform2.setPosition(sf::Vector2f(0.0f, -10.0f));
+	Transform transform3 = Transform();
+	transform3.setPosition(sf::Vector2f(-5.0f, -5.0f));
+
+	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
+	m_sprite_batch.Batch(sprite2, transform2, 0.0f);
+	m_sprite_batch.Batch(sprite3, transform3, 0.0f);
+	m_window.draw(m_sprite_batch);
+	m_sprite_batch.Clear();
+
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 
 	if (m_controls.Exists<MouseCursor>())
@@ -178,11 +199,6 @@ void Application::RegisterStates()
 	m_camera.Push(camera::ID::Zoom);
 }
 
-void Application::test()
-{
-	std::puts("a");
-}
-
 void Application::RegisterControls()
 {
 	m_controls.Add<KeyboardInput>();
@@ -190,16 +206,11 @@ void Application::RegisterControls()
 	m_controls.Add<JoystickInput>();
 	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor));
 
-	m_button_funcs = BtnFunc<KeyboardInput, sf::Keyboard::Key>(&m_controls.Get<KeyboardInput>());
-
 	m_controls.Get<KeyboardInput>().AddMap<bn::Key>();
 	m_controls.Get<MouseInput>().AddMap<bn::Button>();
 	m_controls.Get<JoystickInput>().AddMap<bn::XboxButton>();
 
 	m_controls.Get<KeyboardInput>().GetMap<bn::Key>().Set(bn::Key::Left, sf::Keyboard::A);
-
-	m_button_funcs.Add(bn::Key::Left, BE_Pressed, &Application::test, this);
-
 	m_controls.Get<MouseInput>().GetMap<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
 }
 

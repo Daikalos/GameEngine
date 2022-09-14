@@ -4,8 +4,10 @@
 
 #include <Velox/Config.hpp>
 #include <Velox/Utilities.hpp>
+#include <Velox/Graphics/SpriteBatch.h>
 
 #include "IBatchable.h"
+#include "Transform.h"
 
 namespace vlx
 {
@@ -21,7 +23,7 @@ namespace vlx
 		Sprite(const sf::Texture& texture, float depth = 0.0f);
 		Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth = 0.0f);
 
-		void Batch(SpriteBatch& sprite_batch, float depth) const override;
+		void Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const override;
 
 	public:
 		[[nodiscard]] const sf::Texture* GetTexture() const noexcept;

@@ -12,20 +12,39 @@
 
 namespace vlx
 {
+	constexpr std::size_t TRIANGLE_COUNT = 3;
+
+	enum class SortMode : std::uint16_t
+	{
+		Deferred,
+		BackToFront,
+		FrontToBack,
+		Texture,
+	};
+
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	public:
-		enum class SortMode : std::uint16_t
-		{
-			Deferred,
-			BackToFront,
-			FrontToBack,
-			Texture,
-		};
+		SpriteBatch();
 
 	private:
-		struct Triangle
+		struct VELOX_API Triangle
 		{
+			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d);
+
+			//Triangle& operator=(const Triangle& rhs)
+			//{
+			//	std::copy(std::begin(rhs.vertices), std::end(rhs.vertices), vertices);
+
+			//	texture = rhs.texture;
+			//	shader = rhs.shader;
+			//	depth = rhs.depth;
+
+			//	return *this;
+			//}
+
+			sf::Vertex			vertices[TRIANGLE_COUNT];
+
 			const sf::Texture*	texture	{nullptr};
 			const sf::Shader*	shader	{nullptr};
 			float				depth	{0.0f};
@@ -41,27 +60,27 @@ namespace vlx
 	public:
 		void SetSortMode(const SortMode sort_mode);
 
-		void AddTriangle(const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const Transform& transform, const sf::Texture* texture, const sf::Shader* shader, float depth = 0.0f);
+		void AddTriangle(const Transform& transform, const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const sf::Texture* texture, const sf::Shader* shader, float depth = 0.0f);
 
-		void Batch(const IBatchable& batchable, float depth = 0.0f);
-		void Batch(const sf::VertexArray& vertices, sf::PrimitiveType type, const sf::Texture* texture, const sf::Shader* shader, const Transform& tranform, float depth = 0.0f);
+		void Batch(const IBatchable& batchable, const Transform& transform, float depth = 0.0f);
+		void Batch(const Transform& transform, const sf::VertexArray& vertices, sf::PrimitiveType type, const sf::Texture* texture, const sf::Shader* shader, float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 		void Clear();
 
 	private:
-		void SortGlyphs() const;
+		void SortTriangles() const;
 		void CreateBatches() const;
 
 	private:
-		std::vector<Triangle>	m_triangles;
-		std::vector<BatchInfo>	m_batches;
-		sf::VertexArray			m_vertices;
-		SortMode				m_sort_mode			{SortMode::Deferred};
+		std::vector<Triangle>					m_triangles;
+		mutable std::vector<BatchInfo>			m_batches;
+		mutable std::vector<const Triangle*>	m_proxy;
+		mutable sf::VertexArray					m_vertices;
 
-		mutable sf::VertexArray m_sorted_vertices;
-		mutable bool			m_update_required	{true};
+		SortMode		m_sort_mode{SortMode::Deferred};
+		mutable bool	m_update_required{true};
 	};
 }
 

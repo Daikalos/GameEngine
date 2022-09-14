@@ -12,11 +12,13 @@
 #include <Velox/Graphics/ResourceHolder.hpp>
 #include <Velox/Graphics/ResourceHolder.hpp>
 
-#include <Velox/Components/Texture.h>
+#include <Velox/Components/Sprite.h>
 #include <Velox/Components/Velocity.h>
 
 #include <Velox/Window/Camera.h>
 #include <Velox/Window/Window.h>
+
+#include <Velox/Graphics/SpriteBatch.h>
 
 #include "Binds.h"
 #include "scenes/StateTest.h"
@@ -52,8 +54,6 @@ namespace vlx
 		void RegisterControls();
 		void LoadMainTextures();
 
-		void test();
-
 	private:
 		Window			m_window;
 		Camera			m_camera;
@@ -63,8 +63,7 @@ namespace vlx
 		Time			m_time;
 		ControlMap		m_controls;
 		EntityAdmin		m_entity_admin;
-
-		BtnFunc<KeyboardInput, sf::Keyboard::Key> m_button_funcs;
+		SpriteBatch		m_sprite_batch;
 	};
 }
 

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <Velox/Graphics/SpriteBatch.h>
+#include <Velox/Components/Transform.h>
 
 namespace vlx
 {
+	class SpriteBatch;
+
 	struct IBatchable
 	{
 		virtual ~IBatchable() = default;
-		virtual void Batch(SpriteBatch& sprite_batch, float depth = 0.0f) const = 0;
+		virtual void Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth = 0.0f) const = 0;
 	};
 }

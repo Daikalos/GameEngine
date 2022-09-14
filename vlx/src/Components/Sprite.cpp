@@ -16,9 +16,9 @@ Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth)
 	SetTexture(texture);
 }
 
-void Sprite::Batch(SpriteBatch& sprite_batch, float depth) const
+void Sprite::Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const
 {
-	sprite_batch.Batch(m_vertices, GetPrimitive(), m_texture, m_shader, )
+	sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
 }
 
 const sf::Texture* Sprite::GetTexture() const noexcept
