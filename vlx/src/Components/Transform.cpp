@@ -20,11 +20,7 @@ const sf::Transform& Transform::GetTransform() const
 {
 	if (m_update_transform)
 	{
-		m_global_transform = GetLocalTransform();
-
-		if (m_parent != nullptr)
-			m_global_transform *= m_parent->GetTransform();
-
+		GetTopParent()->UpdateTransforms(sf::Transform::Identity);
 		m_update_transform = false;
 	}
 
@@ -103,10 +99,19 @@ Transform* Transform::DetachChild(Transform& child)
 
 const Transform* Transform::GetTopParent() const
 {
-	if (m_parent != nullptr)
-		m_parent->GetTopParent(); // recursive way to get the top parent
+	if (m_parent == nullptr || !m_update_transform)
+		return this;
 
-	return this;
+	return m_parent->GetTopParent(); // recursive way to get the top parent
+}
+
+void Transform::UpdateTransforms(sf::Transform transform) const
+{
+	m_global_transform = transform * GetLocalTransform();
+	m_update_transform = false;
+
+	for (Transform* child : m_children)
+		child->UpdateTransforms(m_global_transform);
 }
 
 void Transform::UpdateRequired() const

@@ -43,6 +43,7 @@ namespace vlx
 
 	private:
 		const Transform* GetTopParent() const;
+		void UpdateTransforms(sf::Transform transform) const;
 		void UpdateRequired() const;
 
 	private:

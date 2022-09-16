@@ -167,24 +167,21 @@ void Application::Draw()
 	sprite1.SetColor(sf::Color::Red);
 	Sprite sprite2(m_texture_holder.Get(Texture::ID::IdleCursor));
 	sprite2.SetColor(sf::Color::Blue);
-	Sprite sprite3(m_texture_holder.Get(Texture::ID::IdleCursor), -10.0f);
-	sprite3.SetColor(sf::Color::Green);
 
 	Transform transform1;
-	transform1.SetPosition(sf::Vector2f(-10.0f, 0.0f));
+	transform1.SetPosition(sf::Vector2f(0.0f, 0.0f));
 	Transform transform2;
-	transform2.SetPosition(sf::Vector2f(0.0f, -10.0f));
-	Transform transform3;
-	transform3.SetPosition(sf::Vector2f(-5.0f, -5.0f));
+	transform2.SetPosition(sf::Vector2f(0.0f, 10.0f));
 
 	transform1.AttachChild(transform2);
-	transform1.SetPosition(sf::Vector2f(1.0f, 0.0f) * rotation);
+	transform1.SetRotation(rotation);
 
-	rotation += 5.0f * m_time.GetDeltaTime();
+	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::K))
+		rotation += 30.0f * m_time.GetDeltaTime();
 
 	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
 	m_sprite_batch.Batch(sprite2, transform2, 0.0f);
-	m_sprite_batch.Batch(sprite3, transform3, 0.0f);
+	//m_sprite_batch.Batch(sprite3, transform3, 0.0f);
 	m_window.draw(m_sprite_batch);
 	m_sprite_batch.Clear();
 
