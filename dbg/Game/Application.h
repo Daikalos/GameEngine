@@ -64,6 +64,8 @@ namespace vlx
 		ControlMap		m_controls;
 		EntityAdmin		m_entity_admin;
 		SpriteBatch		m_sprite_batch;
+
+		float rotation = 0.0f;
 	};
 }
 

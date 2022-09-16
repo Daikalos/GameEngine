@@ -58,7 +58,7 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 
 		memset(m_axis + dest_axis, 0.0f, sizeof(float) * sf::Joystick::AxisCount);
 
-		if (cu::SwapPop(m_available, event.joystickConnect.joystickId) == m_available.end())
+		if (!cu::SwapPop(m_available, event.joystickConnect.joystickId))
 			std::puts("A nonexisting joystick has been prompted to be removed");
 	}
 	break;

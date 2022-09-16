@@ -56,6 +56,10 @@ namespace vlx
 		void Clear();
 
 	private:
+		bool CompareBackToFront(const Triangle* lhs, const Triangle* rhs) const;
+		bool CompareFrontToBack(const Triangle* lhs, const Triangle* rhs) const;
+		bool CompareTexture(const Triangle* lhs, const Triangle* rhs) const;
+
 		void SortTriangles() const;
 		void CreateBatches() const;
 

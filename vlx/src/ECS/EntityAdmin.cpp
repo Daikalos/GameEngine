@@ -41,6 +41,15 @@ void EntityAdmin::RunSystems(const std::uint8_t layer, Time& time)
 		}
 	}
 }
+void EntityAdmin::SortSystems(const std::uint8_t layer)
+{
+	auto& systems = m_systems[layer];
+	std::sort(systems.begin(), systems.end(),
+		[](const SystemBase* lhs, const SystemBase* rhs)
+		{
+			return lhs->GetPriority() > rhs->GetPriority(); // in descending order
+		});
+}
 
 void EntityAdmin::RegisterSystem(const std::uint8_t layer, SystemBase* system)
 {
@@ -52,6 +61,11 @@ void EntityAdmin::RegisterEntity(const EntityID entity_id)
 	assert(insert.second);
 }
 
+void EntityAdmin::RemoveSystem(const std::uint16_t layer, SystemBase* system)
+{
+	if (!cu::Erase(m_systems[layer], system))
+		throw std::runtime_error("attempted removal of non-existing system");
+}
 void EntityAdmin::RemoveEntity(const EntityID entity_id)
 {
 	if (!m_entity_archetype_map.contains(entity_id))

@@ -18,9 +18,13 @@ namespace vlx
 		friend class EntityAdmin;
 
 	public:
-		virtual ~SystemBase() {}
+		virtual ~SystemBase() = default;
 
-		virtual ArchetypeID GetKey() const = 0;
+	public:
+		virtual const ArchetypeID& GetKey() const = 0;
+
+		virtual constexpr float GetPriority() const noexcept = 0;
+		virtual void SetPriority(const float val) = 0;
 
 	protected:
 		virtual void DoAction(Time& time, Archetype* archetype) = 0;
@@ -33,32 +37,83 @@ namespace vlx
 		using Func = typename std::function<void(Time&, std::span<const EntityID>, Cs*...)>;
 
 	public:
-		System(EntityAdmin& entity_admin, const std::uint8_t& layer);
+		System(EntityAdmin& entity_admin, const std::uint8_t layer);
+		~System();
 
-		ArchetypeID GetKey() const override;
+		System(const System& system);
+		System& operator=(const System& rhs);
+
+	public:
+		const ArchetypeID& GetKey() const override;
+
+		[[nodiscard]] constexpr float GetPriority() const noexcept override;
+		void SetPriority(const float val) override;
 
 		void Action(Func&& func);
 
 	protected:
 		virtual void DoAction(Time& time, Archetype* archetype) override;
 
-		template<std::size_t Index, typename T, typename... Ts>
-		void DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index != sizeof...(Cs));
+		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
+		void DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
 
-		template<std::size_t Index, typename T, typename... Ts>
-		void DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index == sizeof...(Cs));
+		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
+		void DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
 
 	protected:
 		EntityAdmin*	m_entity_admin;
+		std::uint8_t	m_layer			{0};	// controls the order of calls
+		float			m_priority		{0.0f}; // priority is for controlling the underlaying order of calls
+
 		Func			m_func;
-		bool			m_func_set{false};
+		bool			m_func_set		{false};
+
+		mutable ArchetypeID m_key;
 	};
 
 	template<class... Cs> requires Exists<Cs...>
-	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint8_t& layer) 
-		: m_entity_admin(&entity_admin)
+	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint8_t layer) 
+		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
-		m_entity_admin->RegisterSystem(layer, this);
+		m_entity_admin->RegisterSystem(m_layer, this);
+	}
+
+	template<class... Cs> requires Exists<Cs...>
+	inline System<Cs...>::~System()
+	{
+		m_entity_admin->RemoveSystem(m_layer, this);
+	}
+
+	template<class... Cs> requires Exists<Cs...>
+	inline System<Cs...>::System(const System<Cs...>& system)
+		:	m_entity_admin(system.m_entity_admin), m_layer(system.m_layer), m_priority(system.m_priority),
+			m_func(system.m_func), m_func_set(system.m_func_set), m_key(system.m_key) { }
+
+	template<class... Cs> requires Exists<Cs...>
+	inline System<Cs...>& System<Cs...>::operator=(const System<Cs...>& rhs)
+	{
+		m_entity_admin = rhs.m_entity_admin;
+		m_layer = rhs.m_layer;
+		m_priority = rhs.m_priority;
+
+		m_func = rhs.m_func;
+		m_func_set = rhs.m_func_set;
+
+		m_key = rhs.m_key;
+
+		return *this;
+	}
+
+	template<class... Cs> requires Exists<Cs...>
+	inline constexpr float System<Cs...>::GetPriority() const noexcept
+	{
+		return m_priority;
+	}
+	template<class... Cs> requires Exists<Cs...>
+	inline void System<Cs...>::SetPriority(const float val)
+	{
+		m_priority = val;
+		m_entity_admin->SortSystems(m_layer);
 	}
 
 	inline ArchetypeID SortKeys(ArchetypeID types)
@@ -68,9 +123,12 @@ namespace vlx
 	}
 
 	template<class... Cs> requires Exists<Cs...>
-	inline ArchetypeID System<Cs...>::GetKey() const
+	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
-		return SortKeys({{ Component<Cs>::GetTypeId()... }});
+		if (m_key.empty())
+			m_key = SortKeys({{ Component<Cs>::GetTypeId()... }});
+
+		return m_key;
 	}	
 
 	template<class... Cs> requires Exists<Cs...>
@@ -79,7 +137,6 @@ namespace vlx
 		m_func = std::forward<Func>(func);
 		m_func_set = true;
 	}
-
 
 	template<class... Cs> requires Exists<Cs...>
 	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype)
@@ -94,8 +151,8 @@ namespace vlx
 	}
 
 	template<class... Cs> requires Exists<Cs...>
-	template<std::size_t Index, typename T, typename... Ts>
-	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index != sizeof...(Cs))
+	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
+	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
 	{
 		using SysCompType = typename std::tuple_element<Index, std::tuple<Cs...>>::type; // get type of element at index in tuple
 
@@ -116,8 +173,8 @@ namespace vlx
 	}
 
 	template<class... Cs> requires Exists<Cs...>
-	template<std::size_t Index, typename T, typename... Ts>
-	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) requires (Index == sizeof...(Cs))
+	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
+	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
 	{
 		m_func(time, entity_ids, ts...);
 	}

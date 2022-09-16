@@ -8,7 +8,7 @@ Camera::PendingChange::PendingChange(const Action& action, const camera::ID came
 Camera::Camera(CameraBehaviour::Context context) 
 	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0) {}
 
-[[nodiscard]] constexpr const sf::Transform& Camera::GetViewMatrix() const
+constexpr const sf::Transform& Camera::GetViewMatrix() const
 {
 	if (m_update_transform)
 	{
@@ -22,34 +22,34 @@ Camera::Camera(CameraBehaviour::Context context)
 
 	return m_transform;
 }
-[[nodiscard]] constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
+constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
 { 
 	return GetViewMatrix() * position; 
 }
-[[nodiscard]] constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
+constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
 { 
 	return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); 
 }
 
-[[nodiscard]] constexpr sf::Vector2f Camera::GetPosition() const noexcept 
+constexpr sf::Vector2f Camera::GetPosition() const noexcept 
 { 
 	return m_position; 
 }
-[[nodiscard]] constexpr sf::Vector2f Camera::GetScale() const noexcept 
+constexpr sf::Vector2f Camera::GetScale() const noexcept 
 { 
 	return m_scale; 
 }
-[[nodiscard]] constexpr sf::Vector2f Camera::GetSize() const noexcept 
+constexpr sf::Vector2f Camera::GetSize() const noexcept 
 { 
 	return m_size; 
 }
 
-[[nodiscard]] constexpr sf::Vector2f Camera::GetOrigin() const
+constexpr sf::Vector2f Camera::GetOrigin() const
 {
 	return GetPosition() + GetSize() / 2.0f;
 }
 
-[[nodiscard]] CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id)
+CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id)
 {
 	for (const CameraBehaviour::Ptr& behaviour : m_stack)
 		if (behaviour->GetId() == camera_id)
@@ -57,7 +57,7 @@ Camera::Camera(CameraBehaviour::Context context)
 
 	return nullptr;
 }
-[[nodiscard]] const CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id) const
+const CameraBehaviour* Camera::GetBehaviour(camera::ID camera_id) const
 {
 	return const_cast<Camera*>(this)->GetBehaviour(camera_id);
 }

@@ -8,61 +8,70 @@
 namespace vlx::cu
 {
 	template<class T, std::equality_comparable_with<T> U>
-	[[nodiscard]] static constexpr auto Erase(std::vector<T>& vector, const U& compare)
+	[[nodiscard]] static constexpr bool Erase(std::vector<T>& vector, const U& compare)
 	{
 		auto it = std::find(vector.begin(), vector.end(), compare);
 
 		if (it == vector.end())
-			return it;
+			return false;
 
 		vector.erase(it);
 
-		return it;
+		return true;
 	}
 
-	template<class T, class Func>
-	[[nodiscard]] static constexpr auto Erase(std::vector<T>& vector, Func&& pred)
+	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
+	[[nodiscard]] static constexpr bool Erase(std::vector<T>& vector, Pred&& pred)
 	{
-		auto it = std::find_if(vector.begin(), vector.end(), pred);
+		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 
 		if (it == vector.end()) // do not erase if not found
-			return it;
+			return false;
 
 		vector.erase(it);
 
-		return it;
+		return true;
 	}
 
 	template<class T, std::equality_comparable_with<T> U>
-	[[nodiscard]] static constexpr auto SwapPop(std::vector<T>& vector, const U& compare)
+	[[nodiscard]] static constexpr bool SwapPop(std::vector<T>& vector, const U& compare)
 	{
 		auto it = std::find(vector.begin(), vector.end(), compare);
 
 		if (it == vector.end())
-			return it;
+			return false;
 				
-		std::iter_swap(it, vector.end() - 1);
+		*it = vector.back();
 		vector.pop_back();
 
-		return it;
+		return true;
 	}
 
-	template<class T, class Func>
-	[[nodiscard]] static constexpr auto SwapPop(std::vector<T>& vector, Func&& pred)
+	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
+	[[nodiscard]] static constexpr bool SwapPop(std::vector<T>& vector, Pred&& pred)
 	{
-		auto it = std::find_if(vector.begin(), vector.end(), pred);
+		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 
 		if (it == vector.end())
-			return it;
+			return false;
 
-		std::iter_swap(it, vector.end() - 1);
+		*it = vector.back();
 		vector.pop_back();
 
-		return it;
+		return true;
 	}
 
-	template<typename... Args>
-	[[nodiscard]] static constexpr auto PackArray(Args&&... args) requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
+	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
+	[[nodiscard]] static constexpr auto InsertSorted(std::vector<T>& vector, const T& item, Pred&& pred)
+	{
+		return vector.insert
+		(
+			std::upper_bound(vector.begin(), vector.end(), item, std::forward<Pred>(pred)), item
+		);
+	}
+
+	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
+	[[nodiscard]] static constexpr auto PackArray(Args&&... args)
 	{
 		std::vector<std::byte> data;
 		data.resize((sizeof(Args) + ... + 0));
@@ -82,8 +91,8 @@ namespace vlx::cu
 		return data;
 	}
 
-	template<typename... Args>
-	static constexpr void UnpackArray(const std::vector<std::byte>& data, Args&... args) requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
+	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
+	static constexpr void UnpackArray(const std::vector<std::byte>& data, Args&... args)
 	{
 		if (data.size() != (sizeof(Args) + ... + 0))
 			throw std::runtime_error("not the same size");

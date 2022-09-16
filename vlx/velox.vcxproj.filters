@@ -21,6 +21,9 @@
     <ClCompile Include="src\Window\CameraBehaviour.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
+    <ClCompile Include="src\Systems\RenderSystem.cpp" />
+    <ClCompile Include="src\Systems\TransformSystem.cpp" />
+    <ClCompile Include="src\Components\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -73,6 +76,8 @@
     <ClInclude Include="include\Velox\Input\BtnFunc.hpp" />
     <ClInclude Include="include\Velox\Components\Transform.h" />
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
+    <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
+    <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

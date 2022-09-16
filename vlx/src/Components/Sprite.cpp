@@ -18,7 +18,8 @@ Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth)
 
 void Sprite::Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const
 {
-	sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
+	if (m_batch)
+		sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
 }
 
 const sf::Texture* Sprite::GetTexture() const noexcept
@@ -72,6 +73,10 @@ void Sprite::SetColor(const sf::Color& color)
 void Sprite::SetDepth(const float val) noexcept
 {
 	m_depth = val;
+}
+void Sprite::SetBatch(const bool flag)
+{
+	m_batch = flag;
 }
 
 void Sprite::UpdatePositions()

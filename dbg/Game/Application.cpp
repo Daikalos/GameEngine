@@ -49,6 +49,10 @@ void Application::Run()
 			entity.Add<Velocity>(sf::Vector2f(rnd::random(0.0f, 5.0f), 0.0f));
 		}
 
+		System<Velocity> s0(m_entity_admin, 0);
+		System<Velocity> s1(m_entity_admin, 0);
+		System<Velocity> s2(m_entity_admin, 0);
+		System<Velocity> s3(m_entity_admin, 0);
 
 		entity_admin.RunSystems(0, m_time);
 	}
@@ -166,12 +170,17 @@ void Application::Draw()
 	Sprite sprite3(m_texture_holder.Get(Texture::ID::IdleCursor), -10.0f);
 	sprite3.SetColor(sf::Color::Green);
 
-	Transform transform1 = Transform();
-	transform1.setPosition(sf::Vector2f(-10.0f, 0.0f));
-	Transform transform2 = Transform();
-	transform2.setPosition(sf::Vector2f(0.0f, -10.0f));
-	Transform transform3 = Transform();
-	transform3.setPosition(sf::Vector2f(-5.0f, -5.0f));
+	Transform transform1;
+	transform1.SetPosition(sf::Vector2f(-10.0f, 0.0f));
+	Transform transform2;
+	transform2.SetPosition(sf::Vector2f(0.0f, -10.0f));
+	Transform transform3;
+	transform3.SetPosition(sf::Vector2f(-5.0f, -5.0f));
+
+	transform1.AttachChild(transform2);
+	transform1.SetPosition(sf::Vector2f(1.0f, 0.0f) * rotation);
+
+	rotation += 5.0f * m_time.GetDeltaTime();
 
 	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
 	m_sprite_batch.Batch(sprite2, transform2, 0.0f);

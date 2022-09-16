@@ -19,9 +19,9 @@ void SpriteBatch::SetSortMode(const SortMode sort_mode)
 void SpriteBatch::AddTriangle(const Transform& transform, const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	m_triangles.emplace_back(
-		sf::Vertex(transform.getTransform() * v0.position, v0.color, v0.texCoords),
-		sf::Vertex(transform.getTransform() * v1.position, v1.color, v1.texCoords),
-		sf::Vertex(transform.getTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
+		sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
+		sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
+		sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
 
 	m_update_required = true;
 }
@@ -79,6 +79,28 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 	}
 }
 
+bool SpriteBatch::CompareBackToFront(const Triangle* lhs, const Triangle* rhs) const
+{
+	if (lhs->depth != rhs->depth)
+		return (lhs->depth > rhs->depth);
+
+	return CompareTexture(lhs, rhs);
+}
+bool SpriteBatch::CompareFrontToBack(const Triangle* lhs, const Triangle* rhs) const
+{
+	if (lhs->depth != rhs->depth)
+		return (lhs->depth < rhs->depth);
+
+	return CompareTexture(lhs, rhs);
+}
+bool SpriteBatch::CompareTexture(const Triangle* lhs, const Triangle* rhs) const
+{
+	if (lhs->texture != rhs->texture)
+		return (lhs->texture < rhs->texture);
+
+	return (lhs->shader < rhs->shader);
+}
+
 void SpriteBatch::SortTriangles() const
 {
 	m_proxy.resize(m_triangles.size());
@@ -88,26 +110,24 @@ void SpriteBatch::SortTriangles() const
 	switch (m_sort_mode)
 	{
 	case SortMode::BackToFront:
-		std::stable_sort(m_proxy.begin(), m_proxy.end(),
-			[this](const Triangle* lhs, const Triangle* rhs)
-			{
-				return (lhs->depth != rhs->depth) ? 
-					(lhs->depth > rhs->depth) : (lhs->texture < rhs->texture);
+		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
+			[this](const Triangle* lhs, const Triangle* rhs) 
+			{ 
+				return CompareBackToFront(lhs, rhs); 
 			});
 		break;
 	case SortMode::FrontToBack:
-		std::stable_sort(m_proxy.begin(), m_proxy.end(),
+		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
 			[this](const Triangle* lhs, const Triangle* rhs)
 			{
-				return (lhs->depth != rhs->depth) ?
-					(lhs->depth < rhs->depth) : (lhs->texture < rhs->texture);
+				return CompareFrontToBack(lhs, rhs);
 			});
 		break;
 	case SortMode::Texture:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
 			[this](const Triangle* lhs, const Triangle* rhs)
 			{
-				return lhs->texture < rhs->texture;
+				return CompareTexture(lhs, rhs);
 			});
 		break;
 	case SortMode::Deferred:
@@ -122,15 +142,18 @@ void SpriteBatch::CreateBatches() const
 
 	m_vertices.resize(m_proxy.size() * TRIANGLE_COUNT);
 
-	std::size_t start = 0, next = 0;
 	const sf::Texture* last_texture = m_proxy.front()->texture;
+	const sf::Shader* last_shader = m_proxy.front()->shader;
 
+	std::size_t start = 0, next = 0;
 	for (; next < m_proxy.size(); ++next)
 	{
 		auto next_texture = m_proxy[next]->texture;
-		if (next_texture != last_texture)
+		auto next_shader = m_proxy[next]->shader;
+
+		if (next_texture != last_texture || next_shader != last_shader)
 		{
-			m_batches.emplace_back(last_texture, m_proxy[next]->shader, (next - start) * TRIANGLE_COUNT);
+			m_batches.emplace_back(last_texture, next_shader, (next - start) * TRIANGLE_COUNT);
 			last_texture = next_texture;
 			start = next;
 		}

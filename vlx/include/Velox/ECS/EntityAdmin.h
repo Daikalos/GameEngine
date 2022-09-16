@@ -15,8 +15,10 @@
 namespace vlx
 {
 	////////////////////////////////////////////////////////////
+	// 
 	// Based on article by Deckhead:
 	// https://indiegamedev.net/2020/05/19/an-entity-component-system-with-data-locality-in-cpp/ 
+	// 
 	////////////////////////////////////////////////////////////
 
 	////////////////////////////////////////////////////////////
@@ -36,8 +38,8 @@ namespace vlx
 
 		using CompnentTypeIDBaseMap = typename std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using EntityArchetypeMap	= typename std::unordered_map<EntityID, Record>;
-		using ArchetypesArray		= typename std::vector<ArchetypePtr>;									// find matching archetype to update matching entities
-		using SystemsArrayMap		= typename std::unordered_map<std::uint8_t, std::vector<SystemBase*>>;	// map layer to array of systems (layer allows for controlling the order of calls)
+		using ArchetypesArray		= typename std::vector<ArchetypePtr>; // find matching archetype to update matching entities
+		using SystemsArrayMap		= typename std::unordered_map<std::uint8_t, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
 
 	public:
 		VELOX_API EntityAdmin();
@@ -46,10 +48,12 @@ namespace vlx
 		VELOX_API EntityID GetNewId();
 
 		VELOX_API void RunSystems(const std::uint8_t layer, Time& time);
+		VELOX_API void SortSystems(const std::uint8_t layer);
 
 		VELOX_API void RegisterSystem(const std::uint8_t layer, SystemBase* system);
 		VELOX_API void RegisterEntity(const EntityID entity_id);
 
+		VELOX_API void RemoveSystem(const std::uint16_t layer, SystemBase* system);
 		VELOX_API void RemoveEntity(const EntityID entity_id);
 
 		template<class C>
@@ -63,8 +67,8 @@ namespace vlx
 		template<class C>
 		C* GetComponent(const EntityID entity_id);
 
-		template<class C, typename... Args>
-		C* AddComponent(const EntityID entity_id, Args&&... args) requires std::constructible_from<C, Args...>;
+		template<class C, typename... Args> requires std::constructible_from<C, Args...>
+		C* AddComponent(const EntityID entity_id, Args&&... args);
 		template<class C>
 		void RemoveComponent(const EntityID entity_id);
 
@@ -75,7 +79,9 @@ namespace vlx
 		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
 
 		////////////////////////////////////////////////////////////
+		// 
 		// Helper function for increasing the capacity
+		// 
 		////////////////////////////////////////////////////////////
 		VELOX_API void MakeRoom(Archetype* archetype, const ComponentBase* component, const size_t data_size, const size_t i);
 
@@ -115,8 +121,8 @@ namespace vlx
 		return nullptr;
 	}
 
-	template<class C, typename ...Args>
-	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args) requires std::constructible_from<C, Args...>
+	template<class C, typename ...Args> requires std::constructible_from<C, Args...>
+	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args)
 	{
 		ComponentTypeID new_comp_type_id = Component<C>::GetTypeId();
 

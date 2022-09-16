@@ -19,7 +19,7 @@ namespace vlx
 	class VELOX_API Sprite : public IBatchable
 	{
 	public:
-		Sprite();
+		Sprite() = default;
 		Sprite(const sf::Texture& texture, float depth = 0.0f);
 		Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth = 0.0f);
 
@@ -37,6 +37,7 @@ namespace vlx
 		void SetTextureRect(const sf::IntRect& rect);
 		void SetColor(const sf::Color& color);
 		void SetDepth(const float value) noexcept;
+		void SetBatch(const bool flag);
 
 	private:
 		void UpdatePositions();
@@ -48,5 +49,6 @@ namespace vlx
 		sf::VertexArray		m_vertices;
 		sf::IntRect			m_texture_rect;
 		float				m_depth{0.0f};
+		bool				m_batch{true};
 	};
 }
