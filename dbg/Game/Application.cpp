@@ -170,14 +170,19 @@ void Application::Draw()
 
 	Transform transform1;
 	transform1.SetPosition(sf::Vector2f(0.0f, 0.0f));
+	transform1.SetOrigin(sprite1.GetSize() / 2.0f);
 	Transform transform2;
 	transform2.SetPosition(sf::Vector2f(0.0f, 10.0f));
-
-	transform1.AttachChild(transform2);
-	transform1.SetRotation(rotation);
+	transform2.SetOrigin(sprite1.GetSize() / 2.0f);
 
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::K))
 		rotation += 30.0f * m_time.GetDeltaTime();
+	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::J))
+		position.x += 5.0f * m_time.GetDeltaTime();
+
+	transform1.AttachChild(transform2);
+	transform2.SetRotation(rotation);
+	transform1.SetPosition(position);
 
 	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
 	m_sprite_batch.Batch(sprite2, transform2, 0.0f);

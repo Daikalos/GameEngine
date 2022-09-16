@@ -41,6 +41,11 @@ const sf::FloatRect Sprite::GetLocalBounds() const noexcept
 
 	return sf::FloatRect({0.0f, 0.0f}, {width, height});
 }
+const sf::Vector2f Sprite::GetSize() const noexcept
+{
+	sf::FloatRect rect = m_vertices.getBounds();
+	return sf::Vector2f(rect.width, rect.height);
+}
 constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 {
 	return sf::TriangleStrip;

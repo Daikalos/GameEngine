@@ -30,6 +30,7 @@ namespace vlx
 		[[nodiscard]] const sf::Shader* GetShader() const noexcept;
 		[[nodiscard]] const sf::VertexArray& GetVertices() const noexcept;
 		[[nodiscard]] const sf::FloatRect GetLocalBounds() const noexcept;
+		[[nodiscard]] const sf::Vector2f GetSize() const noexcept;
 		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 		[[nodiscard]] constexpr float GetDepth() const noexcept;
 

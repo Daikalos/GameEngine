@@ -20,8 +20,14 @@ const sf::Transform& Transform::GetTransform() const
 {
 	if (m_update_transform)
 	{
-		GetTopParent()->UpdateTransforms(sf::Transform::Identity);
-		m_update_transform = false;
+		auto& parent = *GetTopParent();
+		if (!parent.m_update_transform)
+		{
+			for (const Transform* child : m_children)
+				child->UpdateTransforms(parent.m_global_transform);
+		}
+		else
+			parent.UpdateTransforms(sf::Transform::Identity);
 	}
 
 	return m_global_transform;
@@ -45,6 +51,11 @@ const sf::Angle& Transform::GetRotation() const
 	return sf::Angle();
 }
 
+void Transform::SetOrigin(const sf::Vector2f& origin)
+{
+	m_transform.setOrigin(origin);
+	UpdateRequired();
+}
 void Transform::SetPosition(const sf::Vector2f& position)
 {
 	m_transform.setPosition(position);
@@ -110,7 +121,7 @@ void Transform::UpdateTransforms(sf::Transform transform) const
 	m_global_transform = transform * GetLocalTransform();
 	m_update_transform = false;
 
-	for (Transform* child : m_children)
+	for (const Transform* child : m_children)
 		child->UpdateTransforms(m_global_transform);
 }
 
@@ -118,6 +129,6 @@ void Transform::UpdateRequired() const
 {
 	m_update_transform = true;
 
-	for (Transform* transform : m_children) // all of the children needs their transform to be updated
+	for (const Transform* transform : m_children) // all of the children needs their transform to be updated
 		transform->UpdateRequired();
 }

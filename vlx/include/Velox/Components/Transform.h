@@ -27,6 +27,7 @@ namespace vlx
 		[[nodiscard]] const sf::Vector2f& GetScale() const;
 		[[nodiscard]] const sf::Angle& GetRotation() const;
 
+		void SetOrigin(const sf::Vector2f& origin);
 		void SetPosition(const sf::Vector2f& position);
 		void SetScale(const sf::Vector2f& scale);
 		void SetRotation(float degrees);
