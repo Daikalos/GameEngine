@@ -11,8 +11,7 @@
 #include <concepts>
 #include <type_traits>
 
-#include "CameraBehaviour.h"
-#include "Cameras.h"
+#include "CameraBehavior.h"
 
 namespace vlx
 {
@@ -27,8 +26,8 @@ namespace vlx
 	class VELOX_API Camera final : public sf::View, private NonCopyable
 	{
 	private:
-		using Stack = typename std::vector<CameraBehaviour::Ptr>;
-		using Factory = typename std::unordered_map<camera::ID, CameraBehaviour::Func>;
+		using Stack = typename std::vector<CameraBehavior::Ptr>;
+		using Factory = typename std::unordered_map<CameraBehavior::ID, CameraBehavior::Func>;
 
 		enum class Action
 		{
@@ -40,7 +39,7 @@ namespace vlx
 
 		struct PendingChange
 		{
-			VELOX_API explicit PendingChange(const Action& action, const camera::ID camera_id = camera::ID::None);
+			VELOX_API explicit PendingChange(const Action& action, const CameraBehavior::ID camera_id = -1);
 
 			template<typename... Args>
 			void InsertData(Args&&... args)
@@ -48,14 +47,14 @@ namespace vlx
 				data = cu::PackArray(std::forward<Args>(args)...);
 			}
 
-			const Action			action;
-			const camera::ID		camera_id;
+			const Action				action;
+			const CameraBehavior::ID	camera_id;
 
 			std::vector<std::byte> data;
 		};
 
 	public:
-		explicit Camera(CameraBehaviour::Context context);
+		explicit Camera(CameraBehavior::Context context);
 
 		[[nodiscard]] constexpr const sf::Transform& GetViewMatrix() const;
 		[[nodiscard]] constexpr sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
@@ -67,8 +66,8 @@ namespace vlx
 
 		[[nodiscard]] constexpr sf::Vector2f GetOrigin() const;
 
-		[[nodiscard]] CameraBehaviour* GetBehaviour(camera::ID camera_id);
-		[[nodiscard]] const CameraBehaviour* GetBehaviour(camera::ID camera_id) const;
+		[[nodiscard]] const CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id) const;
+		[[nodiscard]] CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id);
 
 		void SetPosition(const sf::Vector2f& position);
 		void SetScale(const sf::Vector2f& scale);
@@ -83,20 +82,20 @@ namespace vlx
 		void PostUpdate(const Time& time);
 
 		template<typename... Args>
-		void Push(const camera::ID camera_id, Args&&... args);
+		void Push(const CameraBehavior::ID camera_id, Args&&... args);
 		void Pop();
-		void Erase(const camera::ID camera_id);
+		void Erase(const CameraBehavior::ID camera_id);
 		void Clear();
 
-		template<std::derived_from<CameraBehaviour> T, typename... Args>
-		void RegisterBehaviour(const camera::ID camera_id, Args&&... args);
+		template<std::derived_from<CameraBehavior> T, typename... Args>
+		void RegisterBehavior(const CameraBehavior::ID camera_id, Args&&... args);
 
 	private:
-		CameraBehaviour::Ptr CreateBehaviour(const camera::ID camera_id);
+		CameraBehavior::Ptr CreateBehavior(const CameraBehavior::ID camera_id);
 		void ApplyPendingChanges();
 
 	private:
-		CameraBehaviour::Context	m_context;
+		CameraBehavior::Context		m_context;
 
 		sf::Vector2f				m_position;
 		sf::Vector2f				m_scale;	 
@@ -110,17 +109,17 @@ namespace vlx
 		std::vector<PendingChange>	m_pending_list;
 	};
 
-	template<std::derived_from<CameraBehaviour> T, typename... Args>
-	inline void Camera::RegisterBehaviour(const camera::ID camera_id, Args&&... args)
+	template<std::derived_from<CameraBehavior> T, typename... Args>
+	inline void Camera::RegisterBehavior(const CameraBehavior::ID camera_id, Args&&... args)
 	{
 		m_factory[camera_id] = [this, &camera_id, &args...]()
 		{
-			return CameraBehaviour::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
+			return CameraBehavior::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
 		};
 	}
 
 	template<typename... Args>
-	inline void Camera::Push(const camera::ID camera_id, Args&&... args)
+	inline void Camera::Push(const CameraBehavior::ID camera_id, Args&&... args)
 	{
 		const auto& pending = m_pending_list.emplace_back(Action::Push, camera_id);
 

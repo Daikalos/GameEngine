@@ -2,27 +2,30 @@
 
 using namespace vlx;
 
-State::State(state::ID id, StateStack& state_stack, Context context)
+State::Context::Context(Window& window, Camera& camera, ControlMap& controls, TextureHolder& texture_holder, FontHolder& font_holder)
+	: window(&window), camera(&camera), controls(&controls), texture_holder(&texture_holder), font_holder(&font_holder)
+{ 
+
+}
+
+State::State(const ID id, StateStack& state_stack, Context context)
 	: m_id(id), m_state_stack(&state_stack), m_context(context) 
 {
 
 }
 
-State::~State() 
-{ 
+State::~State() = default;
 
-}
-
-[[nodiscard]] state::ID State::GetId() const noexcept
+const State::ID& State::GetID() const noexcept
 {
 	return m_id;
 }
 
-[[nodiscard]] const State::Context& State::GetContext() const 
+const State::Context& State::GetContext() const 
 { 
 	return m_context;
 }
-[[nodiscard]] StateStack& State::GetStack() const 
+StateStack& State::GetStack() const 
 { 
 	return *m_state_stack; 
 }

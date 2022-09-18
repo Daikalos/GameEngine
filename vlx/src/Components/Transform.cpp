@@ -34,7 +34,10 @@ const sf::Transform& Transform::GetInverseTransform() const
 
 	return m_inverse_model_transform;
 }
-
+const sf::Vector2f& Transform::GetOrigin() const
+{
+	return m_origin;
+}
 const sf::Vector2f& Transform::GetPosition() const 
 {
 	return GetTransform() * GetLocalPosition();
@@ -82,7 +85,10 @@ const sf::Transform& Transform::GetInverseLocalTransform() const
 
 	return m_inverse_local_transform;
 }
-
+const sf::Vector2f& Transform::GetLocalOrigin() const
+{
+	return m_origin;
+}
 const sf::Vector2f& Transform::GetLocalPosition() const
 {
 	return m_position;
@@ -123,14 +129,28 @@ void Transform::SetScale(const sf::Vector2f& scale)
 
 	UpdateRequired();
 }
-void Transform::SetRotation(float degrees)
+void Transform::SetRotation(const sf::Angle angle)
 {
-	m_rotation = sf::degrees(degrees);
+	m_rotation = angle.wrapUnsigned();
 
 	m_update_local_transform = true;
 	m_update_inverse_local_transform = true;
 
 	UpdateRequired();
+}
+
+void Transform::Move(const sf::Vector2f& move)
+{
+	SetPosition(GetLocalPosition() + move);
+}
+void Transform::Scale(const sf::Vector2f& factor)
+{
+	const sf::Vector2f scale = GetLocalScale();
+	SetScale({ scale.x * factor.x, scale.y * factor.y });
+}
+void Transform::Rotate(const sf::Angle angle)
+{
+	SetRotation(GetLocalRotation() + angle);
 }
 
 constexpr bool Transform::HasParent() const noexcept
@@ -168,7 +188,7 @@ void Transform::AttachChild(Transform& child)
 	child.m_parent = this;
 	m_children.push_back(&child);
 
-	child.UpdateRequired();
+	child.UpdateRequired(); // now that the child has been attached, itself and its children needs their global matrix to be updated
 }
 Transform* Transform::DetachChild(Transform& child)
 {
@@ -190,7 +210,7 @@ void Transform::UpdateTransforms() const
 	assert(m_update_model_transform);
 
 	if (HasParent())
-		ComputeTransform(m_parent->m_model_transform);
+		ComputeTransform(m_parent->GetTransform());
 	else
 		ComputeTransform();
 

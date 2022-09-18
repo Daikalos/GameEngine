@@ -8,8 +8,6 @@
 #include <Velox/Graphics/ResourceHolder.hpp>
 #include <Velox/Config.hpp>
 
-#include "States.h"
-
 namespace vlx
 {
 	class StateStack;
@@ -17,13 +15,14 @@ namespace vlx
 	class VELOX_API State
 	{
 	public:
+		using ID = std::uint16_t;
+
 		using Ptr = typename std::unique_ptr<State>;
 		using Func = typename std::function<Ptr()>;
 
-		struct Context // holds vital objects
+		struct VELOX_API Context // holds vital objects
 		{
-			Context(Window& window, Camera& camera, ControlMap& controls, TextureHolder& texture_holder, FontHolder& font_holder)
-				: window(&window), camera(&camera), controls(&controls), texture_holder(&texture_holder), font_holder(&font_holder) { }
+			Context(Window& window, Camera& camera, ControlMap& controls, TextureHolder& texture_holder, FontHolder& font_holder);
 
 			Window* const				window;
 			Camera*	const				camera;
@@ -33,11 +32,11 @@ namespace vlx
 		};
 
 	public:
-		explicit State(state::ID id, StateStack& state_stack, Context context);
+		explicit State(const ID id, StateStack& state_stack, Context context);
 		virtual ~State();
 
 	public:
-		[[nodiscard]] state::ID GetId() const noexcept;
+		[[nodiscard]] const ID& GetID() const noexcept;
 
 	protected:
 		[[nodiscard]] const Context& GetContext() const;
@@ -66,7 +65,7 @@ namespace vlx
 		virtual void draw() = 0;
 
 	private:
-		state::ID	m_id;
+		ID			m_id;
 		StateStack* m_state_stack;
 		Context		m_context;
 	};

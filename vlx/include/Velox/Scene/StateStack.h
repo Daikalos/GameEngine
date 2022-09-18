@@ -11,7 +11,6 @@
 #include <Velox/Config.hpp>
 
 #include "State.h"
-#include "States.h"
 
 namespace vlx
 {
@@ -19,7 +18,7 @@ namespace vlx
 	{
 	private:
 		using Stack = typename std::vector<State::Ptr>;
-		using Factory = typename std::unordered_map<state::ID, State::Func>;
+		using Factory = typename std::unordered_map<State::ID, State::Func>;
 
 		enum class Action
 		{
@@ -31,18 +30,18 @@ namespace vlx
 
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const state::ID& state_id = state::ID::None)
+			explicit PendingChange(const Action& action, const State::ID state_id = -1)
 				: action(action), state_id(state_id) { }
 
-			const Action		action;
-			const state::ID		state_id;
+			const Action	action;
+			const State::ID	state_id;
 		};
 
 	public:
 		explicit StateStack(State::Context context);
 
 		template<std::derived_from<State> T, typename... Args>
-		void RegisterState(const state::ID& state_id, Args&&... args);
+		void RegisterState(const State::ID state_id, Args&&... args);
 
 		void HandleEvent(const sf::Event& event);
 
@@ -53,17 +52,17 @@ namespace vlx
 
 		void Draw();
 
-		void Push(const state::ID& state_id);
+		void Push(const State::ID state_id);
 		void Pop();
 		void Clear();
 
-		bool IsEmpty() const { return m_stack.empty(); }
+		[[nodiscard]] bool IsEmpty() const noexcept;
 
-		bool IsPaused() const { return m_paused; }
-		void SetPaused(bool flag) { m_paused = flag; }
+		[[nodiscard]] bool IsPaused() const noexcept;
+		void SetPaused(bool flag);
 
 	private:
-		State::Ptr CreateState(const state::ID& state_id);
+		State::Ptr CreateState(const State::ID state_id);
 		void ApplyPendingChanges();
 
 	private:
@@ -77,7 +76,7 @@ namespace vlx
 	};
 
 	template<std::derived_from<State> T, typename... Args>
-	inline void StateStack::RegisterState(const state::ID& state_id, Args&&... args)
+	inline void StateStack::RegisterState(const State::ID state_id, Args&&... args)
 	{
 		m_factory[state_id] = [&state_id, this, &args...]()
 		{

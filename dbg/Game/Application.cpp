@@ -4,7 +4,7 @@ using namespace vlx;
 
 Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
-	m_camera(CameraBehaviour::Context(m_window, m_controls)),
+	m_camera(CameraBehavior::Context(m_window, m_controls)),
 	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
 {
 
@@ -28,8 +28,6 @@ void Application::Run()
 
 	RegisterControls();
 	RegisterStates();
-
-	m_state_stack.Push(state::ID::Test);
 
 	////////////////////////////////////////////////////////////
 
@@ -179,7 +177,7 @@ void Application::Draw()
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::S))
 		position2.y += 50.0f * m_time.GetDeltaTime();
 
-	transform2.SetRotation(rotation);
+	transform2.SetRotation(sf::radians(rotation));
 	transform1.SetPosition(position1);
 	transform2.SetPosition(position2);
 
@@ -215,13 +213,15 @@ void Application::Draw()
 void Application::RegisterStates()
 {
 	// add states (e.g. gameover, win, play, paused)
-	m_state_stack.RegisterState<StateTest>(state::ID::Test);
+	m_state_stack.RegisterState<StateTest>(0);
 
-	m_camera.RegisterBehaviour<CameraDrag>(camera::ID::Drag);
-	m_camera.RegisterBehaviour<CameraZoom>(camera::ID::Zoom);
+	m_state_stack.Push(0);
 
-	m_camera.Push(camera::ID::Drag);
-	m_camera.Push(camera::ID::Zoom);
+	m_camera.RegisterBehavior<CameraDrag>(0);
+	m_camera.RegisterBehavior<CameraZoom>(1);
+
+	m_camera.Push(0);
+	m_camera.Push(1);
 }
 
 void Application::RegisterControls()

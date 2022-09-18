@@ -39,9 +39,9 @@ namespace vlx
 		////////////////////////////////////////////////////////////
 		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const override;
 
-		virtual constexpr std::size_t GetSize() const noexcept override;
+		virtual [[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
 
-		static ComponentTypeID GetTypeId();
+		static [[nodiscard]] ComponentTypeID GetTypeId();
 	};
 
 	template<class C>

@@ -8,7 +8,6 @@
 #include <Velox/Config.hpp>
 
 #include "Window.h"
-#include "Cameras.h"
 
 namespace vlx
 {
@@ -21,10 +20,12 @@ namespace vlx
 	// or effects for the camera that can be easily added or 
 	// removed
 	////////////////////////////////////////////////////////////
-	class VELOX_API CameraBehaviour : private NonCopyable
+	class VELOX_API CameraBehavior : private NonCopyable
 	{
 	public:
-		using Ptr = typename std::unique_ptr<CameraBehaviour>;
+		using ID = std::uint16_t;
+
+		using Ptr = typename std::unique_ptr<CameraBehavior>;
 		using Func = typename std::function<Ptr()>;
 
 		struct VELOX_API Context // holds vital objects
@@ -36,14 +37,14 @@ namespace vlx
 		};
 
 	public:
-		CameraBehaviour(const camera::ID id, Camera& camera, Context context);
-		virtual ~CameraBehaviour();
+		CameraBehavior(const ID id, Camera& camera, Context context);
+		virtual ~CameraBehavior();
 
-		camera::ID GetId() const noexcept;
+		[[nodiscard]] const ID& GetID() const noexcept;
 
 	protected:
-		Camera& GetCamera() const;
-		const Context& GetContext() const;
+		[[nodiscard]] Camera& GetCamera() const;
+		[[nodiscard]] const Context& GetContext() const;
 
 	public:
 		virtual void OnCreate(const std::vector<std::byte>& data);
@@ -68,7 +69,7 @@ namespace vlx
 		virtual bool PostUpdate(const Time& time);
 
 	private:
-		camera::ID		m_id;
+		ID				m_id;
 		Camera* const	m_camera;
 		Context			m_context;
 	};

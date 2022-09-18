@@ -30,14 +30,14 @@ namespace vlx
 		virtual void DoAction(Time& time, Archetype* archetype) = 0;
 	};
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	class System : public SystemBase
 	{
 	public:
 		using Func = typename std::function<void(Time&, std::span<const EntityID>, Cs*...)>;
 
 	public:
-		System(EntityAdmin& entity_admin, const std::uint8_t layer);
+		System(EntityAdmin& entity_admin, const std::uint16_t layer);
 		~System();
 
 		System(const System& system);
@@ -46,7 +46,7 @@ namespace vlx
 	public:
 		const ArchetypeID& GetKey() const override;
 
-		[[nodiscard]] constexpr float GetPriority() const noexcept override;
+		[[nodiscard]] float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
 
 		void Action(Func&& func);
@@ -62,7 +62,7 @@ namespace vlx
 
 	protected:
 		EntityAdmin*	m_entity_admin;
-		std::uint8_t	m_layer			{0};	// controls the order of calls
+		std::uint16_t	m_layer			{0};	// controls the order of calls
 		float			m_priority		{0.0f}; // priority is for controlling the underlaying order of calls
 
 		Func			m_func;
@@ -71,25 +71,25 @@ namespace vlx
 		mutable ArchetypeID m_key;
 	};
 
-	template<class... Cs> requires Exists<Cs...>
-	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint8_t layer) 
+	template<Exists... Cs>
+	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint16_t layer)
 		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
 		m_entity_admin->RegisterSystem(m_layer, this);
 	}
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline System<Cs...>::~System()
 	{
 		m_entity_admin->RemoveSystem(m_layer, this);
 	}
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline System<Cs...>::System(const System<Cs...>& system)
 		:	m_entity_admin(system.m_entity_admin), m_layer(system.m_layer), m_priority(system.m_priority),
 			m_func(system.m_func), m_func_set(system.m_func_set), m_key(system.m_key) { }
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline System<Cs...>& System<Cs...>::operator=(const System<Cs...>& rhs)
 	{
 		m_entity_admin = rhs.m_entity_admin;
@@ -104,12 +104,12 @@ namespace vlx
 		return *this;
 	}
 
-	template<class... Cs> requires Exists<Cs...>
-	inline constexpr float System<Cs...>::GetPriority() const noexcept
+	template<Exists... Cs>
+	inline float System<Cs...>::GetPriority() const noexcept
 	{
 		return m_priority;
 	}
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline void System<Cs...>::SetPriority(const float val)
 	{
 		m_priority = val;
@@ -122,7 +122,7 @@ namespace vlx
 		return types;
 	}
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
 		if (m_key.empty())
@@ -131,14 +131,14 @@ namespace vlx
 		return m_key;
 	}	
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
 		m_func_set = true;
 	}
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype)
 	{
 		if (m_func_set)
@@ -150,7 +150,7 @@ namespace vlx
 		}
 	}
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
 	{
@@ -172,7 +172,7 @@ namespace vlx
 		DoAction<Index + 1>(time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
-	template<class... Cs> requires Exists<Cs...>
+	template<Exists... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
 	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
 	{

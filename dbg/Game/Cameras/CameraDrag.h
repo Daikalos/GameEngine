@@ -1,16 +1,14 @@
 #pragma once
 
-#include <Velox/Window/CameraBehaviour.h>
+#include <Velox/Window/CameraBehavior.h>
 #include <Velox/Window/Camera.h>
-#include <Velox/Window/Cameras.h>
 
 namespace vlx
 {
-	class CameraDrag final : public CameraBehaviour
+	class CameraDrag final : public CameraBehavior
 	{
 	public:
-		CameraDrag(camera::ID id, Camera& camera, Context context) : 
-			CameraBehaviour(id, camera, context) { }
+		using CameraBehavior::CameraBehavior;
 
 	private:
 		bool HandleEvent(const sf::Event& event) override 

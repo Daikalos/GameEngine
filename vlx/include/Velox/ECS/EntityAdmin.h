@@ -72,7 +72,7 @@ namespace vlx
 		template<class C>
 		void RemoveComponent(const EntityID entity_id);
 
-		template<class... Ts>
+		template<class... Cs>
 		std::vector<EntityID> GetEntitiesWith();
 
 	private:
@@ -118,6 +118,19 @@ namespace vlx
 	template<class C>
 	inline C* EntityAdmin::GetComponent(const EntityID entity_id)
 	{
+		Record& record = m_entity_archetype_map[entity_id];
+		Archetype* archetype = record.archetype;
+
+		const ComponentTypeID id = Component<C>::GetTypeId();
+
+		for (const ComponentTypeID& comp_id : archetype->m_type)
+		{
+			if (id == comp_id)
+			{
+
+			}
+		}
+
 		return nullptr;
 	}
 
@@ -127,10 +140,7 @@ namespace vlx
 		ComponentTypeID new_comp_type_id = Component<C>::GetTypeId();
 
 		if (!IsComponentRegistered<C>()) // component should be registered
-		{
-			throw std::runtime_error("Component is not registered");
 			return nullptr;
-		}
 
 		const std::size_t& comp_data_size = m_component_map[new_comp_type_id]->GetSize();
 
@@ -366,7 +376,7 @@ namespace vlx
 		record.archetype = new_archetype;
 	}
 
-	template<class ...Ts>
+	template<class ...Cs>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith()
 	{
 		return std::vector<EntityID>();
