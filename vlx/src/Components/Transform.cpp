@@ -2,7 +2,8 @@
 
 using namespace vlx;
 
-Transform::Transform() : m_global_transform(GetLocalTransform())
+Transform::Transform() 
+	: m_origin(0, 0), m_position(0,0), m_rotation(), m_scale(1, 1)
 {
 
 }
@@ -10,7 +11,7 @@ Transform::Transform() : m_global_transform(GetLocalTransform())
 Transform::~Transform()
 {
 	if (HasParent())
-		m_parent->DetachChild(*this);
+		DetachParent(*m_parent);
 
 	for (Transform* child : m_children)
 		child->m_parent = nullptr;
@@ -18,29 +19,25 @@ Transform::~Transform()
 
 const sf::Transform& Transform::GetTransform() const
 {
-	if (m_update_transform)
+	if (m_update_model_transform)
+		UpdateTransforms();
+
+	return m_model_transform;
+}
+const sf::Transform& Transform::GetInverseTransform() const
+{
+	if (m_update_inverse_model_transform)
 	{
-		auto& parent = *GetTopParent();
-		if (!parent.m_update_transform)
-		{
-			for (const Transform* child : m_children)
-				child->UpdateTransforms(parent.m_global_transform);
-		}
-		else
-			parent.UpdateTransforms(sf::Transform::Identity);
+		m_inverse_model_transform = GetTransform().getInverse();
+		m_update_inverse_model_transform = false;
 	}
 
-	return m_global_transform;
-}
-
-const sf::Transform& Transform::GetLocalTransform() const
-{
-	return m_transform.getTransform();
+	return m_inverse_model_transform;
 }
 
 const sf::Vector2f& Transform::GetPosition() const 
 {
-	return sf::Vector2f();
+	return GetTransform() * GetLocalPosition();
 }
 const sf::Vector2f& Transform::GetScale() const 
 {
@@ -48,31 +45,95 @@ const sf::Vector2f& Transform::GetScale() const
 }
 const sf::Angle& Transform::GetRotation() const 
 {
+	//m_global_transform.
 	return sf::Angle();
+}
+
+const sf::Transform& Transform::GetLocalTransform() const
+{
+	if (m_update_local_transform)
+	{
+		const float angle	= -m_rotation.asRadians();
+		const float cosine	= std::cosf(angle);
+		const float sine	= std::sinf(angle);
+		const float sxc		= m_scale.x * cosine;
+		const float syc		= m_scale.y * cosine;
+		const float sxs		= m_scale.x * sine;
+		const float sys		= m_scale.y * sine;
+		const float tx		= -m_origin.x * sxc - m_origin.y * sys + m_position.x;
+		const float ty		= m_origin.x * sxs - m_origin.y * syc + m_position.y;
+
+		m_local_transform = sf::Transform( sxc, sys, tx,
+										  -sxs, syc, ty,
+										   0.f, 0.f, 1.f);
+
+		m_update_local_transform = false;
+	}
+
+	return m_local_transform;
+}
+const sf::Transform& Transform::GetInverseLocalTransform() const
+{
+	if (m_update_inverse_local_transform)
+	{
+		m_inverse_local_transform = GetLocalTransform().getInverse();
+		m_update_inverse_local_transform = false;
+	}
+
+	return m_inverse_local_transform;
+}
+
+const sf::Vector2f& Transform::GetLocalPosition() const
+{
+	return m_position;
+}
+const sf::Vector2f& Transform::GetLocalScale() const
+{
+	return m_scale;
+}
+const sf::Angle& Transform::GetLocalRotation() const
+{
+	return m_rotation;
 }
 
 void Transform::SetOrigin(const sf::Vector2f& origin)
 {
-	m_transform.setOrigin(origin);
+	m_origin = origin;
+
+	m_update_local_transform = true;
+	m_update_inverse_local_transform = true;
+
 	UpdateRequired();
 }
 void Transform::SetPosition(const sf::Vector2f& position)
 {
-	m_transform.setPosition(position);
+	m_position = position;
+
+	m_update_local_transform = true;
+	m_update_inverse_local_transform = true;
+
 	UpdateRequired();
 }
 void Transform::SetScale(const sf::Vector2f& scale) 
 {
-	m_transform.setScale(scale);
+	m_scale = scale;
+
+	m_update_local_transform = true;
+	m_update_inverse_local_transform = true;
+
 	UpdateRequired();
 }
 void Transform::SetRotation(float degrees)
 {
-	m_transform.setRotation(sf::degrees(degrees));
+	m_rotation = sf::degrees(degrees);
+
+	m_update_local_transform = true;
+	m_update_inverse_local_transform = true;
+
 	UpdateRequired();
 }
 
-[[nodiscard]] constexpr bool Transform::HasParent() const noexcept
+constexpr bool Transform::HasParent() const noexcept
 {
 	return m_parent != nullptr;
 }
@@ -84,51 +145,75 @@ const Transform& Transform::GetParent() const
 }
 Transform& Transform::GetParent()
 {
-	assert(HasParent());
-	return *m_parent;
+	return const_cast<Transform&>(static_cast<const Transform&>(*this).GetParent());
+}
+
+void Transform::AttachParent(Transform& parent)
+{
+	parent.AttachChild(*this);
+}
+Transform* Transform::DetachParent(Transform& parent)
+{
+	return parent.DetachChild(*this);
 }
 
 void Transform::AttachChild(Transform& child)
 {
+	if (this == &child || m_parent == &child) // sanity check
+		return;
+
+	if (child.HasParent()) // if child already has an attached parent
+		child.DetachParent(*child.m_parent);
+
 	child.m_parent = this;
 	m_children.push_back(&child);
 
-	child.m_update_transform = true;
+	child.UpdateRequired();
 }
 Transform* Transform::DetachChild(Transform& child)
 {
 	auto found = std::find(m_children.begin(), m_children.end(), &child);
 
-	assert(found != m_children.end());
+	if (found == m_children.end())
+		return nullptr;
 
-	Transform* result = *found;
-	(*found)->m_parent = nullptr;
+	child.m_parent = nullptr;
 	m_children.erase(found);
 
-	return result;
+	child.UpdateRequired();
+
+	return &child;
 }
 
-const Transform* Transform::GetTopParent() const
+void Transform::UpdateTransforms() const
 {
-	if (m_parent == nullptr || !m_update_transform)
-		return this;
+	assert(m_update_model_transform);
 
-	return m_parent->GetTopParent(); // recursive way to get the top parent
-}
+	if (HasParent())
+		ComputeTransform(m_parent->m_model_transform);
+	else
+		ComputeTransform();
 
-void Transform::UpdateTransforms(sf::Transform transform) const
-{
-	m_global_transform = transform * GetLocalTransform();
-	m_update_transform = false;
+	m_update_model_transform = false;
 
 	for (const Transform* child : m_children)
-		child->UpdateTransforms(m_global_transform);
+		child->UpdateTransforms();
 }
 
 void Transform::UpdateRequired() const
 {
-	m_update_transform = true;
+	m_update_model_transform = true;
+	m_update_inverse_model_transform = true;
 
-	for (const Transform* transform : m_children) // all of the children needs their transform to be updated
+	for (const Transform* transform : m_children) // all of the children needs their global transform to be updated
 		transform->UpdateRequired();
+}
+
+void Transform::ComputeTransform() const
+{
+	m_model_transform = GetLocalTransform();
+}
+void Transform::ComputeTransform(const sf::Transform& transform) const
+{
+	m_model_transform = transform * GetLocalTransform();
 }

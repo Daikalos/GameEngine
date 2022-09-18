@@ -167,26 +167,40 @@ void Application::Draw()
 	sprite1.SetColor(sf::Color::Red);
 	Sprite sprite2(m_texture_holder.Get(Texture::ID::IdleCursor));
 	sprite2.SetColor(sf::Color::Blue);
+	Sprite sprite3(m_texture_holder.Get(Texture::ID::IdleCursor));
+	sprite3.SetColor(sf::Color::Green);
 
-	Transform transform1;
-	transform1.SetPosition(sf::Vector2f(0.0f, 0.0f));
-	transform1.SetOrigin(sprite1.GetSize() / 2.0f);
-	Transform transform2;
-	transform2.SetPosition(sf::Vector2f(0.0f, 10.0f));
-	transform2.SetOrigin(sprite1.GetSize() / 2.0f);
+	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::X))
+		rotation += 100.0f * m_time.GetDeltaTime();
+	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::D))
+		position1.x += 50.0f * m_time.GetDeltaTime();
+	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::A))
+		position1.x -= 50.0f * m_time.GetDeltaTime();
+	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::S))
+		position2.y += 50.0f * m_time.GetDeltaTime();
 
-	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::K))
-		rotation += 30.0f * m_time.GetDeltaTime();
-	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::J))
-		position.x += 5.0f * m_time.GetDeltaTime();
-
-	transform1.AttachChild(transform2);
 	transform2.SetRotation(rotation);
-	transform1.SetPosition(position);
+	transform1.SetPosition(position1);
+	transform2.SetPosition(position2);
+
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Q))
+		transform1.AttachChild(transform2);
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::W))
+		transform2.AttachChild(transform3);
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::E))
+		transform2.AttachChild(transform1);
+
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::R))
+		transform1.DetachChild(transform2);
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::T))
+		transform2.DetachChild(transform3);
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Y))
+		transform2.DetachChild(transform1);
 
 	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
 	m_sprite_batch.Batch(sprite2, transform2, 0.0f);
-	//m_sprite_batch.Batch(sprite3, transform3, 0.0f);
+	m_sprite_batch.Batch(sprite3, transform3, 0.0f);
+
 	m_window.draw(m_sprite_batch);
 	m_sprite_batch.Clear();
 

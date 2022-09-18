@@ -66,7 +66,12 @@ namespace vlx
 		SpriteBatch		m_sprite_batch;
 
 		float rotation = 0.0f;
-		sf::Vector2f position;
+		sf::Vector2f position1;
+		sf::Vector2f position2;
+
+		Transform transform1;
+		Transform transform2;
+		Transform transform3;
 	};
 }
 
