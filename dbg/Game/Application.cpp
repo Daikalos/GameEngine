@@ -5,7 +5,7 @@ using namespace vlx;
 Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
 	m_camera(CameraBehavior::Context(m_window, m_controls)),
-	m_state_stack(State::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
+	m_state_stack(State<>::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder))
 {
 
 }
@@ -177,7 +177,7 @@ void Application::Draw()
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::S))
 		position2.y += 50.0f * m_time.GetDeltaTime();
 
-	transform2.SetRotation(sf::radians(rotation));
+	transform2.SetRotation(sf::degrees(rotation));
 	transform1.SetPosition(position1);
 	transform2.SetPosition(position2);
 

@@ -8,7 +8,7 @@
 #include <Velox/Input.hpp>
 
 #include <Velox/ECS.hpp>
-#include <Velox/Scene/StateStack.h>
+#include <Velox/Scene/StateStack.hpp>
 #include <Velox/Graphics/ResourceHolder.hpp>
 #include <Velox/Graphics/ResourceHolder.hpp>
 
@@ -57,7 +57,7 @@ namespace vlx
 	private:
 		Window			m_window;
 		Camera			m_camera;
-		StateStack		m_state_stack;
+		StateStack<>	m_state_stack;
 		TextureHolder	m_texture_holder;
 		FontHolder		m_font_holder;
 		Time			m_time;

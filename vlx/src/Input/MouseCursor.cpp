@@ -27,9 +27,9 @@ void MouseCursor::Update(const Time& time, const bool focus)
 			if (m_cursor_pos.y < 0.0f)
 				m_cursor_pos.y = 0.0f;
 			if (m_cursor_pos.x > m_window->getSize().x)
-				m_cursor_pos.x = m_window->getSize().x;
+				m_cursor_pos.x = (float)m_window->getSize().x;
 			if (m_cursor_pos.y > m_window->getSize().y)
-				m_cursor_pos.y = m_window->getSize().y;
+				m_cursor_pos.y = (float)m_window->getSize().y;
 		}
 
 		m_cursor.setPosition(m_cursor_pos);

@@ -3,9 +3,7 @@
   <ItemGroup>
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
-    <ClCompile Include="src\Scene\SceneNode.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\scene\StateStack.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
@@ -17,7 +15,6 @@
     <ClCompile Include="src\Utilities\Time.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
-    <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Window\CameraBehavior.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
@@ -45,9 +42,8 @@
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
     <ClInclude Include="include\Velox\Input\MouseCursor.h" />
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
-    <ClInclude Include="include\Velox\Scene\SceneNode.h" />
-    <ClInclude Include="include\Velox\Scene\State.h" />
-    <ClInclude Include="include\Velox\Scene\StateStack.h" />
+    <ClInclude Include="include\Velox\Scene\State.hpp" />
+    <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
     <ClInclude Include="include\Velox\Utilities\ArithmeticUtils.h" />
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />

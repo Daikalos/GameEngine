@@ -57,15 +57,15 @@ constexpr sf::Vector2f Camera::GetOrigin() const
 
 const CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id) const
 {
+	return const_cast<Camera&>(static_cast<const Camera&>(*this)).GetBehavior(camera_id);
+}
+CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id)
+{
 	for (const CameraBehavior::Ptr& behavior : m_stack)
 		if (behavior->GetID() == camera_id)
 			return behavior.get();
 
 	return nullptr;
-}
-CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id)
-{
-	return const_cast<Camera&>(static_cast<const Camera&>(*this)).GetBehavior(camera_id);
 }
 
 void Camera::SetPosition(const sf::Vector2f& position)

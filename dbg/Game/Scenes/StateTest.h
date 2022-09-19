@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#include <Velox/Scene/State.h>
+#include <Velox/Scene/State.hpp>
 #include <Velox/Utilities.hpp>
 
 namespace vlx
 {
-	class StateTest : public State
+	class StateTest : public State<>
 	{
 	public:
 		using State::State;

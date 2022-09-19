@@ -7,8 +7,8 @@
 
 namespace vlx::cu
 {
-	template<class T, std::equality_comparable_with<T> U>
-	[[nodiscard]] static constexpr bool Erase(std::vector<T>& vector, const U& compare)
+	template<class T>
+	[[nodiscard]] static constexpr bool Erase(std::vector<T>& vector, const T& compare)
 	{
 		auto it = std::find(vector.begin(), vector.end(), compare);
 
@@ -33,8 +33,8 @@ namespace vlx::cu
 		return true;
 	}
 
-	template<class T, std::equality_comparable_with<T> U>
-	[[nodiscard]] static constexpr bool SwapPop(std::vector<T>& vector, const U& compare)
+	template<class T>
+	[[nodiscard]] static constexpr bool SwapPop(std::vector<T>& vector, const T& compare)
 	{
 		auto it = std::find(vector.begin(), vector.end(), compare);
 
@@ -59,6 +59,12 @@ namespace vlx::cu
 		vector.pop_back();
 
 		return true;
+	}
+
+	template<class T>
+	[[nodiscard]] static constexpr auto FindSorted(const std::vector<T>& vector, const T& item)
+	{
+		return std::lower_bound(vector.begin(), vector.end(), item);
 	}
 
 	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)

@@ -10,17 +10,19 @@
 
 namespace vlx
 {
+	template<IntEnum ID>
 	class StateStack;
 
-	class VELOX_API State
+	template<IntEnum ID = std::uint16_t>
+	class State
 	{
 	public:
-		using ID = std::uint16_t;
+		using StateStack = typename StateStack<ID>;
 
 		using Ptr = typename std::unique_ptr<State>;
 		using Func = typename std::function<Ptr()>;
 
-		struct VELOX_API Context // holds vital objects
+		struct Context // holds vital objects
 		{
 			Context(Window& window, Camera& camera, ControlMap& controls, TextureHolder& texture_holder, FontHolder& font_holder);
 
@@ -69,4 +71,65 @@ namespace vlx
 		StateStack* m_state_stack;
 		Context		m_context;
 	};
+
+	template<IntEnum ID>
+	inline State<ID>::Context::Context(Window& window, Camera& camera, ControlMap& controls, TextureHolder& texture_holder, FontHolder& font_holder)
+		: window(&window), camera(&camera), controls(&controls), texture_holder(&texture_holder), font_holder(&font_holder)
+	{
+
+	}
+
+	template<IntEnum ID>
+	inline State<ID>::State(const ID id, StateStack& state_stack, Context context)
+		: m_id(id), m_state_stack(&state_stack), m_context(context)
+	{
+
+	}
+
+	template<IntEnum ID>
+	inline State<ID>::~State() = default;
+
+	template<IntEnum ID>
+	inline const ID& State<ID>::GetID() const noexcept
+	{
+		return m_id;
+	}
+
+	template<IntEnum ID>
+	inline const State<ID>::Context& State<ID>::GetContext() const
+	{
+		return m_context;
+	}
+	template<IntEnum ID>
+	inline StateStack<ID>& State<ID>::GetStack() const
+	{
+		return *m_state_stack;
+	}
+
+	template<IntEnum ID>
+	inline void State<ID>::OnActivate()
+	{
+
+	}
+	template<IntEnum ID>
+	inline void State<ID>::OnDestroy()
+	{
+
+	}
+
+	template<IntEnum ID>
+	inline bool State<ID>::PreUpdate(Time& time)
+	{
+		return true;
+	}
+	template<IntEnum ID>
+	inline bool State<ID>::FixedUpdate(Time& time)
+	{
+		return true;
+	}
+	template<IntEnum ID>
+	inline bool State<ID>::PostUpdate(Time& time)
+	{
+		return true;
+	}
 }

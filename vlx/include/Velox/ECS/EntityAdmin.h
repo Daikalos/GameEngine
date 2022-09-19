@@ -33,7 +33,7 @@ namespace vlx
 		struct Record
 		{
 			Archetype*	archetype	{nullptr};
-			std::size_t index		{0}; // where in the archetype array is the entity located in
+			std::size_t index		{0}; // where in the archetype entity array is the entity located at
 		};
 
 		using CompnentTypeIDBaseMap = typename std::unordered_map<ComponentTypeID, ComponentPtr>;
@@ -79,11 +79,29 @@ namespace vlx
 		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
 
 		////////////////////////////////////////////////////////////
-		// 
-		// Helper function for increasing the capacity
-		// 
+		// Helper functions
 		////////////////////////////////////////////////////////////
-		VELOX_API void MakeRoom(Archetype* archetype, const ComponentBase* component, const size_t data_size, const size_t i);
+
+		VELOX_API void MakeRoom(
+			Archetype* archetype,
+			const ComponentBase* component,
+			const std::size_t data_size, 
+			const std::size_t i);
+
+		VELOX_API bool MoveComponent(
+			Archetype* old_archetype,
+			Archetype* new_archetype,
+			const ComponentBase* component,
+			const std::size_t component_id,
+			const std::size_t old_component,
+			const std::size_t new_component,
+			const std::size_t i);
+
+		VELOX_API void EraseComponent(
+			Archetype* archetype, 
+			const ComponentBase* component,
+			const std::size_t record_index, 
+			const std::size_t i);
 
 	private:
 		EntityID				m_entity_id_counter;
@@ -137,12 +155,10 @@ namespace vlx
 	template<class C, typename ...Args> requires std::constructible_from<C, Args...>
 	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args)
 	{
-		ComponentTypeID new_comp_type_id = Component<C>::GetTypeId();
-
 		if (!IsComponentRegistered<C>()) // component should be registered
 			return nullptr;
 
-		const std::size_t& comp_data_size = m_component_map[new_comp_type_id]->GetSize();
+		ComponentTypeID new_comp_type_id = Component<C>::GetTypeId();
 
 		Record& record = m_entity_archetype_map[entity_id];
 		Archetype* old_archetype = record.archetype;
@@ -164,36 +180,19 @@ namespace vlx
 
 			for (std::size_t i = 0; i < new_archetype_id.size(); ++i) // for every component in the new archetype
 			{
-				const ComponentTypeID& new_comp_id = new_archetype_id[i];
-				const ComponentBase* new_comp = m_component_map[new_comp_id].get();
-				const std::size_t& new_comp_data_size = new_comp->GetSize();
+				const ComponentTypeID& component_id = new_archetype_id[i];
+				const ComponentBase* component = m_component_map[component_id].get();
+				const std::size_t& component_size = component->GetSize();
 
-				const std::size_t current_size = new_archetype->m_entity_ids.size() * new_comp_data_size;
-				const std::size_t new_size = current_size + new_comp_data_size;
+				const std::size_t current_size = new_archetype->m_entity_ids.size() * component_size;
+				const std::size_t new_size = current_size + component_size;
 
-				if (new_size > new_archetype->m_component_data_size[i]) // make room to fit old data
-					MakeRoom(new_archetype, new_comp, new_comp_data_size, i);
+				if (new_size > new_archetype->m_component_data_size[i])
+					MakeRoom(new_archetype, component, component_size, i); // make room to fit old data
 
-				bool old_found = false;
-				for (std::size_t j = 0; j < old_archetype->m_type.size(); ++j) // only move data from old to new if it exists
-				{
-					const ComponentTypeID& old_comp_id = old_archetype->m_type[j];
-					if (old_comp_id == new_comp_id)
-					{
-						const ComponentBase* old_comp = m_component_map[old_comp_id].get();
-						const std::size_t& old_comp_data_size = old_comp->GetSize();
+				bool found = MoveComponent(old_archetype, new_archetype, component, component_id, record.index * component_size, current_size, i);
 
-						old_comp->MoveDestroyData(
-							&old_archetype->m_component_data[j][record.index * old_comp_data_size],
-							&new_archetype->m_component_data[i][current_size]);
-
-						old_found = true;
-
-						break;
-					}
-				}
-
-				if (!old_found) // if there was no old instance we could copy our data to, construct a new component
+				if (!found) // if there was no old instance we could copy our data to, construct a new component
 				{
 					new_component = new (&new_archetype->m_component_data[i][current_size])
 						C(std::forward<Args>(args)...);
@@ -201,30 +200,12 @@ namespace vlx
 			}
 
 			const ArchetypeID& old_archetype_id = old_archetype->m_type;
-
-			for (std::size_t i = 0; i < old_archetype_id.size(); ++i) // we'll have to remove this entity as it has been assigned a new one
+			for (std::size_t i = 0; i < old_archetype_id.size(); ++i) // we'll have to remove this entity's data in the old as it has been assigned a new one
 			{
-				const ComponentTypeID& old_comp_type_id = old_archetype_id[i];
+				const ComponentTypeID& component_id = old_archetype_id[i];
+				const ComponentBase* component = m_component_map[component_id].get();
 
-				const ComponentBase* old_comp = m_component_map[old_comp_type_id].get();
-				const std::size_t& old_comp_data_size = old_comp->GetSize();
-
-				ComponentData new_data = std::make_unique<ByteArray>(old_archetype->m_component_data_size[i] - old_comp_data_size);
-				old_archetype->m_component_data_size[i] -= old_comp_data_size;
-
-				for (std::size_t j = 0, ri = 0; j < old_archetype->m_entity_ids.size(); ++j)
-				{
-					if (j == record.index)
-						continue;
-
-					old_comp->MoveDestroyData(
-						&old_archetype->m_component_data[i][j * old_comp_data_size],
-						&new_data[ri * old_comp_data_size]);
-
-					++ri;
-				}
-
-				old_archetype->m_component_data[i] = std::move(new_data);
+				EraseComponent(old_archetype, component, record.index, i);
 			}
 
 			auto it = std::find(old_archetype->m_entity_ids.begin(), old_archetype->m_entity_ids.end(), entity_id);
@@ -242,13 +223,14 @@ namespace vlx
 			ArchetypeID new_archetype_id(1, new_comp_type_id);	// construct archetype with the component id
 			new_archetype = GetArchetype(new_archetype_id);		// construct new archetype using the id
 
-			const ComponentBase* new_comp = m_component_map[new_comp_type_id].get();
+			const ComponentBase* component = m_component_map[new_comp_type_id].get();
+			const std::size_t& component_size = component->GetSize();
 
-			const std::size_t current_size = new_archetype->m_entity_ids.size() * comp_data_size;
-			const std::size_t new_size = current_size + comp_data_size;
+			const std::size_t current_size = new_archetype->m_entity_ids.size() * component_size;
+			const std::size_t new_size = current_size + component_size;
 
-			if (new_size > new_archetype->m_component_data_size[0]) // make room and move over existing data
-				MakeRoom(new_archetype, new_comp, comp_data_size, 0);
+			if (new_size > new_archetype->m_component_data_size[0])
+				MakeRoom(new_archetype, component, component_size, 0); // make room and move over existing data
 
 			new_component = new (&new_archetype->m_component_data[0][current_size])
 				C(std::forward<Args>(args)...);
@@ -292,69 +274,34 @@ namespace vlx
 
 		for (std::size_t i = 0; i < new_archetype_id.size(); ++i)
 		{
-			const ComponentTypeID& new_comp_id = new_archetype_id[i];
-			const ComponentBase* new_comp = m_component_map[new_comp_id].get();
-			const std::size_t& new_comp_data_size = new_comp->GetSize();
+			const ComponentTypeID& component_id = new_archetype_id[i];
+			const ComponentBase* component = m_component_map[component_id].get();
+			const std::size_t& component_size = component->GetSize();
 
-			const std::size_t current_size = new_archetype->m_entity_ids.size() * new_comp_data_size;
-			const std::size_t new_size = current_size + new_comp_data_size;
+			const std::size_t current_size = new_archetype->m_entity_ids.size() * component_size;
+			const std::size_t new_size = current_size + component_size;
 
-			if (new_size > new_archetype->m_component_data_size[i]) // make room to fit data
-				MakeRoom(new_archetype, new_comp, new_comp_data_size, i);
+			if (new_size > new_archetype->m_component_data_size[i])
+				MakeRoom(new_archetype, component, component_size, i); // make room to fit data
 
-			new_comp->ConstructData(&new_archetype->m_component_data[i][current_size]);
+			component->ConstructData(&new_archetype->m_component_data[i][current_size]);
 
-			for (std::size_t j = 0; j < old_archetype->m_type.size(); ++j)
-			{
-				const ComponentTypeID& old_comp_id = old_archetype->m_type[j];
-				if (old_comp_id == new_comp_id)
-				{
-					const ComponentBase* old_comp = m_component_map[old_comp_id].get();
-					const std::size_t& old_comp_data_size = old_comp->GetSize();
-
-					old_comp->MoveDestroyData(
-						&old_archetype->m_component_data[j][record.index * old_comp_data_size],
-						&new_archetype->m_component_data[i][current_size]);
-
-					break;
-				}
-			}
+			assert(MoveComponent(old_archetype, new_archetype, component, component_id, record.index * component_size, current_size, i));
 		}
 
 		const ArchetypeID& old_archetype_id = old_archetype->m_type;
-
 		for (std::size_t i = 0; i < old_archetype_id.size(); ++i)
 		{
-			const ComponentTypeID& old_comp_type_id = old_archetype_id[i];
+			const ComponentTypeID& component_id = old_archetype_id[i];
+			const ComponentBase* component = m_component_map[component_id].get();
 
-			if (old_comp_type_id == comp_type_id)
+			if (component_id == comp_type_id)
 			{
-				const ComponentBase* comp = m_component_map[comp_type_id].get();
-				comp->DestroyData(&old_archetype->m_component_data[i][record.index * sizeof(C)]);
+				const std::size_t component_size = component->GetSize();
+				component->DestroyData(&old_archetype->m_component_data[i][record.index * component_size]);
 			}
 
-			const ComponentBase* old_comp = m_component_map[old_comp_type_id].get();
-			const std::size_t old_comp_data_size = old_comp->GetSize();
-
-			std::size_t current_size = old_archetype->m_entity_ids.size() * old_comp_data_size;
-			std::size_t new_size = current_size - old_comp_data_size;
-
-			ComponentData new_data = std::make_unique<ByteArray>(old_archetype->m_component_data_size[i] - old_comp_data_size);
-			old_archetype->m_component_data_size[i] -= old_comp_data_size;
-
-			for (std::size_t j = 0, ri = 0; j < old_archetype->m_entity_ids.size(); ++j)
-			{
-				if (j == record.index)
-					continue;
-
-				old_comp->MoveDestroyData(
-					&old_archetype->m_component_data[i][j * old_comp_data_size],
-					&new_data[ri * old_comp_data_size]);
-
-				++ri;
-			}
-
-			old_archetype->m_component_data[i] = std::move(new_data);
+			EraseComponent(old_archetype, component, record.index, i);
 		}
 
 		auto it = std::find(
