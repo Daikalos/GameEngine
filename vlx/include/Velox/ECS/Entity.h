@@ -11,6 +11,8 @@ namespace vlx
 	{
 	public:
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
+		VELOX_API Entity(Entity&& entity);
+
 		VELOX_API ~Entity();
 
 		VELOX_API constexpr EntityID GetId() const;
@@ -23,6 +25,9 @@ namespace vlx
 
 		template<class C>
 		void Remove();
+
+		template<class C>
+		C* Get();
 
 	private:
 		EntityID		m_id; // entity is just an id
@@ -45,5 +50,11 @@ namespace vlx
 	inline void Entity::Remove()
 	{
 		m_entity_admin->RemoveComponent<C>(m_id);
+	}
+
+	template<class C>
+	inline C* Entity::Get()
+	{
+		return m_entity_admin->GetComponent<C>(m_id);
 	}
 }

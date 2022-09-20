@@ -49,7 +49,7 @@ namespace vlx
 
 	public:
 		template<class T, typename... Args>
-		void RegisterState(const ID state_id, Args&&... args) requires std::derived_from<T, typename StateStack<ID>::State>;
+		void RegisterState(const ID state_id, Args&&... args) requires std::derived_from<T, typename StateStack<ID>::State>; // weird problem, can give error but still compiles
 
 		void HandleEvent(const sf::Event& event);
 

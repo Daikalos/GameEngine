@@ -33,7 +33,7 @@ void Application::Run()
 
 	bm::Begin();
 
-	for (int j = 0; j < 50; ++j)
+	for (int j = 0; j < 1; ++j)
 	{
 		EntityAdmin entity_admin;
 
@@ -47,10 +47,18 @@ void Application::Run()
 			entity.Add<Velocity>(sf::Vector2f(rnd::random(0.0f, 5.0f), 0.0f));
 		}
 
-		System<Velocity> s0(m_entity_admin, 0);
-		System<Velocity> s1(m_entity_admin, 0);
-		System<Velocity> s2(m_entity_admin, 0);
-		System<Velocity> s3(m_entity_admin, 0);
+		System<Velocity> s0(entity_admin, 0);
+		System<Velocity> s1(entity_admin, 0);
+		System<Velocity> s2(entity_admin, 0);
+		System<Velocity> s3(entity_admin, 0);
+		
+		s0.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities)
+			{
+				for (std::size_t i = 0; i < entities.size(); ++i)
+				{
+					std::puts(std::to_string(velocities[i].velocity.x).c_str());
+				}
+			});
 
 		entity_admin.RunSystems(0, m_time);
 	}

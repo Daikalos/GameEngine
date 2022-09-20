@@ -136,16 +136,28 @@ namespace vlx
 	template<class C>
 	inline C* EntityAdmin::GetComponent(const EntityID entity_id)
 	{
+		if (!IsComponentRegistered<C>())
+			return nullptr;
+
+		if (!m_entity_archetype_map.contains(entity_id))
+			return nullptr;
+
+		const ComponentTypeID component_id = Component<C>::GetTypeId();
+
 		Record& record = m_entity_archetype_map[entity_id];
 		Archetype* archetype = record.archetype;
 
-		const ComponentTypeID id = Component<C>::GetTypeId();
+		if (!archetype)
+			return nullptr;
 
-		for (const ComponentTypeID& comp_id : archetype->m_type)
+		const ArchetypeID& archetype_id = archetype->m_type;
+		for (std::size_t i = 0; i < archetype_id.size(); ++i)
 		{
-			if (id == comp_id)
+			const ComponentTypeID& id = archetype_id[i];
+			if (id == component_id)
 			{
-
+				C* components = reinterpret_cast<C*>(&archetype->m_component_data[i][0]);
+				return &components[record.index];
 			}
 		}
 

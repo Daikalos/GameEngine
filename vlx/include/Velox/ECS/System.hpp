@@ -81,7 +81,8 @@ namespace vlx
 	template<Exists... Cs>
 	inline System<Cs...>::~System()
 	{
-		m_entity_admin->RemoveSystem(m_layer, this);
+		if (m_entity_admin)
+			m_entity_admin->RemoveSystem(m_layer, this);
 	}
 
 	template<Exists... Cs>

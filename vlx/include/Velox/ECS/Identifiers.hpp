@@ -6,8 +6,8 @@
 namespace vlx
 {
 	using IDType			= typename std::uint32_t;
-	using ByteArray			= typename std::uint8_t[];
-	using DataPtr			= typename std::uint8_t*;
+	using ByteArray			= typename std::byte[];
+	using DataPtr			= typename std::byte*;
 
 	using EntityID			= typename IDType;
 	using ComponentTypeID	= typename IDType;
