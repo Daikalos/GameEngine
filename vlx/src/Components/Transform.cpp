@@ -20,7 +20,27 @@ Transform::~Transform()
 const sf::Transform& Transform::GetTransform() const
 {
 	if (m_update_model_transform)
+	{
 		UpdateTransforms();
+
+		// extract global position, rotation, and scale from the global matrix
+
+		const float* matrix = m_model_transform.getMatrix();
+
+		const auto mv = [&matrix](const int x, const int y) -> float
+		{
+			constexpr int width = 4;
+			return matrix[x + y * width];
+		};
+
+		m_global_position.x = mv(0, 3);
+		m_global_position.y = mv(1, 3);
+
+		m_global_scale.x = std::sqrtf(std::powf(mv(0, 0), 2.0f) + std::powf(mv(0, 1), 2.0f));
+		m_global_scale.y = std::sqrtf(std::powf(mv(1, 0), 2.0f) + std::powf(mv(1, 1), 2.0f));
+
+		m_global_rotation = sf::radians(std::atanf(mv(1, 0) / mv(1, 1)));
+	}
 
 	return m_model_transform;
 }
@@ -40,16 +60,15 @@ const sf::Vector2f& Transform::GetOrigin() const
 }
 const sf::Vector2f& Transform::GetPosition() const 
 {
-	return GetTransform() * GetLocalPosition();
+	return m_global_position;
 }
 const sf::Vector2f& Transform::GetScale() const 
 {
-	return sf::Vector2f();
+	return m_global_scale;
 }
 const sf::Angle& Transform::GetRotation() const 
 {
-	//m_global_transform.
-	return sf::Angle();
+	return m_global_rotation;
 }
 
 const sf::Transform& Transform::GetLocalTransform() const
@@ -111,9 +130,10 @@ void Transform::SetOrigin(const sf::Vector2f& origin)
 
 	UpdateRequired();
 }
-void Transform::SetPosition(const sf::Vector2f& position)
+void Transform::SetPosition(const sf::Vector2f& position, bool global)
 {
-	m_position = position;
+	m_position = (global && HasParent()) ? 
+		m_parent->GetInverseTransform() * position : position;
 
 	m_update_local_transform = true;
 	m_update_inverse_local_transform = true;
@@ -141,7 +161,7 @@ void Transform::SetRotation(const sf::Angle angle)
 
 void Transform::Move(const sf::Vector2f& move)
 {
-	SetPosition(GetLocalPosition() + move);
+	SetPosition(GetLocalPosition() + move, false);
 }
 void Transform::Scale(const sf::Vector2f& factor)
 {
@@ -168,29 +188,58 @@ Transform& Transform::GetParent()
 	return const_cast<Transform&>(static_cast<const Transform&>(*this).GetParent());
 }
 
-void Transform::AttachParent(Transform& parent)
+void Transform::AttachParent(Transform& parent, bool locked)
 {
-	parent.AttachChild(*this);
+	parent.AttachChild(*this, locked);
 }
-Transform* Transform::DetachParent(Transform& parent)
+Transform* Transform::DetachParent(Transform& parent, bool locked)
 {
-	return parent.DetachChild(*this);
+	return parent.DetachChild(*this, locked);
 }
 
-void Transform::AttachChild(Transform& child)
+void Transform::AttachChild(Transform& child, bool locked)
 {
-	if (this == &child || m_parent == &child) // sanity check
+	if (this == &child || child.m_parent == this) // sanity check
 		return;
 
+	if (m_parent == &child) // special case
+		DetachParent(child, locked);
+
 	if (child.HasParent()) // if child already has an attached parent
-		child.DetachParent(*child.m_parent);
+		child.DetachParent(*child.m_parent, locked);
 
 	child.m_parent = this;
 	m_children.push_back(&child);
 
 	child.UpdateRequired(); // now that the child has been attached, itself and its children needs their global matrix to be updated
+
+	if (locked)
+	{
+		const sf::Transform& transform = GetInverseTransform() * child.GetLocalTransform();
+		const float* matrix = transform.getMatrix();
+
+		const auto mv = [&matrix](const int x, const int y) -> float
+		{
+			return matrix[x + y * 4];
+		};
+
+		child.m_position = sf::Vector2f(mv(0, 3), mv(1, 3));
+
+		child.m_scale = sf::Vector2f(
+			std::sqrtf(std::powf(mv(0, 0), 2.0f) + std::powf(mv(0, 1), 2.0f)),
+			std::sqrtf(std::powf(mv(1, 0), 2.0f) + std::powf(mv(1, 1), 2.0f)));
+
+		child.m_rotation = sf::radians(std::atanf(mv(1, 0) / mv(1, 1)));
+
+		child.m_update_local_transform = true;
+		child.m_update_inverse_model_transform = true;
+	}
+	else
+	{
+		child.UpdateRequired(); // now that the child has been attached, itself and its children needs their global matrix to be updated
+	}
 }
-Transform* Transform::DetachChild(Transform& child)
+Transform* Transform::DetachChild(Transform& child, bool locked)
 {
 	auto found = std::find(m_children.begin(), m_children.end(), &child);
 
@@ -200,15 +249,37 @@ Transform* Transform::DetachChild(Transform& child)
 	child.m_parent = nullptr;
 	m_children.erase(found);
 
-	child.UpdateRequired();
+	if (locked)
+	{
+		const sf::Transform& transform = GetTransform() * child.GetLocalTransform();
+		const float* matrix = transform.getMatrix();
+
+		const auto mv = [&matrix](const int x, const int y) -> float
+		{
+			return matrix[x + y * 4];
+		};
+
+		child.m_position = sf::Vector2f(mv(0, 3), mv(1, 3));
+
+		child.m_scale = sf::Vector2f(
+			std::sqrtf(std::powf(mv(0, 0), 2.0f) + std::powf(mv(0, 1), 2.0f)),
+			std::sqrtf(std::powf(mv(1, 0), 2.0f) + std::powf(mv(1, 1), 2.0f)));
+
+		child.m_rotation = sf::radians(std::atanf(mv(1, 0) / mv(1, 1)));
+
+		child.m_update_local_transform = true;
+		child.m_update_inverse_model_transform = true;
+	}
+	else
+	{
+		child.UpdateRequired();
+	}
 
 	return &child;
 }
 
 void Transform::UpdateTransforms() const
 {
-	assert(m_update_model_transform);
-
 	if (HasParent())
 		ComputeTransform(m_parent->GetTransform());
 	else

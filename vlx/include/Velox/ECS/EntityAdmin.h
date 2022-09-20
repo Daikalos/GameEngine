@@ -130,7 +130,7 @@ namespace vlx
 	template<class C>
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id)
 	{
-		return false;
+		return GetComponent<C>(entity_id) != nullptr;
 	}
 
 	template<class C>
@@ -220,7 +220,7 @@ namespace vlx
 				EraseComponent(old_archetype, component, record.index, i);
 			}
 
-			auto it = std::find(old_archetype->m_entity_ids.begin(), old_archetype->m_entity_ids.end(), entity_id);
+			auto it = std::find(old_archetype->m_entity_ids.begin(), old_archetype->m_entity_ids.end(), entity_id); // look at swap and pop
 
 			std::for_each(it, old_archetype->m_entity_ids.end(),
 				[this, &old_archetype](const EntityID& eid)
@@ -335,9 +335,13 @@ namespace vlx
 		record.archetype = new_archetype;
 	}
 
-	template<class ...Cs>
+	template<class... Cs>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith()
 	{
-		return std::vector<EntityID>();
+		std::vector<EntityID> entities;
+
+
+
+		return entities;
 	}
 }

@@ -35,7 +35,7 @@ namespace vlx
 		[[nodiscard]] const sf::Angle& GetLocalRotation() const;
 
 		void SetOrigin(const sf::Vector2f& origin);
-		void SetPosition(const sf::Vector2f& position);
+		void SetPosition(const sf::Vector2f& position, bool global = true);
 		void SetScale(const sf::Vector2f& scale);
 		void SetRotation(const sf::Angle angle);
 
@@ -50,11 +50,11 @@ namespace vlx
 		Transform& GetParent();
 
 	public:
-		void AttachParent(Transform& parent);
-		Transform* DetachParent(Transform& parent);
+		void AttachParent(Transform& parent, bool locked = true);
+		Transform* DetachParent(Transform& parent, bool locked = true);
 
-		void AttachChild(Transform& child);
-		Transform* DetachChild(Transform& child);
+		void AttachChild(Transform& child, bool locked = true);
+		Transform* DetachChild(Transform& child, bool locked = true);
 
 	private:
 		void UpdateTransforms() const;
@@ -70,9 +70,9 @@ namespace vlx
 		sf::Vector2f			m_scale;
 		sf::Angle				m_rotation;
 
-		sf::Vector2f			m_global_position;
-		sf::Vector2f			m_global_scale;
-		sf::Angle				m_global_rotation;
+		mutable sf::Vector2f	m_global_position;
+		mutable sf::Vector2f	m_global_scale;
+		mutable sf::Angle		m_global_rotation;
 
 		mutable sf::Transform	m_local_transform;
 		mutable sf::Transform	m_inverse_local_transform;

@@ -46,31 +46,49 @@ namespace vlx
 	public:
 		void SetSortMode(const SortMode sort_mode);
 
-		void AddTriangle(const Transform& transform, const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, const sf::Texture* texture, const sf::Shader* shader, float depth = 0.0f);
+		void AddTriangle(
+			const Transform& transform, 
+			const sf::Vertex& v0, 
+			const sf::Vertex& v1, 
+			const sf::Vertex& v2, 
+			const sf::Texture* texture, 
+			const sf::Shader* shader, 
+			float depth = 0.0f);
 
-		void Batch(const IBatchable& batchable, const Transform& transform, float depth = 0.0f);
-		void Batch(const Transform& transform, const sf::VertexArray& vertices, sf::PrimitiveType type, const sf::Texture* texture, const sf::Shader* shader, float depth = 0.0f);
+		void Batch(
+			const IBatchable& batchable, 
+			const Transform& transform, 
+			float depth = 0.0f);
+
+		void Batch(
+			const Transform& transform, 
+			const sf::Vertex* vertices, 
+			const std::size_t count, 
+			const sf::PrimitiveType type, 
+			const sf::Texture* texture, 
+			const sf::Shader* shader, 
+			float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 		void Clear();
 
 	private:
-		bool CompareBackToFront(const Triangle* lhs, const Triangle* rhs) const;
-		bool CompareFrontToBack(const Triangle* lhs, const Triangle* rhs) const;
-		bool CompareTexture(const Triangle* lhs, const Triangle* rhs) const;
+		bool CompareBackToFront(const Triangle& lhs, const Triangle& rhs) const;
+		bool CompareFrontToBack(const Triangle& lhs, const Triangle& rhs) const;
+		bool CompareTexture(const Triangle& lhs, const Triangle& rhs) const;
 
 		void SortTriangles() const;
 		void CreateBatches() const;
 
 	private:
-		std::vector<Triangle>					m_triangles;
-		mutable std::vector<BatchInfo>			m_batches;
-		mutable std::vector<const Triangle*>	m_proxy;
-		mutable sf::VertexArray					m_vertices;
+		std::vector<Triangle>				m_triangles;
+		mutable std::vector<BatchInfo>		m_batches;
+		mutable std::vector<std::uint32_t>	m_proxy;
+		mutable sf::VertexArray				m_vertices;
 
-		SortMode		m_sort_mode{SortMode::Deferred};
-		mutable bool	m_update_required{true};
+		SortMode		m_sort_mode			{SortMode::Deferred};
+		mutable bool	m_update_required	{true};
 	};
 }
 

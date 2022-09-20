@@ -18,6 +18,9 @@ namespace vlx
 	////////////////////////////////////////////////////////////
 	class VELOX_API Sprite : public IBatchable
 	{
+	private:
+		using VertexArray = std::array<sf::Vertex, 4>;
+
 	public:
 		Sprite() = default;
 		Sprite(const sf::Texture& texture, float depth = 0.0f);
@@ -28,11 +31,13 @@ namespace vlx
 	public:
 		[[nodiscard]] const sf::Texture* GetTexture() const noexcept;
 		[[nodiscard]] const sf::Shader* GetShader() const noexcept;
-		[[nodiscard]] const sf::VertexArray& GetVertices() const noexcept;
+		[[nodiscard]] const VertexArray& GetVertices() const noexcept;
+		[[nodiscard]] const sf::IntRect& GetTextureRect() const noexcept;
+		[[nodiscard]] const float& GetDepth() const noexcept;
+
 		[[nodiscard]] const sf::FloatRect GetLocalBounds() const noexcept;
 		[[nodiscard]] const sf::Vector2f GetSize() const noexcept;
 		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
-		[[nodiscard]] constexpr float GetDepth() const noexcept;
 
 		void SetTexture(const sf::Texture& texture, bool reset_rect = false);
 		void SetTextureRect(const sf::IntRect& rect);
@@ -45,11 +50,11 @@ namespace vlx
 		void UpdateTexCoords();
 
 	private:
-		const sf::Texture*	m_texture{nullptr};
-		const sf::Shader*	m_shader{nullptr};
-		sf::VertexArray		m_vertices;
+		const sf::Texture*	m_texture		{nullptr};
+		const sf::Shader*	m_shader		{nullptr};
+		VertexArray			m_vertices;
 		sf::IntRect			m_texture_rect;
-		float				m_depth{0.0f};
-		bool				m_batch{true};
+		float				m_depth			{0.0f};
+		bool				m_batch			{true};
 	};
 }

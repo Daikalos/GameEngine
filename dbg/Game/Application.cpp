@@ -177,17 +177,13 @@ void Application::Draw()
 	sprite3.SetColor(sf::Color::Green);
 
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::X))
-		rotation += 100.0f * m_time.GetDeltaTime();
+		transform3.Rotate(sf::degrees(100.0f * m_time.GetDeltaTime()));
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::D))
-		position1.x += 50.0f * m_time.GetDeltaTime();
+		transform1.Move(sf::Vector2f(1, 0) * 50.0f * m_time.GetDeltaTime());
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::A))
-		position1.x -= 50.0f * m_time.GetDeltaTime();
+		transform1.Move(sf::Vector2f(-1, 0) * 50.0f * m_time.GetDeltaTime());
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::S))
-		position2.y += 50.0f * m_time.GetDeltaTime();
-
-	transform2.SetRotation(sf::degrees(rotation));
-	transform1.SetPosition(position1);
-	transform2.SetPosition(position2);
+		transform2.Move(sf::Vector2f(0, 1) * 50.0f * m_time.GetDeltaTime());
 
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Q))
 		transform1.AttachChild(transform2);
@@ -202,6 +198,9 @@ void Application::Draw()
 		transform2.DetachChild(transform3);
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Y))
 		transform2.DetachChild(transform1);
+
+	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+		transform3.SetPosition(sf::Vector2f());
 
 	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
 	m_sprite_batch.Batch(sprite2, transform2, 0.0f);

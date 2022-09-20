@@ -4,13 +4,12 @@ using namespace vlx;
 
 static constexpr std::size_t VERTEX_COUNT = 4;
 
-Sprite::Sprite(const sf::Texture& texture, float depth)
-	: m_texture(nullptr), m_vertices(GetPrimitive(), VERTEX_COUNT), m_texture_rect(), m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, float depth) : m_depth(depth)
 {
 	SetTexture(texture, true);
 }
 
-Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth)
+Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth) : m_depth(depth)
 {
 	SetTextureRect(rect);
 	SetTexture(texture);
@@ -19,7 +18,7 @@ Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth)
 void Sprite::Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const
 {
 	if (m_batch)
-		sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
+		sprite_batch.Batch(transform, m_vertices.data(), m_vertices.size(), GetPrimitive(), m_texture, m_shader, m_depth);
 }
 
 const sf::Texture* Sprite::GetTexture() const noexcept
@@ -30,10 +29,19 @@ const sf::Shader* Sprite::GetShader() const noexcept
 {
 	return m_shader;
 }
-const sf::VertexArray& Sprite::GetVertices() const noexcept
+const Sprite::VertexArray& Sprite::GetVertices() const noexcept
 {
 	return m_vertices;
 }
+const sf::IntRect& Sprite::GetTextureRect() const noexcept
+{
+	return m_texture_rect;
+}
+const float& Sprite::GetDepth() const noexcept
+{
+	return m_depth;
+}
+
 const sf::FloatRect Sprite::GetLocalBounds() const noexcept
 {
 	auto width = static_cast<float>(std::abs(m_texture_rect.width));
@@ -43,17 +51,33 @@ const sf::FloatRect Sprite::GetLocalBounds() const noexcept
 }
 const sf::Vector2f Sprite::GetSize() const noexcept
 {
-	sf::FloatRect rect = m_vertices.getBounds();
-	return sf::Vector2f(rect.width, rect.height);
+	float left		= m_vertices[0].position.x;
+	float top		= m_vertices[0].position.y;
+	float right		= m_vertices[0].position.x;
+	float bottom	= m_vertices[0].position.y;
+
+	for (std::size_t i = 1; i < m_vertices.size(); ++i)
+	{
+		sf::Vector2f position = m_vertices[i].position;
+
+		if (position.x < left)
+			left = position.x;
+		else if (position.x > right)
+			right = position.x;
+
+		if (position.y < top)
+			top = position.y;
+		else if (position.y > bottom)
+			bottom = position.y;
+	}
+
+	return sf::Vector2f(left - right, bottom - top);
 }
 constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 {
 	return sf::TriangleStrip;
 }
-constexpr float Sprite::GetDepth() const noexcept
-{
-	return m_depth;
-}
+
 void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect)
 {
 	if (reset_rect || (!m_texture && (m_texture_rect == sf::IntRect())))
