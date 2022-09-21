@@ -89,7 +89,10 @@ namespace vlx::bm
 					++total_cpu_samples;
 			}
 
-			auto time = time_begin.getElapsedTime().asMilliseconds();
+			sf::Time elapsed = time_begin.getElapsedTime();
+
+			auto microseconds = elapsed.asMicroseconds();
+			auto milliseconds = elapsed.asMilliseconds();
 
 			ram_average = total_ram_samples != 0 ? total_ram_size / total_ram_samples : 0.0;
 			ram_usage = ram_average - initial_ram;
@@ -126,7 +129,8 @@ namespace vlx::bm
 			std::puts("");
 
 			std::puts("TOTAL RUN TIME");
-			std::cout << time << "ms\n";
+			std::cout << microseconds << "ns\n";
+			std::cout << milliseconds << "ms\n";
 			std::cout << "\n";
 		}
 

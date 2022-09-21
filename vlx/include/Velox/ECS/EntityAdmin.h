@@ -39,7 +39,7 @@ namespace vlx
 		using CompnentTypeIDBaseMap = typename std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using EntityArchetypeMap	= typename std::unordered_map<EntityID, Record>;
 		using ArchetypesArray		= typename std::vector<ArchetypePtr>; // find matching archetype to update matching entities
-		using SystemsArrayMap		= typename std::unordered_map<std::uint8_t, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
+		using SystemsArrayMap		= typename std::unordered_map<std::uint16_t, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
 
 	public:
 		VELOX_API EntityAdmin();
@@ -67,13 +67,13 @@ namespace vlx
 		template<class C>
 		C* GetComponent(const EntityID entity_id);
 
+		template<Exists... Cs>
+		std::vector<EntityID> GetEntitiesWith();
+
 		template<class C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 		template<class C>
 		void RemoveComponent(const EntityID entity_id);
-
-		template<class... Cs>
-		std::vector<EntityID> GetEntitiesWith();
 
 	private:
 		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
@@ -162,6 +162,41 @@ namespace vlx
 		}
 
 		return nullptr;
+	}
+
+	template<Exists... Cs>
+	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith()
+	{
+		std::vector<EntityID> entities;
+
+		std::vector<std::uint32_t> archetypes;
+		std::size_t total_size = 0;
+
+		ArchetypeID component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
+
+		for (std::size_t i = 0; i < m_archetypes.size(); ++i)
+		{
+			const ArchetypePtr& archetype = m_archetypes[i];
+			const ArchetypeID& archetype_id = archetype->m_type;
+
+			if (std::includes(component_ids.begin(), component_ids.end(), archetype_id.begin(), archetype_id.end()))
+			{
+				archetypes.push_back(i);
+				total_size += archetype->m_entity_ids.size();
+			}
+		}
+
+		entities.reserve(total_size);
+		for (const std::uint32_t i : archetypes)
+		{
+			const auto& archetype_entities = m_archetypes[i]->m_entity_ids;
+
+			entities.insert(entities.end(),
+				archetype_entities.begin(),
+				archetype_entities.end());
+		}
+
+		return entities;
 	}
 
 	template<class C, typename ...Args> requires std::constructible_from<C, Args...>
@@ -264,13 +299,13 @@ namespace vlx
 		if (!m_entity_archetype_map.contains(entity_id))
 			return;
 
-		ComponentTypeID comp_type_id = Component<C>::GetTypeId();
-
 		Record& record = m_entity_archetype_map[entity_id];
 		Archetype* old_archetype = record.archetype;
 
 		if (!old_archetype)
 			return;
+
+		ComponentTypeID comp_type_id = Component<C>::GetTypeId();
 
 		if (std::find(old_archetype->m_type.begin(), old_archetype->m_type.end(), comp_type_id) == old_archetype->m_type.end())
 			return;
@@ -298,7 +333,9 @@ namespace vlx
 
 			component->ConstructData(&new_archetype->m_component_data[i][current_size]);
 
-			assert(MoveComponent(old_archetype, new_archetype, component, component_id, record.index * component_size, current_size, i));
+			bool found = MoveComponent(old_archetype, new_archetype, component, component_id, record.index * component_size, current_size, i);
+
+			assert(found);
 		}
 
 		const ArchetypeID& old_archetype_id = old_archetype->m_type;
@@ -321,7 +358,7 @@ namespace vlx
 			old_archetype->m_entity_ids.end(), entity_id);
 
 		std::for_each(it, old_archetype->m_entity_ids.end(),
-			[this, &old_archetype](const EntityID& eid)
+			[this](const EntityID& eid)
 			{
 				--m_entity_archetype_map[eid].index;
 			});
@@ -333,15 +370,5 @@ namespace vlx
 		new_archetype->m_entity_ids.push_back(entity_id);
 		record.index = new_archetype->m_entity_ids.size() - 1;
 		record.archetype = new_archetype;
-	}
-
-	template<class... Cs>
-	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith()
-	{
-		std::vector<EntityID> entities;
-
-
-
-		return entities;
 	}
 }

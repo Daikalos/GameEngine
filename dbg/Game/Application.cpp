@@ -176,6 +176,8 @@ void Application::Draw()
 	Sprite sprite3(m_texture_holder.Get(Texture::ID::IdleCursor));
 	sprite3.SetColor(sf::Color::Green);
 
+	transform1.SetScale(sf::Vector2f(1.5, 3.0));
+
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::X))
 		transform3.Rotate(sf::degrees(100.0f * m_time.GetDeltaTime()));
 	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::D))
@@ -188,14 +190,14 @@ void Application::Draw()
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Q))
 		transform1.AttachChild(transform2);
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::W))
-		transform2.AttachChild(transform3);
+		transform3.AttachChild(transform2);
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::E))
 		transform2.AttachChild(transform1);
 
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::R))
 		transform1.DetachChild(transform2);
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::T))
-		transform2.DetachChild(transform3);
+		transform3.DetachChild(transform2);
 	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Y))
 		transform2.DetachChild(transform1);
 

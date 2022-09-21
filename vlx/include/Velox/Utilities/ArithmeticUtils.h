@@ -71,4 +71,22 @@ namespace vlx::au
 		double n = std::pow(10.0, (double)places);
 		return std::round(val * n) / n;
 	}
+
+	template<Arithmetic T>
+	[[nodiscard]] static constexpr auto Sign(const T val)
+	{
+		return (std::signbit(val) == 0) ? 1 : -1;
+	}
+
+	template<Arithmetic T>
+	[[nodiscard]] static constexpr auto P2(const T val)
+	{
+		return val * val;
+	}
+
+	template<Arithmetic T>
+	[[nodiscard]] static constexpr auto SP2(const T v0, const T v1)
+	{
+		return std::sqrt(P2(v0) + P2(v1));
+	}
 }

@@ -36,10 +36,10 @@ const sf::Transform& Transform::GetTransform() const
 		m_global_position.x = mv(0, 3);
 		m_global_position.y = mv(1, 3);
 
-		m_global_scale.x = std::sqrtf(std::powf(mv(0, 0), 2.0f) + std::powf(mv(0, 1), 2.0f));
-		m_global_scale.y = std::sqrtf(std::powf(mv(1, 0), 2.0f) + std::powf(mv(1, 1), 2.0f));
+		m_global_scale.x = au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0));
+		m_global_scale.y = au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1));
 
-		m_global_rotation = sf::radians(std::atanf(mv(1, 0) / mv(1, 1)));
+		m_global_rotation = sf::radians(std::atan2f(mv(1, 0), mv(1, 1)));
 	}
 
 	return m_model_transform;
@@ -208,14 +208,9 @@ void Transform::AttachChild(Transform& child, bool locked)
 	if (child.HasParent()) // if child already has an attached parent
 		child.DetachParent(*child.m_parent, locked);
 
-	child.m_parent = this;
-	m_children.push_back(&child);
-
-	child.UpdateRequired(); // now that the child has been attached, itself and its children needs their global matrix to be updated
-
 	if (locked)
 	{
-		const sf::Transform& transform = GetInverseTransform() * child.GetLocalTransform();
+		const sf::Transform& transform = GetInverseTransform();
 		const float* matrix = transform.getMatrix();
 
 		const auto mv = [&matrix](const int x, const int y) -> float
@@ -223,21 +218,23 @@ void Transform::AttachChild(Transform& child, bool locked)
 			return matrix[x + y * 4];
 		};
 
-		child.m_position = sf::Vector2f(mv(0, 3), mv(1, 3));
+		child.SetPosition(sf::Vector2f(mv(0, 3), mv(1, 3)), false);
 
-		child.m_scale = sf::Vector2f(
-			std::sqrtf(std::powf(mv(0, 0), 2.0f) + std::powf(mv(0, 1), 2.0f)),
-			std::sqrtf(std::powf(mv(1, 0), 2.0f) + std::powf(mv(1, 1), 2.0f)));
+		//child.SetScale(sf::Vector2f(
+		//	au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0)),
+		//	au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1))));
 
-		child.m_rotation = sf::radians(std::atanf(mv(1, 0) / mv(1, 1)));
+		child.SetScale(sf::Vector2f(
+			au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0)),
+			au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1))));
 
-		child.m_update_local_transform = true;
-		child.m_update_inverse_model_transform = true;
+		child.SetRotation(sf::radians(std::atan2f(mv(1, 0), mv(1, 1))));
 	}
-	else
-	{
-		child.UpdateRequired(); // now that the child has been attached, itself and its children needs their global matrix to be updated
-	}
+
+	child.m_parent = this;
+	m_children.push_back(&child);
+
+	child.UpdateRequired(); // now that the child has been attached, itself and its children needs their global matrix to be updated
 }
 Transform* Transform::DetachChild(Transform& child, bool locked)
 {
@@ -249,9 +246,11 @@ Transform* Transform::DetachChild(Transform& child, bool locked)
 	child.m_parent = nullptr;
 	m_children.erase(found);
 
+	child.UpdateRequired();
+
 	if (locked)
 	{
-		const sf::Transform& transform = GetTransform() * child.GetLocalTransform();
+		const sf::Transform& transform = GetTransform();
 		const float* matrix = transform.getMatrix();
 
 		const auto mv = [&matrix](const int x, const int y) -> float
@@ -259,20 +258,17 @@ Transform* Transform::DetachChild(Transform& child, bool locked)
 			return matrix[x + y * 4];
 		};
 
-		child.m_position = sf::Vector2f(mv(0, 3), mv(1, 3));
+		child.SetPosition(sf::Vector2f(mv(0, 3), mv(1, 3)), false);
 
-		child.m_scale = sf::Vector2f(
-			std::sqrtf(std::powf(mv(0, 0), 2.0f) + std::powf(mv(0, 1), 2.0f)),
-			std::sqrtf(std::powf(mv(1, 0), 2.0f) + std::powf(mv(1, 1), 2.0f)));
+		//child.SetScale(sf::Vector2f(
+		//	au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0)),
+		//	au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1))));
 
-		child.m_rotation = sf::radians(std::atanf(mv(1, 0) / mv(1, 1)));
+		child.SetScale(sf::Vector2f(
+			au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0)),
+			au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1))));
 
-		child.m_update_local_transform = true;
-		child.m_update_inverse_model_transform = true;
-	}
-	else
-	{
-		child.UpdateRequired();
+		child.SetRotation(sf::radians(std::atan2f(mv(1, 0), mv(1, 1))));
 	}
 
 	return &child;
