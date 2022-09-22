@@ -38,6 +38,7 @@ void Application::Run()
 		EntityAdmin entity_admin;
 
 		entity_admin.RegisterComponent<Velocity>();
+		entity_admin.RegisterComponent<Transform>();
 
 		std::vector<Entity> entities;
 
@@ -48,7 +49,7 @@ void Application::Run()
 		}
 
 		System<Velocity> s0(entity_admin, 0);
-		System<Velocity> s1(entity_admin, 0);
+		System<Velocity> s1(entity_admin, 1);
 		System<Velocity> s2(entity_admin, 0);
 		System<Velocity> s3(entity_admin, 0);
 		
@@ -60,7 +61,23 @@ void Application::Run()
 				}
 			});
 
+		s1.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities)
+			{
+				for (std::size_t i = 0; i < entities.size(); ++i)
+				{
+					std::puts(std::to_string(velocities[i].velocity.x).c_str());
+				}
+			});
+
 		entity_admin.RunSystems(0, m_time);
+
+		entities[1].Remove<Velocity>();
+		entities[4].Remove<Velocity>();
+		entities[6].Remove<Velocity>();
+
+		std::puts("");
+
+		entity_admin.RunSystems(1, m_time);
 	}
 
 	bm::End();

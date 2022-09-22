@@ -7,13 +7,13 @@
 
 namespace vlx
 {
-	class Entity final
+	class Entity
 	{
 	public:
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
 		VELOX_API Entity(Entity&& entity);
 
-		VELOX_API ~Entity();
+		VELOX_API virtual ~Entity();
 
 		VELOX_API constexpr EntityID GetId() const;
 
@@ -29,7 +29,7 @@ namespace vlx
 		template<class C>
 		C* Get();
 
-	private:
+	protected:
 		EntityID		m_id; // entity is just an id
 		EntityAdmin*	m_entity_admin;
 	};

@@ -145,9 +145,9 @@ namespace vlx
 		if (m_func_set)
 		{
 			DoAction<0>(time, 
-				archetype->m_type, 
-				archetype->m_entity_ids, 
-				archetype->m_component_data);
+				archetype->type, 
+				archetype->entities, 
+				archetype->component_data);
 		}
 	}
 

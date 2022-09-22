@@ -5,7 +5,6 @@
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
-    <ClCompile Include="src\scene\StateStack.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
     <ClCompile Include="src\Input\JoystickInput.cpp" />
@@ -72,6 +71,7 @@
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
+    <ClInclude Include="include\Velox\Components\Node.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

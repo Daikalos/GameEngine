@@ -14,6 +14,8 @@ namespace vlx
 	{ 
 	public:
 		Transform();
+		Transform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation);
+
 		~Transform();
 
 	public:
@@ -86,7 +88,7 @@ namespace vlx
 
 		// parent/child members
 
-		std::vector<Transform*> m_children;
+		std::vector<Transform*> m_children; // TODO: this will not work because the pointers can become invalidated, look at using system instead
 		Transform*				m_parent						{nullptr};
 	};
 }

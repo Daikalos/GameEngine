@@ -67,13 +67,18 @@ namespace vlx::cu
 		return std::lower_bound(vector.begin(), vector.end(), item);
 	}
 
+	template<class T>
+	[[nodiscard]] static constexpr auto InsertSorted(std::vector<T>& vector, const T& item)
+	{
+		return vector.insert(std::upper_bound(
+			vector.begin(), vector.end(), item), item);
+	}
+
 	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
 	[[nodiscard]] static constexpr auto InsertSorted(std::vector<T>& vector, const T& item, Pred&& pred)
 	{
-		return vector.insert
-		(
-			std::upper_bound(vector.begin(), vector.end(), item, std::forward<Pred>(pred)), item
-		);
+		return vector.insert(std::upper_bound(
+				vector.begin(), vector.end(), item, std::forward<Pred>(pred)), item);
 	}
 
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)

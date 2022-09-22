@@ -19,7 +19,9 @@ namespace vlx
 		virtual void ConstructData(DataPtr data) const = 0;
 		virtual void DestroyData(DataPtr data) const = 0;
 		virtual void MoveData(DataPtr source, DataPtr destination) const = 0;
+		virtual void SwapData(DataPtr d0, DataPtr d1) const = 0;
 
+		// small helper function
 		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const = 0;
 
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
@@ -32,6 +34,7 @@ namespace vlx
 		virtual void ConstructData(DataPtr data) const override;
 		virtual void DestroyData(DataPtr data) const override;
 		virtual void MoveData(DataPtr source, DataPtr destination) const override;
+		virtual void SwapData(DataPtr d0, DataPtr d1) const override;
 
 		////////////////////////////////////////////////////////////
 		// Small helper function for moving and then destroying 
@@ -61,6 +64,18 @@ namespace vlx
 	inline void Component<C>::MoveData(DataPtr source, DataPtr destination) const
 	{
 		new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
+	}
+
+	template<class C>
+	inline void Component<C>::SwapData(DataPtr d0, DataPtr d1) const
+	{
+		constexpr auto size = sizeof(C);
+
+		std::byte temp[size];
+		std::memcpy(&temp, d0, size);
+
+		std::memcpy(d0, d1, size); // swaps the contents of two byte arrays
+		std::memcpy(d1, temp, size);
 	}
 
 	template<class C>
