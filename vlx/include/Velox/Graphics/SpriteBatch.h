@@ -44,6 +44,8 @@ namespace vlx
 		};
 
 	public:
+		void Reserve(const std::size_t size);
+
 		void SetSortMode(const SortMode sort_mode);
 
 		void AddTriangle(

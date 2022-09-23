@@ -8,8 +8,10 @@
 namespace vlx
 {
 	////////////////////////////////////////////////////////////
-	// DataPtr is used for representing a binary data 
-	// buffer, where each element is a single byte. 
+	// 
+	// DataPtr is used for representing a binary data buffer, where each element 
+	// is a single byte. This allows in theory to store any kind of object in the ECS 
+	// 
 	////////////////////////////////////////////////////////////
 	class ComponentBase
 	{
@@ -21,7 +23,6 @@ namespace vlx
 		virtual void MoveData(DataPtr source, DataPtr destination) const = 0;
 		virtual void SwapData(DataPtr d0, DataPtr d1) const = 0;
 
-		// small helper function
 		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const = 0;
 
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
@@ -42,9 +43,9 @@ namespace vlx
 		////////////////////////////////////////////////////////////
 		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const override;
 
-		virtual [[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
+		[[nodiscard]] virtual constexpr std::size_t GetSize() const noexcept override;
 
-		static [[nodiscard]] ComponentTypeID GetTypeId();
+		[[nodiscard]] static ComponentTypeID GetTypeId();
 	};
 
 	template<class C>
@@ -72,7 +73,7 @@ namespace vlx
 		constexpr auto size = sizeof(C);
 
 		std::byte temp[size];
-		std::memcpy(&temp, d0, size);
+		std::memcpy(temp, d0, size);
 
 		std::memcpy(d0, d1, size); // swaps the contents of two byte arrays
 		std::memcpy(d1, temp, size);

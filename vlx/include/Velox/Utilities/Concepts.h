@@ -22,16 +22,16 @@ namespace vlx
 	concept IntEnum = Integral<T> || Enum<T>;
 
 	template<typename T, typename... Args>
-	concept SameType = std::conjunction_v<std::is_same<T, Args>...>;
+	concept IsSameType = std::conjunction_v<std::is_same<T, Args>...>;
 
 	template<typename T>
-	concept StringType = std::is_convertible_v<T, std::string_view>;
+	concept IsStringType = std::is_convertible_v<T, std::string_view>;
 
 	template<typename... Args>
 	concept Exists = sizeof...(Args) > 0;
 
 	template<std::size_t sz, typename... Args>
-	concept SameSize = requires { sz == (sizeof(Args) + ... + 0); };
+	concept IsSameSize = requires { sz == (sizeof(Args) + ... + 0); };
 
 	template<class Resource>
 	concept IsLoadable = requires(Resource&& resource)
@@ -46,4 +46,7 @@ namespace vlx
 		{ input.Released(Bind()) } -> std::same_as<bool>;
 		{ input.Held(Bind()) } -> std::same_as<bool>;
 	};
+
+	template<class C>
+	concept IsComponentType = requires { std::is_class_v<C> && std::copyable<C>; };
 }

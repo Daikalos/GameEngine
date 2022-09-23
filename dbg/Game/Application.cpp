@@ -38,20 +38,22 @@ void Application::Run()
 		EntityAdmin entity_admin;
 
 		entity_admin.RegisterComponent<Velocity>();
-		entity_admin.RegisterComponent<Transform>();
+		entity_admin.RegisterComponent<Sprite>();
 
 		std::vector<Entity> entities;
 
-		for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < 15; ++i)
 		{
 			Entity& entity = entities.emplace_back(entity_admin); 
-			entity.Add<Velocity>(sf::Vector2f(rnd::random(0.0f, 5.0f), 0.0f));
+			entity.Add<Velocity>(sf::Vector2f(i, 0.0f));
+			entity.Add<Sprite>();
 		}
 
 		System<Velocity> s0(entity_admin, 0);
-		System<Velocity> s1(entity_admin, 1);
-		System<Velocity> s2(entity_admin, 0);
-		System<Velocity> s3(entity_admin, 0);
+		System<Velocity, Sprite> s1(entity_admin, 1);
+		System<Velocity, Sprite, Node> s2(entity_admin, 0);
+
+		//std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
 		
 		s0.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities)
 			{
@@ -61,7 +63,7 @@ void Application::Run()
 				}
 			});
 
-		s1.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities)
+		s1.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
@@ -71,13 +73,30 @@ void Application::Run()
 
 		entity_admin.RunSystems(0, m_time);
 
-		entities[1].Remove<Velocity>();
-		entities[4].Remove<Velocity>();
-		entities[6].Remove<Velocity>();
+		for (std::size_t i = 0; i < 1000; ++i)
+		{
+			std::size_t index = rnd::random(0LLU, entities.size() - 1);
+			Entity& entity = entities.at(index);
+
+			float random = rnd::random();
+
+			if (random > 0.85f)
+				entity.Add<Velocity>(sf::Vector2f(index, 0.0f));
+			else if (random > 0.70f)
+				entity.Remove<Velocity>();
+			else if (random > 0.55f)
+				entity.Add<Node>();
+			else if (random > 0.40f)
+				entity.Remove<Node>();
+			else if (random > 0.25f)
+				entity.Add<Sprite>();
+			else if (random > 0.0f)
+				entity.Remove<Sprite>();
+		}
 
 		std::puts("");
 
-		entity_admin.RunSystems(1, m_time);
+		entity_admin.RunSystems(0, m_time);
 	}
 
 	bm::End();

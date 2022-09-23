@@ -112,26 +112,28 @@ namespace vlx::bm
 			std::puts(m_message.data());
 			std::puts("");
 
-			std::puts("BENCHMARK BEGIN");
+			std::puts("--- BENCHMARK BEGIN ---");
 			std::puts("");
-			std::puts(std::string("INITIAL RAM: " + print(initial_ram, 2) + "MB").c_str());
-			std::puts(std::string("INITIAL CPU: " + print(initial_cpu, 2) + "%").c_str());
+			std::puts(std::string("INITIAL RAM:	" + print(initial_ram, 2) + "MB").c_str());
+			std::puts(std::string("INITIAL CPU:	" + print(initial_cpu, 2) + "%").c_str());
 			std::puts("");
 
-			std::puts("BENCHMARK END");
+			std::puts("--- BENCHMARK END ---");
 			std::puts("");
-			std::puts(std::string("RAM TOTAL: "	+ print(ram_average, 2)	+ "MB").c_str());
-			std::puts(std::string("RAM USED: "	+ print(ram_usage, 2)	+ "MB").c_str());
-			std::puts(std::string("RAM CURR: "	+ print(ram_curr, 2)	+ "MB").c_str());
-			std::puts(std::string("RAM DIFF: "	+ print(ram_diff, 2)	+ "MB").c_str());
-			std::puts(std::string("CPU TOTAL: " + print(cpu_average, 2)	+ "%").c_str());
-			std::puts(std::string("CPU USED: "	+ print(cpu_usage, 2)	+ "%").c_str());
+			std::puts(std::string("RAM TOTAL:	"	+ print(ram_average, 2)	+ "MB").c_str());
+			std::puts(std::string("RAM USED:	"	+ print(ram_usage, 2)	+ "MB").c_str());
+			std::puts(std::string("RAM CURR:	"	+ print(ram_curr, 2)	+ "MB").c_str());
+			std::puts(std::string("RAM DIFF:	"	+ print(ram_diff, 2)	+ "MB").c_str());
+			std::puts(std::string("CPU TOTAL:	" + print(cpu_average, 2)	+ "%").c_str());
+			std::puts(std::string("CPU USED:	"	+ print(cpu_usage, 2)	+ "%").c_str());
 			std::puts("");
 
 			std::puts("TOTAL RUN TIME");
 			std::cout << microseconds << "ns\n";
 			std::cout << milliseconds << "ms\n";
 			std::cout << "\n";
+
+			std::puts("---------------------");
 		}
 
 		long double GetCPU()

@@ -5,6 +5,12 @@ using namespace vlx;
 SpriteBatch::Triangle::Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d)
 	: vertices{ v0, v1, v2 }, texture(t), shader(s), depth(d) { }
 
+void SpriteBatch::Reserve(const std::size_t size)
+{
+	m_triangles.reserve(size);
+	m_proxy.reserve(size);
+}
+
 void SpriteBatch::SetSortMode(const SortMode sort_mode)
 {
 	m_sort_mode = sort_mode;
