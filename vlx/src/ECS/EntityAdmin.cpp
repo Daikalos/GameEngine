@@ -142,9 +142,35 @@ void EntityAdmin::Shrink(bool extensive)
 			return archetype->entities.empty();
 		}), m_archetypes.end());
 
-	if (extensive)
+	if (extensive) // shrink all archetypes data
 	{
+		for (std::size_t i = 0; i < m_archetypes.size(); ++i)
+		{
+			const ArchetypePtr& archetype = m_archetypes[i];
+			const ArchetypeID& archetype_id = archetype->type;
+			const std::vector<EntityID>& entities = archetype->entities;
 
+			for (std::size_t j = 0; j < archetype_id.size(); ++j)
+			{
+				const ComponentTypeID& component_id = archetype->type[i];
+				const ComponentBase* component = m_component_map[component_id].get();
+				const std::size_t& component_size = component->GetSize();
+
+				const std::size_t current_size = entities.size() * component_size;
+
+				archetype->component_data_size[j] = current_size;
+				ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
+
+				for (std::size_t k = 0; k < entities.size(); ++k)
+				{
+					component->MoveDestroyData(
+						&archetype->component_data[j][k * component_size],
+						&new_data[k * component_size]);
+				}
+
+				archetype->component_data[j] = std::move(new_data);
+			}
+		}
 	}
 }
 

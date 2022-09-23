@@ -272,9 +272,7 @@ namespace vlx
 						&old_archetype->component_data[i][record.index * component_size]); // move data to last
 				}
 
-				auto it = std::find(old_archetype->entities.begin(), old_archetype->entities.end(), entity_id); // now swap ids
-				*it = old_archetype->entities.back();
-
+				old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
 				last_record.index = record.index;
 			}
 
@@ -367,9 +365,7 @@ namespace vlx
 					&old_archetype->component_data[i][record.index * component_size]); // move data to last
 			}
 
-			auto it = std::find(old_archetype->entities.begin(), old_archetype->entities.end(), entity_id); // now swap ids
-			*it = old_archetype->entities.back();
-
+			old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids
 			last_record.index = record.index;
 		}
 
