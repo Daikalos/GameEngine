@@ -10,7 +10,7 @@ namespace vlx
 	////////////////////////////////////////////////////////////
 	// 
 	// DataPtr is used for representing a binary data buffer, where each element 
-	// is a single byte. This allows in theory to store any kind of object in the ECS 
+	// is a single byte. This allows in theory to store any kind of object in the ECS.
 	// 
 	////////////////////////////////////////////////////////////
 	class ComponentBase

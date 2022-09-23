@@ -60,6 +60,15 @@ namespace vlx
 		VELOX_API void RemoveSystem(const std::uint16_t layer, SystemBase* system);
 		VELOX_API void RemoveEntity(const EntityID entity_id);
 
+		/// <summary>
+		///		Shrinks the ECS by removing all the empty archetypes
+		/// </summary>
+		/// <param name="extensive">- 
+		///		perform a complete shrink of the ECS by removing all the extra data, will most likely 
+		///		invalidate all the existing pointers from e.g., GetComponent()
+		/// </param>
+		VELOX_API void Shrink(bool extensive = false);
+
 		template<class C> requires IsComponentType<C>
 		void RegisterComponent();
 
@@ -78,15 +87,6 @@ namespace vlx
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 		template<class C> requires IsComponentType<C>
 		void RemoveComponent(const EntityID entity_id);
-
-		/// <summary>
-		///		Shrinks the ECS by removing all the empty archetypes as default
-		/// </summary>
-		/// <param name="extensive">: 
-		///		perform a complete shrink of the ECS by removing all the extra data, will most likely 
-		///		invalidate all the existing pointers from e.g., GetComponent()
-		/// </param>
-		void Shrink(bool extensive = false);
 
 	private:
 		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
