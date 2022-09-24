@@ -4,7 +4,7 @@
 #include <Velox/Config.hpp>
 
 #include <Velox/Components/Transform.h>
-#include <Velox/Components/Node.h>
+#include <Velox/Components/Relationship.h>
 
 namespace vlx
 {
@@ -13,10 +13,12 @@ namespace vlx
 	class VELOX_API TransformSystem
 	{
 	private:
-		using System = System<Transform, Node>;
+		using System = System<Transform, Relationship>;
 
 	public:
 		TransformSystem(EntityAdmin* entity_admin);
+
+		//void AddParent() {}
 
 	private:
 		System m_system;

@@ -14,4 +14,5 @@ namespace vlx
 	using ArchetypeID		= typename std::vector<ComponentTypeID>;
 
 	constexpr IDType NULL_ENTITY = NULL;
+	constexpr IDType NULL_ARCHETYPE = NULL;
 }

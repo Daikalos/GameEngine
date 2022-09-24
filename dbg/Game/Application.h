@@ -14,7 +14,7 @@
 
 #include <Velox/Components/Sprite.h>
 #include <Velox/Components/Velocity.h>
-#include <Velox/Components/Node.h>
+#include <Velox/Components/Relationship.h>
 #include <Velox/Components/Test.h>
 
 #include <Velox/Window/Camera.h>

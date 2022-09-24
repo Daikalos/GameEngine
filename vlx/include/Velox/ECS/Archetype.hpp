@@ -1,13 +1,14 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+#include <unordered_set>
 
 #include "Identifiers.hpp"
 
 namespace vlx
 {
 	using ComponentData = std::unique_ptr<ByteArray>;
-
 
 	struct Archetype // an archetype for every unique list of components for an entity
 	{

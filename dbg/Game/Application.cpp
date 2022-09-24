@@ -40,7 +40,7 @@ void Application::Run()
 		entity_admin.RegisterComponent<Velocity>();
 		entity_admin.RegisterComponent<Sprite>();
 		entity_admin.RegisterComponent<Test>();
-		entity_admin.RegisterComponent<Node>();
+		entity_admin.RegisterComponent<Relationship>();
 
 		std::vector<Entity> entities;
 
@@ -53,7 +53,7 @@ void Application::Run()
 
 		System<Velocity> s0(entity_admin, 0);
 		System<Velocity, Sprite> s1(entity_admin, 1);
-		System<Velocity, Sprite, Node> s2(entity_admin, 0);
+		System<Velocity, Sprite, Relationship> s2(entity_admin, 0);
 
 		//std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
 		
@@ -95,9 +95,9 @@ void Application::Run()
 			else if (random > 0.80f)
 				entity.Remove<Velocity>();
 			else if (random > 0.70f)
-				entity.Add<Node>();
+				entity.Add<Relationship>();
 			else if (random > 0.60f)
-				entity.Remove<Node>();
+				entity.Remove<Relationship>();
 			else if (random > 0.50f)
 				entity.Add<Sprite>();
 			else if (random > 0.40f)

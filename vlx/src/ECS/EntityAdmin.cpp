@@ -24,6 +24,14 @@ EntityAdmin::~EntityAdmin()
 
 EntityID EntityAdmin::GetNewId()
 {
+	if (!m_reusable_ids.empty())
+	{
+		EntityID entity_id = m_reusable_ids.front();
+		m_reusable_ids.pop();
+
+		return entity_id;
+	}
+
 	return m_entity_id_counter++;
 }
 
@@ -78,7 +86,9 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 	if (!archetype)
 	{
-		m_entity_archetype_map.erase(eit);
+		m_entity_archetype_map.erase(entity_id);
+		m_reusable_ids.push(entity_id);
+
 		return;
 	}
 
@@ -97,33 +107,35 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 			component->DestroyData(&archetype->component_data[i][record.index * component_size]);
 
-			component->MoveData(
+			component->MoveDestroyData(
 				&archetype->component_data[i][last_record.index * component_size],
 				&archetype->component_data[i][record.index * component_size]);
 		}
 
-		auto it = std::find(archetype->entities.begin(), archetype->entities.end(), entity_id); // now swap ids
-		*it = archetype->entities.back();
-
+		archetype->entities.at(record.index) = archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
 		last_record.index = record.index;
 	}
 
-	m_entity_archetype_map.erase(entity_id);
 	archetype->entities.pop_back();
+
+	m_entity_archetype_map.erase(entity_id);
+	m_reusable_ids.push(entity_id);
 }
 
 Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 {
-	for (const ArchetypePtr& archetype : m_archetypes)
-	{
-		if (archetype->type == id)
-			return archetype.get();
-	}
+	auto it = m_archetype_map.find(id);
+
+	if (it != m_archetype_map.end())
+		return it->second;
 
 	// archetype does not exist, create new one
 
 	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
 	new_archetype->type = id;
+
+	auto insert = m_archetype_map.insert(std::make_pair(new_archetype->type, new_archetype.get()));
+	assert(insert.second);
 
 	for (ArchetypeID::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type
 	{
@@ -152,6 +164,7 @@ void EntityAdmin::Shrink(bool extensive)
 				for (const EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
+					m_reusable_ids.push(entity_id);
 				}
 				return true;
 			}

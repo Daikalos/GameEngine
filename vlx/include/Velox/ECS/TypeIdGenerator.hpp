@@ -7,7 +7,7 @@
 namespace vlx
 {
 	template<class C>
-	class TypeIdGenerator // maybe look at re-using IDs
+	class TypeIdGenerator
 	{
 	public:
 		template<class U>
