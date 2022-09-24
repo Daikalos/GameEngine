@@ -39,8 +39,8 @@ void Application::Run()
 
 		entity_admin.RegisterComponent<Velocity>();
 		entity_admin.RegisterComponent<Sprite>();
-		//entity_admin.RegisterComponent<Test>();
-		//entity_admin.RegisterComponent<Node>();
+		entity_admin.RegisterComponent<Test>();
+		entity_admin.RegisterComponent<Node>();
 
 		std::vector<Entity> entities;
 
@@ -90,18 +90,22 @@ void Application::Run()
 
 			float random = rnd::random();
 
-			if (random > 0.85f)
+			if (random > 0.90f)
 				entity.Add<Velocity>(sf::Vector2f(index, 0.0f));
-			else if (random > 0.70f)
+			else if (random > 0.80f)
 				entity.Remove<Velocity>();
-			else if (random > 0.55f)
+			else if (random > 0.70f)
 				entity.Add<Node>();
-			else if (random > 0.40f)
+			else if (random > 0.60f)
 				entity.Remove<Node>();
-			else if (random > 0.25f)
+			else if (random > 0.50f)
 				entity.Add<Sprite>();
-			else if (random > 0.0f)
+			else if (random > 0.40f)
 				entity.Remove<Sprite>();
+			else if (random > 0.30f)
+				entity.Add<Test>();
+			else if (random > 0.20f)
+				entity.Remove<Test>();
 		}
 
 		std::puts("");

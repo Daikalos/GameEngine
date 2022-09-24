@@ -108,6 +108,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 		last_record.index = record.index;
 	}
 
+	m_entity_archetype_map.erase(entity_id);
 	archetype->entities.pop_back();
 }
 
@@ -135,11 +136,26 @@ Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 
 void EntityAdmin::Shrink(bool extensive)
 {
-	// remove any dangling archetypes
+	// remove any dangling archetypes with no entities
 	m_archetypes.erase(std::remove_if(m_archetypes.begin(), m_archetypes.end(),
 		[](const ArchetypePtr& archetype)
 		{
 			return archetype->entities.empty();
+		}), m_archetypes.end());
+
+	// remove any archetypes that holds no components (cant be used anyways)
+	m_archetypes.erase(std::remove_if(m_archetypes.begin(), m_archetypes.end(),
+		[this](const ArchetypePtr& archetype)
+		{
+			if (archetype->type.empty())
+			{
+				for (const EntityID entity_id : archetype->entities)
+				{
+					m_entity_archetype_map.erase(entity_id);
+				}
+				return true;
+			}
+			return false;
 		}), m_archetypes.end());
 
 	if (extensive) // shrink all archetypes data
@@ -173,6 +189,7 @@ void EntityAdmin::Shrink(bool extensive)
 		}
 	}
 }
+
 
 void EntityAdmin::MakeRoom(
 	Archetype* archetype, 
