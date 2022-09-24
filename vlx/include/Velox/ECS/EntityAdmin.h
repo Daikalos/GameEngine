@@ -211,7 +211,7 @@ namespace vlx
 	template<class C, typename ...Args> requires IsComponentType<C> && std::constructible_from<C, Args...>
 	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args)
 	{
-		if (IsComponentRegistered<C>()) // component should be registered
+		if (!IsComponentRegistered<C>()) // component should be registered
 			return nullptr;
 
 		ComponentTypeID new_component_id = Component<C>::GetTypeId();
