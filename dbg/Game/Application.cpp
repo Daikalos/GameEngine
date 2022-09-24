@@ -39,6 +39,8 @@ void Application::Run()
 
 		entity_admin.RegisterComponent<Velocity>();
 		entity_admin.RegisterComponent<Sprite>();
+		//entity_admin.RegisterComponent<Test>();
+		//entity_admin.RegisterComponent<Node>();
 
 		std::vector<Entity> entities;
 
@@ -72,6 +74,14 @@ void Application::Run()
 			});
 
 		entity_admin.RunSystems(0, m_time);
+
+		std::puts("");
+
+		std::puts(std::to_string(entities[1].Get<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[3].Get<Velocity>()->velocity.x).c_str());
+
+		std::puts("");
 
 		for (std::size_t i = 0; i < 1000; ++i)
 		{

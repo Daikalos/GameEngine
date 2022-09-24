@@ -6,7 +6,7 @@
 
 namespace vlx
 {
-	enum ButtonEvent : std::uint16_t
+	enum ButtonEvent : std::uint8_t
 	{
 		BE_Begin	= 0,
 
@@ -75,7 +75,7 @@ namespace vlx
 			const ButtonType& key = pair.first;
 			const auto& button_func = pair.second;
 
-			for (ButtonEvent event = BE_Begin; event != BE_End; ++event)
+			for (ButtonEvent event = BE_Begin; event < BE_End; ++event)
 			{
 				bool triggered = false;
 

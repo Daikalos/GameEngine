@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Components\Node.h" />
+    <ClInclude Include="include\Velox\Components\Test.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

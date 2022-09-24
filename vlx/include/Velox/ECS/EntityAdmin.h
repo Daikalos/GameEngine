@@ -64,7 +64,7 @@ namespace vlx
 		///		Shrinks the ECS by removing all the empty archetypes
 		/// </summary>
 		/// <param name="extensive">- 
-		///		perform a complete shrink of the ECS by removing all the extra data, will most likely 
+		///		perform a complete shrink of the ECS by removing all the extra data space, will most likely 
 		///		invalidate all the existing pointers from e.g., GetComponent()
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
@@ -211,7 +211,7 @@ namespace vlx
 	template<class C, typename ...Args> requires IsComponentType<C> && std::constructible_from<C, Args...>
 	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args)
 	{
-		if (!IsComponentRegistered<C>()) // component should be registered
+		if (IsComponentRegistered<C>()) // component should be registered
 			return nullptr;
 
 		ComponentTypeID new_component_id = Component<C>::GetTypeId();
@@ -254,6 +254,8 @@ namespace vlx
 						C(std::forward<Args>(args)...);
 				}
 			}
+
+			assert(new_component != nullptr); // a new component should have been added
 
 			EntityID last_entity_id = old_archetype->entities.back();
 			Record& last_record = m_entity_archetype_map[last_entity_id];

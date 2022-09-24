@@ -72,6 +72,7 @@
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\Components\Node.h" />
+    <ClInclude Include="include\Velox\Components\Test.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
