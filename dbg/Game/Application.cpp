@@ -65,7 +65,7 @@ void Application::Run()
 				}
 			});
 
-		s1.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
+		s1.Action([&](Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
@@ -80,6 +80,8 @@ void Application::Run()
 		std::puts(std::to_string(entities[1].Get<Velocity>()->velocity.x).c_str());
 		std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
 		std::puts(std::to_string(entities[3].Get<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[2].Has<Velocity>()).c_str());
+		std::puts(std::to_string(entities[3].Has<Velocity>()).c_str());
 
 		std::puts("");
 
@@ -110,7 +112,7 @@ void Application::Run()
 
 		std::puts("");
 
-		entity_admin.RunSystems(0, m_time);
+		entity_admin.RunSystems(1, m_time);
 	}
 
 	bm::End();

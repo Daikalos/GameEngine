@@ -35,7 +35,7 @@ EntityID EntityAdmin::GetNewId()
 	return m_entity_id_counter++;
 }
 
-void EntityAdmin::RunSystems(const std::uint8_t layer, Time& time)
+void EntityAdmin::RunSystems(const LayerType layer, Time& time)
 {
 	for (SystemBase* system : m_systems[layer])
 	{
@@ -49,7 +49,7 @@ void EntityAdmin::RunSystems(const std::uint8_t layer, Time& time)
 		}
 	}
 }
-void EntityAdmin::SortSystems(const std::uint8_t layer)
+void EntityAdmin::SortSystems(const LayerType layer)
 {
 	auto& systems = m_systems[layer];
 	std::sort(systems.begin(), systems.end(),
@@ -59,7 +59,7 @@ void EntityAdmin::SortSystems(const std::uint8_t layer)
 		});
 }
 
-void EntityAdmin::RegisterSystem(const std::uint8_t layer, SystemBase* system)
+void EntityAdmin::RegisterSystem(const LayerType layer, SystemBase* system)
 {
 	m_systems[layer].push_back(system);
 }
@@ -77,7 +77,6 @@ void EntityAdmin::RemoveSystem(const std::uint16_t layer, SystemBase* system)
 void EntityAdmin::RemoveEntity(const EntityID entity_id)
 {
 	auto eit = m_entity_archetype_map.find(entity_id);
-
 	if (eit == m_entity_archetype_map.end())
 		return;
 
@@ -94,6 +93,15 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 	ArchetypeID& archetype_id = archetype->type;
 
+	for (std::size_t i = 0; i < archetype_id.size(); ++i) // we iterate over both archetypes
+	{
+		const ComponentTypeID component_id = archetype_id[i];
+		const ComponentBase* component = m_component_map[component_id].get();
+		const std::size_t component_size = component->GetSize();
+
+		component->DestroyData(&archetype->component_data[i][record.index * component_size]);
+	}
+
 	EntityID last_entity_id = archetype->entities.back();
 	Record& last_record = m_entity_archetype_map[last_entity_id];
 
@@ -104,8 +112,6 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 			const ComponentTypeID& component_id = archetype->type[i];
 			const ComponentBase* component = m_component_map[component_id].get();
 			const std::size_t& component_size = component->GetSize();
-
-			component->DestroyData(&archetype->component_data[i][record.index * component_size]);
 
 			component->MoveDestroyData(
 				&archetype->component_data[i][last_record.index * component_size],
@@ -154,22 +160,31 @@ void EntityAdmin::Shrink(bool extensive)
 {
 	// remove any dangling archetypes with no entities
 	m_archetypes.erase(std::remove_if(m_archetypes.begin(), m_archetypes.end(),
-		[](const ArchetypePtr& archetype)
+		[this](const ArchetypePtr& archetype)
 		{
-			return archetype->entities.empty();
+			if (archetype->entities.empty())
+			{
+				m_archetype_map.erase(archetype->type);
+				return true;
+			}
+
+			return false;
 		}), m_archetypes.end());
 
-	// remove any archetypes that holds no components (cant be used anyways)
+	// remove any archetypes that holds no components (cant be used anyways), should not exist in the first place
 	m_archetypes.erase(std::remove_if(m_archetypes.begin(), m_archetypes.end(),
 		[this](const ArchetypePtr& archetype)
 		{
 			if (archetype->type.empty())
 			{
+				m_archetype_map.erase(archetype->type);
+
 				for (const EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
 					m_reusable_ids.push(entity_id);
 				}
+
 				return true;
 			}
 			return false;
@@ -205,11 +220,6 @@ void EntityAdmin::Shrink(bool extensive)
 			}
 		}
 	}
-}
-
-void EntityAdmin::Sort()
-{
-
 }
 
 void EntityAdmin::MakeRoom(

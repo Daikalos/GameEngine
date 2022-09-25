@@ -74,6 +74,26 @@ namespace vlx::cu
 			vector.begin(), vector.end(), item), item);
 	}
 
+	template<class T>
+	[[nodiscard]] static constexpr bool InsertUniqueSorted(std::vector<T>& vector, const T& item)
+	{
+		for (auto it = vector.begin(); it != vector.end(); ++it) // custom algorithm for inserting an item in a sorted list containing only unique values
+		{
+			if (*it == item)
+				return false;
+
+			if (*it > item)
+			{
+				vector.insert(it, item);
+				return true;
+			}
+		}
+
+		vector.insert(vector.end(), item);
+
+		return true;
+	}
+
 	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
 	[[nodiscard]] static constexpr auto InsertSorted(std::vector<T>& vector, const T& item, Pred&& pred)
 	{
