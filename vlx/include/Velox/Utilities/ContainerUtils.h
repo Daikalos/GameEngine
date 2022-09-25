@@ -124,14 +124,12 @@ namespace vlx::cu
 	template<IsVector T>
 	struct VectorHash
 	{
-		std::size_t operator()(const T& container) const
+		typename T::value_type operator()(const T& container) const
 		{
-			std::size_t hash = container.size();
+			typename T::value_type hash = container.size();
 
 			for (auto& i : container)
-			{
 				hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-			}
 
 			return hash;
 		}

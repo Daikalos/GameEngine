@@ -7,7 +7,7 @@ Entity::Entity(EntityAdmin& entity_admin)
 {
 	m_entity_admin->RegisterEntity(m_id);
 }
-Entity::Entity(Entity&& entity)
+Entity::Entity(Entity&& entity) noexcept
 	: m_id(entity.m_id), m_entity_admin(entity.m_entity_admin)
 {
 	entity.m_id = NULL_ENTITY;

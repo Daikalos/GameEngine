@@ -132,6 +132,8 @@ Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 	// archetype does not exist, create new one
 
 	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
+
+	new_archetype->id = cu::VectorHash<ArchetypeID>()(id);
 	new_archetype->type = id;
 
 	auto insert = m_archetype_map.insert(std::make_pair(new_archetype->type, new_archetype.get()));
@@ -139,8 +141,10 @@ Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
 
 	for (ArchetypeID::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type
 	{
-		new_archetype->component_data.push_back(std::make_unique<ByteArray>(0));
-		new_archetype->component_data_size.push_back(0);
+		constexpr std::size_t DEFAULT_SIZE = 64; // default size in bytes to reduce number of reallocations
+
+		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
+		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
 	}
 
 	return m_archetypes.emplace_back(std::move(new_archetype)).get();
@@ -203,6 +207,10 @@ void EntityAdmin::Shrink(bool extensive)
 	}
 }
 
+void EntityAdmin::Sort()
+{
+
+}
 
 void EntityAdmin::MakeRoom(
 	Archetype* archetype, 
@@ -223,32 +231,6 @@ void EntityAdmin::MakeRoom(
 	}
 
 	archetype->component_data[i] = std::move(new_data);
-}
-
-bool EntityAdmin::MoveComponent(
-	Archetype* old_archetype,
-	Archetype* new_archetype,
-	const ComponentBase* component,
-	const std::size_t component_id,
-	const std::size_t old_component,
-	const std::size_t new_component,
-	const std::size_t i)
-{
-	const ArchetypeID& old_archetype_id = old_archetype->type;
-	for (std::size_t j = 0; j < old_archetype_id.size(); ++j)
-	{
-		const ComponentTypeID& old_component_id = old_archetype_id[j];
-		if (old_component_id == component_id)
-		{
-			component->MoveDestroyData(
-				&old_archetype->component_data[j][old_component],
-				&new_archetype->component_data[i][new_component]);
-
-			return true;
-		}
-	}
-
-	return false;
 }
 
 // -- old remove entity --

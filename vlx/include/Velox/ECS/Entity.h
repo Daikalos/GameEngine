@@ -11,7 +11,7 @@ namespace vlx
 	{
 	public:
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
-		VELOX_API Entity(Entity&& entity);
+		VELOX_API Entity(Entity&& entity) noexcept;
 
 		VELOX_API virtual ~Entity();
 

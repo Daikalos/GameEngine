@@ -47,6 +47,7 @@ namespace vlx
 		};
 
 		using ComponentTypeIDBaseMap	= typename std::unordered_map<ComponentTypeID, ComponentPtr>;
+		using ComponentArchetypesMap	= typename std::unordered_map<ComponentTypeID, std::unordered_set<IDType>>;
 		using EntityArchetypeMap		= typename std::unordered_map<EntityID, Record>;
 		using ArchetypeMap				= typename std::unordered_map<ArchetypeID, Archetype*, cu::VectorHash<ArchetypeID>>;
 		using ArchetypesArray			= typename std::vector<ArchetypePtr>; // all the existing archetypes
@@ -100,6 +101,8 @@ namespace vlx
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
 
+		VELOX_API void Sort();
+
 	private:
 		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
 
@@ -113,22 +116,12 @@ namespace vlx
 			const std::size_t data_size, 
 			const std::size_t i);
 
-		VELOX_API bool MoveComponent(
-			Archetype* old_archetype,
-			Archetype* new_archetype,
-			const ComponentBase* component,
-			const std::size_t component_id,
-			const std::size_t old_component,
-			const std::size_t new_component,
-			const std::size_t i);
-
 	private:
 		EntityID				m_entity_id_counter;
 		std::queue<EntityID>	m_reusable_ids;
 
-
-
 		EntityArchetypeMap		m_entity_archetype_map;
+		ComponentArchetypesMap	m_component_archetypes_map;
 		ArchetypeMap			m_archetype_map;
 		ArchetypesArray			m_archetypes;			// find matching archetype to update matching entities
 		SystemsArrayMap			m_systems;				// map layer to array of systems (layer allows for controlling the order of calls)
@@ -288,7 +281,7 @@ namespace vlx
 
 			component->MoveDestroyData(
 				&old_archetype->component_data[i][record.index * component_size],
-				&new_archetype->component_data[j][current_size]);
+				&new_archetype->component_data[j][current_size]); // move all the valid data from old to new
 
 			++j;
 		}
@@ -315,8 +308,8 @@ namespace vlx
 		}
 
 		old_archetype->entities.pop_back();
-		new_archetype->entities.push_back(entity_id);
 
+		new_archetype->entities.push_back(entity_id);
 		record.index = new_archetype->entities.size() - 1;
 		record.archetype = new_archetype;
 	}
