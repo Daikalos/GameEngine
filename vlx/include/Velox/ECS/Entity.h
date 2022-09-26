@@ -18,19 +18,22 @@ namespace vlx
 		VELOX_API constexpr EntityID GetId() const;
 
 	public:
+		VELOX_API void Destroy();
+
+	public:
 		template<IsComponentType C, typename... Args>
-		C* Add(Args&&... args) requires std::constructible_from<C, Args...>;
+		C* AddComponent(Args&&... args) requires std::constructible_from<C, Args...>;
 		template<IsComponentType C>
-		C* Add(C&& t);
+		C* AddComponent(C&& t);
 
 		template<IsComponentType C>
-		void Remove();
+		void RemoveComponent();
 
 		template<IsComponentType C>
-		C* Get();
+		C* GetComponent();
 
 		template<IsComponentType C>
-		bool Has();
+		bool HasComponent();
 
 	protected:
 		EntityID		m_id; // entity is just an id
@@ -38,31 +41,31 @@ namespace vlx
 	};
 
 	template<IsComponentType C, typename... Args>
-	inline C* Entity::Add(Args&&... args) requires std::constructible_from<C, Args...>
+	inline C* Entity::AddComponent(Args&&... args) requires std::constructible_from<C, Args...>
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<Args>(args)...);
 	}
 
 	template<IsComponentType C>
-	inline C* Entity::Add(C&& t)
+	inline C* Entity::AddComponent(C&& t)
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<C>(t));
 	}
 
 	template<IsComponentType C>
-	inline void Entity::Remove()
+	inline void Entity::RemoveComponent()
 	{
 		m_entity_admin->RemoveComponent<C>(m_id);
 	}
 
 	template<IsComponentType C>
-	inline C* Entity::Get()
+	inline C* Entity::GetComponent()
 	{
 		return m_entity_admin->GetComponent<C>(m_id);
 	}
 
 	template<IsComponentType C>
-	inline bool  Entity::Has()
+	inline bool Entity::HasComponent()
 	{
 		return m_entity_admin->HasComponent<C>(m_id);
 	}

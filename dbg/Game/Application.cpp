@@ -47,8 +47,8 @@ void Application::Run()
 		for (int i = 0; i < 15; ++i)
 		{
 			Entity& entity = entities.emplace_back(entity_admin); 
-			entity.Add<Velocity>(sf::Vector2f(i, 0.0f));
-			entity.Add<Sprite>();
+			entity.AddComponent<Velocity>(sf::Vector2f(i, 0.0f));
+			entity.AddComponent<Sprite>();
 		}
 
 		System<Velocity> s0(entity_admin, 0);
@@ -77,11 +77,11 @@ void Application::Run()
 
 		std::puts("");
 
-		std::puts(std::to_string(entities[1].Get<Velocity>()->velocity.x).c_str());
-		std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
-		std::puts(std::to_string(entities[3].Get<Velocity>()->velocity.x).c_str());
-		std::puts(std::to_string(entities[2].Has<Velocity>()).c_str());
-		std::puts(std::to_string(entities[3].Has<Velocity>()).c_str());
+		std::puts(std::to_string(entities[1].GetComponent<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[2].GetComponent<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[3].GetComponent<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[2].HasComponent<Velocity>()).c_str());
+		std::puts(std::to_string(entities[3].HasComponent<Velocity>()).c_str());
 
 		std::puts("");
 
@@ -93,21 +93,21 @@ void Application::Run()
 			float random = rnd::random();
 
 			if (random > 0.90f)
-				entity.Add<Velocity>(sf::Vector2f(index, 0.0f));
+				entity.AddComponent<Velocity>(sf::Vector2f(index, 0.0f));
 			else if (random > 0.80f)
-				entity.Remove<Velocity>();
+				entity.RemoveComponent<Velocity>();
 			else if (random > 0.70f)
-				entity.Add<Relationship>();
+				entity.AddComponent<Relationship>();
 			else if (random > 0.60f)
-				entity.Remove<Relationship>();
+				entity.RemoveComponent<Relationship>();
 			else if (random > 0.50f)
-				entity.Add<Sprite>();
+				entity.AddComponent<Sprite>();
 			else if (random > 0.40f)
-				entity.Remove<Sprite>();
+				entity.RemoveComponent<Sprite>();
 			else if (random > 0.30f)
-				entity.Add<Test>();
+				entity.AddComponent<Test>();
 			else if (random > 0.20f)
-				entity.Remove<Test>();
+				entity.RemoveComponent<Test>();
 		}
 
 		std::puts("");

@@ -18,7 +18,6 @@ namespace vlx
 	public:
 		virtual ~ComponentBase() { }
 
-		virtual void ConstructData(DataPtr data) const = 0;
 		virtual void DestroyData(DataPtr data) const = 0;
 		virtual void MoveData(DataPtr source, DataPtr destination) const = 0;
 		virtual void SwapData(DataPtr d0, DataPtr d1) const = 0;
@@ -32,7 +31,6 @@ namespace vlx
 	class Component : public ComponentBase
 	{
 	public:
-		virtual void ConstructData(DataPtr data) const override;
 		virtual void DestroyData(DataPtr data) const override;
 		virtual void MoveData(DataPtr source, DataPtr destination) const override;
 		virtual void SwapData(DataPtr d0, DataPtr d1) const override;
@@ -47,12 +45,6 @@ namespace vlx
 
 		[[nodiscard]] static ComponentTypeID GetTypeId();
 	};
-
-	template<class C>
-	inline void Component<C>::ConstructData(DataPtr data) const
-	{
-		new (data) C(); // construct object C at data in memory which will give its values
-	}
 
 	template<class C>
 	inline void Component<C>::DestroyData(DataPtr data) const

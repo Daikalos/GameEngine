@@ -48,7 +48,10 @@ namespace vlx // concepts is the best thing ever
 	};
 
 	template<class C>
-	concept IsComponentType = requires { std::is_class_v<C> && std::copyable<C> && sizeof(C) > 1; };
+	concept IsComponentType = requires 
+	{ 
+		std::is_class_v<C> && std::copyable<C> && sizeof(C) > 1; 
+	};
 
 	template<class T>
 	concept IsVector = requires(T obj)

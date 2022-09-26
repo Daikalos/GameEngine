@@ -12,9 +12,9 @@ namespace vlx
 
 	using EntityID			= typename IDType;
 	using ComponentTypeID	= typename IDType;
-	using ArchetypeSetID	= typename IDType;
-	using ArchetypeID		= typename std::vector<ComponentTypeID>;
+	using ArchetypeID		= typename IDType;
+	using ComponentIDs		= typename std::vector<ComponentTypeID>;
 
 	constexpr EntityID NULL_ENTITY = NULL;
-	constexpr ArchetypeSetID NULL_ARCHETYPE = NULL;
+	constexpr ArchetypeID NULL_ARCHETYPE = NULL;
 }

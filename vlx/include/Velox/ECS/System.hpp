@@ -21,7 +21,7 @@ namespace vlx
 		virtual ~SystemBase() = default;
 
 	public:
-		virtual const ArchetypeID& GetKey() const = 0;
+		virtual const ComponentIDs& GetKey() const = 0;
 
 		virtual constexpr float GetPriority() const noexcept = 0;
 		virtual void SetPriority(const float val) = 0;
@@ -37,14 +37,14 @@ namespace vlx
 		using Func = typename std::function<void(Time&, std::span<const EntityID>, Cs*...)>;
 
 	public:
-		System(EntityAdmin& entity_admin, const std::uint16_t layer);
+		System(EntityAdmin& entity_admin, const LayerType layer);
 		~System();
 
 		System(const System& system);
 		System& operator=(const System& rhs);
 
 	public:
-		const ArchetypeID& GetKey() const override;
+		const ComponentIDs& GetKey() const override;
 
 		[[nodiscard]] float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
@@ -55,10 +55,10 @@ namespace vlx
 		virtual void DoAction(Time& time, Archetype* archetype) override;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-		void DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
+		void DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-		void DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
+		void DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
 
 	protected:
 		EntityAdmin*	m_entity_admin;
@@ -68,11 +68,11 @@ namespace vlx
 		Func			m_func;
 		bool			m_func_set		{false};
 
-		mutable ArchetypeID m_key;
+		mutable ComponentIDs m_key;
 	};
 
 	template<Exists... Cs>
-	inline System<Cs...>::System(EntityAdmin& entity_admin, const std::uint16_t layer)
+	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)
 		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
 		m_entity_admin->RegisterSystem(m_layer, this);
@@ -117,14 +117,14 @@ namespace vlx
 		m_entity_admin->SortSystems(m_layer);
 	}
 
-	inline ArchetypeID SortKeys(ArchetypeID types)
+	inline ComponentIDs SortKeys(ComponentIDs types)
 	{
 		std::sort(types.begin(), types.end());
 		return types;
 	}
 
 	template<Exists... Cs>
-	inline const ArchetypeID& System<Cs...>::GetKey() const
+	inline const ComponentIDs& System<Cs...>::GetKey() const
 	{
 		if (m_key.empty())
 			m_key = SortKeys({{ Component<Cs>::GetTypeId()... }});
@@ -153,7 +153,7 @@ namespace vlx
 
 	template<Exists... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
+	inline void System<Cs...>::DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
 	{
 		using SysCompType = typename std::tuple_element<Index, std::tuple<Cs...>>::type; // get type of element at index in tuple
 
@@ -175,7 +175,7 @@ namespace vlx
 
 	template<Exists... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-	inline void System<Cs...>::DoAction(Time& time, const ArchetypeID& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
+	inline void System<Cs...>::DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
 	{
 		m_func(time, entity_ids, ts...);
 	}

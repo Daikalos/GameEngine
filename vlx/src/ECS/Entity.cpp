@@ -20,6 +20,15 @@ Entity::~Entity()
 		m_entity_admin->RemoveEntity(m_id);
 }
 
+void Entity::Destroy()
+{
+	if (m_id != NULL_ENTITY && m_entity_admin)
+		m_entity_admin->RemoveEntity(m_id);
+
+	m_id = NULL_ENTITY;
+	m_entity_admin = nullptr;
+}
+
 constexpr EntityID Entity::GetId() const
 {
 	return m_id;

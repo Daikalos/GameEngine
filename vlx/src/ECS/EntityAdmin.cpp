@@ -1,4 +1,5 @@
 #include <Velox/ECS/EntityAdmin.h>
+#include <Velox/ECS/Entity.h>
 
 using namespace vlx;
 
@@ -13,11 +14,12 @@ EntityAdmin::~EntityAdmin()
 	{
 		for (std::size_t i = 0; i < archetype->type.size(); ++i)
 		{
-			const ComponentBase* comp = m_component_map[archetype->type[i]].get();
-			const std::size_t& data_size = comp->GetSize();
+			const ComponentTypeID& component_id = archetype->type[i];
+			const ComponentBase* component = m_component_map[component_id].get();
+			const std::size_t& component_size = component->GetSize();
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-				comp->DestroyData(&archetype->component_data[i][j * data_size]);
+				component->DestroyData(&archetype->component_data[i][j * component_size]);
 		}
 	}
 }
@@ -34,19 +36,23 @@ EntityID EntityAdmin::GetNewId()
 
 	return m_entity_id_counter++;
 }
+Entity EntityAdmin::Create()
+{
+	return Entity(*this);
+}
 
 void EntityAdmin::RunSystems(const LayerType layer, Time& time)
 {
 	for (SystemBase* system : m_systems[layer])
 	{
-		const ArchetypeID& key = system->GetKey();
-		for (ArchetypePtr& archetype : m_archetypes)
-		{
-			if (std::includes(archetype->type.begin(), archetype->type.end(), key.begin(), key.end()))
-			{
-				system->DoAction(time, archetype.get());
-			}
-		}
+		const ComponentIDs& key = system->GetKey();
+
+		auto it = m_archetype_map.find(key);
+		if (it == m_archetype_map.end())
+			continue;
+
+		for (Archetype* archetype : it->second)
+			system->DoAction(time, archetype);
 	}
 }
 void EntityAdmin::SortSystems(const LayerType layer)
@@ -91,8 +97,10 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 		return;
 	}
 
-	ArchetypeID& archetype_id = archetype->type;
+	EntityID last_entity_id = archetype->entities.back();
+	Record& last_record = m_entity_archetype_map[last_entity_id];
 
+	const ComponentIDs& archetype_id = archetype->type;
 	for (std::size_t i = 0; i < archetype_id.size(); ++i) // we iterate over both archetypes
 	{
 		const ComponentTypeID component_id = archetype_id[i];
@@ -100,24 +108,17 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 		const std::size_t component_size = component->GetSize();
 
 		component->DestroyData(&archetype->component_data[i][record.index * component_size]);
-	}
 
-	EntityID last_entity_id = archetype->entities.back();
-	Record& last_record = m_entity_archetype_map[last_entity_id];
-
-	if (last_entity_id != entity_id)
-	{
-		for (std::size_t i = 0; i < archetype_id.size(); ++i)
+		if (last_entity_id != entity_id)
 		{
-			const ComponentTypeID& component_id = archetype->type[i];
-			const ComponentBase* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
-
 			component->MoveDestroyData(
 				&archetype->component_data[i][last_record.index * component_size],
 				&archetype->component_data[i][record.index * component_size]);
 		}
+	}
 
+	if (last_entity_id != entity_id)
+	{
 		archetype->entities.at(record.index) = archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
 		last_record.index = record.index;
 	}
@@ -128,24 +129,28 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	m_reusable_ids.push(entity_id);
 }
 
-Archetype* EntityAdmin::GetArchetype(const ArchetypeID& id)
+Archetype* EntityAdmin::GetArchetype(const ComponentIDs& id)
 {
 	auto it = m_archetype_map.find(id);
 
 	if (it != m_archetype_map.end())
-		return it->second;
+		return it->second.front();
 
 	// archetype does not exist, create new one
 
 	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
 
-	new_archetype->id = cu::VectorHash<ArchetypeID>()(id);
+	new_archetype->id = cu::VectorHash<ComponentIDs>()(id);
 	new_archetype->type = id;
 
-	auto insert = m_archetype_map.insert(std::make_pair(new_archetype->type, new_archetype.get()));
-	assert(insert.second);
+	m_archetype_map[id].push_back(new_archetype.get());
+	for (auto i = std::ssize(id) - 2; i >= 0; --i)
+	{
+		const ComponentIDs subset_ids(id.begin(), id.begin() + (i + 1));
+		m_archetype_map[subset_ids].push_back(new_archetype.get());
+	}
 
-	for (ArchetypeID::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type
+	for (ComponentIDs::size_type i = 0; i < id.size(); ++i) // add empty array for each component in type
 	{
 		constexpr std::size_t DEFAULT_SIZE = 64; // default size in bytes to reduce number of reallocations
 
@@ -164,7 +169,7 @@ void EntityAdmin::Shrink(bool extensive)
 		{
 			if (archetype->entities.empty())
 			{
-				m_archetype_map.erase(archetype->type);
+				cu::Erase(m_archetype_map[archetype->type], archetype.get());
 				return true;
 			}
 
@@ -177,7 +182,7 @@ void EntityAdmin::Shrink(bool extensive)
 		{
 			if (archetype->type.empty())
 			{
-				m_archetype_map.erase(archetype->type);
+				cu::Erase(m_archetype_map[archetype->type], archetype.get());
 
 				for (const EntityID entity_id : archetype->entities)
 				{
@@ -187,6 +192,7 @@ void EntityAdmin::Shrink(bool extensive)
 
 				return true;
 			}
+
 			return false;
 		}), m_archetypes.end());
 
@@ -195,7 +201,7 @@ void EntityAdmin::Shrink(bool extensive)
 		for (std::size_t i = 0; i < m_archetypes.size(); ++i)
 		{
 			const ArchetypePtr& archetype = m_archetypes[i];
-			const ArchetypeID& archetype_id = archetype->type;
+			const ComponentIDs& archetype_id = archetype->type;
 			const std::vector<EntityID>& entities = archetype->entities;
 
 			for (std::size_t j = 0; j < archetype_id.size(); ++j)
@@ -225,8 +231,8 @@ void EntityAdmin::Shrink(bool extensive)
 void EntityAdmin::MakeRoom(
 	Archetype* archetype, 
 	const ComponentBase* component, 
-	const size_t data_size,
-	const size_t i)
+	const std::size_t data_size,
+	const std::size_t i)
 {
 	archetype->component_data_size[i] *= 2;
 	archetype->component_data_size[i] += data_size;

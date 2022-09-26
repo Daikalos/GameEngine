@@ -15,6 +15,8 @@
 
 namespace vlx
 {
+	class Entity;
+
 	////////////////////////////////////////////////////////////
 	// 
 	// Based on article by Deckhead:
@@ -48,11 +50,11 @@ namespace vlx
 
 		using SystemsArrayMap			= typename std::unordered_map<LayerType, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
 		using ArchetypesArray			= typename std::vector<ArchetypePtr>; // all the existing archetypes
-		using ArchetypeDataMap			= typename std::unordered_map<ArchetypeSetID, ArchetypeRecord>; // TODO: implement
-		using ArchetypeMap				= typename std::unordered_map<ArchetypeID, Archetype*, cu::VectorHash<ArchetypeID>>;
+		using ArchetypeDataMap			= typename std::unordered_map<ArchetypeID, ArchetypeRecord>;
+		using ArchetypeMap				= typename std::unordered_map<ComponentIDs, std::vector<Archetype*>, cu::VectorHash<ComponentIDs>>;
+		using EntityArchetypeMap		= typename std::unordered_map<EntityID, Record>;
 		using ComponentTypeIDBaseMap	= typename std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using ComponentArchetypesMap	= typename std::unordered_map<ComponentTypeID, ArchetypeDataMap>;
-		using EntityArchetypeMap		= typename std::unordered_map<EntityID, Record>;
 
 	public:
 		VELOX_API EntityAdmin();
@@ -76,13 +78,14 @@ namespace vlx
 		C* GetComponent(const EntityID entity_id);
 
 		template<IsComponentType... Cs> requires Exists<Cs...>
-		std::vector<EntityID> GetEntitiesWith();
+		std::vector<EntityID> GetEntitiesWith(bool restricted = false);
 
 		template<IsComponentType... Cs> requires Exists<Cs...>
 		void Reserve(const std::size_t component_count);
 
 	public:
 		VELOX_API EntityID GetNewId();
+		VELOX_API Entity Create();
 
 		VELOX_API void RunSystems(const LayerType layer, Time& time);
 		VELOX_API void SortSystems(const LayerType layer);
@@ -103,7 +106,7 @@ namespace vlx
 		VELOX_API void Shrink(bool extensive = false);
 
 	private:
-		VELOX_API Archetype* GetArchetype(const ArchetypeID& id);
+		VELOX_API Archetype* GetArchetype(const ComponentIDs& id);
 
 		////////////////////////////////////////////////////////////
 		// Helper functions
@@ -119,11 +122,11 @@ namespace vlx
 		EntityID				m_entity_id_counter;
 		std::queue<EntityID>	m_reusable_ids;
 
+		SystemsArrayMap			m_systems;				// map layer to array of systems (layer allows for controlling the order of calls)
+		ArchetypesArray			m_archetypes;			// find matching archetype to update matching entities
+		ArchetypeMap			m_archetype_map;
 		EntityArchetypeMap		m_entity_archetype_map;
 		ComponentArchetypesMap	m_component_archetypes_map;
-		ArchetypeMap			m_archetype_map;
-		ArchetypesArray			m_archetypes;			// find matching archetype to update matching entities
-		SystemsArrayMap			m_systems;				// map layer to array of systems (layer allows for controlling the order of calls)
 		ComponentTypeIDBaseMap	m_component_map;
 	};
 
@@ -147,8 +150,7 @@ namespace vlx
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
-			ArchetypeID new_archetype_id = old_archetype->type;	  // create copy
-
+			ComponentIDs new_archetype_id = old_archetype->type;	  // create copy
 			if (!cu::InsertUniqueSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 				return nullptr;
 
@@ -197,14 +199,17 @@ namespace vlx
 
 			assert(add_component != nullptr); // a new component should have been added
 
-			old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
-			last_record.index = record.index;
+			if (last_entity_id != entity_id)
+			{
+				old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
+				last_record.index = record.index;
+			}
 
 			old_archetype->entities.pop_back(); // by only removing the last entity, it means that when the next component is added, it will overwrite the previous
 		}
 		else // if the entity has no archetype, first component
 		{
-			ArchetypeID new_archetype_id(1, add_component_id);	// construct archetype with the component id
+			ComponentIDs new_archetype_id(1, add_component_id);	// construct archetype with the component id
 			new_archetype = GetArchetype(new_archetype_id);		// construct or get new archetype using the id
 
 			const ComponentBase* component = m_component_map[add_component_id].get();
@@ -247,9 +252,7 @@ namespace vlx
 
 		const ComponentTypeID rmv_component_id = Component<C>::GetTypeId();
 
-		const ArchetypeID& old_archetype_id = old_archetype->type;
-		ArchetypeID new_archetype_id = old_archetype_id;
-
+		ComponentIDs new_archetype_id = old_archetype->type;
 		if (!cu::Erase(new_archetype_id, rmv_component_id)) // component did not exist
 			return;
 
@@ -258,6 +261,7 @@ namespace vlx
 		EntityID last_entity_id = old_archetype->entities.back();
 		Record& last_record = m_entity_archetype_map[last_entity_id];
 
+		const ComponentIDs& old_archetype_id = old_archetype->type;
 		for (std::size_t i = 0, j = 0; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
 		{
 			const ComponentTypeID component_id = old_archetype_id[i];
@@ -291,8 +295,11 @@ namespace vlx
 			}
 		}
 
-		old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids
-		last_record.index = record.index;
+		if (last_entity_id != entity_id)
+		{
+			old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids
+			last_record.index = record.index;
+		}
 
 		old_archetype->entities.pop_back();
 
@@ -376,35 +383,36 @@ namespace vlx
 	}
 
 	template<IsComponentType... Cs> requires Exists<Cs...>
-	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith()
+	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted)
 	{
 		std::vector<EntityID> entities;
 
 		ArchetypeID component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
 
-		std::vector<std::uint32_t> archetypes; // list of matching archetypes
-		std::size_t total_size = 0; // used to prevent numerous reallocations
+		auto it = m_archetype_map.find(component_ids);
+		if (it == m_archetype_map.end())
+			return entities;
 
-		for (std::size_t i = 0; i < m_archetypes.size(); ++i)
+		std::vector<Archetype*>& archetypes = it->second;
+
+		if (!restricted)
 		{
-			const ArchetypePtr& archetype = m_archetypes[i];
-			const ArchetypeID& archetype_id = archetype->type;
+			std::size_t total_size = 0; // used to prevent numerous reallocations
 
-			if (std::includes(component_ids.begin(), component_ids.end(), archetype_id.begin(), archetype_id.end()))
-			{
-				archetypes.push_back(i);
+			for (const Archetype* archetype : archetypes)
 				total_size += archetype->entities.size();
+
+			entities.reserve(total_size);
+			for (const Archetype* archetype : archetypes)
+			{
+				const auto& archetype_entities = archetype->entities;
+				entities.insert(entities.end(), archetype_entities.begin(), archetype_entities.end());
 			}
 		}
-
-		entities.reserve(total_size);
-		for (const std::uint32_t i : archetypes)
+		else
 		{
-			const auto& archetype_entities = m_archetypes[i]->entities;
-
-			entities.insert(entities.end(),
-				archetype_entities.begin(),
-				archetype_entities.end());
+			const auto& archetype_entities = archetypes.front()->entities;
+			entities.insert(entities.end(), archetype_entities.begin(), archetype_entities.end());
 		}
 
 		return entities;
