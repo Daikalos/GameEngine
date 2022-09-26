@@ -149,8 +149,8 @@ namespace vlx::bm
 			memcpy(&sys, &file_sys, sizeof(FILETIME));
 			memcpy(&user, &file_user, sizeof(FILETIME));
 
-			percent = (sys.QuadPart - m_last_sys_cpu.QuadPart) + (user.QuadPart - m_last_user_cpu.QuadPart);
-			percent /= (now.QuadPart - m_last_cpu.QuadPart);
+			percent = ((long double)sys.QuadPart - (long double)m_last_sys_cpu.QuadPart) + ((long double)user.QuadPart - (long double)m_last_user_cpu.QuadPart);
+			percent /= ((long double)now.QuadPart - (long double)m_last_cpu.QuadPart);
 			percent /= m_num_processors;
 
 			m_last_cpu = now;

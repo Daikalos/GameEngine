@@ -33,7 +33,7 @@ void Application::Run()
 
 	bm::Begin();
 
-	for (int j = 0; j < 1; ++j)
+	for (int j = 0; j < 50; ++j)
 	{
 		EntityAdmin entity_admin;
 

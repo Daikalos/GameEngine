@@ -136,11 +136,13 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& id)
 	if (it != m_archetype_map.end())
 		return it->second.front();
 
-	// archetype does not exist, create new one
-
+	return CreateArchetype(id); // archetype does not exist, create new one
+}
+Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& id)
+{
 	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
 
-	new_archetype->id = cu::VectorHash<ComponentIDs>()(id);
+	new_archetype->id = cu::VectorHash<ComponentIDs, ArchetypeID>()(id);
 	new_archetype->type = id;
 
 	m_archetype_map[id].push_back(new_archetype.get());

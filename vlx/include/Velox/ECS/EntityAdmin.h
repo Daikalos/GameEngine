@@ -48,13 +48,12 @@ namespace vlx
 		using ComponentPtr = typename std::unique_ptr<ComponentBase>;
 		using ArchetypePtr = typename std::unique_ptr<Archetype>;
 
-		using SystemsArrayMap			= typename std::unordered_map<LayerType, std::vector<SystemBase*>>; // map layer to array of systems (layer allows for controlling the order of calls)
-		using ArchetypesArray			= typename std::vector<ArchetypePtr>; // all the existing archetypes
-		using ArchetypeDataMap			= typename std::unordered_map<ArchetypeID, ArchetypeRecord>;
-		using ArchetypeMap				= typename std::unordered_map<ComponentIDs, std::vector<Archetype*>, cu::VectorHash<ComponentIDs>>;
+		using SystemsArrayMap			= typename std::unordered_map<LayerType, std::vector<SystemBase*>>;
+		using ArchetypesArray			= typename std::vector<ArchetypePtr>;
+		using ArchetypeMap				= typename std::unordered_map<ComponentIDs, std::vector<Archetype*>, cu::VectorHash<ComponentIDs, ArchetypeID>>;
 		using EntityArchetypeMap		= typename std::unordered_map<EntityID, Record>;
 		using ComponentTypeIDBaseMap	= typename std::unordered_map<ComponentTypeID, ComponentPtr>;
-		using ComponentArchetypesMap	= typename std::unordered_map<ComponentTypeID, ArchetypeDataMap>;
+		using ComponentArchetypesMap	= typename std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
 
 	public:
 		VELOX_API EntityAdmin();
@@ -77,9 +76,23 @@ namespace vlx
 		template<IsComponentType C>
 		C* GetComponent(const EntityID entity_id);
 
+		/// <summary>
+		///	Get all entities that contain the provided components
+		/// </summary>
+		/// <param name="restricted:">
+		///		Get all entities that strictly only have the provided components
+		/// </param>
+		/// <returns></returns>
 		template<IsComponentType... Cs> requires Exists<Cs...>
 		std::vector<EntityID> GetEntitiesWith(bool restricted = false);
 
+		/// <summary>
+		///		Increase the capacity in each matching archetype to reduce reallocations. Do note that it
+		///		will create new archetypes to reserve if they do not exist.
+		/// </summary>
+		/// <param name="component_count:">
+		///		Number of components to reserve for in the archetypes
+		/// </param>
 		template<IsComponentType... Cs> requires Exists<Cs...>
 		void Reserve(const std::size_t component_count);
 
@@ -99,7 +112,7 @@ namespace vlx
 		/// <summary>
 		///		Shrinks the ECS by removing all the empty archetypes
 		/// </summary>
-		/// <param name="extensive">- 
+		/// <param name="extensive:"> 
 		///		perform a complete shrink of the ECS by removing all the extra data space, will most likely 
 		///		invalidate all the existing pointers from e.g., GetComponent()
 		/// </param>
@@ -107,6 +120,7 @@ namespace vlx
 
 	private:
 		VELOX_API Archetype* GetArchetype(const ComponentIDs& id);
+		VELOX_API Archetype* CreateArchetype(const ComponentIDs& id);
 
 		////////////////////////////////////////////////////////////
 		// Helper functions
@@ -119,15 +133,15 @@ namespace vlx
 			const std::size_t i);
 
 	private:
-		EntityID				m_entity_id_counter;
-		std::queue<EntityID>	m_reusable_ids;
+		EntityID				m_entity_id_counter;	// current id counter for entities
+		std::queue<EntityID>	m_reusable_ids;			// reusable ids of entities that have been destroyed
 
-		SystemsArrayMap			m_systems;				// map layer to array of systems (layer allows for controlling the order of calls)
-		ArchetypesArray			m_archetypes;			// find matching archetype to update matching entities
-		ArchetypeMap			m_archetype_map;
-		EntityArchetypeMap		m_entity_archetype_map;
-		ComponentArchetypesMap	m_component_archetypes_map;
-		ComponentTypeIDBaseMap	m_component_map;
+		SystemsArrayMap			m_systems;					// map layer to array of systems (layer allows for controlling the order of calls)
+		ArchetypesArray			m_archetypes;				// find matching archetype to update matching entities
+		ArchetypeMap			m_archetype_map;			// map set of components to matching archetypes that contains such components
+		EntityArchetypeMap		m_entity_archetype_map;		// map entity to where its data is located at in the archetype
+		ComponentArchetypesMap	m_component_archetypes_map; // map component to the archetypes it exists in and where all of the components data in the archetype is located at
+		ComponentTypeIDBaseMap	m_component_map;			// access to helper functions for modifying each unique component
 	};
 
 	template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
@@ -421,22 +435,30 @@ namespace vlx
 	template<IsComponentType... Cs> requires Exists<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		ArchetypeID component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
+		ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
 
-		for (std::size_t i = 0; i < m_archetypes.size(); ++i)
+		if (!m_archetype_map.contains(component_ids))
 		{
-			const ArchetypePtr& archetype = m_archetypes[i];
-			const ArchetypeID& archetype_id = archetype->type;
+			for (std::size_t i = 0; i < component_ids.size(); ++i) // archetypes did not exist, create them
+				CreateArchetype(ComponentIDs(component_ids.begin(), component_ids.begin() + (i + 1)));
+		}
 
-			auto it = std::search(archetype_id.begin(), archetype_id.end(), component_ids.begin(), component_ids.end());
-
-			std::size_t j = it - archetype_id.begin();
-			std::int64_t count = std::ssize(component_ids);
-
-			for (; count > 0 && j < archetype_id.size(); ++j, --count)
+		const std::vector<Archetype*>& archetypes = m_archetype_map[component_ids];
+		for (Archetype* archetype : archetypes)
+		{
+			for (const ComponentTypeID component_id : component_ids)
 			{
-				const ComponentTypeID& component_id = archetype_id[j];
-				const ComponentBase* component = m_component_map[component_id];
+				auto cit = m_component_archetypes_map.find(component_id);
+				if (cit == m_component_archetypes_map.end())
+					continue;
+
+				auto ait = cit->second.find(archetype->id);
+				if (ait == cit->second.end())
+					continue;
+
+				const auto i = ait->second.column;
+
+				const ComponentBase* component = m_component_map[component_id].get();
 				const std::size_t& component_size = component->GetSize();
 
 				const std::size_t current_size = archetype->entities.size() * component_size;
@@ -444,17 +466,17 @@ namespace vlx
 
 				if (new_size > current_size)
 				{
-					archetype->component_data_size[j] = new_size;
-					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
+					archetype->component_data_size[i] = new_size;
+					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 
-					for (std::size_t k = 0; k < archetype->entities.size(); ++k)
+					for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 					{
 						component->MoveDestroyData(
-							&archetype->component_data[j][k * component_size],
-							&new_data[k * component_size]);
+							&archetype->component_data[i][j * component_size],
+							&new_data[j * component_size]);
 					}
 
-					archetype->component_data[j] = std::move(new_data);
+					archetype->component_data[i] = std::move(new_data);
 				}
 			}
 		}

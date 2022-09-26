@@ -141,17 +141,17 @@ namespace vlx::cu
 		(unpack(args), ...);
 	}
 
-	template<IsVector T>
+	template<IsVector T, Integral SizeType = std::size_t>
 	struct VectorHash
 	{
-		typename T::value_type operator()(const T& container) const
+		SizeType operator()(const T& container) const
 		{
-			typename T::value_type hash = container.size();
+			auto hash = container.size();
 
 			for (auto& i : container)
 				hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
-			return hash;
+			return (SizeType)hash;
 		}
 	};
 }
