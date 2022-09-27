@@ -21,7 +21,7 @@ namespace vlx
 		virtual ~SystemBase() = default;
 
 	public:
-		virtual const ComponentIDs& GetKey() const = 0;
+		virtual const ArchetypeID& GetKey() const = 0;
 
 		virtual constexpr float GetPriority() const noexcept = 0;
 		virtual void SetPriority(const float val) = 0;
@@ -44,7 +44,7 @@ namespace vlx
 		System& operator=(const System& rhs);
 
 	public:
-		const ComponentIDs& GetKey() const override;
+		const ArchetypeID& GetKey() const override;
 
 		[[nodiscard]] float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
@@ -68,7 +68,7 @@ namespace vlx
 		Func			m_func;
 		bool			m_func_set		{false};
 
-		mutable ComponentIDs m_key;
+		mutable ArchetypeID m_key		{NULL_ARCHETYPE};
 	};
 
 	template<Exists... Cs>
@@ -124,10 +124,10 @@ namespace vlx
 	}
 
 	template<Exists... Cs>
-	inline const ComponentIDs& System<Cs...>::GetKey() const
+	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
-		if (m_key.empty())
-			m_key = SortKeys({{ Component<Cs>::GetTypeId()... }});
+		if (m_key == NULL_ARCHETYPE)
+			m_key = cu::VectorHash<ComponentIDs>()(SortKeys({{ Component<Cs>::GetTypeId()... }}));
 
 		return m_key;
 	}	

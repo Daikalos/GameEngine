@@ -50,7 +50,7 @@ namespace vlx
 
 		using SystemsArrayMap			= typename std::unordered_map<LayerType, std::vector<SystemBase*>>;
 		using ArchetypesArray			= typename std::vector<ArchetypePtr>;
-		using ArchetypeMap				= typename std::unordered_map<ComponentIDs, std::vector<Archetype*>, cu::VectorHash<ComponentIDs, ArchetypeID>>;
+		using ArchetypeMap				= typename std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
 		using EntityArchetypeMap		= typename std::unordered_map<EntityID, Record>;
 		using ComponentTypeIDBaseMap	= typename std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using ComponentArchetypesMap	= typename std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
@@ -77,7 +77,7 @@ namespace vlx
 		C* GetComponent(const EntityID entity_id);
 
 		/// <summary>
-		///	Get all entities that contain the provided components
+		///		Get all entities that contain the provided components
 		/// </summary>
 		/// <param name="restricted:">
 		///		Get all entities that strictly only have the provided components
@@ -96,9 +96,14 @@ namespace vlx
 		template<IsComponentType... Cs> requires Exists<Cs...>
 		void Reserve(const std::size_t component_count);
 
+		template<IsComponentType... Cs, typename Pred>
+		void SortEntities(Pred&& predicate);
+
 	public:
 		VELOX_API EntityID GetNewId();
 		VELOX_API Entity Create();
+
+		VELOX_API const std::size_t& GetComponentIndex(const EntityID entity_id);
 
 		VELOX_API void RunSystems(const LayerType layer, Time& time);
 		VELOX_API void SortSystems(const LayerType layer);
@@ -119,8 +124,8 @@ namespace vlx
 		VELOX_API void Shrink(bool extensive = false);
 
 	private:
-		VELOX_API Archetype* GetArchetype(const ComponentIDs& id);
-		VELOX_API Archetype* CreateArchetype(const ComponentIDs& id);
+		VELOX_API Archetype* GetArchetype(const ComponentIDs& component_ids);
+		VELOX_API Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
 
 		////////////////////////////////////////////////////////////
 		// Helper functions
@@ -401,7 +406,7 @@ namespace vlx
 	{
 		std::vector<EntityID> entities;
 
-		ArchetypeID component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
+		ComponentIDs component_ids = cu::VectorHash<ComponentIDs>(SortKeys({ { Component<Cs>::GetTypeId()... } })); // see system.hpp
 
 		auto it = m_archetype_map.find(component_ids);
 		if (it == m_archetype_map.end())
@@ -480,6 +485,12 @@ namespace vlx
 				}
 			}
 		}
+	}
+
+	template<IsComponentType... Cs, typename Pred>
+	inline void EntityAdmin::SortEntities(Pred&& predicate)
+	{
+
 	}
 }
 

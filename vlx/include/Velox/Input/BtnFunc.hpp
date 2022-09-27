@@ -19,10 +19,15 @@ namespace vlx
 
 	inline ButtonEvent& operator++(ButtonEvent& button_event)
 	{
-		button_event = static_cast<ButtonEvent>(static_cast<std::uint16_t>(button_event) + 1);
+		button_event = static_cast<ButtonEvent>(static_cast<std::uint8_t>(button_event) + 1);
 		return button_event;
 	}
 
+	/// <summary>
+	///		BtnFunc is small container class for mapping functions to individual key events.
+	///		This was created to have the same lifetime as the provided functions have in order to prevent annoying errors.
+	///		It also allows for the developer to determine when the functions should executed.
+	/// </summary>
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	class BtnFunc final
 	{

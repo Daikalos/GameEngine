@@ -61,15 +61,15 @@ void Application::Run()
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
-					std::puts(std::to_string(velocities[i].velocity.x).c_str());
+					float x = velocities[i].velocity.x;
 				}
 			});
 
-		s1.Action([&](Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
+		s1.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
-					std::puts(std::to_string(velocities[i].velocity.x).c_str());
+					//std::puts(std::to_string(velocities[i].velocity.x).c_str());
 				}
 			});
 

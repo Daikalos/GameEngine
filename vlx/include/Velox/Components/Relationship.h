@@ -1,15 +1,24 @@
 #pragma once
 
 #include <Velox/ECS/Identifiers.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
-	class Relationship
+	class VELOX_API Relationship
 	{
-		//std::size_t children_count{0};
-		//EntityID first{NULL_ENTITY};
-		//EntityID first{NULL_ENTITY};
-		//EntityID first{NULL_ENTITY};
-		std::size_t i{};
+	public:
+		void AttachParent(const EntityID parent);
+		void DetachParent(const EntityID parent);
+
+	private:
+		void AttachChild(const Relationship& child);
+		void DetachChild(const Relationship& child);
+
+	public:
+		EntityID parent	{NULL_ENTITY};
+		EntityID first	{NULL_ENTITY};
+		EntityID prev	{NULL_ENTITY};
+		EntityID next	{NULL_ENTITY};
 	};
 }

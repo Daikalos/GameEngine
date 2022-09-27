@@ -141,7 +141,7 @@ namespace vlx::cu
 		(unpack(args), ...);
 	}
 
-	template<IsVector T, Integral SizeType = std::size_t>
+	template<IsVector T, Integral SizeType = typename T::value_type>
 	struct VectorHash
 	{
 		SizeType operator()(const T& container) const
@@ -151,7 +151,7 @@ namespace vlx::cu
 			for (auto& i : container)
 				hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
-			return (SizeType)hash;
+			return static_cast<SizeType>(hash);
 		}
 	};
 }
