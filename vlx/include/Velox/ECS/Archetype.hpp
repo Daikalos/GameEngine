@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include <unordered_set>
+#include <queue>
 
 #include "Identifiers.hpp"
 
@@ -17,5 +17,6 @@ namespace vlx
 		std::vector<EntityID>		entities;			// all the entities registered to this archetype
 		std::vector<ComponentData>	component_data;		// all the components data in this archetype stored by type
 		std::vector<std::size_t>	component_data_size;
+		std::queue<std::size_t>		add_locations; // TODO: a new system to prevent invalidating pointers by only constructing new entities at points marked in this queue
 	};
 }
