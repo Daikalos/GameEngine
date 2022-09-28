@@ -30,10 +30,10 @@ namespace vlx
 		void RemoveComponent();
 
 		template<IsComponentType C>
-		C* GetComponent();
+		C* GetComponent() const;
 
 		template<IsComponentType C>
-		bool HasComponent();
+		bool HasComponent() const;
 
 	protected:
 		EntityID		m_id; // entity is just an id
@@ -59,13 +59,13 @@ namespace vlx
 	}
 
 	template<IsComponentType C>
-	inline C* Entity::GetComponent()
+	inline C* Entity::GetComponent() const
 	{
 		return m_entity_admin->GetComponent<C>(m_id);
 	}
 
 	template<IsComponentType C>
-	inline bool Entity::HasComponent()
+	inline bool Entity::HasComponent() const
 	{
 		return m_entity_admin->HasComponent<C>(m_id);
 	}

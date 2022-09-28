@@ -57,7 +57,7 @@ void Application::Run()
 
 		//std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
 		
-		s0.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities)
+		s0.Action([](const EntityAdmin& entity_admin, Time& time, std::span<const EntityID> entities, Velocity* velocities)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
@@ -65,7 +65,7 @@ void Application::Run()
 				}
 			});
 
-		s1.Action([](Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
+		s1.Action([](const EntityAdmin& entity_admin, Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{

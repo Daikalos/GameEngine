@@ -27,14 +27,14 @@ namespace vlx
 		virtual void SetPriority(const float val) = 0;
 
 	protected:
-		virtual void DoAction(Time& time, Archetype* archetype) = 0;
+		virtual void DoAction(Time& time, Archetype* archetype) const = 0;
 	};
 
 	template<Exists... Cs>
 	class System : public SystemBase
 	{
 	public:
-		using Func = typename std::function<void(Time&, std::span<const EntityID>, Cs*...)>;
+		using Func = typename std::function<void(const EntityAdmin&, Time&, std::span<const EntityID>, Cs*...)>;
 
 	public:
 		System(EntityAdmin& entity_admin, const LayerType layer);
@@ -52,17 +52,27 @@ namespace vlx
 		void Action(Func&& func);
 
 	protected:
-		virtual void DoAction(Time& time, Archetype* archetype) override;
+		virtual void DoAction(Time& time, Archetype* archetype) const override;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-		void DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
+		void DoAction(
+			const EntityAdmin& entity_admin, 
+			Time& time, 
+			const ComponentIDs& archetype_ids, 
+			std::span<const EntityID> entity_ids, 
+			T& t, Ts... ts) const;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-		void DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts);
+		void DoAction(const 
+			const EntityAdmin& entity_admin, 
+			Time& time, 
+			const ComponentIDs& archetype_ids, 
+			std::span<const EntityID> entity_ids, 
+			T& t, Ts... ts) const;
 
 	protected:
 		EntityAdmin*	m_entity_admin;
-		std::uint16_t	m_layer			{0};	// controls the overall order of calls
+		LayerType		m_layer			{0};	// controls the overall order of calls
 		float			m_priority		{0.0f}; // priority is for controlling the underlaying order of calls inside a layer
 
 		Func			m_func;
@@ -140,11 +150,12 @@ namespace vlx
 	}
 
 	template<Exists... Cs>
-	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype)
+	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype) const
 	{
 		if (m_func_set)
 		{
-			DoAction<0>(time, 
+			DoAction<0>(
+				*m_entity_admin, time, 
 				archetype->type, 
 				archetype->entities, 
 				archetype->component_data);
@@ -153,14 +164,14 @@ namespace vlx
 
 	template<Exists... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-	inline void System<Cs...>::DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
+	inline void System<Cs...>::DoAction(const EntityAdmin& entity_admin, Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
 		using SysCompType = typename std::tuple_element<Index, std::tuple<Cs...>>::type; // get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
-		ComponentTypeID comp_id = Component<SysCompType>::GetTypeId();	// get the id for the type of element at index
-		ComponentTypeID archetype_comp_id = archetype_ids[index2];		// id for component in the archetype
+		const ComponentTypeID comp_id = Component<SysCompType>::GetTypeId();	// get the id for the type of element at index
+		ComponentTypeID archetype_comp_id = archetype_ids[index2];				// id for component in the archetype
 
 		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found
 		{
@@ -170,14 +181,14 @@ namespace vlx
 		if (index2 == archetype_ids.size())
 			throw std::runtime_error("System was executed against an incorrect Archetype");
 
-		DoAction<Index + 1>(time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(entity_admin, time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
 	template<Exists... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-	inline void System<Cs...>::DoAction(Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts)
+	inline void System<Cs...>::DoAction(const EntityAdmin& entity_admin, Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
-		m_func(time, entity_ids, ts...);
+		m_func(entity_admin, time, entity_ids, ts...);
 	}
 }
 

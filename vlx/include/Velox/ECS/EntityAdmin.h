@@ -60,21 +60,14 @@ namespace vlx
 		VELOX_API ~EntityAdmin();
 
 	public:
-		template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
-		C* AddComponent(const EntityID entity_id, Args&&... args);
 		template<IsComponentType C>
-		void RemoveComponent(const EntityID entity_id);
+		C* GetComponent(const EntityID entity_id) const;
 
 		template<IsComponentType C>
-		void RegisterComponent();
+		bool HasComponent(const EntityID entity_id) const;
 
 		template<IsComponentType C>
-		bool IsComponentRegistered();
-		template<IsComponentType C>
-		bool HasComponent(const EntityID entity_id);
-
-		template<IsComponentType C>
-		C* GetComponent(const EntityID entity_id);
+		bool IsComponentRegistered() const;
 
 		/// <summary>
 		///		Get all entities that contain the provided components
@@ -84,7 +77,16 @@ namespace vlx
 		/// </param>
 		/// <returns></returns>
 		template<IsComponentType... Cs> requires Exists<Cs...>
-		std::vector<EntityID> GetEntitiesWith(bool restricted = false);
+		std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
+
+	public:
+		template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
+		C* AddComponent(const EntityID entity_id, Args&&... args);
+		template<IsComponentType C>
+		void RemoveComponent(const EntityID entity_id);
+
+		template<IsComponentType C>
+		void RegisterComponent();
 
 		/// <summary>
 		///		Increase the capacity in each matching archetype to reduce reallocations. Do note that it
@@ -99,13 +101,13 @@ namespace vlx
 		template<IsComponentType... Cs, typename Pred>
 		void SortEntities(Pred&& predicate);
 
-	public:
+	public:		
 		VELOX_API EntityID GetNewId();
 		VELOX_API Entity Create();
 
-		VELOX_API const std::size_t& GetComponentIndex(const EntityID entity_id);
+		VELOX_API const std::size_t& GetComponentIndex(const EntityID entity_id) const;
 
-		VELOX_API void RunSystems(const LayerType layer, Time& time);
+		VELOX_API void RunSystems(const LayerType layer, Time& time) const;
 		VELOX_API void SortSystems(const LayerType layer);
 
 		VELOX_API void RegisterSystem(const LayerType layer, SystemBase* system);
@@ -126,10 +128,6 @@ namespace vlx
 	private:
 		VELOX_API Archetype* GetArchetype(const ComponentIDs& component_ids);
 		VELOX_API Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
-
-		////////////////////////////////////////////////////////////
-		// Helper functions
-		////////////////////////////////////////////////////////////
 
 		VELOX_API void MakeRoom(
 			Archetype* archetype,
@@ -339,13 +337,13 @@ namespace vlx
 	}
 
 	template<IsComponentType C>
-	inline bool EntityAdmin::IsComponentRegistered()
+	inline bool EntityAdmin::IsComponentRegistered() const
 	{
 		return m_component_map.contains(Component<C>::GetTypeId());
 	}
 
 	template<IsComponentType C>
-	inline bool EntityAdmin::HasComponent(const EntityID entity_id)
+	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -366,7 +364,7 @@ namespace vlx
 	}
 
 	template<IsComponentType C>
-	inline C* EntityAdmin::GetComponent(const EntityID entity_id)
+	inline C* EntityAdmin::GetComponent(const EntityID entity_id) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -395,7 +393,7 @@ namespace vlx
 	}
 
 	template<IsComponentType... Cs> requires Exists<Cs...>
-	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted)
+	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
 		std::vector<EntityID> entities;
 

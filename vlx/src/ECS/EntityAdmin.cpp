@@ -36,23 +36,28 @@ EntityID EntityAdmin::GetNewId()
 
 	return m_entity_id_counter++;
 }
+
 Entity EntityAdmin::Create()
 {
 	return Entity(*this);
 }
 
-const std::size_t& EntityAdmin::GetComponentIndex(const EntityID entity_id)
+const std::size_t& EntityAdmin::GetComponentIndex(const EntityID entity_id) const
 {
-	auto it = m_entity_archetype_map.find(entity_id);
+	const auto it = m_entity_archetype_map.find(entity_id);
 	if (it == m_entity_archetype_map.end())
 		throw std::runtime_error("entity has not been registered");
 
 	return it->second.index;
 }
 
-void EntityAdmin::RunSystems(const LayerType layer, Time& time)
+void EntityAdmin::RunSystems(const LayerType layer, Time& time) const
 {
-	for (SystemBase* system : m_systems[layer])
+	const auto it = m_systems.find(layer);
+	if (it == m_systems.end())
+		return;
+
+	for (const SystemBase* system : it->second)
 	{
 		const ArchetypeID& key = system->GetKey();
 
@@ -64,6 +69,7 @@ void EntityAdmin::RunSystems(const LayerType layer, Time& time)
 			system->DoAction(time, archetype);
 	}
 }
+
 void EntityAdmin::SortSystems(const LayerType layer)
 {
 	auto& systems = m_systems[layer];
