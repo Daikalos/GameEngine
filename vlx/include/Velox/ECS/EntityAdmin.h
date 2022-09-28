@@ -155,7 +155,7 @@ namespace vlx
 		if (!IsComponentRegistered<C>()) // component should be registered
 			return nullptr;
 
-		auto eit = m_entity_archetype_map.find(entity_id);
+		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
 			return nullptr;
 
@@ -175,7 +175,8 @@ namespace vlx
 
 			new_archetype = GetArchetype(new_archetype_id);
 
-			EntityID last_entity_id = old_archetype->entities.back();
+			const EntityID last_entity_id = old_archetype->entities.back();
+			const bool same_entity = (last_entity_id == entity_id);
 			Record& last_record = m_entity_archetype_map[last_entity_id];
 
 			for (std::size_t i = 0, j = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
@@ -203,7 +204,7 @@ namespace vlx
 						&old_archetype->component_data[j][record.index * component_size],
 						&new_archetype->component_data[i][current_size]);
 
-					if (last_entity_id != entity_id)
+					if (!same_entity)
 					{
 						component->MoveDestroyData(
 							&old_archetype->component_data[j][last_record.index * component_size],
@@ -218,7 +219,7 @@ namespace vlx
 
 			assert(add_component != nullptr); // a new component should have been added
 
-			if (last_entity_id != entity_id)
+			if (!same_entity)
 			{
 				old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
 				last_record.index = record.index;
@@ -259,7 +260,7 @@ namespace vlx
 		if (!IsComponentRegistered<C>())
 			return;
 
-		auto eit = m_entity_archetype_map.find(entity_id);
+		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
 			return;
 
@@ -277,7 +278,8 @@ namespace vlx
 
 		Archetype* new_archetype = GetArchetype(new_archetype_id);
 
-		EntityID last_entity_id = old_archetype->entities.back();
+		const EntityID last_entity_id = old_archetype->entities.back();
+		const bool same_entity = (last_entity_id == entity_id);
 		Record& last_record = m_entity_archetype_map[last_entity_id];
 
 		const ComponentIDs& old_archetype_id = old_archetype->type;
@@ -306,7 +308,7 @@ namespace vlx
 				++j;
 			}
 
-			if (last_entity_id != entity_id) // no point of swapping data with itself
+			if (!same_entity) // no point of swapping data with itself
 			{
 				component->MoveDestroyData(
 					&old_archetype->component_data[i][last_record.index * component_size],
@@ -314,7 +316,7 @@ namespace vlx
 			}
 		}
 
-		if (last_entity_id != entity_id)
+		if (!same_entity)
 		{
 			old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids
 			last_record.index = record.index;
@@ -330,12 +332,10 @@ namespace vlx
 	template<IsComponentType C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		ComponentTypeID component_type_id = Component<C>::GetTypeId();
+		const ComponentTypeID component_id = Component<C>::GetTypeId();
 
-		if (m_component_map.contains(component_type_id))
-			return;
-
-		m_component_map.emplace(component_type_id, std::make_unique<Component<C>>());
+		if (!m_component_map.contains(component_id))
+			m_component_map.emplace(component_id, std::make_unique<Component<C>>());
 	}
 
 	template<IsComponentType C>
@@ -347,22 +347,18 @@ namespace vlx
 	template<IsComponentType C>
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id)
 	{
-		if (!IsComponentRegistered<C>())
-			return false;
-
-		auto eit = m_entity_archetype_map.find(entity_id);
+		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
 			return false;
 
-		Record& record = eit->second;
-		Archetype* archetype = record.archetype;
+		const Archetype* archetype = eit->second.archetype;
 
 		if (!archetype)
 			return false;
 
 		const ComponentTypeID component_id = Component<C>::GetTypeId();
 
-		auto cit = m_component_archetypes_map.find(component_id);
+		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
 			return false;
 
@@ -372,26 +368,23 @@ namespace vlx
 	template<IsComponentType C>
 	inline C* EntityAdmin::GetComponent(const EntityID entity_id)
 	{
-		if (!IsComponentRegistered<C>())
-			return nullptr;
-
-		auto eit = m_entity_archetype_map.find(entity_id);
+		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
 			return nullptr;
 
-		Record& record = eit->second;
-		Archetype* archetype = record.archetype;
+		const Record& record = eit->second;
+		const Archetype* archetype = record.archetype;
 
 		if (!archetype)
 			return nullptr;
 
 		const ComponentTypeID component_id = Component<C>::GetTypeId();
 
-		auto cit = m_component_archetypes_map.find(component_id);
+		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
 			return nullptr;
 
-		auto ait = cit->second.find(archetype->id);
+		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
 			return nullptr;
 
@@ -406,13 +399,14 @@ namespace vlx
 	{
 		std::vector<EntityID> entities;
 
-		ComponentIDs component_ids = cu::VectorHash<ComponentIDs>(SortKeys({ { Component<Cs>::GetTypeId()... } })); // see system.hpp
+		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } });
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>(component_ids); // see system.hpp
 
-		auto it = m_archetype_map.find(component_ids);
+		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
 			return entities;
 
-		std::vector<Archetype*>& archetypes = it->second;
+		const std::vector<Archetype*>& archetypes = it->second;
 
 		if (!restricted)
 		{
@@ -424,14 +418,16 @@ namespace vlx
 			entities.reserve(total_size);
 			for (const Archetype* archetype : archetypes)
 			{
-				const auto& archetype_entities = archetype->entities;
-				entities.insert(entities.end(), archetype_entities.begin(), archetype_entities.end());
+				entities.insert(entities.end(), 
+					archetype->entities.begin(), 
+					archetype->entities.end());
 			}
 		}
 		else
 		{
-			const auto& archetype_entities = archetypes.front()->entities;
-			entities.insert(entities.end(), archetype_entities.begin(), archetype_entities.end());
+			entities.insert(entities.end(), 
+				archetypes.front()->entities.begin(), 
+				archetypes.front()->entities.end());
 		}
 
 		return entities;
@@ -440,24 +436,25 @@ namespace vlx
 	template<IsComponentType... Cs> requires Exists<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
+		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } });
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>(component_ids); // see system.hpp
 
-		if (!m_archetype_map.contains(component_ids))
+		if (!m_archetype_map.contains(archetype_id))
 		{
 			for (std::size_t i = 0; i < component_ids.size(); ++i) // archetypes did not exist, create them
 				CreateArchetype(ComponentIDs(component_ids.begin(), component_ids.begin() + (i + 1)));
 		}
 
-		const std::vector<Archetype*>& archetypes = m_archetype_map[component_ids];
+		const std::vector<Archetype*>& archetypes = m_archetype_map[archetype_id];
 		for (Archetype* archetype : archetypes)
 		{
 			for (const ComponentTypeID component_id : component_ids)
 			{
-				auto cit = m_component_archetypes_map.find(component_id);
+				const auto cit = m_component_archetypes_map.find(component_id);
 				if (cit == m_component_archetypes_map.end())
 					continue;
 
-				auto ait = cit->second.find(archetype->id);
+				const auto ait = cit->second.find(archetype->id);
 				if (ait == cit->second.end())
 					continue;
 
