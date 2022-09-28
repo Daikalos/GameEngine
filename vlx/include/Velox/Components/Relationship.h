@@ -5,20 +5,16 @@
 
 namespace vlx
 {
-	class VELOX_API Relationship
+	/// <summary>
+	/// Represents the relationship between entities that allows for scene graphs 
+	/// and other things...
+	/// </summary>
+	struct Relationship
 	{
-	public:
-		void AttachParent(const EntityID parent);
-		void DetachParent(const EntityID parent);
-
-	private:
-		void AttachChild(const Relationship& child);
-		void DetachChild(const Relationship& child);
-
-	public:
-		EntityID parent	{NULL_ENTITY};
-		EntityID first	{NULL_ENTITY};
-		EntityID prev	{NULL_ENTITY};
-		EntityID next	{NULL_ENTITY};
+		EntityID parent			{NULL_ENTITY};
+		EntityID first			{NULL_ENTITY};
+		EntityID prev			{NULL_ENTITY};
+		EntityID next			{NULL_ENTITY};
+		std::size_t children	{0};
 	};
 }

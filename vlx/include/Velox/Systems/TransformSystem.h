@@ -8,12 +8,10 @@
 
 namespace vlx
 {
-	constexpr std::uint16_t TRANSFORM_LAYER = 8;
-
 	class VELOX_API TransformSystem
 	{
 	private:
-		using System = System<Transform>;
+		using System = System<Transform, Relationship>;
 
 	public:
 		TransformSystem(EntityAdmin* entity_admin);

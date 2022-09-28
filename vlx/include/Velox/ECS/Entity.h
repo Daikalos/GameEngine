@@ -30,7 +30,10 @@ namespace vlx
 		void RemoveComponent();
 
 		template<IsComponentType C>
-		C* GetComponent() const;
+		C& GetComponent() const;
+
+		template<IsComponentType C>
+		C* TryGetComponent() const;
 
 		template<IsComponentType C>
 		bool HasComponent() const;
@@ -59,9 +62,15 @@ namespace vlx
 	}
 
 	template<IsComponentType C>
-	inline C* Entity::GetComponent() const
+	inline C& Entity::GetComponent() const
 	{
 		return m_entity_admin->GetComponent<C>(m_id);
+	}
+
+	template<IsComponentType C>
+	inline C* Entity::TryGetComponent() const
+	{
+		return m_entity_admin->TryGetComponent<C>(m_id);
 	}
 
 	template<IsComponentType C>

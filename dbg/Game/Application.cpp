@@ -44,7 +44,7 @@ void Application::Run()
 
 		std::vector<Entity> entities;
 
-		for (int i = 0; i < 15; ++i)
+		for (int i = 0; i < 50; ++i)
 		{
 			Entity& entity = entities.emplace_back(entity_admin); 
 			entity.AddComponent<Velocity>(sf::Vector2f(i, 0.0f));
@@ -77,9 +77,9 @@ void Application::Run()
 
 		std::puts("");
 
-		std::puts(std::to_string(entities[1].GetComponent<Velocity>()->velocity.x).c_str());
-		std::puts(std::to_string(entities[2].GetComponent<Velocity>()->velocity.x).c_str());
-		std::puts(std::to_string(entities[3].GetComponent<Velocity>()->velocity.x).c_str());
+		std::puts(std::to_string(entities[1].GetComponent<Velocity>().velocity.x).c_str());
+		std::puts(std::to_string(entities[2].GetComponent<Velocity>().velocity.x).c_str());
+		std::puts(std::to_string(entities[3].GetComponent<Velocity>().velocity.x).c_str());
 		std::puts(std::to_string(entities[2].HasComponent<Velocity>()).c_str());
 		std::puts(std::to_string(entities[3].HasComponent<Velocity>()).c_str());
 

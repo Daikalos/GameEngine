@@ -89,7 +89,7 @@ namespace vlx::cu
 			}
 		}
 
-		vector.insert(vector.end(), item);
+		vector.push_back(item);
 
 		return true;
 	}

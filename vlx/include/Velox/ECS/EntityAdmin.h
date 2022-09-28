@@ -61,7 +61,10 @@ namespace vlx
 
 	public:
 		template<IsComponentType C>
-		C* GetComponent(const EntityID entity_id) const;
+		C& GetComponent(const EntityID entity_id) const;
+
+		template<IsComponentType C>
+		C* TryGetComponent(const EntityID entity_id) const;
 
 		template<IsComponentType C>
 		bool HasComponent(const EntityID entity_id) const;
@@ -354,7 +357,7 @@ namespace vlx
 		if (!archetype)
 			return false;
 
-		const ComponentTypeID component_id = Component<C>::GetTypeId();
+		const ComponentTypeID& component_id = Component<C>::GetTypeId();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -364,7 +367,24 @@ namespace vlx
 	}
 
 	template<IsComponentType C>
-	inline C* EntityAdmin::GetComponent(const EntityID entity_id) const
+	inline C& EntityAdmin::GetComponent(const EntityID entity_id) const
+	{
+		const auto eit = m_entity_archetype_map.find(entity_id);
+
+		const Record& record = eit->second;
+		const Archetype* archetype = record.archetype;
+
+		const ComponentTypeID& component_id = Component<C>::GetTypeId();
+
+		const auto cit = m_component_archetypes_map.find(component_id);
+		const auto ait = cit->second.find(archetype->id);
+
+		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
+		return components[record.index];
+	}
+
+	template<IsComponentType C>
+	inline C* EntityAdmin::TryGetComponent(const EntityID entity_id) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -376,7 +396,7 @@ namespace vlx
 		if (!archetype)
 			return nullptr;
 
-		const ComponentTypeID component_id = Component<C>::GetTypeId();
+		const ComponentTypeID& component_id = Component<C>::GetTypeId();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())

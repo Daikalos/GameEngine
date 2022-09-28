@@ -6,9 +6,10 @@
 namespace vlx
 {
 	using IDType			= typename std::uint32_t;
+	using LayerType			= typename std::uint16_t;
+
 	using ByteArray			= typename std::byte[];
 	using DataPtr			= typename std::byte*;
-	using LayerType			= typename std::uint16_t;
 
 	using EntityID			= typename IDType;
 	using ComponentTypeID	= typename IDType;
@@ -17,4 +18,10 @@ namespace vlx
 
 	constexpr EntityID NULL_ENTITY = NULL;
 	constexpr ArchetypeID NULL_ARCHETYPE = NULL;
+
+	enum SystemLayers : LayerType
+	{
+		LYR_Transform = 10,
+		LYR_Rendering = 11
+	};
 }

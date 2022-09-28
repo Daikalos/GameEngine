@@ -148,8 +148,7 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 {
 	const ArchetypeID id = cu::VectorHash<ComponentIDs>()(component_ids);
 
-	auto it = m_archetype_map.find(id);
-
+	const auto it = m_archetype_map.find(id);
 	if (it != m_archetype_map.end())
 		return it->second.front();
 
@@ -172,9 +171,12 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 		m_archetype_map[subset_id].push_back(new_archetype.get());
 	}
 
+	new_archetype->component_data.reserve(component_ids.size()); // prevent any reallocations
+	new_archetype->component_data_size.reserve(component_ids.size());
+
 	for (ComponentIDs::size_type i = 0; i < component_ids.size(); ++i) // add empty array for each component in type
 	{
-		constexpr std::size_t DEFAULT_SIZE = 64; // default size in bytes to reduce number of reallocations
+		constexpr std::size_t DEFAULT_SIZE = 128; // default size in bytes to reduce number of reallocations
 
 		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
@@ -192,6 +194,15 @@ void EntityAdmin::Shrink(bool extensive)
 			if (archetype->entities.empty())
 			{
 				cu::Erase(m_archetype_map[archetype->id], archetype.get());
+
+				for (auto i = std::ssize(archetype->type) - 2; i >= 0; --i)
+				{
+					const ComponentIDs subset_ids(archetype->type.begin(), archetype->type.begin() + (i + 1));
+					const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
+
+					cu::Erase(m_archetype_map[subset_id], archetype.get());
+				}
+
 				return true;
 			}
 
@@ -205,6 +216,14 @@ void EntityAdmin::Shrink(bool extensive)
 			if (archetype->type.empty())
 			{
 				cu::Erase(m_archetype_map[archetype->id], archetype.get());
+
+				for (auto i = std::ssize(archetype->type) - 2; i >= 0; --i)
+				{
+					const ComponentIDs subset_ids(archetype->type.begin(), archetype->type.begin() + (i + 1));
+					const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
+
+					cu::Erase(m_archetype_map[subset_id], archetype.get());
+				}
 
 				for (const EntityID entity_id : archetype->entities)
 				{
@@ -263,7 +282,7 @@ void EntityAdmin::MakeRoom(
 
 	for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 	{
-		component->MoveDestroyData(
+		component->MoveDestroyData( 
 			&archetype->component_data[i][j * data_size], 
 			&new_data[j * data_size]);
 	}
