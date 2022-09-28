@@ -14,7 +14,7 @@ Camera::Camera(CameraBehavior::Context context)
 
 }
 
-constexpr const sf::Transform& Camera::GetViewMatrix() const
+const sf::Transform& Camera::GetViewMatrix() const
 {
 	if (m_update_transform)
 	{
@@ -28,31 +28,31 @@ constexpr const sf::Transform& Camera::GetViewMatrix() const
 
 	return m_transform;
 }
-constexpr sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
+sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
 { 
 	return GetViewMatrix() * position; 
 }
-constexpr sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
+sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
 { 
 	return ViewToWorld(sf::Vector2f(sf::Mouse::getPosition(window))); 
 }
 
-constexpr sf::Vector2f Camera::GetPosition() const noexcept 
+const sf::Vector2f& Camera::GetPosition() const noexcept
 { 
 	return m_position; 
 }
-constexpr sf::Vector2f Camera::GetScale() const noexcept 
+const sf::Vector2f& Camera::GetScale() const noexcept
 { 
 	return m_scale; 
 }
-constexpr sf::Vector2f Camera::GetSize() const noexcept 
+const sf::Vector2f& Camera::GetSize() const noexcept
 { 
 	return m_size; 
 }
 
-constexpr sf::Vector2f Camera::GetOrigin() const
+sf::Vector2f Camera::GetOrigin() const
 {
-	return GetPosition() + GetSize() / 2.0f;
+	return GetPosition() + (GetSize() / 2.0f);
 }
 
 const CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id) const

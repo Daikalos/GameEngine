@@ -56,15 +56,15 @@ namespace vlx
 	public:
 		explicit Camera(CameraBehavior::Context context);
 
-		[[nodiscard]] constexpr const sf::Transform& GetViewMatrix() const;
-		[[nodiscard]] constexpr sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
-		[[nodiscard]] constexpr sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
+		[[nodiscard]] const sf::Transform& GetViewMatrix() const;
+		[[nodiscard]] sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
+		[[nodiscard]] sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
 
-		[[nodiscard]] constexpr sf::Vector2f GetPosition() const noexcept;
-		[[nodiscard]] constexpr sf::Vector2f GetScale() const noexcept;
-		[[nodiscard]] constexpr sf::Vector2f GetSize() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetPosition() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetScale() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetSize() const noexcept;
 
-		[[nodiscard]] constexpr sf::Vector2f GetOrigin() const;
+		[[nodiscard]] sf::Vector2f GetOrigin() const;
 
 		[[nodiscard]] const CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id) const;
 		[[nodiscard]] CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id);

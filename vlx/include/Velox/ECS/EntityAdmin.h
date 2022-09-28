@@ -203,6 +203,13 @@ namespace vlx
 						&old_archetype->component_data[j][record.index * component_size],
 						&new_archetype->component_data[i][current_size]);
 
+					if (last_entity_id != entity_id)
+					{
+						component->MoveDestroyData(
+							&old_archetype->component_data[j][last_record.index * component_size],
+							&old_archetype->component_data[j][record.index * component_size]); // move data to last
+					}
+
 					++j;
 				}
 
@@ -211,8 +218,13 @@ namespace vlx
 
 			assert(add_component != nullptr); // a new component should have been added
 
-			old_archetype->add_locations.push(record.index);
-			old_archetype->entities.erase(old_archetype->entities.begin() + record.index);
+			if (last_entity_id != entity_id)
+			{
+				old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
+				last_record.index = record.index;
+			}
+
+			old_archetype->entities.pop_back(); // by only removing the last entity, it means that when the next component is added, it will overwrite the previous
 		}
 		else // if the entity has no archetype, first component
 		{
@@ -265,6 +277,9 @@ namespace vlx
 
 		Archetype* new_archetype = GetArchetype(new_archetype_id);
 
+		EntityID last_entity_id = old_archetype->entities.back();
+		Record& last_record = m_entity_archetype_map[last_entity_id];
+
 		const ComponentIDs& old_archetype_id = old_archetype->type;
 		for (std::size_t i = 0, j = 0; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
 		{
@@ -290,12 +305,24 @@ namespace vlx
 
 				++j;
 			}
+
+			if (last_entity_id != entity_id) // no point of swapping data with itself
+			{
+				component->MoveDestroyData(
+					&old_archetype->component_data[i][last_record.index * component_size],
+					&old_archetype->component_data[i][record.index * component_size]); // move data to last
+			}
 		}
 
-		old_archetype->add_locations.push(record.index);
-		old_archetype->entities.erase(old_archetype->entities.begin() + record.index);
+		if (last_entity_id != entity_id)
+		{
+			old_archetype->entities.at(record.index) = old_archetype->entities.back(); // now swap ids
+			last_record.index = record.index;
+		}
 
+		old_archetype->entities.pop_back();
 		new_archetype->entities.push_back(entity_id);
+
 		record.index = new_archetype->entities.size() - 1;
 		record.archetype = new_archetype;
 	}
