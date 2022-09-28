@@ -146,12 +146,18 @@ namespace vlx::cu
 	{
 		SizeType operator()(const T& container) const
 		{
-			auto hash = container.size();
+			std::size_t seed = container.size();
 
-			for (auto& i : container)
-				hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+			for (auto x : container)
+			{
+				x = ((x >> 16) ^ x) * 0x45d9f3b;
+				x = ((x >> 16) ^ x) * 0x45d9f3b;
+				x = (x >> 16) ^ x;
 
-			return static_cast<SizeType>(hash);
+				seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			}
+
+			return static_cast<SizeType>(seed);
 		}
 	};
 }

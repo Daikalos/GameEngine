@@ -24,12 +24,12 @@ EntityAdmin::~EntityAdmin()
 	}
 }
 
-EntityID EntityAdmin::GetNewId()
+EntityID EntityAdmin::GetNewEntityID()
 {
-	if (!m_reusable_ids.empty())
+	if (!m_reusable_entity_ids.empty())
 	{
-		EntityID entity_id = m_reusable_ids.front();
-		m_reusable_ids.pop();
+		const EntityID entity_id = m_reusable_entity_ids.front();
+		m_reusable_entity_ids.pop();
 
 		return entity_id;
 	}
@@ -84,6 +84,7 @@ void EntityAdmin::RegisterSystem(const LayerType layer, SystemBase* system)
 {
 	m_systems[layer].push_back(system);
 }
+
 void EntityAdmin::RegisterEntity(const EntityID entity_id)
 {
 	auto insert = m_entity_archetype_map.insert(std::make_pair(entity_id, Record()));
@@ -95,6 +96,7 @@ void EntityAdmin::RemoveSystem(const LayerType layer, SystemBase* system)
 	if (!cu::Erase(m_systems[layer], system))
 		throw std::runtime_error("attempted removal of non-existing system");
 }
+
 void EntityAdmin::RemoveEntity(const EntityID entity_id)
 {
 	auto eit = m_entity_archetype_map.find(entity_id);
@@ -107,7 +109,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	if (!archetype)
 	{
 		m_entity_archetype_map.erase(entity_id);
-		m_reusable_ids.push(entity_id);
+		m_reusable_entity_ids.push(entity_id);
 
 		return;
 	}
@@ -141,7 +143,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	archetype->entities.pop_back();
 
 	m_entity_archetype_map.erase(entity_id);
-	m_reusable_ids.push(entity_id);
+	m_reusable_entity_ids.push(entity_id);
 }
 
 Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
@@ -150,10 +152,17 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 
 	const auto it = m_archetype_map.find(id);
 	if (it != m_archetype_map.end())
-		return it->second.front();
+	{
+		for (Archetype* archetype : it->second)
+		{
+			if (archetype->type == component_ids)
+				return archetype;
+		}
+	}
 
 	return CreateArchetype(component_ids, id); // archetype does not exist, create new one
 }
+
 Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id)
 {
 	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
@@ -161,7 +170,7 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 	new_archetype->id = id;
 	new_archetype->type = component_ids;
 
-	m_archetype_map[new_archetype->id].push_back(new_archetype.get());
+	m_archetype_map[id].push_back(new_archetype.get());
 
 	for (auto i = std::ssize(component_ids) - 2; i >= 0; --i)
 	{
@@ -181,6 +190,19 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
 	}
+
+#if VELOX_DEBUG
+	for (const auto& archetype : m_archetypes)
+	{
+		for (const auto& archetype1 : m_archetypes)
+		{
+			if (archetype.get() == archetype1.get())
+				continue;
+
+			assert(archetype->type != archetype1->type); // no duplicates
+		}
+	}
+#endif
 
 	return m_archetypes.emplace_back(std::move(new_archetype)).get();
 }
@@ -228,7 +250,7 @@ void EntityAdmin::Shrink(bool extensive)
 				for (const EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
-					m_reusable_ids.push(entity_id);
+					m_reusable_entity_ids.push(entity_id);
 				}
 
 				return true;
