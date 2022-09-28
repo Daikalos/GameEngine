@@ -256,17 +256,6 @@ namespace vlx
 		record.index = new_archetype->entities.size() - 1;
 		record.archetype = new_archetype;
 
-		for (std::size_t i = 0; i < new_archetype->type.size(); ++i) 
-		{
-			const ComponentTypeID& component_id = new_archetype->type[i];
-			const ComponentBase* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
-
-			const std::size_t current_size = new_archetype->entities.size() * component_size;
-
-			assert(current_size <= new_archetype->component_data_size[i]);
-		}
-
 		return add_component;
 	}
 
