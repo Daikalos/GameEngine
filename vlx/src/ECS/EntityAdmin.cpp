@@ -73,7 +73,7 @@ void EntityAdmin::RunSystems(const LayerType layer, Time& time) const
 void EntityAdmin::SortSystems(const LayerType layer)
 {
 	auto& systems = m_systems[layer];
-	std::sort(systems.begin(), systems.end(),
+	std::stable_sort(systems.begin(), systems.end(),
 		[](const SystemBase* lhs, const SystemBase* rhs)
 		{
 			return lhs->GetPriority() > rhs->GetPriority(); // in descending order
@@ -103,7 +103,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	if (eit == m_entity_archetype_map.end())
 		return;
 
-	Record& record = eit->second;
+	Record& record		 = eit->second;
 	Archetype* archetype = record.archetype;
 
 	if (!archetype)
@@ -115,14 +115,14 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	}
 
 	EntityID last_entity_id = archetype->entities.back();
-	Record& last_record = m_entity_archetype_map[last_entity_id];
+	Record& last_record		= m_entity_archetype_map[last_entity_id];
 
 	const ComponentIDs& archetype_id = archetype->type;
 	for (std::size_t i = 0; i < archetype_id.size(); ++i) // we iterate over both archetypes
 	{
-		const ComponentTypeID component_id = archetype_id[i];
-		const ComponentBase* component = m_component_map[component_id].get();
-		const std::size_t component_size = component->GetSize();
+		const ComponentTypeID component_id	= archetype_id[i];
+		const ComponentBase* component		= m_component_map[component_id].get();
+		const std::size_t component_size	= component->GetSize();
 
 		component->DestroyData(&archetype->component_data[i][record.index * component_size]);
 

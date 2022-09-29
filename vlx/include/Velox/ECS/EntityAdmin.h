@@ -186,12 +186,12 @@ namespace vlx
 
 			for (std::size_t i = 0, j = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
 			{
-				const ComponentTypeID component_id = new_archetype_id[i];
-				const ComponentBase* component = m_component_map[component_id].get();
-				const std::size_t component_size = component->GetSize();
+				const ComponentTypeID component_id	= new_archetype_id[i];
+				const ComponentBase* component		= m_component_map[component_id].get();
+				const std::size_t component_size	= component->GetSize();
 
-				const std::size_t current_size = new_archetype->entities.size() * component_size;
-				const std::size_t new_size = current_size + component_size;
+				const std::size_t current_size	= new_archetype->entities.size() * component_size;
+				const std::size_t new_size		= current_size + component_size;
 
 				if (new_size > new_archetype->component_data_size[i])
 					MakeRoom(new_archetype, component, component_size, i);
@@ -237,11 +237,11 @@ namespace vlx
 			ComponentIDs new_archetype_id(1, add_component_id);	// construct archetype with the component id
 			new_archetype = GetArchetype(new_archetype_id);		// construct or get new archetype using the id
 
-			const ComponentBase* component = m_component_map[add_component_id].get();
-			const std::size_t& component_size = component->GetSize();
+			const ComponentBase* component		= m_component_map[add_component_id].get();
+			const std::size_t& component_size	= component->GetSize();
 
-			const std::size_t current_size = new_archetype->entities.size() * component_size;
-			const std::size_t new_size = current_size + component_size;
+			const std::size_t current_size	= new_archetype->entities.size() * component_size;
+			const std::size_t new_size		= current_size + component_size;
 
 			if (new_size > new_archetype->component_data_size[0])
 				MakeRoom(new_archetype, component, component_size, 0); // make room and move over existing data
@@ -291,9 +291,9 @@ namespace vlx
 		const ComponentIDs& old_archetype_id = old_archetype->type;
 		for (std::size_t i = 0, j = 0; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
 		{
-			const ComponentTypeID component_id = old_archetype_id[i];
-			const ComponentBase* component = m_component_map[component_id].get();
-			const std::size_t component_size = component->GetSize();
+			const ComponentTypeID component_id	= old_archetype_id[i];
+			const ComponentBase* component		= m_component_map[component_id].get();
+			const std::size_t component_size	= component->GetSize();
 
 			if (component_id == rmv_component_id)
 			{
@@ -301,8 +301,8 @@ namespace vlx
 			}
 			else
 			{
-				const std::size_t current_size = new_archetype->entities.size() * component_size;
-				const std::size_t new_size = current_size + component_size;
+				const std::size_t current_size	= new_archetype->entities.size() * component_size;
+				const std::size_t new_size		= current_size + component_size;
 
 				if (new_size > new_archetype->component_data_size[j])
 					MakeRoom(new_archetype, component, component_size, j); // make room to fit data
@@ -371,7 +371,7 @@ namespace vlx
 		if (cit == m_component_archetypes_map.end())
 			return false;
 
-		return cit->second.count(archetype->id) != NULL_ARCHETYPE;
+		return cit->second.contains(archetype->id);
 	}
 
 	template<IsComponentType C>
