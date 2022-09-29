@@ -39,7 +39,6 @@ void Application::Run()
 
 		entity_admin.RegisterComponent<Velocity>();
 		entity_admin.RegisterComponent<Sprite>();
-		entity_admin.RegisterComponent<Test>();
 		entity_admin.RegisterComponent<Relationship>();
 
 		std::vector<Entity> entities;
@@ -104,10 +103,6 @@ void Application::Run()
 				entity.AddComponent<Sprite>();
 			else if (random > 0.40f)
 				entity.RemoveComponent<Sprite>();
-			else if (random > 0.30f)
-				entity.AddComponent<Test>();
-			else if (random > 0.20f)
-				entity.RemoveComponent<Test>();
 		}
 
 		std::puts("");

@@ -3,7 +3,7 @@
 using namespace vlx;
 
 TransformSystem::TransformSystem(EntityAdmin* entity_admin)
-	: m_system(*entity_admin, LYR_Transform)
+	: m_system(*entity_admin, LYR_TRANSFORM)
 {
 	//m_system.Action([])
 }

@@ -3,7 +3,7 @@
 using namespace vlx;
 
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
-	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_Objects)
+	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_OBJECTS)
 {
 	m_system.Action([this](const EntityAdmin& entity_admin, Time& time, 
 		std::span<const EntityID> entities, GameObject* gameobjects)
@@ -25,7 +25,7 @@ Entity ObjectSystem::CreateObject() const
 
 void ObjectSystem::DeleteObjectDelayed(const EntityID entity_id)
 {
-	m_deletion_queue.push(std::make_pair(entity_id, DEL_Entity));
+	m_deletion_queue.push(std::make_pair(DeleteEntity(entity_id), DEL_ENTITY));
 }
 void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 {
@@ -37,17 +37,16 @@ void ObjectSystem::Update()
 	while (!m_deletion_queue.empty())
 	{
 		const auto& pair = m_deletion_queue.front();
-
-		const EntityID entity = pair.first;
-		const Command command = pair.second;
+		const CommandType command = pair.second;
 
 		switch (command)
 		{
-		case DEL_Component:
-			//m_entity_admin->RemoveComponent(entity);
+		case DEL_ENTITY:
+			m_entity_admin->RemoveEntity(std::get<DeleteEntity>(pair.first).entity_id);
 			break;
-		case DEL_Entity:
-			m_entity_admin->RemoveEntity(entity);
+		case DEL_COMPONENT:
+			const auto& del_cmp = std::get<DeleteComponent>(pair.first);
+			m_entity_admin->RemoveComponent(del_cmp.entity_id, del_cmp.component_id);
 			break;
 		}
 

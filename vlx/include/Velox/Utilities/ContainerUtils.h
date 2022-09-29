@@ -154,7 +154,7 @@ namespace vlx::cu
 				x = ((x >> 16) ^ x) * 0x45d9f3b;
 				x = (x >> 16) ^ x;
 
-				seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+				seed ^= static_cast<std::size_t>(x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 			}
 
 			return static_cast<SizeType>(seed);

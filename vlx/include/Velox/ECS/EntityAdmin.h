@@ -167,7 +167,7 @@ namespace vlx
 		C* add_component = nullptr;
 		Archetype* new_archetype = nullptr;
 
-		const ComponentTypeID add_component_id = Component<C>::GetTypeId();
+		const ComponentTypeID add_component_id = Component<C>::GetTypeID();
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
@@ -268,7 +268,7 @@ namespace vlx
 	template<IsComponentType C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		const ComponentTypeID component_id = Component<C>::GetNewID();
+		const ComponentTypeID component_id = Component<C>::GetTypeID();
 
 		if (!m_component_map.contains(component_id))
 			m_component_map.emplace(component_id, std::make_unique<Component<C>>());
@@ -277,7 +277,7 @@ namespace vlx
 	template<IsComponentType C>
 	inline bool EntityAdmin::IsComponentRegistered() const
 	{
-		return m_component_map.contains(Component<C>::GetNewID());
+		return m_component_map.contains(Component<C>::GetTypeID());
 	}
 
 	template<IsComponentType C>
@@ -295,7 +295,7 @@ namespace vlx
 		if (!archetype)
 			return false;
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeId();
+		const ComponentTypeID& component_id = Component<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -314,7 +314,7 @@ namespace vlx
 		const Record& record = eit->second;
 		const Archetype* archetype = record.archetype;
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeId();
+		const ComponentTypeID& component_id = Component<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		const auto ait = cit->second.find(archetype->id);
