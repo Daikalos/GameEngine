@@ -43,7 +43,7 @@ namespace vlx
 
 		[[nodiscard]] virtual constexpr std::size_t GetSize() const noexcept override;
 
-		[[nodiscard]] static ComponentTypeID GetTypeId();
+		[[nodiscard]] static ComponentTypeID GetTypeID();
 	};
 
 	template<class C>
@@ -85,9 +85,9 @@ namespace vlx
 	}
 
 	template<class C>
-	inline ComponentTypeID Component<C>::GetTypeId()
+	inline ComponentTypeID Component<C>::GetTypeID()
 	{
-		return TypeIdGenerator<ComponentBase>::GetNewId<C>();
+		return TypeIdGenerator<ComponentBase>::GetNewID<C>();
 	}
 }
 

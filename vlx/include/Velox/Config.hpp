@@ -11,7 +11,7 @@
 #endif
 
 #if !defined(NDEBUG)
-	#define VELOX_DEBUG true
+	#define VELOX_DEBUG
 #endif
 
 #if defined(_WIN32)

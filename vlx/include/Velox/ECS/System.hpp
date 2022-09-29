@@ -135,7 +135,7 @@ namespace vlx
 	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
 		if (m_key == NULL_ARCHETYPE)
-			m_key = cu::VectorHash<ComponentIDs>()(SortKeys({{ Component<Cs>::GetTypeId()... }}));
+			m_key = cu::VectorHash<ComponentIDs>()(SortKeys({{ Component<Cs>::GetTypeID()... }}));
 
 		return m_key;
 	}	
@@ -168,7 +168,7 @@ namespace vlx
 
 		std::size_t index2 = 0;
 
-		const ComponentTypeID comp_id = Component<SysCompType>::GetTypeId();	// get the id for the type of element at index
+		const ComponentTypeID comp_id = Component<SysCompType>::GetTypeID();	// get the id for the type of element at index
 		ComponentTypeID archetype_comp_id = archetype_ids[index2];				// id for component in the archetype
 
 		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found

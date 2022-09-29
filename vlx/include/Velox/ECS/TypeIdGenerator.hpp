@@ -11,7 +11,7 @@ namespace vlx
 	{
 	public:
 		template<class U>
-		static const IDType GetNewId()
+		static const IDType GetNewID()
 		{
 			std::lock_guard lock(m_mutex); // thread-safe way to get unique id
 			

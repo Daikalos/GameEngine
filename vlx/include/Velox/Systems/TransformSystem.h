@@ -16,12 +16,6 @@ namespace vlx
 	public:
 		TransformSystem(EntityAdmin* entity_admin);
 
-		void AttachParent(const Relationship& target, const Relationship& parent);
-		void DetachParent(const Relationship& target, const Relationship& parent);
-
-		void AttachChild(const Relationship& target, const Relationship& child);
-		void DetachChild(const Relationship& target, const Relationship& child);
-
 	private:
 		System m_system;
 	};

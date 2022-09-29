@@ -153,8 +153,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
+    <ClInclude Include="include\Velox\Components\GameObject.h" />
     <ClInclude Include="include\Velox\Components\Relationship.h" />
-    <ClInclude Include="include\Velox\Components\Test.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -167,6 +167,7 @@
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
     <ClInclude Include="include\Velox\ECS\TypeIdGenerator.hpp" />
+    <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
     <ClInclude Include="include\Velox\Scene\State.hpp" />
     <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
+    <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\Utilities.hpp" />
@@ -203,12 +205,15 @@
     <ClInclude Include="include\Velox\Window\CameraBehavior.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
+    <ClInclude Include="ObjectSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\Relationship.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
+    <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
@@ -218,6 +223,7 @@
     <ClCompile Include="src\Input\KeyboardInput.cpp" />
     <ClCompile Include="src\Input\MouseCursor.cpp" />
     <ClCompile Include="src\Input\MouseInput.cpp" />
+    <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\Utilities\Time.cpp" />

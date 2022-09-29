@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/ECS/Identifiers.hpp>
+#include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -9,12 +9,20 @@ namespace vlx
 	/// Represents the relationship between entities that allows for scene graphs 
 	/// and other things...
 	/// </summary>
-	struct Relationship
+	class VELOX_API Relationship
 	{
-		EntityID parent			{NULL_ENTITY};
-		EntityID first			{NULL_ENTITY};
-		EntityID prev			{NULL_ENTITY};
-		EntityID next			{NULL_ENTITY};
-		std::size_t children	{0};
+	public:
+		~Relationship();
+
+	public:
+		void AttachParent(const EntityAdmin& entity_admin, Relationship& parent, const EntityID entity_id);
+		void DetachParent(const EntityAdmin& entity_admin, Relationship& parent, const EntityID entity_id);
+
+		void AttachChild(const EntityAdmin& entity_admin, Relationship& child, const EntityID entity_id);
+		void DetachChild(const EntityAdmin& entity_admin, Relationship& child, const EntityID entity_id);
+
+	private:
+		EntityID parent	{NULL_ENTITY};
+		std::vector<EntityID> children;
 	};
 }

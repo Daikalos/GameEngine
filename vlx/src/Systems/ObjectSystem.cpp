@@ -1,0 +1,56 @@
+#include <Velox/Systems/ObjectSystem.h>
+
+using namespace vlx;
+
+ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
+	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_Objects)
+{
+	m_system.Action([this](const EntityAdmin& entity_admin, Time& time, 
+		std::span<const EntityID> entities, GameObject* gameobjects)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+			{
+				if (!gameobjects[i].is_alive)
+					DeleteObjectDelayed(entities[i]);
+			}
+
+			Update();
+		});
+}
+
+Entity ObjectSystem::CreateObject() const
+{
+	return Entity(*m_entity_admin);
+}
+
+void ObjectSystem::DeleteObjectDelayed(const EntityID entity_id)
+{
+	m_deletion_queue.push(std::make_pair(entity_id, DEL_Entity));
+}
+void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
+{
+	m_entity_admin->RemoveEntity(entity_id);
+}
+
+void ObjectSystem::Update()
+{
+	while (!m_deletion_queue.empty())
+	{
+		const auto& pair = m_deletion_queue.front();
+
+		const EntityID entity = pair.first;
+		const Command command = pair.second;
+
+		switch (command)
+		{
+		case DEL_Component:
+			//m_entity_admin->RemoveComponent(entity);
+			break;
+		case DEL_Entity:
+			m_entity_admin->RemoveEntity(entity);
+			break;
+		}
+
+		m_deletion_queue.pop();
+	}
+}
