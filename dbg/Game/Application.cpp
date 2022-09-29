@@ -33,7 +33,7 @@ void Application::Run()
 
 	bm::Begin();
 
-	for (int j = 0; j < 50; ++j)
+	for (int j = 0; j < 1; ++j)
 	{
 		EntityAdmin entity_admin;
 
@@ -61,7 +61,7 @@ void Application::Run()
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
-					float x = velocities[i].velocity.x;
+					std::puts(std::to_string(velocities[i].velocity.x).c_str());
 				}
 			});
 
@@ -69,7 +69,7 @@ void Application::Run()
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
-					//std::puts(std::to_string(velocities[i].velocity.x).c_str());
+					std::puts(std::to_string(velocities[i].velocity.x).c_str());
 				}
 			});
 

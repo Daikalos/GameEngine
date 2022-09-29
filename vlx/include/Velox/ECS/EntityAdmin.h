@@ -171,7 +171,7 @@ namespace vlx
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
-			ComponentIDs new_archetype_id = old_archetype->type;	  // create copy
+			ComponentIDs new_archetype_id = old_archetype->type; // create copy
 			if (!cu::InsertUniqueSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 				return nullptr;
 

@@ -10,7 +10,7 @@ using namespace vlx;
 [[nodiscard]] constexpr float Time::GetInterp() const noexcept				{ return m_interp; }
 [[nodiscard]] constexpr long double Time::GetTotalTime() const noexcept		{ return m_total_time; }
 [[nodiscard]] constexpr long double Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
-[[nodiscard]] constexpr int Time::GetFramerate() const noexcept				{ return 1.0f / GetRealDeltaTime(); }
+[[nodiscard]] constexpr int Time::GetFramerate() const noexcept				{ return (int)(1.0f / GetRealDeltaTime()); }
 
 void Time::SetScaledTime(const float value) noexcept
 { 

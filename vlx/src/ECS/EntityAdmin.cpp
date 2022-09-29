@@ -153,11 +153,9 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 	const auto it = m_archetype_map.find(id);
 	if (it != m_archetype_map.end())
 	{
-		for (Archetype* archetype : it->second)
-		{
-			if (archetype->type == component_ids)
-				return archetype;
-		}
+		Archetype* result = it->second.front();
+		if (result->type == component_ids)
+			return result;
 	}
 
 	return CreateArchetype(component_ids, id); // archetype does not exist, create new one
@@ -170,14 +168,19 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 	new_archetype->id = id;
 	new_archetype->type = component_ids;
 
-	m_archetype_map[id].push_back(new_archetype.get());
+	auto& archetypes = m_archetype_map[id];
+	archetypes.insert(archetypes.begin(), new_archetype.get());
 
-	for (auto i = std::ssize(component_ids) - 2; i >= 0; --i)
+	for (auto width = 1; width <= std::ssize(component_ids) - 1; ++width)
 	{
-		const ComponentIDs subset_ids(component_ids.begin(), component_ids.begin() + (i + 1));
-		const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
+		for (std::size_t i = 0; (width + i) <= component_ids.size(); ++i)
+		{
+			const auto begin = (component_ids.begin() + i);
+			const ComponentIDs subset_ids(begin, begin + width);
+			const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
 
-		m_archetype_map[subset_id].push_back(new_archetype.get());
+			m_archetype_map[subset_id].push_back(new_archetype.get());
+		}
 	}
 
 	new_archetype->component_data.reserve(component_ids.size()); // prevent any reallocations

@@ -119,21 +119,21 @@ void SpriteBatch::SortTriangles() const
 	{
 	case SortMode::BackToFront:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
-			[this](const std::uint32_t& i0, const std::uint32_t& i1)
+			[this](const std::size_t i0, const std::size_t i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case SortMode::FrontToBack:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
-			[this](const std::uint32_t& i0, const std::uint32_t& i1)
+			[this](const std::size_t i0, const std::size_t i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case SortMode::Texture:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
-			[this](const std::uint32_t& i0, const std::uint32_t& i1)
+			[this](const std::size_t i0, const std::size_t i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);
 			});

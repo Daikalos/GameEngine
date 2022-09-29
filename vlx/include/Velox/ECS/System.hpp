@@ -56,16 +56,14 @@ namespace vlx
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 		void DoAction(
-			const EntityAdmin& entity_admin, 
-			Time& time, 
+			const EntityAdmin& entity_admin, Time& time, 
 			const ComponentIDs& archetype_ids, 
 			std::span<const EntityID> entity_ids, 
 			T& t, Ts... ts) const;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-		void DoAction(const 
-			const EntityAdmin& entity_admin, 
-			Time& time, 
+		void DoAction( 
+			const EntityAdmin& entity_admin, Time& time, 
 			const ComponentIDs& archetype_ids, 
 			std::span<const EntityID> entity_ids, 
 			T& t, Ts... ts) const;
