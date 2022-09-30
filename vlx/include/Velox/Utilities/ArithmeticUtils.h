@@ -13,16 +13,19 @@
 ////////////////////////////////////////////////////////////
 namespace vlx::au
 {
+	template<Arithmetic T>
+	constexpr T PI = T(M_PI);
+
 	template<std::floating_point T>
 	[[nodiscard]] static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees
 	{
-		return degrees * (M_PI / T(180.0));
+		return degrees * (PI<T> / T(180.0));
 	}
 
 	template<std::floating_point T>
 	[[nodiscard]] static constexpr T ToDegrees(const T radians)
 	{
-		return radians * (T(180.0) / M_PI);
+		return radians * (T(180.0) / PI<T>);
 	}
 
 	template<Arithmetic T>

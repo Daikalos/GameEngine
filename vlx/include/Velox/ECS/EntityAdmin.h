@@ -383,14 +383,14 @@ namespace vlx
 		}
 		else
 		{
-			for (const auto& archetype : archetypes)
+			for (const Archetype* archetype : archetypes)
 			{
 				if (archetype->type != component_ids)
 					continue;
 
 				entities.insert(entities.end(),
-					archetypes.front()->entities.begin(),
-					archetypes.front()->entities.end());
+					archetype->entities.begin(),
+					archetype->entities.end());
 
 				break;
 			}
