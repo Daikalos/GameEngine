@@ -50,6 +50,8 @@ void Application::Run()
 			entity.AddComponent<Sprite>();
 		}
 
+		m_entity_admin.SortEntities<Velocity>([])
+
 		System<Velocity> s0(entity_admin, 0);
 		System<Velocity, Sprite> s1(entity_admin, 1);
 		System<Velocity, Sprite, Relationship> s2(entity_admin, 0);

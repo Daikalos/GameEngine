@@ -14,9 +14,10 @@ namespace vlx
 		using System = System<Transform, Relationship>;
 
 	public:
-		TransformSystem(EntityAdmin* entity_admin);
+		TransformSystem(EntityAdmin& entity_admin);
 
 	private:
+		EntityAdmin* m_entity_admin;
 		System m_system;
 	};
 }

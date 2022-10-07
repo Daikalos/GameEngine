@@ -18,17 +18,21 @@ namespace vlx
 	public:
 		World();
 
-		Entity CreateObject();
+		EntityAdmin& GetEntityAdmin() noexcept;
+		ObjectSystem& GetObjectSystem() noexcept;
+		TransformSystem& GetTransformSystem() noexcept;
+		RenderSystem& GetRenderSystem() noexcept;
 
-
-
-
+		const EntityAdmin& GetEntityAdmin() const noexcept;
+		const ObjectSystem& GetObjectSystem() const noexcept;
+		const TransformSystem& GetTransformSystem() const noexcept;
+		const RenderSystem& GetRenderSystem() const noexcept;
 
 	private:
-		EntityAdmin m_entity_admin;
+		EntityAdmin		m_entity_admin;
 
-		ObjectSystem m_object_system;
-		RenderSystem m_render_system;
+		ObjectSystem	m_object_system;
 		TransformSystem m_transform_system;
+		RenderSystem	m_render_system;
 	};
 }

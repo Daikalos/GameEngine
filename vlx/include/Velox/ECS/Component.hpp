@@ -23,7 +23,7 @@ namespace vlx
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
 	};
 
-	template<class C>
+	template<IsComponentType C>
 	struct Component : public IComponent
 	{
 		void ConstructData(DataPtr data) const override;
@@ -36,26 +36,26 @@ namespace vlx
 		[[nodiscard]] static ComponentTypeID GetTypeID();
 	};
 
-	template<class C>
+	template<IsComponentType C>
 	void Component<C>::ConstructData(DataPtr data) const
 	{
 		new (data) C();
 	}
 
-	template<class C>
+	template<IsComponentType C>
 	inline void Component<C>::DestroyData(DataPtr data) const
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
 		data_location->~C();
 	}
 
-	template<class C>
+	template<IsComponentType C>
 	inline void Component<C>::MoveData(DataPtr source, DataPtr destination) const
 	{
 		new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
 	}
 
-	template<class C>
+	template<IsComponentType C>
 	inline void Component<C>::SwapData(DataPtr d0, DataPtr d1) const
 	{
 		constexpr auto size = sizeof(C);
@@ -67,20 +67,20 @@ namespace vlx
 		std::memcpy(d1, temp, size);
 	}
 
-	template<class C>
+	template<IsComponentType C>
 	inline void Component<C>::MoveDestroyData(DataPtr source, DataPtr destination) const
 	{
 		MoveData(source, destination);
 		DestroyData(source);
 	}
 
-	template<class C>
+	template<IsComponentType C>
 	inline constexpr std::size_t Component<C>::GetSize() const noexcept
 	{
 		return sizeof(C);
 	}
 
-	template<class C>
+	template<IsComponentType C>
 	inline ComponentTypeID Component<C>::GetTypeID()
 	{
 		return TypeIdGenerator<IComponent>::GetNewID<C>();

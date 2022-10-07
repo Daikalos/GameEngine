@@ -14,11 +14,13 @@ namespace vlx
 		using System = typename System<Sprite, Transform>; // operates on any entity with a sprite and a transform
 
 	public:
-		RenderSystem();
+		RenderSystem(EntityAdmin& entity_admin);
 
 		void batch_sprites(bool flag);
 
 	private:
+		EntityAdmin*		m_entity_admin;
+
 		std::vector<System>	m_systems;
 		SpriteBatch			m_sprite_batch;
 		bool				m_batch_sprites{true};

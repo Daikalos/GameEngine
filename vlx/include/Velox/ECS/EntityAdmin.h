@@ -102,8 +102,8 @@ namespace vlx
 		template<IsComponentType... Cs> requires Exists<Cs...>
 		void Reserve(const std::size_t component_count);
 
-		template<IsComponentType... Cs, typename Pred>
-		void SortEntities(Pred&& predicate);
+		template<IsComponentType C, class Comp>
+		void SortComponents(const EntityID entity_id, Comp&& comparison);
 
 	public:		
 		VELOX_API EntityID GetNewEntityID();
@@ -338,7 +338,7 @@ namespace vlx
 		if (!archetype)
 			return nullptr;
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeId();
+		const ComponentTypeID& component_id = Component<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -404,8 +404,8 @@ namespace vlx
 	template<IsComponentType... Cs> requires Exists<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } });
-		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>(component_ids); // see system.hpp
+		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>(component_ids);
 
 		if (!m_archetype_map.contains(archetype_id))
 		{
@@ -452,10 +452,40 @@ namespace vlx
 		}
 	}
 
-	template<IsComponentType... Cs, typename Pred>
-	inline void EntityAdmin::SortEntities(Pred&& predicate)
+	template<IsComponentType C, class Comp>
+	inline void EntityAdmin::SortComponents(const EntityID entity_id, Comp&& comparison)
 	{
+		if (!IsComponentRegistered<C>())
+			return;
 
+		const ComponentTypeID& component_id = Component<C>::GetTypeID();
+
+		const auto eit = m_entity_archetype_map.find(entity_id);
+		if (eit == m_entity_archetype_map.end())
+			return;
+
+		const auto cit = m_component_archetypes_map.find(component_id);
+		if (cit == m_component_archetypes_map.end())
+			return;
+
+		const Archetype* archetype = eit->second;
+
+		const auto ait = cit->second.find(archetype->id);
+		if (ait == cit->second.end())
+			return;
+
+		const ArchetypeRecord& a_record = ait->second;
+
+		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
+
+		std::sort(components, components + archetype->entities.size(), 
+			std::forward<Comp>(comparison));
+
+		for (std::size_t i = 0; i < archetype->type.size(); ++i)
+		{
+			
+
+		}
 	}
 }
 
