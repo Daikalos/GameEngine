@@ -9,42 +9,38 @@ namespace vlx
 {
 	////////////////////////////////////////////////////////////
 	// 
-	// DataPtr is used for representing a binary data buffer, where each element 
-	// is a single byte. This allows in theory to store any kind of object in the ECS.
+	// ComponentBase is a helper class for constructing and moving
+	// data depending on a specific type
 	// 
 	////////////////////////////////////////////////////////////
-	class ComponentBase
+	struct IComponent
 	{
-	public:
-		virtual ~ComponentBase() { }
-
+		virtual void ConstructData(DataPtr data) const = 0;
 		virtual void DestroyData(DataPtr data) const = 0;
 		virtual void MoveData(DataPtr source, DataPtr destination) const = 0;
 		virtual void SwapData(DataPtr d0, DataPtr d1) const = 0;
-
 		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const = 0;
-
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
 	};
 
 	template<class C>
-	class Component : public ComponentBase
+	struct Component : public IComponent
 	{
-	public:
-		virtual void DestroyData(DataPtr data) const override;
-		virtual void MoveData(DataPtr source, DataPtr destination) const override;
-		virtual void SwapData(DataPtr d0, DataPtr d1) const override;
-
-		////////////////////////////////////////////////////////////
-		// Small helper function for moving and then destroying 
-		// source
-		////////////////////////////////////////////////////////////
-		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const override;
-
-		[[nodiscard]] virtual constexpr std::size_t GetSize() const noexcept override;
+		void ConstructData(DataPtr data) const override;
+		void DestroyData(DataPtr data) const override;
+		void MoveData(DataPtr source, DataPtr destination) const override;
+		void SwapData(DataPtr d0, DataPtr d1) const override;
+		void MoveDestroyData(DataPtr source, DataPtr destination) const override;
+		[[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
 
 		[[nodiscard]] static ComponentTypeID GetTypeID();
 	};
+
+	template<class C>
+	void Component<C>::ConstructData(DataPtr data) const
+	{
+		new (data) C();
+	}
 
 	template<class C>
 	inline void Component<C>::DestroyData(DataPtr data) const
@@ -87,7 +83,7 @@ namespace vlx
 	template<class C>
 	inline ComponentTypeID Component<C>::GetTypeID()
 	{
-		return TypeIdGenerator<ComponentBase>::GetNewID<C>();
+		return TypeIdGenerator<IComponent>::GetNewID<C>();
 	}
 }
 

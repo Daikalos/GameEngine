@@ -25,7 +25,7 @@ Entity ObjectSystem::CreateObject() const
 
 void ObjectSystem::DeleteObjectDelayed(const EntityID entity_id)
 {
-	m_deletion_queue.push(std::make_pair(DeleteEntity(entity_id), DEL_ENTITY));
+	m_command_queue.push(std::make_pair(DeleteEntity(entity_id), DEL_ENTITY));
 }
 void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 {
@@ -34,22 +34,33 @@ void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 
 void ObjectSystem::Update()
 {
-	while (!m_deletion_queue.empty())
+	while (!m_command_queue.empty())
 	{
-		const auto& pair = m_deletion_queue.front();
+		const auto& pair = m_command_queue.front();
 		const CommandType command = pair.second;
 
 		switch (command)
 		{
+		case ADD_COMPONENT:
+			{
+				const auto& add_cmp = std::get<AddComponent>(pair.first);
+				m_entity_admin->AddComponent(add_cmp.entity_id, add_cmp.component_id);
+			}
+			break;
 		case DEL_ENTITY:
-			m_entity_admin->RemoveEntity(std::get<DeleteEntity>(pair.first).entity_id);
+			{
+				const auto& del_ent = std::get<DeleteEntity>(pair.first);
+				m_entity_admin->RemoveEntity(del_ent.entity_id);
+			}
 			break;
 		case DEL_COMPONENT:
-			const auto& del_cmp = std::get<DeleteComponent>(pair.first);
-			m_entity_admin->RemoveComponent(del_cmp.entity_id, del_cmp.component_id);
+			{
+				const auto& del_cmp = std::get<DeleteComponent>(pair.first);
+				m_entity_admin->RemoveComponent(del_cmp.entity_id, del_cmp.component_id);
+			}
 			break;
 		}
 
-		m_deletion_queue.pop();
+		m_command_queue.pop();
 	}
 }

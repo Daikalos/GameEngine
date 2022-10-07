@@ -79,7 +79,7 @@ namespace vlx::cu
 	{
 		for (auto it = vector.begin(); it != vector.end(); ++it) // custom algorithm for inserting an item in a sorted list containing only unique values
 		{
-			if (*it == item)
+			if (*it == item) // the item already exists
 				return false;
 
 			if (*it > item)
@@ -89,7 +89,7 @@ namespace vlx::cu
 			}
 		}
 
-		vector.push_back(item);
+		vector.push_back(item); // item did not exist, just add it
 
 		return true;
 	}

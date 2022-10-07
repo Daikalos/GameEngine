@@ -12,26 +12,25 @@ namespace vlx
 {
 	class EntityAdmin;
 
-	class SystemBase : private NonCopyable
+	class ISystem : private NonCopyable
 	{
 	public:
 		friend class EntityAdmin;
 
 	public:
-		virtual ~SystemBase() = default;
+		virtual ~ISystem() {};
 
-	public:
 		virtual const ArchetypeID& GetKey() const = 0;
 
-		virtual constexpr float GetPriority() const noexcept = 0;
+		virtual float GetPriority() const noexcept = 0;
 		virtual void SetPriority(const float val) = 0;
 
 	protected:
-		virtual void DoAction(Time& time, Archetype* archetype) const = 0;
+		virtual void DoAction(const EntityAdmin& entity_admin, Time& time, Archetype* archetype) const = 0;
 	};
 
 	template<Exists... Cs>
-	class System : public SystemBase
+	class System : public ISystem
 	{
 	public:
 		using Func = typename std::function<void(const EntityAdmin&, Time&, std::span<const EntityID>, Cs*...)>;
@@ -52,7 +51,7 @@ namespace vlx
 		void Action(Func&& func);
 
 	protected:
-		virtual void DoAction(Time& time, Archetype* archetype) const override;
+		virtual void DoAction(const EntityAdmin& entity_admin, Time& time, Archetype* archetype) const override;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 		void DoAction(
@@ -148,12 +147,12 @@ namespace vlx
 	}
 
 	template<Exists... Cs>
-	inline void System<Cs...>::DoAction(Time& time, Archetype* archetype) const
+	inline void System<Cs...>::DoAction(const EntityAdmin& entity_admin, Time& time, Archetype* archetype) const
 	{
 		if (m_func_set)
 		{
 			DoAction<0>(
-				*m_entity_admin, time, 
+				entity_admin, time,
 				archetype->type, 
 				archetype->entities, 
 				archetype->component_data);

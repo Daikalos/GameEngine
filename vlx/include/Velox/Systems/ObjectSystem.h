@@ -15,8 +15,15 @@ namespace vlx
 	private:
 		enum CommandType : std::uint8_t
 		{
+			ADD_COMPONENT,
 			DEL_ENTITY,
 			DEL_COMPONENT
+		};
+
+		struct AddComponent
+		{
+			EntityID		entity_id;
+			ComponentTypeID component_id;
 		};
 
 		struct DeleteEntity
@@ -31,13 +38,12 @@ namespace vlx
 		};
 
 	private:
-		using System = System<GameObject>;
-		using Command = std::variant<DeleteEntity, DeleteComponent>;
+		using System	= System<GameObject>;
+		using Command	= std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
 
 	public:
 		VELOX_API ObjectSystem(EntityAdmin& entity_admin);
 
-	public:
 		VELOX_API Entity CreateObject() const;
 
 		VELOX_API void DeleteObjectDelayed(const EntityID entity_id);
@@ -49,6 +55,16 @@ namespace vlx
 		template<IsComponentType C>
 		void DeleteComponentInstant(const EntityID entity_id);
 
+		template<IsComponentType C>
+		void AddComponentDelayed(const EntityID entity_id);
+		template<IsComponentType... Cs>
+		void AddComponentsDelayed(const EntityID entity_id);
+
+		template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
+		C* AddComponentInstant(const EntityID entity_id, Args&&... args);
+		template<IsComponentType... Cs>
+		void AddComponentsInstant(const EntityID entity_id);
+
 	private:
 		VELOX_API void Update();
 
@@ -56,17 +72,39 @@ namespace vlx
 		EntityAdmin*	m_entity_admin{nullptr};
 		System			m_system;
 
-		std::queue<std::pair<Command, CommandType>> m_deletion_queue;
+		std::queue<Command>	m_command_queue;
 	};
 
 	template<IsComponentType C>
 	void ObjectSystem::DeleteComponentDelayed(const EntityID entity_id)
 	{
-		m_deletion_queue.push(std::make_pair(DeleteComponent(entity_id, Component<C>::GetTypeID()), DEL_COMPONENT));
+		m_command_queue.push(std::make_pair(DeleteComponent(entity_id, Component<C>::GetTypeID()), DEL_COMPONENT));
 	}
 	template<IsComponentType C>
 	void ObjectSystem::DeleteComponentInstant(const EntityID entity_id)
 	{
 		m_entity_admin->RemoveComponent<C>(entity_id);
+	}
+
+	template<IsComponentType C>
+	void ObjectSystem::AddComponentDelayed(const EntityID entity_id)
+	{
+		m_command_queue.push(std::make_pair(AddComponent(entity_id, Component<C>::GetTypeID()), ADD_COMPONENT));
+	}
+	template<IsComponentType... Cs>
+	void ObjectSystem::AddComponentsDelayed(const EntityID entity_id)
+	{
+		(AddComponentDelayed<Cs>(entity_id),...);
+	}
+
+	template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
+	C* ObjectSystem::AddComponentInstant(const EntityID entity_id, Args&&... args)
+	{
+		return m_entity_admin->AddComponent(entity_id, std::forward<Args>(args)...);
+	}
+	template<IsComponentType... Cs>
+	void ObjectSystem::AddComponentsInstant(const EntityID entity_id)
+	{
+		(AddComponentInstant<Cs>(entity_id),...);
 	}
 }
