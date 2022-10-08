@@ -29,7 +29,7 @@ void Entity::Destroy()
 	m_entity_admin = nullptr;
 }
 
-constexpr EntityID Entity::GetId() const
+constexpr EntityID Entity::GetID() const noexcept
 {
 	return m_id;
 }

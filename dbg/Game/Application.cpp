@@ -46,11 +46,14 @@ void Application::Run()
 		for (int i = 0; i < 50; ++i)
 		{
 			Entity& entity = entities.emplace_back(entity_admin); 
-			entity.AddComponent<Velocity>(sf::Vector2f(i, 0.0f));
+			entity.AddComponent<Velocity>(sf::Vector2f(rand() % (i + 1), 0.0f));
 			entity.AddComponent<Sprite>();
 		}
 
-		m_entity_admin.SortEntities<Velocity>([])
+		entity_admin.SortComponents<Velocity>(entities.front().GetID(), [](const Velocity& lhs, const Velocity& rhs)
+			{
+				return lhs.velocity.x < rhs.velocity.x;
+			});
 
 		System<Velocity> s0(entity_admin, 0);
 		System<Velocity, Sprite> s1(entity_admin, 1);

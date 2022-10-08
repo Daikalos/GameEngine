@@ -15,7 +15,7 @@ namespace vlx
 
 		VELOX_API virtual ~Entity();
 
-		VELOX_API constexpr EntityID GetId() const;
+		VELOX_API constexpr EntityID GetID() const noexcept;
 
 	public:
 		VELOX_API void Destroy();

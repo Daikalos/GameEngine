@@ -468,7 +468,7 @@ namespace vlx
 		if (cit == m_component_archetypes_map.end())
 			return;
 
-		const Archetype* archetype = eit->second;
+		Archetype* archetype = eit->second.archetype;
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
@@ -478,14 +478,46 @@ namespace vlx
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
 
-		std::sort(components, components + archetype->entities.size(), 
-			std::forward<Comp>(comparison));
+		std::vector<std::size_t> indices(archetype->entities.size());
+		std::iota(indices.begin(), indices.end(), 0);
 
-		for (std::size_t i = 0; i < archetype->type.size(); ++i)
+		std::sort(indices.begin(), indices.end(),
+			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
+			{
+				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
+			});
+
+		const ComponentIDs& archetype_id = archetype->type;
+		for (std::size_t i = 0; i < archetype_id.size(); ++i) // sort the components, all need to be sorted
 		{
-			
+			const ComponentTypeID component_id = archetype_id[i];
+			const IComponent* component = m_component_map[component_id].get();
+			const std::size_t& component_size = component->GetSize();
 
+			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
+
+			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
+			{
+				component->MoveDestroyData(
+					&archetype->component_data[i][indices[j] * component_size],
+					&new_data[j * component_size]);
+			}
+
+			archetype->component_data[i] = std::move(new_data);
 		}
+
+		std::vector<EntityID> new_entities = archetype->entities;
+		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
+		{
+			const std::size_t index = indices[i];
+
+			auto it = m_entity_archetype_map.find(archetype->entities[index]);
+			assert(it != m_entity_archetype_map.end()); // should never happen
+
+			it->second.index = i;
+			new_entities[i] = archetype->entities[index];
+		}
+		archetype->entities = new_entities;
 	}
 }
 
