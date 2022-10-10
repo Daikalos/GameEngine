@@ -154,7 +154,7 @@
   <ItemGroup>
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Components\GameObject.h" />
-    <ClInclude Include="include\Velox\Components\Relationship.h" />
+    <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -193,6 +193,7 @@
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />
     <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\Utilities\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
@@ -208,7 +209,7 @@
     <ClInclude Include="ObjectSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Components\Relationship.cpp" />
+    <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />

@@ -39,7 +39,7 @@ void Application::Run()
 
 		entity_admin.RegisterComponent<Velocity>();
 		entity_admin.RegisterComponent<Sprite>();
-		entity_admin.RegisterComponent<Relationship>();
+		entity_admin.RegisterComponent<Relation>();
 
 		std::vector<Entity> entities;
 
@@ -50,18 +50,18 @@ void Application::Run()
 			entity.AddComponent<Sprite>();
 		}
 
-		entity_admin.SortComponents<Velocity>(entities.front().GetID(), [](const Velocity& lhs, const Velocity& rhs)
+		entity_admin.SortComponents<Velocity, Sprite>([](const Velocity& lhs, const Velocity& rhs)
 			{
 				return lhs.velocity.x < rhs.velocity.x;
 			});
 
 		System<Velocity> s0(entity_admin, 0);
 		System<Velocity, Sprite> s1(entity_admin, 1);
-		System<Velocity, Sprite, Relationship> s2(entity_admin, 0);
+		System<Velocity, Sprite, Relation> s2(entity_admin, 0);
 
 		//std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
 		
-		s0.Action([](const EntityAdmin& entity_admin, Time& time, std::span<const EntityID> entities, Velocity* velocities)
+		s0.Action([](std::span<const EntityID> entities, Velocity* velocities)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
@@ -69,7 +69,7 @@ void Application::Run()
 				}
 			});
 
-		s1.Action([](const EntityAdmin& entity_admin, Time& time, std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
+		s1.Action([](std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
 			{
 				for (std::size_t i = 0; i < entities.size(); ++i)
 				{
@@ -77,7 +77,7 @@ void Application::Run()
 				}
 			});
 
-		entity_admin.RunSystems(0, m_time);
+		entity_admin.RunSystems(0);
 
 		std::puts("");
 
@@ -91,7 +91,7 @@ void Application::Run()
 
 		for (std::size_t i = 0; i < 1000; ++i)
 		{
-			std::size_t index = rnd::random(0LLU, entities.size() - 1);
+			std::size_t index = rnd::random(1LLU, entities.size() - 1);
 			Entity& entity = entities.at(index);
 
 			float random = rnd::random();
@@ -101,9 +101,9 @@ void Application::Run()
 			else if (random > 0.80f)
 				entity.RemoveComponent<Velocity>();
 			else if (random > 0.70f)
-				entity.AddComponent<Relationship>();
+				entity.AddComponent<Relation>();
 			else if (random > 0.60f)
-				entity.RemoveComponent<Relationship>();
+				entity.RemoveComponent<Relation>();
 			else if (random > 0.50f)
 				entity.AddComponent<Sprite>();
 			else if (random > 0.40f)
@@ -112,7 +112,12 @@ void Application::Run()
 
 		std::puts("");
 
-		entity_admin.RunSystems(1, m_time);
+		entity_admin.SortComponents<Velocity, Sprite>([](const Velocity& lhs, const Velocity& rhs)
+			{
+				return lhs.velocity.x < rhs.velocity.x;
+			});
+
+		entity_admin.RunSystems(1);
 	}
 
 	bm::End();

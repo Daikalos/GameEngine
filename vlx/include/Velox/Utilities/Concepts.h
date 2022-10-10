@@ -2,7 +2,8 @@
 
 #include <concepts>
 #include <filesystem>
-#include <type_traits>
+
+#include "Traits.h"
 
 namespace vlx // concepts is the best thing ever
 {
@@ -54,8 +55,20 @@ namespace vlx // concepts is the best thing ever
 	};
 
 	template<class T>
-	concept IsVector = requires(T obj)
+	concept IsVector = requires
 	{
 		std::same_as<T, std::vector<typename T::value_type>>;
+	};
+
+	template<typename... Ts>
+	concept NoDuplicates = requires
+	{
+		traits::NoDuplicates<Ts...>{};
+	};
+
+	template<class Lambda, typename T, std::size_t Index = 0>
+	concept SameTypeParameter = requires
+	{
+		std::same_as<T, typename traits::FunctionTraits<Lambda>::template arg_type<Index>>;
 	};
 }

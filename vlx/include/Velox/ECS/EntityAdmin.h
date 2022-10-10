@@ -79,7 +79,7 @@ namespace vlx
 		///		Get all entities that strictly only have the provided components
 		/// </param>
 		/// <returns></returns>
-		template<IsComponentType... Cs> requires Exists<Cs...>
+		template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 		std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
 	public:
@@ -99,18 +99,18 @@ namespace vlx
 		/// <param name="component_count:">
 		///		Number of components to reserve for in the archetypes
 		/// </param>
-		template<IsComponentType... Cs> requires Exists<Cs...>
+		template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 		void Reserve(const std::size_t component_count);
 
-		template<IsComponentType C, class Comp>
-		void SortComponents(const EntityID entity_id, Comp&& comparison);
+		template<IsComponentType... Cs, class Comp> requires Exists<Cs...>&& NoDuplicates<Cs...>
+		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>>;
 
 	public:		
 		VELOX_API EntityID GetNewEntityID();
 
 		VELOX_API const std::size_t& GetComponentIndex(const EntityID entity_id) const;
 
-		VELOX_API void RunSystems(const LayerType layer, Time& time) const;
+		VELOX_API void RunSystems(const LayerType layer) const;
 		VELOX_API void SortSystems(const LayerType layer);
 
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
@@ -285,8 +285,7 @@ namespace vlx
 	template<IsComponentType C>
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
 	{
-		if (!IsComponentRegistered<C>()) // component should be registered
-			return false;
+		assert(IsComponentRegistered<C>()); // component should be registered
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -354,13 +353,13 @@ namespace vlx
 		return &components[record.index];
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
 		std::vector<EntityID> entities;
 
-		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } });
-		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>(component_ids); // see system.hpp
+		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeID()... } });
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids); // see system.hpp
 
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
@@ -401,11 +400,11 @@ namespace vlx
 		return entities;
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeId()... } }); // see system.hpp
-		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>(component_ids);
+		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeID()... } }); // see system.hpp
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
 		if (!m_archetype_map.contains(archetype_id))
 		{
@@ -452,23 +451,28 @@ namespace vlx
 		}
 	}
 
-	template<IsComponentType C, class Comp>
-	inline void EntityAdmin::SortComponents(const EntityID entity_id, Comp&& comparison)
+	template<IsComponentType... Cs, class Comp> requires Exists<Cs...> && NoDuplicates<Cs...>
+	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>>
 	{
-		if (!IsComponentRegistered<C>())
+		using C = typename std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
+
+		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeID()... } }); // see system.hpp
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
+
+		const auto it = m_archetype_map.find(archetype_id);
+		if (it == m_archetype_map.end())
 			return;
+
+		Archetype* archetype = it->second.front();
+
+		if (archetype->id != archetype_id)
+			throw std::runtime_error("the specified archetype does not exist");
 
 		const ComponentTypeID& component_id = Component<C>::GetTypeID();
-
-		const auto eit = m_entity_archetype_map.find(entity_id);
-		if (eit == m_entity_archetype_map.end())
-			return;
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
 			return;
-
-		Archetype* archetype = eit->second.archetype;
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
@@ -487,10 +491,9 @@ namespace vlx
 				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
 			});
 
-		const ComponentIDs& archetype_id = archetype->type;
-		for (std::size_t i = 0; i < archetype_id.size(); ++i) // sort the components, all need to be sorted
+		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
 		{
-			const ComponentTypeID component_id = archetype_id[i];
+			const ComponentTypeID component_id = archetype->type[i];
 			const IComponent* component = m_component_map[component_id].get();
 			const std::size_t& component_size = component->GetSize();
 
@@ -510,12 +513,13 @@ namespace vlx
 		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
 		{
 			const std::size_t index = indices[i];
+			const EntityID entity_id = archetype->entities[index];
 
-			auto it = m_entity_archetype_map.find(archetype->entities[index]);
+			auto it = m_entity_archetype_map.find(entity_id);
 			assert(it != m_entity_archetype_map.end()); // should never happen
 
 			it->second.index = i;
-			new_entities[i] = archetype->entities[index];
+			new_entities[i] = entity_id;
 		}
 		archetype->entities = new_entities;
 	}

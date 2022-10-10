@@ -5,8 +5,7 @@ using namespace vlx;
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
 	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_OBJECTS)
 {
-	m_system.Action([this](const EntityAdmin& entity_admin, Time& time, 
-		std::span<const EntityID> entities, GameObject* gameobjects)
+	m_system.Action([this](std::span<const EntityID> entities, GameObject* gameobjects)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

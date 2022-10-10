@@ -10,3 +10,4 @@
 #include "Utilities/Concepts.h"
 #include "Utilities/ThreadPool.h"
 #include "Utilities/WeakEvent.hpp"
+#include "Utilities/Traits.h"

@@ -26,14 +26,14 @@ namespace vlx
 		virtual void SetPriority(const float val) = 0;
 
 	protected:
-		virtual void DoAction(const EntityAdmin& entity_admin, Time& time, Archetype* archetype) const = 0;
+		virtual void DoAction(Archetype* archetype) const = 0;
 	};
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	class System : public ISystem
 	{
 	public:
-		using Func = typename std::function<void(const EntityAdmin&, Time&, std::span<const EntityID>, Cs*...)>;
+		using Func = typename std::function<void(std::span<const EntityID>, Cs*...)>;
 
 	public:
 		System(EntityAdmin& entity_admin, const LayerType layer);
@@ -51,18 +51,16 @@ namespace vlx
 		void Action(Func&& func);
 
 	protected:
-		virtual void DoAction(const EntityAdmin& entity_admin, Time& time, Archetype* archetype) const override;
+		virtual void DoAction(Archetype* archetype) const override;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 		void DoAction(
-			const EntityAdmin& entity_admin, Time& time, 
 			const ComponentIDs& archetype_ids, 
 			std::span<const EntityID> entity_ids, 
 			T& t, Ts... ts) const;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
 		void DoAction( 
-			const EntityAdmin& entity_admin, Time& time, 
 			const ComponentIDs& archetype_ids, 
 			std::span<const EntityID> entity_ids, 
 			T& t, Ts... ts) const;
@@ -78,26 +76,26 @@ namespace vlx
 		mutable ArchetypeID m_key		{NULL_ARCHETYPE};
 	};
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)
 		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
 		m_entity_admin->RegisterSystem(m_layer, this);
 	}
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline System<Cs...>::~System()
 	{
 		if (m_entity_admin)
 			m_entity_admin->RemoveSystem(m_layer, this);
 	}
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline System<Cs...>::System(const System<Cs...>& system)
 		:	m_entity_admin(system.m_entity_admin), m_layer(system.m_layer), m_priority(system.m_priority),
 			m_func(system.m_func), m_func_set(system.m_func_set), m_key(system.m_key) { }
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline System<Cs...>& System<Cs...>::operator=(const System<Cs...>& rhs)
 	{
 		m_entity_admin = rhs.m_entity_admin;
@@ -112,25 +110,25 @@ namespace vlx
 		return *this;
 	}
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline float System<Cs...>::GetPriority() const noexcept
 	{
 		return m_priority;
 	}
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline void System<Cs...>::SetPriority(const float val)
 	{
 		m_priority = val;
 		m_entity_admin->SortSystems(m_layer);
 	}
 
-	inline ComponentIDs SortKeys(ComponentIDs types)
+	inline ComponentIDs SortKeys(ComponentIDs&& types)
 	{
 		std::sort(types.begin(), types.end());
 		return types;
 	}
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
 		if (m_key == NULL_ARCHETYPE)
@@ -139,31 +137,30 @@ namespace vlx
 		return m_key;
 	}	
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
 		m_func_set = true;
 	}
 
-	template<Exists... Cs>
-	inline void System<Cs...>::DoAction(const EntityAdmin& entity_admin, Time& time, Archetype* archetype) const
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
 		if (m_func_set)
 		{
 			DoAction<0>(
-				entity_admin, time,
 				archetype->type, 
 				archetype->entities, 
 				archetype->component_data);
 		}
 	}
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-	inline void System<Cs...>::DoAction(const EntityAdmin& entity_admin, Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
+	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
-		using SysCompType = typename std::tuple_element<Index, std::tuple<Cs...>>::type; // get type of element at index in tuple
+		using SysCompType = typename std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
@@ -178,14 +175,14 @@ namespace vlx
 		if (index2 == archetype_ids.size())
 			throw std::runtime_error("System was executed against an incorrect Archetype");
 
-		DoAction<Index + 1>(entity_admin, time, archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
-	template<Exists... Cs>
+	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-	inline void System<Cs...>::DoAction(const EntityAdmin& entity_admin, Time& time, const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
+	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
-		m_func(entity_admin, time, entity_ids, ts...);
+		m_func(entity_ids, ts...);
 	}
 }
 

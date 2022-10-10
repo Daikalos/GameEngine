@@ -46,7 +46,7 @@ const std::size_t& EntityAdmin::GetComponentIndex(const EntityID entity_id) cons
 	return it->second.index;
 }
 
-void EntityAdmin::RunSystems(const LayerType layer, Time& time) const
+void EntityAdmin::RunSystems(const LayerType layer) const
 {
 	const auto it = m_systems.find(layer);
 	if (it == m_systems.end())
@@ -61,7 +61,7 @@ void EntityAdmin::RunSystems(const LayerType layer, Time& time) const
 			continue;
 
 		for (Archetype* archetype : it->second)
-			system->DoAction(*this, time, archetype);
+			system->DoAction(archetype);
 	}
 }
 
@@ -131,7 +131,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 	if (last_entity_id != entity_id)
 	{
-		archetype->entities.at(record.index) = archetype->entities.back(); // now swap ids (using *.at() because the flow is slightly confusing)
+		archetype->entities[record.index] = archetype->entities.back(); // now swap ids with last
 		last_record.index = record.index;
 	}
 
@@ -149,7 +149,7 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 	if (it != m_archetype_map.end())
 	{
 		Archetype* result = it->second.front();
-		if (result->type == component_ids)
+		if (result->id == id)
 			return result;
 	}
 
