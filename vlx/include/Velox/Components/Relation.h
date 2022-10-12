@@ -14,13 +14,6 @@ namespace vlx
 	public:
 		~Relation();
 
-	public:
-		void AttachParent(const EntityAdmin& entity_admin, Relation& parent, const EntityID entity_id, bool invalidate_children = false);
-		void DetachParent(const EntityAdmin& entity_admin, Relation& parent, const EntityID entity_id, bool invalidate_children = false);
-
-		void AttachChild(const EntityAdmin& entity_admin, Relation& child, const EntityID entity_id, bool invalidate_children = false);
-		void DetachChild(const EntityAdmin& entity_admin, Relation& child, const EntityID entity_id, bool invalidate_children = false);
-
 	private:
 		EntityID				m_parent		{NULL_ENTITY};
 		std::vector<EntityID>	m_children;

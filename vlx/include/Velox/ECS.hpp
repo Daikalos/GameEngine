@@ -4,6 +4,6 @@
 #include "ECS/TypeIdGenerator.hpp"
 #include "ECS/System.hpp"
 #include "ECS/Archetype.hpp"
-#include "ECS/Component.hpp"
+#include "ECS/ComponentAlloc.hpp"
 #include "ECS/Entity.h"
 #include "ECS/EntityAdmin.h"

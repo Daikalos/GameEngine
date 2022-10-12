@@ -15,7 +15,7 @@ EntityAdmin::~EntityAdmin()
 		for (std::size_t i = 0; i < archetype->type.size(); ++i)
 		{
 			const ComponentTypeID& component_id = archetype->type[i];
-			const IComponent* component			= m_component_map[component_id].get();
+			const IComponentAlloc* component	= m_component_map[component_id].get();
 			const std::size_t& component_size	= component->GetSize();
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
@@ -44,6 +44,15 @@ const std::size_t& EntityAdmin::GetComponentIndex(const EntityID entity_id) cons
 		throw std::runtime_error("entity has not been registered");
 
 	return it->second.index;
+}
+
+bool EntityAdmin::InArchetype(const ArchetypeID archetype, const EntityID entity_id) const
+{
+	const auto it = m_entity_archetype_map.find(entity_id);
+	if (it == m_entity_archetype_map.end())
+		return false;
+
+	return it->second.archetype->id == archetype;
 }
 
 void EntityAdmin::RunSystems(const LayerType layer) const
@@ -116,7 +125,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	for (std::size_t i = 0; i < archetype_id.size(); ++i) // we iterate over both archetypes
 	{
 		const ComponentTypeID component_id	= archetype_id[i];
-		const IComponent* component			= m_component_map[component_id].get();
+		const IComponentAlloc* component	= m_component_map[component_id].get();
 		const std::size_t& component_size	= component->GetSize();
 
 		component->DestroyData(&archetype->component_data[i][record.index * component_size]);
@@ -158,7 +167,7 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 
 Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id)
 {
-	ArchetypePtr new_archetype = ArchetypePtr(new Archetype);
+	ArchetypePtr new_archetype = std::make_unique<Archetype>();
 
 	new_archetype->id = id;
 	new_archetype->type = component_ids;
@@ -267,11 +276,11 @@ void EntityAdmin::Shrink(bool extensive)
 
 			for (std::size_t j = 0; j < archetype_id.size(); ++j)
 			{
-				const ComponentTypeID& component_id = archetype->type[i];
-				const IComponent* component			= m_component_map[component_id].get();
+				const ComponentTypeID& component_id	= archetype->type[i];
+				const IComponentAlloc* component	= m_component_map[component_id].get();
 				const std::size_t& component_size	= component->GetSize();
 
-				const std::size_t current_size = entities.size() * component_size;
+				const std::size_t current_size		= entities.size() * component_size;
 
 				archetype->component_data_size[j] = current_size;
 				ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
@@ -291,8 +300,7 @@ void EntityAdmin::Shrink(bool extensive)
 
 void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id)
 {
-	if (!m_component_map.contains(add_component_id)) // component should be registered
-		return;
+	assert(m_component_map.contains(add_component_id)); // component should be registered
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -320,12 +328,12 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 
 		for (std::size_t i = 0, j = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
 		{
-			const ComponentTypeID component_id = new_archetype_id[i];
-			const IComponent* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
+			const ComponentTypeID component_id	= new_archetype_id[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
 
-			const std::size_t current_size = new_archetype->entities.size() * component_size;
-			const std::size_t new_size = current_size + component_size;
+			const std::size_t current_size		= new_archetype->entities.size() * component_size;
+			const std::size_t new_size			= current_size + component_size;
 
 			if (new_size > new_archetype->component_data_size[i])
 				MakeRoom(new_archetype, component, component_size, i);
@@ -366,11 +374,11 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 		ComponentIDs new_archetype_id(1, add_component_id);	// construct archetype with the component id
 		new_archetype = GetArchetype(new_archetype_id);		// construct or get archetype using the id
 
-		const IComponent* component = m_component_map[add_component_id].get();
-		const std::size_t& component_size = component->GetSize();
+		const IComponentAlloc* component	= m_component_map[add_component_id].get();
+		const std::size_t& component_size	= component->GetSize();
 
-		const std::size_t current_size = new_archetype->entities.size() * component_size;
-		const std::size_t new_size = current_size + component_size;
+		const std::size_t current_size		= new_archetype->entities.size() * component_size;
+		const std::size_t new_size			= current_size + component_size;
 
 		if (new_size > new_archetype->component_data_size[0])
 			MakeRoom(new_archetype, component, component_size, 0); // make room and move over existing data
@@ -387,8 +395,7 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 
 void EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id)
 {
-	if (!m_component_map.contains(rmv_component_id))
-		return;
+	assert(m_component_map.contains(rmv_component_id));
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -415,7 +422,7 @@ void EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	for (std::size_t i = 0, j = 0; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
 	{
 		const ComponentTypeID component_id	= old_archetype_id[i];
-		const IComponent* component			= m_component_map[component_id].get();
+		const IComponentAlloc* component	= m_component_map[component_id].get();
 		const std::size_t& component_size	= component->GetSize();
 
 		if (component_id == rmv_component_id)
@@ -460,7 +467,7 @@ void EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 
 void EntityAdmin::MakeRoom(
 	Archetype* archetype, 
-	const IComponent* component, 
+	const IComponentAlloc* component, 
 	const std::size_t data_size,
 	const std::size_t i)
 {

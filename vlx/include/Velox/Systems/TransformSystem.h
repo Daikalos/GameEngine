@@ -21,11 +21,17 @@ namespace vlx
 	public:
 		TransformSystem(EntityAdmin& entity_admin);
 
-		void AttachChild(const EntityID parent, const EntityID child);
-		void DetachChild(const EntityID parent, const EntityID child);
+		void AttachInstant(const EntityID parent, const EntityID child);
+		void DetachInstant(const EntityID parent, const EntityID child);
+
+		void AttachDelay(const EntityID parent, const EntityID child);
+		void DetachDelay(const EntityID parent, const EntityID child);
 
 	private:
-		void Update(Relation* relations);
+		void AttachChild(Relation& parent, Relation& child);
+		void DetachChild(Relation& parent, Relation& child);
+
+		void Update();
 
 	private:
 		EntityAdmin* m_entity_admin;

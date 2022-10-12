@@ -29,7 +29,7 @@ namespace vlx
 		virtual void DoAction(Archetype* archetype) const = 0;
 	};
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	class System : public ISystem
 	{
 	public:
@@ -76,26 +76,26 @@ namespace vlx
 		mutable ArchetypeID m_key		{NULL_ARCHETYPE};
 	};
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)
 		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
 		m_entity_admin->RegisterSystem(m_layer, this);
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline System<Cs...>::~System()
 	{
 		if (m_entity_admin)
 			m_entity_admin->RemoveSystem(m_layer, this);
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline System<Cs...>::System(const System<Cs...>& system)
 		:	m_entity_admin(system.m_entity_admin), m_layer(system.m_layer), m_priority(system.m_priority),
 			m_func(system.m_func), m_func_set(system.m_func_set), m_key(system.m_key) { }
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline System<Cs...>& System<Cs...>::operator=(const System<Cs...>& rhs)
 	{
 		m_entity_admin = rhs.m_entity_admin;
@@ -110,12 +110,12 @@ namespace vlx
 		return *this;
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline float System<Cs...>::GetPriority() const noexcept
 	{
 		return m_priority;
 	}
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline void System<Cs...>::SetPriority(const float val)
 	{
 		m_priority = val;
@@ -128,23 +128,23 @@ namespace vlx
 		return types;
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
 		if (m_key == NULL_ARCHETYPE)
-			m_key = cu::VectorHash<ComponentIDs>()(SortKeys({{ Component<Cs>::GetTypeID()... }}));
+			m_key = cu::VectorHash<ComponentIDs>()(SortKeys({{ ComponentAlloc<Cs>::GetTypeID()... }}));
 
 		return m_key;
 	}	
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
 		m_func_set = true;
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
 		if (m_func_set)
@@ -156,15 +156,15 @@ namespace vlx
 		}
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
-		using SysCompType = typename std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
+		using SysCompType = std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
-		const ComponentTypeID comp_id = Component<SysCompType>::GetTypeID();	// get the id for the type of element at index
+		const ComponentTypeID comp_id = ComponentAlloc<SysCompType>::GetTypeID();	// get the id for the type of element at index
 		ComponentTypeID archetype_comp_id = archetype_ids[index2];				// id for component in the archetype
 
 		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found
@@ -178,7 +178,7 @@ namespace vlx
 		DoAction<Index + 1>(archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{

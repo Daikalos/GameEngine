@@ -26,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
-    <ClInclude Include="include\Velox\ECS\Component.hpp" />
+    <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />

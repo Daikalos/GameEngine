@@ -10,7 +10,7 @@
 
 #include "Identifiers.hpp"
 #include "Archetype.hpp"
-#include "Component.hpp"
+#include "ComponentAlloc.hpp"
 #include "System.hpp"
 
 namespace vlx
@@ -27,7 +27,7 @@ namespace vlx
 	////////////////////////////////////////////////////////////
 	// 
 	// Data-oriented ECS design. Be warned that adding and removing components
-	// is an expensive operation. Try to perform operations on startup as much as possible
+	// is an expensive operation. Try to avoid performing operations on runtime as much as possible
 	// and look at using pooling instead to prevent removing and adding entities often.
 	// 
 	////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ namespace vlx
 			std::size_t column{0}; // where in the archetype's data is the component's data located at
 		};
 
-		using ComponentPtr = typename std::unique_ptr<IComponent>;
+		using ComponentPtr = typename std::unique_ptr<IComponentAlloc>;
 		using ArchetypePtr = typename std::unique_ptr<Archetype>;
 
 		using SystemsArrayMap			= typename std::unordered_map<LayerType, std::vector<ISystem*>>;
@@ -60,16 +60,16 @@ namespace vlx
 		VELOX_API ~EntityAdmin();
 
 	public:
-		template<IsComponentType C>
+		template<IsComponent C>
 		C& GetComponent(const EntityID entity_id) const;
 
-		template<IsComponentType C>
+		template<IsComponent C>
 		C* TryGetComponent(const EntityID entity_id) const;
 
-		template<IsComponentType C>
+		template<IsComponent C>
 		bool HasComponent(const EntityID entity_id) const;
 
-		template<IsComponentType C>
+		template<IsComponent C>
 		bool IsComponentRegistered() const;
 
 		/// <summary>
@@ -79,17 +79,17 @@ namespace vlx
 		///		Get all entities that strictly only have the provided components
 		/// </param>
 		/// <returns></returns>
-		template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+		template<IsComponents... Cs>
 		std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
 	public:
-		template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
+		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 
-		template<IsComponentType C>
+		template<IsComponent C>
 		void RemoveComponent(const EntityID entity_id);
 
-		template<IsComponentType C>
+		template<IsComponent C>
 		void RegisterComponent();
 
 		/// <summary>
@@ -99,16 +99,17 @@ namespace vlx
 		/// <param name="component_count:">
 		///		Number of components to reserve for in the archetypes
 		/// </param>
-		template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+		template<IsComponents... Cs>
 		void Reserve(const std::size_t component_count);
 
-		template<IsComponentType... Cs, class Comp> requires Exists<Cs...>&& NoDuplicates<Cs...>
+		template<IsComponents... Cs, class Comp>
 		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>>;
 
 	public:		
 		VELOX_API EntityID GetNewEntityID();
 
 		VELOX_API const std::size_t& GetComponentIndex(const EntityID entity_id) const;
+		VELOX_API bool InArchetype(const ArchetypeID archetype, const EntityID entity_id) const;
 
 		VELOX_API void RunSystems(const LayerType layer) const;
 		VELOX_API void SortSystems(const LayerType layer);
@@ -137,7 +138,7 @@ namespace vlx
 
 		VELOX_API void MakeRoom(
 			Archetype* archetype,
-			const IComponent* component,
+			const IComponentAlloc* component,
 			const std::size_t data_size, 
 			const std::size_t i);
 
@@ -153,11 +154,10 @@ namespace vlx
 		ComponentTypeIDBaseMap	m_component_map;			// access to helper functions for modifying each unique component
 	};
 
-	template<IsComponentType C, typename... Args> requires std::constructible_from<C, Args...>
+	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args)
 	{
-		if (!IsComponentRegistered<C>()) // component should be registered
-			return nullptr;
+		assert(IsComponentRegistered<C>()); // component should be registered
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -169,7 +169,7 @@ namespace vlx
 		C* add_component = nullptr;
 		Archetype* new_archetype = nullptr;
 
-		const ComponentTypeID add_component_id = Component<C>::GetTypeID();
+		const ComponentTypeID add_component_id = ComponentAlloc<C>::GetTypeID();
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
@@ -178,22 +178,21 @@ namespace vlx
 				return nullptr;
 
 			new_archetype = GetArchetype(new_archetype_id);
+			assert(new_archetype_id == new_archetype->type);
 
 			const EntityID last_entity_id = old_archetype->entities.back();
 			Record& last_record = m_entity_archetype_map[last_entity_id];
 
 			const bool same_entity = (last_entity_id == entity_id);
 
-			assert(new_archetype_id == new_archetype->type);
-
 			for (std::size_t i = 0, j = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
 			{
 				const ComponentTypeID component_id	= new_archetype_id[i];
-				const IComponent* component			= m_component_map[component_id].get();
+				const IComponentAlloc* component	= m_component_map[component_id].get();
 				const std::size_t& component_size	= component->GetSize();
 
-				const std::size_t current_size	= new_archetype->entities.size() * component_size;
-				const std::size_t new_size		= current_size + component_size;
+				const std::size_t current_size		= new_archetype->entities.size() * component_size;
+				const std::size_t new_size			= current_size + component_size;
 
 				if (new_size > new_archetype->component_data_size[i])
 					MakeRoom(new_archetype, component, component_size, i);
@@ -239,7 +238,7 @@ namespace vlx
 			ComponentIDs new_archetype_id(1, add_component_id);	// construct archetype with the component id
 			new_archetype = GetArchetype(new_archetype_id);		// construct or get archetype using the id
 
-			const IComponent* component			= m_component_map[add_component_id].get();
+			const IComponentAlloc* component			= m_component_map[add_component_id].get();
 			const std::size_t& component_size	= component->GetSize();
 
 			const std::size_t current_size	= new_archetype->entities.size() * component_size;
@@ -261,28 +260,28 @@ namespace vlx
 		return add_component;
 	}
 
-	template<IsComponentType C>
+	template<IsComponent C>
 	inline void EntityAdmin::RemoveComponent(const EntityID entity_id)
 	{
-		RemoveComponent(entity_id, Component<C>::GetTypeID());
+		RemoveComponent(entity_id, ComponentAlloc<C>::GetTypeID());
 	}
 
-	template<IsComponentType C>
+	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		const ComponentTypeID component_id = Component<C>::GetTypeID();
+		const ComponentTypeID component_id = ComponentAlloc<C>::GetTypeID();
 
 		if (!m_component_map.contains(component_id))
-			m_component_map.emplace(component_id, std::make_unique<Component<C>>());
+			m_component_map.emplace(component_id, std::make_unique<ComponentAlloc<C>>());
 	}
 
-	template<IsComponentType C>
+	template<IsComponent C>
 	inline bool EntityAdmin::IsComponentRegistered() const
 	{
-		return m_component_map.contains(Component<C>::GetTypeID());
+		return m_component_map.contains(ComponentAlloc<C>::GetTypeID());
 	}
 
-	template<IsComponentType C>
+	template<IsComponent C>
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
@@ -296,7 +295,7 @@ namespace vlx
 		if (!archetype)
 			return false;
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeID();
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -305,7 +304,7 @@ namespace vlx
 		return cit->second.contains(archetype->id);
 	}
 
-	template<IsComponentType C>
+	template<IsComponent C>
 	inline C& EntityAdmin::GetComponent(const EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
@@ -315,7 +314,7 @@ namespace vlx
 		const Record& record = eit->second;
 		const Archetype* archetype = record.archetype;
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeID();
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		const auto ait = cit->second.find(archetype->id);
@@ -324,7 +323,7 @@ namespace vlx
 		return components[record.index];
 	}
 
-	template<IsComponentType C>
+	template<IsComponent C>
 	inline C* EntityAdmin::TryGetComponent(const EntityID entity_id) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
@@ -353,7 +352,7 @@ namespace vlx
 		return &components[record.index];
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
 		std::vector<EntityID> entities;
@@ -400,7 +399,7 @@ namespace vlx
 		return entities;
 	}
 
-	template<IsComponentType... Cs> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
 		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeID()... } }); // see system.hpp
@@ -427,11 +426,11 @@ namespace vlx
 
 				const auto i = ait->second.column;
 
-				const IComponent* component = m_component_map[component_id].get();
-				const std::size_t& component_size = component->GetSize();
+				const IComponentAlloc* component	= m_component_map[component_id].get();
+				const std::size_t& component_size	= component->GetSize();
 
-				const std::size_t current_size = archetype->entities.size() * component_size;
-				const std::size_t new_size = component_count * component_size;
+				const std::size_t current_size		= archetype->entities.size() * component_size;
+				const std::size_t new_size			= component_count * component_size;
 
 				if (new_size > current_size)
 				{
@@ -451,12 +450,12 @@ namespace vlx
 		}
 	}
 
-	template<IsComponentType... Cs, class Comp> requires Exists<Cs...> && NoDuplicates<Cs...>
+	template<IsComponents... Cs, class Comp>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>>
 	{
 		using C = typename std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
 
-		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeID()... } }); // see system.hpp
+		const ComponentIDs component_ids = SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }); // see system.hpp
 		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);
@@ -468,7 +467,7 @@ namespace vlx
 		if (archetype->id != archetype_id)
 			throw std::runtime_error("the specified archetype does not exist");
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeID();
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -485,7 +484,7 @@ namespace vlx
 		std::vector<std::size_t> indices(archetype->entities.size());
 		std::iota(indices.begin(), indices.end(), 0);
 
-		std::sort(indices.begin(), indices.end(),
+		std::stable_sort(indices.begin(), indices.end(),
 			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
 			{
 				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
@@ -493,9 +492,9 @@ namespace vlx
 
 		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
 		{
-			const ComponentTypeID component_id = archetype->type[i];
-			const IComponent* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
+			const ComponentTypeID component_id	= archetype->type[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
 
 			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 
@@ -509,7 +508,9 @@ namespace vlx
 			archetype->component_data[i] = std::move(new_data);
 		}
 
-		std::vector<EntityID> new_entities = archetype->entities;
+		std::vector<EntityID> new_entities;
+		new_entities.reserve(archetype->entities.size());
+
 		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
 		{
 			const std::size_t index = indices[i];
@@ -519,8 +520,9 @@ namespace vlx
 			assert(it != m_entity_archetype_map.end()); // should never happen
 
 			it->second.index = i;
-			new_entities[i] = entity_id;
+			new_entities.push_back(entity_id);
 		}
+
 		archetype->entities = new_entities;
 	}
 }

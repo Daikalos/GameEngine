@@ -158,7 +158,7 @@
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
-    <ClInclude Include="include\Velox\ECS\Component.hpp" />
+    <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Components\Transform.h" />
     <ClInclude Include="include\Velox\Components\Velocity.h" />

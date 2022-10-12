@@ -35,7 +35,8 @@ namespace vlx::traits
     template<typename T>
     struct Base {};
 
-    template<typename... Ts> struct NoDuplicates : Base<Ts>...
+    template<typename... Ts> 
+    struct NoDuplicates : Base<Ts>... // can't inherit from the same base multiple times, therefore error
     {
         constexpr operator bool() const { return true; }
     };
