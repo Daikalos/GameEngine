@@ -103,7 +103,7 @@ namespace vlx
 		void Reserve(const std::size_t component_count);
 
 		template<IsComponents... Cs, class Comp>
-		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>>;
+		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
 
 	public:		
 		VELOX_API EntityID GetNewEntityID();
@@ -451,7 +451,7 @@ namespace vlx
 	}
 
 	template<IsComponents... Cs, class Comp>
-	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>>
+	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
 		using C = typename std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
 

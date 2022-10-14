@@ -37,6 +37,9 @@ namespace vlx // concepts is the best thing ever
 		sz == (sizeof(Args) + ... + 0); 
 	};
 
+	template<typename T, typename... Args>
+	concept IsPresent = (std::same_as<T, Args> || ...);
+
 	template<class T>
 	concept IsVector = requires
 	{
@@ -49,11 +52,8 @@ namespace vlx // concepts is the best thing ever
 		traits::NoDuplicates<Ts...>{};
 	};
 
-	template<class Lambda, typename T, std::size_t Index = 0>
-	concept SameTypeParameter = requires
-	{
-		std::same_as<T, typename traits::FunctionTraits<Lambda>::template arg_type<Index>>;
-	};
+	template<class Lambda, typename T, std::size_t... Index>
+	concept SameTypeParameter = (std::same_as<T, std::decay_t<typename traits::FunctionTraits<Lambda>::template arg_type<Index>>> && ...);
 
 	template<class Resource>
 	concept IsLoadable = requires(Resource resource)
@@ -70,7 +70,7 @@ namespace vlx // concepts is the best thing ever
 	};
 
 	template<class C>
-	concept IsComponent = std::is_class_v<C> && std::copyable<C> && sizeof(C) > 1;
+	concept IsComponent = std::is_class_v<C> && std::semiregular<C> && sizeof(C) > 1;
 
 	template<class... Cs>
 	concept IsComponents = IsComponent<Cs...> && Exists<Cs...> && NoDuplicates<Cs...>;
