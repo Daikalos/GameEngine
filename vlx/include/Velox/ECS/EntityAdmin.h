@@ -253,6 +253,8 @@ namespace vlx
 			m_component_archetypes_map[add_component_id][new_archetype->id].column = 0;
 		}
 
+		add_component->Created(*this, entity_id);
+
 		new_archetype->entities.push_back(entity_id);
 		record.index = new_archetype->entities.size() - 1;
 		record.archetype = new_archetype;
