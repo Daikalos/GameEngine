@@ -4,6 +4,8 @@ using namespace vlx;
 
 static constexpr std::size_t VERTEX_COUNT = 4;
 
+Sprite::Sprite() = default;
+
 Sprite::Sprite(const sf::Texture& texture, float depth) : m_depth(depth)
 {
 	SetTexture(texture, true);

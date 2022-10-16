@@ -23,6 +23,7 @@
     <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
+    <ClCompile Include="src\Components\Velocity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -80,6 +81,7 @@
     <ClInclude Include="include\Velox\Components\GameObject.h" />
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
+    <ClInclude Include="include\Velox\ECS\IComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

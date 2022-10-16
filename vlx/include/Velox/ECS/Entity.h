@@ -21,10 +21,10 @@ namespace vlx
 		VELOX_API void Destroy();
 
 	public:
-		template<IsComponent C, typename... Args>
-		C* AddComponent(Args&&... args) requires std::constructible_from<C, Args...>;
+		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+		C* AddComponent(Args&&... args);
 		template<IsComponent C>
-		C* AddComponent(C&& t);
+		C* AddComponent(C&& comp);
 
 		template<IsComponent C>
 		void RemoveComponent();
@@ -43,16 +43,16 @@ namespace vlx
 		EntityAdmin*	m_entity_admin;
 	};
 
-	template<IsComponent C, typename... Args>
-	inline C* Entity::AddComponent(Args&&... args) requires std::constructible_from<C, Args...>
+	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+	inline C* Entity::AddComponent(Args&&... args)
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<Args>(args)...);
 	}
 
 	template<IsComponent C>
-	inline C* Entity::AddComponent(C&& t)
+	inline C* Entity::AddComponent(C&& comp)
 	{
-		return m_entity_admin->AddComponent<C>(m_id, std::forward<C>(t));
+		return m_entity_admin->AddComponent<C>(m_id, std::forward<C>(comp));
 	}
 
 	template<IsComponent C>

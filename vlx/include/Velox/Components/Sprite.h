@@ -6,6 +6,8 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Graphics/SpriteBatch.h>
 
+#include <Velox/ECS/IComponent.h>
+
 #include "IBatchable.h"
 #include "Transform.h"
 
@@ -16,13 +18,13 @@ namespace vlx
 	// it has depth and no transform as to be suitable for 
 	// spritebatch and the ECS design
 	////////////////////////////////////////////////////////////
-	class VELOX_API Sprite : public IBatchable
+	class VELOX_API Sprite : public IComponent, public IBatchable
 	{
 	private:
 		using VertexArray = std::array<sf::Vertex, 4>;
 
 	public:
-		Sprite() = default;
+		Sprite();
 		Sprite(const sf::Texture& texture, float depth = 0.0f);
 		Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth = 0.0f);
 

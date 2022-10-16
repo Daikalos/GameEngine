@@ -3,6 +3,8 @@
 #include <concepts>
 #include <filesystem>
 
+#include <Velox/ECS/IComponent.h>
+
 #include "Traits.h"
 
 namespace vlx // concepts is the best thing ever
@@ -70,7 +72,7 @@ namespace vlx // concepts is the best thing ever
 	};
 
 	template<class C>
-	concept IsComponent = std::is_class_v<C> && std::semiregular<C> && sizeof(C) > 1;
+	concept IsComponent = std::derived_from<C, IComponent> && std::is_class_v<C> && std::semiregular<C> && sizeof(C) > 1;
 
 	template<class... Cs>
 	concept IsComponents = IsComponent<Cs...> && Exists<Cs...> && NoDuplicates<Cs...>;

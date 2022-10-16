@@ -3,7 +3,13 @@
 using namespace vlx;
 
 Transform::Transform() 
-	: m_origin(0, 0), m_position(0,0), m_rotation(), m_scale(1, 1)
+	: m_origin(0, 0), m_position(0,0), m_scale(1, 1), m_rotation()
+{
+
+}
+
+Transform::Transform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation)
+	: m_origin(0, 0), m_position(position), m_scale(scale), m_rotation(rotation)
 {
 
 }

@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <Velox/ECS/IComponent.h>
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
@@ -10,7 +11,7 @@ namespace vlx
 	//////////////////////////////////////////////
 	// Basic transform
 	//////////////////////////////////////////////
-	struct VELOX_API Transform
+	class VELOX_API Transform : public IComponent
 	{ 
 	public:
 		Transform();

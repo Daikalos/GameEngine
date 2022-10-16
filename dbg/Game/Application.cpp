@@ -29,6 +29,8 @@ void Application::Run()
 	RegisterControls();
 	RegisterStates();
 
+	Velocity a(sf::Vector2f(0,0));
+
 	////////////////////////////////////////////////////////////
 
 	bm::Begin();

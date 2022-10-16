@@ -9,6 +9,8 @@
 
 namespace vlx
 {
+	class EntityAdmin;
+
 	////////////////////////////////////////////////////////////
 	// 
 	// ComponentAlloc is a helper class for constructing and moving
@@ -17,48 +19,53 @@ namespace vlx
 	////////////////////////////////////////////////////////////
 	struct IComponentAlloc
 	{
-		virtual void ConstructData(DataPtr data) const = 0;
-		virtual void DestroyData(DataPtr data) const = 0;
-		virtual void MoveData(DataPtr source, DataPtr destination) const = 0;
-		virtual void SwapData(DataPtr d0, DataPtr d1) const = 0;
-		virtual void MoveDestroyData(DataPtr source, DataPtr destination) const = 0;
+		virtual void ConstructData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
+		virtual void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
+		virtual void MoveData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
+		virtual void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
+		virtual void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const = 0;
+
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
 	};
 
 	template<IsComponent C>
 	struct ComponentAlloc : public IComponentAlloc
 	{
-		void ConstructData(DataPtr data) const override;
-		void DestroyData(DataPtr data) const override;
-		void MoveData(DataPtr source, DataPtr destination) const override;
-		void SwapData(DataPtr d0, DataPtr d1) const override;
-		void MoveDestroyData(DataPtr source, DataPtr destination) const override;
+		void ConstructData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
+		void DestroyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
+		void MoveData(				const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
+		void MoveDestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
+		void SwapData(				const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const override;
+
 		[[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
 
-		[[nodiscard]] static ComponentTypeID GetTypeID();
+		[[nodiscard]] static const ComponentTypeID GetTypeID();
 	};
 
 	template<IsComponent C>
-	void ComponentAlloc<C>::ConstructData(DataPtr data) const
+	void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
-		new (data) C();
+		C* data_location = new (data) C();
+		data_location->Created(entity_admin, entity_id);
 	}
 
 	template<IsComponent C>
-	inline void ComponentAlloc<C>::DestroyData(DataPtr data) const
+	inline void ComponentAlloc<C>::DestroyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
+		data_location->Destroyed(entity_admin, entity_id);
 		data_location->~C();
 	}
 
 	template<IsComponent C>
-	inline void ComponentAlloc<C>::MoveData(DataPtr source, DataPtr destination) const
+	inline void ComponentAlloc<C>::MoveData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
-		new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
+		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
+		data_location->Moved(entity_admin, entity_id);
 	}
 
 	template<IsComponent C>
-	inline void ComponentAlloc<C>::SwapData(DataPtr d0, DataPtr d1) const
+	inline void ComponentAlloc<C>::SwapData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const
 	{
 		constexpr auto size = sizeof(C);
 
@@ -70,10 +77,10 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void ComponentAlloc<C>::MoveDestroyData(DataPtr source, DataPtr destination) const
+	inline void ComponentAlloc<C>::MoveDestroyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
-		MoveData(source, destination);
-		DestroyData(source);
+		MoveData(entity_admin, entity_id, source, destination);
+		DestroyData(entity_admin, entity_id, source);
 	}
 
 	template<IsComponent C>
@@ -83,7 +90,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline ComponentTypeID ComponentAlloc<C>::GetTypeID()
+	inline const ComponentTypeID ComponentAlloc<C>::GetTypeID()
 	{
 		return TypeIdGenerator<IComponentAlloc>::GetNewID<C>();
 	}

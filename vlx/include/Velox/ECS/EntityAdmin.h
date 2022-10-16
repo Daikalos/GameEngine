@@ -206,13 +206,13 @@ namespace vlx
 				}
 				else
 				{
-					component->MoveDestroyData(
+					component->MoveDestroyData(*this, entity_id,
 						&old_archetype->component_data[j][record.index * component_size],
 						&new_archetype->component_data[i][current_size]);
 
 					if (!same_entity)
 					{
-						component->MoveDestroyData(
+						component->MoveDestroyData(*this, entity_id,
 							&old_archetype->component_data[j][last_record.index * component_size],
 							&old_archetype->component_data[j][record.index * component_size]); // move data to last
 					}
@@ -500,7 +500,7 @@ namespace vlx
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 			{
-				component->MoveDestroyData(
+				component->MoveDestroyData(*this, archetype->entities[j],
 					&archetype->component_data[i][indices[j] * component_size],
 					&new_data[j * component_size]);
 			}

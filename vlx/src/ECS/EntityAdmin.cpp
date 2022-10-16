@@ -19,7 +19,7 @@ EntityAdmin::~EntityAdmin()
 			const std::size_t& component_size	= component->GetSize();
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-				component->DestroyData(&archetype->component_data[i][j * component_size]);
+				component->DestroyData(*this, archetype->entities[j], &archetype->component_data[i][j * component_size]);
 		}
 	}
 }
@@ -128,11 +128,11 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 		const IComponentAlloc* component	= m_component_map[component_id].get();
 		const std::size_t& component_size	= component->GetSize();
 
-		component->DestroyData(&archetype->component_data[i][record.index * component_size]);
+		component->DestroyData(*this, entity_id, &archetype->component_data[i][record.index * component_size]);
 
 		if (last_entity_id != entity_id)
 		{
-			component->MoveDestroyData(
+			component->MoveDestroyData(*this, entity_id,
 				&archetype->component_data[i][last_record.index * component_size],
 				&archetype->component_data[i][record.index * component_size]);
 		}
@@ -272,7 +272,6 @@ void EntityAdmin::Shrink(bool extensive)
 		{
 			const ArchetypePtr& archetype = m_archetypes[i];
 			const ComponentIDs& archetype_id = archetype->type;
-			const std::vector<EntityID>& entities = archetype->entities;
 
 			for (std::size_t j = 0; j < archetype_id.size(); ++j)
 			{
@@ -280,19 +279,22 @@ void EntityAdmin::Shrink(bool extensive)
 				const IComponentAlloc* component	= m_component_map[component_id].get();
 				const std::size_t& component_size	= component->GetSize();
 
-				const std::size_t current_size		= entities.size() * component_size;
+				const std::size_t current_size		= archetype->entities.size() * component_size;
 
-				archetype->component_data_size[j] = current_size;
-				ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
-
-				for (std::size_t k = 0; k < entities.size(); ++k)
+				if (archetype->component_data_size[j] > current_size)
 				{
-					component->MoveDestroyData(
-						&archetype->component_data[j][k * component_size],
-						&new_data[k * component_size]);
-				}
+					archetype->component_data_size[j] = current_size;
+					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
 
-				archetype->component_data[j] = std::move(new_data);
+					for (std::size_t k = 0; k < archetype->entities.size(); ++k)
+					{
+						component->MoveDestroyData(*this, archetype->entities[k],
+							&archetype->component_data[j][k * component_size],
+							&new_data[k * component_size]);
+					}
+
+					archetype->component_data[j] = std::move(new_data);
+				}
 			}
 		}
 	}
@@ -340,17 +342,17 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 
 			if (component_id == add_component_id)
 			{
-				component->ConstructData(&new_archetype->component_data[i][current_size]);
+				component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
 			}
 			else
 			{
-				component->MoveDestroyData(
+				component->MoveDestroyData(*this, entity_id,
 					&old_archetype->component_data[j][record.index * component_size],
 					&new_archetype->component_data[i][current_size]);
 
 				if (!same_entity)
 				{
-					component->MoveDestroyData(
+					component->MoveDestroyData(*this, entity_id,
 						&old_archetype->component_data[j][last_record.index * component_size],
 						&old_archetype->component_data[j][record.index * component_size]); // move data to last
 				}
@@ -383,7 +385,7 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 		if (new_size > new_archetype->component_data_size[0])
 			MakeRoom(new_archetype, component, component_size, 0); // make room and move over existing data
 
-		component->ConstructData(&new_archetype->component_data[0][current_size]);
+		component->ConstructData(*this, entity_id, &new_archetype->component_data[0][current_size]);
 
 		m_component_archetypes_map[add_component_id][new_archetype->id].column = 0;
 	}
@@ -427,7 +429,7 @@ void EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 
 		if (component_id == rmv_component_id)
 		{
-			component->DestroyData(&old_archetype->component_data[i][record.index * component_size]);
+			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
 		}
 		else
 		{
@@ -437,7 +439,7 @@ void EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 			if (new_size > new_archetype->component_data_size[j])
 				MakeRoom(new_archetype, component, component_size, j); // make room to fit data
 
-			component->MoveDestroyData(
+			component->MoveDestroyData(*this, entity_id,
 				&old_archetype->component_data[i][record.index * component_size],
 				&new_archetype->component_data[j][current_size]); // move all the valid data from old to new
 
@@ -446,7 +448,7 @@ void EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 
 		if (!same_entity) // no point of swapping data with itself
 		{
-			component->MoveDestroyData(
+			component->MoveDestroyData(*this, entity_id,
 				&old_archetype->component_data[i][last_record.index * component_size],
 				&old_archetype->component_data[i][record.index * component_size]); // move data to last
 		}
@@ -478,7 +480,7 @@ void EntityAdmin::MakeRoom(
 
 	for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 	{
-		component->MoveDestroyData( 
+		component->MoveDestroyData(*this, archetype->entities[j],
 			&archetype->component_data[i][j * data_size], 
 			&new_data[j * data_size]);
 	}
