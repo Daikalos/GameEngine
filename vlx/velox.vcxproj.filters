@@ -76,7 +76,6 @@
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\Components\Relation.h" />
-    <ClInclude Include="ObjectSystem.h" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Components\GameObject.h" />
     <ClInclude Include="include\Velox\ECS\World.h" />

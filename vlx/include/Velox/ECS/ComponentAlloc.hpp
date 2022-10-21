@@ -67,6 +67,8 @@ namespace vlx
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::SwapData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const
 	{
+		// * not really used right now, could be handy in the future
+
 		constexpr auto size = sizeof(C);
 
 		std::byte temp[size];
@@ -80,7 +82,9 @@ namespace vlx
 	inline void ComponentAlloc<C>::MoveDestroyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
 		MoveData(entity_admin, entity_id, source, destination);
-		DestroyData(entity_admin, entity_id, source);
+
+		C* source_location = std::launder(reinterpret_cast<C*>(source)); // destroy data without calling the Destroy event
+		source_location->~C();
 	}
 
 	template<IsComponent C>

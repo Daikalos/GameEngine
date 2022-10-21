@@ -31,11 +31,13 @@ void TransformSystem::DetachInstant(const EntityID parent, const EntityID child)
 
 void TransformSystem::AttachDelay(const EntityID parent, const EntityID child)
 {
-	m_attachments.push(std::make_pair(parent, child));
+	if (parent != child)
+		m_attachments.push(std::make_pair(parent, child));
 }
 void TransformSystem::DetachDelay(const EntityID parent, const EntityID child)
 {
-	m_detachments.push(std::make_pair(parent, child));
+	if (parent != child)
+		m_detachments.push(std::make_pair(parent, child));
 }
 
 void TransformSystem::AttachChild(Relation& parent, Relation& child)

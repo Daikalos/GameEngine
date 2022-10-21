@@ -49,7 +49,7 @@ namespace vlx
 
 	inline BindsBase::~BindsBase() = default;
 
-	[[nodiscard]] inline constexpr bool BindsBase::GetEnabled() const noexcept
+	inline constexpr bool BindsBase::GetEnabled() const noexcept
 	{
 		return m_enabled;
 	}

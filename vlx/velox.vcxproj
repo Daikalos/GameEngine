@@ -207,7 +207,6 @@
     <ClInclude Include="include\Velox\Window\CameraBehavior.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
-    <ClInclude Include="ObjectSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Components\Relation.cpp" />

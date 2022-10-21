@@ -219,8 +219,6 @@ namespace vlx
 
 					++j;
 				}
-
-				m_component_archetypes_map[component_id][new_archetype->id].column = i;
 			}
 
 			assert(add_component != nullptr); // a new component should have been added
@@ -249,8 +247,6 @@ namespace vlx
 
 			add_component = new(&new_archetype->component_data[0][current_size])
 				C(std::forward<Args>(args)...);
-
-			m_component_archetypes_map[add_component_id][new_archetype->id].column = 0;
 		}
 
 		add_component->Created(*this, entity_id);
@@ -338,7 +334,7 @@ namespace vlx
 		if (!archetype)
 			return nullptr;
 
-		const ComponentTypeID& component_id = Component<C>::GetTypeID();
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -359,8 +355,8 @@ namespace vlx
 	{
 		std::vector<EntityID> entities;
 
-		const ComponentIDs component_ids = SortKeys({ { Component<Cs>::GetTypeID()... } });
-		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids); // see system.hpp
+		const ComponentIDs component_ids = SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }); // see system.hpp
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())

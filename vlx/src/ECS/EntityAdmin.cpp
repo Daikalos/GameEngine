@@ -110,7 +110,7 @@ void EntityAdmin::RemoveEntity(const EntityID entity_id)
 	Record& record		 = eit->second;
 	Archetype* archetype = record.archetype;
 
-	if (!archetype)
+	if (archetype == nullptr)
 	{
 		m_entity_archetype_map.erase(entity_id);
 		m_reusable_entity_ids.push(entity_id);
@@ -196,6 +196,8 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 
 		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
+
+		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = i;
 	}
 
 #ifdef VELOX_DEBUG
@@ -359,8 +361,6 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 
 				++j;
 			}
-
-			m_component_archetypes_map[component_id][new_archetype->id].column = i;
 		}
 
 		if (!same_entity) // move back to current
@@ -386,8 +386,6 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 			MakeRoom(new_archetype, component, component_size, 0); // make room and move over existing data
 
 		component->ConstructData(*this, entity_id, &new_archetype->component_data[0][current_size]);
-
-		m_component_archetypes_map[add_component_id][new_archetype->id].column = 0;
 	}
 
 	new_archetype->entities.push_back(entity_id);

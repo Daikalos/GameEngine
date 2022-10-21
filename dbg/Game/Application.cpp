@@ -48,7 +48,7 @@ void Application::Run()
 		for (int i = 0; i < 50; ++i)
 		{
 			Entity& entity = entities.emplace_back(entity_admin); 
-			entity.AddComponent<Velocity>(sf::Vector2f(rand() % (i + 1), 0.0f));
+			entity.AddComponent<Velocity>(sf::Vector2f(rand() % 50, 0.0));
 			entity.AddComponent<Sprite>();
 		}
 
