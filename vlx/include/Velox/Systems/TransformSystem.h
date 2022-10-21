@@ -28,8 +28,8 @@ namespace vlx
 		void DetachDelay(const EntityID parent, const EntityID child);
 
 	private:
-		void AttachChild(Relation& parent, Relation& child);
-		void DetachChild(Relation& parent, Relation& child);
+		void AttachChild(const EntityID parent_id, const EntityID child_id);
+		void DetachChild(const EntityID parent_id, const EntityID child_id);
 
 		void Update();
 

@@ -11,9 +11,9 @@ void SpriteBatch::Reserve(const std::size_t size)
 	m_proxy.reserve(size);
 }
 
-void SpriteBatch::SetSortMode(const SortMode sort_mode)
+void SpriteBatch::SetBatchMode(const BatchMode batch_mode)
 {
-	m_sort_mode = sort_mode;
+	m_batch_mode = batch_mode;
 	m_update_required = true;
 }
 
@@ -115,30 +115,30 @@ bool SpriteBatch::CompareTexture(const Triangle& lhs, const Triangle& rhs) const
 
 void SpriteBatch::SortTriangles() const
 {
-	switch (m_sort_mode)
+	switch (m_batch_mode)
 	{
-	case SortMode::BackToFront:
+	case BatchMode::BackToFront:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
 			[this](const std::size_t i0, const std::size_t i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
-	case SortMode::FrontToBack:
+	case BatchMode::FrontToBack:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
 			[this](const std::size_t i0, const std::size_t i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
-	case SortMode::Texture:
+	case BatchMode::Texture:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
 			[this](const std::size_t i0, const std::size_t i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
-	case SortMode::Deferred:
+	case BatchMode::Deferred:
 	default: break; // nothing to do
 	}
 }

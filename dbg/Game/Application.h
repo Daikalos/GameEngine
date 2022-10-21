@@ -21,6 +21,8 @@
 
 #include <Velox/Graphics/SpriteBatch.h>
 
+#include <Velox/ECS/World.h>
+
 #include "Binds.h"
 #include "scenes/StateTest.h"
 
@@ -37,7 +39,6 @@ namespace vlx
 	{
 	public:
 		Application(std::string_view name);
-		~Application();
 
 		void Run();
 
@@ -63,16 +64,7 @@ namespace vlx
 		FontHolder		m_font_holder;
 		Time			m_time;
 		ControlMap		m_controls;
-		EntityAdmin		m_entity_admin;
-		SpriteBatch		m_sprite_batch;
-
-		float rotation = 0.0f;
-		sf::Vector2f position1;
-		sf::Vector2f position2;
-
-		Transform transform1;
-		Transform transform2;
-		Transform transform3;
+		World			m_world;
 	};
 }
 

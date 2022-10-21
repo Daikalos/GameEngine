@@ -16,6 +16,9 @@ namespace vlx
 		void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
+		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
+		const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
+
 	private:
 		EntityID				m_parent		{NULL_ENTITY};
 		std::vector<EntityID>	m_children;

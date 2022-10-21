@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
+
 #include <Velox/ECS.hpp>
 
 #include <Velox/Systems/ObjectSystem.h>
@@ -13,10 +15,13 @@ namespace vlx
 	/// <summary>
 	/// Represents the world's logic e.g., objects, rendering, transforms, etc.
 	/// </summary>
-	class VELOX_API World
+	class VELOX_API World : public sf::Drawable
 	{
 	public:
 		World();
+
+		void Run();
+		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 		EntityAdmin& GetEntityAdmin() noexcept;
 		ObjectSystem& GetObjectSystem() noexcept;

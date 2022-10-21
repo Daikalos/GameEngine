@@ -10,11 +10,6 @@ Application::Application(std::string_view name) :
 
 }
 
-Application::~Application()
-{
-
-}
-
 void Application::Run()
 {
 	//////////////////////-INITIALIZE-//////////////////////////
@@ -28,101 +23,6 @@ void Application::Run()
 
 	RegisterControls();
 	RegisterStates();
-
-	Velocity a(sf::Vector2f(0,0));
-
-	////////////////////////////////////////////////////////////
-
-	bm::Begin();
-
-	for (int j = 0; j < 1; ++j)
-	{
-		EntityAdmin entity_admin;
-
-		entity_admin.RegisterComponent<Velocity>();
-		entity_admin.RegisterComponent<Sprite>();
-		entity_admin.RegisterComponent<Relation>();
-
-		std::vector<Entity> entities;
-
-		for (int i = 0; i < 50; ++i)
-		{
-			Entity& entity = entities.emplace_back(entity_admin); 
-			entity.AddComponent<Velocity>(sf::Vector2f(rand() % 50, 0.0));
-			entity.AddComponent<Sprite>();
-		}
-
-		entity_admin.SortComponents<Velocity, Sprite>([](const Velocity& lhs, const Velocity& rhs)
-			{
-				return lhs.velocity.x < rhs.velocity.x;
-			});
-
-		System<Velocity> s0(entity_admin, 0);
-		System<Velocity, Sprite> s1(entity_admin, 1);
-		System<Velocity, Sprite, Relation> s2(entity_admin, 0);
-
-		//std::puts(std::to_string(entities[2].Get<Velocity>()->velocity.x).c_str());
-		
-		s0.Action([](std::span<const EntityID> entities, Velocity* velocities)
-			{
-				for (std::size_t i = 0; i < entities.size(); ++i)
-				{
-					std::puts(std::to_string(velocities[i].velocity.x).c_str());
-				}
-			});
-
-		s1.Action([](std::span<const EntityID> entities, Velocity* velocities, Sprite* sprite)
-			{
-				for (std::size_t i = 0; i < entities.size(); ++i)
-				{
-					std::puts(std::to_string(velocities[i].velocity.x).c_str());
-				}
-			});
-
-		entity_admin.RunSystems(0);
-
-		std::puts("");
-
-		std::puts(std::to_string(entities[1].GetComponent<Velocity>().velocity.x).c_str());
-		std::puts(std::to_string(entities[2].GetComponent<Velocity>().velocity.x).c_str());
-		std::puts(std::to_string(entities[3].GetComponent<Velocity>().velocity.x).c_str());
-		std::puts(std::to_string(entities[2].HasComponent<Velocity>()).c_str());
-		std::puts(std::to_string(entities[3].HasComponent<Velocity>()).c_str());
-
-		std::puts("");
-
-		for (std::size_t i = 0; i < 1000; ++i)
-		{
-			std::size_t index = rnd::random(1LLU, entities.size() - 1);
-			Entity& entity = entities.at(index);
-
-			float random = rnd::random();
-
-			if (random > 0.90f)
-				entity.AddComponent<Velocity>(sf::Vector2f(index, 0.0f));
-			else if (random > 0.80f)
-				entity.RemoveComponent<Velocity>();
-			else if (random > 0.70f)
-				entity.AddComponent<Relation>();
-			else if (random > 0.60f)
-				entity.RemoveComponent<Relation>();
-			else if (random > 0.50f)
-				entity.AddComponent<Sprite>();
-			else if (random > 0.40f)
-				entity.RemoveComponent<Sprite>();
-		}
-
-		std::puts("");
-
-		entity_admin.SortComponents<Velocity, Sprite>([](const Velocity& lhs, const Velocity& rhs)
-			{
-				return lhs.velocity.x < rhs.velocity.x;
-			});
-
-		entity_admin.RunSystems(1);
-	}
-
-	bm::End();
 
 	float accumulator = FLT_EPSILON;
 
@@ -225,50 +125,6 @@ void Application::Draw()
 	m_window.setView(m_camera);
 
 	m_state_stack.Draw();
-
-	m_sprite_batch.SetSortMode(SortMode::FrontToBack);
-
-	Sprite sprite1(m_texture_holder.Get(Texture::ID::IdleCursor));
-	sprite1.SetColor(sf::Color::Red);
-	Sprite sprite2(m_texture_holder.Get(Texture::ID::IdleCursor));
-	sprite2.SetColor(sf::Color::Blue);
-	Sprite sprite3(m_texture_holder.Get(Texture::ID::IdleCursor));
-	sprite3.SetColor(sf::Color::Green);
-
-	transform1.SetScale(sf::Vector2f(1.5, 3.0));
-
-	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::X))
-		transform3.Rotate(sf::degrees(100.0f * m_time.GetDeltaTime()));
-	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::D))
-		transform1.Move(sf::Vector2f(1, 0) * 50.0f * m_time.GetDeltaTime());
-	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::A))
-		transform1.Move(sf::Vector2f(-1, 0) * 50.0f * m_time.GetDeltaTime());
-	if (m_controls.Get<KeyboardInput>().Held(sf::Keyboard::S))
-		transform2.Move(sf::Vector2f(0, 1) * 50.0f * m_time.GetDeltaTime());
-
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Q))
-		transform1.AttachChild(transform2);
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::W))
-		transform3.AttachChild(transform2);
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::E))
-		transform2.AttachChild(transform1);
-
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::R))
-		transform1.DetachChild(transform2);
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::T))
-		transform3.DetachChild(transform2);
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Y))
-		transform2.DetachChild(transform1);
-
-	if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-		transform3.SetPosition(sf::Vector2f());
-
-	m_sprite_batch.Batch(sprite1, transform1, 0.0f);
-	m_sprite_batch.Batch(sprite2, transform2, 0.0f);
-	m_sprite_batch.Batch(sprite3, transform3, 0.0f);
-
-	m_window.draw(m_sprite_batch);
-	m_sprite_batch.Clear();
 
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 

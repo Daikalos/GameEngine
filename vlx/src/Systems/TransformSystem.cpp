@@ -18,15 +18,11 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 
 void TransformSystem::AttachInstant(const EntityID parent, const EntityID child)
 {
-	AttachChild(
-		m_entity_admin->GetComponent<Relation>(parent), 
-		m_entity_admin->GetComponent<Relation>(child));
+	AttachChild(parent, child);
 }
 void TransformSystem::DetachInstant(const EntityID parent, const EntityID child)
 {
-	DetachChild(
-		m_entity_admin->GetComponent<Relation>(parent),
-		m_entity_admin->GetComponent<Relation>(child));
+	DetachChild(parent, child);
 }
 
 void TransformSystem::AttachDelay(const EntityID parent, const EntityID child)
@@ -40,27 +36,31 @@ void TransformSystem::DetachDelay(const EntityID parent, const EntityID child)
 		m_detachments.push(std::make_pair(parent, child));
 }
 
-void TransformSystem::AttachChild(Relation& parent, Relation& child)
+void TransformSystem::AttachChild(const EntityID parent_id, const EntityID child_id)
 {
+	Relation& parent = m_entity_admin->GetComponent<Relation>(parent_id);
+	Relation& child = m_entity_admin->GetComponent<Relation>(child_id);
 
+	parent.AttachChild(*m_entity_admin, parent_id, child_id, child);
 }
-void TransformSystem::DetachChild(Relation& parent, Relation& child)
+void TransformSystem::DetachChild(const EntityID parent_id, const EntityID child_id)
 {
+	Relation& parent = m_entity_admin->GetComponent<Relation>(parent_id);
+	Relation& child = m_entity_admin->GetComponent<Relation>(child_id);
 
+	parent.DetachChild(*m_entity_admin, parent_id, child_id, child);
 }
 
 void TransformSystem::Update()
 {
-	while (!m_detachments.empty())
+	while (!m_detachments.empty()) // detach all relations first
 	{
 		auto& pair = m_detachments.front();
 
 		const EntityID parent = pair.first;
 		const EntityID child = pair.second;
 
-		DetachChild(
-			m_entity_admin->GetComponent<Relation>(pair.first),
-			m_entity_admin->GetComponent<Relation>(pair.second));
+		DetachChild(pair.first, pair.second);
 
 		m_detachments.pop();
 	}
@@ -69,9 +69,7 @@ void TransformSystem::Update()
 	{
 		auto& pair = m_attachments.front();
 
-		AttachChild(
-			m_entity_admin->GetComponent<Relation>(pair.first),
-			m_entity_admin->GetComponent<Relation>(pair.second));
+		AttachChild(pair.first, pair.second);
 
 		m_attachments.pop();
 	}

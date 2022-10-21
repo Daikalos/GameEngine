@@ -14,7 +14,7 @@ namespace vlx
 {
 	constexpr std::size_t TRIANGLE_COUNT = 3;
 
-	enum class SortMode : std::uint8_t
+	enum class BatchMode : std::uint8_t
 	{
 		Deferred,
 		BackToFront,
@@ -46,7 +46,7 @@ namespace vlx
 	public:
 		void Reserve(const std::size_t size);
 
-		void SetSortMode(const SortMode sort_mode);
+		void SetBatchMode(const BatchMode batch_mode);
 
 		void AddTriangle(
 			const Transform& transform, 
@@ -89,7 +89,7 @@ namespace vlx
 		mutable std::vector<std::size_t>	m_proxy;
 		mutable sf::VertexArray				m_vertices;
 
-		SortMode		m_sort_mode			{SortMode::Deferred};
+		BatchMode		m_batch_mode		{BatchMode::Deferred};
 		mutable bool	m_update_required	{true};
 	};
 }
