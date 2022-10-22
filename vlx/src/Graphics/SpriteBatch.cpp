@@ -5,16 +5,16 @@ using namespace vlx;
 SpriteBatch::Triangle::Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d)
 	: vertices{ v0, v1, v2 }, texture(t), shader(s), depth(d) { }
 
-void SpriteBatch::Reserve(const std::size_t size)
-{
-	m_triangles.reserve(size);
-	m_proxy.reserve(size);
-}
-
 void SpriteBatch::SetBatchMode(const BatchMode batch_mode)
 {
 	m_batch_mode = batch_mode;
 	m_update_required = true;
+}
+
+void SpriteBatch::Reserve(const std::size_t size)
+{
+	m_triangles.reserve(size);
+	m_proxy.reserve(size);
 }
 
 void SpriteBatch::AddTriangle(
@@ -24,7 +24,7 @@ void SpriteBatch::AddTriangle(
 	const sf::Vertex& v2, 
 	const sf::Texture* texture, 
 	const sf::Shader* shader, 
-	float depth)
+	const float depth)
 {
 	m_triangles.emplace_back(
 		sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
@@ -36,7 +36,7 @@ void SpriteBatch::AddTriangle(
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const IBatchable& batchable, const Transform& transform, float depth)
+void SpriteBatch::Batch(const IBatchable& batchable, const Transform& transform, const float depth)
 {
 	batchable.Batch(*this, transform, depth);
 }
@@ -119,27 +119,27 @@ void SpriteBatch::SortTriangles() const
 	{
 	case BatchMode::BackToFront:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
-			[this](const std::size_t i0, const std::size_t i1)
+			[this](const auto i0, const auto i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::FrontToBack:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
-			[this](const std::size_t i0, const std::size_t i1)
+			[this](const auto i0, const auto i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::Texture:
 		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
-			[this](const std::size_t i0, const std::size_t i1)
+			[this](const auto i0, const auto i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::Deferred:
-	default: break; // nothing to do
+	default: return; // nothing to do
 	}
 }
 

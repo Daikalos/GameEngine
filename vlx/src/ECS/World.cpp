@@ -16,7 +16,7 @@ void World::Run()
 
 void World::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
 {
-
+	m_render_system.draw(target, states);
 }
 
 EntityAdmin& World::GetEntityAdmin() noexcept

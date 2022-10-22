@@ -22,22 +22,22 @@ namespace vlx
 	public:
 		RenderSystem(EntityAdmin& entity_admin);
 
-		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
+		void SetBatchMode(const BatchMode batch_mode);
+		void SetBatchingEnabled(const bool flag);
 
 		void UpdateStaticBatch();
 
-		void SetBatchMode(const BatchMode batch_mode);
-		void SetBatchingEnabled(const bool flag);
+		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 	private:
 		EntityAdmin*		m_entity_admin;
 
-		System				m_static_system;
-		SpriteBatch			m_static_batch;
+		System				m_system;
 
-		System				m_dynamic_system;
+		SpriteBatch			m_static_batch;
 		SpriteBatch			m_dynamic_batch;
 
-		bool				m_batching_enabled{true};
+		bool				m_batching_enabled		{true};
+		mutable bool		m_update_static_bash	{false};
 	};
 }

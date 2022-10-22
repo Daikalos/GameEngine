@@ -4,6 +4,9 @@
 
 namespace vlx
 {
+	/// <summary>
+	/// Used for common properties in objects
+	/// </summary>
 	struct GameObject : public IComponent
 	{
 		bool is_alive{true};

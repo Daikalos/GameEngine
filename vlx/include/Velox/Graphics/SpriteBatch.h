@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <numeric>
+#include <unordered_set>
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
@@ -40,13 +41,12 @@ namespace vlx
 		{
 			const sf::Texture*	texture	{nullptr};
 			const sf::Shader*	shader	{nullptr};
-			std::size_t			count	{0};
+			std::uint32_t		count	{0};
 		};
 
 	public:
-		void Reserve(const std::size_t size);
-
 		void SetBatchMode(const BatchMode batch_mode);
+		void Reserve(const std::size_t size);
 
 		void AddTriangle(
 			const Transform& transform, 
@@ -55,12 +55,12 @@ namespace vlx
 			const sf::Vertex& v2, 
 			const sf::Texture* texture, 
 			const sf::Shader* shader, 
-			float depth = 0.0f);
+			const float depth = 0.0f);
 
 		void Batch(
 			const IBatchable& batchable, 
 			const Transform& transform, 
-			float depth = 0.0f);
+			const float depth = 0.0f);
 
 		void Batch(
 			const Transform& transform, 
@@ -69,7 +69,7 @@ namespace vlx
 			const sf::PrimitiveType type, 
 			const sf::Texture* texture, 
 			const sf::Shader* shader, 
-			float depth = 0.0f);
+			const float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
@@ -86,8 +86,10 @@ namespace vlx
 	private:
 		std::vector<Triangle>				m_triangles;
 		mutable std::vector<BatchInfo>		m_batches;
-		mutable std::vector<std::size_t>	m_proxy;
+		mutable std::vector<std::uint32_t>	m_proxy;
 		mutable sf::VertexArray				m_vertices;
+
+		std::unordered_set<SpriteBatch*>	m_links;
 
 		BatchMode		m_batch_mode		{BatchMode::Deferred};
 		mutable bool	m_update_required	{true};
