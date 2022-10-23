@@ -46,19 +46,6 @@ namespace vlx
 		void Scale(const sf::Vector2f& factor);
 		void Rotate(const sf::Angle angle);
 
-	public: // parent/child behaviour
-		[[nodiscard]] constexpr bool HasParent() const noexcept;
-
-		const Transform& GetParent() const;
-		Transform& GetParent();
-
-	public:
-		void AttachParent(Transform& parent, bool locked = true);
-		Transform* DetachParent(Transform& parent, bool locked = true);
-
-		void AttachChild(Transform& child, bool locked = true);
-		Transform* DetachChild(Transform& child, bool locked = true);
-
 	private:
 		void UpdateTransforms() const;
 		void UpdateRequired() const;
@@ -86,10 +73,5 @@ namespace vlx
 		mutable sf::Transform	m_inverse_model_transform;
 		mutable bool			m_update_model_transform		{true};
 		mutable bool			m_update_inverse_model_transform{true};
-
-		// parent/child members
-
-		std::vector<Transform*> m_children; // TODO: this will not work because the pointers can become invalidated, look at using system instead
-		Transform*				m_parent						{nullptr};
 	};
 }

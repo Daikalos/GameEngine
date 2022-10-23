@@ -67,8 +67,8 @@ namespace vlx
 
 	protected:
 		EntityAdmin*	m_entity_admin;
-		LayerType		m_layer			{0};	// controls the overall order of calls
-		float			m_priority		{0.0f}; // priority is for controlling the underlaying order of calls inside a layer
+		LayerType		m_layer			{LYR_NONE};	// controls the overall order of calls
+		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
 		Func			m_func;
 		bool			m_func_set		{false};

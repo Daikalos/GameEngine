@@ -26,6 +26,8 @@ namespace vlx
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	private:
+		using SizeType = std::uint32_t;
+
 		struct VELOX_API Triangle
 		{
 			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d);
@@ -85,14 +87,14 @@ namespace vlx
 
 	private:
 		std::vector<Triangle>				m_triangles;
+		SizeType							m_size				{0};
+
 		mutable std::vector<BatchInfo>		m_batches;
-		mutable std::vector<std::uint32_t>	m_proxy;
+		mutable std::vector<SizeType>		m_proxy;
 		mutable sf::VertexArray				m_vertices;
 
-		std::unordered_set<SpriteBatch*>	m_links;
-
-		BatchMode		m_batch_mode		{BatchMode::Deferred};
-		mutable bool	m_update_required	{true};
+		BatchMode							m_batch_mode		{BatchMode::Deferred};
+		mutable bool						m_update_required	{true};
 	};
 }
 

@@ -5,19 +5,15 @@ using namespace vlx;
 RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_RENDERING)
 {
-	m_system.Action([this](std::span<const EntityID> entities, GameObject* game_objects, Transform* transforms, Sprite* sprites)
+	m_system.Action([this](std::span<const EntityID> entities, GameObject* objects, Transform* transforms, Sprite* sprites)
 		{
-			if (m_update_static_bash)
-				m_static_batch.Clear();
-
-			m_dynamic_batch.Clear();
-
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Sprite& sprite = sprites[i];
-				Transform& transform = transforms[i];
+				GameObject& object		= objects[i];
+				Sprite& sprite			= sprites[i];
+				Transform& transform	= transforms[i];
 
-				if (game_objects[i].is_static)
+				if (object.is_static)
 				{
 					if (m_update_static_bash)
 						m_static_batch.Batch(sprite, transform, sprite.GetDepth());
@@ -27,8 +23,6 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 					m_dynamic_batch.Batch(sprite, transform, sprite.GetDepth());
 				}
 			}
-
-			m_update_static_bash = false;
 		});
 }
 
@@ -50,7 +44,14 @@ void RenderSystem::UpdateStaticBatch()
 
 void RenderSystem::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
 {
+	if (m_update_static_bash)
+		m_static_batch.Clear();
+
+	m_dynamic_batch.Clear();
+
 	m_entity_admin->RunSystems(LYR_RENDERING);
+
+	m_update_static_bash = false;
 
 	m_static_batch.draw(target, states);
 	m_dynamic_batch.draw(target, states);

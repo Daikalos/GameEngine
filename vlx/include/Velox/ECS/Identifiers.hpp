@@ -21,6 +21,7 @@ namespace vlx
 
 	enum SystemLayers : LayerType
 	{
+		LYR_NONE = 0,
 		LYR_TRANSFORM = 50,
 		LYR_OBJECTS = 75,
 		LYR_RENDERING = 100

@@ -10,6 +10,6 @@ namespace vlx
 	struct GameObject : public IComponent
 	{
 		bool is_alive{true};
-		bool is_static{true};
+		bool is_static{false};
 	};
 }

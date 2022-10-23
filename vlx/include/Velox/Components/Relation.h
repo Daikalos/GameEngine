@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_set>
+
 #include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
 
@@ -19,10 +21,19 @@ namespace vlx
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
 		const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
 
-	private:
-		EntityID				m_parent		{NULL_ENTITY};
-		std::vector<EntityID>	m_children;
+		[[nodiscard]] bool HasNewRoot() const noexcept;
 
-		bool					m_invalidated	{false};
+	private:
+		void PropagateAttach(const EntityAdmin& entity_admin, const EntityID entity_id);
+		void PropagateDetach(const EntityAdmin& entity_admin, const EntityID entity_id);
+
+		void UpdateNewRoot(const EntityAdmin& entity_admin);
+
+	private:
+		EntityID						m_parent	{NULL_ENTITY};
+		std::vector<EntityID>			m_children;
+
+		std::unordered_set<EntityID>	m_closed; // to prevent parenting descendants
+		bool							m_new_root	{false};
 	};
 }
