@@ -186,6 +186,7 @@
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
     <ClInclude Include="include\Velox\Scene\State.hpp" />
     <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
+    <ClInclude Include="include\Velox\Systems\ISystemMaster.h" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />

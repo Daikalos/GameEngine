@@ -12,8 +12,6 @@ ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
 				if (!gameobjects[i].is_alive)
 					DeleteObjectDelayed(entities[i]);
 			}
-
-			Update();
 		});
 }
 
@@ -33,6 +31,12 @@ void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 
 void ObjectSystem::Update()
 {
+	m_entity_admin->RunSystems(LYR_OBJECTS);
+	PostUpdate();
+}
+
+void ObjectSystem::PostUpdate()
+{
 	while (!m_command_queue.empty())
 	{
 		const auto& pair = m_command_queue.front();
@@ -41,23 +45,23 @@ void ObjectSystem::Update()
 		switch (command)
 		{
 		case ADD_COMPONENT:
-			{
-				const auto& add_cmp = std::get<AddComponent>(pair.first);
-				m_entity_admin->AddComponent(add_cmp.entity_id, add_cmp.component_id);
-			}
-			break;
+		{
+			const auto& add_cmp = std::get<AddComponent>(pair.first);
+			m_entity_admin->AddComponent(add_cmp.entity_id, add_cmp.component_id);
+		}
+		break;
 		case DEL_ENTITY:
-			{
-				const auto& del_ent = std::get<DeleteEntity>(pair.first);
-				m_entity_admin->RemoveEntity(del_ent.entity_id);
-			}
-			break;
+		{
+			const auto& del_ent = std::get<DeleteEntity>(pair.first);
+			m_entity_admin->RemoveEntity(del_ent.entity_id);
+		}
+		break;
 		case DEL_COMPONENT:
-			{
-				const auto& del_cmp = std::get<DeleteComponent>(pair.first);
-				m_entity_admin->RemoveComponent(del_cmp.entity_id, del_cmp.component_id);
-			}
-			break;
+		{
+			const auto& del_cmp = std::get<DeleteComponent>(pair.first);
+			m_entity_admin->RemoveComponent(del_cmp.entity_id, del_cmp.component_id);
+		}
+		break;
 		}
 
 		m_command_queue.pop();

@@ -8,9 +8,11 @@
 
 #include <Velox/Components/GameObject.h>
 
+#include "ISystemMaster.h"
+
 namespace vlx
 {
-	class ObjectSystem
+	class ObjectSystem : public ISystemMaster
 	{
 	private:
 		enum CommandType : std::uint8_t
@@ -50,6 +52,12 @@ namespace vlx
 		VELOX_API void DeleteObjectInstant(const EntityID entity_id);
 
 	public:
+		VELOX_API void Update() override;
+
+	private:
+		VELOX_API void PostUpdate() override;
+
+	public:
 		template<IsComponent C>
 		void DeleteComponentDelayed(const EntityID entity_id);
 		template<IsComponent C>
@@ -64,9 +72,6 @@ namespace vlx
 		C* AddComponentInstant(const EntityID entity_id, Args&&... args);
 		template<IsComponent... Cs>
 		void AddComponentsInstant(const EntityID entity_id);
-
-	private:
-		VELOX_API void Update();
 
 	private:
 		EntityAdmin*	m_entity_admin{nullptr};

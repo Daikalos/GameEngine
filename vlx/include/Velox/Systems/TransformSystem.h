@@ -8,15 +8,17 @@
 #include <Velox/Components/Transform.h>
 #include <Velox/Components/Relation.h>
 
+#include "ISystemMaster.h"
+
 namespace vlx
 {
-	class VELOX_API TransformSystem
+	class VELOX_API TransformSystem : public ISystemMaster
 	{
 	private:
 		using Attachment = std::pair<EntityID, EntityID>;
 
 	private:
-		using System = System<Transform, Relation>;
+		using System = System<Relation, Transform>;
 
 	public:
 		TransformSystem(EntityAdmin& entity_admin);
@@ -27,17 +29,19 @@ namespace vlx
 		void AttachDelay(const EntityID parent, const EntityID child);
 		void DetachDelay(const EntityID parent, const EntityID child);
 
+		void Update() override;
+
 	private:
 		void AttachChild(const EntityID parent_id, const EntityID child_id);
 		void DetachChild(const EntityID parent_id, const EntityID child_id);
 
-		void Update();
+		void PreUpdate() override;
 
 	private:
-		EntityAdmin* m_entity_admin;
-		System m_system;
+		EntityAdmin*			m_entity_admin{nullptr};
+		System					m_system;
 
-		std::queue<Attachment> m_attachments;
-		std::queue<Attachment> m_detachments;
+		std::queue<Attachment>	m_attachments;
+		std::queue<Attachment>	m_detachments;
 	};
 }

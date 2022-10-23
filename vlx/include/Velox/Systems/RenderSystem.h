@@ -12,9 +12,11 @@
 
 #include <Velox/Config.hpp>
 
+#include "ISystemMaster.h"
+
 namespace vlx
 {
-	class VELOX_API RenderSystem : public sf::Drawable
+	class VELOX_API RenderSystem : public ISystemMaster, public sf::Drawable
 	{
 	private:
 		using System = System<GameObject, Transform, Sprite>;
@@ -27,7 +29,14 @@ namespace vlx
 
 		void UpdateStaticBatch();
 
+	public:
+		void Update() override;
+
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
+
+	private:
+		void PreUpdate() override;
+		void PostUpdate() override;
 
 	private:
 		EntityAdmin*		m_entity_admin;

@@ -26,12 +26,26 @@ void SpriteBatch::AddTriangle(
 	const sf::Shader* shader, 
 	const float depth)
 {
-	m_triangles.emplace_back(
-		sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
-		sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
-		sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
+	assert(m_size <= m_triangles.size());
 
-	m_proxy.emplace_back(m_triangles.size() - 1);
+	if (m_size == m_triangles.size())
+	{
+		m_triangles.emplace_back(
+			sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
+			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
+			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
+	}
+	else // reuse
+	{
+		m_triangles[m_size] = 
+		{
+			sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
+			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
+			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth 
+		};
+	}
+
+	m_proxy.emplace_back(m_size++);
 
 	m_update_required = true;
 }
@@ -181,10 +195,7 @@ void SpriteBatch::CreateBatches() const
 
 void SpriteBatch::Clear()
 {
-	m_triangles.clear();
-	m_proxy.clear();
+	m_size = 0;
 	m_batches.clear();
-	m_vertices.clear();
-
 	m_update_required = false;
 }

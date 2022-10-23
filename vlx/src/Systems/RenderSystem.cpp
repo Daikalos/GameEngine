@@ -42,17 +42,26 @@ void RenderSystem::UpdateStaticBatch()
 	m_update_static_bash = true;
 }
 
-void RenderSystem::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
+void RenderSystem::PreUpdate()
 {
 	if (m_update_static_bash)
 		m_static_batch.Clear();
 
 	m_dynamic_batch.Clear();
-
+}
+void RenderSystem::Update()
+{
+	PreUpdate();
 	m_entity_admin->RunSystems(LYR_RENDERING);
-
+	PostUpdate();
+}
+void RenderSystem::PostUpdate()
+{
 	m_update_static_bash = false;
+}
 
+void RenderSystem::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
+{
 	m_static_batch.draw(target, states);
 	m_dynamic_batch.draw(target, states);
 }

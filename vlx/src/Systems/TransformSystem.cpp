@@ -5,10 +5,8 @@ using namespace vlx;
 TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_TRANSFORM)
 {
-	m_system.Action([this](std::span<const EntityID> entities, Transform* transforms, Relation* relations)
+	m_system.Action([this](std::span<const EntityID> entities, Relation* relations, Transform* transforms)
 		{
-			Update();
-
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
 				
@@ -53,24 +51,23 @@ void TransformSystem::DetachChild(const EntityID parent_id, const EntityID child
 
 void TransformSystem::Update()
 {
+	PreUpdate();
+	m_entity_admin->RunSystems(LYR_TRANSFORM);
+}
+
+void TransformSystem::PreUpdate()
+{
 	while (!m_detachments.empty()) // detach all relations first
 	{
 		auto& pair = m_detachments.front();
-
-		const EntityID parent = pair.first;
-		const EntityID child = pair.second;
-
 		DetachChild(pair.first, pair.second);
-
 		m_detachments.pop();
 	}
 
 	while (!m_attachments.empty())
 	{
 		auto& pair = m_attachments.front();
-
 		AttachChild(pair.first, pair.second);
-
 		m_attachments.pop();
 	}
 }

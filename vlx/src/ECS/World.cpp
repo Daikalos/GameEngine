@@ -9,9 +9,9 @@ World::World() : m_entity_admin(), m_object_system(m_entity_admin), m_transform_
 
 void World::Run()
 {
-	m_entity_admin.RunSystems(LYR_TRANSFORM);
-	m_entity_admin.RunSystems(LYR_OBJECTS);
-	m_entity_admin.RunSystems(LYR_RENDERING);
+	m_object_system.Update();
+	m_transform_system.Update();
+	m_render_system.Update();
 }
 
 void World::draw(sf::RenderTarget& target, const sf::RenderStates& states) const

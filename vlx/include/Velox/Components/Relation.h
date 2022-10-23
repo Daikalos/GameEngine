@@ -14,8 +14,6 @@ namespace vlx
 	class VELOX_API Relation : public IComponent
 	{
 	public:
-		void Created(const EntityAdmin& entity_admin, const EntityID entity_id) override;
-		void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
