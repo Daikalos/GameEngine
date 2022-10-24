@@ -8,11 +8,11 @@
 
 #include <Velox/Components/GameObject.h>
 
-#include "ISystemMaster.h"
+#include "ISystemObject.h"
 
 namespace vlx
 {
-	class ObjectSystem : public ISystemMaster
+	class ObjectSystem : public ISystemObject
 	{
 	private:
 		enum CommandType : std::uint8_t
@@ -55,7 +55,7 @@ namespace vlx
 		VELOX_API void Update() override;
 
 	private:
-		VELOX_API void PostUpdate() override;
+		VELOX_API void PostUpdate();
 
 	public:
 		template<IsComponent C>

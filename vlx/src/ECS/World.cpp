@@ -7,7 +7,7 @@ World::World() : m_entity_admin(), m_object_system(m_entity_admin), m_transform_
 	
 }
 
-void World::Run()
+void World::Update()
 {
 	m_object_system.Update();
 	m_transform_system.Update();

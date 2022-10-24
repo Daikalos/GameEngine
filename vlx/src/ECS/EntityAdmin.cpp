@@ -302,7 +302,7 @@ void EntityAdmin::Shrink(bool extensive)
 	}
 }
 
-void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id)
+void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id) // TODO: fix ugly duplicate code that may cause future issues
 {
 	assert(m_component_map.contains(add_component_id)); // component should be registered
 

@@ -267,10 +267,7 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		const ComponentTypeID component_id = ComponentAlloc<C>::GetTypeID();
-
-		if (!m_component_map.contains(component_id))
-			m_component_map.emplace(component_id, std::make_unique<ComponentAlloc<C>>());
+		m_component_map.try_emplace(ComponentAlloc<C>::GetTypeID(), std::make_unique<ComponentAlloc<C>>());
 	}
 
 	template<IsComponent C>

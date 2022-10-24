@@ -5,13 +5,20 @@ using namespace vlx;
 TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_TRANSFORM)
 {
-	m_system.Action([this](std::span<const EntityID> entities, Relation* relations, Transform* transforms)
+	m_system.Action([this](std::span<const EntityID> entities, Transform* transforms)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
 				
 			}
 		});
+}
+
+void TransformSystem::SetPositionGlobal(const EntityID entity_id, const sf::Vector2f& position)
+{
+	Transform& transform = m_entity_admin->GetComponent<Transform>(entity_id);
+
+
 }
 
 void TransformSystem::AttachInstant(const EntityID parent, const EntityID child)
@@ -36,15 +43,15 @@ void TransformSystem::DetachDelay(const EntityID parent, const EntityID child)
 
 void TransformSystem::AttachChild(const EntityID parent_id, const EntityID child_id)
 {
-	Relation& parent = m_entity_admin->GetComponent<Relation>(parent_id);
-	Relation& child = m_entity_admin->GetComponent<Relation>(child_id);
+	Transform& parent = m_entity_admin->GetComponent<Transform>(parent_id);
+	Transform& child = m_entity_admin->GetComponent<Transform>(child_id);
 
 	parent.AttachChild(*m_entity_admin, parent_id, child_id, child);
 }
 void TransformSystem::DetachChild(const EntityID parent_id, const EntityID child_id)
 {
-	Relation& parent = m_entity_admin->GetComponent<Relation>(parent_id);
-	Relation& child = m_entity_admin->GetComponent<Relation>(child_id);
+	Transform& parent = m_entity_admin->GetComponent<Transform>(parent_id);
+	Transform& child = m_entity_admin->GetComponent<Transform>(child_id);
 
 	parent.DetachChild(*m_entity_admin, parent_id, child_id, child);
 }

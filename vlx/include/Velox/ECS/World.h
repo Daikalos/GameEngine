@@ -20,7 +20,7 @@ namespace vlx
 	public:
 		World();
 
-		void Run();
+		void Update();
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 		EntityAdmin& GetEntityAdmin() noexcept;

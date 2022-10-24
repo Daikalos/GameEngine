@@ -6,18 +6,18 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
+#include "Relation.hpp"
+
 namespace vlx
 {
 	//////////////////////////////////////////////
 	// Basic transform
 	//////////////////////////////////////////////
-	class VELOX_API Transform : public IComponent
+	class VELOX_API Transform : public Relation<Transform>
 	{ 
 	public:
 		Transform();
 		Transform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation);
-
-		~Transform();
 
 	public:
 		//////////////////////////////////////////////
@@ -38,7 +38,7 @@ namespace vlx
 		[[nodiscard]] const sf::Angle& GetLocalRotation() const;
 
 		void SetOrigin(const sf::Vector2f& origin);
-		void SetPosition(const sf::Vector2f& position, bool global = true);
+		void SetPosition(const sf::Vector2f& position);
 		void SetScale(const sf::Vector2f& scale);
 		void SetRotation(const sf::Angle angle);
 
@@ -66,12 +66,12 @@ namespace vlx
 
 		mutable sf::Transform	m_local_transform;
 		mutable sf::Transform	m_inverse_local_transform;
-		mutable bool			m_update_local_transform		{true};
-		mutable bool			m_update_inverse_local_transform{true};
+		mutable bool			m_update_local				{true};
+		mutable bool			m_update_inverse_local		{true};
 
 		mutable sf::Transform	m_model_transform; // combined transform of all parents and this (global space)
 		mutable sf::Transform	m_inverse_model_transform;
-		mutable bool			m_update_model_transform		{true};
-		mutable bool			m_update_inverse_model_transform{true};
+		mutable bool			m_update_model				{true};
+		mutable bool			m_update_inverse_model		{true};
 	};
 }

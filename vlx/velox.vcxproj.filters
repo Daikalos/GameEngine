@@ -20,7 +20,6 @@
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
-    <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
@@ -75,13 +74,13 @@
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
-    <ClInclude Include="include\Velox\Components\Relation.h" />
+    <ClInclude Include="include\Velox\Components\Relation.hpp" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Components\GameObject.h" />
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
-    <ClInclude Include="include\Velox\Systems\ISystemMaster.h" />
+    <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

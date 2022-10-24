@@ -155,7 +155,7 @@
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Components\GameObject.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
-    <ClInclude Include="include\Velox\Components\Relation.h" />
+    <ClInclude Include="include\Velox\Components\Relation.hpp" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -186,7 +186,7 @@
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
     <ClInclude Include="include\Velox\Scene\State.hpp" />
     <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
-    <ClInclude Include="include\Velox\Systems\ISystemMaster.h" />
+    <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
@@ -210,7 +210,6 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
