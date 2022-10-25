@@ -169,6 +169,15 @@ void Transform::Rotate(const sf::Angle angle)
 	SetRotation(GetLocalRotation() + angle);
 }
 
+void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
+{
+
+}
+void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
+{
+
+}
+
 void Transform::UpdateTransforms() const
 {
 	if (HasParent())

@@ -16,8 +16,13 @@ namespace vlx
 	class Relation : public IComponent
 	{
 	public:
-		virtual ~Relation() = 0;
+		virtual ~Relation() = 0; // to make abstract
+
+	protected:
 		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+
+		virtual void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child) {}
+		virtual void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child) {}
 
 	public:
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
@@ -26,8 +31,8 @@ namespace vlx
 		[[nodiscard]] bool HasParent() const noexcept;
 
 	private:
-		void PropagateAttach(const EntityAdmin& entity_admin, const EntityID entity_id);
-		void PropagateDetach(const EntityAdmin& entity_admin, const EntityID entity_id);
+		void PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child);
+		void PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child);
 
 	protected:
 		EntityID						m_parent	{NULL_ENTITY};
@@ -58,7 +63,8 @@ namespace vlx
 	template<class T>
 	inline void Relation<T>::AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child)
 	{
-		assert(!m_closed.contains(child_id));
+		if (m_closed.contains(child_id))
+			throw std::runtime_error("The new parent cannot be a descendant of the child");
 
 		if (child.m_parent == entity_id) // child is already correctly parented
 			return;
@@ -78,8 +84,8 @@ namespace vlx
 		child.m_parent = entity_id;
 		m_children.push_back(child_id);
 
-		PropagateAttach(entity_admin, child_id);
-		child.PropagateInvalidation(entity_admin);
+		PropagateAttach(entity_admin, child_id, child);
+		child.OnAttach(entity_admin, entity_id, child_id, child);
 	}
 
 	template<class T>
@@ -90,11 +96,13 @@ namespace vlx
 		if (found == m_children.end())
 			return NULL_ENTITY;
 
-		PropagateDetach(entity_admin, child_id);
-		child.PropagateInvalidation(entity_admin);
+		PropagateDetach(entity_admin, child_id, child);
+		child.OnDetach(entity_admin, entity_id, child_id, child);
 
 		child.m_parent = NULL_ENTITY;
 		m_children.erase(found);
+
+		return child_id;
 	}
 
 	template<class T>
@@ -104,28 +112,40 @@ namespace vlx
 	}
 
 	template<class T>
-	inline void Relation<T>::PropagateAttach(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void Relation<T>::PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child)
 	{
-		m_closed.insert(entity_id);
+#if _DEBUG // check so that it does not exist
+		assert(!m_closed.contains(child_id));
+		for (const EntityID entity : child.m_closed)
+			assert(!m_closed.contains(entity));
+#endif
+
+		m_closed.insert(child_id); // add child and all of its descendants
+		m_closed.insert(child.m_closed.begin(), child.m_closed.end());
 
 		if (HasParent())
 		{
 			static_cast<Relation&>(entity_admin.GetComponent<T>(m_parent))
-				.PropagateAttach(entity_admin, entity_id);
+				.PropagateAttach(entity_admin, child_id, child);
 		}
 	}
 
 	template<class T>
-	inline void Relation<T>::PropagateDetach(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void Relation<T>::PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child)
 	{
-		auto it = m_closed.find(entity_id);
-		assert(it != m_closed.end());
-		m_closed.erase(it);
+#if _DEBUG // check so that they do exist
+		assert(m_closed.contains(child_id));
+		for (const EntityID entity : child.m_closed)
+			assert(m_closed.contains(entity));
+#endif
+
+		m_closed.erase(child_id); // remove child and all of its descendants
+		m_closed.erase(child.m_closed.begin(), child.m_closed.end());
 
 		if (HasParent())
 		{
 			static_cast<Relation&>(entity_admin.GetComponent<T>(m_parent))
-				.PropagateDetach(entity_admin, entity_id);
+				.PropagateDetach(entity_admin, child_id, child);
 		}
 	}
 }

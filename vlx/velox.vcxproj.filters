@@ -81,6 +81,7 @@
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
     <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
+    <ClInclude Include="include\Velox\ECS\ComponentHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

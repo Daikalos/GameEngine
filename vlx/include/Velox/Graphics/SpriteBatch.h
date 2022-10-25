@@ -13,7 +13,7 @@
 
 namespace vlx
 {
-	constexpr std::size_t TRIANGLE_COUNT = 3;
+	constexpr std::uint8_t TRIANGLE_COUNT = 3;
 
 	enum class BatchMode : std::uint8_t
 	{
@@ -43,7 +43,7 @@ namespace vlx
 		{
 			const sf::Texture*	texture	{nullptr};
 			const sf::Shader*	shader	{nullptr};
-			std::uint32_t		count	{0};
+			SizeType			count	{0};
 		};
 
 	public:

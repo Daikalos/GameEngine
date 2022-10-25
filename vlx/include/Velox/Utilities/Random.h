@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Concepts.h"
-
 #include <type_traits>
 #include <random>
 #include <chrono>
 #include <array>
 #include <numeric>
+
+#include "Concepts.h"
 
 namespace vlx::rnd
 {

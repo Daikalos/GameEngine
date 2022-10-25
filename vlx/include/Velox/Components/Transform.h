@@ -47,6 +47,9 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
+		void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
+		void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
+
 		void UpdateTransforms() const;
 		void UpdateRequired() const;
 

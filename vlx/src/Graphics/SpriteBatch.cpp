@@ -94,7 +94,7 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 	}
 
 	sf::RenderStates states_copy(states);
-	for (std::size_t i = 0, start = 0; i < m_batches.size(); ++i)
+	for (SizeType i = 0, start = 0; i < m_batches.size(); ++i)
 	{
 		states_copy.texture = m_batches[i].texture;
 		states_copy.shader = m_batches[i].shader;
@@ -167,7 +167,7 @@ void SpriteBatch::CreateBatches() const
 	const sf::Texture* last_texture = m_triangles[m_proxy.front()].texture;
 	const sf::Shader* last_shader = m_triangles[m_proxy.front()].shader;
 
-	std::size_t start = 0, next = 0;
+	SizeType start = 0, next = 0;
 	for (; next < m_proxy.size(); ++next)
 	{
 		const Triangle& triangle = m_triangles[m_proxy[next]];
@@ -182,14 +182,14 @@ void SpriteBatch::CreateBatches() const
 			start = next;
 		}
 
-		for (std::size_t i = 0; i < TRIANGLE_COUNT; ++i)
+		for (std::uint8_t i = 0; i < TRIANGLE_COUNT; ++i)
 			m_vertices[next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 
 	if (start != m_triangles.size()) // deal with leftover
 	{
 		const Triangle& triangle = m_triangles[m_proxy[start]];
-		m_batches.emplace_back(triangle.texture, triangle.shader, (m_triangles.size() - start) * TRIANGLE_COUNT);
+		m_batches.emplace_back(triangle.texture, triangle.shader, ((SizeType)m_triangles.size() - start) * TRIANGLE_COUNT);
 	}
 }
 

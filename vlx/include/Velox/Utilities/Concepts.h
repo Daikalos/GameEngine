@@ -3,12 +3,12 @@
 #include <concepts>
 #include <filesystem>
 
-#include <Velox/ECS/IComponent.h>
-
 #include "Traits.h"
 
 namespace vlx // concepts is the best thing ever
 {
+	class IComponent;
+
 	template<typename T>
 	concept Arithmetic = std::is_arithmetic_v<T>;
 

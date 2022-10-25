@@ -6,17 +6,15 @@
 
 #include "Identifiers.hpp"
 #include "TypeIdGenerator.hpp"
+#include "IComponent.h"
 
 namespace vlx
 {
 	class EntityAdmin;
 
-	////////////////////////////////////////////////////////////
-	// 
-	// ComponentAlloc is a helper class for constructing and moving
-	// data depending on a specific type
-	// 
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	/// ComponentAlloc is a helper class for altering data according to a specific type
+	/// </summary>
 	struct IComponentAlloc
 	{
 		virtual void ConstructData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
@@ -46,22 +44,22 @@ namespace vlx
 	void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = new (data) C();
-		data_location->Created(entity_admin, entity_id);
+		static_cast<IComponent*>(data_location)->Created(entity_admin, entity_id);
 	}
 
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::DestroyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
-		data_location->Destroyed(entity_admin, entity_id);
-		data_location->~C();
+		static_cast<IComponent*>(data_location)->Destroyed(entity_admin, entity_id);
+		data_location->~C(); // now destroy
 	}
 
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::MoveData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
 		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
-		data_location->Moved(entity_admin, entity_id);
+		static_cast<IComponent*>(data_location)->Moved(entity_admin, entity_id);
 	}
 
 	template<IsComponent C>
