@@ -2,6 +2,8 @@
 
 #include <Velox/Utilities.hpp>
 
+#include "Identifiers.hpp"
+
 namespace vlx
 {
 	class EntityAdmin;
@@ -11,10 +13,6 @@ namespace vlx
 	public:
 		virtual ~IComponentProxy() = default;
 		virtual void Reset() = 0;
-
-	protected:
-		const EntityAdmin*	m_entity_admin	{nullptr};
-		EntityID			m_entity_id		{NULL_ENTITY};
 	};
 
 	/// <summary>
@@ -37,7 +35,10 @@ namespace vlx
 		const C* operator->() const;
 
 	private:
-		C* m_component {nullptr};
+		const EntityAdmin*	m_entity_admin{ nullptr };
+		EntityID			m_entity_id{ NULL_ENTITY };
+
+		C*					m_component {nullptr};
 	};
 
 	template<IsComponent C>

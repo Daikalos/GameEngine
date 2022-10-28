@@ -42,6 +42,8 @@ namespace vlx
 	private:
 		template<IsComponent>
 		friend struct ComponentAlloc;
+
+		friend class EntityAdmin;
 	};
 
 	inline IComponent::~IComponent() = default;

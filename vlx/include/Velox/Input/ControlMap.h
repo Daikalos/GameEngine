@@ -49,7 +49,7 @@ namespace vlx
 	template<std::derived_from<InputHandler> T>
 	inline T& ControlMap::Get()
 	{
-		return const_cast<T&>(std::as_const(*this).Get());
+		return const_cast<T&>(std::as_const(*this).Get<T>());
 	}
 
 	template<std::derived_from<InputHandler> T, typename... Args>

@@ -79,12 +79,12 @@ namespace vlx
 		template<IsComponent C>
 		C& GetComponent(const EntityID entity_id) const;
 		template<IsComponent C>
-		bool TryGetComponent(const EntityID entity_id, C* component) const;
+		bool TryGetComponent(const EntityID entity_id, C*& component) const;
 
 		template<IsComponent C>
 		ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
 		template<IsComponent C>
-		bool TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>* component_proxy) const;
+		bool TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>*& component_proxy) const;
 
 		template<IsComponent C>
 		bool HasComponent(const EntityID entity_id) const;
@@ -309,7 +309,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool EntityAdmin::TryGetComponent(const EntityID entity_id, C* component) const
+	inline bool EntityAdmin::TryGetComponent(const EntityID entity_id, C*& component) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -352,7 +352,7 @@ namespace vlx
 		if (cit == cmps.end()) // it does not yet exist, create new one
 		{
 			IComponentProxy* added_proxy = cmps.emplace(
-				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id)).first.get();
+				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id)).first->second.get();
 
 			return *static_cast<ComponentProxy<C>*>(added_proxy);
 		}
@@ -361,7 +361,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool EntityAdmin::TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>* component_proxy) const
+	inline bool EntityAdmin::TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>*& component_proxy) const
 	{
 		assert(IsComponentRegistered<C>());
 
@@ -377,7 +377,7 @@ namespace vlx
 			auto [it, success] = eit->second.try_emplace(
 				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id));
 
-			if (!success)
+			if (!success) // should not happen
 				return false;
 
 			return (component_proxy = static_cast<ComponentProxy<C>*>(it->get()));

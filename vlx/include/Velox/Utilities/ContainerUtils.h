@@ -34,7 +34,7 @@ namespace vlx::cu
 	}
 
 	template<class T>
-	[[nodiscard]] static constexpr bool SwapPop(std::vector<T>& vector, const T& compare)
+	static constexpr bool SwapPop(std::vector<T>& vector, const T& compare)
 	{
 		auto it = std::find(vector.begin(), vector.end(), compare);
 
@@ -48,7 +48,7 @@ namespace vlx::cu
 	}
 
 	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	[[nodiscard]] static constexpr bool SwapPop(std::vector<T>& vector, Pred&& pred)
+	static constexpr bool SwapPop(std::vector<T>& vector, Pred&& pred)
 	{
 		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 

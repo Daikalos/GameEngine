@@ -9,7 +9,7 @@ namespace vlx
 	/// </summary>
 	struct GameObject : public IComponent
 	{
-		bool is_alive{true};
-		bool is_static{false};
+		bool is_alive	{true};
+		bool is_static	{false};
 	};
 }

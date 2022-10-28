@@ -23,11 +23,12 @@ namespace vlx
 	{
 	private:
 		using VertexArray = std::array<sf::Vertex, 4>;
+		using TextureRect = sf::Rect<std::uint16_t>;
 
 	public:
 		Sprite();
 		Sprite(const sf::Texture& texture, float depth = 0.0f);
-		Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const TextureRect& rect, float depth = 0.0f);
 
 		void Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const override;
 
@@ -35,7 +36,7 @@ namespace vlx
 		[[nodiscard]] const sf::Texture* GetTexture() const noexcept;
 		[[nodiscard]] const sf::Shader* GetShader() const noexcept;
 		[[nodiscard]] const VertexArray& GetVertices() const noexcept;
-		[[nodiscard]] const sf::IntRect& GetTextureRect() const noexcept;
+		[[nodiscard]] const TextureRect& GetTextureRect() const noexcept;
 		[[nodiscard]] const float& GetDepth() const noexcept;
 
 		[[nodiscard]] const sf::FloatRect GetLocalBounds() const noexcept;
@@ -43,10 +44,9 @@ namespace vlx
 		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 
 		void SetTexture(const sf::Texture& texture, bool reset_rect = false);
-		void SetTextureRect(const sf::IntRect& rect);
+		void SetTextureRect(const TextureRect& rect);
 		void SetColor(const sf::Color& color);
 		void SetDepth(const float value) noexcept;
-		void SetBatch(const bool flag);
 
 	private:
 		void UpdatePositions();
@@ -56,8 +56,7 @@ namespace vlx
 		const sf::Texture*	m_texture		{nullptr};
 		const sf::Shader*	m_shader		{nullptr};
 		VertexArray			m_vertices;
-		sf::IntRect			m_texture_rect;
+		TextureRect			m_texture_rect;
 		float				m_depth			{0.0f};
-		bool				m_batch			{true};
 	};
 }

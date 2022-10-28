@@ -13,7 +13,7 @@ Sprite::Sprite(const sf::Texture& texture, float depth) : m_depth(depth)
 	SetTexture(texture, true);
 }
 
-Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, const TextureRect& rect, float depth) : m_depth(depth)
 {
 	SetTextureRect(rect);
 	SetTexture(texture);
@@ -21,8 +21,7 @@ Sprite::Sprite(const sf::Texture& texture, const sf::IntRect& rect, float depth)
 
 void Sprite::Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const
 {
-	if (m_batch)
-		sprite_batch.Batch(transform, m_vertices.data(), m_vertices.size(), GetPrimitive(), m_texture, m_shader, m_depth);
+	sprite_batch.Batch(transform, m_vertices.data(), m_vertices.size(), GetPrimitive(), m_texture, m_shader, m_depth);
 }
 
 const sf::Texture* Sprite::GetTexture() const noexcept
@@ -37,7 +36,7 @@ const Sprite::VertexArray& Sprite::GetVertices() const noexcept
 {
 	return m_vertices;
 }
-const sf::IntRect& Sprite::GetTextureRect() const noexcept
+const Sprite::TextureRect& Sprite::GetTextureRect() const noexcept
 {
 	return m_texture_rect;
 }
@@ -79,17 +78,17 @@ const sf::Vector2f Sprite::GetSize() const noexcept
 }
 constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 {
-	return sf::TriangleStrip;
+	return sf::TriangleStrip; // all common sprites use triangle strip
 }
 
 void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect)
 {
-	if (reset_rect || (!m_texture && (m_texture_rect == sf::IntRect())))
-		SetTextureRect(sf::IntRect({ 0,0 }, { sf::Vector2i(texture.getSize()) }));
+	if (reset_rect || (!m_texture && (m_texture_rect == TextureRect())))
+		SetTextureRect(TextureRect({ 0U, 0U }, sf::Vector2<std::uint16_t>(texture.getSize())));
 
 	m_texture = &texture;
 }
-void Sprite::SetTextureRect(const sf::IntRect& rect)
+void Sprite::SetTextureRect(const TextureRect& rect)
 {
 	if (m_texture_rect != rect)
 	{
@@ -106,10 +105,6 @@ void Sprite::SetColor(const sf::Color& color)
 void Sprite::SetDepth(const float val) noexcept
 {
 	m_depth = val;
-}
-void Sprite::SetBatch(const bool flag)
-{
-	m_batch = flag;
 }
 
 void Sprite::UpdatePositions()

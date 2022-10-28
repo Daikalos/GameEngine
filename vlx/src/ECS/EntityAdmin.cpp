@@ -1,7 +1,7 @@
 #include <Velox/ECS/EntityAdmin.h>
 
 #include <Velox/ECS/Entity.h>
-#include <Velox/ECS/ComponentProxy.h>
+#include <Velox/ECS/ComponentProxy.hpp>
 
 using namespace vlx;
 
@@ -439,6 +439,7 @@ void EntityAdmin::Shrink(bool extensive)
 				for (const EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
+					m_entity_component_proxy_map.erase(entity_id);
 					m_reusable_entity_ids.push(entity_id);
 				}
 
@@ -452,18 +453,19 @@ void EntityAdmin::Shrink(bool extensive)
 	{
 		for (std::size_t i = 0; i < m_archetypes.size(); ++i)
 		{
-			const ArchetypePtr& archetype = m_archetypes[i];
-			const ComponentIDs& archetype_id = archetype->type;
+			const ArchetypePtr& archetype		= m_archetypes[i];
+			const ComponentIDs& archetype_id	= archetype->type;
 
 			for (std::size_t j = 0; j < archetype_id.size(); ++j)
 			{
 				const ComponentTypeID& component_id = archetype->type[i];
-				const IComponentAlloc* component = m_component_map[component_id].get();
-				const std::size_t& component_size = component->GetSize();
+				const IComponentAlloc* component	= m_component_map[component_id].get();
+				const std::size_t& component_size	= component->GetSize();
 
 				const std::size_t current_size = archetype->entities.size() * component_size;
+				const std::size_t current_capacity = archetype->component_data_size[j];
 
-				if (archetype->component_data_size[j] > current_size)
+				if (current_capacity > current_size)
 				{
 					archetype->component_data_size[j] = current_size;
 					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);

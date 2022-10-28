@@ -7,8 +7,6 @@
 
 namespace vlx // concepts is the best thing ever
 {
-	class IComponent;
-
 	template<typename T>
 	concept Arithmetic = std::is_arithmetic_v<T>;
 
@@ -56,6 +54,10 @@ namespace vlx // concepts is the best thing ever
 
 	template<class Lambda, typename T, std::size_t... Index>
 	concept SameTypeParameter = (std::same_as<T, std::decay_t<typename traits::FunctionTraits<Lambda>::template arg_type<Index>>> && ...);
+
+	// UNIQUE
+
+	class IComponent;
 
 	template<class Resource>
 	concept IsLoadable = requires(Resource resource)

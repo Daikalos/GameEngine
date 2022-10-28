@@ -15,11 +15,14 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
+	entity_admin.RegisterComponent<Velocity>();
 
 	Entity entity = m_world.GetObjectSystem().CreateObject();
-	entity.AddComponent<Sprite>();
+	entity.AddComponent<Velocity>(sf::Vector2f(0.5f, 0.3f));
 
-	ComponentProxy<Sprite>& proxy = entity_admin.GetComponentProxy<Sprite>(entity.GetID());
+	ComponentProxy<Velocity>& proxy = entity_admin.GetComponentProxy<Velocity>(entity.GetID());
+
+	std::puts(std::to_string(proxy->velocity.x).c_str());
 
 	m_window.Initialize();
 
