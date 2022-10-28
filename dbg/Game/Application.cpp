@@ -20,9 +20,10 @@ void Application::Run()
 	Entity entity = m_world.GetObjectSystem().CreateObject();
 	entity.AddComponent<Velocity>(sf::Vector2f(0.5f, 0.3f));
 
-	ComponentProxy<Velocity>& proxy = entity_admin.GetComponentProxy<Velocity>(entity.GetID());
+	ComponentProxy<Velocity>* proxy;
+	entity_admin.TryGetComponentProxy<Velocity>(entity.GetID(), proxy);
 
-	std::puts(std::to_string(proxy->velocity.x).c_str());
+	std::puts(std::to_string(proxy->Get()->velocity.x).c_str());
 
 	m_window.Initialize();
 

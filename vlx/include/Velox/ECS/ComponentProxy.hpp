@@ -23,6 +23,7 @@ namespace vlx
 	class ComponentProxy final : public IComponentProxy
 	{
 	public:
+		ComponentProxy();
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	public:
@@ -40,6 +41,9 @@ namespace vlx
 
 		C*					m_component {nullptr};
 	};
+
+	template<IsComponent C>
+	inline ComponentProxy<C>::ComponentProxy() = default;
 
 	template<IsComponent C>
 	inline ComponentProxy<C>::ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id)

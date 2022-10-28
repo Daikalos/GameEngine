@@ -345,13 +345,12 @@ namespace vlx
 		assert(IsComponentRegistered<C>());
 
 		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
 
-		auto& cmps = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
-
-		const auto cit = cmps.find(component_id);
-		if (cit == cmps.end()) // it does not yet exist, create new one
+		const auto cit = component_proxies.find(component_id);
+		if (cit == component_proxies.end()) // it does not yet exist, create new one
 		{
-			IComponentProxy* added_proxy = cmps.emplace(
+			IComponentProxy* added_proxy = component_proxies.emplace(
 				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id)).first->second.get();
 
 			return *static_cast<ComponentProxy<C>*>(added_proxy);
@@ -365,22 +364,22 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>());
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
-
-		const auto eit = m_entity_component_proxy_map.find(entity_id);
-		if (eit == m_entity_component_proxy_map.end())
+		if (!m_entity_archetype_map.contains(entity_id))
 			return false;
 
-		const auto cit = eit->second.find(component_id);
-		if (cit == eit->second.end())
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+
+		const auto cit = component_proxies.find(component_id);
+		if (cit == component_proxies.end())
 		{
-			auto [it, success] = eit->second.try_emplace(
+			auto [it, success] = component_proxies.try_emplace(
 				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id));
 
 			if (!success) // should not happen
 				return false;
 
-			return (component_proxy = static_cast<ComponentProxy<C>*>(it->get()));
+			return (component_proxy = static_cast<ComponentProxy<C>*>(it->second.get()));
 		}
 
 		return (component_proxy = static_cast<ComponentProxy<C>*>(cit->second.get()));
