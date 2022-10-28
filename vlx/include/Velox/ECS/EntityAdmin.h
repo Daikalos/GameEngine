@@ -10,12 +10,16 @@
 
 #include "Identifiers.hpp"
 #include "Archetype.hpp"
-#include "ComponentAlloc.hpp"
 #include "System.hpp"
 
 namespace vlx
 {
 	class Entity;
+
+	struct IComponentAlloc;
+
+	template<IsComponent>
+	struct ComponentAlloc;
 
 	class IComponentProxy;
 
@@ -41,26 +45,29 @@ namespace vlx
 	private:
 		struct Record
 		{
-			Archetype*	archetype	{nullptr};
-			std::size_t index		{0}; // where in the archetype entity array is the entity located at
+			Archetype* archetype{ nullptr };
+			std::size_t index{ 0 }; // where in the archetype entity array is the entity located at
 		};
 
 		struct ArchetypeRecord
 		{
-			std::size_t column{0}; // where in the archetype's data is the component's data located at
+			std::size_t column{ 0 }; // where in the archetype's data is the component's data located at
 		};
 
-		using ComponentPtr		= std::unique_ptr<IComponentAlloc>;
+		using ComponentPtr = std::unique_ptr<IComponentAlloc>;
 		using ComponentProxyPtr = std::unique_ptr<IComponentProxy>;
-		using ArchetypePtr		= std::unique_ptr<Archetype>;
+		using ArchetypePtr = std::unique_ptr<Archetype>;
 
-		using SystemsArrayMap			= std::unordered_map<LayerType, std::vector<ISystem*>>;
-		using ArchetypesArray			= std::vector<ArchetypePtr>;
-		using ArchetypeMap				= std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
-		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
-		using EntityComponentProxyMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, ComponentProxyPtr>>;
-		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
-		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
+		using SystemsArrayMap = std::unordered_map<LayerType, std::vector<ISystem*>>;
+		using ArchetypesArray = std::vector<ArchetypePtr>;
+		using ArchetypeMap = std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
+		using EntityArchetypeMap = std::unordered_map<EntityID, Record>;
+		using EntityComponentProxyMap = std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, ComponentProxyPtr>>;
+		using ComponentTypeIDBaseMap = std::unordered_map<ComponentTypeID, ComponentPtr>;
+		using ComponentArchetypesMap = std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
+
+		template<IsComponent>
+		friend struct ComponentAlloc;
 
 	public:
 		VELOX_API EntityAdmin();
@@ -122,7 +129,11 @@ namespace vlx
 		template<IsComponents... Cs>
 		void Reserve(const std::size_t component_count);
 
-	public:		
+	private:
+		template<IsComponent C>
+		void ResetProxy(const EntityID entity_id) const;
+
+	public:
 		VELOX_API EntityID GetNewEntityID();
 
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
@@ -158,8 +169,10 @@ namespace vlx
 		VELOX_API void MakeRoom(
 			Archetype* archetype,
 			const IComponentAlloc* component,
-			const std::size_t data_size, 
+			const std::size_t data_size,
 			const std::size_t i);
+
+		VELOX_API void ResetProxy(const EntityID entity_id, const ComponentTypeID component_id) const;
 
 	private:
 		EntityID				m_entity_id_counter;	// current id counter for entities
@@ -174,7 +187,12 @@ namespace vlx
 
 		mutable EntityComponentProxyMap m_entity_component_proxy_map;
 	};
+}
 
+#include "ComponentAlloc.hpp"
+
+namespace vlx
+{
 	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
@@ -456,9 +474,9 @@ namespace vlx
 
 		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
 		{
-			const ComponentTypeID component_id = archetype->type[i];
-			const IComponentAlloc* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
+			const ComponentTypeID component_id	= archetype->type[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
 
 			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 
@@ -493,13 +511,19 @@ namespace vlx
 	template<IsComponents... Cs>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		Reserve(SortKeys({ { Component<Cs>::GetTypeID()... } }), component_count);
+		Reserve(SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }), component_count);
 	}
 
 	template<IsComponents... Cs>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
 		return GetEntitiesWith(SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }), restricted);
+	}
+
+	template<IsComponent C>
+	void EntityAdmin::ResetProxy(const EntityID entity_id) const
+	{
+		ResetProxy(entity_id, ComponentAlloc<C>::GetTypeID());
 	}
 }
 

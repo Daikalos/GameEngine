@@ -31,7 +31,6 @@ namespace vlx
 
 		template<IsComponent C>
 		C& GetComponent() const;
-
 		template<IsComponent C>
 		C* TryGetComponent() const;
 

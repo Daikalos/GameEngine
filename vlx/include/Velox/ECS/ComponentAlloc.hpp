@@ -29,17 +29,22 @@ namespace vlx
 	template<IsComponent C>
 	struct ComponentAlloc final : public IComponentAlloc
 	{
-		void ConstructData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
-		void DestroyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
-		void MoveData(				const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
-		void MoveDestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
-		void SwapData(				const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const override;
+		void ConstructData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
+		void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
+		void MoveData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
+		void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
+		void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const override;
 
 		[[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
 
 		[[nodiscard]] static const ComponentTypeID GetTypeID();
 	};
+}
 
+#include "EntityAdmin.h" // include here to use declarations
+
+namespace vlx
+{
 	template<IsComponent C>
 	void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
@@ -53,6 +58,8 @@ namespace vlx
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
 		static_cast<IComponent*>(data_location)->Destroyed(entity_admin, entity_id);
 		data_location->~C(); // now destroy
+
+		entity_admin.ResetProxy<C>(entity_id); // need to reset proxy now that the component has been altered
 	}
 
 	template<IsComponent C>
@@ -60,6 +67,8 @@ namespace vlx
 	{
 		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
 		static_cast<IComponent*>(data_location)->Moved(entity_admin, entity_id);
+
+		entity_admin.ResetProxy<C>(entity_id);
 	}
 
 	template<IsComponent C>
@@ -97,4 +106,3 @@ namespace vlx
 		return TypeIdGenerator<IComponentAlloc>::GetNewID<C>();
 	}
 }
-

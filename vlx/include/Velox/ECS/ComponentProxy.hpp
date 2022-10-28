@@ -26,9 +26,9 @@ namespace vlx
 		ComponentProxy();
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
-	public:
 		void Reset() override;
 
+	public:
 		C* Get();
 		const C* Get() const;
 

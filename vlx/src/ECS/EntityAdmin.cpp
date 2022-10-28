@@ -571,6 +571,19 @@ void EntityAdmin::MakeRoom(
 	archetype->component_data[i] = std::move(new_data);
 }
 
+void EntityAdmin::ResetProxy(const EntityID entity_id, const ComponentTypeID component_id) const
+{
+	const auto eit = m_entity_component_proxy_map.find(entity_id);
+	if (eit == m_entity_component_proxy_map.end())
+		return;
+
+	const auto cit = eit->second.find(component_id);
+	if (cit == eit->second.end())
+		return;
+
+	cit->second->Reset(); // finally reset
+}
+
 // -- old remove entity --
 // 
 //Record& record = it->second;
