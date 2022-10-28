@@ -3,14 +3,14 @@
 #include <unordered_set>
 #include <type_traits>
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/EntityAdmin.h>
 #include <Velox/Config.hpp>
 
 namespace vlx
 {
 	/// <summary>
-	/// Represents the relationship between entities that allows for scene graphs and possibly other things... 
-	/// Is NOT a standard component, rather a property that other components can inherit to allow this feature
+	///		Represents the relationship between entities that allows for scene graphs and possibly other things... 
+	///		Is NOT a standard component, rather a property that other components can inherit to allow this feature
 	/// </summary>
 	template<class T>
 	class Relation : public IComponent
@@ -19,6 +19,9 @@ namespace vlx
 		virtual ~Relation() = 0; // to make abstract
 
 	protected:
+		/// <summary>
+		///		When the relation is destroyed, we need to detach it accordingly
+		/// </summary>
 		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
 		virtual void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child) {}
@@ -28,7 +31,7 @@ namespace vlx
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 		const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 
-		[[nodiscard]] bool HasParent() const noexcept;
+		[[nodiscard]] constexpr bool HasParent() const noexcept;
 
 	private:
 		void PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child);
@@ -50,13 +53,13 @@ namespace vlx
 	{
 		if (!HasParent())
 		{
-			static_cast<Relation&>(entity_admin.GetComponent<T>(m_parent))
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(m_parent))
 				.DetachChild(entity_admin, m_parent, entity_id, *this);
 		}
 
 		for (const EntityID& child : m_children)
 		{
-			static_cast<Relation&>(entity_admin.GetComponent<T>(child)).m_parent = NULL_ENTITY;
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child)).m_parent = NULL_ENTITY;
 		}
 	}
 
@@ -71,13 +74,13 @@ namespace vlx
 
 		if (m_parent == child_id) // special case
 		{
-			static_cast<Relation&>(entity_admin.GetComponent<T>(m_parent))
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(m_parent))
 				.DetachChild(entity_admin, m_parent, entity_id, *this);
 		}
 
 		if (child.m_parent != NULL_ENTITY) // if child already has an attached parent we need to detach it
 		{
-			static_cast<Relation&>(entity_admin.GetComponent<T>(child.m_parent))
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child.m_parent))
 				.DetachChild(entity_admin, child.m_parent, child_id, child);
 		}
 
@@ -106,7 +109,7 @@ namespace vlx
 	}
 
 	template<class T>
-	inline bool Relation<T>::HasParent() const noexcept
+	inline constexpr bool Relation<T>::HasParent() const noexcept
 	{
 		return m_parent != NULL_ENTITY;
 	}
@@ -114,7 +117,7 @@ namespace vlx
 	template<class T>
 	inline void Relation<T>::PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child)
 	{
-#if _DEBUG // check so that it does not exist
+#ifdef VELOX_DEBUG // check so that it does not exist
 		assert(!m_closed.contains(child_id));
 		for (const EntityID entity : child.m_closed)
 			assert(!m_closed.contains(entity));
@@ -125,7 +128,7 @@ namespace vlx
 
 		if (HasParent())
 		{
-			static_cast<Relation&>(entity_admin.GetComponent<T>(m_parent))
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(m_parent))
 				.PropagateAttach(entity_admin, child_id, child);
 		}
 	}
@@ -133,7 +136,7 @@ namespace vlx
 	template<class T>
 	inline void Relation<T>::PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child)
 	{
-#if _DEBUG // check so that they do exist
+#ifdef VELOX_DEBUG // check so that they do exist
 		assert(m_closed.contains(child_id));
 		for (const EntityID entity : child.m_closed)
 			assert(m_closed.contains(entity));
@@ -144,7 +147,7 @@ namespace vlx
 
 		if (HasParent())
 		{
-			static_cast<Relation&>(entity_admin.GetComponent<T>(m_parent))
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(m_parent))
 				.PropagateDetach(entity_admin, child_id, child);
 		}
 	}

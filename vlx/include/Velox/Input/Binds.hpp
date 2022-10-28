@@ -69,11 +69,17 @@ namespace vlx
 	template<ArithEnum Bind, ArithEnum Reg>
 	inline const Reg& Binds<Bind, Reg>::operator[](const Bind name) const
 	{
-		return const_cast<Binds<Bind, Reg>*>(this)->operator[](name);
+		return m_binds[name];
 	}
 
 	template<ArithEnum Bind, ArithEnum Reg>
 	inline Reg& Binds<Bind, Reg>::At(Bind name)
+	{
+		return const_cast<Reg&>(std::as_const(*this).At(name));;
+	}
+
+	template<ArithEnum Bind, ArithEnum Reg>
+	inline const Reg& Binds<Bind, Reg>::At(Bind name) const
 	{
 		auto it = m_binds.find(name);
 
@@ -81,12 +87,6 @@ namespace vlx
 			throw std::runtime_error("value could not be found");
 
 		return it->second;
-	}
-
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline const Reg& Binds<Bind, Reg>::At(Bind name) const
-	{
-		return const_cast<Binds<Bind, Reg>*>(this)->At(name);
 	}
 
 	template<ArithEnum Bind, ArithEnum Reg>

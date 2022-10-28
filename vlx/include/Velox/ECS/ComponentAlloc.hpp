@@ -27,7 +27,7 @@ namespace vlx
 	};
 
 	template<IsComponent C>
-	struct ComponentAlloc : public IComponentAlloc
+	struct ComponentAlloc final : public IComponentAlloc
 	{
 		void ConstructData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
 		void DestroyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;

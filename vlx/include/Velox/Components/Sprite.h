@@ -4,7 +4,6 @@
 
 #include <Velox/Config.hpp>
 #include <Velox/Utilities.hpp>
-#include <Velox/Graphics/SpriteBatch.h>
 
 #include <Velox/ECS/IComponent.h>
 
@@ -13,6 +12,8 @@
 
 namespace vlx
 {
+	class SpriteBatch;
+
 	////////////////////////////////////////////////////////////
 	// Custom sprite that is very similar to SFML's except that
 	// it has depth and no transform as to be suitable for 

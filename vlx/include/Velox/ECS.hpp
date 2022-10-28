@@ -8,3 +8,5 @@
 #include "ECS/Entity.h"
 #include "ECS/EntityAdmin.h"
 #include "ECS/IComponent.h"
+
+#include "ECS/ComponentProxy.h"

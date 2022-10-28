@@ -16,29 +16,6 @@ Transform::Transform(const sf::Vector2f& position, const sf::Vector2f& scale, co
 
 const sf::Transform& Transform::GetTransform() const
 {
-	if (m_update_model)
-	{
-		UpdateTransforms();
-
-		// extract global position, rotation, and scale from the global matrix
-
-		const float* matrix = m_model_transform.getMatrix();
-
-		const auto mv = [&matrix](const int x, const int y) -> float
-		{
-			constexpr int width = 4;
-			return matrix[x + y * width];
-		};
-
-		m_global_position.x = mv(0, 3);
-		m_global_position.y = mv(1, 3);
-
-		m_global_scale.x = au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0));
-		m_global_scale.y = au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1));
-
-		m_global_rotation = sf::radians(std::atan2f(mv(1, 0), mv(1, 1)));
-	}
-
 	return m_model_transform;
 }
 const sf::Transform& Transform::GetInverseTransform() const
@@ -125,7 +102,8 @@ void Transform::SetOrigin(const sf::Vector2f& origin)
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	UpdateRequired();
+	m_update_model = true;
+	m_update_inverse_model = true;
 }
 void Transform::SetPosition(const sf::Vector2f& position)
 {
@@ -134,7 +112,8 @@ void Transform::SetPosition(const sf::Vector2f& position)
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	UpdateRequired();
+	m_update_model = true;
+	m_update_inverse_model = true;
 }
 void Transform::SetScale(const sf::Vector2f& scale) 
 {
@@ -143,7 +122,8 @@ void Transform::SetScale(const sf::Vector2f& scale)
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	UpdateRequired();
+	m_update_model = true;
+	m_update_inverse_model = true;
 }
 void Transform::SetRotation(const sf::Angle angle)
 {
@@ -152,7 +132,8 @@ void Transform::SetRotation(const sf::Angle angle)
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	UpdateRequired();
+	m_update_model = true;
+	m_update_inverse_model = true;
 }
 
 void Transform::Move(const sf::Vector2f& move)
@@ -169,35 +150,65 @@ void Transform::Rotate(const sf::Angle angle)
 	SetRotation(GetLocalRotation() + angle);
 }
 
-void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
+void Transform::OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
 {
-
+	static_cast<Transform&>(child).UpdateRequired(entity_admin); // crtp
 }
-void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
+void Transform::OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
 {
-
+	static_cast<Transform&>(child).UpdateRequired(entity_admin);
 }
 
-void Transform::UpdateTransforms() const
+void Transform::UpdateTransforms(const EntityAdmin& entity_admin) const
 {
 	if (HasParent())
-		ComputeTransform(m_parent->GetTransform());
+	{
+		const Transform& parent_transform = entity_admin.GetComponent<Transform>(m_parent);
+
+		parent_transform.UpdateTransforms(entity_admin);
+		ComputeTransform(parent_transform.GetTransform());
+
+		const float* matrix = m_model_transform.getMatrix();
+
+		const auto mv = [&matrix](const int x, const int y) -> float
+		{
+			constexpr int width = 4;
+			return matrix[x + y * width];
+		};
+
+		m_global_position.x = mv(0, 3);
+		m_global_position.y = mv(1, 3);
+
+		m_global_scale.x = au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0));
+		m_global_scale.y = au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1));
+
+		m_global_rotation = sf::radians(std::atan2f(mv(1, 0), mv(1, 1)));
+	}
 	else
+	{
 		ComputeTransform();
+
+		m_global_position = m_position;
+		m_global_scale = m_scale;
+		m_global_rotation = m_rotation;
+	}
 
 	m_update_model = false;
 
-	for (const Transform* child : m_children)
-		child->UpdateTransforms();
+	for (const EntityID child_id : m_children)
+		entity_admin.GetComponent<Transform>(child_id).UpdateTransforms(entity_admin);
 }
 
-void Transform::UpdateRequired() const
+void Transform::UpdateRequired(const EntityAdmin& entity_admin) const
 {
 	m_update_model = true;
 	m_update_inverse_model = true;
 
-	for (const Transform* transform : m_children) // all of the children needs their global transform to be updated
-		transform->UpdateRequired();
+	for (const EntityID entity : m_children) // all of the children needs their global transform to be updated
+	{
+		entity_admin.GetComponent<Transform>(entity)
+			.UpdateRequired(entity_admin);
+	}
 }
 
 void Transform::ComputeTransform() const

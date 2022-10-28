@@ -10,9 +10,6 @@
 
 namespace vlx
 {
-	//////////////////////////////////////////////
-	// Basic transform
-	//////////////////////////////////////////////
 	class VELOX_API Transform : public Relation<Transform>
 	{ 
 	public:
@@ -50,8 +47,8 @@ namespace vlx
 		void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
 		void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
 
-		void UpdateTransforms() const;
-		void UpdateRequired() const;
+		void UpdateTransforms(const EntityAdmin& entity_admin) const;
+		void UpdateRequired(const EntityAdmin& entity_admin) const;
 
 		void ComputeTransform() const;
 		void ComputeTransform(const sf::Transform& transform) const;
@@ -76,5 +73,7 @@ namespace vlx
 		mutable sf::Transform	m_inverse_model_transform;
 		mutable bool			m_update_model				{true};
 		mutable bool			m_update_inverse_model		{true};
+
+		friend class TransformSystem;
 	};
 }

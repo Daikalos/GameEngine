@@ -1,10 +1,9 @@
 #pragma once
 
-#include <Velox/Components/Transform.h>
-
 namespace vlx
 {
 	class SpriteBatch;
+	class Transform;
 
 	struct VELOX_API IBatchable
 	{

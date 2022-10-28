@@ -14,6 +14,13 @@ void Application::Run()
 {
 	//////////////////////-INITIALIZE-//////////////////////////
 
+	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
+
+	Entity entity = m_world.GetObjectSystem().CreateObject();
+	entity.AddComponent<Sprite>();
+
+	ComponentProxy<Sprite>& proxy = entity_admin.GetComponentProxy<Sprite>(entity.GetID());
+
 	m_window.Initialize();
 
 	m_camera.SetSize(sf::Vector2f(m_window.getSize()));

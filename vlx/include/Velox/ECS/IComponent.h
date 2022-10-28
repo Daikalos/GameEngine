@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Velox/ECS/Identifiers.hpp>
 #include <Velox/Utilities/Concepts.h>
 #include <Velox/Config.hpp>
+
+#include "Identifiers.hpp"
 
 namespace vlx
 {
@@ -14,9 +15,6 @@ namespace vlx
 	class VELOX_API IComponent
 	{
 	public:
-		template<IsComponent>
-		friend struct ComponentAlloc;
-
 		virtual ~IComponent() = 0; // to make the interface abstract
 
 	protected:
@@ -40,6 +38,10 @@ namespace vlx
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was removed</param>
 		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) {}
+
+	private:
+		template<IsComponent>
+		friend struct ComponentAlloc;
 	};
 
 	inline IComponent::~IComponent() = default;

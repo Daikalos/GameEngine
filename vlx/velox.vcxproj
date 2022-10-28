@@ -154,7 +154,7 @@
   <ItemGroup>
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Components\GameObject.h" />
-    <ClInclude Include="include\Velox\ECS\ComponentHandler.h" />
+    <ClInclude Include="include\Velox\ECS\ComponentProxy.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
     <ClInclude Include="include\Velox\Components\Relation.hpp" />
     <ClInclude Include="include\Velox\Config.hpp" />

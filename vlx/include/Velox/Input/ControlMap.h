@@ -16,9 +16,9 @@ namespace vlx
 	{
 	public:
 		template<std::derived_from<InputHandler> T>
-		auto& Get();
+		const T& Get() const;
 		template<std::derived_from<InputHandler> T>
-		const auto& Get() const;
+		T& Get();
 
 		////////////////////////////////////////////////////////////
 		// Add the type T that derives InputHandler to the controls,
@@ -41,15 +41,15 @@ namespace vlx
 	};
 
 	template<std::derived_from<InputHandler> T>
-	inline auto& ControlMap::Get()
+	inline const T& ControlMap::Get() const
 	{
 		return *static_cast<T*>(m_controls.at(typeid(T)).get());
 	}
 
 	template<std::derived_from<InputHandler> T>
-	inline const auto& ControlMap::Get() const
+	inline T& ControlMap::Get()
 	{
-		return const_cast<ControlMap*>(this)->Get<T>();
+		return const_cast<T&>(std::as_const(*this).Get());
 	}
 
 	template<std::derived_from<InputHandler> T, typename... Args>

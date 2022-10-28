@@ -1,5 +1,7 @@
 #include <Velox/Components/Sprite.h>
 
+#include <Velox/Graphics/SpriteBatch.h>
+
 using namespace vlx;
 
 static constexpr std::size_t VERTEX_COUNT = 4;
