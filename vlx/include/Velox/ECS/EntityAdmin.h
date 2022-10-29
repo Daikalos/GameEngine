@@ -394,7 +394,7 @@ namespace vlx
 			auto [it, success] = component_proxies.try_emplace(
 				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id));
 
-			if (!success) // should not happen
+			if (!success) // should not happen anyways
 				return false;
 
 			return (component_proxy = static_cast<ComponentProxy<C>*>(it->second.get()));
@@ -521,7 +521,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	void EntityAdmin::ResetProxy(const EntityID entity_id) const
+	inline void EntityAdmin::ResetProxy(const EntityID entity_id) const
 	{
 		ResetProxy(entity_id, ComponentAlloc<C>::GetTypeID());
 	}

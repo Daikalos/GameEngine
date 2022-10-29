@@ -23,15 +23,15 @@ void KeyboardInput::HandleEvent(const sf::Event& event)
 
 }
 
-[[nodiscard]] bool KeyboardInput::Held(const sf::Keyboard::Key key) const
+bool KeyboardInput::Held(const sf::Keyboard::Key key) const
 {
 	return m_current_state[key] && m_held_time[key] >= m_held_threshold;
 }
-[[nodiscard]] bool KeyboardInput::Pressed(const sf::Keyboard::Key key) const
+bool KeyboardInput::Pressed(const sf::Keyboard::Key key) const
 {
 	return m_current_state[key] && !m_previous_state[key];
 }
-[[nodiscard]] bool KeyboardInput::Released(const sf::Keyboard::Key key) const
+bool KeyboardInput::Released(const sf::Keyboard::Key key) const
 {
 	return !m_current_state[key] && m_previous_state[key];
 }

@@ -63,7 +63,7 @@ namespace vlx
 		if (m_component == nullptr)
 		{
 			if (!m_entity_admin->TryGetComponent<C>(m_entity_id, m_component))
-				throw std::runtime_error("the entity does not exist or does not have this component");
+				throw std::runtime_error(std::format("the entity [{}] does not exist or does not have the [{}] component", m_entity_id, typeid(C).name()));
 		}
 
 		return m_component;

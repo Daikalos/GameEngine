@@ -24,7 +24,7 @@ void Application::Run()
 	ComponentProxy<Sprite>* proxy;
 	entity_admin.TryGetComponentProxy<Sprite>(entity.GetID(), proxy);
 
-	std::puts(std::to_string(proxy->Get()->GetDepth()).c_str());
+	std::puts(std::to_string((*proxy)->GetDepth()).c_str());
 
 	m_window.Initialize();
 

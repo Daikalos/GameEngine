@@ -52,36 +52,36 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 		const int dest_btn = event.joystickConnect.joystickId * sf::Joystick::ButtonCount;
 		const int dest_axis = event.joystickConnect.joystickId * sf::Joystick::AxisCount;
 
-		memset(m_previous_state + dest_btn, false, sizeof(bool) * sf::Joystick::ButtonCount); // be sure to set all to default state
-		memset(m_current_state + dest_btn, false, sizeof(bool) * sf::Joystick::ButtonCount);
-		memset(m_held_time + dest_btn, 0, sizeof(float) * sf::Joystick::ButtonCount);
+		std::fill_n(m_previous_state + dest_btn, sf::Joystick::ButtonCount, false); // be sure to set all to default state
+		std::fill_n(m_current_state + dest_btn, sf::Joystick::ButtonCount, false);
+		std::fill_n(m_held_time + dest_btn, sf::Joystick::ButtonCount, 0.0f);
 
-		memset(m_axis + dest_axis, 0, sizeof(float) * sf::Joystick::AxisCount);
+		std::fill_n(m_axis + dest_axis, sf::Joystick::AxisCount, 0);
 
 		if (!cu::SwapPop(m_available, event.joystickConnect.joystickId))
-			std::puts("A nonexisting joystick has been prompted to be removed");
+			throw std::runtime_error("A nonexisting joystick has been prompted to be removed");
 	}
 	break;
 	}
 }
 
-[[nodiscard]] bool JoystickInput::Held(const uint32_t id, const uint32_t button) const
+bool JoystickInput::Held(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_state[index] && m_held_time[index] >= m_held_threshold;;
 }
-[[nodiscard]] bool JoystickInput::Pressed(const uint32_t id, const uint32_t button) const
+bool JoystickInput::Pressed(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_state[index] && !m_previous_state[index];
 }
-[[nodiscard]] bool JoystickInput::Released(const uint32_t id, const uint32_t button) const
+bool JoystickInput::Released(const uint32_t id, const uint32_t button) const
 {
 	const int index = button + id * sf::Joystick::ButtonCount;
 	return m_current_state[index] && !m_previous_state[index];
 }
 
-[[nodiscard]] float JoystickInput::Axis(const uint32_t id, const uint32_t axis) const
+float JoystickInput::Axis(const uint32_t id, const uint32_t axis) const
 {
 	return m_axis[axis + id * sf::Joystick::AxisCount];
 }
