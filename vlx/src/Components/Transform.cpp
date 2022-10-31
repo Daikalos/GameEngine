@@ -95,59 +95,63 @@ const sf::Angle& Transform::GetLocalRotation() const
 	return m_rotation;
 }
 
-void Transform::SetOrigin(const sf::Vector2f& origin)
+void Transform::SetOrigin(const EntityAdmin& entity_admin, const sf::Vector2f& origin)
 {
 	m_origin = origin;
 
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	m_update_model = true;
-	m_update_inverse_model = true;
+	UpdateRequired(entity_admin);
 }
-void Transform::SetPosition(const sf::Vector2f& position)
+void Transform::SetPosition(const EntityAdmin& entity_admin, const sf::Vector2f& position, bool global)
 {
-	m_position = position;
+	if (global && HasParent())
+	{
+		UpdateTransforms(entity_admin);
+		m_position = entity_admin.GetComponent<Transform>(m_parent).GetInverseTransform() * position;
+	}
+	else
+	{
+		m_position = position;
+	}
 
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	m_update_model = true;
-	m_update_inverse_model = true;
+	UpdateRequired(entity_admin);
 }
-void Transform::SetScale(const sf::Vector2f& scale) 
+void Transform::SetScale(const EntityAdmin& entity_admin, const sf::Vector2f& scale)
 {
 	m_scale = scale;
 
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	m_update_model = true;
-	m_update_inverse_model = true;
+	UpdateRequired(entity_admin);
 }
-void Transform::SetRotation(const sf::Angle angle)
+void Transform::SetRotation(const EntityAdmin& entity_admin, const sf::Angle angle)
 {
 	m_rotation = angle.wrapUnsigned();
 
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	m_update_model = true;
-	m_update_inverse_model = true;
+	UpdateRequired(entity_admin);
 }
 
-void Transform::Move(const sf::Vector2f& move)
+void Transform::Move(const EntityAdmin& entity_admin, const sf::Vector2f& move)
 {
-	SetPosition(GetLocalPosition() + move);
+	SetPosition(entity_admin, GetLocalPosition() + move);
 }
-void Transform::Scale(const sf::Vector2f& factor)
+void Transform::Scale(const EntityAdmin& entity_admin, const sf::Vector2f& factor)
 {
 	const sf::Vector2f scale = GetLocalScale();
-	SetScale({ scale.x * factor.x, scale.y * factor.y });
+	SetScale(entity_admin, { scale.x * factor.x, scale.y * factor.y });
 }
-void Transform::Rotate(const sf::Angle angle)
+void Transform::Rotate(const EntityAdmin& entity_admin, const sf::Angle angle)
 {
-	SetRotation(GetLocalRotation() + angle);
+	SetRotation(entity_admin, GetLocalRotation() + angle);
 }
 
 void Transform::OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child)
@@ -161,6 +165,9 @@ void Transform::OnDetach(const EntityAdmin& entity_admin, const EntityID entity_
 
 void Transform::UpdateTransforms(const EntityAdmin& entity_admin) const
 {
+	if (!m_update_model) // already up-to-date
+		return;
+
 	if (HasParent())
 	{
 		const Transform& parent_transform = entity_admin.GetComponent<Transform>(m_parent);
@@ -194,13 +201,13 @@ void Transform::UpdateTransforms(const EntityAdmin& entity_admin) const
 	}
 
 	m_update_model = false;
-
-	for (const EntityID child_id : m_children)
-		entity_admin.GetComponent<Transform>(child_id).UpdateTransforms(entity_admin);
 }
 
 void Transform::UpdateRequired(const EntityAdmin& entity_admin) const
 {
+	if (m_update_model) // no need to update if already set
+		return;
+
 	m_update_model = true;
 	m_update_inverse_model = true;
 

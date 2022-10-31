@@ -33,7 +33,7 @@ namespace vlx
 		virtual void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) {}
 
 		/// <summary>
-		/// Called when the component has been destroyed, which can include when the entity is removed
+		/// Called before the component is destroyed, which can occur when the entity or component is removed
 		/// </summary>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was removed</param>

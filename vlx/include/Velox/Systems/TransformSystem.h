@@ -23,19 +23,32 @@ namespace vlx
 	public:
 		TransformSystem(EntityAdmin& entity_admin);
 
-		void SetPositionGlobal(const EntityID entity_id, const sf::Vector2f& position);
+		void SetOrigin(		Transform& transform, const sf::Vector2f& origin);
+		void SetPosition(	Transform& transform, const sf::Vector2f& position, bool global = false);
+		void SetScale(		Transform& transform, const sf::Vector2f& scale);
+		void SetRotation(	Transform& transform, const sf::Angle angle);
 
-		void AttachInstant(const EntityID parent, const EntityID child);
-		void DetachInstant(const EntityID parent, const EntityID child);
+		void Move(			Transform& transform, const sf::Vector2f& move);
+		void Scale(			Transform& transform, const sf::Vector2f& factor);
+		void Rotate(		Transform& transform, const sf::Angle angle);
 
-		void AttachDelay(const EntityID parent, const EntityID child);
-		void DetachDelay(const EntityID parent, const EntityID child);
+		void AttachInstant(const EntityID parent_id, const EntityID child_id);
+		void DetachInstant(const EntityID parent_id, const EntityID child_id);
+
+		void AttachInstant(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child);
+		void DetachInstant(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child);
+
+		void AttachDelay(const EntityID parent_id, const EntityID child_id);
+		void DetachDelay(const EntityID parent_id, const EntityID child_id);
 
 		void Update() override;
 
 	private:
 		void AttachChild(const EntityID parent_id, const EntityID child_id);
 		void DetachChild(const EntityID parent_id, const EntityID child_id);
+
+		void AttachChild(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child);
+		void DetachChild(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child);
 
 		void PreUpdate();
 
