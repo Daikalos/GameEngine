@@ -15,9 +15,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponent<GameObject>();
-	entity_admin.RegisterComponent<Transform>();
-	entity_admin.RegisterComponent<Sprite>();
+	entity_admin.RegisterComponents<GameObject, Transform, Sprite>();
 
 	m_window.Initialize();
 
@@ -38,11 +36,15 @@ void Application::Run()
 	entity.AddComponents<GameObject, Sprite, Transform>();
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 
-	ComponentProxy<Transform>* transform = &entity_admin.GetComponentProxy<Transform>(entity.GetID());
-	m_world.GetTransformSystem().SetPosition(**transform, {10.0f, 10.0f});
+	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
+	m_world.GetTransformSystem().SetPosition(*transform, {10.0f, 10.0f});
 
 	Entity new_entity(entity_admin, entity_admin.Duplicate(entity.GetID()));
-	ComponentProxy<Transform>* transform2 = &entity_admin.GetComponentProxy<Transform>(new_entity.GetID());
+	ComponentProxy<Transform>& transform2 = new_entity.GetComponentProxy<Transform>();
+
+	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
+
+	m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 
 	float x_pos = 0.0f;
 
@@ -77,8 +79,8 @@ void Application::Run()
 
 		x_pos += m_time.GetDeltaTime() * 5.0f;
 
-		m_world.GetTransformSystem().SetPosition(**transform, { x_pos, 10.0f });
-		m_world.GetTransformSystem().SetPosition(**transform2, { -x_pos, 10.0f });
+		m_world.GetTransformSystem().SetPosition(*transform, { x_pos, 10.0f });
+		m_world.GetTransformSystem().SetPosition(*transform2, { 5.0f, x_pos });
 
 		Draw();
 	}

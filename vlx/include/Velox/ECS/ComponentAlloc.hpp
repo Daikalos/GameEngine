@@ -5,7 +5,7 @@
 #include <Velox/Utilities.hpp>
 
 #include "Identifiers.hpp"
-#include "TypeIdGenerator.hpp"
+#include "TypeIDGenerator.hpp"
 #include "IComponent.h"
 
 namespace vlx
@@ -17,6 +17,8 @@ namespace vlx
 	/// </summary>
 	struct IComponentAlloc
 	{
+		virtual ~IComponentAlloc() = default;
+
 		virtual void ConstructData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
 		virtual void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
 		virtual void MoveData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
@@ -112,6 +114,6 @@ namespace vlx
 	template<IsComponent C>
 	inline const ComponentTypeID ComponentAlloc<C>::GetTypeID()
 	{
-		return TypeIDGenerator<IComponentAlloc>::GetNewID<C>();
+		return TypeIDGenerator::GetNewID<C>();
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "Identifiers.hpp"
 #include "EntityAdmin.h"
+#include "ComponentProxy.hpp"
 
 namespace vlx
 {
@@ -36,7 +37,12 @@ namespace vlx
 		template<IsComponent C>
 		C& GetComponent() const;
 		template<IsComponent C>
-		C* TryGetComponent() const;
+		bool TryGetComponent(C*& component) const;
+
+		template<IsComponent C>
+		ComponentProxy<C>& GetComponentProxy() const;
+		template<IsComponent C>
+		bool TryGetComponentProxy(ComponentProxy<C>*& component_proxy) const;
 
 		template<IsComponent C>
 		bool HasComponent() const;
@@ -77,9 +83,20 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline C* Entity::TryGetComponent() const
+	inline bool Entity::TryGetComponent(C*& component) const
 	{
-		return m_entity_admin->TryGetComponent<C>(m_id);
+		return m_entity_admin->TryGetComponent<C>(m_id, component);
+	}
+
+	template<IsComponent C>
+	ComponentProxy<C>& Entity::GetComponentProxy() const
+	{
+		return m_entity_admin->GetComponentProxy<C>(m_id);
+	}
+	template<IsComponent C>
+	bool Entity::TryGetComponentProxy(ComponentProxy<C>*& component_proxy) const
+	{
+		return m_entity_admin->TryGetComponentProxy<C>(m_id, component_proxy);
 	}
 
 	template<IsComponent C>

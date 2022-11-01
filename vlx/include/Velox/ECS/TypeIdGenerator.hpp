@@ -6,27 +6,13 @@
 
 namespace vlx
 {
-	template<class C>
 	class TypeIDGenerator
 	{
 	public:
 		template<class U>
-		static const IDType GetNewID()
+		inline static IDType GetNewID()
 		{
-			std::lock_guard lock(m_mutex); // thread-safe way to get unique id
-			
-			static const IDType id_counter = m_count++; // unique for every instance of U
-			return id_counter;
+			return static_cast<IDType>(typeid(U).hash_code());
 		}
-
-	private:
-		static IDType		m_count; // unique for every instance of C
-		static std::mutex	m_mutex;
 	};
-
-	template<class C>
-	IDType TypeIDGenerator<C>::m_count = 1; // 0 is reserved for null
-
-	template<class C>
-	std::mutex TypeIDGenerator<C>::m_mutex;
 }

@@ -77,6 +77,8 @@ namespace vlx
 
 		template<IsComponent C>
 		void RegisterComponent();
+		template<IsComponent... Cs>
+		void RegisterComponents();
 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
@@ -207,7 +209,14 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		m_component_map.try_emplace(ComponentAlloc<C>::GetTypeID(), std::make_unique<ComponentAlloc<C>>());
+		auto insert = m_component_map.try_emplace(ComponentAlloc<C>::GetTypeID(), std::make_unique<ComponentAlloc<C>>());
+		assert(insert.second);
+	}
+
+	template<IsComponent... Cs>
+	inline void EntityAdmin::RegisterComponents()
+	{
+		(RegisterComponent<Cs>(), ...);
 	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>

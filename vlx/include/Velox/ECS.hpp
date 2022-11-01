@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ECS/Identifiers.hpp"
-#include "ECS/TypeIdGenerator.hpp"
+#include "ECS/TypeIDGenerator.hpp"
 #include "ECS/System.hpp"
 #include "ECS/Archetype.hpp"
 #include "ECS/ComponentAlloc.hpp"
