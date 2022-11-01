@@ -64,7 +64,7 @@ namespace vlx
 		virtual bool FixedUpdate(Time& time);
 		virtual bool PostUpdate(Time& time);
 
-		virtual void draw() = 0;
+		virtual void Draw() = 0;
 
 	private:
 		ID			m_id;

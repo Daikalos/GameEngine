@@ -14,7 +14,11 @@ namespace vlx
 	{ 
 	public:
 		Transform();
+
 		Transform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation);
+		Transform(const sf::Vector2f& position, const sf::Vector2f& scale);
+		Transform(const sf::Vector2f& position, const sf::Angle& rotation);
+		Transform(const sf::Vector2f& position);
 
 	public:
 		//////////////////////////////////////////////

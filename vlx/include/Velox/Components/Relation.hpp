@@ -51,7 +51,7 @@ namespace vlx
 	template<class T>
 	inline void Relation<T>::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
-		if (!HasParent())
+		if (HasParent())
 		{
 			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(m_parent))
 				.DetachChild(entity_admin, m_parent, entity_id, *this);

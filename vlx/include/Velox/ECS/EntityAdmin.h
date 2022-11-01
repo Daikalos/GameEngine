@@ -80,6 +80,10 @@ namespace vlx
 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
+
+		template<IsComponent... Cs>
+		void AddComponents(const EntityID entity_id);
+
 		template<IsComponent C>
 		bool RemoveComponent(const EntityID entity_id);
 
@@ -136,6 +140,8 @@ namespace vlx
 	public:
 		VELOX_API EntityID GetNewEntityID();
 
+		VELOX_API bool IsEntityRegistered(const EntityID entity_id) const;
+
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
 		VELOX_API void RegisterEntity(const EntityID entity_id);
 
@@ -149,6 +155,11 @@ namespace vlx
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
 	public:
+		/// <summary>
+		///		Returns a duplicated entity with the same properties as the specified one
+		/// </summary>
+		VELOX_API EntityID Duplicate(const EntityID entity_id);
+
 		VELOX_API std::vector<EntityID> GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted = false) const;
 
 		VELOX_API void Reserve(const std::vector<ComponentTypeID>& component_ids, const std::size_t component_count);
@@ -301,6 +312,12 @@ namespace vlx
 		record.archetype = new_archetype;
 
 		return add_component;
+	}
+
+	template<IsComponent... Cs>
+	inline void EntityAdmin::AddComponents(const EntityID entity_id)
+	{
+		(AddComponent(entity_id, ComponentAlloc<Cs>::GetTypeID()), ...);
 	}
 
 	template<IsComponent C>

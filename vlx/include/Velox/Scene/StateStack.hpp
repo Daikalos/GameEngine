@@ -20,8 +20,8 @@ namespace vlx
 	private:
 		using State		= typename State<ID>;
 
-		using Stack		= typename std::vector<typename State::Ptr>;
-		using Factory	= typename std::unordered_map<ID, typename State::Func>;
+		using Stack		= std::vector<typename State::Ptr>;
+		using Factory	= std::unordered_map<ID, typename State::Func>;
 
 		enum class Action
 		{
@@ -42,8 +42,8 @@ namespace vlx
 	public:
 		explicit StateStack(State::Context context);
 
-		[[nodiscard]] bool IsEmpty() const noexcept;
-		[[nodiscard]] bool IsPaused() const noexcept;
+		[[nodiscard]] constexpr bool IsEmpty() const noexcept;
+		[[nodiscard]] constexpr bool IsPaused() const noexcept;
 
 		void SetPaused(bool flag);
 
@@ -97,12 +97,12 @@ namespace vlx
 		: m_context(context) { }
 
 	template<IntEnum ID>
-	inline bool StateStack<ID>::IsEmpty() const noexcept
+	inline constexpr bool StateStack<ID>::IsEmpty() const noexcept
 	{
 		return m_stack.empty();
 	}
 	template<IntEnum ID>
-	inline bool StateStack<ID>::IsPaused() const noexcept
+	inline constexpr bool StateStack<ID>::IsPaused() const noexcept
 	{
 		return m_paused;
 	}
@@ -177,7 +177,7 @@ namespace vlx
 	inline void StateStack<ID>::Draw()
 	{
 		for (typename State::Ptr& state : m_stack)
-			state->draw();
+			state->Draw();
 	}
 
 	template<IntEnum ID>

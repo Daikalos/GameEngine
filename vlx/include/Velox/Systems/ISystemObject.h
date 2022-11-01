@@ -6,9 +6,7 @@ namespace vlx
 {
 	struct VELOX_API ISystemObject
 	{
-		virtual ~ISystemObject() = 0;
+		virtual ~ISystemObject() = default;
 		virtual void Update() = 0;
 	};
-
-	inline ISystemObject::~ISystemObject() = default;
 }

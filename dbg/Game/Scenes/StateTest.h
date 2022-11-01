@@ -13,9 +13,9 @@ namespace vlx
 		using State::State;
 
 	public:
-		virtual bool HandleEvent(const sf::Event& event) override;
-		virtual bool Update(Time& time) override;
-		virtual void draw() override;
+		bool HandleEvent(const sf::Event& event) override;
+		bool Update(Time& time) override;
+		void Draw() override;
 
 	private:
 

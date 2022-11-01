@@ -10,6 +10,7 @@ bool StateLoading::Update(vlx::Time& time)
     return false;
 }
 
-void StateLoading::draw()
+void StateLoading::Draw()
 {
+
 }

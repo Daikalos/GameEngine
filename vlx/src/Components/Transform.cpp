@@ -13,6 +13,21 @@ Transform::Transform(const sf::Vector2f& position, const sf::Vector2f& scale, co
 {
 
 }
+Transform::Transform(const sf::Vector2f& position, const sf::Vector2f& scale)
+	: Transform(position, scale, sf::radians(0.0f))
+{
+
+}
+Transform::Transform(const sf::Vector2f& position, const sf::Angle& rotation)
+	: Transform(position, { 1.0f, 1.0f }, rotation)
+{
+
+}
+Transform::Transform(const sf::Vector2f& position)
+	: Transform(position, { 1.0f, 1.0f }, sf::radians(0.0f))
+{
+
+}
 
 const sf::Transform& Transform::GetTransform() const
 {

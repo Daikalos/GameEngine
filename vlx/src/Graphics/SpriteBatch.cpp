@@ -34,6 +34,8 @@ void SpriteBatch::AddTriangle(
 			sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
 			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
 			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
+
+		m_proxy.emplace_back(m_size++);
 	}
 	else // reuse
 	{
@@ -43,9 +45,9 @@ void SpriteBatch::AddTriangle(
 			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
 			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth 
 		};
-	}
 
-	m_proxy.emplace_back(m_size++);
+		m_proxy[m_size++] = m_size;
+	}
 
 	m_update_required = true;
 }

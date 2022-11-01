@@ -10,6 +10,7 @@ namespace vlx
 	class Entity
 	{
 	public:
+		VELOX_API explicit Entity(EntityAdmin& entity_admin, const EntityID entity_id);
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
 		VELOX_API Entity(Entity&& entity) noexcept;
 
@@ -25,6 +26,9 @@ namespace vlx
 		C* AddComponent(Args&&... args);
 		template<IsComponent C>
 		C* AddComponent(C&& comp);
+
+		template<IsComponent... Cs>
+		void AddComponents();
 
 		template<IsComponent C>
 		void RemoveComponent();
@@ -52,6 +56,12 @@ namespace vlx
 	inline C* Entity::AddComponent(C&& comp)
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<C>(comp));
+	}
+
+	template<IsComponent... Cs>
+	inline void Entity::AddComponents()
+	{
+		m_entity_admin->AddComponents<Cs...>(m_id);
 	}
 
 	template<IsComponent C>

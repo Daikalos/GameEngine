@@ -36,6 +36,11 @@ EntityID EntityAdmin::GetNewEntityID()
 	return m_entity_id_counter++;
 }
 
+bool EntityAdmin::IsEntityRegistered(const EntityID entity_id) const
+{
+	return m_entity_archetype_map.contains(entity_id);
+}
+
 void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
 {
 	m_systems[layer].push_back(system);
@@ -43,7 +48,7 @@ void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
 
 void EntityAdmin::RegisterEntity(const EntityID entity_id)
 {
-	auto insert = m_entity_archetype_map.insert(std::make_pair(entity_id, Record()));
+	auto insert = m_entity_archetype_map.try_emplace(entity_id, Record());
 	assert(insert.second);
 }
 
@@ -68,8 +73,11 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 
 void EntityAdmin::SortSystems(const LayerType layer)
 {
-	auto& systems = m_systems[layer];
-	std::stable_sort(systems.begin(), systems.end(),
+	const auto it = m_systems.find(layer);
+	if (it == m_systems.end())
+		return;
+
+	std::stable_sort(it->second.begin(), it->second.end(),
 		[](const ISystem* lhs, const ISystem* rhs)
 		{
 			return lhs->GetPriority() > rhs->GetPriority(); // in descending order
@@ -298,6 +306,19 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	record.archetype = new_archetype;
 
 	return true;
+}
+
+EntityID EntityAdmin::Duplicate(const EntityID entity_id)
+{
+	const auto eit = m_entity_archetype_map.find(entity_id);
+	if (eit == m_entity_archetype_map.end())
+		return NULL_ENTITY;
+
+	const Archetype* archetype = eit->second.archetype;
+
+
+
+	return NULL_ENTITY;
 }
 
 std::vector<EntityID> EntityAdmin::GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted) const

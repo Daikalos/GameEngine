@@ -15,16 +15,9 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponent<Velocity>();
+	entity_admin.RegisterComponent<GameObject>();
+	entity_admin.RegisterComponent<Transform>();
 	entity_admin.RegisterComponent<Sprite>();
-
-	Entity entity = m_world.GetObjectSystem().CreateObject();
-	entity.AddComponent<Velocity>(sf::Vector2f(0.5f, 0.3f));
-
-	ComponentProxy<Sprite>* proxy;
-	entity_admin.TryGetComponentProxy<Sprite>(entity.GetID(), proxy);
-
-	std::puts(std::to_string((*proxy)->GetDepth()).c_str());
 
 	m_window.Initialize();
 
@@ -40,6 +33,18 @@ void Application::Run()
 
 	int ticks = 0;
 	int death_spiral = 12; // guarantee prevention of infinite loop
+
+	Entity entity = m_world.GetObjectSystem().CreateObject();
+	entity.AddComponents<GameObject, Sprite, Transform>();
+	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
+
+	Transform& transform = entity.GetComponent<Transform>();
+	m_world.GetTransformSystem().SetPosition(transform, { 10.0f, 10.0f });
+
+	ComponentProxy<Sprite>* proxy;
+	entity_admin.TryGetComponentProxy<Sprite>(entity.GetID(), proxy);
+
+	float x_pos = 0.0f;
 
 	while (m_window.isOpen())
 	{
@@ -70,26 +75,9 @@ void Application::Run()
 		if (m_state_stack.IsEmpty())
 			m_window.close();
 
-		//if (m_controls.Get<MouseInputBindable>().ScrollUp())
-		//	m_controls.Remove<MouseCursor>();
-		//if (m_controls.Get<MouseInputBindable>().ScrollDown())
-		//	m_controls.Add<MouseCursor>(m_window, m_texture_holder);
+		x_pos += m_time.GetDeltaTime() * 5.0f;
 
-		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num1))
-			m_window.SetBorder(WindowBorder::Windowed);
-		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num2))
-			m_window.SetBorder(WindowBorder::Fullscreen);
-		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num3))
-			m_window.SetBorder(WindowBorder::BorderlessWindowed);
-
-		if (m_controls.Get<KeyboardInput>().Released(sf::Keyboard::Key::Num4))
-			m_window.SetMode(sf::VideoMode::getFullscreenModes().back());
-		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num5))
-			m_window.SetResolution(0);
-		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num6))
-			m_window.SetResolution(1);
-		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Key::Num7))
-			m_window.SetResolution(2);
+		m_world.GetTransformSystem().SetPosition(transform, { x_pos, 10.0f });
 
 		Draw();
 	}
@@ -115,6 +103,7 @@ void Application::PreUpdate()
 
 void Application::Update()
 {
+	m_world.Update();
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 }
@@ -135,6 +124,8 @@ void Application::Draw()
 {
 	m_window.clear(sf::Color::Black);
 	m_window.setView(m_camera);
+
+	m_window.draw(m_world);
 
 	m_state_stack.Draw();
 
