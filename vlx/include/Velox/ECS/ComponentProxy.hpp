@@ -35,6 +35,9 @@ namespace vlx
 		C* operator->();
 		const C* operator->() const;
 
+		C& operator*();
+		const C& operator*() const;
+
 	private:
 		const EntityAdmin*	m_entity_admin{ nullptr };
 		EntityID			m_entity_id{ NULL_ENTITY };
@@ -85,5 +88,17 @@ namespace vlx
 	inline const C* ComponentProxy<C>::operator->() const
 	{
 		return Get();
+	}
+
+	template<IsComponent C>
+	C& ComponentProxy<C>::operator*()
+	{
+		return *Get();
+	}
+
+	template<IsComponent C>
+	const C& ComponentProxy<C>::operator*() const
+	{
+		return *Get();
 	}
 }

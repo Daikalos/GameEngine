@@ -38,11 +38,11 @@ void Application::Run()
 	entity.AddComponents<GameObject, Sprite, Transform>();
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 
-	Transform& transform = entity.GetComponent<Transform>();
-	m_world.GetTransformSystem().SetPosition(transform, { 10.0f, 10.0f });
+	ComponentProxy<Transform>* transform = &entity_admin.GetComponentProxy<Transform>(entity.GetID());
+	m_world.GetTransformSystem().SetPosition(**transform, {10.0f, 10.0f});
 
-	ComponentProxy<Sprite>* proxy;
-	entity_admin.TryGetComponentProxy<Sprite>(entity.GetID(), proxy);
+	Entity new_entity(entity_admin, entity_admin.Duplicate(entity.GetID()));
+	ComponentProxy<Transform>* transform2 = &entity_admin.GetComponentProxy<Transform>(new_entity.GetID());
 
 	float x_pos = 0.0f;
 
@@ -77,7 +77,8 @@ void Application::Run()
 
 		x_pos += m_time.GetDeltaTime() * 5.0f;
 
-		m_world.GetTransformSystem().SetPosition(transform, { x_pos, 10.0f });
+		m_world.GetTransformSystem().SetPosition(**transform, { x_pos, 10.0f });
+		m_world.GetTransformSystem().SetPosition(**transform2, { -x_pos, 10.0f });
 
 		Draw();
 	}

@@ -71,7 +71,6 @@ namespace vlx
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
 		Func			m_func;
-		bool			m_func_set		{false};
 
 		mutable ArchetypeID m_key		{NULL_ARCHETYPE};
 	};
@@ -93,7 +92,7 @@ namespace vlx
 	template<IsComponents... Cs>
 	inline System<Cs...>::System(const System<Cs...>& system)
 		:	m_entity_admin(system.m_entity_admin), m_layer(system.m_layer), m_priority(system.m_priority),
-			m_func(system.m_func), m_func_set(system.m_func_set), m_key(system.m_key) { }
+			m_func(system.m_func), m_key(system.m_key) { }
 
 	template<IsComponents... Cs>
 	inline System<Cs...>& System<Cs...>::operator=(const System<Cs...>& rhs)
@@ -103,7 +102,6 @@ namespace vlx
 		m_priority = rhs.m_priority;
 
 		m_func = rhs.m_func;
-		m_func_set = rhs.m_func_set;
 
 		m_key = rhs.m_key;
 
@@ -141,13 +139,12 @@ namespace vlx
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
-		m_func_set = true;
 	}
 
 	template<IsComponents... Cs>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
-		if (m_func_set)
+		if (m_func) // check if func stores callable object
 		{
 			DoAction<0>(
 				archetype->type, 
@@ -165,7 +162,7 @@ namespace vlx
 		std::size_t index2 = 0;
 
 		const ComponentTypeID comp_id = ComponentAlloc<SysCompType>::GetTypeID();	// get the id for the type of element at index
-		ComponentTypeID archetype_comp_id = archetype_ids[index2];				// id for component in the archetype
+		ComponentTypeID archetype_comp_id = archetype_ids[index2];					// id for component in the archetype
 
 		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found
 		{

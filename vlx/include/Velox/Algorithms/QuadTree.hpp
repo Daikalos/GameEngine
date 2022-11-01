@@ -1,7 +1,10 @@
 #pragma once
 
-template<class T>
-class QuadTree
+namespace vlx
 {
+	template<class T>
+	class QuadTree
+	{
 
-};
+	};
+}

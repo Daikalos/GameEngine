@@ -45,13 +45,13 @@ namespace vlx
 	private:
 		struct Record
 		{
-			Archetype* archetype{ nullptr };
-			std::size_t index{ 0 }; // where in the archetype entity array is the entity located at
+			Archetype* archetype	{nullptr};
+			std::uint32_t index		{0}; // where in the archetype entity array is the entity located at
 		};
 
 		struct ArchetypeRecord
 		{
-			std::size_t column{ 0 }; // where in the archetype's data is the component's data located at
+			std::uint16_t column	{0}; // where in the archetype's data is the component's data located at
 		};
 
 		using ComponentPtr = std::unique_ptr<IComponentAlloc>;
@@ -140,10 +140,10 @@ namespace vlx
 	public:
 		VELOX_API EntityID GetNewEntityID();
 
+		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
 		VELOX_API bool IsEntityRegistered(const EntityID entity_id) const;
 
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
-		VELOX_API void RegisterEntity(const EntityID entity_id);
 
 		VELOX_API void RemoveSystem(const LayerType layer, ISystem* system);
 		VELOX_API bool RemoveEntity(const EntityID entity_id);

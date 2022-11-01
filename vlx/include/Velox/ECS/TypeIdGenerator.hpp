@@ -7,7 +7,7 @@
 namespace vlx
 {
 	template<class C>
-	class TypeIdGenerator
+	class TypeIDGenerator
 	{
 	public:
 		template<class U>
@@ -25,8 +25,8 @@ namespace vlx
 	};
 
 	template<class C>
-	IDType TypeIdGenerator<C>::m_count = 1; // 0 is reserved for null
+	IDType TypeIDGenerator<C>::m_count = 1; // 0 is reserved for null
 
 	template<class C>
-	std::mutex TypeIdGenerator<C>::m_mutex;
+	std::mutex TypeIDGenerator<C>::m_mutex;
 }

@@ -168,7 +168,7 @@
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
-    <ClInclude Include="include\Velox\ECS\TypeIdGenerator.hpp" />
+    <ClInclude Include="include\Velox\ECS\TypeIDGenerator.hpp" />
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />

@@ -21,6 +21,7 @@ namespace vlx
 		virtual void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
 		virtual void MoveData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
 		virtual void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
+		virtual void CopyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
 		virtual void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const = 0;
 
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
@@ -33,6 +34,7 @@ namespace vlx
 		void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
 		void MoveData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
 		void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
+		void CopyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
 		void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const override;
 
 		[[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
@@ -72,6 +74,13 @@ namespace vlx
 	}
 
 	template<IsComponent C>
+	inline void ComponentAlloc<C>::CopyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
+	{
+		C* data_location = new (destination) C(*reinterpret_cast<C*>(source)); // just copy instead of move
+		static_cast<IComponent*>(data_location)->Copied(entity_admin, entity_id);
+	}
+
+	template<IsComponent C>
 	inline void ComponentAlloc<C>::SwapData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const
 	{
 		// * not really used right now, could be handy in the future
@@ -103,6 +112,6 @@ namespace vlx
 	template<IsComponent C>
 	inline const ComponentTypeID ComponentAlloc<C>::GetTypeID()
 	{
-		return TypeIdGenerator<IComponentAlloc>::GetNewID<C>();
+		return TypeIDGenerator<IComponentAlloc>::GetNewID<C>();
 	}
 }

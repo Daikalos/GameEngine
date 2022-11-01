@@ -67,7 +67,7 @@ namespace vlx
 	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path)
 	{
 		ResourcePtr resource = std::make_unique<Resource>(Load(path));
-		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
+		auto inserted = m_resources.try_emplace(id, std::move(resource));
 		assert(inserted.second);
 	}
 
@@ -76,7 +76,7 @@ namespace vlx
 	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path, const Parameter& second_param)
 	{
 		ResourcePtr resource = std::make_unique<Resource>(Load(path, second_param));
-		auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
+		auto inserted = m_resources.try_emplace(id, std::move(resource));
 		assert(inserted.second);
 	}
 
@@ -89,7 +89,7 @@ namespace vlx
 
 			std::lock_guard lock(m_mutex); // guard race condition for m_resources
 
-			auto inserted = m_resources.insert(std::make_pair(id, std::move(resource)));
+			auto inserted = m_resources.try_emplace(id, std::move(resource));
 			assert(inserted.second);
 		};
 
@@ -110,7 +110,7 @@ namespace vlx
 	template<IsLoadable Resource, Enum Identifier>
 	inline const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id) const
 	{
-		return const_cast<ResourceHolder<Resource, Identifier>*>(this)->Get(id);
+		return const_cast<ResourceHolder<Resource, Identifier>&>(*this).Get(id);
 	}
 
 	using TextureHolder = ResourceHolder<sf::Texture, Texture::ID>;

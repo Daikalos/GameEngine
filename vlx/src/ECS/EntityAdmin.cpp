@@ -36,6 +36,13 @@ EntityID EntityAdmin::GetNewEntityID()
 	return m_entity_id_counter++;
 }
 
+auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
+{
+	auto insert = m_entity_archetype_map.try_emplace(entity_id, Record());
+	assert(insert.second);
+
+	return insert.first->second;
+}
 bool EntityAdmin::IsEntityRegistered(const EntityID entity_id) const
 {
 	return m_entity_archetype_map.contains(entity_id);
@@ -44,12 +51,6 @@ bool EntityAdmin::IsEntityRegistered(const EntityID entity_id) const
 void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
 {
 	m_systems[layer].push_back(system);
-}
-
-void EntityAdmin::RegisterEntity(const EntityID entity_id)
-{
-	auto insert = m_entity_archetype_map.try_emplace(entity_id, Record());
-	assert(insert.second);
 }
 
 void EntityAdmin::RunSystems(const LayerType layer) const
@@ -230,7 +231,7 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 	}
 
 	new_archetype->entities.push_back(entity_id);
-	record.index = new_archetype->entities.size() - 1;
+	record.index = static_cast<std::uint32_t>(new_archetype->entities.size() - 1);
 	record.archetype = new_archetype;
 }
 
@@ -266,7 +267,7 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 		const IComponentAlloc* component	= m_component_map[component_id].get();
 		const std::size_t& component_size	= component->GetSize();
 
-		if (component_id == rmv_component_id)
+		if (component_id == rmv_component_id) // this is the component that should be destroyed
 		{
 			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
 		}
@@ -302,7 +303,7 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	old_archetype->entities.pop_back();
 	new_archetype->entities.push_back(entity_id);
 
-	record.index = new_archetype->entities.size() - 1;
+	record.index = static_cast<std::uint32_t>(new_archetype->entities.size() - 1);
 	record.archetype = new_archetype;
 
 	return true;
@@ -314,11 +315,39 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 	if (eit == m_entity_archetype_map.end())
 		return NULL_ENTITY;
 
-	const Archetype* archetype = eit->second.archetype;
+	Record& record = eit->second;
+	Archetype* archetype = record.archetype;
 
+	if (archetype == nullptr)
+		return NULL_ENTITY;
 
+	const EntityID new_entity_id = GetNewEntityID();
 
-	return NULL_ENTITY;
+	for (std::size_t i = 0; i < archetype->type.size(); ++i)
+	{
+		const ComponentTypeID component_id	= archetype->type[i];
+		const IComponentAlloc* component	= m_component_map[component_id].get();
+		const std::size_t& component_size	= component->GetSize();
+
+		const std::size_t current_size = archetype->entities.size() * component_size;
+		const std::size_t new_size = current_size + component_size;
+
+		if (new_size > archetype->component_data_size[i])
+			MakeRoom(archetype, component, component_size, i); // make room to fit data
+
+		component->CopyData(*this, new_entity_id,
+			&archetype->component_data[i][record.index * component_size],
+			&archetype->component_data[i][current_size]);
+	}
+
+	archetype->entities.push_back(new_entity_id);
+
+	Record& new_record = RegisterEntity(new_entity_id);
+
+	new_record.index = static_cast<std::uint32_t>(archetype->entities.size() - 1);
+	new_record.archetype = archetype;
+
+	return new_entity_id;
 }
 
 std::vector<EntityID> EntityAdmin::GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted) const
@@ -545,14 +574,14 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 	new_archetype->component_data.reserve(component_ids.size()); // prevent any reallocations
 	new_archetype->component_data_size.reserve(component_ids.size());
 
-	for (ComponentIDs::size_type i = 0; i < component_ids.size(); ++i) // add empty array for each component in type
+	for (std::size_t i = 0; i < component_ids.size(); ++i) // add empty array for each component in type
 	{
 		constexpr std::size_t DEFAULT_SIZE = 128; // default size in bytes to reduce number of reallocations
 
 		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
 
-		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = i;
+		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = static_cast<std::uint16_t>(i);
 	}
 
 #ifdef VELOX_DEBUG
