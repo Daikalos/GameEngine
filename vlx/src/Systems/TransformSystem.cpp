@@ -65,12 +65,12 @@ void TransformSystem::DetachInstant(const EntityID parent_id, Transform& parent,
 void TransformSystem::AttachDelay(const EntityID parent_id, const EntityID child_id)
 {
 	if (parent_id != child_id)
-		m_attachments.push(std::make_pair(parent_id, child_id));
+		m_attachments.emplace(parent_id, child_id);
 }
 void TransformSystem::DetachDelay(const EntityID parent_id, const EntityID child_id)
 {
 	if (parent_id != child_id)
-		m_detachments.push(std::make_pair(parent_id, child_id));
+		m_detachments.emplace(parent_id, child_id);
 }
 
 void TransformSystem::AttachChild(const EntityID parent_id, const EntityID child_id)

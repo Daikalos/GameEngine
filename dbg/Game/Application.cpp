@@ -32,6 +32,9 @@ void Application::Run()
 	int ticks = 0;
 	int death_spiral = 12; // guarantee prevention of infinite loop
 
+	ObjectSystem& object_system = m_world.GetObjectSystem();
+	TransformSystem& transform_system = m_world.GetTransformSystem();
+
 	Entity entity = m_world.GetObjectSystem().CreateObject();
 	entity.AddComponents<GameObject, Sprite, Transform>();
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
@@ -78,7 +81,7 @@ void Application::Run()
 			m_window.close();
 
 		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-			entity.GetComponent<GameObject>().is_alive = false;
+			object_system.DeleteObjectInstant(entity.GetID());
 
 		x_pos += m_time.GetDeltaTime() * 5.0f;
 

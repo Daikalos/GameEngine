@@ -81,35 +81,35 @@ namespace vlx
 	};
 
 	template<IsComponent C>
-	void ObjectSystem::DeleteComponentDelayed(const EntityID entity_id)
+	inline void ObjectSystem::DeleteComponentDelayed(const EntityID entity_id)
 	{
-		m_command_queue.push(std::make_pair(DeleteComponent(entity_id, Component<C>::GetTypeID()), DEL_COMPONENT));
+		m_command_queue.emplace(DeleteComponent(entity_id, ComponentAlloc<C>::GetTypeID()), DEL_COMPONENT);
 	}
 	template<IsComponent C>
-	void ObjectSystem::DeleteComponentInstant(const EntityID entity_id)
+	inline void ObjectSystem::DeleteComponentInstant(const EntityID entity_id)
 	{
 		m_entity_admin->RemoveComponent<C>(entity_id);
 	}
 
 	template<IsComponent C>
-	void ObjectSystem::AddComponentDelayed(const EntityID entity_id)
+	inline void ObjectSystem::AddComponentDelayed(const EntityID entity_id)
 	{
-		m_command_queue.push(std::make_pair(AddComponent(entity_id, Component<C>::GetTypeID()), ADD_COMPONENT));
+		m_command_queue.emplace(AddComponent(entity_id, ComponentAlloc<C>::GetTypeID()), ADD_COMPONENT);
 	}
 	template<IsComponent... Cs>
-	void ObjectSystem::AddComponentsDelayed(const EntityID entity_id)
+	inline void ObjectSystem::AddComponentsDelayed(const EntityID entity_id)
 	{
-		(AddComponentDelayed<Cs>(entity_id),...);
+		(AddComponentDelayed<Cs>(entity_id), ...);
 	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-	C* ObjectSystem::AddComponentInstant(const EntityID entity_id, Args&&... args)
+	inline C* ObjectSystem::AddComponentInstant(const EntityID entity_id, Args&&... args)
 	{
 		return m_entity_admin->AddComponent(entity_id, std::forward<Args>(args)...);
 	}
 	template<IsComponent... Cs>
-	void ObjectSystem::AddComponentsInstant(const EntityID entity_id)
+	inline void ObjectSystem::AddComponentsInstant(const EntityID entity_id)
 	{
-		(AddComponentInstant<Cs>(entity_id),...);
+		m_entity_admin->AddComponents<Cs...>(entity_id);
 	}
 }
