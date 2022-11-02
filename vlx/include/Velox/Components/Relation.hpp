@@ -57,9 +57,9 @@ namespace vlx
 				.DetachChild(entity_admin, m_parent, entity_id, *this);
 		}
 
-		for (const EntityID& child : m_children)
+		for (const EntityID child : m_children)
 		{
-			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child)).m_parent = NULL_ENTITY;
+			DetachChild(entity_admin, entity_id, child, static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child)));
 		}
 	}
 

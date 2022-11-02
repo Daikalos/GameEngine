@@ -22,7 +22,7 @@ Entity ObjectSystem::CreateObject() const
 
 void ObjectSystem::DeleteObjectDelayed(const EntityID entity_id)
 {
-	m_command_queue.push(std::make_pair(DeleteEntity(entity_id), DEL_ENTITY));
+	m_command_queue.emplace(DeleteEntity(entity_id), DEL_ENTITY);
 }
 void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 {

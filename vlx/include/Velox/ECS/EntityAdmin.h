@@ -277,7 +277,7 @@ namespace vlx
 
 					if (!same_entity)
 					{
-						component->MoveDestroyData(*this, entity_id,
+						component->MoveDestroyData(*this, last_entity_id,
 							&old_archetype->component_data[j][last_record.index * component_size],
 							&old_archetype->component_data[j][record.index * component_size]); // move data to last
 					}

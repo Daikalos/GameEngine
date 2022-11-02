@@ -37,14 +37,14 @@ void Application::Run()
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 
 	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
-	m_world.GetTransformSystem().SetPosition(*transform, {10.0f, 10.0f});
+	m_world.GetTransformSystem().SetPosition(*transform, {50.0f, 50.0f});
 
 	Entity new_entity(entity_admin, entity_admin.Duplicate(entity.GetID()));
 	ComponentProxy<Transform>& transform2 = new_entity.GetComponentProxy<Transform>();
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
-	m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
+	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 
 	float x_pos = 0.0f;
 
@@ -77,10 +77,15 @@ void Application::Run()
 		if (m_state_stack.IsEmpty())
 			m_window.close();
 
+		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+			entity.GetComponent<GameObject>().is_alive = false;
+
 		x_pos += m_time.GetDeltaTime() * 5.0f;
 
-		m_world.GetTransformSystem().SetPosition(*transform, { x_pos, 10.0f });
-		m_world.GetTransformSystem().SetPosition(*transform2, { 5.0f, x_pos });
+		if (entity_admin.IsEntityRegistered(entity.GetID()))
+			m_world.GetTransformSystem().SetPosition(*transform, { x_pos, 10.0f });
+
+		m_world.GetTransformSystem().SetPosition(*transform2, { 0.0f, x_pos });
 
 		Draw();
 	}

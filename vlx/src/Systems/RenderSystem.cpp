@@ -62,6 +62,6 @@ void RenderSystem::PostUpdate()
 
 void RenderSystem::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
 {
-	m_static_batch.draw(target, states);
+ 	m_static_batch.draw(target, states);
 	m_dynamic_batch.draw(target, states);
 }

@@ -112,6 +112,8 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 	EntityID last_entity_id = archetype->entities.back();
 	Record& last_record		= m_entity_archetype_map[last_entity_id];
 
+	const bool same_entity = (last_entity_id == entity_id);
+
 	const ComponentIDs& archetype_id = archetype->type;
 	for (std::size_t i = 0; i < archetype_id.size(); ++i) // we iterate over both archetypes
 	{
@@ -121,15 +123,15 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 
 		component->DestroyData(*this, entity_id, &archetype->component_data[i][record.index * component_size]);
 
-		if (last_entity_id != entity_id)
+		if (!same_entity)
 		{
-			component->MoveDestroyData(*this, entity_id,
+			component->MoveDestroyData(*this, last_entity_id,
 				&archetype->component_data[i][last_record.index * component_size],
 				&archetype->component_data[i][record.index * component_size]);
 		}
 	}
 
-	if (last_entity_id != entity_id)
+	if (!same_entity)
 	{
 		archetype->entities[record.index] = archetype->entities.back(); // now swap ids with last
 		last_record.index = record.index;
@@ -196,7 +198,7 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 
 				if (!same_entity)
 				{
-					component->MoveDestroyData(*this, entity_id,
+					component->MoveDestroyData(*this, last_entity_id,
 						&old_archetype->component_data[j][last_record.index * component_size],
 						&old_archetype->component_data[j][record.index * component_size]); // move data to last
 				}
@@ -288,7 +290,7 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 
 		if (!same_entity) // no point of swapping data with itself
 		{
-			component->MoveDestroyData(*this, entity_id,
+			component->MoveDestroyData(*this, last_entity_id,
 				&old_archetype->component_data[i][last_record.index * component_size],
 				&old_archetype->component_data[i][record.index * component_size]); // move data to last
 		}

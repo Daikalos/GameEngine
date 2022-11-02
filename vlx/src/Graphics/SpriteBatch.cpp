@@ -26,7 +26,7 @@ void SpriteBatch::AddTriangle(
 	const sf::Shader* shader, 
 	const float depth)
 {
-	assert(m_size <= m_triangles.size());
+	assert(m_size <= m_triangles.size() && m_size <= m_proxy.size());
 
 	if (m_size == m_triangles.size())
 	{
@@ -35,7 +35,7 @@ void SpriteBatch::AddTriangle(
 			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
 			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
 
-		m_proxy.emplace_back(m_size++);
+		m_proxy.push_back(m_size++);
 	}
 	else // reuse
 	{
@@ -134,21 +134,21 @@ void SpriteBatch::SortTriangles() const
 	switch (m_batch_mode)
 	{
 	case BatchMode::BackToFront:
-		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
+		std::stable_sort(m_proxy.begin(), m_proxy.begin() + m_size,
 			[this](const auto i0, const auto i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::FrontToBack:
-		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
+		std::stable_sort(m_proxy.begin(), m_proxy.begin() + m_size,
 			[this](const auto i0, const auto i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::Texture:
-		std::stable_sort(m_proxy.begin(), m_proxy.end(), 
+		std::stable_sort(m_proxy.begin(), m_proxy.begin() + m_size,
 			[this](const auto i0, const auto i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);
@@ -161,16 +161,16 @@ void SpriteBatch::SortTriangles() const
 
 void SpriteBatch::CreateBatches() const
 {
-	if (m_triangles.empty())
+	if (!m_size)
 		return;
 
-	m_vertices.resize(m_triangles.size() * TRIANGLE_COUNT);
+	m_vertices.resize(m_size * TRIANGLE_COUNT);
 
-	const sf::Texture* last_texture = m_triangles[m_proxy.front()].texture;
-	const sf::Shader* last_shader = m_triangles[m_proxy.front()].shader;
+	auto last_texture = m_triangles[m_proxy.front()].texture;
+	auto last_shader = m_triangles[m_proxy.front()].shader;
 
 	SizeType start = 0, next = 0;
-	for (; next < m_proxy.size(); ++next)
+	for (; next < m_size; ++next)
 	{
 		const Triangle& triangle = m_triangles[m_proxy[next]];
 
@@ -184,14 +184,14 @@ void SpriteBatch::CreateBatches() const
 			start = next;
 		}
 
-		for (std::uint8_t i = 0; i < TRIANGLE_COUNT; ++i)
+		for (auto i = 0; i < TRIANGLE_COUNT; ++i)
 			m_vertices[next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 
-	if (start != m_triangles.size()) // deal with leftover
+	if (start != m_size) // deal with leftover
 	{
 		const Triangle& triangle = m_triangles[m_proxy[start]];
-		m_batches.emplace_back(triangle.texture, triangle.shader, ((SizeType)m_triangles.size() - start) * TRIANGLE_COUNT);
+		m_batches.emplace_back(triangle.texture, triangle.shader, (m_size - start) * TRIANGLE_COUNT);
 	}
 }
 

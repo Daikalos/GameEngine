@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <typeinfo>
 
 #include "Identifiers.hpp"
 
@@ -10,7 +11,7 @@ namespace vlx
 	{
 	public:
 		template<class U>
-		inline static IDType GetNewID()
+		inline static IDType GetUniqueID()
 		{
 			return static_cast<IDType>(typeid(U).hash_code());
 		}

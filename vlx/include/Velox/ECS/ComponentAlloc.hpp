@@ -114,6 +114,6 @@ namespace vlx
 	template<IsComponent C>
 	inline const ComponentTypeID ComponentAlloc<C>::GetTypeID()
 	{
-		return TypeIDGenerator::GetNewID<C>();
+		return TypeIDGenerator::GetUniqueID<C>();
 	}
 }
