@@ -17,6 +17,13 @@ void SpriteBatch::Reserve(const std::size_t size)
 	m_proxy.reserve(size);
 }
 
+void SpriteBatch::Shrink()
+{
+	m_triangles.shrink_to_fit();
+	m_proxy.shrink_to_fit();
+	m_vertices.clear();
+}
+
 void SpriteBatch::AddTriangle(
 	const Transform& transform, 
 	const sf::Vertex& v0, 

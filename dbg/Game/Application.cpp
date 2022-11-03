@@ -47,7 +47,11 @@ void Application::Run()
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
+	ComponentSet<GameObject, Transform> set = entity_admin.GetComponents<GameObject, Transform>(entity.GetID());
+
 	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
+
+	std::puts(std::to_string(set.Get<GameObject>().is_alive).c_str());
 
 	float x_pos = 0.0f;
 

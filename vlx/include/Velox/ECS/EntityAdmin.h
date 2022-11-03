@@ -26,6 +26,9 @@ namespace vlx
 	template<IsComponent>
 	class ComponentProxy;
 
+	template<IsComponent...>
+	class ComponentSet;
+
 	////////////////////////////////////////////////////////////
 	// 
 	// Based on article by Deckhead:
@@ -98,6 +101,9 @@ namespace vlx
 		ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
 		template<IsComponent C>
 		bool TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>*& component_proxy) const;
+
+		template<IsComponent... Cs>
+		ComponentSet<Cs...> GetComponents(const EntityID entity_id);
 
 		template<IsComponent C>
 		bool HasComponent(const EntityID entity_id) const;
@@ -427,6 +433,12 @@ namespace vlx
 		}
 
 		return (component_proxy = static_cast<ComponentProxy<C>*>(cit->second.get()));
+	}
+
+	template<IsComponent... Cs>
+	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id)
+	{
+		return { GetComponentProxy<Cs>(entity_id)... };
 	}
 
 	template<IsComponent C>

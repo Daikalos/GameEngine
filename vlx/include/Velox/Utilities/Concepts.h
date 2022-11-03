@@ -55,6 +55,9 @@ namespace vlx // concepts is the best thing ever
 	template<class Lambda, typename T, std::size_t... Index>
 	concept SameTypeParameter = (std::same_as<T, std::decay_t<typename traits::FunctionTraits<Lambda>::template arg_type<Index>>> && ...);
 
+	template<class T, class... Args>
+	concept Contains = std::disjunction_v<std::is_same<T, Args>...>;
+
 	// UNIQUE
 
 	class IComponent;

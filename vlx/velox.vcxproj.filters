@@ -82,6 +82,7 @@
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
     <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

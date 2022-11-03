@@ -49,6 +49,7 @@ namespace vlx
 	public:
 		void SetBatchMode(const BatchMode batch_mode);
 		void Reserve(const std::size_t size);
+		void Shrink();
 
 		void AddTriangle(
 			const Transform& transform, 

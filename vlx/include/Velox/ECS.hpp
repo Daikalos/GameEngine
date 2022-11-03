@@ -9,3 +9,4 @@
 #include "ECS/EntityAdmin.h"
 #include "ECS/IComponent.h"
 #include "ECS/ComponentProxy.hpp"
+#include "ECS/ComponentSet.hpp"
