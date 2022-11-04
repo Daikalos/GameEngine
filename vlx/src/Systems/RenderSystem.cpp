@@ -5,11 +5,11 @@ using namespace vlx;
 RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_RENDERING)
 {
-	m_system.Action([this](std::span<const EntityID> entities, GameObject* objects, Transform* transforms, Sprite* sprites)
+	m_system.Action([this](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				GameObject& object		= objects[i];
+				Object& object			= objects[i];
 				Sprite& sprite			= sprites[i];
 				Transform& transform	= transforms[i];
 

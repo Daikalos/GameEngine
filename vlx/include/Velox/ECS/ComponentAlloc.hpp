@@ -41,7 +41,7 @@ namespace vlx
 
 		[[nodiscard]] constexpr std::size_t GetSize() const noexcept override;
 
-		[[nodiscard]] static const ComponentTypeID GetTypeID();
+		[[nodiscard]] static constexpr ComponentTypeID GetTypeID() noexcept;
 	};
 }
 
@@ -101,7 +101,7 @@ namespace vlx
 	{
 		MoveData(entity_admin, entity_id, source, destination);
 
-		C* source_location = std::launder(reinterpret_cast<C*>(source)); // destroy data without calling the Destroy event
+		C* source_location = std::launder(reinterpret_cast<C*>(source)); // destroy data without calling the Destroyed event, Moved is used instead
 		source_location->~C();
 	}
 
@@ -112,7 +112,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline const ComponentTypeID ComponentAlloc<C>::GetTypeID()
+	inline constexpr ComponentTypeID ComponentAlloc<C>::GetTypeID() noexcept
 	{
 		return TypeIDGenerator::GetUniqueID<C>();
 	}

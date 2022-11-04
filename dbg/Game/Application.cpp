@@ -15,7 +15,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<GameObject, Transform, Sprite>();
+	entity_admin.RegisterComponents<Object, Transform, Sprite>();
 
 	m_window.Initialize();
 
@@ -36,7 +36,7 @@ void Application::Run()
 	TransformSystem& transform_system = m_world.GetTransformSystem();
 
 	Entity entity = m_world.GetObjectSystem().CreateObject();
-	entity.AddComponents<GameObject, Sprite, Transform>();
+	entity.AddComponents<Object, Sprite, Transform>();
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 
 	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
@@ -47,11 +47,13 @@ void Application::Run()
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
-	ComponentSet<GameObject, Transform> set = entity_admin.GetComponents<GameObject, Transform>(entity.GetID());
+	ComponentSet<Object, Transform> set = entity.GetComponents<Object, Transform>();
+
+	entity_admin.GetComponent<Transform>(entity.GetID(),)
 
 	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 
-	std::puts(std::to_string(set.Get<GameObject>().is_alive).c_str());
+	std::puts(std::to_string(set.Get<Object>().is_alive).c_str());
 
 	float x_pos = 0.0f;
 

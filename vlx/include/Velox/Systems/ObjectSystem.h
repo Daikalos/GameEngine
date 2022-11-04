@@ -6,7 +6,7 @@
 #include <Velox/Config.hpp>
 #include <Velox/Utilities.hpp>
 
-#include <Velox/Components/GameObject.h>
+#include <Velox/Components/Object.h>
 
 #include "ISystemObject.h"
 
@@ -40,7 +40,7 @@ namespace vlx
 		};
 
 	private:
-		using System	= System<GameObject>;
+		using System	= System<Object>;
 		using Command	= std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
 
 	public:
@@ -77,13 +77,13 @@ namespace vlx
 		EntityAdmin*	m_entity_admin{nullptr};
 		System			m_system;
 
-		std::queue<Command>	m_command_queue;
+		std::queue<Command>	m_commands;
 	};
 
 	template<IsComponent C>
 	inline void ObjectSystem::DeleteComponentDelayed(const EntityID entity_id)
 	{
-		m_command_queue.emplace(DeleteComponent(entity_id, ComponentAlloc<C>::GetTypeID()), DEL_COMPONENT);
+		m_commands.emplace(DeleteComponent(entity_id, ComponentAlloc<C>::GetTypeID()), DEL_COMPONENT);
 	}
 	template<IsComponent C>
 	inline void ObjectSystem::DeleteComponentInstant(const EntityID entity_id)
@@ -94,7 +94,7 @@ namespace vlx
 	template<IsComponent C>
 	inline void ObjectSystem::AddComponentDelayed(const EntityID entity_id)
 	{
-		m_command_queue.emplace(AddComponent(entity_id, ComponentAlloc<C>::GetTypeID()), ADD_COMPONENT);
+		m_commands.emplace(AddComponent(entity_id, ComponentAlloc<C>::GetTypeID()), ADD_COMPONENT);
 	}
 	template<IsComponent... Cs>
 	inline void ObjectSystem::AddComponentsDelayed(const EntityID entity_id)

@@ -5,9 +5,9 @@
 namespace vlx
 {
 	/// <summary>
-	/// Used for common properties in objects
+	/// Used for common properties in objects, usually everything makes use of this component
 	/// </summary>
-	struct GameObject : public IComponent
+	struct Object : public IComponent
 	{
 		bool is_alive	{true};
 		bool is_static	{false};

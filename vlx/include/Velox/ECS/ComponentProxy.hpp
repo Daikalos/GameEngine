@@ -12,7 +12,9 @@ namespace vlx
 	{
 	public:
 		virtual ~IComponentProxy() = default;
+
 		virtual void Reset() = 0;
+		virtual constexpr bool IsValid() const noexcept = 0;
 	};
 
 	/// <summary>
@@ -27,6 +29,7 @@ namespace vlx
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 		void Reset() override;
+		[[nodiscard]] constexpr bool IsValid() const noexcept override; // holy attributes
 
 	public:
 		C* Get();
@@ -59,11 +62,17 @@ namespace vlx
 	}
 
 	template<IsComponent C>
+	constexpr bool ComponentProxy<C>::IsValid() const noexcept
+	{
+		return m_component != nullptr;
+	}
+
+	template<IsComponent C>
 	inline C* ComponentProxy<C>::Get()
 	{
 		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
 
-		if (m_component == nullptr)
+		if (!IsValid())
 		{
 			if (!m_entity_admin->TryGetComponent<C>(m_entity_id, m_component))
 				throw std::runtime_error(std::format("the entity [{}] does not exist or does not have the [{}] component", m_entity_id, typeid(C).name()));

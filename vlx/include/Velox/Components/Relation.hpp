@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include <Velox/ECS/EntityAdmin.h>
+#include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -103,7 +104,9 @@ namespace vlx
 		child.OnDetach(entity_admin, entity_id, child_id, child);
 
 		child.m_parent = NULL_ENTITY;
-		m_children.erase(found);
+
+		*found = m_children.back();
+		m_children.pop_back();
 
 		return child_id;
 	}

@@ -23,6 +23,7 @@
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
+    <ClCompile Include="src\Graphics\GUI\IGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -35,7 +36,7 @@
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\IGUI.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\ControlMap.h" />
@@ -76,13 +77,14 @@
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\Components\Relation.hpp" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
-    <ClInclude Include="include\Velox\Components\GameObject.h" />
+    <ClInclude Include="include\Velox\Components\Object.h" />
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
     <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

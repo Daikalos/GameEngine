@@ -93,14 +93,19 @@ void Sprite::SetTextureRect(const TextureRect& rect)
 	if (m_texture_rect != rect)
 	{
 		m_texture_rect = rect;
+
 		UpdatePositions();
 		UpdateTexCoords();
 	}
 }
 void Sprite::SetColor(const sf::Color& color)
 {
-	for (std::size_t i = 0; i < VERTEX_COUNT; ++i)
-		m_vertices[i].color = color;
+	for (sf::Vertex& vertex : m_vertices)
+		vertex.color = color;
+}
+void Sprite::SetOpacity(const float opacity) noexcept
+{
+	m_opacity = opacity;
 }
 void Sprite::SetDepth(const float val) noexcept
 {

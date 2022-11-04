@@ -12,7 +12,7 @@
 namespace vlx
 {
 	/// <summary>
-	///		ComponentSet is used to prevent having to write many ComponentProxy to get
+	///		ComponentSet is used to prevent having to write many ComponentProxy to access
 	///		the components of an object.
 	/// </summary>
 	template<IsComponent... Cs>

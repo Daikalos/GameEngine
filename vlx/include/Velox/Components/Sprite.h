@@ -23,7 +23,7 @@ namespace vlx
 	{
 	private:
 		using VertexArray = std::array<sf::Vertex, 4>;
-		using TextureRect = sf::Rect<std::uint16_t>;
+		using TextureRect = sf::Rect<std::uint16_t>; // textures are usually not larger than unsigned short in either width or height
 
 	public:
 		Sprite();
@@ -47,6 +47,7 @@ namespace vlx
 		void SetTextureRect(const TextureRect& rect);
 		void SetColor(const sf::Color& color);
 		void SetDepth(const float value) noexcept;
+		void SetOpacity(const float opacity) noexcept;
 
 	private:
 		void UpdatePositions();
@@ -57,6 +58,8 @@ namespace vlx
 		const sf::Shader*	m_shader		{nullptr};
 		VertexArray			m_vertices;
 		TextureRect			m_texture_rect;
+		sf::Vector2f		m_size;
 		float				m_depth			{0.0f};
+		float				m_opacity		{1.0f};
 	};
 }

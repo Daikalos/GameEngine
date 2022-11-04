@@ -153,7 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
-    <ClInclude Include="include\Velox\Components\GameObject.h" />
+    <ClInclude Include="include\Velox\Components\Object.h" />
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
@@ -172,7 +172,8 @@
     <ClInclude Include="include\Velox\ECS\TypeIDGenerator.hpp" />
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\IGUI.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
@@ -212,6 +213,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\GUI\IGUI.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />

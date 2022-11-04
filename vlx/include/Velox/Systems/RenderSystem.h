@@ -4,7 +4,7 @@
 
 #include <Velox/ECS.hpp>
 
-#include <Velox/Components/GameObject.h>
+#include <Velox/Components/Object.h>
 #include <Velox/Components/Sprite.h>
 #include <Velox/Components/Transform.h>
 
@@ -19,7 +19,7 @@ namespace vlx
 	class VELOX_API RenderSystem : public ISystemObject, public sf::Drawable
 	{
 	private:
-		using System = System<GameObject, Transform, Sprite>;
+		using System = System<Object, Transform, Sprite>;
 
 	public:
 		RenderSystem(EntityAdmin& entity_admin);

@@ -36,13 +36,11 @@ namespace vlx
 	// 
 	////////////////////////////////////////////////////////////
 
-	////////////////////////////////////////////////////////////
-	// 
-	// Data-oriented ECS design. Be warned that adding and removing components
-	// is an expensive operation. Try to avoid performing such operations on runtime as much as possible
-	// and look at using pooling instead to prevent removing and adding entities often.
-	// 
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	///		Data-oriented ECS design. Be warned that adding and removing components
+	///		is an expensive operation. Try to avoid performing such operations on runtime as much as possible
+	///		and look at using pooling instead to prevent removing and adding entities often.
+	/// </summary>
 	class EntityAdmin final : private NonCopyable
 	{
 	private:
@@ -57,17 +55,17 @@ namespace vlx
 			std::uint16_t column	{0}; // where in the archetype's data is the component's data located at
 		};
 
-		using ComponentPtr = std::unique_ptr<IComponentAlloc>;
-		using ComponentProxyPtr = std::unique_ptr<IComponentProxy>;
-		using ArchetypePtr = std::unique_ptr<Archetype>;
+		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
+		using ComponentProxyPtr			= std::unique_ptr<IComponentProxy>;
+		using ArchetypePtr				= std::unique_ptr<Archetype>;
 
-		using SystemsArrayMap = std::unordered_map<LayerType, std::vector<ISystem*>>;
-		using ArchetypesArray = std::vector<ArchetypePtr>;
-		using ArchetypeMap = std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
-		using EntityArchetypeMap = std::unordered_map<EntityID, Record>;
-		using EntityComponentProxyMap = std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, ComponentProxyPtr>>;
-		using ComponentTypeIDBaseMap = std::unordered_map<ComponentTypeID, ComponentPtr>;
-		using ComponentArchetypesMap = std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
+		using SystemsArrayMap			= std::unordered_map<LayerType, std::vector<ISystem*>>;
+		using ArchetypesArray			= std::vector<ArchetypePtr>;
+		using ArchetypeMap				= std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
+		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
+		using EntityComponentProxyMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, ComponentProxyPtr>>;
+		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
+		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
 
 		template<IsComponent>
 		friend struct ComponentAlloc;
@@ -78,22 +76,51 @@ namespace vlx
 
 	public: // common functions
 
+		/// <summary>
+		///		Register the component for later usage. Has to be done before
+		///		the component can be employed in the ECS.
+		/// </summary>
+		/// <typeparam name="C"></typeparam>
 		template<IsComponent C>
 		void RegisterComponent();
+
+		/// <summary>
+		///		Shortcut for registering multiple components.
+		/// </summary>
 		template<IsComponent... Cs>
 		void RegisterComponents();
 
+		/// <summary>
+		///		Add a component to the specified entity. Can also pass optional constructor arguments. 
+		///		Returns pointer to the added component if it was successful, otherwise false.
+		/// </summary>
+		/// <typeparam name="C"></typeparam>
+		/// <param name="entity_id"></param>
+		/// <param name="component"></param>
+		/// <returns></returns>
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 
+		/// <summary>
+		///		Adds multiple components to entity. Cannot pass constructor arguments.
+		/// </summary>
 		template<IsComponent... Cs>
 		void AddComponents(const EntityID entity_id);
 
 		template<IsComponent C>
 		bool RemoveComponent(const EntityID entity_id);
 
+		/// <summary>
+		///		GetComponent is designed to be as fast as possible without checks to
+		///		see if it exists, will otherwise throw error. Therefore, take some caution when 
+		///		using this function. Otherwise, use e.g. TryGetComponent or GetComponentProxy.
+		/// </summary>
 		template<IsComponent C>
 		C& GetComponent(const EntityID entity_id) const;
+
+		/// <summary>
+		///		Tries to get the component and sets the passed component pointer and returns true, otherwise false.
+		/// </summary>
 		template<IsComponent C>
 		bool TryGetComponent(const EntityID entity_id, C*& component) const;
 
@@ -103,7 +130,7 @@ namespace vlx
 		bool TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>*& component_proxy) const;
 
 		template<IsComponent... Cs>
-		ComponentSet<Cs...> GetComponents(const EntityID entity_id);
+		ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
 		template<IsComponent C>
 		bool HasComponent(const EntityID entity_id) const;
@@ -436,7 +463,7 @@ namespace vlx
 	}
 
 	template<IsComponent... Cs>
-	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id)
+	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
 	{
 		return { GetComponentProxy<Cs>(entity_id)... };
 	}
