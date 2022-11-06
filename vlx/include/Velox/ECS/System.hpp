@@ -157,11 +157,11 @@ namespace vlx
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
-		using SysCompType = std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
+		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
-		const ComponentTypeID comp_id = ComponentAlloc<SysCompType>::GetTypeID();	// get the id for the type of element at index
+		const ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
 		ComponentTypeID archetype_comp_id = archetype_ids[index2];					// id for component in the archetype
 
 		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found
@@ -172,7 +172,7 @@ namespace vlx
 		if (index2 == archetype_ids.size())
 			throw std::runtime_error("System was executed against an incorrect Archetype");
 
-		DoAction<Index + 1>(archetype_ids, entity_ids, t, ts..., reinterpret_cast<SysCompType*>(&t[index2][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(archetype_ids, entity_ids, t, ts..., reinterpret_cast<CompType*>(&t[index2][0])); // run again on next component, or call final DoAction
 	}
 
 	template<IsComponents... Cs>

@@ -122,12 +122,12 @@ namespace vlx
 		///		Tries to get the component and sets the passed component pointer and returns true, otherwise false.
 		/// </summary>
 		template<IsComponent C>
-		bool TryGetComponent(const EntityID entity_id, C*& component) const;
+		std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
 		template<IsComponent C>
 		ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
 		template<IsComponent C>
-		bool TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>*& component_proxy) const;
+		std::pair<ComponentProxy<C>*, bool> TryGetComponentProxy(const EntityID entity_id) const;
 
 		template<IsComponent... Cs>
 		ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
@@ -386,34 +386,32 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool EntityAdmin::TryGetComponent(const EntityID entity_id, C*& component) const
+	inline std::pair<C*, bool> EntityAdmin::TryGetComponent(const EntityID entity_id) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
-			return false;
+			return { nullptr, false };
 
 		const Record& record = eit->second;
 		const Archetype* archetype = record.archetype;
 
 		if (archetype == nullptr)
-			return false;
+			return { nullptr, false };
 
 		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
-			return false;
+			return { nullptr, false };
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
-			return false;
+			return { nullptr, false };
 
 		const ArchetypeRecord& a_record = ait->second;
-
 		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
-		component = &components[record.index];
 
-		return true;
+		return { &components[record.index], true };
 	}
 
 	template<IsComponent C>
@@ -437,12 +435,12 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool EntityAdmin::TryGetComponentProxy(const EntityID entity_id, ComponentProxy<C>*& component_proxy) const
+	inline std::pair<ComponentProxy<C>*, bool> EntityAdmin::TryGetComponentProxy(const EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>());
 
 		if (!m_entity_archetype_map.contains(entity_id))
-			return false;
+			return { nullptr, false };
 
 		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
@@ -454,12 +452,12 @@ namespace vlx
 				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id));
 
 			if (!success) // should not happen anyways
-				return false;
+				return { nullptr, false };
 
-			return (component_proxy = static_cast<ComponentProxy<C>*>(it->second.get()));
+			return { static_cast<ComponentProxy<C>*>(it->second.get()), true };
 		}
 
-		return (component_proxy = static_cast<ComponentProxy<C>*>(cit->second.get()));
+		return { static_cast<ComponentProxy<C>*>(cit->second.get()), true };
 	}
 
 	template<IsComponent... Cs>

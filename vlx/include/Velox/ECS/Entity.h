@@ -37,12 +37,12 @@ namespace vlx
 		template<IsComponent C>
 		C& GetComponent() const;
 		template<IsComponent C>
-		bool TryGetComponent(C*& component) const;
+		auto TryGetComponent() const;
 
 		template<IsComponent C>
 		ComponentProxy<C>& GetComponentProxy() const;
 		template<IsComponent C>
-		bool TryGetComponentProxy(ComponentProxy<C>*& component_proxy) const;
+		auto TryGetComponentProxy() const;
 
 		template<IsComponent... Cs>
 		ComponentSet<Cs...> GetComponents() const;
@@ -86,20 +86,20 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool Entity::TryGetComponent(C*& component) const
+	inline auto Entity::TryGetComponent() const
 	{
-		return m_entity_admin->TryGetComponent<C>(m_id, component);
+		return m_entity_admin->TryGetComponent<C>(m_id);
 	}
 
 	template<IsComponent C>
-	ComponentProxy<C>& Entity::GetComponentProxy() const
+	inline ComponentProxy<C>& Entity::GetComponentProxy() const
 	{
 		return m_entity_admin->GetComponentProxy<C>(m_id);
 	}
 	template<IsComponent C>
-	bool Entity::TryGetComponentProxy(ComponentProxy<C>*& component_proxy) const
+	inline auto Entity::TryGetComponentProxy() const
 	{
-		return m_entity_admin->TryGetComponentProxy<C>(m_id, component_proxy);
+		return m_entity_admin->TryGetComponentProxy<C>(m_id);
 	}
 
 	template<IsComponent... Cs>

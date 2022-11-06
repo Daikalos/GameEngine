@@ -49,11 +49,10 @@ void Application::Run()
 
 	ComponentSet<Object, Transform> set = entity.GetComponents<Object, Transform>();
 
-	entity_admin.GetComponent<Transform>(entity.GetID(),)
-
 	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 
 	std::puts(std::to_string(set.Get<Object>().is_alive).c_str());
+	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
 
 	float x_pos = 0.0f;
 

@@ -25,7 +25,7 @@ namespace vlx
 	class ComponentProxy final : public IComponentProxy
 	{
 	public:
-		ComponentProxy();
+		ComponentProxy() = default;
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 		void Reset() override;
@@ -42,14 +42,11 @@ namespace vlx
 		const C& operator*() const;
 
 	private:
-		const EntityAdmin*	m_entity_admin{ nullptr };
-		EntityID			m_entity_id{ NULL_ENTITY };
+		const EntityAdmin*	m_entity_admin	{nullptr};
+		EntityID			m_entity_id		{NULL_ENTITY};
 
-		C*					m_component {nullptr};
+		C*					m_component		{nullptr};
 	};
-
-	template<IsComponent C>
-	inline ComponentProxy<C>::ComponentProxy() = default;
 
 	template<IsComponent C>
 	inline ComponentProxy<C>::ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id)
@@ -62,7 +59,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	constexpr bool ComponentProxy<C>::IsValid() const noexcept
+	inline constexpr bool ComponentProxy<C>::IsValid() const noexcept
 	{
 		return m_component != nullptr;
 	}
@@ -74,8 +71,12 @@ namespace vlx
 
 		if (!IsValid())
 		{
-			if (!m_entity_admin->TryGetComponent<C>(m_entity_id, m_component))
+			auto [component, success] = m_entity_admin->TryGetComponent<C>(m_entity_id);
+
+			if (!success)
 				throw std::runtime_error(std::format("the entity [{}] does not exist or does not have the [{}] component", m_entity_id, typeid(C).name()));
+
+			m_component = component;
 		}
 
 		return m_component;
@@ -100,13 +101,13 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	C& ComponentProxy<C>::operator*()
+	inline C& ComponentProxy<C>::operator*()
 	{
 		return *Get();
 	}
 
 	template<IsComponent C>
-	const C& ComponentProxy<C>::operator*() const
+	inline const C& ComponentProxy<C>::operator*() const
 	{
 		return *Get();
 	}

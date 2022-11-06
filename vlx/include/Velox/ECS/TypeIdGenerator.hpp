@@ -11,7 +11,7 @@ namespace vlx
 	{
 	public:
 		template<class U>
-		inline static constexpr IDType GetUniqueID() noexcept
+		inline static IDType GetUniqueID() noexcept
 		{
 			return static_cast<IDType>(typeid(U).hash_code());
 		}
