@@ -17,16 +17,18 @@ namespace vlx
 
 		VELOX_API virtual ~Entity();
 
-		VELOX_API constexpr EntityID GetID() const noexcept;
+		VELOX_API [[nodiscard]] constexpr EntityID GetID() const noexcept;
 
 	public:
+		VELOX_API [[nodiscard]] EntityID Duplicate() const;
+
 		VELOX_API void Destroy();
 
 	public:
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		C* AddComponent(Args&&... args);
+		[[nodiscard]] auto AddComponent(Args&&... args);
 		template<IsComponent C>
-		C* AddComponent(C&& comp);
+		[[nodiscard]] auto AddComponent(C&& comp);
 
 		template<IsComponent... Cs>
 		void AddComponents();
@@ -35,20 +37,20 @@ namespace vlx
 		void RemoveComponent();
 
 		template<IsComponent C>
-		C& GetComponent() const;
+		[[nodiscard]] auto& GetComponent() const;
 		template<IsComponent C>
-		auto TryGetComponent() const;
+		[[nodiscard]] auto TryGetComponent() const;
 
 		template<IsComponent C>
-		ComponentProxy<C>& GetComponentProxy() const;
+		[[nodiscard]] auto& GetComponentProxy() const;
 		template<IsComponent C>
-		auto TryGetComponentProxy() const;
+		[[nodiscard]] auto TryGetComponentProxy() const;
 
 		template<IsComponent... Cs>
-		ComponentSet<Cs...> GetComponents() const;
+		[[nodiscard]] auto GetComponents() const;
 
 		template<IsComponent C>
-		bool HasComponent() const;
+		[[nodiscard]] auto HasComponent() const;
 
 	protected:
 		EntityID		m_id; // entity is just an id
@@ -56,13 +58,13 @@ namespace vlx
 	};
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-	inline C* Entity::AddComponent(Args&&... args)
+	inline auto Entity::AddComponent(Args&&... args)
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<Args>(args)...);
 	}
 
 	template<IsComponent C>
-	inline C* Entity::AddComponent(C&& comp)
+	inline auto Entity::AddComponent(C&& comp)
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<C>(comp));
 	}
@@ -80,7 +82,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline C& Entity::GetComponent() const
+	inline auto& Entity::GetComponent() const
 	{
 		return m_entity_admin->GetComponent<C>(m_id);
 	}
@@ -92,7 +94,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline ComponentProxy<C>& Entity::GetComponentProxy() const
+	inline auto& Entity::GetComponentProxy() const
 	{
 		return m_entity_admin->GetComponentProxy<C>(m_id);
 	}
@@ -103,13 +105,13 @@ namespace vlx
 	}
 
 	template<IsComponent... Cs>
-	inline ComponentSet<Cs...> Entity::GetComponents() const
+	inline auto Entity::GetComponents() const
 	{
 		return m_entity_admin->GetComponents<Cs...>(m_id);
 	}
 
 	template<IsComponent C>
-	inline bool Entity::HasComponent() const
+	inline auto Entity::HasComponent() const
 	{
 		return m_entity_admin->HasComponent<C>(m_id);
 	}

@@ -33,13 +33,13 @@ namespace vlx
 	template<class... Args>
 	inline ComponentSet<Cs...>::ComponentSet(Args&&... args)
 	{
-		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), &std::forward<Args>(args)), ...);
+		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), std::forward<Args>(args)), ...);
 	}
 
 	template<IsComponent... Cs>
 	template<IsComponent C> requires Contains<C, Cs...>
 	inline C& ComponentSet<Cs...>::Get()
 	{
-		return *static_cast<ComponentProxy<C>&>(*m_components[ComponentAlloc<C>::GetTypeID()]).Get();
+		return *static_cast<ComponentProxy<C>&>(*m_components.at(ComponentAlloc<C>::GetTypeID())).Get();
 	}
 }

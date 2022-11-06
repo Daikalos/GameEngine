@@ -27,6 +27,11 @@ Entity::~Entity()
 		m_entity_admin->RemoveEntity(m_id);
 }
 
+EntityID Entity::Duplicate() const
+{
+	return m_entity_admin->Duplicate(m_id);
+}
+
 void Entity::Destroy()
 {
 	if (m_id != NULL_ENTITY && m_entity_admin)

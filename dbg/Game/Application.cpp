@@ -42,7 +42,7 @@ void Application::Run()
 	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
 	m_world.GetTransformSystem().SetPosition(*transform, {50.0f, 50.0f});
 
-	Entity new_entity(entity_admin, entity_admin.Duplicate(entity.GetID()));
+	Entity new_entity(entity_admin, entity.Duplicate());
 	ComponentProxy<Transform>& transform2 = new_entity.GetComponentProxy<Transform>();
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());

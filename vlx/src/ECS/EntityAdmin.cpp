@@ -233,7 +233,7 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 	}
 
 	new_archetype->entities.push_back(entity_id);
-	record.index = static_cast<std::uint32_t>(new_archetype->entities.size() - 1);
+	record.index = static_cast<IDType>(new_archetype->entities.size() - 1);
 	record.archetype = new_archetype;
 }
 
@@ -305,7 +305,7 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	old_archetype->entities.pop_back();
 	new_archetype->entities.push_back(entity_id);
 
-	record.index = static_cast<std::uint32_t>(new_archetype->entities.size() - 1);
+	record.index = static_cast<IDType>(new_archetype->entities.size() - 1);
 	record.archetype = new_archetype;
 
 	return true;
@@ -324,6 +324,7 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 		return NULL_ENTITY;
 
 	const EntityID new_entity_id = GetNewEntityID();
+	Record& new_record = RegisterEntity(new_entity_id);
 
 	for (std::size_t i = 0; i < archetype->type.size(); ++i)
 	{
@@ -344,9 +345,7 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 
 	archetype->entities.push_back(new_entity_id);
 
-	Record& new_record = RegisterEntity(new_entity_id);
-
-	new_record.index = static_cast<std::uint32_t>(archetype->entities.size() - 1);
+	new_record.index = static_cast<IDType>(archetype->entities.size() - 1);
 	new_record.archetype = archetype;
 
 	return new_entity_id;
@@ -583,7 +582,7 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
 
-		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = static_cast<std::uint16_t>(i);
+		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = static_cast<ColumnType>(i);
 	}
 
 #ifdef VELOX_DEBUG

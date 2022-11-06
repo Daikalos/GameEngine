@@ -74,7 +74,7 @@ const sf::Vector2f Sprite::GetSize() const noexcept
 			bottom = position.y;
 	}
 
-	return sf::Vector2f(left - right, bottom - top);
+	return sf::Vector2f(right - left, bottom - top);
 }
 constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 {

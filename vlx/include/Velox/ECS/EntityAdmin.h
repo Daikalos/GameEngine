@@ -37,22 +37,22 @@ namespace vlx
 	////////////////////////////////////////////////////////////
 
 	/// <summary>
-	///		Data-oriented ECS design. Be warned that adding and removing components
-	///		is an expensive operation. Try to avoid performing such operations on runtime as much as possible
-	///		and look at using pooling instead to prevent removing and adding entities often.
+	///		Data-oriented ECS design. Be warned that adding and removing components from entities is an expensive operation. 
+	///		Try to avoid performing such operations on runtime as much as possible and look at using pooling 
+	///		instead to prevent removing and adding entities often.
 	/// </summary>
 	class EntityAdmin final : private NonCopyable
 	{
 	private:
 		struct Record
 		{
-			Archetype* archetype	{nullptr};
-			std::uint32_t index		{0}; // where in the archetype entity array is the entity located at
+			Archetype*	archetype	{nullptr};
+			IDType		index		{0}; // where in the archetype entity array is the entity located at
 		};
 
 		struct ArchetypeRecord
 		{
-			std::uint16_t column	{0}; // where in the archetype's data is the component's data located at
+			ColumnType	column		{0}; // where in the archetype's data is the component's data located at
 		};
 
 		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
@@ -74,11 +74,10 @@ namespace vlx
 		VELOX_API EntityAdmin();
 		VELOX_API ~EntityAdmin();
 
-	public: // common functions
-
+	public: 
 		/// <summary>
-		///		Register the component for later usage. Has to be done before
-		///		the component can be employed in the ECS.
+		///		Register the component for later usage. Has to be done before the component can be 
+		///		employed in the ECS.
 		/// </summary>
 		/// <typeparam name="C"></typeparam>
 		template<IsComponent C>
@@ -91,22 +90,16 @@ namespace vlx
 		void RegisterComponents();
 
 		/// <summary>
-		///		Add a component to the specified entity. Can also pass optional constructor arguments. 
-		///		Returns pointer to the added component if it was successful, otherwise false.
+		///		Adds a component to the specified entity. Can also pass optional constructor arguments. 
+		///		Returns pointer to the added component if it was successful, otherwise nullptr.
 		/// </summary>
-		/// <typeparam name="C"></typeparam>
-		/// <param name="entity_id"></param>
-		/// <param name="component"></param>
-		/// <returns></returns>
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
-		///		Adds multiple components to entity. Cannot pass constructor arguments.
+		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
+		///		otherwise false.
 		/// </summary>
-		template<IsComponent... Cs>
-		void AddComponents(const EntityID entity_id);
-
 		template<IsComponent C>
 		bool RemoveComponent(const EntityID entity_id);
 
@@ -124,22 +117,42 @@ namespace vlx
 		template<IsComponent C>
 		std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
+		/// <summary>
+		///		Returns a proxy for the component whose pointer will remain valid even when the internal data is 
+		///		modified. The proxy will internally get the component's new data location once it has been modified.
+		/// </summary>
 		template<IsComponent C>
 		ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
+
+		/// <summary>
+		///		Tries to return a component proxy, will most likely always succeed, and will only return false if the 
+		///		entity does not exist or other unknown error occurs.
+		/// </summary>
 		template<IsComponent C>
 		std::pair<ComponentProxy<C>*, bool> TryGetComponentProxy(const EntityID entity_id) const;
+
+		/// <summary>
+		///		Returns true if the entity has the component C, otherwise false.
+		/// </summary>
+		template<IsComponent C>
+		bool HasComponent(const EntityID entity_id) const;
+
+		/// <summary>
+		///		Returns true if the component has been registered in the ECS, otherwise false.
+		/// </summary>
+		template<IsComponent C>
+		bool IsComponentRegistered() const;
+
+		/// <summary>
+		///		Shortcut for adding multiple components to entity. Cannot pass constructor arguments.
+		/// </summary>
+		template<IsComponent... Cs>
+		void AddComponents(const EntityID entity_id);
 
 		template<IsComponent... Cs>
 		ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
-		template<IsComponent C>
-		bool HasComponent(const EntityID entity_id) const;
-
-		template<IsComponent C>
-		bool IsComponentRegistered() const;
-
-	public: // unique functions
-
+	public:
 		/// <summary>
 		///		Sorts the components for all entities that exactly contains the specified components. 
 		///		The components is sorted according to the comparison function. Do note that it will 
@@ -204,7 +217,7 @@ namespace vlx
 		/// </summary>
 		/// <param name="extensive:"> 
 		///		Perform a complete shrink of the ECS by removing all the extra data space, will most likely 
-		///		invalidate all the existing pointers from e.g., GetComponentProxy
+		///		invalidate all the existing pointers from e.g., GetComponent
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
 
@@ -350,16 +363,10 @@ namespace vlx
 		add_component->Created(*this, entity_id);
 
 		new_archetype->entities.push_back(entity_id);
-		record.index = new_archetype->entities.size() - 1;
+		record.index = static_cast<IDType>(new_archetype->entities.size() - 1);
 		record.archetype = new_archetype;
 
 		return add_component;
-	}
-
-	template<IsComponent... Cs>
-	inline void EntityAdmin::AddComponents(const EntityID entity_id)
-	{
-		(AddComponent(entity_id, ComponentAlloc<Cs>::GetTypeID()), ...);
 	}
 
 	template<IsComponent C>
@@ -460,12 +467,6 @@ namespace vlx
 		return { static_cast<ComponentProxy<C>*>(cit->second.get()), true };
 	}
 
-	template<IsComponent... Cs>
-	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
-	{
-		return { GetComponentProxy<Cs>(entity_id)... };
-	}
-
 	template<IsComponent C>
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
 	{
@@ -493,6 +494,18 @@ namespace vlx
 	inline bool EntityAdmin::IsComponentRegistered() const
 	{
 		return m_component_map.contains(ComponentAlloc<C>::GetTypeID());
+	}
+
+	template<IsComponent... Cs>
+	inline void EntityAdmin::AddComponents(const EntityID entity_id)
+	{
+		(AddComponent(entity_id, ComponentAlloc<Cs>::GetTypeID()), ...);
+	}
+
+	template<IsComponent... Cs>
+	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
+	{
+		return { &GetComponentProxy<Cs>(entity_id)... };
 	}
 
 	template<IsComponents... Cs, class Comp>

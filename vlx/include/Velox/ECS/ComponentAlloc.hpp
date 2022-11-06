@@ -78,7 +78,7 @@ namespace vlx
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::CopyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
-		C* data_location = new (destination) C(*reinterpret_cast<C*>(source)); // just copy instead of move
+		C* data_location = new (destination) C(*reinterpret_cast<const C*>(source)); // just copy instead of move
 		static_cast<IComponent*>(data_location)->Copied(entity_admin, entity_id);
 	}
 

@@ -5,19 +5,20 @@
 
 namespace vlx
 {
-	using IDType			= typename std::uint32_t;
-	using LayerType			= typename std::uint16_t;
+	using IDType			= std::uint32_t;
+	using LayerType			= std::uint16_t;
+	using ColumnType		= std::uint16_t;
 
-	using ByteArray			= typename std::byte[];
-	using DataPtr			= typename std::byte*;
+	using ByteArray			= std::byte[];
+	using DataPtr			= std::byte*;
 
-	using EntityID			= typename IDType;
-	using ComponentTypeID	= typename IDType;
-	using ArchetypeID		= typename IDType;
-	using ComponentIDs		= typename std::vector<ComponentTypeID>;
+	using EntityID			= IDType;
+	using ComponentTypeID	= IDType;
+	using ArchetypeID		= IDType;
+	using ComponentIDs		= std::vector<ComponentTypeID>;
 
-	constexpr EntityID NULL_ENTITY = NULL;
-	constexpr ArchetypeID NULL_ARCHETYPE = NULL;
+	constexpr EntityID NULL_ENTITY			= NULL;
+	constexpr ArchetypeID NULL_ARCHETYPE	= NULL;
 
 	enum SystemLayers : LayerType
 	{
