@@ -73,7 +73,7 @@ namespace vlx
 		mutable bool			m_update_local				{true};
 		mutable bool			m_update_inverse_local		{true};
 
-		mutable sf::Transform	m_model_transform; // combined transform of all parents and this (global space)
+		mutable sf::Transform	m_model_transform;			// combined transform of all parents and this (global space)
 		mutable sf::Transform	m_inverse_model_transform;
 		mutable bool			m_update_model				{true};
 		mutable bool			m_update_inverse_model		{true};

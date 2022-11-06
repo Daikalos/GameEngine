@@ -10,7 +10,7 @@ namespace vlx
 	class EntityAdmin;
 
 	/// <summary>
-	/// Interface for common component events such as when the component has been created, moved, or destroyed.
+	/// Interface for components and contain events such as when it has been created, moved, or destroyed.
 	/// </summary>
 	class VELOX_API IComponent
 	{

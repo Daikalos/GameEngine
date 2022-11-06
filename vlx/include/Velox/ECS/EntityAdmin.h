@@ -37,7 +37,8 @@ namespace vlx
 	////////////////////////////////////////////////////////////
 
 	/// <summary>
-	///		Data-oriented ECS design. Be warned that adding and removing components from entities is an expensive operation. 
+	///		Data-oriented ECS design. Components are stored in contiguous memory inside of archetypes.
+	///		Be warned that adding and removing components from entities is an expensive operation. 
 	///		Try to avoid performing such operations on runtime as much as possible and look at using pooling 
 	///		instead to prevent removing and adding entities often.
 	/// </summary>
@@ -52,7 +53,7 @@ namespace vlx
 
 		struct ArchetypeRecord
 		{
-			ColumnType	column		{0}; // where in the archetype's data is the component's data located at
+			ColumnType	column		{0}; // where in the archetype is the components data located at
 		};
 
 		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
@@ -94,14 +95,14 @@ namespace vlx
 		///		Returns pointer to the added component if it was successful, otherwise nullptr.
 		/// </summary>
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		C* AddComponent(const EntityID entity_id, Args&&... args);
+		[[nodiscard]] C* AddComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
 		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
 		///		otherwise false.
 		/// </summary>
 		template<IsComponent C>
-		bool RemoveComponent(const EntityID entity_id);
+		[[nodiscard]] bool RemoveComponent(const EntityID entity_id);
 
 		/// <summary>
 		///		GetComponent is designed to be as fast as possible without checks to
@@ -109,20 +110,20 @@ namespace vlx
 		///		using this function. Otherwise, use e.g. TryGetComponent or GetComponentProxy.
 		/// </summary>
 		template<IsComponent C>
-		C& GetComponent(const EntityID entity_id) const;
+		[[nodiscard]] C& GetComponent(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Tries to get the component and sets the passed component pointer and returns true, otherwise false.
 		/// </summary>
 		template<IsComponent C>
-		std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
+		[[nodiscard]] std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Returns a proxy for the component whose pointer will remain valid even when the internal data is 
 		///		modified. The proxy will internally get the component's new data location once it has been modified.
 		/// </summary>
 		template<IsComponent C>
-		ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
+		[[nodiscard]] ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Tries to return a component proxy, will most likely always succeed, and will only return false if the 
@@ -135,13 +136,13 @@ namespace vlx
 		///		Returns true if the entity has the component C, otherwise false.
 		/// </summary>
 		template<IsComponent C>
-		bool HasComponent(const EntityID entity_id) const;
+		[[nodiscard]] bool HasComponent(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Returns true if the component has been registered in the ECS, otherwise false.
 		/// </summary>
 		template<IsComponent C>
-		bool IsComponentRegistered() const;
+		[[nodiscard]] bool IsComponentRegistered() const;
 
 		/// <summary>
 		///		Shortcut for adding multiple components to entity. Cannot pass constructor arguments.
@@ -150,7 +151,7 @@ namespace vlx
 		void AddComponents(const EntityID entity_id);
 
 		template<IsComponent... Cs>
-		ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
+		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
 	public:
 		/// <summary>
@@ -169,7 +170,7 @@ namespace vlx
 		/// </param>
 		/// <returns></returns>
 		template<IsComponents... Cs>
-		std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
+		[[nodiscard]] std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
 		/// <summary>
 		///		Increase the capacity in each matching archetype to reduce reallocations. Do note that it
@@ -188,27 +189,27 @@ namespace vlx
 	public:
 		VELOX_API EntityID GetNewEntityID();
 
-		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
+		VELOX_API [[nodiscard]] auto RegisterEntity(const EntityID entity_id) -> Record&;
 		VELOX_API bool IsEntityRegistered(const EntityID entity_id) const;
 
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
 
 		VELOX_API void RemoveSystem(const LayerType layer, ISystem* system);
-		VELOX_API bool RemoveEntity(const EntityID entity_id);
+		VELOX_API [[nodiscard]] bool RemoveEntity(const EntityID entity_id);
 
 		VELOX_API void RunSystems(const LayerType layer) const;
 		VELOX_API void SortSystems(const LayerType layer);
 
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
-		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
+		VELOX_API [[nodiscard]] bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
 	public:
 		/// <summary>
 		///		Returns a duplicated entity with the same properties as the specified one
 		/// </summary>
-		VELOX_API EntityID Duplicate(const EntityID entity_id);
+		VELOX_API [[nodiscard]] EntityID Duplicate(const EntityID entity_id);
 
-		VELOX_API std::vector<EntityID> GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted = false) const;
+		VELOX_API [[nodiscard]] std::vector<EntityID> GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted = false) const;
 
 		VELOX_API void Reserve(const std::vector<ComponentTypeID>& component_ids, const std::size_t component_count);
 
@@ -222,8 +223,8 @@ namespace vlx
 		VELOX_API void Shrink(bool extensive = false);
 
 	private:
-		VELOX_API Archetype* GetArchetype(const ComponentIDs& component_ids);
-		VELOX_API Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
+		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);
+		VELOX_API [[nodiscard]] Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
 
 		VELOX_API void MakeRoom(
 			Archetype* archetype,

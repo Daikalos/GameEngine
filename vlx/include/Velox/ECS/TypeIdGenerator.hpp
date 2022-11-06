@@ -10,10 +10,11 @@ namespace vlx
 	class TypeIDGenerator
 	{
 	public:
-		template<class U>
+		template<class T>
 		inline static IDType GetUniqueID() noexcept
 		{
-			return static_cast<IDType>(typeid(U).hash_code());
+			static const IDType id = static_cast<IDType>(typeid(T).hash_code());
+			return id;
 		}
 	};
 }

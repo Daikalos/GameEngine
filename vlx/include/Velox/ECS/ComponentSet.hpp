@@ -19,8 +19,7 @@ namespace vlx
 	class ComponentSet
 	{
 	public:
-		template<class... Args>
-		ComponentSet(Args&&... args);
+		ComponentSet(ComponentProxy<Cs>*... proxy);
 
 		template<IsComponent C> requires Contains<C, Cs...>
 		C& Get();
@@ -30,10 +29,9 @@ namespace vlx
 	};
 
 	template<IsComponent... Cs>
-	template<class... Args>
-	inline ComponentSet<Cs...>::ComponentSet(Args&&... args)
+	inline ComponentSet<Cs...>::ComponentSet(ComponentProxy<Cs>*... proxy)
 	{
-		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), std::forward<Args>(args)), ...);
+		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), proxy), ...);
 	}
 
 	template<IsComponent... Cs>
