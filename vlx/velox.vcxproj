@@ -169,11 +169,10 @@
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
-    <ClInclude Include="include\Velox\ECS\TypeIDGenerator.hpp" />
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\IGUI.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\GUI.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
@@ -198,6 +197,7 @@
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />
     <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
+    <ClInclude Include="include\Velox\Utilities\TypeID.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\Utilities\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
@@ -213,7 +213,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Graphics\GUI\IGUI.cpp" />
+    <ClCompile Include="src\Graphics\GUI\GUI.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />

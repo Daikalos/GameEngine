@@ -5,7 +5,6 @@
 #include <Velox/Utilities.hpp>
 
 #include "Identifiers.hpp"
-#include "TypeIDGenerator.hpp"
 #include "IComponent.h"
 
 namespace vlx
@@ -114,6 +113,6 @@ namespace vlx
 	template<IsComponent C>
 	inline ComponentTypeID ComponentAlloc<C>::GetTypeID() noexcept
 	{
-		return TypeIDGenerator::GetUniqueID<C>();
+		return type::GetUniqueID<C, ComponentTypeID>();
 	}
 }

@@ -23,7 +23,7 @@
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
-    <ClCompile Include="src\Graphics\GUI\IGUI.cpp" />
+    <ClCompile Include="src\Graphics\GUI\GUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -32,11 +32,10 @@
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
-    <ClInclude Include="include\Velox\ECS\TypeIDGenerator.hpp" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\IGUI.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\GUI.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\ControlMap.h" />
@@ -85,6 +84,7 @@
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
+    <ClInclude Include="include\Velox\Utilities\TypeID.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

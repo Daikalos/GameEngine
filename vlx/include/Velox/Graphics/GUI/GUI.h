@@ -7,14 +7,11 @@
 
 namespace vlx::gui
 {
-	class IGUI : private NonCopyable
+	class GUI : private NonCopyable
 	{
 	public:
-		using Ptr = typename std::shared_ptr<IGUI>;
-
-	public:
-		IGUI() = default;
-		virtual ~IGUI() = default;
+		GUI() = default;
+		virtual ~GUI() = default;
 
 		constexpr bool IsSelected() const noexcept;
 

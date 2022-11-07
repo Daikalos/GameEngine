@@ -38,6 +38,7 @@ void Application::Run()
 	Entity entity = m_world.GetObjectSystem().CreateObject();
 	entity.AddComponents<Object, Sprite, Transform>();
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
+	entity.GetComponent<Sprite>().SetOpacity(1.0f);
 
 	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
 	m_world.GetTransformSystem().SetPosition(*transform, {50.0f, 50.0f});
@@ -47,7 +48,7 @@ void Application::Run()
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
-	ComponentSet<Object, Transform> set = entity.GetComponents<Object, Transform>();
+	auto set = entity.GetComponents<Object, Transform>();
 
 	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 

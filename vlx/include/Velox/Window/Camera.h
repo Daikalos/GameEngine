@@ -39,7 +39,7 @@ namespace vlx
 
 		struct PendingChange
 		{
-			VELOX_API explicit PendingChange(const Action& action, const CameraBehavior::ID camera_id = -1);
+			VELOX_API explicit PendingChange(const Action& action, const CameraBehavior::ID camera_id = 0);
 
 			template<typename... Args>
 			void InsertData(Args&&... args)

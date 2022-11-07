@@ -6,16 +6,21 @@ using namespace vlx;
 
 static constexpr std::size_t VERTEX_COUNT = 4;
 
-Sprite::Sprite() = default;
-
-Sprite::Sprite(const sf::Texture& texture, float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, const float depth) : m_depth(depth)
 {
 	SetTexture(texture, true);
 }
 
-Sprite::Sprite(const sf::Texture& texture, const TextureRect& rect, float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, const TextureRect& visible_rect, const float depth) : m_depth(depth)
 {
-	SetTextureRect(rect);
+	SetTextureRect(visible_rect);
+	SetTexture(texture);
+}
+
+Sprite::Sprite(const sf::Texture& texture, const sf::Vector2f& size, const TextureRect& visible_rect, const float depth) : m_depth(depth)
+{
+	SetTextureRect(visible_rect);
+	SetSize(size);
 	SetTexture(texture);
 }
 
@@ -40,42 +45,19 @@ const Sprite::TextureRect& Sprite::GetTextureRect() const noexcept
 {
 	return m_texture_rect;
 }
+const sf::Vector2f& Sprite::GetSize() const noexcept
+{
+	return m_size;
+}
 const float& Sprite::GetDepth() const noexcept
 {
 	return m_depth;
 }
-
-const sf::FloatRect Sprite::GetLocalBounds() const noexcept
+const float& Sprite::GetOpacity() const noexcept
 {
-	auto width = static_cast<float>(std::abs(m_texture_rect.width));
-	auto height = static_cast<float>(std::abs(m_texture_rect.height));
-
-	return sf::FloatRect({0.0f, 0.0f}, {width, height});
+	return m_opacity;
 }
-const sf::Vector2f Sprite::GetSize() const noexcept
-{
-	float left		= m_vertices[0].position.x;
-	float top		= m_vertices[0].position.y;
-	float right		= m_vertices[0].position.x;
-	float bottom	= m_vertices[0].position.y;
 
-	for (std::size_t i = 1; i < m_vertices.size(); ++i)
-	{
-		sf::Vector2f position = m_vertices[i].position;
-
-		if (position.x < left)
-			left = position.x;
-		else if (position.x > right)
-			right = position.x;
-
-		if (position.y < top)
-			top = position.y;
-		else if (position.y > bottom)
-			bottom = position.y;
-	}
-
-	return sf::Vector2f(right - left, bottom - top);
-}
 constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 {
 	return sf::TriangleStrip; // all common sprites use triangle strip
@@ -83,8 +65,11 @@ constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 
 void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect)
 {
-	if (reset_rect || (!m_texture && (m_texture_rect == TextureRect())))
+	if (reset_rect || (m_texture == nullptr && (m_texture_rect == TextureRect())))
 		SetTextureRect(TextureRect({ 0U, 0U }, sf::Vector2<std::uint16_t>(texture.getSize())));
+
+	if (m_texture == nullptr && m_size == sf::Vector2f())
+		SetSize(sf::Vector2f(texture.getSize()));
 
 	m_texture = &texture;
 }
@@ -93,33 +78,46 @@ void Sprite::SetTextureRect(const TextureRect& rect)
 	if (m_texture_rect != rect)
 	{
 		m_texture_rect = rect;
-
-		UpdatePositions();
 		UpdateTexCoords();
+	}
+}
+void Sprite::SetSize(const sf::Vector2f& size)
+{
+	if (m_size != size)
+	{
+		m_size = size;
+		UpdatePositions();
 	}
 }
 void Sprite::SetColor(const sf::Color& color)
 {
-	for (sf::Vertex& vertex : m_vertices)
-		vertex.color = color;
+	for (sf::Vertex& vertex : m_vertices) // do not change alpha
+	{
+		vertex.color.r = color.r;
+		vertex.color.g = color.g;
+		vertex.color.b = color.b;
+	}
 }
-void Sprite::SetOpacity(const float opacity) noexcept
+void Sprite::SetOpacity(const float opacity)
 {
+	assert(opacity >= 0.0f && opacity <= 1.0f);
+
 	m_opacity = opacity;
+
+	for (sf::Vertex& vertex : m_vertices)
+		vertex.color.a = sf::Uint8(opacity * UINT8_MAX);
 }
-void Sprite::SetDepth(const float val) noexcept
+void Sprite::SetDepth(const float val)
 {
 	m_depth = val;
 }
 
 void Sprite::UpdatePositions()
 {
-	sf::FloatRect bounds = GetLocalBounds();
-
-	m_vertices[0].position = sf::Vector2f(0.0f,			0.0f);
-	m_vertices[1].position = sf::Vector2f(0.0f,			bounds.height);
-	m_vertices[2].position = sf::Vector2f(bounds.width, 0.0f);
-	m_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
+	m_vertices[0].position = sf::Vector2f(0.0f,		0.0f);
+	m_vertices[1].position = sf::Vector2f(0.0f,		m_size.y);
+	m_vertices[2].position = sf::Vector2f(m_size.x, 0.0f);
+	m_vertices[3].position = sf::Vector2f(m_size.x, m_size.y);
 }
 void Sprite::UpdateTexCoords()
 {

@@ -506,14 +506,12 @@ namespace vlx
 	template<IsComponent... Cs>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
 	{
-		return { &GetComponentProxy<Cs>(entity_id)... };
+		return ComponentSet<Cs...>(GetComponentProxy<Cs>(entity_id)...);
 	}
 
 	template<IsComponents... Cs, class Comp>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
-		using C = typename std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
-
 		const ComponentIDs component_ids = SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }); // see system.hpp
 		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
@@ -526,6 +524,7 @@ namespace vlx
 		if (archetype->id != archetype_id)
 			throw std::runtime_error("the specified archetype does not exist");
 
+		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
 		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
@@ -553,7 +552,7 @@ namespace vlx
 		{
 			const ComponentTypeID component_id	= archetype->type[i];
 			const IComponentAlloc* component	= m_component_map[component_id].get();
-			const std::size_t& component_size	= component->GetSize();
+			constexpr std::size_t component_size	= component->GetSize();
 
 			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 

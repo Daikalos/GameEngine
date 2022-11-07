@@ -8,7 +8,7 @@ namespace vlx
 {
 	class EntityAdmin;
 
-	class IComponentProxy
+	class IComponentProxy : private NonCopyable
 	{
 	public:
 		virtual ~IComponentProxy() = default;

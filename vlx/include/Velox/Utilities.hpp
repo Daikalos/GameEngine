@@ -11,3 +11,4 @@
 #include "Utilities/ThreadPool.h"
 #include "Utilities/WeakEvent.hpp"
 #include "Utilities/Traits.h"
+#include "Utilities/TypeID.h"

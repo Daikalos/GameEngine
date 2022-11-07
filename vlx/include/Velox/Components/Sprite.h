@@ -26,28 +26,30 @@ namespace vlx
 		using TextureRect = sf::Rect<std::uint16_t>; // textures are usually not larger than unsigned short in either width or height
 
 	public:
-		Sprite();
-		Sprite(const sf::Texture& texture, float depth = 0.0f);
-		Sprite(const sf::Texture& texture, const TextureRect& rect, float depth = 0.0f);
+		Sprite() = default;
+		Sprite(const sf::Texture& texture, const float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const sf::Vector2f& size, const float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const TextureRect& visible_rect, const float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const sf::Vector2f& size, const TextureRect& visible_rect, const float depth = 0.0f);
 
-		void Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const override;
-
-	public:
 		[[nodiscard]] const sf::Texture* GetTexture() const noexcept;
 		[[nodiscard]] const sf::Shader* GetShader() const noexcept;
 		[[nodiscard]] const VertexArray& GetVertices() const noexcept;
 		[[nodiscard]] const TextureRect& GetTextureRect() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetSize() const noexcept;
 		[[nodiscard]] const float& GetDepth() const noexcept;
-
-		[[nodiscard]] const sf::FloatRect GetLocalBounds() const noexcept;
-		[[nodiscard]] const sf::Vector2f GetSize() const noexcept;
+		[[nodiscard]] const float& GetOpacity() const noexcept;
 		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 
 		void SetTexture(const sf::Texture& texture, bool reset_rect = false);
 		void SetTextureRect(const TextureRect& rect);
+		void SetSize(const sf::Vector2f& size);
 		void SetColor(const sf::Color& color);
-		void SetDepth(const float value) noexcept;
-		void SetOpacity(const float opacity) noexcept;
+		void SetDepth(const float value);
+		void SetOpacity(const float opacity);
+
+	public:
+		void Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const override;
 
 	private:
 		void UpdatePositions();
