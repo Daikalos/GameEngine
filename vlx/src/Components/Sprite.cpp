@@ -63,12 +63,12 @@ constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 	return sf::TriangleStrip; // all common sprites use triangle strip
 }
 
-void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect)
+void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect, bool reset_size)
 {
-	if (reset_rect || (m_texture == nullptr && (m_texture_rect == TextureRect())))
+	if (reset_rect || (m_texture == nullptr && m_texture_rect == TextureRect()))
 		SetTextureRect(TextureRect({ 0U, 0U }, sf::Vector2<std::uint16_t>(texture.getSize())));
 
-	if (m_texture == nullptr && m_size == sf::Vector2f())
+	if (reset_size || (m_texture == nullptr && m_size == sf::Vector2f()))
 		SetSize(sf::Vector2f(texture.getSize()));
 
 	m_texture = &texture;
@@ -105,7 +105,7 @@ void Sprite::SetOpacity(const float opacity)
 	m_opacity = opacity;
 
 	for (sf::Vertex& vertex : m_vertices)
-		vertex.color.a = sf::Uint8(opacity * UINT8_MAX);
+		vertex.color.a = sf::Uint8(m_opacity * UINT8_MAX);
 }
 void Sprite::SetDepth(const float val)
 {

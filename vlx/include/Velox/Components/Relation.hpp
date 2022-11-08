@@ -2,8 +2,10 @@
 
 #include <unordered_set>
 #include <type_traits>
+#include <functional>
 
 #include <Velox/ECS/EntityAdmin.h>
+#include <Velox/ECS/Identifiers.hpp>
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
@@ -16,6 +18,10 @@ namespace vlx
 	template<class T>
 	class Relation : public IComponent
 	{
+	private:
+		template<class U>
+		using Func = std::function<void(U&)>;
+
 	public:
 		virtual ~Relation() = 0; // to make abstract
 
@@ -31,6 +37,9 @@ namespace vlx
 	public:
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 		const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
+
+		template<class U>
+		void IterateChildren(Func<U>&& func, const EntityAdmin& entity_admin, bool include_descendants = true);
 
 		[[nodiscard]] constexpr bool HasParent() const noexcept;
 
@@ -109,6 +118,27 @@ namespace vlx
 		m_children.pop_back();
 
 		return child_id;
+	}
+
+	template<class T>
+	template<class U>
+	void Relation<T>::IterateChildren(Func<U>&& func, const EntityAdmin& entity_admin, bool include_descendants)
+	{
+		for (const EntityID entity_id : m_children)
+		{
+			auto [component, success] = entity_admin.TryGetComponent<U>(entity_id);
+
+			if (!success)
+				continue;
+
+			std::forward<Func<U>>(func)(*component);
+
+			if (include_descendants)
+			{
+				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(entity_id))
+					.Iterate<U>(entity_admin, std::forward<Func<U>>(func), include_descendants);
+			}
+		}
 	}
 
 	template<class T>

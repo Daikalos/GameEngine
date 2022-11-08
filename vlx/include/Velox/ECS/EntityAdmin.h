@@ -98,6 +98,18 @@ namespace vlx
 		[[nodiscard]] C* AddComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
+		///		Sets the component for the entity directly, component is assumed to exist.
+		/// </summary>
+		template<IsComponent C>
+		C& SetComponent(const EntityID entity_id, C&& comp);
+
+		/// <summary>
+		///		Tries to set the component for entity, will return false if it fails.
+		/// </summary>
+		template<IsComponent C>
+		std::pair<C*, bool> TrySetComponent(const EntityID entity_id, C&& comp);
+
+		/// <summary>
 		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
 		///		otherwise false.
 		/// </summary>
@@ -371,6 +383,58 @@ namespace vlx
 	}
 
 	template<IsComponent C>
+	inline C& EntityAdmin::SetComponent(const EntityID entity_id, C&& comp)
+	{
+		assert(IsComponentRegistered<C>()); // component should be registered
+
+		const Record& record = m_entity_archetype_map.find(entity_id)->second;
+		const Archetype* archetype = record.archetype;
+
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+
+		const auto cit = m_component_archetypes_map.find(component_id);
+		const auto ait = cit->second.find(archetype->id);
+
+		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
+		C& component = (components[record.index] = std::forward<C>(comp));
+
+		return component;
+	}
+
+	template<IsComponent C>
+	inline std::pair<C*, bool> EntityAdmin::TrySetComponent(const EntityID entity_id, C&& comp)
+	{
+		assert(IsComponentRegistered<C>()); // component should be registered
+
+		const auto eit = m_entity_archetype_map.find(entity_id);
+		if (eit == m_entity_archetype_map.end())
+			return { nullptr, false };
+
+		const Record& record = eit->second;
+		const Archetype* archetype = record.archetype;
+
+		if (archetype == nullptr)
+			return { nullptr, false };
+
+		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+
+		const auto cit = m_component_archetypes_map.find(component_id);
+		if (cit == m_component_archetypes_map.end())
+			return { nullptr, false };
+
+		const auto ait = cit->second.find(archetype->id);
+		if (ait == cit->second.end())
+			return { nullptr, false };
+
+		const ArchetypeRecord& a_record = ait->second;
+
+		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
+		C* component = &(components[record.index] = std::forward<C>(comp));
+
+		return { component, true };
+	}
+
+	template<IsComponent C>
 	inline bool EntityAdmin::RemoveComponent(const EntityID entity_id)
 	{
 		return RemoveComponent(entity_id, ComponentAlloc<C>::GetTypeID());
@@ -390,12 +454,15 @@ namespace vlx
 		const auto ait = cit->second.find(archetype->id);
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
+
 		return components[record.index];
 	}
 
 	template<IsComponent C>
 	inline std::pair<C*, bool> EntityAdmin::TryGetComponent(const EntityID entity_id) const
 	{
+		assert(IsComponentRegistered<C>()); // component should be registered
+
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
 			return { nullptr, false };

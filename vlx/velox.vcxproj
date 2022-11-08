@@ -172,8 +172,10 @@
     <ClInclude Include="include\Velox\ECS\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\GUI.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Text.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />

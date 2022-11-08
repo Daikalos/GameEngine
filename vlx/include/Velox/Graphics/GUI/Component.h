@@ -7,11 +7,11 @@
 
 namespace vlx::gui
 {
-	class GUI : private NonCopyable
+	class Component : private NonCopyable
 	{
 	public:
-		GUI() = default;
-		virtual ~GUI() = default;
+		Component() = default;
+		virtual ~Component() = default;
 
 		constexpr bool IsSelected() const noexcept;
 

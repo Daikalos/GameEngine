@@ -2,8 +2,11 @@
 
 namespace vlx::gui
 {
-	class TextBox
+	class Button
 	{
+	public:
+
+	private:
+
 	};
 }
-

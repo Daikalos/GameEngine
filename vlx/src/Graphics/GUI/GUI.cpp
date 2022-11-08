@@ -1,47 +1,47 @@
-#include <Velox/Graphics/GUI/GUI.h>
+#include <Velox/Graphics/GUI/Component.h>
 
 using namespace vlx::gui;
 
-constexpr bool GUI::IsSelected() const noexcept
+constexpr bool Component::IsSelected() const noexcept
 {
 	return m_selected;
 }
 
-void GUI::Select()
+void Component::Select()
 {
 	m_selected = true;
 }
 
-void GUI::Deselect()
+void Component::Deselect()
 {
 	m_selected = false;
 }
 
-constexpr bool GUI::IsActive() const
+constexpr bool Component::IsActive() const
 {
 	return m_active;
 }
 
-void GUI::Activate()
+void Component::Activate()
 {
 	m_active = true;
 }
 
-void GUI::Deactivate()
+void Component::Deactivate()
 {
 	m_active = false;
 }
 
-bool GUI::Update(float dt)
+bool Component::Update(float dt)
 { 
 	return true; 
 }
-bool GUI::Draw() 
+bool Component::Draw()
 {
 	return true; 
 }
 
-sf::Vector2f GUI::GetSize() const
+sf::Vector2f Component::GetSize() const
 {
 	return sf::Vector2f();
 }

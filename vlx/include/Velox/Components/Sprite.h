@@ -41,7 +41,7 @@ namespace vlx
 		[[nodiscard]] const float& GetOpacity() const noexcept;
 		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 
-		void SetTexture(const sf::Texture& texture, bool reset_rect = false);
+		void SetTexture(const sf::Texture& texture, bool reset_rect = false, bool reset_size = false);
 		void SetTextureRect(const TextureRect& rect);
 		void SetSize(const sf::Vector2f& size);
 		void SetColor(const sf::Color& color);
