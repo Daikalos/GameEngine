@@ -396,7 +396,13 @@ namespace vlx
 		const auto ait = cit->second.find(archetype->id);
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-		C& component = (components[record.index] = std::forward<C>(comp));
+
+		C& component = components[record.index];
+		IComponent& icomponent = static_cast<IComponent&>(component);
+
+		icomponent.Destroyed(*this, entity_id);
+		component = std::forward<C>(comp);
+		icomponent.Modified(*this, entity_id);
 
 		return component;
 	}
@@ -429,9 +435,15 @@ namespace vlx
 		const ArchetypeRecord& a_record = ait->second;
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-		C* component = &(components[record.index] = std::forward<C>(comp));
 
-		return { component, true };
+		C& component = components[record.index];
+		IComponent& icomponent = static_cast<IComponent&>(component);
+
+		icomponent.Destroyed(*this, entity_id);
+		component = std::forward<C>(comp);
+		icomponent.Modified(*this, entity_id);
+
+		return { &component, true };
 	}
 
 	template<IsComponent C>

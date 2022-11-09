@@ -3,9 +3,9 @@
 using namespace vlx;
 
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
-	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_OBJECTS)
+	: m_entity_admin(&entity_admin), m_object_system(entity_admin, LYR_OBJECTS)
 {
-	m_system.Action([this](std::span<const EntityID> entities, Object* objects)
+	m_object_system.Action([this](std::span<const EntityID> entities, Object* objects)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

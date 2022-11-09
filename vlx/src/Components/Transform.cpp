@@ -93,10 +93,6 @@ const sf::Transform& Transform::GetInverseLocalTransform() const
 
 	return m_inverse_local_transform;
 }
-const sf::Vector2f& Transform::GetLocalOrigin() const
-{
-	return m_origin;
-}
 const sf::Vector2f& Transform::GetLocalPosition() const
 {
 	return m_position;
@@ -123,8 +119,10 @@ void Transform::SetPosition(const EntityAdmin& entity_admin, const sf::Vector2f&
 {
 	if (global && HasParent())
 	{
-		UpdateTransforms(entity_admin);
-		m_position = entity_admin.GetComponent<Transform>(m_parent).GetInverseTransform() * position;
+		Transform& parent = entity_admin.GetComponent<Transform>(m_parent);
+
+		parent.UpdateTransforms(entity_admin); // update transform
+		m_position = parent.GetInverseTransform() * position;
 	}
 	else
 	{

@@ -10,6 +10,9 @@
 
 namespace vlx
 {
+	/// <summary>
+	///		Represents the transform and the overall scene graph
+	/// </summary>
 	class VELOX_API Transform : public Relation<Transform>
 	{ 
 	public:
@@ -33,7 +36,6 @@ namespace vlx
 
 		[[nodiscard]] const sf::Transform& GetLocalTransform() const;
 		[[nodiscard]] const sf::Transform& GetInverseLocalTransform() const;
-		[[nodiscard]] const sf::Vector2f& GetLocalOrigin() const;
 		[[nodiscard]] const sf::Vector2f& GetLocalPosition() const;
 		[[nodiscard]] const sf::Vector2f& GetLocalScale() const;
 		[[nodiscard]] const sf::Angle& GetLocalRotation() const;
@@ -51,8 +53,8 @@ namespace vlx
 		void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
 		void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
 
-		void UpdateTransforms(	const EntityAdmin& entity_admin) const;
-		void UpdateRequired(	const EntityAdmin& entity_admin) const;
+		void UpdateTransforms(const EntityAdmin& entity_admin) const;
+		void UpdateRequired(const EntityAdmin& entity_admin) const;
 
 		void ComputeTransform() const;
 		void ComputeTransform(const sf::Transform& transform) const;

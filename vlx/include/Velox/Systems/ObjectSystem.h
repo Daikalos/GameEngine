@@ -40,7 +40,6 @@ namespace vlx
 		};
 
 	private:
-		using System	= System<Object>;
 		using Command	= std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
 
 	public:
@@ -74,10 +73,10 @@ namespace vlx
 		void AddComponentsInstant(const EntityID entity_id);
 
 	private:
-		EntityAdmin*	m_entity_admin{nullptr};
-		System			m_system;
+		EntityAdmin*							m_entity_admin	{nullptr};
+		System<Object>							m_object_system;
 
-		std::queue<Command>	m_commands;
+		std::queue<Command>						m_commands;
 	};
 
 	template<IsComponent C>

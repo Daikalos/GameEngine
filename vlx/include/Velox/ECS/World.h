@@ -4,9 +4,12 @@
 
 #include <Velox/ECS.hpp>
 
+#include <Velox/Systems/AnchorSystem.h>
 #include <Velox/Systems/ObjectSystem.h>
 #include <Velox/Systems/RenderSystem.h>
 #include <Velox/Systems/TransformSystem.h>
+
+#include <Velox/Window/Window.h>
 
 #include <Velox/Config.hpp>
 
@@ -18,7 +21,7 @@ namespace vlx
 	class VELOX_API World : public sf::Drawable
 	{
 	public:
-		World();
+		World(const Window& window);
 
 		void Update();
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
@@ -38,6 +41,7 @@ namespace vlx
 
 		ObjectSystem	m_object_system;
 		TransformSystem m_transform_system;
+		AnchorSystem	m_anchor_system;
 		RenderSystem	m_render_system;
 	};
 }

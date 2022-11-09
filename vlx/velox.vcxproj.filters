@@ -24,6 +24,7 @@
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUI.cpp" />
+    <ClCompile Include="src\Systems\AnchorSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -87,6 +88,7 @@
     <ClInclude Include="include\Velox\Utilities\TypeID.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
+    <ClInclude Include="include\Velox\Systems\AnchorSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

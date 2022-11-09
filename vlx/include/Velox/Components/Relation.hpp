@@ -128,10 +128,10 @@ namespace vlx
 		{
 			auto [component, success] = entity_admin.TryGetComponent<U>(entity_id);
 
-			if (!success)
-				continue;
-
-			std::forward<Func<U>>(func)(*component);
+			if (success)
+			{
+				std::forward<Func<U>>(func)(*component);
+			}
 
 			if (include_descendants)
 			{
