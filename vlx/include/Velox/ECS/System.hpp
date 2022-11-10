@@ -120,17 +120,11 @@ namespace vlx
 		m_entity_admin->SortSystems(m_layer);
 	}
 
-	inline ComponentIDs SortKeys(ComponentIDs&& types)
-	{
-		std::sort(types.begin(), types.end());
-		return types;
-	}
-
 	template<IsComponents... Cs>
 	inline const ArchetypeID& System<Cs...>::GetKey() const
 	{
 		if (m_key == NULL_ARCHETYPE)
-			m_key = cu::VectorHash<ComponentIDs>()(SortKeys({{ ComponentAlloc<Cs>::GetTypeID()... }}));
+			m_key = cu::VectorHash<ComponentIDs>()(cu::Sort<ComponentTypeID>({{ ComponentAlloc<Cs>::GetTypeID()... }}));
 
 		return m_key;
 	}	

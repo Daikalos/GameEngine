@@ -591,7 +591,7 @@ namespace vlx
 	template<IsComponents... Cs, class Comp>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
-		const ComponentIDs component_ids = SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }); // see system.hpp
+		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } }); // see system.hpp
 		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);
@@ -666,13 +666,13 @@ namespace vlx
 	template<IsComponents... Cs>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		Reserve(SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }), component_count);
+		Reserve(cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } }), component_count);
 	}
 
 	template<IsComponents... Cs>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		return GetEntitiesWith(SortKeys({ { ComponentAlloc<Cs>::GetTypeID()... } }), restricted);
+		return GetEntitiesWith(cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } }), restricted);
 	}
 
 	template<IsComponent C>
