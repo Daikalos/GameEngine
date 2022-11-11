@@ -49,7 +49,9 @@ void Application::Run()
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
-	auto set = entity.GetComponents<Object, Transform>();
+	auto set = new_entity.GetComponents<Object, Transform>();
+
+	entity_admin.SetComponent<Transform>(entity.GetID(), set.Get<Transform>());
 
 	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 

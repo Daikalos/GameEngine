@@ -30,6 +30,7 @@ namespace vlx
 		///		When the relation is destroyed, we need to detach it accordingly
 		/// </summary>
 		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) override;
 
 		virtual void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child) {}
 		virtual void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child) {}
@@ -70,6 +71,25 @@ namespace vlx
 		for (const EntityID child : m_children)
 		{
 			DetachChild(entity_admin, entity_id, child, static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child)));
+		}
+	}
+
+	template<class T>
+	inline void Relation<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data)
+	{
+		Destroyed(entity_admin, entity_id);
+
+		const Relation<T>& new_relation = static_cast<const Relation<T>&>(new_data);
+
+		if (new_relation.HasParent())
+		{
+			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(new_relation.m_parent))
+				.AttachChild(entity_admin, new_relation.m_parent, entity_id, *this);
+		}
+
+		for (const EntityID child : new_relation.m_children)
+		{
+			AttachChild(entity_admin, entity_id, child, entity_admin.GetComponent<T>(child));
 		}
 	}
 

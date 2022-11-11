@@ -141,14 +141,14 @@ namespace vlx::cu
 		(unpack(args), ...);
 	}
 
-	template<class T>
+	template<typename T>
 	static std::vector<T> Sort(std::vector<T>&& vec)
 	{
 		std::sort(vec.begin(), vec.end());
 		return vec;
 	}
 
-	template<class T, typename Pred>
+	template<typename T, typename Pred>
 	static std::vector<T> Sort(std::vector<T>&& vec, Pred&& predicate)
 	{
 		std::sort(vec.begin(), vec.end(), predicate);

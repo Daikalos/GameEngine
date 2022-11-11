@@ -101,13 +101,13 @@ namespace vlx
 		///		Sets the component for the entity directly, component is assumed to exist.
 		/// </summary>
 		template<IsComponent C>
-		C& SetComponent(const EntityID entity_id, C&& comp);
+		C& SetComponent(const EntityID entity_id, const C& new_component);
 
 		/// <summary>
 		///		Tries to set the component for entity, will return false if it fails.
 		/// </summary>
 		template<IsComponent C>
-		std::pair<C*, bool> TrySetComponent(const EntityID entity_id, C&& comp);
+		std::pair<C*, bool> TrySetComponent(const EntityID entity_id, const C& new_component);
 
 		/// <summary>
 		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
@@ -291,7 +291,7 @@ namespace vlx
 		Archetype* old_archetype = record.archetype;
 
 		C* add_component = nullptr;
-		Archetype* new_archetype = nullptr;
+		Archetype* new_archetype = nullptr; // we are going to be moving to a new archetype
 
 		const ComponentTypeID add_component_id = ComponentAlloc<C>::GetTypeID();
 
@@ -383,7 +383,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline C& EntityAdmin::SetComponent(const EntityID entity_id, C&& comp)
+	inline C& EntityAdmin::SetComponent(const EntityID entity_id, const C& new_component)
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -396,19 +396,21 @@ namespace vlx
 		const auto ait = cit->second.find(archetype->id);
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-
 		C& component = components[record.index];
-		IComponent& icomponent = static_cast<IComponent&>(component);
 
-		icomponent.Destroyed(*this, entity_id);
-		component = std::forward<C>(comp);
-		icomponent.Modified(*this, entity_id);
+		if (&component == &new_component)
+			throw std::runtime_error("cant set the same component");
+
+		static_cast<IComponent&>(component).Modified(
+			*this, entity_id, static_cast<const IComponent&>(new_component));
+
+		component = new_component;
 
 		return component;
 	}
 
 	template<IsComponent C>
-	inline std::pair<C*, bool> EntityAdmin::TrySetComponent(const EntityID entity_id, C&& comp)
+	inline std::pair<C*, bool> EntityAdmin::TrySetComponent(const EntityID entity_id, const C& new_component)
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -435,13 +437,15 @@ namespace vlx
 		const ArchetypeRecord& a_record = ait->second;
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-
 		C& component = components[record.index];
-		IComponent& icomponent = static_cast<IComponent&>(component);
 
-		icomponent.Destroyed(*this, entity_id);
-		component = std::forward<C>(comp);
-		icomponent.Modified(*this, entity_id);
+		if (&component == &new_component)
+			throw std::runtime_error("cant set the same component");
+
+		static_cast<IComponent&>(component).Modified(
+			*this, entity_id, static_cast<const IComponent&>(new_component));
+
+		component = new_component;
 
 		return { &component, true };
 	}

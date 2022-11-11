@@ -42,9 +42,10 @@ namespace vlx
 		/// <summary>
 		/// Called when the component's data has been modified
 		/// </summary>
+		/// <param name="new_component:">The new component that modifies the current data</param>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was copied</param>
-		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id) {}
+		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) {}
 
 		/// <summary>
 		/// Called before the component is destroyed, which can occur when the entity or component is removed

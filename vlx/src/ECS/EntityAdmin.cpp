@@ -568,7 +568,7 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 			const ComponentIDs subset_ids(begin, begin + width);
 			const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
 
-			m_archetype_map[subset_id].push_back(new_archetype.get());
+			m_archetype_map[subset_id].push_back(new_archetype.get()); // we add this archetype to each subset
 		}
 	}
 
@@ -582,7 +582,7 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_SIZE);
 
-		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = static_cast<ColumnType>(i);
+		m_component_archetypes_map[component_ids[i]][new_archetype->id].column = ColumnType(i);
 	}
 
 #ifdef VELOX_DEBUG

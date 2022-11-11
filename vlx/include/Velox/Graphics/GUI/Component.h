@@ -7,6 +7,13 @@
 
 namespace vlx::gui
 {
+	enum class ComponentType
+	{
+		Button,
+		Text,
+
+	};
+
 	class Component : private NonCopyable
 	{
 	public:
