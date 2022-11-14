@@ -23,9 +23,10 @@ namespace vlx
 	enum SystemLayers : LayerType
 	{
 		LYR_NONE = 0,
-		LYR_OBJECTS = 97,
-		LYR_TRANSFORM = 98,
-		LYR_ANCHOR = 99,
-		LYR_RENDERING = 100
+		LYR_OBJECTS = 997,
+		LYR_TRANSFORM = 998,
+		LYR_ANCHOR = 999,
+		LYR_RENDERING = 1000,
+		LYR_GUI_RENDERING = 1001
 	};
 }

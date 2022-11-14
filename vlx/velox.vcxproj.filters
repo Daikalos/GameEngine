@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\Graphics\gui\TextBox.cpp" />
+    <ClCompile Include="src\Graphics\gui\Text.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
@@ -23,8 +23,9 @@
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
-    <ClCompile Include="src\Graphics\GUI\GUI.cpp" />
+    <ClCompile Include="src\Graphics\GUI\Component.cpp" />
     <ClCompile Include="src\Systems\AnchorSystem.cpp" />
+    <ClCompile Include="src\Graphics\GUI\Button.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -89,6 +90,8 @@
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\Systems\AnchorSystem.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Selectable.h" />
+    <ClInclude Include="include\Velox\Systems\GUISystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

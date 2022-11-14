@@ -95,7 +95,7 @@ namespace vlx
 		///		Returns pointer to the added component if it was successful, otherwise nullptr.
 		/// </summary>
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		[[nodiscard]] C* AddComponent(const EntityID entity_id, Args&&... args);
+		C* AddComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
 		///		Sets the component for the entity directly, component is assumed to exist.
@@ -114,12 +114,12 @@ namespace vlx
 		///		otherwise false.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] bool RemoveComponent(const EntityID entity_id);
+		bool RemoveComponent(const EntityID entity_id);
 
 		/// <summary>
 		///		GetComponent is designed to be as fast as possible without checks to
-		///		see if it exists, will otherwise throw error. Therefore, take some caution when 
-		///		using this function. Otherwise, use e.g. TryGetComponent or GetComponentProxy.
+		///		see if it exists, otherwise, will throw error. Therefore, take some caution when 
+		///		using this function. Use e.g. TryGetComponent or GetComponentProxy for better safety.
 		/// </summary>
 		template<IsComponent C>
 		[[nodiscard]] C& GetComponent(const EntityID entity_id) const;
@@ -142,7 +142,7 @@ namespace vlx
 		///		entity does not exist or other unknown error occurs.
 		/// </summary>
 		template<IsComponent C>
-		std::pair<ComponentProxy<C>*, bool> TryGetComponentProxy(const EntityID entity_id) const;
+		[[nodiscard]] std::pair<ComponentProxy<C>*, bool> TryGetComponentProxy(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Returns true if the entity has the component C, otherwise false.
@@ -399,7 +399,7 @@ namespace vlx
 		C& component = components[record.index];
 
 		if (&component == &new_component)
-			throw std::runtime_error("cant set the same component");
+			throw std::runtime_error("cannot set the same component");
 
 		static_cast<IComponent&>(component).Modified(
 			*this, entity_id, static_cast<const IComponent&>(new_component));

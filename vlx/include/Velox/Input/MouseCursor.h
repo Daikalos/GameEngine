@@ -33,9 +33,9 @@ namespace vlx
 		void Draw();
 
 	public:
-		[[nodiscard]] constexpr sf::Vector2i GetMousePosition() const noexcept;
-		[[nodiscard]] constexpr sf::Vector2f GetDelta() const noexcept;
-		[[nodiscard]] constexpr sf::Vector2f GetPosition() const noexcept;
+		[[nodiscard]] const sf::Vector2i& GetMousePosition() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetDelta() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetPosition() const noexcept;
 
 		void SetCursor(const sf::Texture& texture);
 		void SetCursorState(const cst::ID cursor_state);

@@ -58,15 +58,15 @@ void MouseCursor::Draw()
 		m_window->draw(m_cursor);
 }
 
-constexpr sf::Vector2i MouseCursor::GetMousePosition() const noexcept
+const sf::Vector2i& MouseCursor::GetMousePosition() const noexcept
 { 
 	return m_mouse_pos;
 }
-constexpr sf::Vector2f MouseCursor::GetDelta() const noexcept
+const sf::Vector2f& MouseCursor::GetDelta() const noexcept
 { 
 	return m_mouse_delta; 
 }
-constexpr sf::Vector2f MouseCursor::GetPosition() const noexcept
+const sf::Vector2f& MouseCursor::GetPosition() const noexcept
 { 
 	return m_cursor_pos; 
 }

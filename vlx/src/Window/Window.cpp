@@ -6,7 +6,7 @@ Window::Window(
 	std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
 	m_name(name.data()), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate) {}
 
-[[nodiscard]] const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
+const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 {
 	if (update || m_cached_modes.empty())
 	{
@@ -31,11 +31,11 @@ Window::Window(
 	return m_cached_modes;
 }
 
-[[nodiscard]] constexpr sf::Vector2i Window::GetOrigin() const noexcept
+constexpr sf::Vector2i Window::GetOrigin() const noexcept
 {
 	return sf::Vector2i(getSize() / 2u);
 }
-[[nodiscard]] constexpr sf::Vector2f Window::GetRatioCmp() const noexcept
+const sf::Vector2f& Window::GetRatioCmp() const noexcept
 {
 	return m_ratio_cmp;
 }
@@ -53,7 +53,7 @@ void Window::onCreate()
 	SetFramerate(m_frame_rate);
 	SetVerticalSync(m_vertical_sync);
 
-	SetCursorState(false); // invisible as default, MouseHandler is used instead
+	SetCursorState(false); // invisible as default, MouseCursor is used instead
 	
 	m_ratio_cmp = sf::Vector2f(
 		getSize().x / (float)sf::VideoMode::getDesktopMode().size.x,

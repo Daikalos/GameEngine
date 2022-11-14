@@ -46,7 +46,7 @@ namespace vlx
 		[[nodiscard]] const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
 
 		[[nodiscard]] constexpr sf::Vector2i GetOrigin() const noexcept;
-		[[nodiscard]] constexpr sf::Vector2f GetRatioCmp() const noexcept;
+		[[nodiscard]] const sf::Vector2f& GetRatioCmp() const noexcept;
 
 		//////////////////////////////////////////////
 		// 

@@ -7,6 +7,7 @@ namespace vlx::gui
 	class Text
 	{
 	public:
+		void SetFont();
 
 	private:
 		sf::Text m_text;
