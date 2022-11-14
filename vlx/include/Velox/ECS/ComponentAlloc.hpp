@@ -113,6 +113,6 @@ namespace vlx
 	template<IsComponent C>
 	inline ComponentTypeID ComponentAlloc<C>::GetTypeID() noexcept
 	{
-		return type::GetUniqueID<C, ComponentTypeID>();
+		return id::GetTypeID<C, ComponentTypeID>();
 	}
 }

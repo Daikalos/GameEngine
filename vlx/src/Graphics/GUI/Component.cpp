@@ -2,7 +2,7 @@
 
 using namespace vlx::gui;
 
-const bool& Component::IsActive() const
+const bool& Component::IsActive() const noexcept
 {
 	return m_active;
 }

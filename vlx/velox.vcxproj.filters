@@ -86,12 +86,14 @@
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
-    <ClInclude Include="include\Velox\Utilities\TypeID.h" />
+    <ClInclude Include="include\Velox\Utilities\IDGenerator.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\Systems\AnchorSystem.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Selectable.h" />
     <ClInclude Include="include\Velox\Systems\GUISystem.h" />
+    <ClInclude Include="include\Velox\Utilities\EventHandler.hpp" />
+    <ClInclude Include="include\Velox\Utilities\Event.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

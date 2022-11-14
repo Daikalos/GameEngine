@@ -202,7 +202,9 @@
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />
     <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
-    <ClInclude Include="include\Velox\Utilities\TypeID.h" />
+    <ClInclude Include="include\Velox\Utilities\Event.hpp" />
+    <ClInclude Include="include\Velox\Utilities\EventHandler.hpp" />
+    <ClInclude Include="include\Velox\Utilities\IDGenerator.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\Utilities\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />

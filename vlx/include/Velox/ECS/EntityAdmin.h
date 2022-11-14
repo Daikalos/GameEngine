@@ -31,7 +31,7 @@ namespace vlx
 
 	////////////////////////////////////////////////////////////
 	// 
-	// Based on article by Deckhead:
+	// ECS based on article by Deckhead:
 	// https://indiegamedev.net/2020/05/19/an-entity-component-system-with-data-locality-in-cpp/ 
 	// 
 	////////////////////////////////////////////////////////////
