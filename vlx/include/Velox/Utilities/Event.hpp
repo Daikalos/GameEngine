@@ -18,6 +18,8 @@ namespace vlx
 		using HandlerList = std::vector<HandlerType>;
 
 	public:
+		Event() = default;
+
 		Event(const Event& other);
 		Event(Event&& other);
 
@@ -26,13 +28,16 @@ namespace vlx
 
 		void operator()(Args... params);
 
-		auto operator+=(const HandlerType& handler) -> typename HandlerType::TypeID;
-		auto operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::TypeID;
+		auto operator+=(const HandlerType& handler) -> typename HandlerType::IDType;
+		auto operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
 
-		auto operator-=(const HandlerType& handler) -> typename HandlerType::TypeID;
-		auto operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::TypeID;
+		auto operator-=(const HandlerType& handler) -> typename HandlerType::IDType;
+		auto operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::IDType;
 
 	public:
+		constexpr std::size_t Count() const noexcept;
+		constexpr bool Empty() const noexcept;
+
 		auto Add(const HandlerType& handler) -> typename HandlerType::IDType;
 		auto Add(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
 
@@ -47,9 +52,20 @@ namespace vlx
 		auto GetHandlersCopy() const -> HandlerList;
 
 	private:
-		HandlerList	m_handlers;
-		std::mutex	m_lock;
+		HandlerList			m_handlers;
+		mutable std::mutex	m_lock;
 	};
+
+	template<typename... Args>
+	constexpr std::size_t Event<Args...>::Count() const noexcept
+	{
+		return m_handlers.size();
+	}
+	template<typename... Args>
+	constexpr bool Event<Args...>::Empty() const noexcept
+	{
+		return m_handlers.empty();
+	}
 
 	template<typename... Args>
 	inline Event<Args...>::Event(const Event& other)
@@ -92,23 +108,23 @@ namespace vlx
 	}
 
 	template<typename... Args>
-	inline auto Event<Args...>::operator+=(const HandlerType& handler) -> typename HandlerType::TypeID
+	inline auto Event<Args...>::operator+=(const HandlerType& handler) -> typename HandlerType::IDType
 	{
 		return Add(handler);
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::TypeID
+	inline auto Event<Args...>::operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType
 	{
 		return Add(handler);
 	}
 
 	template<typename... Args>
-	inline auto Event<Args...>::operator-=(const HandlerType& handler) -> typename HandlerType::TypeID
+	inline auto Event<Args...>::operator-=(const HandlerType& handler) -> typename HandlerType::IDType
 	{
 		return Remove(handler);
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::TypeID
+	inline auto Event<Args...>::operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::IDType
 	{
 		return Remove(handler_id);
 	}

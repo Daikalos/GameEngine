@@ -8,6 +8,6 @@ namespace vlx::gui
 		bool Selected() const noexcept;
 
 	private:
-
+		bool m_selected{false};
 	};
 }

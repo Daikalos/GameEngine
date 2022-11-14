@@ -4,6 +4,8 @@
 
 #include <functional>
 
+#include <Velox/Utilities.hpp>
+
 namespace vlx::gui
 {
 	class Button
@@ -25,9 +27,9 @@ namespace vlx::gui
 	private:
 		sf::Vector2u			m_size;
 
-		std::function<void()>	m_press_event;
-		std::function<void()>	m_release_event;
-		std::function<void()>	m_hover_event;
+		Event<> m_press_event;
+		Event<> m_release_event;
+		Event<> m_hover_event;
 	};
 
 	template<typename Func>

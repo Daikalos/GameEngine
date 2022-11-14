@@ -25,7 +25,7 @@ namespace vlx
 		friend class Event;
 
 	public:
-		explicit EventHandler(const FuncType& event);
+		explicit EventHandler(const FuncType& func);
 
 		EventHandler(const EventHandler& other);
 		EventHandler(EventHandler&& other);
@@ -52,9 +52,10 @@ namespace vlx
 	inline std::atomic_uint32_t EventHandler<Args...>::m_id_counter = 1; // 0 reserved for null
 
 	template<typename... Args>
-	inline EventHandler<Args...>::EventHandler(const FuncType& event)
+	inline EventHandler<Args...>::EventHandler(const FuncType& func)
+		: m_func(func), m_id(m_id_counter++)
 	{
-		m_id = m_id_counter++;
+
 	}
 
 	template<typename... Args>
