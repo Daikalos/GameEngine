@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Components\Object.h" />
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
@@ -173,9 +174,7 @@
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Selectable.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Text.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
@@ -220,7 +219,6 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Graphics\GUI\Component.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
@@ -228,6 +226,7 @@
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
+    <ClCompile Include="src\Graphics\GUI\Selectable.cpp" />
     <ClCompile Include="src\Graphics\gui\Text.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />

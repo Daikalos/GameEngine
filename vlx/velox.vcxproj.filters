@@ -25,7 +25,7 @@
     <ClCompile Include="src\Components\Velocity.cpp" />
     <ClCompile Include="src\Graphics\GUI\Component.cpp" />
     <ClCompile Include="src\Systems\AnchorSystem.cpp" />
-    <ClCompile Include="src\Graphics\GUI\Button.cpp" />
+    <ClCompile Include="src\Graphics\GUI\Selectable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -88,12 +88,11 @@
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
     <ClInclude Include="include\Velox\Utilities\IDGenerator.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\Systems\AnchorSystem.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Selectable.h" />
     <ClInclude Include="include\Velox\Systems\GUISystem.h" />
     <ClInclude Include="include\Velox\Utilities\EventHandler.hpp" />
     <ClInclude Include="include\Velox\Utilities\Event.hpp" />
+    <ClInclude Include="include\Velox\Graphics.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

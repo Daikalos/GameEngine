@@ -59,6 +59,8 @@ void Application::Run()
 	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
 
+	Event<> a;
+
 	float x_pos = 0.0f;
 
 	while (m_window.isOpen())

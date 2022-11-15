@@ -83,23 +83,23 @@ namespace vlx
 	template<IsLoadable Resource, Enum Identifier>
 	inline std::future<void> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string_view path)
 	{
-		const auto load = [this](const Identifier& id, const std::string_view path)
-		{
-			ResourcePtr resource = std::make_unique<Resource>(Load(path));
+		return std::async(std::launch::async, 
+			[this](const Identifier id, const std::string_view path)
+			{
+				ResourcePtr resource = std::make_unique<Resource>(Load(path));
 
-			std::lock_guard lock(m_mutex); // guard race condition for m_resources
+				std::lock_guard lock(m_mutex); // guard race condition for m_resources
 
-			auto inserted = m_resources.try_emplace(id, std::move(resource));
-			assert(inserted.second);
-		};
-
-		return std::async(std::launch::async, load, id, std::string(path)); // create local copy of path because it will be later destroyed
+				auto inserted = m_resources.try_emplace(id, std::move(resource));
+				assert(inserted.second);
+			}, 
+			id, std::string(path)); // create local copy of path because it will be later destroyed
 	}
 
 	template<IsLoadable Resource, Enum Identifier>
 	inline Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
 	{
-		auto it = m_resources.find(id);
+		const auto it = m_resources.find(id);
 
 		if (it == m_resources.end())
 			throw std::runtime_error("value could not be found");

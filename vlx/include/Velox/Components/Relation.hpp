@@ -144,9 +144,9 @@ namespace vlx
 	template<class U>
 	void Relation<T>::IterateChildren(Func<U>&& func, const EntityAdmin& entity_admin, bool include_descendants)
 	{
-		for (const EntityID entity_id : m_children)
+		for (const EntityID child_id : m_children)
 		{
-			auto [component, success] = entity_admin.TryGetComponent<U>(entity_id);
+			auto [component, success] = entity_admin.TryGetComponent<U>(child_id);
 
 			if (success)
 			{
@@ -155,7 +155,7 @@ namespace vlx
 
 			if (include_descendants)
 			{
-				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(entity_id))
+				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child_id))
 					.Iterate<U>(entity_admin, std::forward<Func<U>>(func), include_descendants);
 			}
 		}

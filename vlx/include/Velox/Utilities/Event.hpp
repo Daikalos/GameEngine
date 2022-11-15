@@ -38,6 +38,9 @@ namespace vlx
 		constexpr std::size_t Count() const noexcept;
 		constexpr bool Empty() const noexcept;
 
+		void Reserve(const std::size_t size);
+		void Clear() noexcept;
+
 		auto Add(const HandlerType& handler) -> typename HandlerType::IDType;
 		auto Add(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
 
@@ -46,7 +49,7 @@ namespace vlx
 
 		void call(Args... params) const;
 		void call_impl(const HandlerList& handlers, Args... params) const;
-		void call_async(Args... params) const;
+		std::future<void> call_async(Args... params) const;
 
 	private:
 		auto GetHandlersCopy() const -> HandlerList;
@@ -65,6 +68,18 @@ namespace vlx
 	constexpr bool Event<Args...>::Empty() const noexcept
 	{
 		return m_handlers.empty();
+	}
+
+	template<typename... Args>
+	inline void Event<Args...>::Reserve(const std::size_t size)
+	{
+		m_handlers.reserve(size);
+	}
+
+	template<typename... Args>
+	inline void Event<Args...>::Clear() noexcept
+	{
+		m_handlers.clear();
 	}
 
 	template<typename... Args>
@@ -189,7 +204,7 @@ namespace vlx
 			handler(params...);
 	}
 	template<typename... Args>
-	inline void Event<Args...>::call_async(Args... params) const
+	inline std::future<void> Event<Args...>::call_async(Args... params) const
 	{
 		return std::async(std::launch::async,
 			[this](Args... async_params)

@@ -17,12 +17,10 @@ namespace vlx
 	{
 	public:
 		using FuncType	= std::function<void(Args...)>;
-
 		using IDType	= std::uint32_t;
-		using AtomicID	= std::atomic<IDType>;
 
-		template<typename... Args>
-		friend class Event;
+	private:
+		using AtomicID	= std::atomic<IDType>;
 
 	public:
 		explicit EventHandler(const FuncType& func);
@@ -53,10 +51,7 @@ namespace vlx
 
 	template<typename... Args>
 	inline EventHandler<Args...>::EventHandler(const FuncType& func)
-		: m_func(func), m_id(m_id_counter++)
-	{
-
-	}
+		: m_func(func), m_id(m_id_counter++) { }
 
 	template<typename... Args>
 	inline EventHandler<Args...>::EventHandler(const EventHandler& other)

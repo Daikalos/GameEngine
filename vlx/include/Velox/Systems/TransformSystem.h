@@ -15,7 +15,7 @@ namespace vlx
 	class VELOX_API TransformSystem : public ISystemObject
 	{
 	private:
-		using Attachment = std::pair<EntityID, EntityID>;
+		using EntityPair = std::pair<EntityID, EntityID>;
 
 	private:
 		using System = System<Transform>;
@@ -56,7 +56,7 @@ namespace vlx
 		EntityAdmin*			m_entity_admin{nullptr};
 		System					m_system;
 
-		std::queue<Attachment>	m_attachments;
-		std::queue<Attachment>	m_detachments;
+		std::queue<EntityPair>	m_attachments;
+		std::queue<EntityPair>	m_detachments;
 	};
 }

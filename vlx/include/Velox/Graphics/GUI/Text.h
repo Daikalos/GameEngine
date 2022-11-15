@@ -2,15 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <Velox/ECS/IComponent.h>
+
 namespace vlx::gui
 {
-	class Text
+	class Text : public IComponent
 	{
-	public:
-		void SetFont();
-
-	private:
-		sf::Text m_text;
+		sf::Text text;
 	};
 }
 
