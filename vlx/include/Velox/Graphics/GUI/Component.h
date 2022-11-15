@@ -10,6 +10,9 @@ namespace vlx::gui
 {
 	class Component : public Relation<Component>
 	{
+	private:
+		using SizeType = std::uint16_t;
+
 	public:
 		constexpr bool IsActive() const noexcept;
 
@@ -18,18 +21,21 @@ namespace vlx::gui
 		void Deactivate(const EntityAdmin& entity_admin);
 
 		void Select();
-		void SelectNext();
 		void Unselect();
 
-	private:
-		bool			m_active	{false};
-		bool			m_selected	{false};
-		float			m_opacity	{1.0f};
+		void SelectNext();
 
-		vlx::Event<>	m_activated;
-		vlx::Event<>	m_deactivated;
-		vlx::Event<>	m_selected;
-		vlx::Event<>	m_unselected;
+	public:
+		vlx::Event<>	Activated;
+		vlx::Event<>	Deactivated;
+		vlx::Event<>	Selected;
+		vlx::Event<>	Unselected;
+
+	private:
+		bool		m_active			{false};
+		bool		m_selected			{false};
+		SizeType	m_selected_index	{0};
+		float		m_opacity			{1.0f};
 	};
 }
 

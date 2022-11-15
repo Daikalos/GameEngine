@@ -15,7 +15,6 @@ namespace vlx::gui
 
 	private:
 		System<Component, Transform, Sprite>	m_main_system;
-		System<Component, Selectable>			m_select_system;
 		System<Component, Button>				m_button_system;
 		System<Component, Text>					m_text_system;
 	};

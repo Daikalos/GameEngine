@@ -19,8 +19,11 @@ namespace vlx
 	class Relation : public IComponent
 	{
 	private:
-		template<class U>
-		using Func = std::function<void(U&)>;
+		template<class C>
+		using CompFunc = std::function<void(C&)>;
+
+		template<class C>
+		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
 		virtual ~Relation() = 0; // to make abstract
@@ -39,10 +42,13 @@ namespace vlx
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 		const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 
-		template<class U>
-		void IterateChildren(Func<U>&& func, const EntityAdmin& entity_admin, bool include_descendants = true);
-
 		[[nodiscard]] constexpr bool HasParent() const noexcept;
+
+		template<class C>
+		void IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = true);
+
+		template<class C>
+		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = true);
 
 	private:
 		void PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child);
@@ -141,22 +147,52 @@ namespace vlx
 	}
 
 	template<class T>
-	template<class U>
-	void Relation<T>::IterateChildren(Func<U>&& func, const EntityAdmin& entity_admin, bool include_descendants)
+	template<class C>
+	inline void Relation<T>::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
 	{
 		for (const EntityID child_id : m_children)
 		{
-			auto [component, success] = entity_admin.TryGetComponent<U>(child_id);
+			auto [component, success] = entity_admin.TryGetComponent<C>(child_id);
 
 			if (success)
 			{
-				std::forward<Func<U>>(func)(*component);
+				func(*component);
 			}
 
 			if (include_descendants)
 			{
 				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child_id))
-					.Iterate<U>(entity_admin, std::forward<Func<U>>(func), include_descendants);
+					.IterateChildren<C>(entity_admin, func, include_descendants);
+			}
+		}
+	}
+
+	template<class T>
+	template<class C>
+	inline void Relation<T>::SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
+	{
+		std::sort(m_children.begin(), m_children.end(),
+			[&func, &entity_admin](const EntityID lhs, const EntityID rhs)
+			{
+				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs);
+
+				if (!lhs_success)
+					return false;
+
+				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs);
+
+				if (!rhs_success)
+					return false;
+
+				return func(*lhs_comp, *rhs_comp);
+			});
+
+		if (include_descendants)
+		{
+			for (const EntityID child_id : m_children)
+			{
+				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child_id))
+					.SortChildren(func, entity_admin, include_descendants);
 			}
 		}
 	}

@@ -21,7 +21,7 @@ namespace vlx
 		Event() = default;
 
 		Event(const Event& other);
-		Event(Event&& other);
+		Event(Event&& other) noexcept;
 
 		auto operator=(const Event& other) -> Event&;
 		auto operator=(Event&& other) -> Event&;
@@ -48,10 +48,10 @@ namespace vlx
 		bool RemoveID(const typename HandlerType::IDType handler_id);
 
 		void call(Args... params) const;
-		void call_impl(const HandlerList& handlers, Args... params) const;
 		std::future<void> call_async(Args... params) const;
 
 	private:
+		void call_impl(const HandlerList& handlers, Args... params) const;
 		auto GetHandlersCopy() const -> HandlerList;
 
 	private:
@@ -89,7 +89,7 @@ namespace vlx
 		m_handlers = other.m_handlers;
 	}
 	template<typename... Args>
-	inline Event<Args...>::Event(Event&& other)
+	inline Event<Args...>::Event(Event&& other) noexcept
 	{
 		std::lock_guard lock(other.m_lock);
 		m_handlers = std::move(other.m_handlers);

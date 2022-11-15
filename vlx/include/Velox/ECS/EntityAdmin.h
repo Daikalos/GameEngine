@@ -107,7 +107,7 @@ namespace vlx
 		///		Tries to set the component for entity, will return false if it fails.
 		/// </summary>
 		template<IsComponent C>
-		std::pair<C*, bool> TrySetComponent(const EntityID entity_id, const C& new_component);
+		[[nodiscard]] std::pair<C*, bool> TrySetComponent(const EntityID entity_id, const C& new_component);
 
 		/// <summary>
 		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
@@ -201,19 +201,19 @@ namespace vlx
 	public:
 		VELOX_API EntityID GetNewEntityID();
 
-		VELOX_API [[nodiscard]] auto RegisterEntity(const EntityID entity_id) -> Record&;
+		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
 		VELOX_API bool IsEntityRegistered(const EntityID entity_id) const;
 
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
 
 		VELOX_API void RemoveSystem(const LayerType layer, ISystem* system);
-		VELOX_API [[nodiscard]] bool RemoveEntity(const EntityID entity_id);
+		VELOX_API bool RemoveEntity(const EntityID entity_id);
 
 		VELOX_API void RunSystems(const LayerType layer) const;
 		VELOX_API void SortSystems(const LayerType layer);
 
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
-		VELOX_API [[nodiscard]] bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
+		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
 	public:
 		/// <summary>

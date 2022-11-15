@@ -6,9 +6,9 @@
 
 namespace vlx::gui
 {
-	class Text : public IComponent
+	struct Text : public IComponent
 	{
-		sf::Text text;
+		sf::Text Text;
 	};
 }
 

@@ -10,12 +10,14 @@
 namespace vlx::gui
 {
 	/// <summary>
-	///		The button only contains events for certain behaviours such as, press, release and hover.
+	///		The button contains events for certain behaviours, e.g., press, release, and hover.
+	///		They are usually called when the GUI component is given the respective inputs, but can be manually
+	///		called if the developer wants to
 	/// </summary>
-	class Button : public IComponent
+	struct Button : public IComponent
 	{
-		vlx::Event<> press;
-		vlx::Event<> release;
-		vlx::Event<> hover;
+		vlx::Event<> Pressed;
+		vlx::Event<> Released;
+		vlx::Event<> Hovered;
 	};
 }
