@@ -26,10 +26,10 @@ namespace vlx::gui
 		void SelectNext();
 
 	public:
-		vlx::Event<>	Activated;
-		vlx::Event<>	Deactivated;
-		vlx::Event<>	Selected;
-		vlx::Event<>	Unselected;
+		vlx::Event<> Activated;
+		vlx::Event<> Deactivated;
+		vlx::Event<> Selected;
+		vlx::Event<> Unselected;
 
 	private:
 		bool		m_active			{false};

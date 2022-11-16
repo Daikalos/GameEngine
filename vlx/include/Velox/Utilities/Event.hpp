@@ -2,7 +2,7 @@
 
 #include <list>
 #include <mutex>
-#include <future>
+#include <shared_mutex>
 
 #include "EventHandler.hpp"
 
@@ -55,8 +55,8 @@ namespace vlx
 		auto GetHandlersCopy() const -> HandlerList;
 
 	private:
-		HandlerList			m_handlers;
-		mutable std::mutex	m_lock;
+		HandlerList					m_handlers;
+		mutable std::shared_mutex	m_lock;
 	};
 
 	template<typename... Args>
@@ -85,7 +85,7 @@ namespace vlx
 	template<typename... Args>
 	inline Event<Args...>::Event(const Event& other)
 	{
-		std::lock_guard lock(other.m_lock);
+		std::shared_lock lock(other.m_lock);
 		m_handlers = other.m_handlers;
 	}
 	template<typename... Args>
@@ -99,7 +99,7 @@ namespace vlx
 	inline auto Event<Args...>::operator=(const Event& other) -> Event&
 	{
 		std::lock_guard lock1(m_lock);
-		std::lock_guard lock2(other.m_lock);
+		std::shared_lock lock2(other.m_lock);
 
 		m_handlers = other.m_handlers;
 
@@ -216,7 +216,7 @@ namespace vlx
 	template<typename... Args>
 	inline auto Event<Args...>::GetHandlersCopy() const -> HandlerList
 	{
-		std::lock_guard lock(m_lock);
+		std::shared_lock lock(m_lock);
 		return m_handlers;
 	}
 }

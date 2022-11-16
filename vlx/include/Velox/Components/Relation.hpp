@@ -48,7 +48,7 @@ namespace vlx
 		void IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = true);
 
 		template<class C>
-		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = true);
+		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = false);
 
 	private:
 		void PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child);
