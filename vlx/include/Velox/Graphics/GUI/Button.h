@@ -14,7 +14,7 @@ namespace vlx::gui
 	///		They are usually called when the GUI component is given the respective inputs, but can be manually
 	///		called if the developer wants to
 	/// </summary>
-	struct Button : public IComponent
+	struct Button final : public IComponent
 	{
 		vlx::Event<> Pressed;
 		vlx::Event<> Released;

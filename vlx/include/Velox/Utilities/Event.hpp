@@ -60,12 +60,12 @@ namespace vlx
 	};
 
 	template<typename... Args>
-	constexpr std::size_t Event<Args...>::Count() const noexcept
+	inline constexpr std::size_t Event<Args...>::Count() const noexcept
 	{
 		return m_handlers.size();
 	}
 	template<typename... Args>
-	constexpr bool Event<Args...>::Empty() const noexcept
+	inline constexpr bool Event<Args...>::Empty() const noexcept
 	{
 		return m_handlers.empty();
 	}

@@ -8,13 +8,21 @@
 
 namespace vlx::gui
 {
-	class Component : public Relation<Component>
+	class Component final : public Relation<Component>
 	{
 	private:
-		using SizeType = std::uint16_t;
+		using SizeType	= std::uint16_t;
+		using Vector2Type = sf::Vector2<SizeType>;
 
 	public:
-		constexpr bool IsActive() const noexcept;
+		Component() = default;
+		Component(const Vector2Type& size);
+		Component(const Vector2Type& size, bool active);
+		Component(const Vector2Type& size, float opacity);
+		Component(const Vector2Type& size, bool active, float opacity);
+
+		[[nodiscard]] constexpr bool IsActive() const noexcept;
+		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 
 	public:
 		void Activate(const EntityAdmin& entity_admin);
@@ -23,7 +31,9 @@ namespace vlx::gui
 		void Select();
 		void Unselect();
 
-		void SelectNext();
+	private:
+		void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Component>& child);
+		void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Component>& child);
 
 	public:
 		vlx::Event<> Activated;
@@ -32,10 +42,12 @@ namespace vlx::gui
 		vlx::Event<> Unselected;
 
 	private:
-		bool		m_active			{false};
+		Vector2Type m_size;
+		bool		m_active			{true};
 		bool		m_selected			{false};
-		SizeType	m_selected_index	{0};
 		float		m_opacity			{1.0f};
+
+		bool		m_parent_active		{true};
 	};
 }
 

@@ -15,6 +15,6 @@ namespace vlx::gui
 
 	struct Anchor : public IComponent
 	{
-		AnchorPoint Anchor { AnchorPoint::TopLeft }; // top left is default
+		AnchorPoint anchor { AnchorPoint::TopLeft }; // top left is default
 	};
 }

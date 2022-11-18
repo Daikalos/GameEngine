@@ -8,9 +8,9 @@
 #include <Velox/Input.hpp>
 
 #include <Velox/ECS.hpp>
+#include <Velox/Graphics.hpp>
+
 #include <Velox/Scene/StateStack.hpp>
-#include <Velox/Graphics/ResourceHolder.hpp>
-#include <Velox/Graphics/ResourceHolder.hpp>
 
 #include <Velox/Components/Sprite.h>
 #include <Velox/Components/Velocity.h>

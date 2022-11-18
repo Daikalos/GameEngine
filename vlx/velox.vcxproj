@@ -175,6 +175,7 @@
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Text.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
@@ -226,7 +227,7 @@
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
-    <ClCompile Include="src\Graphics\GUI\Selectable.cpp" />
+    <ClCompile Include="src\Graphics\GUI\Container.cpp" />
     <ClCompile Include="src\Graphics\gui\Text.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />

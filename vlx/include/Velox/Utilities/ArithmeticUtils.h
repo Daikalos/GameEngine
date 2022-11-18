@@ -35,7 +35,7 @@ namespace vlx::au
 	}
 
 	template<std::integral T>
-	[[nodiscard]] static constexpr auto Wrap(T val, const T min, const T max)
+	[[nodiscard]] static constexpr auto Wrap(const T val, const T min, const T max)
 	{
 		if (val > min && val < max)
 			return val;

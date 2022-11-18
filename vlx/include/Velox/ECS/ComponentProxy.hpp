@@ -25,10 +25,12 @@ namespace vlx
 	class ComponentProxy final : public IComponentProxy
 	{
 	public:
-		ComponentProxy() = default;
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
+		EntityID GetEntityID() const noexcept;
+
 		void Reset() override;
+
 		[[nodiscard]] constexpr bool IsValid() const noexcept override; // holy attributes
 
 	public:
@@ -51,6 +53,12 @@ namespace vlx
 	template<IsComponent C>
 	inline ComponentProxy<C>::ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id)
 		: m_entity_admin(&entity_admin), m_entity_id(entity_id) { }
+
+	template<IsComponent C>
+	inline EntityID ComponentProxy<C>::GetEntityID() const noexcept
+	{
+		return m_entity_id;
+	}
 
 	template<IsComponent C>
 	inline void ComponentProxy<C>::Reset()

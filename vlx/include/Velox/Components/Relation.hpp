@@ -28,10 +28,10 @@ namespace vlx
 	public:
 		virtual ~Relation() = 0; // to make abstract
 
+		[[nodiscard]] constexpr bool HasParent() const noexcept;
+		[[nodiscard]] constexpr bool HasChildren() const noexcept;
+
 	protected:
-		/// <summary>
-		///		When the relation is destroyed, we need to detach it accordingly
-		/// </summary>
 		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) override;
 
@@ -42,10 +42,8 @@ namespace vlx
 		void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 		const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child);
 
-		[[nodiscard]] constexpr bool HasParent() const noexcept;
-
 		template<class C>
-		void IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = true);
+		void IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = true) const;
 
 		template<class C>
 		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = false);
@@ -58,16 +56,29 @@ namespace vlx
 		EntityID						m_parent	{NULL_ENTITY};
 		std::vector<EntityID>			m_children;
 
-	private:
-		std::unordered_set<EntityID>	m_closed; // list of all descendants (to prevent parenting them when attaching)
+		std::unordered_set<EntityID>	m_descendants; // list of all descendants (to prevent parenting them when attaching)
 	};
 
 	template<class T>
 	inline Relation<T>::~Relation() = default;
 
 	template<class T>
+	inline constexpr bool Relation<T>::HasParent() const noexcept
+	{
+		return m_parent != NULL_ENTITY;
+	}
+
+	template<class T>
+	inline constexpr bool Relation<T>::HasChildren() const noexcept
+	{
+		return !m_children.empty();
+	}
+
+	template<class T>
 	inline void Relation<T>::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
+		// When the relation is destroyed, we need to detach it accordingly
+
 		if (HasParent())
 		{
 			static_cast<Relation<T>&>(entity_admin.GetComponent<T>(m_parent))
@@ -83,7 +94,11 @@ namespace vlx
 	template<class T>
 	inline void Relation<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data)
 	{
-		Destroyed(entity_admin, entity_id);
+		// When the relation is modified, we need to update the relation accordingly
+
+		Destroyed(entity_admin, entity_id); // detach everything first
+
+		// then attach everything with the new values
 
 		const Relation<T>& new_relation = static_cast<const Relation<T>&>(new_data);
 
@@ -102,7 +117,7 @@ namespace vlx
 	template<class T>
 	inline void Relation<T>::AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<T>& child)
 	{
-		if (m_closed.contains(child_id))
+		if (m_descendants.contains(child_id))
 			throw std::runtime_error("The new parent cannot be a descendant of the child");
 
 		if (child.m_parent == entity_id) // child is already correctly parented
@@ -148,11 +163,11 @@ namespace vlx
 
 	template<class T>
 	template<class C>
-	inline void Relation<T>::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
+	inline void Relation<T>::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants) const
 	{
 		for (const EntityID child_id : m_children)
 		{
-			auto [component, success] = entity_admin.TryGetComponent<C>(child_id);
+			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(child_id);
 
 			if (success)
 			{
@@ -162,7 +177,7 @@ namespace vlx
 			if (include_descendants)
 			{
 				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child_id))
-					.IterateChildren<C>(entity_admin, func, include_descendants);
+					.IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
 			}
 		}
 	}
@@ -198,22 +213,16 @@ namespace vlx
 	}
 
 	template<class T>
-	inline constexpr bool Relation<T>::HasParent() const noexcept
-	{
-		return m_parent != NULL_ENTITY;
-	}
-
-	template<class T>
 	inline void Relation<T>::PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child)
 	{
 #ifdef VELOX_DEBUG // check so that it does not exist
-		assert(!m_closed.contains(child_id));
-		for (const EntityID entity : child.m_closed)
-			assert(!m_closed.contains(entity));
+		assert(!m_descendants.contains(child_id));
+		for (const EntityID entity : child.m_descendants)
+			assert(!m_descendants.contains(entity));
 #endif
 
-		m_closed.insert(child_id); // add child and all of its descendants
-		m_closed.insert(child.m_closed.begin(), child.m_closed.end());
+		m_descendants.insert(child_id); // add child and all of its descendants
+		m_descendants.insert(child.m_descendants.begin(), child.m_descendants.end());
 
 		if (HasParent())
 		{
@@ -226,13 +235,13 @@ namespace vlx
 	inline void Relation<T>::PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation<T>& child)
 	{
 #ifdef VELOX_DEBUG // check so that they do exist
-		assert(m_closed.contains(child_id));
-		for (const EntityID entity : child.m_closed)
-			assert(m_closed.contains(entity));
+		assert(m_descendants.contains(child_id));
+		for (const EntityID entity : child.m_descendants)
+			assert(m_descendants.contains(entity));
 #endif
 
-		m_closed.erase(child_id); // remove child and all of its descendants
-		m_closed.erase(child.m_closed.begin(), child.m_closed.end());
+		m_descendants.erase(child_id); // remove child and all of its descendants
+		m_descendants.erase(child.m_descendants.begin(), child.m_descendants.end());
 
 		if (HasParent())
 		{
