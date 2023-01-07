@@ -18,7 +18,9 @@ namespace vlx
 		friend class EntityAdmin;
 
 	public:
-		virtual ~ISystem() {};
+		virtual ~ISystem() = default;
+
+		virtual bool operator>(const ISystem& rhs) const = 0;
 
 		virtual const ArchetypeID& GetKey() const = 0;
 
@@ -39,8 +41,7 @@ namespace vlx
 		System(EntityAdmin& entity_admin, const LayerType layer);
 		~System();
 
-		System(const System& system);
-		System& operator=(const System& rhs);
+		bool operator>(const ISystem& rhs) const override;
 
 	public:
 		const ArchetypeID& GetKey() const override;
@@ -85,27 +86,14 @@ namespace vlx
 	template<IsComponents... Cs>
 	inline System<Cs...>::~System()
 	{
-		if (m_entity_admin)
+		if (m_entity_admin != nullptr)
 			m_entity_admin->RemoveSystem(m_layer, this);
 	}
 
 	template<IsComponents... Cs>
-	inline System<Cs...>::System(const System<Cs...>& system)
-		:	m_entity_admin(system.m_entity_admin), m_layer(system.m_layer), m_priority(system.m_priority),
-			m_func(system.m_func), m_key(system.m_key) { }
-
-	template<IsComponents... Cs>
-	inline System<Cs...>& System<Cs...>::operator=(const System<Cs...>& rhs)
+	inline bool System<Cs...>::operator>(const ISystem& rhs) const
 	{
-		m_entity_admin = rhs.m_entity_admin;
-		m_layer = rhs.m_layer;
-		m_priority = rhs.m_priority;
-
-		m_func = rhs.m_func;
-
-		m_key = rhs.m_key;
-
-		return *this;
+		return GetPriority() > rhs.GetPriority();
 	}
 
 	template<IsComponents... Cs>
@@ -151,14 +139,14 @@ namespace vlx
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
-		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
+		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>;		// get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
 		const ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
-		ComponentTypeID archetype_comp_id = archetype_ids[index2];					// id for component in the archetype
+		ComponentTypeID archetype_comp_id = archetype_ids[index2];				// id for component in the archetype
 
-		while (comp_id != archetype_comp_id && index2 < archetype_ids.size()) // iterate until matching component is found
+		while (comp_id != archetype_comp_id && index2 < archetype_ids.size())	// iterate until matching component is found
 		{
 			archetype_comp_id = archetype_ids[++index2];
 		}

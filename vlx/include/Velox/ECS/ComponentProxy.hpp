@@ -13,13 +13,14 @@ namespace vlx
 	public:
 		virtual ~IComponentProxy() = default;
 
+		virtual bool IsValid() const noexcept = 0;
+
 		virtual void Reset() = 0;
-		virtual constexpr bool IsValid() const noexcept = 0;
 	};
 
 	/// <summary>
-	/// The ComponentProxy is to ensure that the component pointers remains valid even after the internal data of the ECS
-	/// has been modified. This is to prevent having to write GetComponent everywhere all the time.
+	///		The ComponentProxy is to ensure that the component pointers remains valid even after the internal data of the ECS
+	///		has been modified. This is to prevent having to write GetComponent everywhere all the time.
 	/// </summary>
 	template<IsComponent C>
 	class ComponentProxy final : public IComponentProxy
@@ -27,11 +28,11 @@ namespace vlx
 	public:
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
-		EntityID GetEntityID() const noexcept;
+		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
+
+		[[nodiscard]] bool IsValid() const noexcept override;
 
 		void Reset() override;
-
-		[[nodiscard]] constexpr bool IsValid() const noexcept override; // holy attributes
 
 	public:
 		C* Get();
@@ -55,21 +56,21 @@ namespace vlx
 		: m_entity_admin(&entity_admin), m_entity_id(entity_id) { }
 
 	template<IsComponent C>
-	inline EntityID ComponentProxy<C>::GetEntityID() const noexcept
+	inline constexpr EntityID ComponentProxy<C>::GetEntityID() const noexcept
 	{
 		return m_entity_id;
+	}
+
+	template<IsComponent C>
+	inline bool ComponentProxy<C>::IsValid() const noexcept
+	{
+		return m_component != nullptr;
 	}
 
 	template<IsComponent C>
 	inline void ComponentProxy<C>::Reset()
 	{
 		m_component = nullptr;
-	}
-
-	template<IsComponent C>
-	inline constexpr bool ComponentProxy<C>::IsValid() const noexcept
-	{
-		return m_component != nullptr;
 	}
 
 	template<IsComponent C>

@@ -7,18 +7,8 @@ Component::Component(const Vector2Type& size)
 {
 
 }
-Component::Component(const Vector2Type& size, bool active)
-	: m_size(size), m_active(active)
-{
-
-}
-Component::Component(const Vector2Type& size, float opacity)
-	: m_size(size), m_opacity(opacity)
-{
-
-}
-Component::Component(const Vector2Type& size, bool active, float opacity)
-	: m_size(size), m_active(active), m_opacity(opacity)
+Component::Component(const Vector2Type& size, bool selectable)
+	: m_size(size), m_selectable(selectable)
 {
 
 }
@@ -31,18 +21,26 @@ constexpr bool Component::IsSelected() const noexcept
 {
 	return m_selected;
 }
+constexpr bool Component::IsSelectable() const noexcept
+{
+	return m_selectable;
+}
 
 void Component::Activate(const EntityAdmin& entity_admin)
 {
 	m_active = true;
 	Activated();
 
-	IterateChildren<Component>(
-		[&entity_admin](Component& component)
-		{
-			component.m_parent_active = true;
-		},
-		entity_admin, true);
+	if (m_parent_active)
+	{
+		IterateChildren<Component>(
+			[&entity_admin](Component& component) -> bool
+			{
+				component.m_parent_active = true;
+				return component.m_active; // continue if true, stop if false
+			},
+			entity_admin, true);
+	}
 }
 
 void Component::Deactivate(const EntityAdmin& entity_admin)
@@ -51,9 +49,14 @@ void Component::Deactivate(const EntityAdmin& entity_admin)
 	Deactivated();
 
 	IterateChildren<Component>(
-		[&entity_admin](Component& component)
+		[&entity_admin](Component& component) -> bool
 		{
+			if (!component.m_parent_active)
+				return false;
+
 			component.m_parent_active = false;
+
+			return true;
 		},
 		entity_admin, true);
 }

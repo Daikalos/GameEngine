@@ -20,7 +20,7 @@ namespace vlx
 	{
 	private:
 		template<class C>
-		using CompFunc = std::function<void(C&)>;
+		using CompFunc = std::function<bool(C&)>;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;
@@ -171,10 +171,11 @@ namespace vlx
 
 			if (success)
 			{
-				func(*component);
+				if (!func(*component))
+					continue;
 			}
 
-			if (include_descendants)
+			if (include_descendants) // continue iterating descendants
 			{
 				static_cast<Relation<T>&>(entity_admin.GetComponent<T>(child_id))
 					.IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);

@@ -199,7 +199,7 @@ namespace vlx
 		void ResetProxy(const EntityID entity_id) const;
 
 	public:
-		VELOX_API EntityID GetNewEntityID();
+		VELOX_API [[nodiscard]] EntityID GetNewEntityID();
 
 		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
 		VELOX_API bool IsEntityRegistered(const EntityID entity_id) const;
@@ -233,6 +233,9 @@ namespace vlx
 		///		invalidate all the existing pointers from e.g., GetComponent
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
+
+		VELOX_API void ClearProxies();
+		VELOX_API void ClearProxies(const EntityID entity_id);
 
 	private:
 		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);

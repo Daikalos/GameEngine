@@ -81,7 +81,7 @@ void EntityAdmin::SortSystems(const LayerType layer)
 	std::stable_sort(it->second.begin(), it->second.end(),
 		[](const ISystem* lhs, const ISystem* rhs)
 		{
-			return lhs->GetPriority() > rhs->GetPriority(); // in descending order
+			return lhs > rhs;
 		});
 }
 
@@ -103,7 +103,6 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 	if (archetype == nullptr)
 	{
 		m_entity_archetype_map.erase(entity_id);
-		m_entity_component_proxy_map.erase(entity_id);
 		m_reusable_entity_ids.push(entity_id);
 
 		return false;
@@ -140,7 +139,6 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 	archetype->entities.pop_back();
 
 	m_entity_archetype_map.erase(entity_id);
-	m_entity_component_proxy_map.erase(entity_id);
 	m_reusable_entity_ids.push(entity_id);
 
 	return true;
@@ -490,7 +488,6 @@ void EntityAdmin::Shrink(bool extensive)
 				for (const EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
-					m_entity_component_proxy_map.erase(entity_id);
 					m_reusable_entity_ids.push(entity_id);
 				}
 
@@ -533,6 +530,31 @@ void EntityAdmin::Shrink(bool extensive)
 			}
 		}
 	}
+}
+
+void EntityAdmin::ClearProxies()
+{
+	for (auto& pair1 : m_entity_component_proxy_map)
+	{
+		std::erase_if(pair1.second,
+			[](const auto& pair2)
+			{
+				return !pair2.second->IsValid();
+			});
+	}
+}
+
+void EntityAdmin::ClearProxies(const EntityID entity_id)
+{
+	const auto it = m_entity_component_proxy_map.find(entity_id);
+	if (it == m_entity_component_proxy_map.end())
+		return;
+
+	std::erase_if(it->second,
+		[](const auto& pair)
+		{
+			return !pair.second->IsValid();
+		});
 }
 
 Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)

@@ -17,8 +17,8 @@ namespace vlx
 	using ArchetypeID		= IDType;
 	using ComponentIDs		= std::vector<ComponentTypeID>;
 
-	constexpr EntityID NULL_ENTITY			= NULL;
-	constexpr ArchetypeID NULL_ARCHETYPE	= NULL;
+	static constexpr EntityID NULL_ENTITY		= NULL;
+	static constexpr ArchetypeID NULL_ARCHETYPE	= NULL;
 
 	enum SystemLayers : LayerType
 	{
