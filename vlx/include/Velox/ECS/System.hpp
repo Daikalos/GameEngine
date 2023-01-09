@@ -53,20 +53,18 @@ namespace vlx
 
 		void Action(Func&& func);
 
+	public:
+		template<IsComponents... Cs>
+		void Exclude();
+
 	protected:
 		virtual void DoAction(Archetype* archetype) const override;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-		void DoAction(
-			const ComponentIDs& archetype_ids, 
-			std::span<const EntityID> entity_ids, 
-			T& t, Ts... ts) const;
+		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-		void DoAction( 
-			const ComponentIDs& archetype_ids, 
-			std::span<const EntityID> entity_ids, 
-			T& t, Ts... ts) const;
+		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const;
 
 	protected:
 		EntityAdmin*	m_entity_admin;
@@ -74,6 +72,8 @@ namespace vlx
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
 		Func			m_func;
+
+		ComponentIDs	m_exclusion;
 
 		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};
 		mutable ComponentIDs	m_arch_key;
@@ -135,11 +135,25 @@ namespace vlx
 		m_func = std::forward<Func>(func);
 	}
 
+	template<IsComponents... Cs1>
+	template<IsComponents... Cs2>
+	inline void System<Cs1...>::Exclude()
+	{
+		m_exclusion = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
+	}
+
 	template<IsComponents... Cs>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
 		if (m_func) // check if func stores callable object
 		{
+			for (const ComponentTypeID id : m_exclusion)
+			{
+				const auto it = cu::FindSorted(archetype->type, id);
+				if (it != archetype->type.end() && *it == id) // if contains excluded component, return
+					return;
+			}
+
 			DoAction<0>(
 				archetype->type, 
 				archetype->entities, 
@@ -149,29 +163,29 @@ namespace vlx
 
 	template<IsComponents... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
+	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& c, Ts... cs) const
 	{
 		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>;		// get type of element at index in tuple
 
 		std::size_t index2 = 0;
 
 		const ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
-		ComponentTypeID archetype_comp_id = archetype_ids[index2];				// id for component in the archetype
+		ComponentTypeID archetype_comp_id = component_ids[index2];				// id for component in the archetype
 
-		while (comp_id != archetype_comp_id && index2 < archetype_ids.size())	// iterate until matching component is found
+		while (comp_id != archetype_comp_id && index2 < component_ids.size())	// iterate until matching component is found
 		{
-			archetype_comp_id = archetype_ids[++index2];
+			archetype_comp_id = component_ids[++index2];
 		}
 
-		if (index2 == archetype_ids.size())
+		if (index2 == component_ids.size())
 			throw std::runtime_error("System was executed against an incorrect Archetype");
 
-		DoAction<Index + 1>(archetype_ids, entity_ids, t, ts..., reinterpret_cast<CompType*>(&t[index2][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<CompType*>(&c[index2][0])); // run again on next component, or call final DoAction
 	}
 
 	template<IsComponents... Cs>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-	inline void System<Cs...>::DoAction(const ComponentIDs& archetype_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
+	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
 		m_func(entity_ids, ts...);
 	}

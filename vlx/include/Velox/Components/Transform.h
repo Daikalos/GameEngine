@@ -11,7 +11,7 @@
 namespace vlx
 {
 	/// <summary>
-	///		Represents the transform and the overall scene graph
+	///		Represents the transform
 	/// </summary>
 	class VELOX_API Transform : public IComponent
 	{ 
@@ -51,7 +51,7 @@ namespace vlx
 
 	private:
 		void UpdateRequired(const EntityAdmin& entity_admin, const Relation& relation) const;
-		void UpdateTransforms(const EntityAdmin& entity_admin, const Relation& relation) const;
+		void UpdateTransforms(const EntityAdmin& entity_admin, const Relation* relation) const;
 
 		void ComputeTransform() const;
 		void ComputeTransform(const sf::Transform& transform) const;
@@ -78,6 +78,8 @@ namespace vlx
 		mutable sf::Transform	m_inverse_model_transform;
 		mutable bool			m_update_model				{true};
 		mutable bool			m_update_inverse_model		{true};
+
+		mutable bool			m_update_global				{true};
 
 		friend class TransformSystem;
 	};

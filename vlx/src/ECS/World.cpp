@@ -16,6 +16,7 @@ World::World(const Window& window) :
 void World::Update()
 {
 	m_object_system.Update();
+	m_relation_system.Update();
 	m_transform_system.Update();
 	m_render_system.Update();
 }
@@ -33,6 +34,10 @@ ObjectSystem& World::GetObjectSystem() noexcept
 {
 	return m_object_system;
 }
+RelationSystem& World::GetRelationSystem() noexcept
+{
+	return m_relation_system;
+}
 TransformSystem& World::GetTransformSystem() noexcept
 {
 	return m_transform_system;
@@ -49,6 +54,10 @@ const EntityAdmin& World::GetEntityAdmin() const noexcept
 const ObjectSystem& World::GetObjectSystem() const noexcept 
 {
 	return m_object_system;
+}
+const RelationSystem& World::GetRelationSystem() const noexcept
+{
+	return m_relation_system;
 }
 const TransformSystem& World::GetTransformSystem() const noexcept 
 {

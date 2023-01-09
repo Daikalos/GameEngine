@@ -257,7 +257,7 @@ namespace vlx
 
 		SystemsArrayMap			m_systems;						// map layer to array of systems (layer allows for controlling the order of calls)
 		ArchetypesArray			m_archetypes;					// find matching archetype to update matching entities
-		ArchetypeMap			m_archetype_map;				// map set of components to matching archetypes that contains such components
+		ArchetypeMap			m_archetype_map;				// map set of components to matching archetype that contains such components
 		EntityArchetypeMap		m_entity_archetype_map;			// map entity to where its data is located at in the archetype
 		ComponentArchetypesMap	m_component_archetypes_map;		// map component to the archetypes it exists in and where all of the components data in the archetype is located at
 		ComponentTypeIDBaseMap	m_component_map;				// access to helper functions for modifying each unique component

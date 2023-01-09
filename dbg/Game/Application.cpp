@@ -53,7 +53,7 @@ void Application::Run()
 
 	entity_admin.SetComponent<Transform>(entity.GetID(), set.Get<Transform>());
 
-	//m_world.GetTransformSystem().AttachInstant(entity.GetID(), new_entity.GetID());
+	m_world.GetRelationSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 
 	std::puts(std::to_string(set.Get<Object>().is_alive).c_str());
 	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());

@@ -18,6 +18,7 @@ namespace vlx
 		using EntityPair = std::pair<EntityID, EntityID>;
 
 	private:
+		using LocalSystem = System<Transform>;
 		using GlobalSystem = System<Transform, Relation>;
 
 	public:
@@ -36,6 +37,7 @@ namespace vlx
 	private:
 		EntityAdmin*			m_entity_admin{nullptr};
 
+		LocalSystem				m_local_system;
 		GlobalSystem			m_global_system;
 
 		std::queue<EntityPair>	m_attachments;

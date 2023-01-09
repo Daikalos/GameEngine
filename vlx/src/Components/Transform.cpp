@@ -155,17 +155,17 @@ void Transform::UpdateRequired(const EntityAdmin& entity_admin, const Relation& 
 			.UpdateRequired(entity_admin, entity_admin.GetComponent<Relation>(child_id));
 	}
 }
-void Transform::UpdateTransforms(const EntityAdmin& entity_admin, const Relation& relation) const
+void Transform::UpdateTransforms(const EntityAdmin& entity_admin, const Relation* relation) const
 {
 	if (!m_update_model) // already up-to-date
 		return;
 
-	if (relation.HasParent())
+	if (relation != nullptr && relation->HasParent())
 	{
-		const Transform& parent_transform = entity_admin.GetComponent<Transform>(relation.GetParent());
-		const Relation& parent_relation = entity_admin.GetComponent<Relation>(relation.GetParent());
+		const Transform& parent_transform = entity_admin.GetComponent<Transform>(relation->GetParent());
+		const Relation& parent_relation = entity_admin.GetComponent<Relation>(relation->GetParent());
 
-		parent_transform.UpdateTransforms(entity_admin, parent_relation);
+		parent_transform.UpdateTransforms(entity_admin, &parent_relation);
 		ComputeTransform(parent_transform.GetTransform());
 
 		const float* matrix = m_model_transform.getMatrix();
@@ -212,4 +212,6 @@ void Transform::Dirtify() const
 
 	m_update_model = true;
 	m_update_inverse_model = true;
+
+	m_update_global = true;
 }

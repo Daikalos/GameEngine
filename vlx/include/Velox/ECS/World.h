@@ -29,11 +29,13 @@ namespace vlx
 
 		EntityAdmin& GetEntityAdmin() noexcept;
 		ObjectSystem& GetObjectSystem() noexcept;
+		RelationSystem& GetRelationSystem() noexcept;
 		TransformSystem& GetTransformSystem() noexcept;
 		RenderSystem& GetRenderSystem() noexcept;
 
 		const EntityAdmin& GetEntityAdmin() const noexcept;
 		const ObjectSystem& GetObjectSystem() const noexcept;
+		const RelationSystem& GetRelationSystem() const noexcept;
 		const TransformSystem& GetTransformSystem() const noexcept;
 		const RenderSystem& GetRenderSystem() const noexcept;
 

@@ -47,6 +47,6 @@ namespace vlx
 		SpriteBatch			m_dynamic_batch;
 
 		bool				m_batching_enabled		{true};
-		mutable bool		m_update_static_bash	{false};
+		mutable bool		m_update_static_bash	{true};
 	};
 }
