@@ -44,11 +44,11 @@ void Container::SelectSteps(const EntityAdmin& entity_admin, int steps)
 	if (next_index == m_selected_index)
 		return;
 
-	const EntityID child_id = m_children[m_selected_index];
-	entity_admin.GetComponent<Component>(child_id).Unselect();
+	const EntityID prev_id = m_children[m_selected_index];
+	entity_admin.GetComponent<Component>(prev_id).Unselect();
 
 	m_selected_index = next_index;
 
-	const EntityID child_id = m_children[m_selected_index];
-	entity_admin.GetComponent<Component>(child_id).Select();
+	const EntityID next_id = m_children[m_selected_index];
+	entity_admin.GetComponent<Component>(next_id).Select();
 }

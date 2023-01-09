@@ -6,14 +6,14 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
-#include "Relation.hpp"
+#include "Relation.h"
 
 namespace vlx
 {
 	/// <summary>
 	///		Represents the transform and the overall scene graph
 	/// </summary>
-	class VELOX_API Transform : public Relation<Transform>
+	class VELOX_API Transform : public IComponent
 	{ 
 	public:
 		Transform();
@@ -27,37 +27,36 @@ namespace vlx
 		//////////////////////////////////////////////
 		// Returns the global representation of the transform
 		//////////////////////////////////////////////
-		[[nodiscard]] const sf::Transform& GetTransform() const;
-		[[nodiscard]] const sf::Transform& GetInverseTransform() const;
-		[[nodiscard]] const sf::Vector2f& GetOrigin() const;
-		[[nodiscard]] const sf::Vector2f& GetPosition() const;
-		[[nodiscard]] const sf::Vector2f& GetScale() const;
-		[[nodiscard]] const sf::Angle& GetRotation() const;
+		[[nodiscard]] const sf::Transform&	GetTransform() const;
+		[[nodiscard]] const sf::Transform&	GetInverseTransform() const;
+		[[nodiscard]] const sf::Vector2f&	GetOrigin() const;
+		[[nodiscard]] const sf::Vector2f&	GetPosition() const;
+		[[nodiscard]] const sf::Vector2f&	GetScale() const;
+		[[nodiscard]] const sf::Angle&		GetRotation() const;
 
-		[[nodiscard]] const sf::Transform& GetLocalTransform() const;
-		[[nodiscard]] const sf::Transform& GetInverseLocalTransform() const;
-		[[nodiscard]] const sf::Vector2f& GetLocalPosition() const;
-		[[nodiscard]] const sf::Vector2f& GetLocalScale() const;
-		[[nodiscard]] const sf::Angle& GetLocalRotation() const;
+		[[nodiscard]] const sf::Transform&	GetLocalTransform() const;
+		[[nodiscard]] const sf::Transform&	GetInverseLocalTransform() const;
+		[[nodiscard]] const sf::Vector2f&	GetLocalPosition() const;
+		[[nodiscard]] const sf::Vector2f&	GetLocalScale() const;
+		[[nodiscard]] const sf::Angle&		GetLocalRotation() const;
 
-		void SetOrigin(		const EntityAdmin& entity_admin, const sf::Vector2f& origin);
-		void SetPosition(	const EntityAdmin& entity_admin, const sf::Vector2f& position, bool global = false);
-		void SetScale(		const EntityAdmin& entity_admin, const sf::Vector2f& scale);
-		void SetRotation(	const EntityAdmin& entity_admin, const sf::Angle angle);
+		void SetOrigin(const sf::Vector2f& origin);
+		void SetPosition(const sf::Vector2f& position);
+		void SetScale(const sf::Vector2f& scale);
+		void SetRotation(const sf::Angle angle);
 
-		void Move(			const EntityAdmin& entity_admin, const sf::Vector2f& move);
-		void Scale(			const EntityAdmin& entity_admin, const sf::Vector2f& factor);
-		void Rotate(		const EntityAdmin& entity_admin, const sf::Angle angle);
+		void Move(const sf::Vector2f& move);
+		void Scale(const sf::Vector2f& factor);
+		void Rotate(const sf::Angle angle);
 
 	private:
-		void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
-		void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Transform>& child) override;
-
-		void UpdateTransforms(const EntityAdmin& entity_admin) const;
-		void UpdateRequired(const EntityAdmin& entity_admin) const;
+		void UpdateRequired(const EntityAdmin& entity_admin, const Relation& relation) const;
+		void UpdateTransforms(const EntityAdmin& entity_admin, const Relation& relation) const;
 
 		void ComputeTransform() const;
 		void ComputeTransform(const sf::Transform& transform) const;
+
+		void Dirtify() const;
 
 	private:
 		// local space information

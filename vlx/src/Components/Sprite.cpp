@@ -11,6 +11,12 @@ Sprite::Sprite(const sf::Texture& texture, const float depth) : m_depth(depth)
 	SetTexture(texture, true);
 }
 
+Sprite::Sprite(const sf::Texture& texture, const sf::Vector2f& size, const float depth) : m_depth(depth)
+{
+	SetSize(size);
+	SetTexture(texture, true);
+}
+
 Sprite::Sprite(const sf::Texture& texture, const TextureRect& visible_rect, const float depth) : m_depth(depth)
 {
 	SetTextureRect(visible_rect);

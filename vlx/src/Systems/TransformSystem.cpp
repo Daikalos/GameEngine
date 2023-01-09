@@ -3,115 +3,49 @@
 using namespace vlx;
 
 TransformSystem::TransformSystem(EntityAdmin& entity_admin)
-	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_TRANSFORM)
+	: m_entity_admin(&entity_admin), m_global_system(entity_admin, LYR_TRANSFORM)
 {
-	m_system.Action([this](std::span<const EntityID> entities, Transform* transforms)
+	m_global_system.Action([this](std::span<const EntityID> entities, Transform* transforms, Relation* relations)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
-			{
-				transforms[i].UpdateTransforms(*m_entity_admin);
-			}
+				transforms[i].UpdateRequired(*m_entity_admin, relations[i]);
+
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				transforms[i].UpdateTransforms(*m_entity_admin, relations[i]);
 		});
 }
 
-void TransformSystem::SetOrigin(Transform& transform, const sf::Vector2f& origin) 
+void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
 {
-	transform.SetOrigin(*m_entity_admin, origin);
+	SetGlobalPosition(m_entity_admin->GetComponent<Transform>(entity), 
+		m_entity_admin->GetComponent<Relation>(entity), position);
 }
-void TransformSystem::SetPosition(Transform& transform, const sf::Vector2f& position, bool global) 
+void TransformSystem::SetGlobalScale(const EntityID entity, const sf::Vector2f& scale)
 {
-	transform.SetPosition(*m_entity_admin, position, global);
+	SetGlobalScale(m_entity_admin->GetComponent<Transform>(entity),
+		m_entity_admin->GetComponent<Relation>(entity), scale);
 }
-void TransformSystem::SetScale(Transform& transform, const sf::Vector2f& scale) 
+void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle angle)
 {
-	transform.SetScale(*m_entity_admin, scale);
-}
-void TransformSystem::SetRotation(Transform& transform, const sf::Angle angle) 
-{
-	transform.SetRotation(*m_entity_admin, angle);
-}
-
-void TransformSystem::Move(Transform& transform, const sf::Vector2f& move) 
-{
-	transform.Move(*m_entity_admin, move);
-}
-void TransformSystem::Scale(Transform& transform, const sf::Vector2f& factor) 
-{
-	transform.Scale(*m_entity_admin, factor);
-}
-void TransformSystem::Rotate(Transform& transform, const sf::Angle angle) 
-{
-	transform.Rotate(*m_entity_admin, angle);
+	SetGlobalRotation(m_entity_admin->GetComponent<Transform>(entity),
+		m_entity_admin->GetComponent<Relation>(entity), angle);
 }
 
-void TransformSystem::AttachInstant(const EntityID parent_id, const EntityID child_id)
+void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation, const sf::Vector2f& position)
 {
-	AttachChild(parent_id, child_id);
+	Transform& parent = m_entity_admin->GetComponent<Transform>(relation.GetParent());
+	transform.SetPosition(parent.GetInverseTransform() * position);
 }
-void TransformSystem::DetachInstant(const EntityID parent_id, const EntityID child_id)
+void TransformSystem::SetGlobalScale(Transform& transform, Relation& relation, const sf::Vector2f& scale)
 {
-	DetachChild(parent_id, child_id);
-}
 
-void TransformSystem::AttachInstant(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child)
-{
-	AttachChild(parent_id, parent, child_id, child);
 }
-void TransformSystem::DetachInstant(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child)
+void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation, const sf::Angle angle)
 {
-	DetachChild(parent_id, parent, child_id, child);
-}
 
-void TransformSystem::AttachDelay(const EntityID parent_id, const EntityID child_id)
-{
-	if (parent_id != child_id)
-		m_attachments.emplace(parent_id, child_id);
-}
-void TransformSystem::DetachDelay(const EntityID parent_id, const EntityID child_id)
-{
-	if (parent_id != child_id)
-		m_detachments.emplace(parent_id, child_id);
-}
-
-void TransformSystem::AttachChild(const EntityID parent_id, const EntityID child_id)
-{
-	AttachChild(parent_id, m_entity_admin->GetComponent<Transform>(parent_id),
-		child_id, m_entity_admin->GetComponent<Transform>(child_id));
-}
-void TransformSystem::DetachChild(const EntityID parent_id, const EntityID child_id)
-{
-	DetachChild(parent_id, m_entity_admin->GetComponent<Transform>(parent_id),
-		child_id, m_entity_admin->GetComponent<Transform>(child_id));
-}
-
-void TransformSystem::AttachChild(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child)
-{
-	parent.AttachChild(*m_entity_admin, parent_id, child_id, child);
-}
-void TransformSystem::DetachChild(const EntityID parent_id, Transform& parent, const EntityID child_id, Transform& child)
-{
-	parent.DetachChild(*m_entity_admin, parent_id, child_id, child);
 }
 
 void TransformSystem::Update()
 {
-	PreUpdate();
 	m_entity_admin->RunSystems(LYR_TRANSFORM);
-}
-
-void TransformSystem::PreUpdate()
-{
-	while (!m_detachments.empty()) // detach all relations first
-	{
-		auto& pair = m_detachments.front();
-		DetachChild(pair.first, pair.second);
-		m_detachments.pop();
-	}
-
-	while (!m_attachments.empty())
-	{
-		auto& pair = m_attachments.front();
-		AttachChild(pair.first, pair.second);
-		m_attachments.pop();
-	}
 }

@@ -4,9 +4,10 @@ using namespace vlx;
 
 World::World(const Window& window) : 
 	m_entity_admin(), 
+	m_object_system(m_entity_admin),
+	m_relation_system(m_entity_admin),
+	m_transform_system(m_entity_admin),
 	m_anchor_system(m_entity_admin, window),
-	m_object_system(m_entity_admin), 
-	m_transform_system(m_entity_admin), 
 	m_render_system(m_entity_admin)
 {
 	

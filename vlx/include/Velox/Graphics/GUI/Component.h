@@ -4,11 +4,10 @@
 
 #include <Velox/ECS.hpp>
 #include <Velox/Utilities.hpp>
-#include <Velox/Components/Relation.hpp>
 
 namespace vlx::gui
 {
-	class Component final : public Relation<Component>
+	class Component final : public IComponent
 	{
 	private:
 		using SizeType		= std::uint16_t;
@@ -19,30 +18,19 @@ namespace vlx::gui
 		Component(const Vector2Type& size);
 		Component(const Vector2Type& size, bool selectable);
 
-		[[nodiscard]] constexpr bool IsActive() const noexcept;
 		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 		[[nodiscard]] constexpr bool IsSelectable() const noexcept;
 
 	public:
-		void Activate(const EntityAdmin& entity_admin);
-		void Deactivate(const EntityAdmin& entity_admin);
-
 		void Select();
 		void Unselect();
 
-	private:
-		void OnAttach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Component>& child);
-		void OnDetach(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation<Component>& child);
-
 	public:
-		vlx::Event<> Activated;
-		vlx::Event<> Deactivated;
 		vlx::Event<> Selected;
 		vlx::Event<> Unselected;
 
 	private:
 		Vector2Type m_size;
-		bool		m_active			{true};
 		bool		m_selected			{false};
 		bool		m_selectable		{false};
 

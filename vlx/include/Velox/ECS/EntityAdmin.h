@@ -62,7 +62,7 @@ namespace vlx
 
 		using SystemsArrayMap			= std::unordered_map<LayerType, std::vector<ISystem*>>;
 		using ArchetypesArray			= std::vector<ArchetypePtr>;
-		using ArchetypeMap				= std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
+		using ArchetypeMap				= std::unordered_map<ArchetypeID, Archetype*>;
 		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
 		using EntityComponentProxyMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, ComponentProxyPtr>>;
 		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
@@ -221,9 +221,9 @@ namespace vlx
 		/// </summary>
 		VELOX_API [[nodiscard]] EntityID Duplicate(const EntityID entity_id);
 
-		VELOX_API [[nodiscard]] std::vector<EntityID> GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted = false) const;
+		VELOX_API [[nodiscard]] std::vector<EntityID> GetEntitiesWith(const ComponentIDs& component_ids, bool restricted = false) const;
 
-		VELOX_API void Reserve(const std::vector<ComponentTypeID>& component_ids, const std::size_t component_count);
+		VELOX_API void Reserve(const ComponentIDs& component_ids, const std::size_t component_count);
 
 		/// <summary>
 		///		Shrinks the ECS by removing all the empty archetypes
@@ -240,6 +240,8 @@ namespace vlx
 	private:
 		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);
 		VELOX_API [[nodiscard]] Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
+
+		VELOX_API [[nodiscard]] std::vector<Archetype*> GetArchetypes(const ComponentIDs& component_ids) const;
 
 		VELOX_API void MakeRoom(
 			Archetype* archetype,

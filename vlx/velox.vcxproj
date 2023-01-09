@@ -158,7 +158,7 @@
     <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
-    <ClInclude Include="include\Velox\Components\Relation.hpp" />
+    <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -195,6 +195,7 @@
     <ClInclude Include="include\Velox\Systems\GUISystem.h" />
     <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
+    <ClInclude Include="include\Velox\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\Utilities.hpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\GUI\Component.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
@@ -239,6 +241,7 @@
     <ClCompile Include="src\Input\MouseInput.cpp" />
     <ClCompile Include="src\Systems\AnchorSystem.cpp" />
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
+    <ClCompile Include="src\Systems\RelationSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\Utilities\Time.cpp" />

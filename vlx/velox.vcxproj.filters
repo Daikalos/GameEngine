@@ -26,6 +26,8 @@
     <ClCompile Include="src\Graphics\GUI\Component.cpp" />
     <ClCompile Include="src\Systems\AnchorSystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
+    <ClCompile Include="src\Components\Relation.cpp" />
+    <ClCompile Include="src\Systems\RelationSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -76,7 +78,7 @@
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
-    <ClInclude Include="include\Velox\Components\Relation.hpp" />
+    <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Components\Object.h" />
     <ClInclude Include="include\Velox\ECS\World.h" />
@@ -94,6 +96,7 @@
     <ClInclude Include="include\Velox\Utilities\Event.hpp" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
+    <ClInclude Include="include\Velox\Systems\RelationSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

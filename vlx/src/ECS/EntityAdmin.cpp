@@ -55,19 +55,14 @@ void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
 
 void EntityAdmin::RunSystems(const LayerType layer) const
 {
-	const auto it = m_systems.find(layer);
-	if (it == m_systems.end())
+	const auto sit = m_systems.find(layer);
+	if (sit == m_systems.end())
 		return;
 
-	for (const ISystem* system : it->second)
+	for (const ISystem* system : sit->second)
 	{
-		const ArchetypeID& key = system->GetKey();
-
-		auto it = m_archetype_map.find(key);
-		if (it == m_archetype_map.end()) // there are no archetypes that matches the components
-			continue;
-
-		for (Archetype* archetype : it->second)
+		const ComponentIDs& arch_key = system->GetArchKey();
+		for (Archetype* archetype : GetArchetypes(arch_key))
 			system->DoAction(archetype);
 	}
 }
@@ -349,27 +344,13 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 	return new_entity_id;
 }
 
-std::vector<EntityID> EntityAdmin::GetEntitiesWith(const std::vector<ComponentTypeID>& component_ids, bool restricted) const
+std::vector<EntityID> EntityAdmin::GetEntitiesWith(const ComponentIDs& component_ids, bool restricted) const
 {
 	std::vector<EntityID> entities;
 
-	const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
-
-	const auto it = m_archetype_map.find(archetype_id);
-	if (it == m_archetype_map.end())
-		return entities;
-
-	const std::vector<Archetype*>& archetypes = it->second;
-
 	if (!restricted)
 	{
-		std::size_t total_size = 0; // used to prevent numerous reallocations
-
-		for (const Archetype* archetype : archetypes)
-			total_size += archetype->entities.size();
-
-		entities.reserve(total_size);
-		for (const Archetype* archetype : archetypes)
+		for (const Archetype* archetype : GetArchetypes(component_ids))
 		{
 			entities.insert(entities.end(),
 				archetype->entities.begin(),
@@ -378,20 +359,21 @@ std::vector<EntityID> EntityAdmin::GetEntitiesWith(const std::vector<ComponentTy
 	}
 	else
 	{
-		const Archetype* front = archetypes.front();
+		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
-		if (front->type != component_ids)
-			return entities; // there are no entities that exactly matches the provided components
+		const auto it = m_archetype_map.find(archetype_id);
+		if (it == m_archetype_map.end())
+			return entities;
 
 		entities.insert(entities.end(),
-			front->entities.begin(),
-			front->entities.end());
+			it->second->entities.begin(),
+			it->second->entities.end());
 	}
 
 	return entities;
 }
 
-void EntityAdmin::Reserve(const std::vector<ComponentTypeID>& component_ids, const std::size_t component_count)
+void EntityAdmin::Reserve(const ComponentIDs& component_ids, const std::size_t component_count)
 {
 	const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
@@ -406,7 +388,7 @@ void EntityAdmin::Reserve(const std::vector<ComponentTypeID>& component_ids, con
 		}
 	}
 
-	const auto& archetypes = m_archetype_map[archetype_id];
+	const auto& archetypes = GetArchetypes(component_ids);
 	for (Archetype* archetype : archetypes)
 	{
 		for (const ComponentTypeID component_id : component_ids)
@@ -453,16 +435,7 @@ void EntityAdmin::Shrink(bool extensive)
 		{
 			if (archetype->entities.empty())
 			{
-				cu::Erase(m_archetype_map[archetype->id], archetype.get());
-
-				for (auto i = std::ssize(archetype->type) - 2; i >= 0; --i)
-				{
-					const ComponentIDs subset_ids(archetype->type.begin(), archetype->type.begin() + (i + 1));
-					const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
-
-					cu::Erase(m_archetype_map[subset_id], archetype.get());
-				}
-
+				m_archetype_map.erase(archetype->id);
 				return true;
 			}
 
@@ -475,15 +448,7 @@ void EntityAdmin::Shrink(bool extensive)
 		{
 			if (archetype->type.empty())
 			{
-				cu::Erase(m_archetype_map[archetype->id], archetype.get());
-
-				for (auto i = std::ssize(archetype->type) - 2; i >= 0; --i)
-				{
-					const ComponentIDs subset_ids(archetype->type.begin(), archetype->type.begin() + (i + 1));
-					const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
-
-					cu::Erase(m_archetype_map[subset_id], archetype.get());
-				}
+				m_archetype_map.erase(archetype->id);
 
 				for (const EntityID entity_id : archetype->entities)
 				{
@@ -563,11 +528,7 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 
 	const auto it = m_archetype_map.find(id);
 	if (it != m_archetype_map.end())
-	{
-		Archetype* result = it->second.front();
-		if (result->id == id)
-			return result;
-	}
+		return it->second;
 
 	return CreateArchetype(component_ids, id); // archetype does not exist, create new one
 }
@@ -579,20 +540,7 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 	new_archetype->id = id;
 	new_archetype->type = component_ids;
 
-	auto& archetypes = m_archetype_map[id];
-	archetypes.insert(archetypes.begin(), new_archetype.get());
-
-	for (auto width = 1; width <= std::ssize(component_ids) - 1; ++width)
-	{
-		for (std::size_t i = 0; (width + i) <= component_ids.size(); ++i)
-		{
-			const auto begin = (component_ids.begin() + i);
-			const ComponentIDs subset_ids(begin, begin + width);
-			const auto subset_id = cu::VectorHash<ComponentIDs>()(subset_ids);
-
-			m_archetype_map[subset_id].push_back(new_archetype.get()); // we add this archetype to each subset
-		}
-	}
+	m_archetype_map[id] = new_archetype.get();
 
 	new_archetype->component_data.reserve(component_ids.size()); // prevent any reallocations
 	new_archetype->component_data_size.reserve(component_ids.size());
@@ -621,6 +569,19 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 #endif
 
 	return m_archetypes.emplace_back(std::move(new_archetype)).get();
+}
+
+std::vector<Archetype*> EntityAdmin::GetArchetypes(const ComponentIDs& component_ids) const
+{
+	std::vector<Archetype*> result;
+
+	for (const ArchetypePtr& archetype : m_archetypes)
+	{
+		if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
+			result.push_back(archetype.get());
+	}
+
+	return result;
 }
 
 void EntityAdmin::MakeRoom(

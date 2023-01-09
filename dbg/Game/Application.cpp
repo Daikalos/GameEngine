@@ -16,7 +16,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<Object, Transform, Sprite>();
+	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation>();
 
 	m_window.Initialize();
 
@@ -37,12 +37,12 @@ void Application::Run()
 	TransformSystem& transform_system = m_world.GetTransformSystem();
 
 	Entity entity = m_world.GetObjectSystem().CreateObject();
-	entity.AddComponents<Object, Sprite, Transform>();
+	entity.AddComponents<Object, Sprite, Transform, Relation>();
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 	entity.GetComponent<Sprite>().SetOpacity(1.0f);
 
 	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
-	m_world.GetTransformSystem().SetPosition(*transform, {50.0f, 50.0f});
+	transform->SetPosition({50.0f, 50.0f});
 
 	Entity new_entity(entity_admin, entity.Duplicate());
 	ComponentProxy<Transform>& transform2 = new_entity.GetComponentProxy<Transform>();
@@ -58,8 +58,6 @@ void Application::Run()
 	std::puts(std::to_string(set.Get<Object>().is_alive).c_str());
 	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
-
-	Event a;
 
 	float x_pos = 0.0f;
 
@@ -98,9 +96,9 @@ void Application::Run()
 		x_pos += m_time.GetDeltaTime() * 5.0f;
 
 		if (entity_admin.IsEntityRegistered(entity.GetID()))
-			m_world.GetTransformSystem().SetPosition(*transform, { x_pos, 10.0f });
+			transform->SetPosition({ x_pos, 10.0f });
 
-		m_world.GetTransformSystem().SetPosition(*transform2, { 0.0f, x_pos });
+		transform2->SetPosition({ 0.0f, x_pos });
 
 		Draw();
 	}

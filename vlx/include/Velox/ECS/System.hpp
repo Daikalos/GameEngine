@@ -22,7 +22,8 @@ namespace vlx
 
 		virtual bool operator>(const ISystem& rhs) const = 0;
 
-		virtual const ArchetypeID& GetKey() const = 0;
+		virtual const ArchetypeID& GetIDKey() const = 0;
+		virtual const ComponentIDs& GetArchKey() const = 0;
 
 		virtual float GetPriority() const noexcept = 0;
 		virtual void SetPriority(const float val) = 0;
@@ -44,7 +45,8 @@ namespace vlx
 		bool operator>(const ISystem& rhs) const override;
 
 	public:
-		const ArchetypeID& GetKey() const override;
+		const ArchetypeID& GetIDKey() const override;
+		const ComponentIDs& GetArchKey() const override;
 
 		[[nodiscard]] float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
@@ -73,7 +75,8 @@ namespace vlx
 
 		Func			m_func;
 
-		mutable ArchetypeID m_key		{NULL_ARCHETYPE};
+		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};
+		mutable ComponentIDs	m_arch_key;
 	};
 
 	template<IsComponents... Cs>
@@ -109,13 +112,22 @@ namespace vlx
 	}
 
 	template<IsComponents... Cs>
-	inline const ArchetypeID& System<Cs...>::GetKey() const
+	inline const ArchetypeID& System<Cs...>::GetIDKey() const
 	{
-		if (m_key == NULL_ARCHETYPE)
-			m_key = cu::VectorHash<ComponentIDs>()(cu::Sort<ComponentTypeID>({{ ComponentAlloc<Cs>::GetTypeID()... }}));
+		if (m_id_key == NULL_ARCHETYPE)
+			m_id_key = cu::VectorHash<ComponentIDs>()(GetArchKey());
 
-		return m_key;
+		return m_id_key;
 	}	
+
+	template<IsComponents... Cs>
+	inline const ComponentIDs& System<Cs...>::GetArchKey() const
+	{
+		if (m_arch_key.empty())
+			m_arch_key = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } });
+
+		return m_arch_key;
+	}
 
 	template<IsComponents... Cs>
 	inline void System<Cs...>::Action(Func&& func)

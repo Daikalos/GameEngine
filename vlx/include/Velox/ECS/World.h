@@ -7,6 +7,7 @@
 #include <Velox/Systems/AnchorSystem.h>
 #include <Velox/Systems/ObjectSystem.h>
 #include <Velox/Systems/RenderSystem.h>
+#include <Velox/Systems/RelationSystem.h>
 #include <Velox/Systems/TransformSystem.h>
 
 #include <Velox/Window/Window.h>
@@ -40,6 +41,7 @@ namespace vlx
 		EntityAdmin		m_entity_admin;
 
 		ObjectSystem	m_object_system;
+		RelationSystem	m_relation_system;
 		TransformSystem m_transform_system;
 		AnchorSystem	m_anchor_system;
 		RenderSystem	m_render_system;
