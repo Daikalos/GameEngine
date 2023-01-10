@@ -50,7 +50,7 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
-		void UpdateRequired(const EntityAdmin& entity_admin, const Relation& relation) const;
+		void UpdateRequired(const EntityAdmin& entity_admin, const Relation* relation) const;
 		void UpdateTransforms(const EntityAdmin& entity_admin, const Relation* relation) const;
 
 		void ComputeTransform() const;

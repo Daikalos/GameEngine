@@ -475,8 +475,8 @@ void EntityAdmin::Shrink(bool extensive)
 				const IComponentAlloc* component	= m_component_map[component_id].get();
 				const std::size_t& component_size	= component->GetSize();
 
-				const std::size_t current_size = archetype->entities.size() * component_size;
-				const std::size_t current_capacity = archetype->component_data_size[j];
+				const std::size_t current_size		= archetype->entities.size() * component_size;
+				const std::size_t current_capacity	= archetype->component_data_size[j];
 
 				if (current_capacity > current_size)
 				{

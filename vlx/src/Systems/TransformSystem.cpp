@@ -8,7 +8,15 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 	m_local_system.Action([this](std::span<const EntityID> entities, Transform* transforms)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
+			{
+				if (transforms[i].m_update_global)
+				{
+					transforms[i].UpdateRequired(*m_entity_admin, nullptr);
+					transforms[i].m_update_global = false;
+				}
+
 				transforms[i].UpdateTransforms(*m_entity_admin, nullptr);
+			}
 		});
 
 	m_global_system.Action([this](std::span<const EntityID> entities, Transform* transforms, Relation* relations)
@@ -17,12 +25,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 			{
 				if (transforms[i].m_update_global)
 				{
-					for (const EntityID child_id : relations[i].GetChildren())
-					{
-						m_entity_admin->GetComponent<Transform>(child_id)
-							.UpdateRequired(*m_entity_admin, m_entity_admin->GetComponent<Relation>(child_id));
-					}
-
+					transforms[i].UpdateRequired(*m_entity_admin, &relations[i]);
 					transforms[i].m_update_global = false;
 				}
 			}

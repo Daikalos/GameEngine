@@ -141,7 +141,7 @@ void Transform::Rotate(const sf::Angle angle)
 	SetRotation(GetLocalRotation() + angle);
 }
 
-void Transform::UpdateRequired(const EntityAdmin& entity_admin, const Relation& relation) const
+void Transform::UpdateRequired(const EntityAdmin& entity_admin, const Relation* relation) const
 {
 	if (m_update_model) // no need to update if already set
 		return;
@@ -149,10 +149,13 @@ void Transform::UpdateRequired(const EntityAdmin& entity_admin, const Relation& 
 	m_update_model = true;
 	m_update_inverse_model = true;
 
-	for (const EntityID child_id : relation.GetChildren()) // all of the children needs their global transform to be updated
+	if (relation == nullptr)
+		return;
+
+	for (const EntityID child_id : relation->GetChildren()) // all of the children needs their global transform to be updated
 	{
 		entity_admin.GetComponent<Transform>(child_id)
-			.UpdateRequired(entity_admin, entity_admin.GetComponent<Relation>(child_id));
+			.UpdateRequired(entity_admin, &entity_admin.GetComponent<Relation>(child_id));
 	}
 }
 void Transform::UpdateTransforms(const EntityAdmin& entity_admin, const Relation* relation) const
@@ -209,9 +212,6 @@ void Transform::Dirtify() const
 {
 	m_update_local = true;
 	m_update_inverse_local = true;
-
-	m_update_model = true;
-	m_update_inverse_model = true;
 
 	m_update_global = true;
 }
