@@ -7,15 +7,14 @@
 
 #include <Velox/Utilities.hpp>
 
-#include "Component.h"
+#include "GUIComponent.h"
 
 namespace vlx::gui
 {
-	class Container : public IComponent
+	class Container : public GUIComponent
 	{
 	private:
-		using SizeType = std::uint16_t;
-		using EnityProxy = std::pair<EntityID, ComponentProxy<Component>>;
+		using SizeType = std::int16_t;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;
@@ -38,7 +37,7 @@ namespace vlx::gui
 
 	private:
 		std::vector<EntityID>	m_children;
-		SizeType				m_selected_index{0};
+		SizeType				m_selected_index	{-1};
 	};
 
 	template<IsComponent C>

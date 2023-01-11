@@ -3,7 +3,7 @@
 using namespace vlx;
 
 
-VELOX_API Entity::Entity(EntityAdmin& entity_admin, const EntityID entity_id)
+Entity::Entity(EntityAdmin& entity_admin, const EntityID entity_id)
 	: m_id(entity_id), m_entity_admin(&entity_admin)
 {
 	if (!m_entity_admin->IsEntityRegistered(entity_id)) // register if it has not been already

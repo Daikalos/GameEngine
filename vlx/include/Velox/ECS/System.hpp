@@ -54,6 +54,9 @@ namespace vlx
 		void Action(Func&& func);
 
 	public:
+		/// <summary>
+		///		Exclude any entities that also holds these components
+		/// </summary>
 		template<IsComponents... Cs>
 		void Exclude();
 
@@ -172,7 +175,7 @@ namespace vlx
 		const ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
 		ComponentTypeID archetype_comp_id = component_ids[index2];				// id for component in the archetype
 
-		while (comp_id != archetype_comp_id && index2 < component_ids.size())	// iterate until matching component is found
+		while (archetype_comp_id != comp_id && index2 < component_ids.size())	// iterate until matching component is found
 		{
 			archetype_comp_id = component_ids[++index2];
 		}

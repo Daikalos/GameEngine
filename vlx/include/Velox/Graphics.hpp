@@ -8,5 +8,5 @@
 
 #include "Graphics/GUI/Anchor.h"
 #include "Graphics/GUI/Button.h"
-#include "Graphics/GUI/Component.h"
+#include "Graphics/GUI/GUIComponent.h"
 #include "Graphics/GUI/Text.h"

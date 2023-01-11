@@ -28,21 +28,24 @@ namespace vlx
 	public:
 		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
 
-		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
-
-		[[nodiscard]] bool IsValid() const noexcept override;
-
-		void Reset() override;
-
 	public:
-		C* Get();
-		const C* Get() const;
-
 		C* operator->();
 		const C* operator->() const;
 
 		C& operator*();
 		const C& operator*() const;
+
+		operator bool() const noexcept;
+
+	public:
+		C* Get();
+		const C* Get() const;
+
+	public:
+		[[nodiscard]] bool IsValid() const noexcept override;
+		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
+
+		void Reset() override;
 
 	private:
 		const EntityAdmin*	m_entity_admin	{nullptr};
@@ -56,21 +59,39 @@ namespace vlx
 		: m_entity_admin(&entity_admin), m_entity_id(entity_id) { }
 
 	template<IsComponent C>
+	inline C* ComponentProxy<C>::operator->()
+	{
+		return Get();
+	}
+
+	template<IsComponent C>
+	inline const C* ComponentProxy<C>::operator->() const
+	{
+		return Get();
+	}
+
+	template<IsComponent C>
+	inline C& ComponentProxy<C>::operator*()
+	{
+		return *Get();
+	}
+
+	template<IsComponent C>
+	inline const C& ComponentProxy<C>::operator*() const
+	{
+		return *Get();
+	}
+
+	template<IsComponent C>
+	inline ComponentProxy<C>::operator bool() const noexcept
+	{
+		return IsValid();
+	}
+
+	template<IsComponent C>
 	inline constexpr EntityID ComponentProxy<C>::GetEntityID() const noexcept
 	{
 		return m_entity_id;
-	}
-
-	template<IsComponent C>
-	inline bool ComponentProxy<C>::IsValid() const noexcept
-	{
-		return m_component != nullptr;
-	}
-
-	template<IsComponent C>
-	inline void ComponentProxy<C>::Reset()
-	{
-		m_component = nullptr;
 	}
 
 	template<IsComponent C>
@@ -98,26 +119,14 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline C* ComponentProxy<C>::operator->()
+	inline bool ComponentProxy<C>::IsValid() const noexcept
 	{
-		return Get();
+		return m_component != nullptr;
 	}
 
 	template<IsComponent C>
-	inline const C* ComponentProxy<C>::operator->() const
+	inline void ComponentProxy<C>::Reset()
 	{
-		return Get();
-	}
-
-	template<IsComponent C>
-	inline C& ComponentProxy<C>::operator*()
-	{
-		return *Get();
-	}
-
-	template<IsComponent C>
-	inline const C& ComponentProxy<C>::operator*() const
-	{
-		return *Get();
+		m_component = nullptr;
 	}
 }

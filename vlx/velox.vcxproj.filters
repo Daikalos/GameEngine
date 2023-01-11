@@ -23,7 +23,7 @@
     <ClCompile Include="src\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Components\Velocity.cpp" />
-    <ClCompile Include="src\Graphics\GUI\Component.cpp" />
+    <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\Systems\AnchorSystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />
@@ -39,7 +39,7 @@
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Component.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\GUIComponent.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Text.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\ControlMap.h" />

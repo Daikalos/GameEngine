@@ -43,7 +43,7 @@ namespace vlx
 	template<IsLoadable Resource, Enum Identifier>
 	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path)
 	{
-		Resource resource;
+		Resource resource{};
 
 		if (!resource.loadFromFile(path))
 			throw std::runtime_error("resource does not exist at " + std::string(path));
@@ -55,7 +55,7 @@ namespace vlx
 	template<class Parameter>
 	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path, const Parameter& second_param)
 	{
-		Resource resource;
+		Resource resource{};
 
 		if (!resource.loadFromFile(path, second_param))
 			throw std::runtime_error("resource does not exist at " + std::string(path));
@@ -93,7 +93,7 @@ namespace vlx
 				auto inserted = m_resources.try_emplace(id, std::move(resource));
 				assert(inserted.second);
 			}, 
-			id, std::string(path)); // create local copy of path because it will be later destroyed
+			id, std::string(path)); // create local copy of path because it will later be destroyed
 	}
 
 	template<IsLoadable Resource, Enum Identifier>
