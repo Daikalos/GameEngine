@@ -7,7 +7,12 @@
 
 namespace vlx::gui
 {
-	class GUIComponent : public IComponent
+	class Container;
+
+	/// <summary>
+	///		Common interface for GUI components to inherit from
+	/// </summary>
+	class VELOX_API GUIComponent : public IComponent
 	{
 	private:
 		using SizeType		= std::uint16_t;
@@ -16,12 +21,12 @@ namespace vlx::gui
 	public:
 		GUIComponent() = default;
 		GUIComponent(const Vector2Type& size);
-		GUIComponent(const Vector2Type& size, bool selectable);
+		GUIComponent(const SizeType width, const SizeType height);
 
 		virtual ~GUIComponent() = 0;
 
+		virtual constexpr bool IsSelectable() const noexcept = 0;
 		[[nodiscard]] constexpr bool IsSelected() const noexcept;
-		[[nodiscard]] constexpr bool IsSelectable() const noexcept;
 
 	public:
 		void Select();
@@ -33,10 +38,9 @@ namespace vlx::gui
 
 	private:
 		Vector2Type m_size;
-		bool		m_selected			{false};
-		bool		m_selectable		{false};
-	};
+		bool		m_selected		{false};
 
-	inline GUIComponent::~GUIComponent() = default;
+		Container*	m_container		{nullptr}; // current container associated with
+	};
 }
 

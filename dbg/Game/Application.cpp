@@ -16,7 +16,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation>();
+	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Text>();
 
 	m_window.Initialize();
 
@@ -58,6 +58,15 @@ void Application::Run()
 	std::puts(std::to_string(set.Get<Object>().is_alive).c_str());
 	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
+
+	Entity e3(entity_admin, new_entity.Duplicate());
+	e3.AddComponent<gui::Text>(105, 105);
+
+	const gui::Text& te = e3.GetComponent<gui::Text>();
+
+	gui::GUIComponent& t = m_world.GetEntityAdmin().GetBaseComponent<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Text, ComponentTypeID>());
+
+	std::puts(std::to_string(t.IsSelectable()).c_str());
 
 	float x_pos = 0.0f;
 

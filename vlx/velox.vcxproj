@@ -221,6 +221,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />

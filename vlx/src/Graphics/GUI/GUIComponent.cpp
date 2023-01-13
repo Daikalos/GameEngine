@@ -2,24 +2,14 @@
 
 using namespace vlx::gui;
 
-GUIComponent::GUIComponent(const Vector2Type& size)
-	: m_size(size)
-{
+inline GUIComponent::~GUIComponent() = default;
 
-}
-GUIComponent::GUIComponent(const Vector2Type& size, bool selectable)
-	: m_size(size), m_selectable(selectable)
-{
-
-}
+GUIComponent::GUIComponent(const Vector2Type& size) : m_size(size) { }
+GUIComponent::GUIComponent(const SizeType width, const SizeType height) : m_size(width, height) { }
 
 constexpr bool GUIComponent::IsSelected() const noexcept
 {
 	return m_selected;
-}
-constexpr bool GUIComponent::IsSelectable() const noexcept
-{
-	return m_selectable;
 }
 
 void GUIComponent::Select()

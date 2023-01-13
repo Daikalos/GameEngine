@@ -28,6 +28,7 @@
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Systems\RelationSystem.cpp" />
+    <ClCompile Include="src\Graphics\GUI\Button.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

@@ -12,7 +12,7 @@ namespace vlx
 {
 	namespace cst
 	{
-		enum class ID : uint32_t
+		enum class ID : std::uint8_t
 		{
 			None,
 			Idle,

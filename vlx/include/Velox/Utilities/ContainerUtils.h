@@ -68,14 +68,14 @@ namespace vlx::cu
 	}
 
 	template<class T>
-	[[nodiscard]] static constexpr auto InsertSorted(std::vector<T>& vector, const T& item)
+	static constexpr auto InsertSorted(std::vector<T>& vector, const T& item)
 	{
 		return vector.insert(std::upper_bound(
 			vector.begin(), vector.end(), item), item);
 	}
 
 	template<class T>
-	[[nodiscard]] static constexpr bool InsertUniqueSorted(std::vector<T>& vector, const T& item)
+	static constexpr bool InsertUniqueSorted(std::vector<T>& vector, const T& item)
 	{
 		for (auto it = vector.begin(); it != vector.end(); ++it) // custom algorithm for inserting an item in a sorted list containing only unique values
 		{
@@ -95,7 +95,7 @@ namespace vlx::cu
 	}
 
 	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	[[nodiscard]] static constexpr auto InsertSorted(std::vector<T>& vector, const T& item, Pred&& pred)
+	static constexpr auto InsertSorted(std::vector<T>& vector, const T& item, Pred&& pred)
 	{
 		return vector.insert(std::upper_bound(
 				vector.begin(), vector.end(), item, std::forward<Pred>(pred)), item);

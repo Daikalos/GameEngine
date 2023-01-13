@@ -46,7 +46,7 @@ namespace vlx::bm
 
 		void Loop()
 		{
-			PROCESS_MEMORY_COUNTERS_EX pmc;
+			PROCESS_MEMORY_COUNTERS_EX pmc{};
 			GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 
 			const long double initial_ram = Megabyte((long double)pmc.WorkingSetSize);

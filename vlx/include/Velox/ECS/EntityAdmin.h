@@ -131,6 +131,18 @@ namespace vlx
 		[[nodiscard]] std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
 		/// <summary>
+		/// 	Incredibly risky, requires base to be first in inheritance, other base classes cannot be 
+		///		automatically found without using voodoo magic, for now, offset can be specified to find 
+		///		the correct base class in the inheritance order, for example, "class C : B, A", to find A 
+		///		you specify offset with the value of sizeof(B)
+		/// </summary>
+		template<class C>
+		[[nodiscard]] C& GetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+
+		template<IsComponent C>
+		[[nodiscard]] std::pair<C*, bool> TryGetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+
+		/// <summary>
 		///		Returns a proxy for the component whose pointer will remain valid even when the internal data is 
 		///		modified. The proxy will internally get the component's new data location once it has been modified.
 		/// </summary>
@@ -508,6 +520,57 @@ namespace vlx
 		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
 
 		return { &components[record.index], true };
+	}
+
+	template<class C>
+	inline C& EntityAdmin::GetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	{
+		const Record& record = m_entity_archetype_map.find(entity_id)->second;
+		const Archetype* archetype = record.archetype;
+
+		const auto cit = m_component_archetypes_map.find(child_component_id);
+		const auto ait = cit->second.find(archetype->id);
+
+		const IComponentAlloc* component	= m_component_map.find(child_component_id)->second.get();
+		const std::size_t& component_size	= component->GetSize();
+
+		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
+		C* base_component = reinterpret_cast<C*>(ptr + offset);	
+
+		return *base_component;
+	}
+
+	template<IsComponent C>
+	inline std::pair<C*, bool> EntityAdmin::TryGetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	{
+		const auto eit = m_entity_archetype_map.find(entity_id);
+		if (eit == m_entity_archetype_map.end())
+			return { nullptr, false };
+
+		const Record& record = eit->second;
+		const Archetype* archetype = record.archetype;
+
+		if (archetype == nullptr)
+			return { nullptr, false };
+
+		const auto cit = m_component_archetypes_map.find(child_component_id);
+		if (cit == m_component_archetypes_map.end())
+			return { nullptr, false };
+
+		const auto ait = cit->second.find(archetype->id);
+		if (ait == cit->second.end())
+			return { nullptr, false };
+
+		const auto iit = m_component_map.find(child_component_id);
+		if (iit == m_component_map.end())
+			return { nullptr, false };
+
+		const std::size_t& component_size = iit->second->GetSize();
+
+		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
+		C* base_component = reinterpret_cast<C*>(ptr + offset);
+
+		return { base_component, true };
 	}
 
 	template<IsComponent C>

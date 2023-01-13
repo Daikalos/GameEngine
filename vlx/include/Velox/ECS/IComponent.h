@@ -40,7 +40,7 @@ namespace vlx
 		virtual void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) {}
 
 		/// <summary>
-		/// Called when the component's data has been modified
+		/// Called right before the component's data has been modified
 		/// </summary>
 		/// <param name="new_component:">The new component that modifies the current data</param>
 		/// <param name="entity_admin:">The master entity admin</param>

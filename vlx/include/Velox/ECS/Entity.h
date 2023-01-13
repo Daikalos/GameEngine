@@ -17,18 +17,14 @@ namespace vlx
 
 		VELOX_API virtual ~Entity();
 
+	public:
 		VELOX_API [[nodiscard]] constexpr EntityID GetID() const noexcept;
 
 	public:
-		VELOX_API [[nodiscard]] EntityID Duplicate() const;
-
-		VELOX_API void Destroy();
-
-	public:
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		[[nodiscard]] auto AddComponent(Args&&... args);
+		auto AddComponent(Args&&... args);
 		template<IsComponent C>
-		[[nodiscard]] auto AddComponent(C&& comp);
+		auto AddComponent(C&& comp);
 
 		template<IsComponent... Cs>
 		void AddComponents();
@@ -51,6 +47,10 @@ namespace vlx
 
 		template<IsComponent C>
 		[[nodiscard]] auto HasComponent() const;
+
+	public:
+		VELOX_API [[nodiscard]] EntityID Duplicate() const;
+		VELOX_API void Destroy();
 
 	protected:
 		EntityID		m_id; // entity is just an id

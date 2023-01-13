@@ -2,13 +2,18 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/ECS/IComponent.h>
+#include "GUIComponent.h"
 
 namespace vlx::gui
 {
-	struct Text : public IComponent
+	/// <summary>
+	///		For now, just standard SFML implementation of Text
+	/// </summary>
+	struct VELOX_API Text : public GUIComponent, public sf::Text
 	{
-		sf::Text Text;
+		using GUIComponent::GUIComponent; // inherit constructor
+
+		[[nodiscard]] constexpr bool IsSelectable() const noexcept override;
 	};
 }
 

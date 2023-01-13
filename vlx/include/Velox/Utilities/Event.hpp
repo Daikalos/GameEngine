@@ -47,11 +47,11 @@ namespace vlx
 		bool Remove(const HandlerType& handler);
 		bool RemoveID(const typename HandlerType::IDType handler_id);
 
-		void call(Args... params) const;
-		std::future<void> call_async(Args... params) const;
+		void Call(Args... params) const;
+		std::future<void> CallAsync(Args... params) const;
 
 	private:
-		void call_impl(const HandlerList& handlers, Args... params) const;
+		void CallImpl(const HandlerList& handlers, Args... params) const;
 		auto GetHandlersCopy() const -> HandlerList;
 
 	private:
@@ -119,7 +119,7 @@ namespace vlx
 	template<typename... Args>
 	inline void Event<Args...>::operator()(Args... params)
 	{
-		call(params...);
+		Call(params...);
 	}
 
 	template<typename... Args>
@@ -192,19 +192,19 @@ namespace vlx
 	}
 
 	template<typename... Args>
-	inline void Event<Args...>::call(Args... params) const
+	inline void Event<Args...>::Call(Args... params) const
 	{
 		HandlerList handlers_copy = GetHandlersCopy();
-		call_impl(handlers_copy, params...);
+		CallImpl(handlers_copy, params...);
 	}
 	template<typename... Args>
-	inline void Event<Args...>::call_impl(const HandlerList& handlers, Args... params) const
+	inline void Event<Args...>::CallImpl(const HandlerList& handlers, Args... params) const
 	{
 		for (const auto& handler : m_handlers)
 			handler(params...);
 	}
 	template<typename... Args>
-	inline std::future<void> Event<Args...>::call_async(Args... params) const
+	inline std::future<void> Event<Args...>::CallAsync(Args... params) const
 	{
 		return std::async(std::launch::async,
 			[this](Args... async_params)

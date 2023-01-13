@@ -11,7 +11,7 @@
 
 namespace vlx::gui
 {
-	class Container : public GUIComponent
+	class Container : public IComponent
 	{
 	private:
 		using SizeType = std::int16_t;
