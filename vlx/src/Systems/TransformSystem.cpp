@@ -9,11 +9,8 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				if (transforms[i].m_update_global)
-				{
+				if (transforms[i].m_dirty)
 					transforms[i].UpdateRequired(*m_entity_admin, nullptr);
-					transforms[i].m_update_global = false;
-				}
 
 				transforms[i].UpdateTransforms(*m_entity_admin, nullptr);
 			}
@@ -23,11 +20,8 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				if (transforms[i].m_update_global)
-				{
+				if (transforms[i].m_dirty)
 					transforms[i].UpdateRequired(*m_entity_admin, &relations[i]);
-					transforms[i].m_update_global = false;
-				}
 			}
 
 			for (std::size_t i = 0; i < entities.size(); ++i)

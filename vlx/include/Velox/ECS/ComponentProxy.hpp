@@ -1,22 +1,11 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
-
 #include "Identifiers.hpp"
+#include "IComponentProxy.hpp"
 
 namespace vlx
 {
 	class EntityAdmin;
-
-	class IComponentProxy : private NonCopyable
-	{
-	public:
-		virtual ~IComponentProxy() = default;
-
-		virtual bool IsValid() const noexcept = 0;
-
-		virtual void Reset() = 0;
-	};
 
 	/// <summary>
 	///		The ComponentProxy is to ensure that the component pointers remains valid even after the internal data of the ECS
@@ -35,6 +24,7 @@ namespace vlx
 		C& operator*();
 		const C& operator*() const;
 
+	public:
 		operator bool() const noexcept;
 
 	public:
@@ -42,16 +32,21 @@ namespace vlx
 		const C* Get() const;
 
 	public:
-		[[nodiscard]] bool IsValid() const noexcept override;
+		[[nodiscard]] constexpr bool IsValid() const noexcept override;
+		[[nodiscard]] constexpr bool IsExpired() const override;
+
 		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
 
 		void Reset() override;
+
+		void ForceUpdate() override;
 
 	private:
 		const EntityAdmin*	m_entity_admin	{nullptr};
 		EntityID			m_entity_id		{NULL_ENTITY};
 
 		C*					m_component		{nullptr};
+		bool				m_expired		{false};
 	};
 
 	template<IsComponent C>
@@ -97,18 +92,7 @@ namespace vlx
 	template<IsComponent C>
 	inline C* ComponentProxy<C>::Get()
 	{
-		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
-
-		if (!IsValid())
-		{
-			auto [component, success] = m_entity_admin->TryGetComponent<C>(m_entity_id);
-
-			if (!success)
-				throw std::runtime_error(std::format("the entity [{}] does not exist or does not have the [{}] component", m_entity_id, typeid(C).name()));
-
-			m_component = component;
-		}
-
+		ForceUpdate();
 		return m_component;
 	}
 
@@ -119,14 +103,40 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool ComponentProxy<C>::IsValid() const noexcept
+	inline constexpr bool ComponentProxy<C>::IsValid() const noexcept
 	{
 		return m_component != nullptr;
+	}
+
+	template<IsComponent C>
+	inline constexpr bool ComponentProxy<C>::IsExpired() const
+	{
+		return m_expired;
 	}
 
 	template<IsComponent C>
 	inline void ComponentProxy<C>::Reset()
 	{
 		m_component = nullptr;
+	}
+
+	template<IsComponent C>
+	inline void ComponentProxy<C>::ForceUpdate()
+	{
+		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
+
+		if (!IsValid())
+		{
+			auto [component, success] = m_entity_admin->TryGetComponent<C>(m_entity_id);
+
+			if (!success)
+			{
+				m_expired = true;
+				return;
+			}
+
+			m_component = component;
+			m_expired = false;
+		}
 	}
 }

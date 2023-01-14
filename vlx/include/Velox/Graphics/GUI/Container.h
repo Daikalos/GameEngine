@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/ECS/ComponentProxy.hpp>
+#include <Velox/ECS/BaseProxy.hpp>
 
 #include <Velox/Utilities.hpp>
 
@@ -14,7 +14,8 @@ namespace vlx::gui
 	class Container : public IComponent
 	{
 	private:
-		using SizeType = std::int16_t;
+		using SizeType			= std::int16_t;
+		using ChildType			= BaseProxy<GUIComponent>;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;
@@ -23,7 +24,9 @@ namespace vlx::gui
 		[[nodiscard]] constexpr bool IsEmpty() const noexcept;
 
 	public:
+		template<IsComponent C>
 		void Push(const EntityAdmin& entity_admin, const EntityID entity_id);
+		template<IsComponent C>
 		void Erase(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 		void SelectNext(const EntityAdmin& entity_admin);
@@ -36,9 +39,48 @@ namespace vlx::gui
 		void SelectSteps(const EntityAdmin& entity_admin, int steps);
 
 	private:
-		std::vector<EntityID>	m_children;
-		SizeType				m_selected_index	{-1};
+		std::vector<ChildType*>	m_children;
+		SizeType				m_selected_index {-1};
 	};
+
+	template<IsComponent C>
+	inline void Container::Push(const EntityAdmin& entity_admin, const EntityID entity_id)
+	{
+		ChildType& child = entity_admin.GetBaseProxy<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
+
+		child.ForceUpdate();
+		if (child.IsExpired()) // if not a valid entity
+			return;
+
+		const auto it = std::find(m_children.begin(), m_children.end(), 
+			[&entity_id](const ChildType* child)
+			{
+				return child->GetEntityID() == entity_id;
+			});
+
+		if (it == m_children.end()) // prevent duplicates
+			m_children.emplace_back(&child);
+	}
+
+	template<IsComponent C>
+	inline void Container::Erase(const EntityAdmin& entity_admin, const EntityID entity_id)
+	{
+		const auto it = std::find(m_children.begin(), m_children.end(),
+			[&entity_id](const ChildType* child)
+			{
+				return child->GetEntityID() == entity_id;
+			});
+
+		if (it == m_children.end())
+			return;
+
+		const auto index = it - m_children.begin();
+
+		if (m_selected_index >= index)
+			SelectPrev(entity_admin);
+
+		m_children.erase(it);
+	}
 
 	template<IsComponent C>
 	inline void Container::Sort(const EntityAdmin& entity_admin, const SortFunc<C>& func)

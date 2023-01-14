@@ -2,32 +2,20 @@
 
 using namespace vlx;
 
-Transform::Transform() 
-	: m_origin(0, 0), m_position(0,0), m_scale(1, 1), m_rotation()
-{
-
-}
-
 Transform::Transform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation)
 	: m_origin(0, 0), m_position(position), m_scale(scale), m_rotation(rotation), m_global_position(position), m_global_scale(scale), m_global_rotation(rotation)
 {
 
 }
+
+Transform::Transform() 
+	: Transform({ 0, 0 }, { 1.0f, 1.0f }, sf::radians(0.0f)) { }
 Transform::Transform(const sf::Vector2f& position, const sf::Vector2f& scale)
-	: Transform(position, scale, sf::radians(0.0f))
-{
-
-}
-Transform::Transform(const sf::Vector2f& position, const sf::Angle& rotation)
-	: Transform(position, { 1.0f, 1.0f }, rotation)
-{
-
-}
-Transform::Transform(const sf::Vector2f& position)
-	: Transform(position, { 1.0f, 1.0f }, sf::radians(0.0f))
-{
-
-}
+	: Transform(position, scale, sf::radians(0.0f)) {}
+Transform::Transform(const sf::Vector2f& position, const sf::Angle& rotation) 
+	: Transform(position, { 1.0f, 1.0f }, rotation) {}
+Transform::Transform(const sf::Vector2f& position) 
+	: Transform(position, { 1.0f, 1.0f }, sf::radians(0.0f)) {}
 
 const sf::Transform& Transform::GetTransform() const
 {
@@ -149,6 +137,8 @@ void Transform::UpdateRequired(const EntityAdmin& entity_admin, const Relation* 
 	m_update_model = true;
 	m_update_inverse_model = true;
 
+	m_dirty = false;
+
 	if (relation == nullptr)
 		return;
 
@@ -213,5 +203,5 @@ void Transform::Dirtify() const
 	m_update_local = true;
 	m_update_inverse_local = true;
 
-	m_update_global = true;
+	m_dirty = true;
 }

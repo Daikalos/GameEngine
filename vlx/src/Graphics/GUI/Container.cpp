@@ -9,24 +9,6 @@ constexpr bool Container::IsEmpty() const noexcept
 	return m_children.empty();
 }
 
-void Container::Push(const EntityAdmin& entity_admin, const EntityID entity_id)
-{
-	m_children.push_back(entity_id);
-}
-void Container::Erase(const EntityAdmin& entity_admin, const EntityID entity_id)
-{
-	const auto it = std::find(m_children.begin(), m_children.end(), entity_id);
-	if (it == m_children.end())
-		return;
-
-	const auto index = it - m_children.begin();
-
-	if (m_selected_index >= index)
-		SelectPrev(entity_admin);
-	
-	m_children.erase(it);
-}
-
 void Container::SelectNext(const EntityAdmin& entity_admin) 
 {
 	SelectSteps(entity_admin, 1);
@@ -46,11 +28,11 @@ void Container::SelectSteps(const EntityAdmin& entity_admin, int steps)
 	if (next_index == m_selected_index)
 		return;
 
-	const EntityID prev_id = m_children[m_selected_index];
-	//entity_admin.GetComponent<GUIComponent>(prev_id).Unselect();
+	//const EntityID prev_id = m_children[m_selected_index];
+	////entity_admin.GetComponent<GUIComponent>(prev_id).Unselect();
 
-	m_selected_index = next_index;
+	//m_selected_index = next_index;
 
-	const EntityID next_id = m_children[m_selected_index];
-	//entity_admin.GetComponent<GUIComponent>(next_id).Select();
+	//const EntityID next_id = m_children[m_selected_index];
+	////entity_admin.GetComponent<GUIComponent>(next_id).Select();
 }

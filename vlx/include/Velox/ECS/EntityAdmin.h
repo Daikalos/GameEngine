@@ -26,6 +26,9 @@ namespace vlx
 	template<IsComponent>
 	class ComponentProxy;
 
+	template<class>
+	class BaseProxy;
+
 	template<IsComponent...>
 	class ComponentSet;
 
@@ -125,22 +128,27 @@ namespace vlx
 		[[nodiscard]] C& GetComponent(const EntityID entity_id) const;
 
 		/// <summary>
-		///		Tries to get the component and sets the passed component pointer and returns true, otherwise false.
+		///		Tries to get the component and returns a pair containing the component ptr and success. If it fails, it returns nullptr and false.
 		/// </summary>
 		template<IsComponent C>
 		[[nodiscard]] std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
 		/// <summary>
-		/// 	Incredibly risky, requires base to be first in inheritance, other base classes cannot be 
+		///		Allows for you to retrieve any base class without having to know the type of the child.
+		/// 
+		/// 	[Incredibly risky, requires base to be first in inheritance, other base classes cannot be 
 		///		automatically found without using voodoo magic, for now, offset can be specified to find 
 		///		the correct base class in the inheritance order, for example, "class C : B, A", to find A 
-		///		you specify offset with the value of sizeof(B)
+		///		you specify offset with the value of sizeof(B)]
 		/// </summary>
-		template<class C>
-		[[nodiscard]] C& GetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		template<class B>
+		[[nodiscard]] B& GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
-		template<IsComponent C>
-		[[nodiscard]] std::pair<C*, bool> TryGetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		/// <summary>
+		/// 	Attempts to get base and returns a pair containing the base ptr and success. If it fails, it returns nullptr and false.
+		/// </summary>
+		template<class B>
+		[[nodiscard]] std::pair<B*, bool> TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
 		/// <summary>
 		///		Returns a proxy for the component whose pointer will remain valid even when the internal data is 
@@ -155,6 +163,20 @@ namespace vlx
 		/// </summary>
 		template<IsComponent C>
 		[[nodiscard]] std::pair<ComponentProxy<C>*, bool> TryGetComponentProxy(const EntityID entity_id) const;
+
+		/// <summary>
+		///		Returns a proxy for the base whose pointer will remain valid even when the internal data is 
+		///		modified. The proxy will internally get the base's new data location once it has been modified.
+		/// </summary>
+		template<class B>
+		[[nodiscard]] BaseProxy<B>& GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const;
+
+		/// <summary>
+		///		Tries to return a base proxy, will most likely always succeed, and will only return false if the 
+		///		entity does not exist or other unknown error occurs. If the component even exists will be checked in the proxy can be extracted with IsExpired().
+		/// </summary>
+		template<class B>
+		[[nodiscard]] std::pair<BaseProxy<B>*, bool> TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const;
 
 		/// <summary>
 		///		Returns true if the entity has the component C, otherwise false.
@@ -176,6 +198,9 @@ namespace vlx
 
 		template<IsComponent... Cs>
 		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
+
+		template<IsComponent C>
+		[[nodiscard]] ComponentTypeID GetComponentID() const;
 
 	public:
 		/// <summary>
@@ -285,7 +310,7 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		auto insert = m_component_map.try_emplace(ComponentAlloc<C>::GetTypeID(), std::make_unique<ComponentAlloc<C>>());
+		auto insert = m_component_map.try_emplace(GetComponentID<C>(), std::make_unique<ComponentAlloc<C>>());
 		assert(insert.second);
 	}
 
@@ -310,7 +335,7 @@ namespace vlx
 		C* add_component = nullptr;
 		Archetype* new_archetype = nullptr; // we are going to be moving to a new archetype
 
-		const ComponentTypeID add_component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID add_component_id = GetComponentID<C>();
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
@@ -407,7 +432,7 @@ namespace vlx
 		const Record& record = m_entity_archetype_map.find(entity_id)->second;
 		const Archetype* archetype = record.archetype;
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		const auto ait = cit->second.find(archetype->id);
@@ -441,7 +466,7 @@ namespace vlx
 		if (archetype == nullptr)
 			return { nullptr, false };
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -470,7 +495,7 @@ namespace vlx
 	template<IsComponent C>
 	inline bool EntityAdmin::RemoveComponent(const EntityID entity_id)
 	{
-		return RemoveComponent(entity_id, ComponentAlloc<C>::GetTypeID());
+		return RemoveComponent(entity_id, GetComponentID<C>());
 	}
 
 	template<IsComponent C>
@@ -481,7 +506,7 @@ namespace vlx
 		const Record& record = m_entity_archetype_map.find(entity_id)->second;
 		const Archetype* archetype = record.archetype;
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		const auto ait = cit->second.find(archetype->id);
@@ -506,7 +531,7 @@ namespace vlx
 		if (archetype == nullptr)
 			return { nullptr, false };
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -522,8 +547,8 @@ namespace vlx
 		return { &components[record.index], true };
 	}
 
-	template<class C>
-	inline C& EntityAdmin::GetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	template<class B>
+	inline B& EntityAdmin::GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
 	{
 		const Record& record = m_entity_archetype_map.find(entity_id)->second;
 		const Archetype* archetype = record.archetype;
@@ -535,13 +560,13 @@ namespace vlx
 		const std::size_t& component_size	= component->GetSize();
 
 		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
-		C* base_component = reinterpret_cast<C*>(ptr + offset);	
+		B* base_component = reinterpret_cast<B*>(ptr + offset);	
 
 		return *base_component;
 	}
 
-	template<IsComponent C>
-	inline std::pair<C*, bool> EntityAdmin::TryGetBaseComponent(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	template<class B>
+	inline std::pair<B*, bool> EntityAdmin::TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -568,7 +593,7 @@ namespace vlx
 		const std::size_t& component_size = iit->second->GetSize();
 
 		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
-		C* base_component = reinterpret_cast<C*>(ptr + offset);
+		B* base_component = reinterpret_cast<B*>(ptr + offset);
 
 		return { base_component, true };
 	}
@@ -578,7 +603,7 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>());
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_proxies.find(component_id);
@@ -601,7 +626,7 @@ namespace vlx
 		if (!m_entity_archetype_map.contains(entity_id))
 			return { nullptr, false };
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_proxies.find(component_id);
@@ -619,6 +644,46 @@ namespace vlx
 		return { static_cast<ComponentProxy<C>*>(cit->second.get()), true };
 	}
 
+	template<class B>
+	inline BaseProxy<B>& EntityAdmin::GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const
+	{
+		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+
+		const auto cit = component_proxies.find(child_component_id);
+		if (cit == component_proxies.end()) // it does not yet exist, create new one
+		{
+			IComponentProxy* added_proxy = component_proxies.emplace(
+				child_component_id, std::make_unique<BaseProxy<B>>(*this, entity_id, child_component_id, offset)).first->second.get();
+
+			return *static_cast<BaseProxy<B>*>(added_proxy);
+		}
+
+		return *static_cast<BaseProxy<B>*>(cit->second.get());
+	}
+
+	template<class B>
+	inline std::pair<BaseProxy<B>*, bool> EntityAdmin::TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const
+	{
+		if (!m_entity_archetype_map.contains(entity_id))
+			return { nullptr, false };
+
+		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+
+		const auto cit = component_proxies.find(child_component_id);
+		if (cit == component_proxies.end())
+		{
+			auto [it, success] = component_proxies.try_emplace(
+				child_component_id, std::make_unique<BaseProxy<B>>(*this, entity_id, child_component_id, offset));
+
+			if (!success) // should not happen anyways
+				return { nullptr, false };
+
+			return { static_cast<BaseProxy<B>*>(it->second.get()), true };
+		}
+
+		return { static_cast<BaseProxy<B>*>(cit->second.get()), true };
+	}
+
 	template<IsComponent C>
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
 	{
@@ -633,7 +698,7 @@ namespace vlx
 		if (!archetype)
 			return false;
 
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -645,13 +710,13 @@ namespace vlx
 	template<IsComponent C>
 	inline bool EntityAdmin::IsComponentRegistered() const
 	{
-		return m_component_map.contains(ComponentAlloc<C>::GetTypeID());
+		return m_component_map.contains(GetComponentID<C>());
 	}
 
 	template<IsComponent... Cs>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
-		(AddComponent(entity_id, ComponentAlloc<Cs>::GetTypeID()), ...);
+		(AddComponent(entity_id, GetComponentID<Cs>()), ...);
 	}
 
 	template<IsComponent... Cs>
@@ -660,10 +725,16 @@ namespace vlx
 		return ComponentSet<Cs...>(GetComponentProxy<Cs>(entity_id)...);
 	}
 
+	template<IsComponent C>
+	inline ComponentTypeID EntityAdmin::GetComponentID() const
+	{
+		return ComponentAlloc<C>::GetTypeID();
+	}
+
 	template<IsComponents... Cs, class Comp>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
-		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } }); // see system.hpp
+		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }); // see system.hpp
 		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);
@@ -676,7 +747,7 @@ namespace vlx
 			throw std::runtime_error("the specified archetype does not exist");
 
 		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
-		const ComponentTypeID& component_id = ComponentAlloc<C>::GetTypeID();
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -738,19 +809,19 @@ namespace vlx
 	template<IsComponents... Cs>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		Reserve(cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } }), component_count);
+		Reserve(cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }), component_count);
 	}
 
 	template<IsComponents... Cs>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		return GetEntitiesWith(cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } }), restricted);
+		return GetEntitiesWith(cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }), restricted);
 	}
 
 	template<IsComponent C>
 	inline void EntityAdmin::ResetProxy(const EntityID entity_id) const
 	{
-		ResetProxy(entity_id, ComponentAlloc<C>::GetTypeID());
+		ResetProxy(entity_id, GetComponentID<C>());
 	}
 }
 

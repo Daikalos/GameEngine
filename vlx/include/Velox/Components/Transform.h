@@ -79,7 +79,7 @@ namespace vlx
 		mutable bool			m_update_model				{true};
 		mutable bool			m_update_inverse_model		{true};
 
-		mutable bool			m_update_global				{true};
+		mutable bool			m_dirty						{true};
 
 		friend class TransformSystem;
 	};

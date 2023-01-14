@@ -504,7 +504,8 @@ void EntityAdmin::ClearProxies()
 		std::erase_if(pair1.second,
 			[](const auto& pair2)
 			{
-				return !pair2.second->IsValid();
+				pair2.second->ForceUpdate();
+				return pair2.second->IsExpired();
 			});
 	}
 }
@@ -518,7 +519,8 @@ void EntityAdmin::ClearProxies(const EntityID entity_id)
 	std::erase_if(it->second,
 		[](const auto& pair)
 		{
-			return !pair.second->IsValid();
+			pair.second->ForceUpdate();
+			return pair.second->IsExpired();
 		});
 }
 

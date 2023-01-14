@@ -25,6 +25,7 @@ namespace vlx::gui
 
 		virtual ~GUIComponent() = 0;
 
+	public:
 		virtual constexpr bool IsSelectable() const noexcept = 0;
 		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 
@@ -41,6 +42,8 @@ namespace vlx::gui
 		bool		m_selected		{false};
 
 		Container*	m_container		{nullptr}; // current container associated with
+
+		friend class Container;
 	};
 }
 
