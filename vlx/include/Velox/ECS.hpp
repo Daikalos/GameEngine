@@ -7,5 +7,7 @@
 #include "ECS/Entity.h"
 #include "ECS/EntityAdmin.h"
 #include "ECS/IComponent.h"
+#include "ECS/IComponentProxy.hpp"
+#include "ECS/BaseProxy.hpp"
 #include "ECS/ComponentProxy.hpp"
 #include "ECS/ComponentSet.hpp"

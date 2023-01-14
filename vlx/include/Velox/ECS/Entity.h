@@ -38,7 +38,7 @@ namespace vlx
 		[[nodiscard]] auto TryGetComponent() const;
 
 		template<IsComponent C>
-		[[nodiscard]] auto& GetComponentProxy() const;
+		[[nodiscard]] auto GetComponentProxy() const;
 		template<IsComponent C>
 		[[nodiscard]] auto TryGetComponentProxy() const;
 
@@ -94,7 +94,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline auto& Entity::GetComponentProxy() const
+	inline auto Entity::GetComponentProxy() const
 	{
 		return m_entity_admin->GetComponentProxy<C>(m_id);
 	}

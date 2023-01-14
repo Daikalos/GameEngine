@@ -28,11 +28,9 @@ void Container::SelectSteps(const EntityAdmin& entity_admin, int steps)
 	if (next_index == m_selected_index)
 		return;
 
-	//const EntityID prev_id = m_children[m_selected_index];
-	////entity_admin.GetComponent<GUIComponent>(prev_id).Unselect();
+	(*m_children[m_selected_index])->Deselect();
 
-	//m_selected_index = next_index;
+	m_selected_index = next_index;
 
-	//const EntityID next_id = m_children[m_selected_index];
-	////entity_admin.GetComponent<GUIComponent>(next_id).Select();
+	(*m_children[m_selected_index])->Select();
 }

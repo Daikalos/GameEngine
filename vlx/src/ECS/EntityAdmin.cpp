@@ -504,8 +504,13 @@ void EntityAdmin::ClearProxies()
 		std::erase_if(pair1.second,
 			[](const auto& pair2)
 			{
-				pair2.second->ForceUpdate();
-				return pair2.second->IsExpired();
+				if (pair2.second.expired())
+				return true;
+
+				auto ptr = pair2.second.lock();
+
+				ptr->ForceUpdate();
+				return ptr->IsExpired();
 			});
 	}
 }
@@ -519,8 +524,13 @@ void EntityAdmin::ClearProxies(const EntityID entity_id)
 	std::erase_if(it->second,
 		[](const auto& pair)
 		{
-			pair.second->ForceUpdate();
-			return pair.second->IsExpired();
+			if (pair.second.expired())
+				return true;
+
+			auto ptr = pair.second.lock();
+
+			ptr->ForceUpdate();
+			return ptr->IsExpired();
 		});
 }
 
@@ -617,7 +627,13 @@ void EntityAdmin::ResetProxy(const EntityID entity_id, const ComponentTypeID com
 	if (cit == eit->second.end())
 		return;
 
-	cit->second->Reset(); // finally reset
+	if (cit->second.expired())
+	{
+		eit->second.erase(component_id);
+		return;
+	}
+
+	cit->second.lock()->Reset(); // finally reset
 }
 
 // -- old remove entity --

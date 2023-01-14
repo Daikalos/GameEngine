@@ -14,6 +14,8 @@
 
 namespace vlx
 {
+	// forward declarations
+
 	class Entity;
 
 	struct IComponentAlloc;
@@ -31,6 +33,13 @@ namespace vlx
 
 	template<IsComponent...>
 	class ComponentSet;
+
+	// global using
+
+	template<class B>
+	using BaseProxyPtr		= std::shared_ptr<BaseProxy<B>>;
+	template<IsComponent C>
+	using ComponentProxyPtr = std::shared_ptr<ComponentProxy<C>>;
 
 	////////////////////////////////////////////////////////////
 	// 
@@ -60,14 +69,13 @@ namespace vlx
 		};
 
 		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
-		using ComponentProxyPtr			= std::unique_ptr<IComponentProxy>;
 		using ArchetypePtr				= std::unique_ptr<Archetype>;
 
 		using SystemsArrayMap			= std::unordered_map<LayerType, std::vector<ISystem*>>;
 		using ArchetypesArray			= std::vector<ArchetypePtr>;
 		using ArchetypeMap				= std::unordered_map<ArchetypeID, Archetype*>;
 		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
-		using EntityComponentProxyMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, ComponentProxyPtr>>;
+		using EntityComponentProxyMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, std::weak_ptr<IComponentProxy>>>;
 		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
 
@@ -155,28 +163,28 @@ namespace vlx
 		///		modified. The proxy will internally get the component's new data location once it has been modified.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] ComponentProxy<C>& GetComponentProxy(const EntityID entity_id) const;
+		[[nodiscard]] auto GetComponentProxy(const EntityID entity_id) const -> ComponentProxyPtr<C>;
 
 		/// <summary>
 		///		Tries to return a component proxy, will most likely always succeed, and will only return false if the 
 		///		entity does not exist or other unknown error occurs.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] std::pair<ComponentProxy<C>*, bool> TryGetComponentProxy(const EntityID entity_id) const;
+		[[nodiscard]] auto TryGetComponentProxy(const EntityID entity_id) const -> std::pair<ComponentProxyPtr<C>, bool>;
 
 		/// <summary>
 		///		Returns a proxy for the base whose pointer will remain valid even when the internal data is 
 		///		modified. The proxy will internally get the base's new data location once it has been modified.
 		/// </summary>
 		template<class B>
-		[[nodiscard]] BaseProxy<B>& GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const;
+		[[nodiscard]] auto GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const -> BaseProxyPtr<B>;
 
 		/// <summary>
 		///		Tries to return a base proxy, will most likely always succeed, and will only return false if the 
 		///		entity does not exist or other unknown error occurs. If the component even exists will be checked in the proxy can be extracted with IsExpired().
 		/// </summary>
 		template<class B>
-		[[nodiscard]] std::pair<BaseProxy<B>*, bool> TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const;
+		[[nodiscard]] auto TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const -> std::pair<BaseProxyPtr<B>, bool>;
 
 		/// <summary>
 		///		Returns true if the entity has the component C, otherwise false.
@@ -599,89 +607,83 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline ComponentProxy<C>& EntityAdmin::GetComponentProxy(const EntityID entity_id) const
+	inline auto EntityAdmin::GetComponentProxy(const EntityID entity_id) const -> ComponentProxyPtr<C>
 	{
 		assert(IsComponentRegistered<C>());
 
-		const ComponentTypeID& component_id = GetComponentID<C>();
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = component_proxies.find(component_id);
-		if (cit == component_proxies.end()) // it does not yet exist, create new one
+		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			IComponentProxy* added_proxy = component_proxies.emplace(
-				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id)).first->second.get();
+			ComponentProxyPtr<C> proxy = std::make_shared<ComponentProxy<C>>(*this, entity_id);
+			component_proxies[component_id] = proxy;
 
-			return *static_cast<ComponentProxy<C>*>(added_proxy);
+			return proxy;
 		}
 
-		return *static_cast<ComponentProxy<C>*>(cit->second.get());
+		return std::static_pointer_cast<ComponentProxy<C>>(cit->second.lock());
 	}
 
 	template<IsComponent C>
-	inline std::pair<ComponentProxy<C>*, bool> EntityAdmin::TryGetComponentProxy(const EntityID entity_id) const
+	inline auto EntityAdmin::TryGetComponentProxy(const EntityID entity_id) const -> std::pair<ComponentProxyPtr<C>, bool>
 	{
 		assert(IsComponentRegistered<C>());
 
-		if (!m_entity_archetype_map.contains(entity_id))
+		if (!IsEntityRegistered(entity_id))
 			return { nullptr, false };
 
-		const ComponentTypeID& component_id = GetComponentID<C>();
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = component_proxies.find(component_id);
-		if (cit == component_proxies.end())
+		if (cit == component_proxies.end() || cit->second.expired())
 		{
-			auto [it, success] = component_proxies.try_emplace(
-				component_id, std::make_unique<ComponentProxy<C>>(*this, entity_id));
+			ComponentProxyPtr<C> proxy = std::make_shared<ComponentProxy<C>>(*this, entity_id);
+			component_proxies[component_id] = proxy;
 
-			if (!success) // should not happen anyways
-				return { nullptr, false };
-
-			return { static_cast<ComponentProxy<C>*>(it->second.get()), true };
+			return { proxy, true };
 		}
 
-		return { static_cast<ComponentProxy<C>*>(cit->second.get()), true };
+		return { std::static_pointer_cast<ComponentProxy<C>>(cit->second.lock()), true};
 	}
 
 	template<class B>
-	inline BaseProxy<B>& EntityAdmin::GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const
+	inline auto EntityAdmin::GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> BaseProxyPtr<B>
 	{
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_proxies.find(child_component_id);
-		if (cit == component_proxies.end()) // it does not yet exist, create new one
+		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			IComponentProxy* added_proxy = component_proxies.emplace(
-				child_component_id, std::make_unique<BaseProxy<B>>(*this, entity_id, child_component_id, offset)).first->second.get();
+			BaseProxyPtr<B> proxy = std::make_shared<BaseProxy<B>>(*this, entity_id, child_component_id, offset);
+			component_proxies[child_component_id] = proxy;
 
-			return *static_cast<BaseProxy<B>*>(added_proxy);
+			return proxy;
 		}
 
-		return *static_cast<BaseProxy<B>*>(cit->second.get());
+		return std::static_pointer_cast<BaseProxy<B>>(cit->second.lock());
 	}
 
 	template<class B>
-	inline std::pair<BaseProxy<B>*, bool> EntityAdmin::TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const
+	inline auto EntityAdmin::TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> std::pair<BaseProxyPtr<B>, bool>
 	{
-		if (!m_entity_archetype_map.contains(entity_id))
+		if (!IsEntityRegistered(entity_id)) // check if entity exists
 			return { nullptr, false };
 
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_proxies.find(child_component_id);
-		if (cit == component_proxies.end())
+		if (cit == component_proxies.end() || cit->second.expired())
 		{
-			auto [it, success] = component_proxies.try_emplace(
-				child_component_id, std::make_unique<BaseProxy<B>>(*this, entity_id, child_component_id, offset));
+			BaseProxyPtr<B> proxy = std::make_shared<BaseProxy<B>>(*this, entity_id, child_component_id, offset);
+			component_proxies[child_component_id] = proxy;
 
-			if (!success) // should not happen anyways
-				return { nullptr, false };
-
-			return { static_cast<BaseProxy<B>*>(it->second.get()), true };
+			return { proxy, true };
 		}
 
-		return { static_cast<BaseProxy<B>*>(cit->second.get()), true };
+		return { std::static_pointer_cast<BaseProxy<B>>(cit->second.lock()), true};
 	}
 
 	template<IsComponent C>

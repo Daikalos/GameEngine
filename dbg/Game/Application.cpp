@@ -16,7 +16,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Text>();
+	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Text, gui::Button>();
 
 	m_window.Initialize();
 
@@ -41,11 +41,11 @@ void Application::Run()
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 	entity.GetComponent<Sprite>().SetOpacity(1.0f);
 
-	ComponentProxy<Transform>& transform = entity.GetComponentProxy<Transform>();
-	transform->SetPosition({50.0f, 50.0f});
+	ComponentProxyPtr<Transform> transform = entity.GetComponentProxy<Transform>();
+	transform->Get()->SetPosition({50.0f, 50.0f});
 
 	Entity new_entity(entity_admin, entity.Duplicate());
-	ComponentProxy<Transform>& transform2 = new_entity.GetComponentProxy<Transform>();
+	ComponentProxyPtr<Transform> transform2 = new_entity.GetComponentProxy<Transform>();
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
@@ -61,12 +61,15 @@ void Application::Run()
 
 	Entity e3(entity_admin, new_entity.Duplicate());
 	e3.AddComponent<gui::Text>(105, 105);
+	e3.AddComponent<gui::Button>(50, 50);
 
 	const gui::Text& te = e3.GetComponent<gui::Text>();
 
-	gui::GUIComponent& t = m_world.GetEntityAdmin().GetBaseComponent<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Text, ComponentTypeID>());
+	BaseProxyPtr<gui::GUIComponent> t1 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Text, ComponentTypeID>());
+	BaseProxyPtr<gui::GUIComponent> t2 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Button, ComponentTypeID>());
 
-	std::puts(std::to_string(t.IsSelectable()).c_str());
+	std::puts(std::to_string(t1->Get()->IsSelectable()).c_str());
+	std::puts(std::to_string(t2->Get()->IsSelectable()).c_str());
 
 	float x_pos = 0.0f;
 
@@ -105,9 +108,9 @@ void Application::Run()
 		x_pos += m_time.GetDeltaTime() * 5.0f;
 
 		if (entity_admin.IsEntityRegistered(entity.GetID()))
-			transform->SetPosition({ x_pos, 10.0f });
+			transform->Get()->SetPosition({ x_pos, 10.0f });
 
-		transform2->SetPosition({ 0.0f, x_pos });
+		transform2->Get()->SetPosition({ 0.0f, x_pos });
 
 		Draw();
 	}

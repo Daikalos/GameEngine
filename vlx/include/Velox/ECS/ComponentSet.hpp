@@ -1,7 +1,8 @@
 #pragma once
 
+#include <Velox/ECS.hpp>
+
 #include <Velox/Utilities.hpp>
-#include <Velox/ECS/Identifiers.hpp>
 
 #include <unordered_map>
 #include <memory>
@@ -18,8 +19,11 @@ namespace vlx
 	template<IsComponent... Cs>
 	class ComponentSet final : private NonCopyable
 	{
+	private:
+		using ComponentSetMap = std::unordered_map<ComponentTypeID, std::shared_ptr<IComponentProxy>>;
+
 	public:
-		ComponentSet(ComponentProxy<Cs>&... proxy);
+		ComponentSet(ComponentProxyPtr<Cs>... proxies);
 
 		template<IsComponent C> requires Contains<C, Cs...>
 		C& Get();
@@ -28,13 +32,13 @@ namespace vlx
 		const C& Get() const;
 
 	private:
-		std::unordered_map<ComponentTypeID, IComponentProxy*> m_components;
+		ComponentSetMap m_components;
 	};
 
 	template<IsComponent... Cs>
-	inline ComponentSet<Cs...>::ComponentSet(ComponentProxy<Cs>&... proxy)
+	inline ComponentSet<Cs...>::ComponentSet(ComponentProxyPtr<Cs>... proxies)
 	{
-		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), &proxy), ...);
+		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), proxies), ...);
 	}
 
 	template<IsComponent... Cs>

@@ -86,14 +86,14 @@ namespace vlx::gui
 	inline void Container::Sort(const EntityAdmin& entity_admin, const SortFunc<C>& func)
 	{
 		std::sort(m_children.begin(), m_children.end(),
-			[&entity_admin](const EntityID lhs, const EntityID rhs)
+			[&entity_admin](const ChildType* lhs, const ChildType* rhs)
 			{
-				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs);
+				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs->GetEntityID());
 
 				if (!lhs_success)
 					return false;
 
-				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs);
+				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs->GetEntityID());
 
 				if (!rhs_success)
 					return false;
