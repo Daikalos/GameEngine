@@ -16,7 +16,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Text, gui::Button, gui::Container>();
+	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Label, gui::Button, gui::Container>();
 
 	m_window.Initialize();
 
@@ -60,12 +60,12 @@ void Application::Run()
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
 
 	Entity e3(entity_admin, new_entity.Duplicate());
-	e3.AddComponent<gui::Text>(105, 105);
+	e3.AddComponent<gui::Label>(105, 105);
 	e3.AddComponent<gui::Button>(50, 50);
 
-	const gui::Text& te = e3.GetComponent<gui::Text>();
+	const gui::Label& te = e3.GetComponent<gui::Label>();
 
-	BaseProxyPtr<gui::GUIComponent> t1 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Text, ComponentTypeID>());
+	BaseProxyPtr<gui::GUIComponent> t1 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Label, ComponentTypeID>());
 	BaseProxyPtr<gui::GUIComponent> t2 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Button, ComponentTypeID>());
 
 	std::puts(std::to_string(t1->Get()->IsSelectable()).c_str());

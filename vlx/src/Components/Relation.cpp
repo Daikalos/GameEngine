@@ -21,19 +21,14 @@ const std::vector<EntityID>& Relation::GetChildren() const noexcept
 	return m_children;
 }
 
-void Relation::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
+void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 {
-	// When the relation is destroyed, we need to detach it accordingly
-
 	if (HasParent())
 	{
-		entity_admin.GetComponent<Relation>(m_parent)
-			.DetachChild(entity_admin, m_parent, entity_id, *this);
-	}
+		Relation& parent = entity_admin.GetComponent<Relation>(m_parent);
 
-	for (const EntityID child : m_children)
-	{
-		DetachChild(entity_admin, entity_id, child, entity_admin.GetComponent<Relation>(child));
+		parent.m_children.emplace_back(entity_id);
+		parent.PropagateAttach(entity_admin, entity_id, *this);
 	}
 }
 
@@ -56,6 +51,22 @@ void Relation::Modified(const EntityAdmin& entity_admin, const EntityID entity_i
 	for (const EntityID child : new_relation.m_children)
 	{
 		AttachChild(entity_admin, entity_id, child, entity_admin.GetComponent<Relation>(child));
+	}
+}
+
+void Relation::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
+{
+	// When the relation is destroyed, we need to detach it accordingly
+
+	if (HasParent())
+	{
+		entity_admin.GetComponent<Relation>(m_parent)
+			.DetachChild(entity_admin, m_parent, entity_id, *this);
+	}
+
+	for (const EntityID child : m_children)
+	{
+		DetachChild(entity_admin, entity_id, child, entity_admin.GetComponent<Relation>(child));
 	}
 }
 

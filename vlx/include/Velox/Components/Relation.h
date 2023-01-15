@@ -35,8 +35,9 @@ namespace vlx
 		VELOX_API const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
 
 	private:
-		VELOX_API void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		VELOX_API void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) override;
+		VELOX_API void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
 		VELOX_API void PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation& child);
 		VELOX_API void PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation& child);

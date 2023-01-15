@@ -88,8 +88,8 @@ namespace vlx::gui
 
 		const auto index = it - m_children.begin();
 
-		if (m_selected_index >= index)
-			SelectPrev(entity_admin);
+		if (m_selected_child >= index)
+			SelectPrev();
 
 		m_children.erase(it);
 	}
