@@ -10,7 +10,7 @@ namespace vlx
 	class EntityAdmin;
 
 	/// <summary>
-	/// Interface for components and contain events such as when it has been created, moved, or destroyed.
+	///		Interface for components and contain events such as when it has been created, moved, or destroyed.
 	/// </summary>
 	class VELOX_API IComponent
 	{
@@ -19,28 +19,28 @@ namespace vlx
 
 	protected:
 		/// <summary>
-		/// Called when the component is first created
+		///		Called when the component is first created
 		/// </summary>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was added</param>
 		virtual void Created(const EntityAdmin& entity_admin, const EntityID entity_id) {}
 
 		/// <summary>
-		/// Called when the component has been moved to another location in memory
+		///		Called on the new component that was created by moving the data from another component
 		/// </summary>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was moved</param>
 		virtual void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) {}
 
 		/// <summary>
-		/// Called when the component has been copied to another location in memory
+		///		Called on the new component that was created by copying another component
 		/// </summary>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was copied</param>
 		virtual void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) {}
 
 		/// <summary>
-		/// Called right before the component's data has been modified
+		///		Called right before the component's data has been modified
 		/// </summary>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was copied</param>
@@ -48,7 +48,7 @@ namespace vlx
 		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) {}
 
 		/// <summary>
-		/// Called before the component is destroyed, which can occur when the entity or component is removed
+		///		Called before the component is destroyed, which can occur when the entity or component is removed
 		/// </summary>
 		/// <param name="entity_admin:">The master entity admin</param>
 		/// <param name="entity_id:">The entity on which this component was removed</param>

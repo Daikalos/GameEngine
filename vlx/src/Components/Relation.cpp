@@ -23,6 +23,8 @@ const std::vector<EntityID>& Relation::GetChildren() const noexcept
 
 void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 {
+	// should relation really be copyable in a one-way tree?
+
 	if (HasParent())
 	{
 		Relation& parent = entity_admin.GetComponent<Relation>(m_parent);
@@ -30,6 +32,8 @@ void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 		parent.m_children.emplace_back(entity_id);
 		parent.PropagateAttach(entity_admin, entity_id, *this);
 	}
+
+	m_children.clear(); // to prevent children confusing who their parent is
 }
 
 void Relation::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data)
