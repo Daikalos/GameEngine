@@ -7,6 +7,7 @@
 
 namespace vlx::gui
 {
+
 	class GUISystem
 	{
 	public:
@@ -14,8 +15,8 @@ namespace vlx::gui
 
 
 	private:
-		System<Component, Transform, Sprite>	m_main_system;
-		System<Component, Button>				m_button_system;
-		System<Component, Text>					m_text_system;
+		System<Transform, Sprite>	m_main_system;
+		System<Button>				m_button_system;
+		System<Label>				m_text_system;
 	};
 }

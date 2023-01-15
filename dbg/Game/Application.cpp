@@ -37,7 +37,7 @@ void Application::Run()
 	TransformSystem& transform_system = m_world.GetTransformSystem();
 
 	Entity entity = m_world.GetObjectSystem().CreateObject();
-	entity.AddComponents<Object, Sprite, Transform, Relation>();
+	entity_admin.AddComponents(entity.GetID(), ObjectType{});
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 	entity.GetComponent<Sprite>().SetOpacity(1.0f);
 

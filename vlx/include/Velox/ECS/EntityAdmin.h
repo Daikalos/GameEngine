@@ -203,6 +203,12 @@ namespace vlx
 		template<IsComponent... Cs>
 		void AddComponents(const EntityID entity_id);
 
+		template<std::size_t Index = 0, IsComponent... Cs>  requires (Index < sizeof...(Cs))
+		void AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple);
+
+		template<std::size_t Index, IsComponent... Cs>  requires (Index == sizeof...(Cs))
+		void AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple);
+
 		template<IsComponent... Cs>
 		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
@@ -693,6 +699,21 @@ namespace vlx
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
 		(AddComponent(entity_id, GetComponentID<Cs>()), ...);
+	}
+
+	template<std::size_t Index, IsComponent... Cs>  requires (Index < sizeof...(Cs))
+	inline void EntityAdmin::AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple)
+	{
+		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
+		AddComponent<CompType>(entity_id);
+
+		AddComponents<Index + 1>(entity_id, tuple);
+	}
+
+	template<std::size_t Index, IsComponent... Cs>  requires (Index == sizeof...(Cs))
+	inline void EntityAdmin::AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple)
+	{
+		return;
 	}
 
 	template<IsComponent... Cs>

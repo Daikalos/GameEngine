@@ -24,6 +24,8 @@
 
 #include <Velox/ECS/World.h>
 
+#include <Velox/ObjectTypes.hpp>
+
 #include "Binds.h"
 #include "scenes/StateTest.h"
 

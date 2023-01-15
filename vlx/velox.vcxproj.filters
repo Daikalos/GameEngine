@@ -100,6 +100,7 @@
     <ClInclude Include="include\Velox\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\ECS\BaseProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\ObjectTypes.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
