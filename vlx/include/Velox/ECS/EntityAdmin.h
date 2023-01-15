@@ -91,7 +91,6 @@ namespace vlx
 		///		Register the component for later usage. Has to be done before the component can be 
 		///		employed in the ECS.
 		/// </summary>
-		/// <typeparam name="C"></typeparam>
 		template<IsComponent C>
 		void RegisterComponent();
 
@@ -629,24 +628,10 @@ namespace vlx
 	template<IsComponent C>
 	inline auto EntityAdmin::TryGetComponentProxy(const EntityID entity_id) const -> std::pair<ComponentProxyPtr<C>, bool>
 	{
-		assert(IsComponentRegistered<C>());
-
 		if (!IsEntityRegistered(entity_id))
 			return { nullptr, false };
 
-		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
-		const ComponentTypeID& component_id = GetComponentID<C>();
-
-		const auto cit = component_proxies.find(component_id);
-		if (cit == component_proxies.end() || cit->second.expired())
-		{
-			ComponentProxyPtr<C> proxy = std::make_shared<ComponentProxy<C>>(*this, entity_id);
-			component_proxies[component_id] = proxy;
-
-			return { proxy, true };
-		}
-
-		return { std::static_pointer_cast<ComponentProxy<C>>(cit->second.lock()), true};
+		return { GetComponentProxy<C>(entity_id), true};
 	}
 
 	template<class B>
@@ -672,18 +657,7 @@ namespace vlx
 		if (!IsEntityRegistered(entity_id)) // check if entity exists
 			return { nullptr, false };
 
-		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
-
-		const auto cit = component_proxies.find(child_component_id);
-		if (cit == component_proxies.end() || cit->second.expired())
-		{
-			BaseProxyPtr<B> proxy = std::make_shared<BaseProxy<B>>(*this, entity_id, child_component_id, offset);
-			component_proxies[child_component_id] = proxy;
-
-			return { proxy, true };
-		}
-
-		return { std::static_pointer_cast<BaseProxy<B>>(cit->second.lock()), true};
+		return { GetBaseProxy<B>(entity_id, child_component_id, offset), true};
 	}
 
 	template<IsComponent C>

@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\Graphics\gui\Text.cpp" />
+    <ClCompile Include="src\Graphics\gui\Label.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
@@ -41,7 +41,7 @@
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\GUIComponent.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Text.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Label.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\ControlMap.h" />
     <ClInclude Include="include\Velox\Input\InputHandler.h" />

@@ -9,8 +9,8 @@ namespace vlx
 	/// </summary>
 	struct Object : public IComponent
 	{
-		bool is_alive	{true};
-		bool is_static	{false};
-		bool is_active	{true};
+		bool IsAlive	{true};
+		bool IsStatic	{false};
+		bool IsActive	{true};
 	};
 }

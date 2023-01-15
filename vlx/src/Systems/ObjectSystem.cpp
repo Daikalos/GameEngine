@@ -9,7 +9,7 @@ ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				if (!objects[i].is_alive)
+				if (!objects[i].IsAlive)
 					DeleteObjectDelayed(entities[i]);
 			}
 		});

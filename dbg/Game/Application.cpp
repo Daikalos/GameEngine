@@ -16,7 +16,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Text, gui::Button>();
+	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Text, gui::Button, gui::Container>();
 
 	m_window.Initialize();
 
@@ -55,7 +55,7 @@ void Application::Run()
 
 	m_world.GetRelationSystem().AttachInstant(entity.GetID(), new_entity.GetID());
 
-	std::puts(std::to_string(set.Get<Object>().is_alive).c_str());
+	std::puts(std::to_string(set.Get<Object>().IsAlive).c_str());
 	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
 

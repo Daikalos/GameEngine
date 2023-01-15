@@ -8,29 +8,59 @@ constexpr bool Container::IsEmpty() const noexcept
 {
 	return m_children.empty();
 }
-
-void Container::SelectNext(const EntityAdmin& entity_admin) 
+constexpr bool Container::IsSelectable() const noexcept
 {
-	SelectSteps(entity_admin, 1);
-}
-void Container::SelectPrev(const EntityAdmin& entity_admin)
-{
-	SelectSteps(entity_admin , -1);
+	return false;
 }
 
-void Container::SelectSteps(const EntityAdmin& entity_admin, int steps)
+bool Container::HasSelection() const noexcept
+{
+	return m_selected_child < 0;
+}
+
+void Container::SelectAt(int index)
 {
 	if (IsEmpty())
 		return;
 
-	SizeType next_index = (SizeType)au::Wrap((int)m_selected_index + steps, 0, (int)m_children.size() - 1);
+	if (index < 0 || index >= m_children.size())
+	{
+		if (HasSelection())
+			m_children[m_selected_child]->Get()->Deselect();
 
-	if (next_index == m_selected_index)
+		m_selected_child = -1;
+	}
+	else if (index != m_selected_child && m_children[index]->Get()->IsSelectable())
+	{
+		if (HasSelection())
+			m_children[m_selected_child]->Get()->Deselect();
+
+		m_children[index]->Get()->Select();
+		m_selected_child = index;
+	}
+}
+
+void Container::SelectNext() 
+{
+	if (!HasSelection())
 		return;
 
-	(*m_children[m_selected_index])->Deselect();
+	int next = m_selected_child;
 
-	m_selected_index = next_index;
+	do next = (next + 1) % m_children.size();
+	while (!m_children[next]->Get()->IsSelectable());
 
-	(*m_children[m_selected_index])->Select();
+	SelectAt(next);
+}
+void Container::SelectPrev()
+{
+	if (!HasSelection())
+		return;
+
+	int prev = m_selected_child;
+
+	do prev = (prev - 1 + m_children.size()) % m_children.size();
+	while (!m_children[prev]->Get()->IsSelectable());
+
+	SelectAt(prev);
 }

@@ -24,7 +24,7 @@ namespace vlx
 		Event(Event&& other) noexcept;
 
 		auto operator=(const Event& other) -> Event&;
-		auto operator=(Event&& other) -> Event&;
+		auto operator=(Event&& other) noexcept -> Event&;
 
 		void operator()(Args... params);
 
@@ -36,7 +36,7 @@ namespace vlx
 
 	public:
 		constexpr std::size_t Count() const noexcept;
-		constexpr bool Empty() const noexcept;
+		constexpr bool IsEmpty() const noexcept;
 
 		void Reserve(const std::size_t size);
 		void Clear() noexcept;
@@ -65,7 +65,7 @@ namespace vlx
 		return m_handlers.size();
 	}
 	template<typename... Args>
-	inline constexpr bool Event<Args...>::Empty() const noexcept
+	inline constexpr bool Event<Args...>::IsEmpty() const noexcept
 	{
 		return m_handlers.empty();
 	}
@@ -106,7 +106,7 @@ namespace vlx
 		return *this;
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::operator=(Event&& other) -> Event&
+	inline auto Event<Args...>::operator=(Event&& other) noexcept -> Event&
 	{
 		std::lock_guard lock1(m_lock);
 		std::lock_guard lock2(other.m_lock);

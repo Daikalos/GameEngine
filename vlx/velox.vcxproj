@@ -178,7 +178,7 @@
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\GUIComponent.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Text.h" />
+    <ClInclude Include="include\Velox\Graphics\GUI\Label.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
@@ -233,7 +233,7 @@
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\ECS\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
-    <ClCompile Include="src\Graphics\gui\Text.cpp" />
+    <ClCompile Include="src\Graphics\gui\Label.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />

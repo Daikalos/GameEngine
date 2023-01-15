@@ -13,7 +13,7 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 				Sprite& sprite			= sprites[i];
 				Transform& transform	= transforms[i];
 
-				if (object.is_static)
+				if (object.IsStatic)
 				{
 					if (m_update_static_bash)
 						m_static_batch.Batch(sprite, transform, sprite.GetDepth());
