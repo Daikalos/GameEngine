@@ -203,11 +203,8 @@ namespace vlx
 		template<IsComponent... Cs>
 		void AddComponents(const EntityID entity_id);
 
-		template<std::size_t Index = 0, IsComponent... Cs>  requires (Index < sizeof...(Cs))
-		void AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple);
-
-		template<std::size_t Index, IsComponent... Cs>  requires (Index == sizeof...(Cs))
-		void AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple);
+		template<IsComponent... Cs>
+		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
 		template<IsComponent... Cs>
 		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
@@ -701,20 +698,12 @@ namespace vlx
 		(AddComponent(entity_id, GetComponentID<Cs>()), ...);
 	}
 
-	template<std::size_t Index, IsComponent... Cs>  requires (Index < sizeof...(Cs))
-	inline void EntityAdmin::AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple)
+	template<IsComponent... Cs>
+	inline void EntityAdmin::AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
 	{
-		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>; // get type of element at index in tuple
-		AddComponent<CompType>(entity_id);
-
-		AddComponents<Index + 1>(entity_id, tuple);
+		AddComponents<Cs...>(entity_id);
 	}
 
-	template<std::size_t Index, IsComponent... Cs>  requires (Index == sizeof...(Cs))
-	inline void EntityAdmin::AddComponents(const EntityID entity_id, const std::tuple<Cs...>& tuple)
-	{
-		return;
-	}
 
 	template<IsComponent... Cs>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
@@ -731,7 +720,7 @@ namespace vlx
 	template<IsComponents... Cs, class Comp>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
-		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }); // see system.hpp
+		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } });
 		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);

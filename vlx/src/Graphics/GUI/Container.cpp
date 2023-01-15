@@ -59,7 +59,7 @@ void Container::SelectPrev()
 
 	int prev = m_selected_child;
 
-	do prev = (prev - 1 + m_children.size()) % m_children.size();
+	do prev = ((prev - 1) + (int)m_children.size()) % m_children.size();
 	while (!m_children[prev]->Get()->IsSelectable());
 
 	SelectAt(prev);

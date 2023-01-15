@@ -29,6 +29,9 @@ namespace vlx
 		template<IsComponent... Cs>
 		void AddComponents();
 
+		template<IsComponent... Cs>
+		void AddComponents(std::tuple<Cs...>&& tuple);
+
 		template<IsComponent C>
 		void RemoveComponent();
 
@@ -73,6 +76,12 @@ namespace vlx
 	inline void Entity::AddComponents()
 	{
 		m_entity_admin->AddComponents<Cs...>(m_id);
+	}
+
+	template<IsComponent... Cs>
+	inline void Entity::AddComponents(std::tuple<Cs...>&& tuple)
+	{
+		m_entity_admin->AddComponents(m_id, std::forward<std::tuple<Cs...>>(tuple));
 	}
 
 	template<IsComponent C>

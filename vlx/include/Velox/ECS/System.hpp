@@ -63,7 +63,7 @@ namespace vlx
 	protected:
 		virtual void DoAction(Archetype* archetype) const override;
 
-		template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
+		template<std::size_t Index = 0, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
@@ -157,7 +157,7 @@ namespace vlx
 					return;
 			}
 
-			DoAction<0>(
+			DoAction(
 				archetype->type, 
 				archetype->entities, 
 				archetype->component_data);
