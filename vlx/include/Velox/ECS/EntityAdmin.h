@@ -31,7 +31,7 @@ namespace vlx
 	template<class>
 	class BaseProxy;
 
-	template<IsComponent...>
+	template<IsComponents...>
 	class ComponentSet;
 
 	// global using
@@ -97,7 +97,7 @@ namespace vlx
 		/// <summary>
 		///		Shortcut for registering multiple components.
 		/// </summary>
-		template<IsComponent... Cs>
+		template<IsComponents... Cs>
 		void RegisterComponents();
 
 		/// <summary>
@@ -200,13 +200,13 @@ namespace vlx
 		/// <summary>
 		///		Shortcut for adding multiple components to entity. Cannot pass constructor arguments.
 		/// </summary>
-		template<IsComponent... Cs>
+		template<IsComponents... Cs>
 		void AddComponents(const EntityID entity_id);
 
-		template<IsComponent... Cs>
+		template<IsComponents... Cs>
 		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
-		template<IsComponent... Cs>
+		template<IsComponents... Cs>
 		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
 		template<IsComponent C>
@@ -326,7 +326,7 @@ namespace vlx
 		assert(insert.second);
 	}
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	inline void EntityAdmin::RegisterComponents()
 	{
 		(RegisterComponent<Cs>(), ...);
@@ -678,20 +678,20 @@ namespace vlx
 		return m_component_map.contains(GetComponentID<C>());
 	}
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
 		(AddComponent(entity_id, GetComponentID<Cs>()), ...);
 	}
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
 	{
 		AddComponents<Cs...>(entity_id);
 	}
 
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
 	{
 		return ComponentSet<Cs...>(GetComponentProxy<Cs>(entity_id)...);

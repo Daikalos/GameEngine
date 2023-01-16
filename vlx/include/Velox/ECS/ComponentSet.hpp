@@ -16,7 +16,7 @@ namespace vlx
 	///		ComponentSet is used to prevent having to write many ComponentProxy to access
 	///		the components of an object.
 	/// </summary>
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	class ComponentSet final : private NonCopyable
 	{
 	private:
@@ -35,20 +35,20 @@ namespace vlx
 		ComponentSetMap m_components;
 	};
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	inline ComponentSet<Cs...>::ComponentSet(ComponentProxyPtr<Cs>... proxies)
 	{
 		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), proxies), ...);
 	}
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	template<IsComponent C> requires Contains<C, Cs...>
 	inline C& ComponentSet<Cs...>::Get()
 	{
 		return const_cast<C&>(std::as_const(*this).Get<C>());
 	}
 
-	template<IsComponent... Cs>
+	template<IsComponents... Cs>
 	template<IsComponent C> requires Contains<C, Cs...>
 	inline const C& ComponentSet<Cs...>::Get() const
 	{
