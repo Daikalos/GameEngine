@@ -7,23 +7,24 @@
 
 namespace vlx
 {
-	////////////////////////////////////////////////////////////
-	// Neat wrapper around controls to prevent having to
-	// cast all the time to access each controller. Allows for
-	// adding your own controls.
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	///		Neat wrapper around controls to prevent having to cast all the time 
+	///		to access each controller. Allows for adding your own controls.
+	/// </summary>
 	class ControlMap final : private NonCopyable
 	{
 	public:
 		template<std::derived_from<InputHandler> T>
 		const T& Get() const;
+
 		template<std::derived_from<InputHandler> T>
 		T& Get();
 
-		////////////////////////////////////////////////////////////
-		// Add the type T that derives InputHandler to the controls,
-		// pass valid args if the constructor has parameters
-		////////////////////////////////////////////////////////////
+	public:
+		/// <summary>
+		///		Add the type T that derives InputHandler to the controls,
+		///		pass valid args if the constructor has parameters
+		/// </summary>
 		template<std::derived_from<InputHandler> T, typename... Args>
 		void Add(Args&&... args) requires std::constructible_from<T, Args...>;
 
@@ -33,6 +34,7 @@ namespace vlx
 		template<std::derived_from<InputHandler> T>
 		bool Exists() const;
 
+	public:
 		VELOX_API void UpdateAll(const Time& time, const bool focus);
 		VELOX_API void HandleEventAll(const sf::Event& event);
 

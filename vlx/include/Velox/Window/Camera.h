@@ -15,21 +15,21 @@
 
 namespace vlx
 {
-	//////////////////////////////////////////////
-	// 
-	// Expanded camera containing a variety of functionalities,
-	// most notably is the ability to contain a multitude of
-	// behaviours. Is treated as a unique entity rather than
-	// being part of the ECS design.
-	// 
-	//////////////////////////////////////////////
+	
+	
+	/// <summary>
+	/// 	Expanded camera containing a variety of functionalities,
+	///		most notably is the ability to contain a multitude of
+	///		behaviours. Is treated as a unique entity rather than
+	///		being part of the ECS design.
+	/// </summary>
 	class VELOX_API Camera final : public sf::View, private NonCopyable
 	{
 	private:
 		using Stack = typename std::vector<CameraBehavior::Ptr>;
 		using Factory = typename std::unordered_map<CameraBehavior::ID, CameraBehavior::Func>;
 
-		enum class Action
+		enum class Action : std::uint8_t
 		{
 			Push,
 			Pop,

@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\BaseProxy.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />

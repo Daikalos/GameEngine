@@ -52,7 +52,7 @@ namespace vlx
 		bool	m_previous_state	[sf::Keyboard::KeyCount] = {false};
 		float	m_held_time			[sf::Keyboard::KeyCount] = {0.0f};
 
-		std::unordered_map<std::type_index, BindsBase::Ptr> m_binds;
+		std::unordered_map<std::type_index, IBinds::Ptr> m_binds;
 	};
 
 	template<Enum Bind>

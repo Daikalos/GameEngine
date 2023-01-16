@@ -14,11 +14,10 @@ namespace vlx
 {
 	class SpriteBatch;
 
-	////////////////////////////////////////////////////////////
-	// Custom sprite that is very similar to SFML's except that
-	// it has depth and no transform as to be suitable for 
-	// spritebatch and the ECS design
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	///		Custom sprite that is very similar to SFML's except that it has depth 
+	///		and no transform as to be suitable for spritebatch and the ECS design
+	/// </summary>
 	class VELOX_API Sprite : public IComponent, public IBatchable
 	{
 	private:

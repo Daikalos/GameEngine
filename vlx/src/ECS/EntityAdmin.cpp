@@ -304,6 +304,24 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	return true;
 }
 
+bool EntityAdmin::HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const
+{
+	const auto eit = m_entity_archetype_map.find(entity_id);
+	if (eit == m_entity_archetype_map.end())
+		return false;
+
+	const Archetype* archetype = eit->second.archetype;
+
+	if (!archetype)
+		return false;
+
+	const auto cit = m_component_archetypes_map.find(component_id);
+	if (cit == m_component_archetypes_map.end())
+		return false;
+
+	return cit->second.contains(archetype->id);
+}
+
 EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 {
 	const auto eit = m_entity_archetype_map.find(entity_id);

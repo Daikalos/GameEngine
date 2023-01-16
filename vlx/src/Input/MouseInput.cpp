@@ -4,6 +4,9 @@ using namespace vlx;
 
 void MouseInput::Update(const Time& time, const bool focus)
 {
+	if (!m_enabled)
+		return;
+
 	m_scroll_delta = 0.0f;
 
 	for (uint32_t i = 0; i < sf::Mouse::ButtonCount; ++i)
@@ -13,10 +16,9 @@ void MouseInput::Update(const Time& time, const bool focus)
 		float& held_time = m_held_time[i];
 
 		prev_state = curr_state;
-		curr_state = focus && m_enabled && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
+		curr_state = focus && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
 
-		held_time = curr_state ?
-			held_time + (held_time < m_held_threshold ? time.GetRealDeltaTime() : 0.0f) : 0.0f;
+		held_time = curr_state ? (held_time + time.GetRealDeltaTime()) : 0.0f;
 	}
 }
 void MouseInput::HandleEvent(const sf::Event& event)
@@ -31,22 +33,22 @@ void MouseInput::HandleEvent(const sf::Event& event)
 
 bool MouseInput::ScrollUp() const noexcept
 { 
-	return m_scroll_delta > m_scroll_threshold; 
+	return m_enabled && m_scroll_delta > m_scroll_threshold;
 }
 bool MouseInput::ScrollDown() const noexcept
 { 
-	return m_scroll_delta < -m_scroll_threshold; 
+	return m_enabled && m_scroll_delta < -m_scroll_threshold;
 }
 
 bool MouseInput::Held(const sf::Mouse::Button button) const
 {
-	return m_current_state[button] && m_held_time[button] >= m_held_threshold;
+	return m_enabled && m_current_state[button] && m_held_time[button] >= m_held_threshold;
 }
 bool MouseInput::Pressed(const sf::Mouse::Button button) const
 {
-	return m_current_state[button] && !m_previous_state[button];
+	return m_enabled && m_current_state[button] && !m_previous_state[button];
 }
 bool MouseInput::Released(const sf::Mouse::Button button) const
 {
-	return !m_current_state[button] && m_previous_state[button];
+	return m_enabled && !m_current_state[button] && m_previous_state[button];
 }

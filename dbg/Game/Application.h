@@ -4,11 +4,10 @@
 #include <unordered_map>
 #include <string_view>
 
-#include <Velox/Utilities.hpp>
-#include <Velox/Input.hpp>
-
 #include <Velox/ECS.hpp>
 #include <Velox/Graphics.hpp>
+#include <Velox/Utilities.hpp>
+#include <Velox/Input.hpp>
 
 #include <Velox/Scene/StateStack.hpp>
 

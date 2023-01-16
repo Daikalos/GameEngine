@@ -42,7 +42,7 @@ void Container::SelectAt(int index)
 
 void Container::SelectNext() 
 {
-	if (!HasSelection())
+	if (!HasSelection() || IsEmpty())
 		return;
 
 	int next = m_selected_child;
@@ -54,7 +54,7 @@ void Container::SelectNext()
 }
 void Container::SelectPrev()
 {
-	if (!HasSelection())
+	if (!HasSelection() || IsEmpty())
 		return;
 
 	int prev = m_selected_child;

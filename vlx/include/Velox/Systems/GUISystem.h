@@ -1,22 +1,21 @@
 #pragma once
 
-#include <Velox/Components/Transform.h>
-#include <Velox/Components/Sprite.h>
-
 #include <Velox/Graphics.hpp>
+#include <Velox/Config.hpp>
+
+#include "ISystemObject.h"
 
 namespace vlx::gui
 {
 
-	class GUISystem
+	class VELOX_API GUISystem : public ISystemObject
 	{
 	public:
 
-
+		void Update() override;
 
 	private:
-		System<Transform, Sprite>	m_main_system;
-		System<Button>				m_button_system;
-		System<Label>				m_text_system;
+		System<Button>	m_button_system;
+		System<Label>	m_label_system;
 	};
 }

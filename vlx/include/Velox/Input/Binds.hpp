@@ -6,23 +6,20 @@
 
 namespace vlx
 {
-	class BindsBase
+	class IBinds
 	{
 	public:
-		using Ptr = std::unique_ptr<BindsBase>;
+		using Ptr = std::unique_ptr<IBinds>;
 
 	public:
-		virtual ~BindsBase() = 0;
+		virtual ~IBinds() = default;
 
-		[[nodiscard]] constexpr bool GetEnabled() const noexcept;
-		void SetEnabled(const bool flag) noexcept;
-
-	private:
-		bool m_enabled{true}; // enabled as default
+		virtual constexpr bool GetEnabled() const noexcept = 0;
+		virtual void SetEnabled(const bool flag) noexcept = 0;
 	};
 
 	template<ArithEnum Bind, ArithEnum Reg>
-	class Binds final : public BindsBase
+	class Binds final : public IBinds
 	{
 	public:
 		Reg& operator[](const Bind name);
@@ -41,24 +38,14 @@ namespace vlx
 		////////////////////////////////////////////////////////////
 		void Remove(const Bind name);
 
+	public:
+		constexpr bool GetEnabled() const noexcept;
+		void SetEnabled(const bool flag) noexcept;
+
 	protected:
 		std::unordered_map<Bind, Reg> m_binds;
+		bool m_enabled	{true}; // enabled as default
 	};
-
-	////////////////////////////////////////////////////////////
-
-	inline BindsBase::~BindsBase() = default;
-
-	inline constexpr bool BindsBase::GetEnabled() const noexcept
-	{
-		return m_enabled;
-	}
-	inline void BindsBase::SetEnabled(bool flag) noexcept
-	{
-		m_enabled = flag;
-	}
-
-	////////////////////////////////////////////////////////////
 
 	template<ArithEnum Bind, ArithEnum Reg>
 	inline Reg& Binds<Bind, Reg>::operator[](const Bind name)
@@ -99,5 +86,16 @@ namespace vlx
 	inline void Binds<Bind, Reg>::Remove(Bind name)
 	{
 		m_binds.erase(name);
+	}
+
+	template<ArithEnum Bind, ArithEnum Reg>
+	inline constexpr bool Binds<Bind, Reg>::GetEnabled() const noexcept
+	{
+		return m_enabled;
+	}
+	template<ArithEnum Bind, ArithEnum Reg>
+	inline void Binds<Bind, Reg>::SetEnabled(const bool flag) noexcept
+	{
+		m_enabled = flag;
 	}
 }

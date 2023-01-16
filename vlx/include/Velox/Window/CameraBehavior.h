@@ -38,7 +38,7 @@ namespace vlx
 
 	public:
 		CameraBehavior(const ID id, Camera& camera, Context context);
-		virtual ~CameraBehavior();
+		virtual ~CameraBehavior() = default;
 
 		[[nodiscard]] const ID& GetID() const noexcept;
 
@@ -47,26 +47,26 @@ namespace vlx
 		[[nodiscard]] const Context& GetContext() const;
 
 	public:
-		virtual void OnCreate(const std::vector<std::byte>& data);
+		virtual void OnCreate(const std::vector<std::byte>& data) {}
 
 		////////////////////////////////////////////////////////////
 		// OnActivate is called whenever the behaviour is put as 
 		// last in the stack
 		////////////////////////////////////////////////////////////
-		virtual void OnActivate();
+		virtual void OnActivate() {}
 
 		////////////////////////////////////////////////////////////
 		// OnDestroy is called when the behaviour is removed from
 		// the stack
 		////////////////////////////////////////////////////////////
-		virtual void OnDestroy();
+		virtual void OnDestroy() {}
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
 
-		virtual bool PreUpdate(const Time& time);
+		virtual bool PreUpdate(const Time& time)	{ return true; }
 		virtual bool Update(const Time& time) = 0;
-		virtual bool FixedUpdate(const Time& time);
-		virtual bool PostUpdate(const Time& time);
+		virtual bool FixedUpdate(const Time& time)	{ return true; }
+		virtual bool PostUpdate(const Time& time)	{ return true; }
 
 	private:
 		ID				m_id;

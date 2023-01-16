@@ -262,6 +262,8 @@ namespace vlx
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
+		VELOX_API bool HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const;
+
 	public:
 		/// <summary>
 		///		Returns a duplicated entity with the same properties as the specified one
@@ -631,7 +633,7 @@ namespace vlx
 	template<IsComponent C>
 	inline auto EntityAdmin::TryGetComponentProxy(const EntityID entity_id) const -> std::pair<ComponentProxyPtr<C>, bool>
 	{
-		if (!IsEntityRegistered(entity_id))
+		if (!IsEntityRegistered(entity_id) || !HasComponent<C>(entity_id))
 			return { nullptr, false };
 
 		return { GetComponentProxy<C>(entity_id), true};
@@ -657,7 +659,7 @@ namespace vlx
 	template<class B>
 	inline auto EntityAdmin::TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> std::pair<BaseProxyPtr<B>, bool>
 	{
-		if (!IsEntityRegistered(entity_id)) // check if entity exists
+		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists
 			return { nullptr, false };
 
 		return { GetBaseProxy<B>(entity_id, child_component_id, offset), true};
@@ -667,23 +669,7 @@ namespace vlx
 	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
-
-		const auto eit = m_entity_archetype_map.find(entity_id);
-		if (eit == m_entity_archetype_map.end())
-			return false;
-
-		const Archetype* archetype = eit->second.archetype;
-
-		if (!archetype)
-			return false;
-
-		const ComponentTypeID& component_id = GetComponentID<C>();
-
-		const auto cit = m_component_archetypes_map.find(component_id);
-		if (cit == m_component_archetypes_map.end())
-			return false;
-
-		return cit->second.contains(archetype->id);
+		return HasComponent(entity_id, GetComponentID<C>());
 	}
 
 	template<IsComponent C>

@@ -3,21 +3,10 @@
 using namespace vlx;
 
 CameraBehavior::Context::Context(const Window& window, const ControlMap& controls)
-	: window(&window), controls(&controls) 
-{
-
-}
+	: window(&window), controls(&controls) {}
 
 CameraBehavior::CameraBehavior(const ID id, Camera& camera, Context context) 
-	: m_id(id), m_camera(&camera), m_context(context) 
-{
-
-}
-
-CameraBehavior::~CameraBehavior() 
-{
-
-}
+	: m_id(id), m_camera(&camera), m_context(context) {}
 
 const CameraBehavior::ID& CameraBehavior::GetID() const noexcept
 {
@@ -31,30 +20,4 @@ Camera& CameraBehavior::GetCamera() const
 const CameraBehavior::Context& CameraBehavior::GetContext() const 
 { 
 	return m_context; 
-}
-
-void CameraBehavior::OnCreate(const std::vector<std::byte>& data)
-{
-
-}
-void CameraBehavior::OnActivate() 
-{
-
-}
-void CameraBehavior::OnDestroy()
-{
-
-}
-
-bool CameraBehavior::PreUpdate(const Time& time) 
-{ 
-	return true; 
-}
-bool CameraBehavior::FixedUpdate(const Time& time) 
-{ 
-	return true; 
-}
-bool CameraBehavior::PostUpdate(const Time& time) 
-{ 
-	return true; 
 }

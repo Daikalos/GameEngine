@@ -19,6 +19,8 @@ namespace vlx::gui
 		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
+		using GUIComponent::GUIComponent;
+
 		Container() = default;
 
 	public:

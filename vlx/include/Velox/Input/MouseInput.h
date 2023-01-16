@@ -58,35 +58,35 @@ namespace vlx
 		bool	m_previous_state	[sf::Mouse::ButtonCount] = {false};
 		float	m_held_time			[sf::Mouse::ButtonCount] = {0.0f};
 
-		std::unordered_map<std::type_index, BindsBase::Ptr> m_binds;
+		std::unordered_map<std::type_index, IBinds::Ptr> m_binds;
 	};
 
 	template<Enum Bind>
-	[[nodiscard]] inline bool MouseInput::Held(const Bind name) const
+	inline bool MouseInput::Held(const Bind name) const
 	{
 		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Held(binds.At(name));
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline bool MouseInput::Pressed(const Bind name) const
+	inline bool MouseInput::Pressed(const Bind name) const
 	{
 		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Pressed(binds.At(name));
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline bool MouseInput::Released(const Bind name) const
+	inline bool MouseInput::Released(const Bind name) const
 	{
 		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Released(binds.At(name));
 	}
 
 	template<Enum Bind>
-	[[nodiscard]] inline MouseInput::MouseBinds<Bind>& MouseInput::GetMap()
+	inline MouseInput::MouseBinds<Bind>& MouseInput::GetMap()
 	{
 		return *static_cast<MouseBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline const MouseInput::MouseBinds<Bind>& MouseInput::GetMap() const
+	inline const MouseInput::MouseBinds<Bind>& MouseInput::GetMap() const
 	{
 		return const_cast<MouseInput*>(this)->GetMap<Bind>();
 	}

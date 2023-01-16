@@ -97,22 +97,38 @@ const sf::Angle& Transform::GetLocalRotation() const
 void Transform::SetOrigin(const sf::Vector2f& origin)
 {
 	m_origin = origin;
-	Dirtify();
+
+	m_update_local = true;
+	m_update_inverse_local = true;
+
+	m_dirty = true;
 }
 void Transform::SetPosition(const sf::Vector2f& position)
 {
 	m_position = position;
-	Dirtify();
+
+	m_update_local = true;
+	m_update_inverse_local = true;
+
+	m_dirty = true;
 }
 void Transform::SetScale(const sf::Vector2f& scale)
 {
 	m_scale = scale;
-	Dirtify();
+
+	m_update_local = true;
+	m_update_inverse_local = true;
+
+	m_dirty = true;
 }
 void Transform::SetRotation(const sf::Angle angle)
 {
 	m_rotation = angle.wrapUnsigned();
-	Dirtify();
+	
+	m_update_local = true;
+	m_update_inverse_local = true;
+
+	m_dirty = true;
 }
 
 void Transform::Move(const sf::Vector2f& move)
@@ -196,12 +212,4 @@ void Transform::ComputeTransform() const
 void Transform::ComputeTransform(const sf::Transform& transform) const
 {
 	m_model_transform = transform * GetLocalTransform();
-}
-
-void Transform::Dirtify() const
-{
-	m_update_local = true;
-	m_update_inverse_local = true;
-
-	m_dirty = true;
 }

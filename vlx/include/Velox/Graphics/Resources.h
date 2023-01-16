@@ -8,6 +8,7 @@ namespace vlx
 		{
 			None,
 			IdleCursor,
+			Square,
 
 			Count
 		};

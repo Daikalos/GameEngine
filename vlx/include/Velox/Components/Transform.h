@@ -56,8 +56,6 @@ namespace vlx
 		void ComputeTransform() const;
 		void ComputeTransform(const sf::Transform& transform) const;
 
-		void Dirtify() const;
-
 	private:
 		// local space information
 		sf::Vector2f			m_origin;
