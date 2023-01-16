@@ -21,7 +21,7 @@ namespace vlx
 	{
 	public:
 		using Ptr			= std::unique_ptr<InputHandler>;
-		using ControlMap	= std::unordered_map<std::type_index, Ptr>;
+		using ControlsMap	= std::unordered_map<std::type_index, Ptr>;
 
 	public:
 		InputHandler() = default;

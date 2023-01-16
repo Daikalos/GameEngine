@@ -6,7 +6,7 @@ Application::Application(std::string_view name) :
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
 	m_camera(CameraBehavior::Context(m_window, m_controls)),
 	m_state_stack(State<>::Context(m_window, m_camera, m_controls, m_texture_holder, m_font_holder)),
-	m_world(m_window)
+	m_world(m_window, m_time)
 {
 
 }
@@ -33,14 +33,16 @@ void Application::Run()
 	int ticks = 0;
 	int death_spiral = 12; // guarantee prevention of infinite loop
 
-	ObjectSystem& object_system = m_world.GetObjectSystem();
-	TransformSystem& transform_system = m_world.GetTransformSystem();
+	ObjectSystem& object_system = m_world.Get<ObjectSystem>();
+	TransformSystem& transform_system = m_world.Get<TransformSystem>();
 
-	Entity entity = m_world.GetObjectSystem().CreateObject();
+	Entity entity = object_system.CreateObject();
 	entity.AddComponents(ObjectType{});
 
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 	entity.GetComponent<Sprite>().SetOpacity(1.0f);
+
+	m_world.Remove<RenderSystem>();
 
 	ComponentProxyPtr<Transform> transform = entity.GetComponentProxy<Transform>();
 	transform->Get()->SetPosition({50.0f, 50.0f});
@@ -54,7 +56,7 @@ void Application::Run()
 
 	entity_admin.SetComponent<Transform>(entity.GetID(), set.Get<Transform>());
 
-	m_world.GetRelationSystem().AttachInstant(entity.GetID(), new_entity.GetID());
+	m_world.Get<RelationSystem>().AttachInstant(entity.GetID(), new_entity.GetID());
 
 	std::puts(std::to_string(set.Get<Object>().IsAlive).c_str());
 	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
@@ -86,16 +88,16 @@ void Application::Run()
 
 		Update();
 
-		accumulator += m_time.GetRealDeltaTime();
+		accumulator += m_time.GetRealDT();
 		ticks = 0;
 
-		while (accumulator >= m_time.GetFixedDeltaTime() && ticks++ < death_spiral)
+		while (accumulator >= m_time.GetFixedDT() && ticks++ < death_spiral)
 		{
-			accumulator -= m_time.GetFixedDeltaTime();
+			accumulator -= m_time.GetFixedDT();
 			FixedUpdate();
 		}
 
-		float interp = accumulator / m_time.GetFixedDeltaTime();
+		float interp = accumulator / m_time.GetFixedDT();
 		m_time.SetInterp(interp);
 
 		PostUpdate();
@@ -106,7 +108,7 @@ void Application::Run()
 		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 			object_system.DeleteObjectInstant(entity.GetID());
 
-		x_pos += m_time.GetDeltaTime() * 5.0f;
+		x_pos += m_time.GetDT() * 5.0f;
 
 		if (entity_admin.IsEntityRegistered(entity.GetID()))
 			transform->Get()->SetPosition({ x_pos, 10.0f });

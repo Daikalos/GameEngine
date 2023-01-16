@@ -20,10 +20,6 @@ namespace vlx
 		using MouseBinds = Binds<Bind, sf::Mouse::Button>;
 
 	public:
-		VELOX_API void Update(const Time& time, const bool focus) override;
-		VELOX_API void HandleEvent(const sf::Event& event) override;
-
-	public:
 		VELOX_API [[nodiscard]] bool ScrollUp() const noexcept;
 		VELOX_API [[nodiscard]] bool ScrollDown() const noexcept;
 
@@ -31,6 +27,7 @@ namespace vlx
 		VELOX_API [[nodiscard]] bool Pressed(const sf::Mouse::Button button) const;
 		VELOX_API [[nodiscard]] bool Released(const sf::Mouse::Button button) const;
 
+	public:
 		template<Enum Bind>
 		[[nodiscard]] bool Held(const Bind name) const;
 		template<Enum Bind>
@@ -49,6 +46,10 @@ namespace vlx
 		////////////////////////////////////////////////////////////
 		template<Enum Bind>
 		void AddMap();
+
+	public:
+		VELOX_API void Update(const Time& time, const bool focus) override;
+		VELOX_API void HandleEvent(const sf::Event& event) override;
 
 	private:
 		float	m_scroll_delta		{0.0f};

@@ -19,12 +19,16 @@ namespace vlx
 	public:
 		RelationSystem(EntityAdmin& entity_admin);
 
+		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+
+	public:
 		void AttachInstant(const EntityID parent_id, const EntityID child_id);
 		void DetachInstant(const EntityID parent_id, const EntityID child_id);
 
 		void AttachDelay(const EntityID parent_id, const EntityID child_id);
 		void DetachDelay(const EntityID parent_id, const EntityID child_id);
 
+	public:
 		void Update() override;
 
 	private:

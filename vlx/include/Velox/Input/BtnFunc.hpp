@@ -32,12 +32,13 @@ namespace vlx
 	class BtnFunc final
 	{
 	public:
-		using ButtonFunc	= typename std::array<std::function<void()>, BE_End>;
-		using BoundFunc		= typename std::pair<ButtonType, ButtonFunc>;
+		using ButtonFuncs	= std::array<std::function<void()>, BE_End>;
+		using BoundFunc		= std::pair<ButtonType, ButtonFuncs>;
 
 	public:
 		BtnFunc(const T* input);
 	
+	public:
 		template<typename Func, class U>
 		void Add(ButtonType button, ButtonEvent event, Func&& func, U* object);
 
@@ -49,7 +50,7 @@ namespace vlx
 		void operator()();
 
 	private:
-		const T* m_input{nullptr};
+		const T* m_input {nullptr};
 		std::vector<BoundFunc> m_funcs;
 	};
 
@@ -60,7 +61,7 @@ namespace vlx
 	template<typename Func, class U>
 	inline void BtnFunc<T, ButtonType>::Add(ButtonType key, ButtonEvent event, Func&& func, U* object)
 	{
-		ButtonFunc& funcs = m_funcs.emplace_back(key, ButtonFunc()).second;
+		ButtonFuncs& funcs = m_funcs.emplace_back(key, ButtonFuncs()).second;
 		funcs[event] = std::bind(std::forward<Func>(func), object);
 	}
 
@@ -75,11 +76,8 @@ namespace vlx
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	inline void BtnFunc<T, ButtonType>::Execute()
 	{
-		for (const auto& pair : m_funcs)
+		for (const auto& [key, button_func] : m_funcs)
 		{
-			const ButtonType& key = pair.first;
-			const auto& button_func = pair.second;
-
 			for (ButtonEvent event = BE_Begin; event < BE_End; ++event)
 			{
 				bool triggered = false;

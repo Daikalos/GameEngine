@@ -1,4 +1,4 @@
-#include <Velox/Systems/RenderSystem.h>
+#include <Velox/World/Systems/RenderSystem.h>
 
 using namespace vlx;
 
@@ -24,6 +24,11 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 				}
 			}
 		});
+}
+
+constexpr LayerType vlx::RenderSystem::GetID() const noexcept
+{
+	return LYR_RENDERING;
 }
 
 void RenderSystem::SetBatchMode(const BatchMode batch_mode)

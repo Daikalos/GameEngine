@@ -1,4 +1,4 @@
-#include <Velox/Systems/ObjectSystem.h>
+#include <Velox/World/Systems/ObjectSystem.h>
 
 using namespace vlx;
 
@@ -13,6 +13,11 @@ ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
 					DeleteObjectDelayed(entities[i]);
 			}
 		});
+}
+
+constexpr LayerType vlx::ObjectSystem::GetID() const noexcept
+{
+	return LYR_OBJECTS;
 }
 
 Entity ObjectSystem::CreateObject() const

@@ -21,7 +21,7 @@
 
 #include <Velox/Graphics/SpriteBatch.h>
 
-#include <Velox/ECS/World.h>
+#include <Velox/World/World.h>
 
 #include <Velox/ObjectTypes.hpp>
 

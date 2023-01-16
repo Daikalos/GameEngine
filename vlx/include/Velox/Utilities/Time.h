@@ -9,16 +9,16 @@
 
 namespace vlx
 {
-	static const float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
-	static const float DEFAULT_SCALED_TIME = 1.0f;
+	static constexpr float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
+	static constexpr float DEFAULT_SCALED_TIME = 1.0f;
 
 	class VELOX_API Time final : public NonCopyable
 	{
 	public:
-		[[nodiscard]] constexpr float GetDeltaTime() const noexcept;
-		[[nodiscard]] constexpr float GetRealDeltaTime() const noexcept;
-		[[nodiscard]] constexpr float GetFixedDeltaTime() const noexcept;
-		[[nodiscard]] constexpr float GetRealFixedDeltaTime() const noexcept;
+		[[nodiscard]] constexpr float GetDT() const noexcept;
+		[[nodiscard]] constexpr float GetRealDT() const noexcept;
+		[[nodiscard]] constexpr float GetFixedDT() const noexcept;
+		[[nodiscard]] constexpr float GetRealFixedDT() const noexcept;
 		[[nodiscard]] constexpr float GetScaledTime() const noexcept;
 		[[nodiscard]] constexpr float GetInterp() const noexcept;
 		[[nodiscard]] constexpr long double GetTotalTime() const noexcept;
@@ -31,9 +31,9 @@ namespace vlx
 	public:
 		void Reset();
 
-		////////////////////////////////////////////////////////
-		// Update to receive the latest dt, put first in loop
-		////////////////////////////////////////////////////////
+		/// <summary>
+		///		Update to receive the latest dt, put first in loop
+		/// </summary>
 		void Update();
 
 	private:

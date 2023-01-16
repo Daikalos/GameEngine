@@ -10,6 +10,40 @@ MouseCursor::MouseCursor(Window& window, const sf::Texture& default_texture) : m
 	SetCursor(default_texture);
 }
 
+const sf::Vector2i& MouseCursor::GetMousePosition() const noexcept
+{ 
+	return m_mouse_pos;
+}
+const sf::Vector2f& MouseCursor::GetDelta() const noexcept
+{ 
+	return m_mouse_delta; 
+}
+const sf::Vector2f& MouseCursor::GetPosition() const noexcept
+{ 
+	return m_cursor_pos; 
+}
+
+void MouseCursor::SetCursor(const sf::Texture& texture)
+{
+	m_cursor.setTexture(texture);
+}
+void MouseCursor::SetCursorState(const cst::ID cursor_state)
+{
+	m_cursor_state = cursor_state;
+}
+void MouseCursor::SetMouseSensitivity(const float val) noexcept
+{
+	m_mouse_sensitivity = val;
+}
+void MouseCursor::SetCursorVisible(const bool flag) noexcept
+{
+	m_cursor_visible = flag;
+}
+void MouseCursor::SetCursorLocked(const bool flag) noexcept
+{
+	m_locked = flag;
+}
+
 void MouseCursor::Update(const Time& time, const bool focus)
 {
 	if (m_enabled && focus)
@@ -56,38 +90,4 @@ void MouseCursor::Draw()
 {
 	if (m_cursor_visible)
 		m_window->draw(m_cursor);
-}
-
-const sf::Vector2i& MouseCursor::GetMousePosition() const noexcept
-{ 
-	return m_mouse_pos;
-}
-const sf::Vector2f& MouseCursor::GetDelta() const noexcept
-{ 
-	return m_mouse_delta; 
-}
-const sf::Vector2f& MouseCursor::GetPosition() const noexcept
-{ 
-	return m_cursor_pos; 
-}
-
-void MouseCursor::SetCursor(const sf::Texture& texture)
-{
-	m_cursor.setTexture(texture);
-}
-void MouseCursor::SetCursorState(const cst::ID cursor_state)
-{
-	m_cursor_state = cursor_state;
-}
-void MouseCursor::SetMouseSensitivity(const float val) noexcept
-{
-	m_mouse_sensitivity = val;
-}
-void MouseCursor::SetCursorVisible(const bool flag) noexcept
-{
-	m_cursor_visible = flag;
-}
-void MouseCursor::SetCursorLocked(const bool flag) noexcept
-{
-	m_locked = flag;
 }

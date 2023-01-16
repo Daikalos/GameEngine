@@ -22,11 +22,11 @@ namespace vlx
 	class Binds final : public IBinds
 	{
 	public:
-		Reg& operator[](const Bind name);
-		const Reg& operator[](const Bind name) const;
+		[[nodiscard]] Reg& operator[](const Bind name);
+		[[nodiscard]] const Reg& operator[](const Bind name) const;
 
-		Reg& At(const Bind name);
-		const Reg& At(const Bind name) const;
+		[[nodiscard]] Reg& At(const Bind name);
+		[[nodiscard]] const Reg& At(const Bind name) const;
 
 		////////////////////////////////////////////////////////////
 		// Set the bind name to match to button
@@ -39,7 +39,7 @@ namespace vlx
 		void Remove(const Bind name);
 
 	public:
-		constexpr bool GetEnabled() const noexcept;
+		[[nodiscard]] constexpr bool GetEnabled() const noexcept;
 		void SetEnabled(const bool flag) noexcept;
 
 	protected:

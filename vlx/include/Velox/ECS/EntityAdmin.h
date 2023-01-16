@@ -248,9 +248,10 @@ namespace vlx
 	public:
 		VELOX_API [[nodiscard]] EntityID GetNewEntityID();
 
-		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
-		VELOX_API bool IsEntityRegistered(const EntityID entity_id) const;
+		VELOX_API [[nodiscard]] bool IsEntityRegistered(const EntityID entity_id) const;
+		VELOX_API [[nodiscard]] bool HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const;
 
+		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
 		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
 
 		VELOX_API void RemoveSystem(const LayerType layer, ISystem* system);
@@ -261,8 +262,6 @@ namespace vlx
 
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
-
-		VELOX_API bool HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const;
 
 	public:
 		/// <summary>

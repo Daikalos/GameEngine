@@ -40,11 +40,14 @@ namespace vlx
 		};
 
 	private:
-		using Command	= std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
+		using Command = std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
 
 	public:
 		VELOX_API ObjectSystem(EntityAdmin& entity_admin);
 
+		VELOX_API [[nodiscard]] constexpr LayerType GetID() const noexcept override;
+
+	public:
 		VELOX_API Entity CreateObject() const;
 
 		VELOX_API void DeleteObjectDelayed(const EntityID entity_id);

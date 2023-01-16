@@ -24,6 +24,9 @@ namespace vlx
 	public:
 		TransformSystem(EntityAdmin& entity_admin);
 
+		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+
+	public:
 		void SetGlobalPosition(	const EntityID entity, const sf::Vector2f& position);
 		void SetGlobalScale(	const EntityID entity, const sf::Vector2f& scale);
 		void SetGlobalRotation(	const EntityID entity, const sf::Angle angle);
@@ -32,6 +35,7 @@ namespace vlx
 		void SetGlobalScale(	Transform& transform, Relation& relation, const sf::Vector2f& scale);
 		void SetGlobalRotation(	Transform& transform, Relation& relation, const sf::Angle angle);
 
+	public:
 		void Update() override;
 
 	private:

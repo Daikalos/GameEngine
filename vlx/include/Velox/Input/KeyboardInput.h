@@ -20,10 +20,6 @@ namespace vlx
 		using KeyboardBinds = Binds<Bind, sf::Keyboard::Key>;
 
 	public:
-		VELOX_API void Update(const Time& time, const bool focus) override;
-		VELOX_API void HandleEvent(const sf::Event& event) override;
-
-	public:
 		VELOX_API [[nodiscard]] bool Held(const sf::Keyboard::Key key) const;
 		VELOX_API [[nodiscard]] bool Pressed(const sf::Keyboard::Key key) const;
 		VELOX_API [[nodiscard]] bool Released(const sf::Keyboard::Key key) const;
@@ -47,6 +43,10 @@ namespace vlx
 		template<Enum Bind>
 		void AddMap();
 
+	public:
+		VELOX_API void Update(const Time& time, const bool focus) override;
+		VELOX_API void HandleEvent(const sf::Event& event) override;
+
 	private:
 		bool	m_current_state		[sf::Keyboard::KeyCount] = {false};
 		bool	m_previous_state	[sf::Keyboard::KeyCount] = {false};
@@ -56,31 +56,31 @@ namespace vlx
 	};
 
 	template<Enum Bind>
-	[[nodiscard]] inline bool KeyboardInput::Held(const Bind name) const
+	inline bool KeyboardInput::Held(const Bind name) const
 	{
 		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Held(binds.At(name));
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline bool KeyboardInput::Pressed(const Bind name) const
+	inline bool KeyboardInput::Pressed(const Bind name) const
 	{
 		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Pressed(binds.At(name));
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline bool KeyboardInput::Released(const Bind name) const
+	inline bool KeyboardInput::Released(const Bind name) const
 	{
 		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Released(binds.At(name));
 	}
 
 	template<Enum Bind>
-	[[nodiscard]] inline KeyboardInput::KeyboardBinds<Bind>& KeyboardInput::GetMap()
+	inline KeyboardInput::KeyboardBinds<Bind>& KeyboardInput::GetMap()
 	{
 		return *static_cast<KeyboardBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
 	}
 	template<Enum Bind>
-	[[nodiscard]] inline const KeyboardInput::KeyboardBinds<Bind>& KeyboardInput::GetMap() const
+	inline const KeyboardInput::KeyboardBinds<Bind>& KeyboardInput::GetMap() const
 	{
 		return const_cast<KeyboardInput*>(this)->GetMap<Bind>();
 	}

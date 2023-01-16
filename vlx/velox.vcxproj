@@ -174,7 +174,7 @@
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
-    <ClInclude Include="include\Velox\ECS\World.h" />
+    <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
@@ -195,13 +195,13 @@
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
     <ClInclude Include="include\Velox\Scene\State.hpp" />
     <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
-    <ClInclude Include="include\Velox\Systems\AnchorSystem.h" />
-    <ClInclude Include="include\Velox\Systems\GUISystem.h" />
-    <ClInclude Include="include\Velox\Systems\ISystemObject.h" />
-    <ClInclude Include="include\Velox\Systems\ObjectSystem.h" />
-    <ClInclude Include="include\Velox\Systems\RelationSystem.h" />
-    <ClInclude Include="include\Velox\Systems\RenderSystem.h" />
-    <ClInclude Include="include\Velox\Systems\TransformSystem.h" />
+    <ClInclude Include="include\Velox\World\Systems\AnchorSystem.h" />
+    <ClInclude Include="include\Velox\World\Systems\GUISystem.h" />
+    <ClInclude Include="include\Velox\World\Systems\ISystemObject.h" />
+    <ClInclude Include="include\Velox\World\Systems\ObjectSystem.h" />
+    <ClInclude Include="include\Velox\World\Systems\RelationSystem.h" />
+    <ClInclude Include="include\Velox\World\Systems\RenderSystem.h" />
+    <ClInclude Include="include\Velox\World\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\Utilities.hpp" />
     <ClInclude Include="include\Velox\Utilities\ArithmeticUtils.h" />
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
@@ -225,7 +225,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Systems\GUISystem.cpp" />
+    <ClCompile Include="src\World\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
@@ -234,7 +234,7 @@
     <ClCompile Include="src\Components\Velocity.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
-    <ClCompile Include="src\ECS\World.cpp" />
+    <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
     <ClCompile Include="src\Graphics\gui\Label.cpp" />
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
@@ -245,11 +245,11 @@
     <ClCompile Include="src\Input\KeyboardInput.cpp" />
     <ClCompile Include="src\Input\MouseCursor.cpp" />
     <ClCompile Include="src\Input\MouseInput.cpp" />
-    <ClCompile Include="src\Systems\AnchorSystem.cpp" />
-    <ClCompile Include="src\Systems\ObjectSystem.cpp" />
-    <ClCompile Include="src\Systems\RelationSystem.cpp" />
-    <ClCompile Include="src\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Systems\TransformSystem.cpp" />
+    <ClCompile Include="src\World\Systems\AnchorSystem.cpp" />
+    <ClCompile Include="src\World\Systems\ObjectSystem.cpp" />
+    <ClCompile Include="src\World\Systems\RelationSystem.cpp" />
+    <ClCompile Include="src\World\Systems\RenderSystem.cpp" />
+    <ClCompile Include="src\World\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\Utilities\Time.cpp" />
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\CameraBehavior.cpp" />

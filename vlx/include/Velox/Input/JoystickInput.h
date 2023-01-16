@@ -28,16 +28,13 @@ namespace vlx
 		VELOX_API JoystickInput();
 
 	public:
-		VELOX_API void Update(const Time& time, const bool focus) override;
-		VELOX_API void HandleEvent(const sf::Event& event) override;
-
-	public:
 		VELOX_API [[nodiscard]] bool Held(const SizeType id, const SizeType button) const;
 		VELOX_API [[nodiscard]] bool Pressed(const SizeType id, const SizeType button) const;
 		VELOX_API [[nodiscard]] bool Released(const SizeType id, const SizeType button) const;
 
 		VELOX_API [[nodiscard]] float Axis(const SizeType id, const SizeType axis) const;
 
+	public:
 		template<Enum Bind>
 		[[nodiscard]] bool Held(const SizeType id, const Bind name) const;
 		template<Enum Bind>
@@ -59,6 +56,10 @@ namespace vlx
 		/// </summary>
 		template<Enum Bind>
 		void AddMap();
+
+	public:
+		VELOX_API void Update(const Time& time, const bool focus) override;
+		VELOX_API void HandleEvent(const sf::Event& event) override;
 
 	private:
 		bool	m_current_state		[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};

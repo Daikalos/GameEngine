@@ -12,15 +12,18 @@
 
 namespace vlx
 {
-	class AnchorSystem : public ISystemObject
+	class VELOX_API AnchorSystem : public ISystemObject
 	{
 	private:
 		using System = System<Transform, gui::Anchor>;
 
 	public:
-		VELOX_API AnchorSystem(EntityAdmin& entity_admin, const Window& window);
+		AnchorSystem(EntityAdmin& entity_admin, const Window& window);
 
-		VELOX_API void Update() override;
+		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+
+	public:
+		void Update() override;
 
 	private:
 		EntityAdmin*	m_entity_admin {nullptr};

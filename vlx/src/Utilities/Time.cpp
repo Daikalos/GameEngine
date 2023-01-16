@@ -2,15 +2,15 @@
 
 using namespace vlx;
 
-[[nodiscard]] constexpr float Time::GetDeltaTime() const noexcept			{ return m_delta_time * m_scaled_time; }
-[[nodiscard]] constexpr float Time::GetRealDeltaTime() const noexcept		{ return m_delta_time; }
-[[nodiscard]] constexpr float Time::GetFixedDeltaTime() const noexcept		{ return m_fixed_delta_time * m_scaled_time; }
-[[nodiscard]] constexpr float Time::GetRealFixedDeltaTime() const noexcept	{ return m_fixed_delta_time; }
-[[nodiscard]] constexpr float Time::GetScaledTime() const noexcept			{ return m_scaled_time; }
-[[nodiscard]] constexpr float Time::GetInterp() const noexcept				{ return m_interp; }
-[[nodiscard]] constexpr long double Time::GetTotalTime() const noexcept		{ return m_total_time; }
-[[nodiscard]] constexpr long double Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
-[[nodiscard]] constexpr int Time::GetFramerate() const noexcept				{ return (int)(1.0f / GetRealDeltaTime()); }
+constexpr float Time::GetDT() const noexcept					{ return m_delta_time * m_scaled_time; }
+constexpr float Time::GetRealDT() const noexcept				{ return m_delta_time; }
+constexpr float Time::GetFixedDT() const noexcept				{ return m_fixed_delta_time * m_scaled_time; }
+constexpr float Time::GetRealFixedDT() const noexcept			{ return m_fixed_delta_time; }
+constexpr float Time::GetScaledTime() const noexcept			{ return m_scaled_time; }
+constexpr float Time::GetInterp() const noexcept				{ return m_interp; }
+constexpr long double Time::GetTotalTime() const noexcept		{ return m_total_time; }
+constexpr long double Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
+constexpr int Time::GetFramerate() const noexcept				{ return (int)(1.0f / GetRealDT()); }
 
 void Time::SetScaledTime(const float value) noexcept
 { 
@@ -33,6 +33,6 @@ void Time::Update()
 {
 	m_delta_time = m_clock.restart().asSeconds();
 
-	m_total_time += GetRealDeltaTime();
-	m_total_run_time += GetDeltaTime();
+	m_total_time += GetRealDT();
+	m_total_run_time += GetDT();
 }

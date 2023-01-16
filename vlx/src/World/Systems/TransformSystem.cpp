@@ -1,4 +1,4 @@
-#include <Velox/Systems/TransformSystem.h>
+#include <Velox/World/Systems/TransformSystem.h>
 
 using namespace vlx;
 
@@ -30,6 +30,11 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 
 	m_local_system.Exclude<Relation>(); // runs on any entity that does not have relation
 	m_local_system.SetPriority(1.0f);	// local runs before global
+}
+
+constexpr LayerType vlx::TransformSystem::GetID() const noexcept
+{
+	return LYR_TRANSFORM;
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 

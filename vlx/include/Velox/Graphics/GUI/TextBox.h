@@ -6,6 +6,7 @@ namespace vlx::gui
 {
 	class TextBox : public GUIComponent
 	{
+	private:
 
 	};
 }

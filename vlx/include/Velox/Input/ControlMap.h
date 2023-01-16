@@ -15,10 +15,10 @@ namespace vlx
 	{
 	public:
 		template<std::derived_from<InputHandler> T>
-		const T& Get() const;
+		[[nodiscard]] const T& Get() const;
 
 		template<std::derived_from<InputHandler> T>
-		T& Get();
+		[[nodiscard]] T& Get();
 
 	public:
 		/// <summary>
@@ -32,14 +32,14 @@ namespace vlx
 		void Remove();
 
 		template<std::derived_from<InputHandler> T>
-		bool Exists() const;
+		[[nodiscard]] bool Exists() const;
 
 	public:
 		VELOX_API void UpdateAll(const Time& time, const bool focus);
 		VELOX_API void HandleEventAll(const sf::Event& event);
 
 	private:
-		InputHandler::ControlMap m_controls;
+		InputHandler::ControlsMap m_controls;
 	};
 
 	template<std::derived_from<InputHandler> T>

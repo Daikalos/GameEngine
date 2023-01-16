@@ -1,4 +1,4 @@
-#include <Velox/Systems/AnchorSystem.h>
+#include <Velox/World/Systems/AnchorSystem.h>
 
 using namespace vlx;
 
@@ -29,6 +29,11 @@ AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const Window& window)
 				}
 			}
 		});
+}
+
+constexpr LayerType AnchorSystem::GetID() const noexcept
+{
+	return LYR_ANCHOR;
 }
 
 void AnchorSystem::Update()

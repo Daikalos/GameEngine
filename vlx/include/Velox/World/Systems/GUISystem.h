@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Velox/ECS/Identifiers.hpp>
+
 #include <Velox/Graphics.hpp>
 #include <Velox/Config.hpp>
 
@@ -11,7 +13,9 @@ namespace vlx::gui
 	class VELOX_API GUISystem : public ISystemObject
 	{
 	public:
+		constexpr LayerType GetID() const noexcept override;
 
+	public:
 		void Update() override;
 
 	private:

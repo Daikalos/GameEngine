@@ -36,6 +36,28 @@ EntityID EntityAdmin::GetNewEntityID()
 	return m_entity_id_counter++;
 }
 
+bool EntityAdmin::IsEntityRegistered(const EntityID entity_id) const
+{
+	return m_entity_archetype_map.contains(entity_id);
+}
+bool EntityAdmin::HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const
+{
+	const auto eit = m_entity_archetype_map.find(entity_id);
+	if (eit == m_entity_archetype_map.end())
+		return false;
+
+	const Archetype* archetype = eit->second.archetype;
+
+	if (!archetype)
+		return false;
+
+	const auto cit = m_component_archetypes_map.find(component_id);
+	if (cit == m_component_archetypes_map.end())
+		return false;
+
+	return cit->second.contains(archetype->id);
+}
+
 auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
 {
 	auto insert = m_entity_archetype_map.try_emplace(entity_id, Record());
@@ -43,11 +65,6 @@ auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
 
 	return insert.first->second;
 }
-bool EntityAdmin::IsEntityRegistered(const EntityID entity_id) const
-{
-	return m_entity_archetype_map.contains(entity_id);
-}
-
 void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
 {
 	m_systems[layer].push_back(system);
@@ -302,24 +319,6 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	record.archetype = new_archetype;
 
 	return true;
-}
-
-bool EntityAdmin::HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const
-{
-	const auto eit = m_entity_archetype_map.find(entity_id);
-	if (eit == m_entity_archetype_map.end())
-		return false;
-
-	const Archetype* archetype = eit->second.archetype;
-
-	if (!archetype)
-		return false;
-
-	const auto cit = m_component_archetypes_map.find(component_id);
-	if (cit == m_component_archetypes_map.end())
-		return false;
-
-	return cit->second.contains(archetype->id);
 }
 
 EntityID EntityAdmin::Duplicate(const EntityID entity_id)

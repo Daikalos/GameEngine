@@ -37,8 +37,8 @@ namespace vlx
 
 		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
 
+	public:
 		void Reset() override;
-
 		void ForceUpdate() override;
 
 	private:
@@ -80,7 +80,7 @@ namespace vlx
 	template<IsComponent C>
 	inline ComponentProxy<C>::operator bool() const noexcept
 	{
-		return IsValid();
+		return IsExpired();
 	}
 
 	template<IsComponent C>

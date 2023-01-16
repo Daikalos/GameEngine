@@ -1,4 +1,4 @@
-#include <Velox/Systems/RelationSystem.h>
+#include <Velox/World/Systems/RelationSystem.h>
 
 using namespace vlx;
 
@@ -6,6 +6,11 @@ RelationSystem::RelationSystem(EntityAdmin& entity_admin)
 	: m_entity_admin(&entity_admin)
 {
 
+}
+
+constexpr LayerType RelationSystem::GetID() const noexcept
+{
+	return LYR_NONE;
 }
 
 void RelationSystem::AttachInstant(const EntityID parent_id, const EntityID child_id)

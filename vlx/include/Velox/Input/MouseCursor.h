@@ -27,11 +27,6 @@ namespace vlx
 	public:
 		MouseCursor(Window& window, const sf::Texture& texture);
 
-		void Update(const Time& time, const bool focus) override;
-		void HandleEvent(const sf::Event& event) override;
-
-		void Draw();
-
 	public:
 		[[nodiscard]] const sf::Vector2i& GetMousePosition() const noexcept;
 		[[nodiscard]] const sf::Vector2f& GetDelta() const noexcept;
@@ -42,6 +37,12 @@ namespace vlx
 		void SetMouseSensitivity(const float val) noexcept;
 		void SetCursorVisible(const bool flag) noexcept;
 		void SetCursorLocked(const bool flag) noexcept;
+
+	public:
+		void Update(const Time& time, const bool focus) override;
+		void HandleEvent(const sf::Event& event) override;
+
+		void Draw();
 
 	private:
 		Window*					m_window			{nullptr};

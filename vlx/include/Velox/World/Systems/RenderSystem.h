@@ -24,6 +24,9 @@ namespace vlx
 	public:
 		RenderSystem(EntityAdmin& entity_admin);
 
+		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+
+	public:
 		void SetBatchMode(const BatchMode batch_mode);
 		void SetBatchingEnabled(const bool flag);
 
@@ -31,7 +34,6 @@ namespace vlx
 
 	public:
 		void Update() override;
-
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 
 	private:
