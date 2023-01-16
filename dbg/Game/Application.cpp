@@ -42,8 +42,6 @@ void Application::Run()
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 	entity.GetComponent<Sprite>().SetOpacity(1.0f);
 
-	m_world.Remove<RenderSystem>();
-
 	ComponentProxyPtr<Transform> transform = entity.GetComponentProxy<Transform>();
 	transform->Get()->SetPosition({50.0f, 50.0f});
 

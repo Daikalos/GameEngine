@@ -36,7 +36,7 @@ namespace vlx
 		using BoundFunc		= std::pair<ButtonType, ButtonFuncs>;
 
 	public:
-		BtnFunc(const T* input);
+		BtnFunc(const T& input);
 	
 	public:
 		template<typename Func, class U>
@@ -55,7 +55,7 @@ namespace vlx
 	};
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
-	inline BtnFunc<T, ButtonType>::BtnFunc(const T* input) : m_input(input) {}
+	inline BtnFunc<T, ButtonType>::BtnFunc(const T& input) : m_input(&input) {}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<typename Func, class U>
