@@ -46,13 +46,17 @@ namespace vlx
 		[[nodiscard]] S& Get();
 
 		template<std::derived_from<ISystemObject> S, typename... Args>
-		S& Add(Args&&... args) requires std::constructible_from<S, Args...>;
+		std::pair<S*, bool> AddSystem(Args&&... args) requires std::constructible_from<S, Args...>;
 
 		template<std::derived_from<ISystemObject> S>
-		void Remove();
+		void RemoveSystem();
 
 		template<std::derived_from<ISystemObject> S>
-		bool Has() const;
+		bool HasSystem() const;
+
+	public:
+		VELOX_API void RemoveSystem(LayerType id);
+		VELOX_API bool HasSystem(LayerType id) const;
 
 	public:
 		VELOX_API void Update();
@@ -78,32 +82,35 @@ namespace vlx
 	}
 
 	template<std::derived_from<ISystemObject> S, typename... Args>
-	inline S& World::Add(Args&&... args) requires std::constructible_from<S, Args...>
+	inline std::pair<S*, bool> World::AddSystem(Args&&... args) requires std::constructible_from<S, Args...>
 	{
+		if (HasSystem<S>()) // don't add if already exists
+			return { nullptr, false };
+
 		ISystemObject::Ptr system = std::make_shared<S>(std::forward<Args>(args)...);
 
 		m_systems[typeid(S)] = system;
 		m_sorted_systems[system->GetID()] = std::make_pair(system, system.get());
 
-		return static_cast<S&>(*system);
+		return { static_cast<S*>(system.get()), true };
 	}
 
 	template<std::derived_from<ISystemObject> S>
-	inline void World::Remove()
+	inline void World::RemoveSystem()
 	{
 		m_systems.erase(typeid(S));
 		
-		const auto it = std::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
+		const auto it = std::find_if(m_sorted_systems.begin(), m_sorted_systems.end(), // find system that was removed
 			[](const auto& item)
 			{
 				return item.second.first.expired();
 			});
 
-		m_sorted_systems.erase(it);
+		m_sorted_systems.erase(it); // and erase it from list
 	}
 
 	template<std::derived_from<ISystemObject> S>
-	inline bool World::Has() const
+	inline bool World::HasSystem() const
 	{
 		return m_systems.contains(typeid(S));
 	}

@@ -4,11 +4,11 @@ using namespace vlx;
 
 World::World(const Window& window, const Time& time)
 {
-	Add<ObjectSystem>(m_entity_admin);
-	Add<RelationSystem>(m_entity_admin);
-	Add<TransformSystem>(m_entity_admin);
-	Add<AnchorSystem>(m_entity_admin, window);
-	Add<RenderSystem>(m_entity_admin);
+	AddSystem<ObjectSystem>(m_entity_admin);
+	AddSystem<RelationSystem>(m_entity_admin);
+	AddSystem<TransformSystem>(m_entity_admin);
+	AddSystem<AnchorSystem>(m_entity_admin, window);
+	AddSystem<RenderSystem>(m_entity_admin);
 }
 
 EntityAdmin& World::GetEntityAdmin() noexcept
@@ -20,6 +20,22 @@ const EntityAdmin& World::GetEntityAdmin() const noexcept
 	return m_entity_admin;
 }
 
+void World::RemoveSystem(LayerType id)
+{
+	m_systems.erase(std::find_if(m_systems.begin(), m_systems.end(),
+		[id](const auto& pair)
+		{
+			return pair.second->GetID() == id;
+		}));
+
+	m_sorted_systems.erase(id);
+}
+
+bool World::HasSystem(LayerType id) const
+{
+	return m_sorted_systems.contains(id);
+}
+
 void World::Update()
 {
 	for (const auto& system : m_sorted_systems)
@@ -28,6 +44,6 @@ void World::Update()
 
 void World::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
 {
-	if (Has<RenderSystem>())
+	if (HasSystem<RenderSystem>())
 		Get<RenderSystem>().draw(target, states);
 }

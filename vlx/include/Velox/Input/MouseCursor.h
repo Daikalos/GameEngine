@@ -32,11 +32,11 @@ namespace vlx
 		[[nodiscard]] const sf::Vector2f& GetDelta() const noexcept;
 		[[nodiscard]] const sf::Vector2f& GetPosition() const noexcept;
 
-		void SetCursor(const sf::Texture& texture);
-		void SetCursorState(const cst::ID cursor_state);
-		void SetMouseSensitivity(const float val) noexcept;
-		void SetCursorVisible(const bool flag) noexcept;
-		void SetCursorLocked(const bool flag) noexcept;
+		void SetTexture(const sf::Texture& texture);
+		void SetState(const cst::ID cursor_state);
+		void SetSensitivity(const float val) noexcept;
+		void SetVisibility(const bool flag) noexcept;
+		void SetIsLocked(const bool flag) noexcept;
 
 	public:
 		void Update(const Time& time, const bool focus) override;
