@@ -33,7 +33,7 @@ namespace vlx
 
 			if (pressed || held)
 			{
-				sf::Vector2f cursor_pos = mouse_cursor.GetPosition() 
+				sf::Vector2f cursor_pos = sf::Vector2f(mouse_cursor.GetPosition())
 					/ GetCamera().GetScale() / window->GetRatioCmp();
 
 				if (pressed)

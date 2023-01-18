@@ -2,9 +2,10 @@
 
 using namespace vlx;
 
-Window::Window(
-	std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
-	m_name(name.data()), m_mode(mode), m_border(border), m_settings(settings), m_vertical_sync(vertical_sync), m_frame_rate(frame_rate) {}
+Window::Window(std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, 
+	const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
+	m_name(name.data()), m_mode(mode), m_border(border), m_settings(settings), 
+	m_vertical_sync(vertical_sync), m_frame_rate(frame_rate) {}
 
 const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 {
@@ -40,12 +41,6 @@ const sf::Vector2f& Window::GetRatioCmp() const noexcept
 	return m_ratio_cmp;
 }
 
-void Window::SetCursorState(bool flag)
-{
-	setMouseCursorVisible(flag);
-	setMouseCursorGrabbed(!flag);
-}
-
 void Window::onCreate()
 {
 	sf::RenderWindow::onCreate(); // must call base class
@@ -53,8 +48,9 @@ void Window::onCreate()
 	SetFramerate(m_frame_rate);
 	SetVerticalSync(m_vertical_sync);
 
-	SetCursorState(false); // invisible as default, MouseCursor is used instead
-	
+	setMouseCursorVisible(true);
+	setMouseCursorGrabbed(true);
+
 	m_ratio_cmp = sf::Vector2f(
 		getSize().x / (float)sf::VideoMode::getDesktopMode().size.x,
 		getSize().y / (float)sf::VideoMode::getDesktopMode().size.y);
@@ -79,20 +75,6 @@ void Window::HandleEvent(const sf::Event& event)
 	{
 	case sf::Event::Closed:
 		close();
-		break;
-	case sf::Event::GainedFocus:
-		setMouseCursorVisible(false);
-		break;
-	case sf::Event::LostFocus:
-		setMouseCursorVisible(true);
-		break;
-	case sf::Event::MouseLeft:
-		if (hasFocus())
-			setMouseCursorVisible(true);
-		break;
-	case sf::Event::MouseEntered:
-		if (hasFocus())
-			setMouseCursorVisible(false);
 		break;
 	}
 }

@@ -9,11 +9,9 @@
 
 namespace vlx
 {
-	//////////////////////////////////////////////
-	// 
-	// settings for type of border
-	// 
-	//////////////////////////////////////////////
+	/// <summary>
+	///		Settings for type of borders
+	/// </summary>
 	enum class WindowBorder
 	{
 		Windowed,
@@ -21,12 +19,9 @@ namespace vlx
 		BorderlessWindowed // TODO : FIX BORDERLESS WINDOWED ON LOWER RESOLUTION, ALSO LOOK FOR SOLUTION ON FULLSCREEN AT MAX RESOLUTION
 	};
 
-	//////////////////////////////////////////////
-	// 
-	// Expanded to allow for toggle fullscreen, 
-	// change resolution, and other settings
-	// 
-	//////////////////////////////////////////////
+	/// <summary>
+	///		Expanded to allow for toggle fullscreen, change resolution, and other settings
+	/// </summary>
 	class VELOX_API Window final : public sf::RenderWindow, NonCopyable
 	{
 	public:
@@ -38,23 +33,13 @@ namespace vlx
 			bool vertical_sync, int frame_rate);
 
 	public:
-		//////////////////////////////////////////////
-		// 
-		// only gets modes that match the aspect ratio of the desktop
-		// 
-		//////////////////////////////////////////////
+		/// <summary>
+		///		Only gets modes that match the aspect ratio of the desktop
+		/// </summary>
 		[[nodiscard]] const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
 
 		[[nodiscard]] constexpr sf::Vector2i GetOrigin() const noexcept;
 		[[nodiscard]] const sf::Vector2f& GetRatioCmp() const noexcept;
-
-		//////////////////////////////////////////////
-		// 
-		// true = shows and unhooks the cursor
-		// false = hides and grabs the cursor
-		// 
-		//////////////////////////////////////////////
-		void SetCursorState(bool flag);
 
 	public:
 		void onCreate() override;

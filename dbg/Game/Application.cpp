@@ -60,30 +60,11 @@ void Application::Run()
 	std::puts(std::to_string(entity.TryGetComponentRef<Sprite>().first->Get()->GetSize().x).c_str());
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
 
-	Entity e3 = new_entity.Duplicate();
-	e3.AddComponent<gui::Label>(105, 105);
-	e3.AddComponent<gui::Button>(50, 50);
+	Entity label_entity = new_entity.Duplicate();
+	label_entity.AddComponent<gui::Label>(105, 105);
 
-	const gui::Label& te = e3.GetComponent<gui::Label>();
-
-	BaseRefPtr<gui::GUIComponent> t1 = m_world.GetEntityAdmin().GetBaseRef<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Label, ComponentTypeID>());
-	BaseRefPtr<gui::GUIComponent> t2 = m_world.GetEntityAdmin().GetBaseRef<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Button, ComponentTypeID>());
-
-	std::puts(std::to_string(t1->Get()->IsSelectable()).c_str());
-	std::puts(std::to_string(t2->Get()->IsSelectable()).c_str());
-
-	std::vector<Entity> entities;
-	entities.reserve(100000);
-
-	entity_admin.Reserve<Object, Transform, Relation, Sprite>(entities.capacity());
-	for (int i = 0; i < entities.capacity(); ++i)
-	{
-		Entity& added_entity = entities.emplace_back(new_entity.Duplicate());
-		auto cmps = added_entity.GetComponents<Transform, Object, Relation>();
-		cmps.Get<Transform>().SetPosition({rnd::random() * 10000, rnd::random() * 10000});
-		cmps.Get<Object>().IsStatic = false;
-
-	}
+	gui::Label& label = label_entity.GetComponent<gui::Label>();
+	label.setString("potato");
 
 	float x_pos = 0.0f;
 
@@ -117,7 +98,7 @@ void Application::Run()
 			m_window.close();
 
 		if (m_controls.Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-			object_system.DeleteObjectInstant(entity.GetID());
+			m_controls.Get<MouseCursor>().SetIsLocked(true);
 
 		x_pos += m_time.GetDT() * 5.0f;
 
@@ -180,9 +161,6 @@ void Application::Draw()
 
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 
-	if (m_controls.Exists<MouseCursor>())
-		m_controls.Get<MouseCursor>().Draw();
-
 	m_window.display();
 }
 
@@ -205,7 +183,7 @@ void Application::RegisterControls()
 	m_controls.Add<KeyboardInput>();
 	m_controls.Add<MouseInput>();
 	m_controls.Add<JoystickInput>();
-	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor));
+	m_controls.Add<MouseCursor>(m_window, m_texture_holder.Get(Texture::ID::IdleCursor), false);
 
 	m_controls.Get<KeyboardInput>().AddMap<bn::Key>();
 	m_controls.Get<MouseInput>().AddMap<bn::Button>();

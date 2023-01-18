@@ -12,5 +12,6 @@ namespace vlx
 		bool IsAlive	{true};
 		bool IsStatic	{false};
 		bool IsActive	{true};
+		bool IsVisible	{true};
 	};
 }
