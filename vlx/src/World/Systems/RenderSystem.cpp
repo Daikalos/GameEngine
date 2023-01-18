@@ -13,6 +13,9 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 				Sprite& sprite			= sprites[i];
 				Transform& transform	= transforms[i];
 
+				if (!object.IsVisible)
+					continue;
+
 				if (object.IsStatic)
 				{
 					if (m_update_static_bash)

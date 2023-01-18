@@ -145,71 +145,11 @@ void Transform::Rotate(const sf::Angle angle)
 	SetRotation(GetLocalRotation() + angle);
 }
 
-void Transform::UpdateRequired(const EntityAdmin& entity_admin, const Relation* relation) const
-{
-	if (m_update_model) // no need to update if already set
-		return;
-
-	m_update_model = true;
-	m_update_inverse_model = true;
-
-	m_dirty = false;
-
-	if (relation == nullptr)
-		return;
-
-	for (const EntityID child_id : relation->GetChildren()) // all of the children needs their global transform to be updated
-	{
-		entity_admin.GetComponent<Transform>(child_id)
-			.UpdateRequired(entity_admin, &entity_admin.GetComponent<Relation>(child_id));
-	}
-}
-void Transform::UpdateTransforms(const EntityAdmin& entity_admin, const Relation* relation) const
-{
-	if (!m_update_model) // already up-to-date
-		return;
-
-	if (relation != nullptr && relation->HasParent())
-	{
-		const Transform& parent_transform = entity_admin.GetComponent<Transform>(relation->GetParent());
-		const Relation& parent_relation = entity_admin.GetComponent<Relation>(relation->GetParent());
-
-		parent_transform.UpdateTransforms(entity_admin, &parent_relation);
-		ComputeTransform(parent_transform.GetTransform());
-
-		const float* matrix = m_model_transform.getMatrix();
-
-		const auto mv = [&matrix](const int x, const int y) -> float
-		{
-			constexpr int WIDTH = 4;
-			return matrix[x + y * WIDTH];
-		};
-
-		m_global_position.x = mv(0, 3);
-		m_global_position.y = mv(1, 3);
-
-		m_global_scale.x = au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0));
-		m_global_scale.y = au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1));
-
-		m_global_rotation = sf::radians(std::atan2f(mv(1, 0), mv(1, 1)));
-	}
-	else
-	{
-		ComputeTransform();
-
-		m_global_position = m_position;
-		m_global_scale = m_scale;
-		m_global_rotation = m_rotation;
-	}
-
-	m_update_model = false;
-}
-
-void Transform::ComputeTransform() const
+void Transform::ComputeTransform()
 {
 	m_model_transform = GetLocalTransform();
 }
-void Transform::ComputeTransform(const sf::Transform& transform) const
+void Transform::ComputeTransform(const sf::Transform& transform)
 {
 	m_model_transform = transform * GetLocalTransform();
 }

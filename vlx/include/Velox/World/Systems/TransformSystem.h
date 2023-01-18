@@ -39,10 +39,17 @@ namespace vlx
 		void Update() override;
 
 	private:
+		void CleanTransforms(Transform& transform, const Relation& relation) const;
+		void UpdateTransforms(Transform& transform, const Relation& relation) const;
+
+		void UpdateLocalTransform(Transform& transform) const;
+
+	private:
 		EntityAdmin*			m_entity_admin{nullptr};
 
 		LocalSystem				m_local_system;
 		GlobalSystem			m_global_system;
+		GlobalSystem			m_cleaning_system;
 
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;

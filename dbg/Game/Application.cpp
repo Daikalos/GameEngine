@@ -66,6 +66,15 @@ void Application::Run()
 	gui::Label& label = label_entity.GetComponent<gui::Label>();
 	label.setString("potato");
 
+	std::vector<Entity> entities;
+	entities.reserve(100000);
+
+	for (int i = 0; i < entities.capacity(); ++i)
+	{
+		Entity& added = entities.emplace_back(new_entity.Duplicate());
+		added.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
+	}
+
 	float x_pos = 0.0f;
 
 	while (m_window.isOpen())

@@ -24,9 +24,9 @@ namespace vlx
 		Transform(const sf::Vector2f& position);
 
 	public:
-		//////////////////////////////////////////////
-		// Returns the global representation of the transform
-		//////////////////////////////////////////////
+		/// <summary>
+		///		Returns the global representation of the transform
+		/// </summary>
 		[[nodiscard]] const sf::Transform&	GetTransform() const;
 		[[nodiscard]] const sf::Transform&	GetInverseTransform() const;
 		[[nodiscard]] const sf::Vector2f&	GetOrigin() const;
@@ -50,11 +50,8 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
-		void UpdateRequired(const EntityAdmin& entity_admin, const Relation* relation) const;
-		void UpdateTransforms(const EntityAdmin& entity_admin, const Relation* relation) const;
-
-		void ComputeTransform() const;
-		void ComputeTransform(const sf::Transform& transform) const;
+		void ComputeTransform();
+		void ComputeTransform(const sf::Transform& transform);
 
 	private:
 		// local space information
@@ -63,9 +60,9 @@ namespace vlx
 		sf::Vector2f			m_scale;
 		sf::Angle				m_rotation;
 
-		mutable sf::Vector2f	m_global_position;
-		mutable sf::Vector2f	m_global_scale;
-		mutable sf::Angle		m_global_rotation;
+		sf::Vector2f			m_global_position;
+		sf::Vector2f			m_global_scale;
+		sf::Angle				m_global_rotation;
 
 		mutable sf::Transform	m_local_transform;
 		mutable sf::Transform	m_inverse_local_transform;

@@ -60,5 +60,6 @@ namespace vlx
 
 		float					m_sensitivity	{1.0f};
 		bool					m_locked		{true}; // locks the cursor inside the window if true
+		bool					m_in_focus		{true};
 	};
 }
