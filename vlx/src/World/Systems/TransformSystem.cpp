@@ -14,8 +14,11 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 			{
 				Transform& transform = transforms[i];
 
-				if (transform.m_update_local)
+				if (transform.m_dirty)
+				{
 					UpdateLocalTransform(transform);
+					transform.m_dirty = false;
+				}
 			}
 		});
 
