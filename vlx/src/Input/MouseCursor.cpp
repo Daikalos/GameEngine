@@ -37,7 +37,10 @@ const bool MouseCursor::GetIsLocked() const noexcept
 void MouseCursor::SetTexture(const sf::Texture& texture)
 {
 	if (m_cursor.loadFromPixels(texture.copyToImage().getPixelsPtr(), texture.getSize(), { 0, 0 }))
+	{
 		m_window->setMouseCursor(m_cursor);
+		m_texture = &texture;
+	}
 }
 void MouseCursor::SetSensitivity(const float val) noexcept
 {
@@ -71,13 +74,18 @@ void MouseCursor::HandleEvent(const sf::Event& event)
 	switch (event.type)
 	{
 	case sf::Event::GainedFocus:
-		if (m_locked)
 		{
-			sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // set cursor to middle of screen to prevent inaccurate delta values
+			if (m_locked)
+				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // set cursor to middle of screen to prevent inaccurate delta values
+
+			SetTexture(*m_texture);
 		}
 		break;
 	case sf::Event::LostFocus:
-		//sf::Mouse::setPosition(sf::Vector2i(m_cursor_pos), *m_window);
+		{
+			if (m_cursor.loadFromSystem(sf::Cursor::Arrow))
+				m_window->setMouseCursor(m_cursor);
+		}
 		break;
 	}
 }

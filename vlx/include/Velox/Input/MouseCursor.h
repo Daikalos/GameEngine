@@ -63,7 +63,9 @@ namespace vlx
 
 	private:
 		Window*					m_window		{nullptr};
+
 		sf::Cursor				m_cursor;
+		const sf::Texture*		m_texture		{nullptr};
 
 		sf::Vector2i			m_position;
 		sf::Vector2f			m_delta;
