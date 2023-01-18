@@ -10,18 +10,6 @@
 
 namespace vlx
 {
-	namespace cst
-	{
-		enum class ID : std::uint8_t
-		{
-			None,
-			Idle,
-			Click,
-			Loading,
-			Grab
-		};
-	}
-
 	class VELOX_API MouseCursor : public InputHandler
 	{
 	public:
