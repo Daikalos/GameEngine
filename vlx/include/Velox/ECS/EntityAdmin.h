@@ -29,7 +29,7 @@ namespace vlx
 	template<class>
 	class BaseRef;
 
-	template<IsComponents...>
+	template<class... Cs> requires IsComponents<Cs...>
 	class ComponentSet;
 
 	// global using
@@ -95,8 +95,14 @@ namespace vlx
 		/// <summary>
 		///		Shortcut for registering multiple components.
 		/// </summary>
-		template<IsComponents... Cs>
+		template<class... Cs> requires IsComponents<Cs...>
 		void RegisterComponents();
+
+		/// <summary>
+		///		Shortcut for registering multiple components.
+		/// </summary>
+		template<class... Cs> requires IsComponents<Cs...>
+		void RegisterComponents(std::tuple<Cs...>&& tuple);
 
 		/// <summary>
 		///		Adds a component to the specified entity. Can also pass optional constructor arguments. 
@@ -104,6 +110,15 @@ namespace vlx
 		/// </summary>
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
+
+		/// <summary>
+		///		Shortcut for adding multiple components to entity. Cannot pass constructor arguments.
+		/// </summary>
+		template<class... Cs> requires IsComponents<Cs...>
+		void AddComponents(const EntityID entity_id);
+
+		template<class... Cs> requires IsComponents<Cs...>
+		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
 		/// <summary>
 		///		Sets the component for the entity directly, component is assumed to exist.
@@ -137,6 +152,9 @@ namespace vlx
 		/// </summary>
 		template<IsComponent C>
 		[[nodiscard]] std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
+
+		template<class... Cs> requires IsComponents<Cs...>
+		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Allows for you to retrieve any base class without having to know the type of the child.
@@ -196,17 +214,8 @@ namespace vlx
 		[[nodiscard]] bool IsComponentRegistered() const;
 
 		/// <summary>
-		///		Shortcut for adding multiple components to entity. Cannot pass constructor arguments.
+		///		Returns the unique ID of a component
 		/// </summary>
-		template<IsComponents... Cs>
-		void AddComponents(const EntityID entity_id);
-
-		template<IsComponents... Cs>
-		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
-
-		template<IsComponents... Cs>
-		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
-
 		template<IsComponent C>
 		[[nodiscard]] ComponentTypeID GetComponentID() const;
 
@@ -226,7 +235,7 @@ namespace vlx
 		///		Get all entities that exactly match the provided components
 		/// </param>
 		/// <returns></returns>
-		template<IsComponents... Cs>
+		template<class... Cs> requires IsComponents<Cs...>
 		[[nodiscard]] std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
 		/// <summary>
@@ -236,12 +245,12 @@ namespace vlx
 		/// <param name="component_count:">
 		///		Number of components to reserve for in the archetypes
 		/// </param>
-		template<IsComponents... Cs>
+		template<class... Cs> requires IsComponents<Cs...>
 		void Reserve(const std::size_t component_count);
 
 	private:
 		template<IsComponent C>
-		void ResetReferences(const EntityID entity_id) const;
+		void ResetComponentRefs(const EntityID entity_id) const;
 
 	public:
 		VELOX_API [[nodiscard]] EntityID GetNewEntityID();
@@ -280,8 +289,8 @@ namespace vlx
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
 
-		VELOX_API void ClearProxies();
-		VELOX_API void ClearProxies(const EntityID entity_id);
+		VELOX_API void ClearComponentRefs();
+		VELOX_API void ClearComponentRefs(const EntityID entity_id);
 
 	private:
 		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);
@@ -295,7 +304,7 @@ namespace vlx
 			const std::size_t data_size,
 			const std::size_t i);
 
-		VELOX_API void ResetReferences(const EntityID entity_id, const ComponentTypeID component_id) const;
+		VELOX_API void ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const;
 
 	private:
 		EntityID				m_entity_id_counter;	// current id counter for entities
@@ -323,10 +332,16 @@ namespace vlx
 		assert(insert.second);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::RegisterComponents()
 	{
 		(RegisterComponent<Cs>(), ...);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void EntityAdmin::RegisterComponents(std::tuple<Cs...>&& tuple)
+	{
+		RegisterComponents<Cs...>();
 	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
@@ -549,9 +564,9 @@ namespace vlx
 		if (ait == cit->second.end())
 			return { nullptr, false };
 
-		const ArchetypeRecord& a_record = ait->second;
-		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
+		const ArchetypeRecord& arch_record = ait->second;
 
+		C* components = reinterpret_cast<C*>(&archetype->component_data[arch_record.column][0]);
 		return { &components[record.index], true };
 	}
 
@@ -674,20 +689,20 @@ namespace vlx
 		return m_component_map.contains(GetComponentID<C>());
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
 		(AddComponent(entity_id, GetComponentID<Cs>()), ...);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
 	{
 		AddComponents<Cs...>(entity_id);
 	}
 
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
 	{
 		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id)...);
@@ -774,22 +789,22 @@ namespace vlx
 		archetype->entities = new_entities;
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
 		Reserve(cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }), component_count);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
 		return GetEntitiesWith(cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }), restricted);
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::ResetReferences(const EntityID entity_id) const
+	inline void EntityAdmin::ResetComponentRefs(const EntityID entity_id) const
 	{
-		ResetReferences(entity_id, GetComponentID<C>());
+		ResetComponentRefs(entity_id, GetComponentID<C>());
 	}
 }
 

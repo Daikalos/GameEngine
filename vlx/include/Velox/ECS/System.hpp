@@ -32,11 +32,12 @@ namespace vlx
 		virtual void DoAction(Archetype* archetype) const = 0;
 	};
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	class System : public ISystem
 	{
 	public:
-		using Func = typename std::function<void(std::span<const EntityID>, Cs*...)>;
+		using Func = std::function<void(std::span<const EntityID>, Cs*...)>;
+		using ComponentTypes = std::tuple<Cs...>;
 
 	public:
 		System(EntityAdmin& entity_admin, const LayerType layer);
@@ -55,9 +56,9 @@ namespace vlx
 
 	public:
 		/// <summary>
-		///		Exclude any entities that also holds these components
+		///		Exclude any entities that holds these components
 		/// </summary>
-		template<IsComponents... Cs>
+		template<class... Cs> requires IsComponents<Cs...>
 		void Exclude();
 
 	protected:
@@ -82,39 +83,39 @@ namespace vlx
 		mutable ComponentIDs	m_arch_key;
 	};
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)
 		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
 		m_entity_admin->RegisterSystem(m_layer, this);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::~System()
 	{
 		if (m_entity_admin != nullptr)
 			m_entity_admin->RemoveSystem(m_layer, this);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline bool System<Cs...>::operator>(const ISystem& rhs) const
 	{
 		return GetPriority() > rhs.GetPriority();
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline float System<Cs...>::GetPriority() const noexcept
 	{
 		return m_priority;
 	}
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::SetPriority(const float val)
 	{
 		m_priority = val;
 		m_entity_admin->SortSystems(m_layer);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline const ArchetypeID& System<Cs...>::GetIDKey() const
 	{
 		if (m_id_key == NULL_ARCHETYPE)
@@ -123,7 +124,7 @@ namespace vlx
 		return m_id_key;
 	}	
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline const ComponentIDs& System<Cs...>::GetArchKey() const
 	{
 		if (m_arch_key.empty())
@@ -132,28 +133,28 @@ namespace vlx
 		return m_arch_key;
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::Action(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
 	}
 
-	template<IsComponents... Cs1>
-	template<IsComponents... Cs2>
+	template<class... Cs1> requires IsComponents<Cs1...>
+	template<class... Cs2> requires IsComponents<Cs2...>
 	inline void System<Cs1...>::Exclude()
 	{
 		m_exclusion = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
 		if (m_func) // check if func stores callable object
 		{
-			for (const ComponentTypeID id : m_exclusion)
+			for (const ComponentTypeID component_id : m_exclusion)
 			{
-				const auto it = cu::FindSorted(archetype->type, id);
-				if (it != archetype->type.end() && *it == id) // if contains excluded component, return
+				const auto it = cu::FindSorted(archetype->type, component_id);
+				if (it != archetype->type.end() && *it == component_id) // if contains excluded component, return
 					return;
 			}
 
@@ -164,29 +165,28 @@ namespace vlx
 		}
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& c, Ts... cs) const
 	{
-		using CompType = std::tuple_element_t<Index, std::tuple<Cs...>>;		// get type of element at index in tuple
-
-		std::size_t index2 = 0;
-
+		using CompType = std::tuple_element_t<Index, ComponentTypes>;			// get type of component at index in system components
 		const ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
-		ComponentTypeID archetype_comp_id = component_ids[index2];				// id for component in the archetype
 
-		while (archetype_comp_id != comp_id && index2 < component_ids.size())	// iterate until matching component is found
+		std::size_t i = 0;
+		ComponentTypeID archetype_comp_id = component_ids[i];
+
+		while (archetype_comp_id != comp_id && i < component_ids.size())	// iterate until matching component is found
 		{
-			archetype_comp_id = component_ids[++index2];
+			archetype_comp_id = component_ids[++i];
 		}
 
-		if (index2 == component_ids.size())
+		if (i == component_ids.size())
 			throw std::runtime_error("System was executed against an incorrect Archetype");
 
-		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<CompType*>(&c[index2][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<CompType*>(&c[i][0])); // run again on next component, or call final DoAction
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{

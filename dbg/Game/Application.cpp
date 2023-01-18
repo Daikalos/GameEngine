@@ -16,7 +16,7 @@ void Application::Run()
 	//////////////////////-INITIALIZE-//////////////////////////
 
 	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<Object, Transform, Sprite, Relation, gui::Label, gui::Button, gui::Container>();
+	entity_admin.RegisterComponents<>(AllTypes{});
 
 	m_window.Initialize();
 
@@ -79,8 +79,10 @@ void Application::Run()
 	for (int i = 0; i < entities.capacity(); ++i)
 	{
 		Entity& added_entity = entities.emplace_back(new_entity.Duplicate());
-		added_entity.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
-		added_entity.GetComponent<Object>().IsStatic = true;
+		auto cmps = added_entity.GetComponents<Transform, Object, Relation>();
+		cmps.Get<Transform>().SetPosition({rnd::random() * 10000, rnd::random() * 10000});
+		cmps.Get<Object>().IsStatic = false;
+
 	}
 
 	float x_pos = 0.0f;

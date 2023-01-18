@@ -80,5 +80,5 @@ namespace vlx // concepts is the best thing ever
 	concept IsComponent = std::derived_from<C, IComponent> && std::is_class_v<C> && std::semiregular<C> && sizeof(C) > 1;
 
 	template<class... Cs>
-	concept IsComponents = IsComponent<Cs...> && Exists<Cs...> && NoDuplicates<Cs...>;
+	concept IsComponents = (IsComponent<Cs> && ...) && Exists<Cs...> && NoDuplicates<Cs...>;
 }

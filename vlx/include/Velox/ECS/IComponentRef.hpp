@@ -4,6 +4,9 @@
 
 namespace vlx
 {
+	/// <summary>
+	///		Interface for component references
+	/// </summary>
 	class IComponentRef : private NonCopyable
 	{
 	public:

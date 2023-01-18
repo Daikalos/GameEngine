@@ -16,14 +16,14 @@ namespace vlx
 	///		ComponentSet is used to prevent having to write many ComponentProxy to access
 	///		the components of an object.
 	/// </summary>
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	class ComponentSet final : private NonCopyable
 	{
 	private:
 		using ComponentSetMap = std::unordered_map<ComponentTypeID, std::shared_ptr<IComponentRef>>;
 
 	public:
-		ComponentSet(ComponentRefPtr<Cs>... proxies);
+		ComponentSet(ComponentRefPtr<Cs>... refs);
 
 		template<IsComponent C> requires Contains<C, Cs...>
 		const C& Get() const;
@@ -35,20 +35,20 @@ namespace vlx
 		ComponentSetMap m_components;
 	};
 
-	template<IsComponents... Cs>
-	inline ComponentSet<Cs...>::ComponentSet(ComponentRefPtr<Cs>... proxies)
+	template<class... Cs> requires IsComponents<Cs...>
+	inline ComponentSet<Cs...>::ComponentSet(ComponentRefPtr<Cs>... refs)
 	{
-		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), proxies), ...);
+		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), refs), ...);
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	template<IsComponent C> requires Contains<C, Cs...>
 	inline const C& ComponentSet<Cs...>::Get() const
 	{
 		return *static_cast<ComponentRef<C>&>(*m_components.at(ComponentAlloc<C>::GetTypeID())).Get();
 	}
 
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	template<IsComponent C> requires Contains<C, Cs...>
 	inline C& ComponentSet<Cs...>::Get()
 	{

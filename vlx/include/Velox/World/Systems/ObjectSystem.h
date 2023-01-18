@@ -67,12 +67,12 @@ namespace vlx
 
 		template<IsComponent C>
 		void AddComponentDelayed(const EntityID entity_id);
-		template<IsComponents... Cs>
+		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponentsDelayed(const EntityID entity_id);
 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponentInstant(const EntityID entity_id, Args&&... args);
-		template<IsComponents... Cs>
+		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponentsInstant(const EntityID entity_id);
 
 	private:
@@ -98,7 +98,7 @@ namespace vlx
 	{
 		m_commands.emplace(AddComponent(entity_id, ComponentAlloc<C>::GetTypeID()), ADD_COMPONENT);
 	}
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void ObjectSystem::AddComponentsDelayed(const EntityID entity_id)
 	{
 		(AddComponentDelayed<Cs>(entity_id), ...);
@@ -109,7 +109,7 @@ namespace vlx
 	{
 		return m_entity_admin->AddComponent(entity_id, std::forward<Args>(args)...);
 	}
-	template<IsComponents... Cs>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void ObjectSystem::AddComponentsInstant(const EntityID entity_id)
 	{
 		m_entity_admin->AddComponents<Cs...>(entity_id);

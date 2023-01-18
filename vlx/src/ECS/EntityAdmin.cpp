@@ -354,7 +354,7 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 
 	archetype->entities.push_back(new_entity_id);
 
-	new_record.index = static_cast<IDType>(archetype->entities.size() - 1);
+	new_record.index = IDType(archetype->entities.size() - 1);
 	new_record.archetype = archetype;
 
 	return new_entity_id;
@@ -513,7 +513,7 @@ void EntityAdmin::Shrink(bool extensive)
 	}
 }
 
-void EntityAdmin::ClearProxies()
+void EntityAdmin::ClearComponentRefs()
 {
 	for (auto& pair1 : m_entity_component_proxy_map)
 	{
@@ -531,7 +531,7 @@ void EntityAdmin::ClearProxies()
 	}
 }
 
-void EntityAdmin::ClearProxies(const EntityID entity_id)
+void EntityAdmin::ClearComponentRefs(const EntityID entity_id)
 {
 	const auto it = m_entity_component_proxy_map.find(entity_id);
 	if (it == m_entity_component_proxy_map.end())
@@ -633,7 +633,7 @@ void EntityAdmin::MakeRoom(
 	archetype->component_data[i] = std::move(new_data);
 }
 
-void EntityAdmin::ResetReferences(const EntityID entity_id, const ComponentTypeID component_id) const
+void EntityAdmin::ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const
 {
 	const auto eit = m_entity_component_proxy_map.find(entity_id);
 	if (eit == m_entity_component_proxy_map.end())
