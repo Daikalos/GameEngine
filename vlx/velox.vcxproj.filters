@@ -87,7 +87,7 @@
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
     <ClInclude Include="include\Velox\World\Systems\ISystemObject.h" />
-    <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
     <ClInclude Include="include\Velox\Utilities\IDGenerator.h" />
@@ -99,8 +99,8 @@
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\World\Systems\RelationSystem.h" />
-    <ClInclude Include="include\Velox\ECS\BaseProxy.hpp" />
-    <ClInclude Include="include\Velox\ECS\IComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
+    <ClInclude Include="include\Velox\ECS\IComponentRef.hpp" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
   </ItemGroup>

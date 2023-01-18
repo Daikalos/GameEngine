@@ -152,14 +152,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Velox\ECS\BaseProxy.hpp" />
-    <ClInclude Include="include\Velox\ECS\IComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
+    <ClInclude Include="include\Velox\ECS\IComponentRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Components\Object.h" />
-    <ClInclude Include="include\Velox\ECS\ComponentProxy.hpp" />
+    <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
     <ClInclude Include="include\Velox\Components\Relation.h" />

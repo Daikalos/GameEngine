@@ -4,7 +4,7 @@
 
 #include "Identifiers.hpp"
 #include "EntityAdmin.h"
-#include "ComponentProxy.hpp"
+#include "ComponentRef.hpp"
 
 namespace vlx
 {
@@ -41,9 +41,9 @@ namespace vlx
 		[[nodiscard]] auto TryGetComponent() const;
 
 		template<IsComponent C>
-		[[nodiscard]] auto GetComponentProxy() const;
+		[[nodiscard]] auto GetComponentRef() const;
 		template<IsComponent C>
-		[[nodiscard]] auto TryGetComponentProxy() const;
+		[[nodiscard]] auto TryGetComponentRef() const;
 
 		template<IsComponents... Cs>
 		[[nodiscard]] auto GetComponents() const;
@@ -52,7 +52,7 @@ namespace vlx
 		[[nodiscard]] auto HasComponent() const;
 
 	public:
-		VELOX_API [[nodiscard]] EntityID Duplicate() const;
+		VELOX_API [[nodiscard]] Entity Duplicate() const;
 		VELOX_API void Destroy();
 
 	protected:
@@ -103,14 +103,14 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline auto Entity::GetComponentProxy() const
+	inline auto Entity::GetComponentRef() const
 	{
-		return m_entity_admin->GetComponentProxy<C>(m_id);
+		return m_entity_admin->GetComponentRef<C>(m_id);
 	}
 	template<IsComponent C>
-	inline auto Entity::TryGetComponentProxy() const
+	inline auto Entity::TryGetComponentRef() const
 	{
-		return m_entity_admin->TryGetComponentProxy<C>(m_id);
+		return m_entity_admin->TryGetComponentRef<C>(m_id);
 	}
 
 	template<IsComponents... Cs>

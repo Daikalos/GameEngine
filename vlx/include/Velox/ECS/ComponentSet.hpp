@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "ComponentProxy.hpp"
+#include "ComponentRef.hpp"
 #include "ComponentAlloc.hpp"
 
 namespace vlx
@@ -20,25 +20,32 @@ namespace vlx
 	class ComponentSet final : private NonCopyable
 	{
 	private:
-		using ComponentSetMap = std::unordered_map<ComponentTypeID, std::shared_ptr<IComponentProxy>>;
+		using ComponentSetMap = std::unordered_map<ComponentTypeID, std::shared_ptr<IComponentRef>>;
 
 	public:
-		ComponentSet(ComponentProxyPtr<Cs>... proxies);
-
-		template<IsComponent C> requires Contains<C, Cs...>
-		C& Get();
+		ComponentSet(ComponentRefPtr<Cs>... proxies);
 
 		template<IsComponent C> requires Contains<C, Cs...>
 		const C& Get() const;
+
+		template<IsComponent C> requires Contains<C, Cs...>
+		C& Get();
 
 	private:
 		ComponentSetMap m_components;
 	};
 
 	template<IsComponents... Cs>
-	inline ComponentSet<Cs...>::ComponentSet(ComponentProxyPtr<Cs>... proxies)
+	inline ComponentSet<Cs...>::ComponentSet(ComponentRefPtr<Cs>... proxies)
 	{
 		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), proxies), ...);
+	}
+
+	template<IsComponents... Cs>
+	template<IsComponent C> requires Contains<C, Cs...>
+	inline const C& ComponentSet<Cs...>::Get() const
+	{
+		return *static_cast<ComponentRef<C>&>(*m_components.at(ComponentAlloc<C>::GetTypeID())).Get();
 	}
 
 	template<IsComponents... Cs>
@@ -46,12 +53,5 @@ namespace vlx
 	inline C& ComponentSet<Cs...>::Get()
 	{
 		return const_cast<C&>(std::as_const(*this).Get<C>());
-	}
-
-	template<IsComponents... Cs>
-	template<IsComponent C> requires Contains<C, Cs...>
-	inline const C& ComponentSet<Cs...>::Get() const
-	{
-		return *static_cast<ComponentProxy<C>&>(*m_components.at(ComponentAlloc<C>::GetTypeID())).Get();
 	}
 }

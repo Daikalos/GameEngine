@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <Velox/ECS/BaseProxy.hpp>
+#include <Velox/ECS/BaseRef.hpp>
 #include <Velox/Utilities.hpp>
 
 #include "GUIComponent.h"
@@ -13,7 +13,7 @@ namespace vlx::gui
 	{
 	private:
 		using SizeType			= std::int16_t;
-		using ChildType			= BaseProxyPtr<GUIComponent>;
+		using ChildType			= BaseRefPtr<GUIComponent>;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;
@@ -52,7 +52,7 @@ namespace vlx::gui
 	template<IsComponent C>
 	inline void Container::Push(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
-		auto [child, success] = entity_admin.TryGetBaseProxy<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
+		auto [child, success] = entity_admin.TryGetBaseRef<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
 
 		if (!success)
 			return;

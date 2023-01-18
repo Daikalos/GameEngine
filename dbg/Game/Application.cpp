@@ -42,11 +42,11 @@ void Application::Run()
 	entity.GetComponent<Sprite>().SetTexture(m_texture_holder.Get(Texture::ID::IdleCursor));
 	entity.GetComponent<Sprite>().SetOpacity(1.0f);
 
-	ComponentProxyPtr<Transform> transform = entity.GetComponentProxy<Transform>();
+	ComponentRefPtr<Transform> transform = entity.GetComponentRef<Transform>();
 	transform->Get()->SetPosition({50.0f, 50.0f});
 
-	Entity new_entity(entity_admin, entity.Duplicate());
-	ComponentProxyPtr<Transform> transform2 = new_entity.GetComponentProxy<Transform>();
+	Entity new_entity = entity.Duplicate();
+	ComponentRefPtr<Transform> transform2 = new_entity.GetComponentRef<Transform>();
 
 	Transform& test = entity_admin.GetComponent<Transform>(entity.GetID());
 
@@ -57,20 +57,31 @@ void Application::Run()
 	m_world.Get<RelationSystem>().AttachInstant(entity.GetID(), new_entity.GetID());
 
 	std::puts(std::to_string(set.Get<Object>().IsAlive).c_str());
-	std::puts(std::to_string(entity.TryGetComponentProxy<Sprite>().first->Get()->GetSize().x).c_str());
+	std::puts(std::to_string(entity.TryGetComponentRef<Sprite>().first->Get()->GetSize().x).c_str());
 	std::puts(std::to_string(entity_admin.GetEntitiesWith<Sprite>().front()).c_str());
 
-	Entity e3(entity_admin, new_entity.Duplicate());
+	Entity e3 = new_entity.Duplicate();
 	e3.AddComponent<gui::Label>(105, 105);
 	e3.AddComponent<gui::Button>(50, 50);
 
 	const gui::Label& te = e3.GetComponent<gui::Label>();
 
-	BaseProxyPtr<gui::GUIComponent> t1 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Label, ComponentTypeID>());
-	BaseProxyPtr<gui::GUIComponent> t2 = m_world.GetEntityAdmin().GetBaseProxy<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Button, ComponentTypeID>());
+	BaseRefPtr<gui::GUIComponent> t1 = m_world.GetEntityAdmin().GetBaseRef<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Label, ComponentTypeID>());
+	BaseRefPtr<gui::GUIComponent> t2 = m_world.GetEntityAdmin().GetBaseRef<gui::GUIComponent>(e3.GetID(), id::GetTypeID<gui::Button, ComponentTypeID>());
 
 	std::puts(std::to_string(t1->Get()->IsSelectable()).c_str());
 	std::puts(std::to_string(t2->Get()->IsSelectable()).c_str());
+
+	std::vector<Entity> entities;
+	entities.reserve(100000);
+
+	entity_admin.Reserve<Object, Transform, Relation, Sprite>(entities.capacity());
+	for (int i = 0; i < entities.capacity(); ++i)
+	{
+		Entity& added_entity = entities.emplace_back(new_entity.Duplicate());
+		added_entity.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
+		added_entity.GetComponent<Object>().IsStatic = true;
+	}
 
 	float x_pos = 0.0f;
 
@@ -112,6 +123,8 @@ void Application::Run()
 			transform->Get()->SetPosition({ x_pos, 10.0f });
 
 		transform2->Get()->SetPosition({ 0.0f, x_pos });
+
+		m_window.setTitle(std::to_string(m_time.GetFramerate()));
 
 		Draw();
 	}

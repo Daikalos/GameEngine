@@ -1,17 +1,17 @@
 #pragma once
 
 #include "Identifiers.hpp"
-#include "IComponentProxy.hpp"
+#include "IComponentRef.hpp"
 
 namespace vlx
 {
 	class EntityAdmin;
 
 	template<class B>
-	class BaseProxy final : public IComponentProxy
+	class BaseRef final : public IComponentRef
 	{
 	public:
-		BaseProxy(const EntityAdmin& entity_admin, const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0);
+		BaseRef(const EntityAdmin& entity_admin, const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0);
 
 	public:
 		B* operator->();
@@ -28,10 +28,10 @@ namespace vlx
 		const B* Get() const;
 
 	public:
+		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
+
 		[[nodiscard]] constexpr bool IsValid() const noexcept override;
 		[[nodiscard]] constexpr bool IsExpired() const override;
-
-		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
 
 	public:
 		void Reset() override;
@@ -50,78 +50,78 @@ namespace vlx
 	};
 
 	template<class B>
-	inline BaseProxy<B>::BaseProxy(const EntityAdmin& entity_admin, const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset)
+	inline BaseRef<B>::BaseRef(const EntityAdmin& entity_admin, const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset)
 		: m_entity_admin(&entity_admin), m_entity_id(entity_id), m_child_component_id(child_component_id), m_offset(offset) { }
 
 	template<class B>
-	inline B* BaseProxy<B>::operator->()
+	inline B* BaseRef<B>::operator->()
 	{
 		return Get();
 	}
 
 	template<class B>
-	inline const B* BaseProxy<B>::operator->() const
+	inline const B* BaseRef<B>::operator->() const
 	{
 		return Get();
 	}
 
 	template<class B>
-	inline B& BaseProxy<B>::operator*()
+	inline B& BaseRef<B>::operator*()
 	{
 		return *Get();
 	}
 
 	template<class B>
-	inline const B& BaseProxy<B>::operator*() const
+	inline const B& BaseRef<B>::operator*() const
 	{
 		return *Get();
 	}
 
 	template<class B>
-	inline BaseProxy<B>::operator bool() const noexcept
+	inline BaseRef<B>::operator bool() const noexcept
 	{
 		return IsExpired();
 	}
 
 	template<class B>
-	inline constexpr EntityID BaseProxy<B>::GetEntityID() const noexcept
+	inline constexpr EntityID BaseRef<B>::GetEntityID() const noexcept
 	{
 		return m_entity_id;
 	}
 
 	template<class B>
-	inline B* BaseProxy<B>::Get()
+	inline B* BaseRef<B>::Get()
 	{
 		ForceUpdate();
 		return m_base_component;
 	}
 
 	template<class B>
-	inline const B* BaseProxy<B>::Get() const
+	inline const B* BaseRef<B>::Get() const
 	{
-		return const_cast<BaseProxy<B>&>(*this).Get();
+		return const_cast<BaseRef<B>&>(*this).Get();
 	}
 
 	template<class B>
-	inline constexpr bool BaseProxy<B>::IsValid() const noexcept
+	inline constexpr bool BaseRef<B>::IsValid() const noexcept
 	{
 		return m_base_component != nullptr;
 	}
 
 	template<class B>
-	inline constexpr bool BaseProxy<B>::IsExpired() const
+	inline constexpr bool BaseRef<B>::IsExpired() const
 	{
 		return m_expired;
 	}
 
 	template<class B>
-	inline void BaseProxy<B>::Reset()
+	inline void BaseRef<B>::Reset()
 	{
 		m_base_component = nullptr;
 	}
 
 	template<class B>
-	inline void BaseProxy<B>::ForceUpdate()
+	inline void BaseRef<B>::ForceUpdate()
 	{
 		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
 

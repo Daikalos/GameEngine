@@ -1,7 +1,6 @@
 #include <Velox/ECS/EntityAdmin.h>
 
-#include <Velox/ECS/Entity.h>
-#include <Velox/ECS/ComponentProxy.hpp>
+#include <Velox/ECS/IComponentRef.hpp>
 
 using namespace vlx;
 
@@ -634,7 +633,7 @@ void EntityAdmin::MakeRoom(
 	archetype->component_data[i] = std::move(new_data);
 }
 
-void EntityAdmin::ResetProxy(const EntityID entity_id, const ComponentTypeID component_id) const
+void EntityAdmin::ResetReferences(const EntityID entity_id, const ComponentTypeID component_id) const
 {
 	const auto eit = m_entity_component_proxy_map.find(entity_id);
 	if (eit == m_entity_component_proxy_map.end())

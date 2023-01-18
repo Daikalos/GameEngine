@@ -16,30 +16,28 @@ namespace vlx
 {
 	// forward declarations
 
-	class Entity;
-
 	struct IComponentAlloc;
 
 	template<IsComponent>
 	struct ComponentAlloc;
 
-	class IComponentProxy;
+	class IComponentRef;
 
 	template<IsComponent>
-	class ComponentProxy;
+	class ComponentRef;
 
 	template<class>
-	class BaseProxy;
+	class BaseRef;
 
 	template<IsComponents...>
 	class ComponentSet;
 
 	// global using
 
-	template<class B>
-	using BaseProxyPtr		= std::shared_ptr<BaseProxy<B>>;
 	template<IsComponent C>
-	using ComponentProxyPtr = std::shared_ptr<ComponentProxy<C>>;
+	using ComponentRefPtr	= std::shared_ptr<ComponentRef<C>>;
+	template<class B>
+	using BaseRefPtr = std::shared_ptr<BaseRef<B>>;
 
 	////////////////////////////////////////////////////////////
 	// 
@@ -75,7 +73,7 @@ namespace vlx
 		using ArchetypesArray			= std::vector<ArchetypePtr>;
 		using ArchetypeMap				= std::unordered_map<ArchetypeID, Archetype*>;
 		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
-		using EntityComponentProxyMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, std::weak_ptr<IComponentProxy>>>;
+		using EntityComponentRefMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, std::weak_ptr<IComponentRef>>>;
 		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
 
@@ -129,7 +127,7 @@ namespace vlx
 		/// <summary>
 		///		GetComponent is designed to be as fast as possible without checks to
 		///		see if it exists, otherwise, will throw error. Therefore, take some caution when 
-		///		using this function. Use e.g. TryGetComponent or GetComponentProxy for better safety.
+		///		using this function. Use e.g. TryGetComponent or GetComponentRef for better safety.
 		/// </summary>
 		template<IsComponent C>
 		[[nodiscard]] C& GetComponent(const EntityID entity_id) const;
@@ -162,28 +160,28 @@ namespace vlx
 		///		modified. The proxy will internally get the component's new data location once it has been modified.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] auto GetComponentProxy(const EntityID entity_id) const -> ComponentProxyPtr<C>;
+		[[nodiscard]] auto GetComponentRef(const EntityID entity_id) const -> ComponentRefPtr<C>;
 
 		/// <summary>
 		///		Tries to return a component proxy, will most likely always succeed, and will only return false if the 
 		///		entity does not exist or other unknown error occurs.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] auto TryGetComponentProxy(const EntityID entity_id) const -> std::pair<ComponentProxyPtr<C>, bool>;
+		[[nodiscard]] auto TryGetComponentRef(const EntityID entity_id) const -> std::pair<ComponentRefPtr<C>, bool>;
 
 		/// <summary>
 		///		Returns a proxy for the base whose pointer will remain valid even when the internal data is 
 		///		modified. The proxy will internally get the base's new data location once it has been modified.
 		/// </summary>
 		template<class B>
-		[[nodiscard]] auto GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const -> BaseProxyPtr<B>;
+		[[nodiscard]] auto GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const -> BaseRefPtr<B>;
 
 		/// <summary>
 		///		Tries to return a base proxy, will most likely always succeed, and will only return false if the 
 		///		entity does not exist or other unknown error occurs. If the component even exists will be checked in the proxy can be extracted with IsExpired().
 		/// </summary>
 		template<class B>
-		[[nodiscard]] auto TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const -> std::pair<BaseProxyPtr<B>, bool>;
+		[[nodiscard]] auto TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0) const -> std::pair<BaseRefPtr<B>, bool>;
 
 		/// <summary>
 		///		Returns true if the entity has the component C, otherwise false.
@@ -243,7 +241,7 @@ namespace vlx
 
 	private:
 		template<IsComponent C>
-		void ResetProxy(const EntityID entity_id) const;
+		void ResetReferences(const EntityID entity_id) const;
 
 	public:
 		VELOX_API [[nodiscard]] EntityID GetNewEntityID();
@@ -297,7 +295,7 @@ namespace vlx
 			const std::size_t data_size,
 			const std::size_t i);
 
-		VELOX_API void ResetProxy(const EntityID entity_id, const ComponentTypeID component_id) const;
+		VELOX_API void ResetReferences(const EntityID entity_id, const ComponentTypeID component_id) const;
 
 	private:
 		EntityID				m_entity_id_counter;	// current id counter for entities
@@ -310,7 +308,7 @@ namespace vlx
 		ComponentArchetypesMap	m_component_archetypes_map;		// map component to the archetypes it exists in and where all of the components data in the archetype is located at
 		ComponentTypeIDBaseMap	m_component_map;				// access to helper functions for modifying each unique component
 
-		mutable EntityComponentProxyMap m_entity_component_proxy_map;
+		mutable EntityComponentRefMap m_entity_component_proxy_map;
 	};
 }
 
@@ -514,16 +512,15 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
-		const Record& record = m_entity_archetype_map.find(entity_id)->second;
+		const Record& record = m_entity_archetype_map.at(entity_id);
 		const Archetype* archetype = record.archetype;
 
 		const ComponentTypeID& component_id = GetComponentID<C>();
 
-		const auto cit = m_component_archetypes_map.find(component_id);
-		const auto ait = cit->second.find(archetype->id);
+		const auto& map = m_component_archetypes_map.at(component_id);
+		const auto& arch_record = map.at(archetype->id);
 
-		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-
+		C* components = reinterpret_cast<C*>(&archetype->component_data[arch_record.column][0]);
 		return components[record.index];
 	}
 
@@ -610,7 +607,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline auto EntityAdmin::GetComponentProxy(const EntityID entity_id) const -> ComponentProxyPtr<C>
+	inline auto EntityAdmin::GetComponentRef(const EntityID entity_id) const -> ComponentRefPtr<C>
 	{
 		assert(IsComponentRegistered<C>());
 
@@ -620,48 +617,48 @@ namespace vlx
 		const auto cit = component_proxies.find(component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			ComponentProxyPtr<C> proxy = std::make_shared<ComponentProxy<C>>(*this, entity_id);
+			ComponentRefPtr<C> proxy = std::make_shared<ComponentRef<C>>(*this, entity_id);
 			component_proxies[component_id] = proxy;
 
 			return proxy;
 		}
 
-		return std::static_pointer_cast<ComponentProxy<C>>(cit->second.lock());
+		return std::static_pointer_cast<ComponentRef<C>>(cit->second.lock());
 	}
 
 	template<IsComponent C>
-	inline auto EntityAdmin::TryGetComponentProxy(const EntityID entity_id) const -> std::pair<ComponentProxyPtr<C>, bool>
+	inline auto EntityAdmin::TryGetComponentRef(const EntityID entity_id) const -> std::pair<ComponentRefPtr<C>, bool>
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent<C>(entity_id))
 			return { nullptr, false };
 
-		return { GetComponentProxy<C>(entity_id), true};
+		return { GetComponentRef<C>(entity_id), true};
 	}
 
 	template<class B>
-	inline auto EntityAdmin::GetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> BaseProxyPtr<B>
+	inline auto EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> BaseRefPtr<B>
 	{
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_proxies.find(child_component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			BaseProxyPtr<B> proxy = std::make_shared<BaseProxy<B>>(*this, entity_id, child_component_id, offset);
+			BaseRefPtr<B> proxy = std::make_shared<BaseRef<B>>(*this, entity_id, child_component_id, offset);
 			component_proxies[child_component_id] = proxy;
 
 			return proxy;
 		}
 
-		return std::static_pointer_cast<BaseProxy<B>>(cit->second.lock());
+		return std::static_pointer_cast<BaseRef<B>>(cit->second.lock());
 	}
 
 	template<class B>
-	inline auto EntityAdmin::TryGetBaseProxy(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> std::pair<BaseProxyPtr<B>, bool>
+	inline auto EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> std::pair<BaseRefPtr<B>, bool>
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists
 			return { nullptr, false };
 
-		return { GetBaseProxy<B>(entity_id, child_component_id, offset), true};
+		return { GetBaseRef<B>(entity_id, child_component_id, offset), true};
 	}
 
 	template<IsComponent C>
@@ -693,7 +690,7 @@ namespace vlx
 	template<IsComponents... Cs>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
 	{
-		return ComponentSet<Cs...>(GetComponentProxy<Cs>(entity_id)...);
+		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id)...);
 	}
 
 	template<IsComponent C>
@@ -790,9 +787,9 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::ResetProxy(const EntityID entity_id) const
+	inline void EntityAdmin::ResetReferences(const EntityID entity_id) const
 	{
-		ResetProxy(entity_id, GetComponentID<C>());
+		ResetReferences(entity_id, GetComponentID<C>());
 	}
 }
 

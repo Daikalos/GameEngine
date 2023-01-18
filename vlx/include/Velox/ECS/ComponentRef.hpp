@@ -1,21 +1,21 @@
 #pragma once
 
 #include "Identifiers.hpp"
-#include "IComponentProxy.hpp"
+#include "IComponentRef.hpp"
 
 namespace vlx
 {
 	class EntityAdmin;
 
 	/// <summary>
-	///		The ComponentProxy is to ensure that the component pointers remains valid even after the internal data of the ECS
+	///		The ComponentRef is to ensure that the component pointers remains valid even after the internal data of the ECS
 	///		has been modified. This is to prevent having to write GetComponent everywhere all the time.
 	/// </summary>
 	template<IsComponent C>
-	class ComponentProxy final : public IComponentProxy
+	class ComponentRef final : public IComponentRef
 	{
 	public:
-		ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id);
+		ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	public:
 		C* operator->();
@@ -32,10 +32,10 @@ namespace vlx
 		const C* Get() const;
 
 	public:
+		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
+
 		[[nodiscard]] constexpr bool IsValid() const noexcept override;
 		[[nodiscard]] constexpr bool IsExpired() const override;
-
-		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
 
 	public:
 		void Reset() override;
@@ -50,78 +50,78 @@ namespace vlx
 	};
 
 	template<IsComponent C>
-	inline ComponentProxy<C>::ComponentProxy(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline ComponentRef<C>::ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id)
 		: m_entity_admin(&entity_admin), m_entity_id(entity_id) { }
 
 	template<IsComponent C>
-	inline C* ComponentProxy<C>::operator->()
+	inline C* ComponentRef<C>::operator->()
 	{
 		return Get();
 	}
 
 	template<IsComponent C>
-	inline const C* ComponentProxy<C>::operator->() const
+	inline const C* ComponentRef<C>::operator->() const
 	{
 		return Get();
 	}
 
 	template<IsComponent C>
-	inline C& ComponentProxy<C>::operator*()
+	inline C& ComponentRef<C>::operator*()
 	{
 		return *Get();
 	}
 
 	template<IsComponent C>
-	inline const C& ComponentProxy<C>::operator*() const
+	inline const C& ComponentRef<C>::operator*() const
 	{
 		return *Get();
 	}
 
 	template<IsComponent C>
-	inline ComponentProxy<C>::operator bool() const noexcept
+	inline ComponentRef<C>::operator bool() const noexcept
 	{
 		return IsExpired();
 	}
 
 	template<IsComponent C>
-	inline constexpr EntityID ComponentProxy<C>::GetEntityID() const noexcept
+	inline constexpr EntityID ComponentRef<C>::GetEntityID() const noexcept
 	{
 		return m_entity_id;
 	}
 
 	template<IsComponent C>
-	inline C* ComponentProxy<C>::Get()
+	inline C* ComponentRef<C>::Get()
 	{
 		ForceUpdate();
 		return m_component;
 	}
 
 	template<IsComponent C>
-	inline const C* ComponentProxy<C>::Get() const
+	inline const C* ComponentRef<C>::Get() const
 	{
-		return const_cast<ComponentProxy<C>&>(*this).Get();
+		return const_cast<ComponentRef<C>&>(*this).Get();
 	}
 
 	template<IsComponent C>
-	inline constexpr bool ComponentProxy<C>::IsValid() const noexcept
+	inline constexpr bool ComponentRef<C>::IsValid() const noexcept
 	{
 		return m_component != nullptr;
 	}
 
 	template<IsComponent C>
-	inline constexpr bool ComponentProxy<C>::IsExpired() const
+	inline constexpr bool ComponentRef<C>::IsExpired() const
 	{
 		return m_expired;
 	}
 
 	template<IsComponent C>
-	inline void ComponentProxy<C>::Reset()
+	inline void ComponentRef<C>::Reset()
 	{
 		m_component = nullptr;
 	}
 
 	template<IsComponent C>
-	inline void ComponentProxy<C>::ForceUpdate()
+	inline void ComponentRef<C>::ForceUpdate()
 	{
 		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
 
