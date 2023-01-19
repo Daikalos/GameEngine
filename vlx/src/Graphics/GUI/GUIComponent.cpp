@@ -2,10 +2,15 @@
 
 using namespace vlx::gui;
 
-inline GUIComponent::~GUIComponent() = default;
-
 GUIComponent::GUIComponent(const Vector2Type& size) : m_size(size) { }
 GUIComponent::GUIComponent(const SizeType width, const SizeType height) : m_size(width, height) { }
+
+GUIComponent::~GUIComponent() = default;
+
+constexpr bool GUIComponent::IsActive() const noexcept
+{
+	return m_active;
+}
 
 constexpr bool GUIComponent::IsSelected() const noexcept
 {
@@ -26,5 +31,22 @@ void GUIComponent::Deselect()
 	{
 		m_selected = false;
 		Deselected();
+	}
+}
+
+void GUIComponent::Activate()
+{
+	if (!IsActive())
+	{
+		m_active = true;
+		Activated();
+	}
+}
+void GUIComponent::Deactivate()
+{
+	if (IsActive())
+	{
+		m_active = false;
+		Deactivated();
 	}
 }

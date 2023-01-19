@@ -11,7 +11,7 @@
 #include "Systems/TransformSystem.h"
 
 #include <Velox/Window/Window.h>
-
+#include <Velox/Input.hpp>
 #include <Velox/Config.hpp>
 
 #include <typeindex>
@@ -55,6 +55,10 @@ namespace vlx
 		bool HasSystem() const;
 
 	public:
+		VELOX_API const ControlMap& GetControls() const noexcept;
+		VELOX_API ControlMap& GetControls() noexcept;
+
+	public:
 		VELOX_API void RemoveSystem(LayerType id);
 		VELOX_API bool HasSystem(LayerType id) const;
 
@@ -67,6 +71,8 @@ namespace vlx
 
 		WorldSystems	m_systems;
 		SortedSystems	m_sorted_systems;
+
+		ControlMap		m_controls;
 	};
 
 	template<std::derived_from<ISystemObject> S>
@@ -100,13 +106,11 @@ namespace vlx
 	{
 		m_systems.erase(typeid(S));
 		
-		const auto it = std::find_if(m_sorted_systems.begin(), m_sorted_systems.end(), // find system that was removed
+		m_sorted_systems.erase(std::find_if(m_sorted_systems.begin(), m_sorted_systems.end(), // find system that was removed
 			[](const auto& item)
 			{
 				return item.second.first.expired();
-			});
-
-		m_sorted_systems.erase(it); // and erase it from list
+			})); // and erase it from list
 	}
 
 	template<std::derived_from<ISystemObject> S>

@@ -20,6 +20,15 @@ const EntityAdmin& World::GetEntityAdmin() const noexcept
 	return m_entity_admin;
 }
 
+const ControlMap& World::GetControls() const noexcept
+{
+	return m_controls;
+}
+ControlMap& World::GetControls() noexcept
+{
+	return m_controls;
+}
+
 void World::RemoveSystem(LayerType id)
 {
 	m_systems.erase(std::find_if(m_systems.begin(), m_systems.end(),

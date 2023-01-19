@@ -73,9 +73,10 @@ namespace vlx
 		using ArchetypesArray			= std::vector<ArchetypePtr>;
 		using ArchetypeMap				= std::unordered_map<ArchetypeID, Archetype*>;
 		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
-		using EntityComponentRefMap	= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, std::weak_ptr<IComponentRef>>>;
+		using EntityComponentRefMap		= std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, std::weak_ptr<IComponentRef>>>;
 		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
+		using ArchetypeCache			= std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
 
 		template<IsComponent>
 		friend struct ComponentAlloc;
@@ -296,7 +297,7 @@ namespace vlx
 		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);
 		VELOX_API [[nodiscard]] Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
 
-		VELOX_API [[nodiscard]] std::vector<Archetype*> GetArchetypes(const ComponentIDs& component_ids) const;
+		VELOX_API [[nodiscard]] const std::vector<Archetype*>& GetArchetypes(const ComponentIDs& component_ids, const ArchetypeID id) const;
 
 		VELOX_API void MakeRoom(
 			Archetype* archetype,
@@ -316,8 +317,9 @@ namespace vlx
 		EntityArchetypeMap		m_entity_archetype_map;			// map entity to where its data is located at in the archetype
 		ComponentArchetypesMap	m_component_archetypes_map;		// map component to the archetypes it exists in and where all of the components data in the archetype is located at
 		ComponentTypeIDBaseMap	m_component_map;				// access to helper functions for modifying each unique component
-
-		mutable EntityComponentRefMap m_entity_component_proxy_map;
+		
+		mutable ArchetypeCache			m_archetype_cache;
+		mutable EntityComponentRefMap	m_entity_component_proxy_map;
 	};
 }
 

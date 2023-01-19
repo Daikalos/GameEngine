@@ -69,6 +69,7 @@ void Application::Run()
 	std::vector<Entity> entities;
 	entities.reserve(100000);
 
+	entity_admin.Reserve<Object, Transform, Relation, Sprite>(entities.capacity());
 	for (int i = 0; i < entities.capacity(); ++i)
 	{
 		Entity& added = entities.emplace_back(new_entity.Duplicate());

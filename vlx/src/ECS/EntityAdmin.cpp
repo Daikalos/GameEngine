@@ -78,7 +78,7 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 	for (const ISystem* system : sit->second)
 	{
 		const ComponentIDs& arch_key = system->GetArchKey();
-		for (Archetype* archetype : GetArchetypes(arch_key))
+		for (Archetype* archetype : GetArchetypes(arch_key, system->GetIDKey()))
 			system->DoAction(archetype);
 	}
 }
@@ -364,9 +364,11 @@ std::vector<EntityID> EntityAdmin::GetEntitiesWith(const ComponentIDs& component
 {
 	std::vector<EntityID> entities;
 
+	const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
+
 	if (!restricted)
 	{
-		for (const Archetype* archetype : GetArchetypes(component_ids))
+		for (const Archetype* archetype : GetArchetypes(component_ids, archetype_id))
 		{
 			entities.insert(entities.end(),
 				archetype->entities.begin(),
@@ -375,8 +377,6 @@ std::vector<EntityID> EntityAdmin::GetEntitiesWith(const ComponentIDs& component
 	}
 	else
 	{
-		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
-
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
 			return entities;
@@ -404,7 +404,7 @@ void EntityAdmin::Reserve(const ComponentIDs& component_ids, const std::size_t c
 		}
 	}
 
-	const auto& archetypes = GetArchetypes(component_ids);
+	const auto& archetypes = GetArchetypes(component_ids, archetype_id);
 	for (Archetype* archetype : archetypes)
 	{
 		for (const ComponentTypeID component_id : component_ids)
@@ -521,7 +521,7 @@ void EntityAdmin::ClearComponentRefs()
 			[](const auto& pair2)
 			{
 				if (pair2.second.expired())
-				return true;
+					return true;
 
 				auto ptr = pair2.second.lock();
 
@@ -596,20 +596,25 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 	}
 #endif
 
+	m_archetype_cache.clear(); // unfortunately for now, we'll have to clear the cache whenever an archetype has been added
+
 	return m_archetypes.emplace_back(std::move(new_archetype)).get();
 }
 
-std::vector<Archetype*> EntityAdmin::GetArchetypes(const ComponentIDs& component_ids) const
+const std::vector<Archetype*>& EntityAdmin::GetArchetypes(const ComponentIDs& component_ids, const ArchetypeID id) const
 {
-	std::vector<Archetype*> result;
+	const auto it = m_archetype_cache.find(id);
+	if (it != m_archetype_cache.end())
+		return it->second;
 
+	std::vector<Archetype*> result;
 	for (const ArchetypePtr& archetype : m_archetypes)
 	{
 		if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
 			result.push_back(archetype.get());
 	}
 
-	return result;
+	return m_archetype_cache.emplace(id, result).first->second;
 }
 
 void EntityAdmin::MakeRoom(

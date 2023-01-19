@@ -45,8 +45,7 @@ namespace vlx
 		std::uint32_t		m_offset				{0};
 
 		B*					m_base_component		{nullptr};
-
-		mutable bool		m_expired				{false};
+		bool				m_expired				{false};
 	};
 
 	template<class B>

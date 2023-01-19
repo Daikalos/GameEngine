@@ -10,7 +10,7 @@ namespace vlx::gui
 	class Container;
 
 	/// <summary>
-	///		Common interface for GUI components to inherit from
+	///		Interface for GUI components to inherit from
 	/// </summary>
 	class VELOX_API GUIComponent : public IComponent
 	{
@@ -26,20 +26,29 @@ namespace vlx::gui
 		virtual ~GUIComponent() = 0;
 
 	public:
+		[[nodiscard]] constexpr bool IsActive() const noexcept;
+
 		virtual constexpr bool IsSelectable() const noexcept = 0;
 		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 
 	public:
+		void Activate();
+		void Deactivate();
+
 		void Select();
 		void Deselect();
 
 	public:
+		vlx::Event<> Activated;
+		vlx::Event<> Deactivated;
+
 		vlx::Event<> Selected;
 		vlx::Event<> Deselected;
 
 	private:
 		Vector2Type m_size;
 		bool		m_selected		{false};
+		bool		m_active		{false};
 
 		Container*	m_container		{nullptr}; // current container associated with
 
