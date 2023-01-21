@@ -2,22 +2,26 @@
 
 #include <iostream>
 
-#include <Velox/Scene/State.hpp>
 #include <Velox/Utilities.hpp>
+#include <Velox/World/World.h>
+#include <Velox/ObjectTypes.hpp>
 
-namespace vlx
+class StateTest : public vlx::State
 {
-	class StateTest : public State<>
-	{
-	public:
-		using State::State;
+public:
+	using State::State;
 
-	public:
-		bool HandleEvent(const sf::Event& event) override;
-		bool Update(Time& time) override;
-		void Draw() override;
+	void OnCreated() override;
 
-	private:
+public:
+	bool HandleEvent(const sf::Event& event) override;
+	bool Update(vlx::Time& time) override;
+	void Draw() override;
 
-	};
-}
+private:
+	vlx::EntityAdmin* m_entity_admin {nullptr};
+	std::vector<vlx::Entity> m_entities;
+
+	vlx::Entity e0, e1, e2;
+	vlx::ComponentRefPtr<vlx::Transform> et0, et1;
+};

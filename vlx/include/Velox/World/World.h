@@ -11,8 +11,14 @@
 #include "Systems/TransformSystem.h"
 
 #include <Velox/Window/Window.h>
+#include <Velox/Window/Camera.h>
+
+#include <Velox/Utilities.hpp>
 #include <Velox/Input.hpp>
+#include <Velox/Graphics.hpp>
 #include <Velox/Config.hpp>
+
+#include <Velox/Scene/StateStack.h>
 
 #include <typeindex>
 #include <map>
@@ -21,9 +27,9 @@
 namespace vlx
 {
 	/// <summary>
-	///		Composite of all important systems that the world runs on
+	///		Composite of all important systems and objects that the world runs on
 	/// </summary>
-	class World : public sf::Drawable
+	class World : private NonCopyable
 	{
 	private:
 		using SystemTracker = std::pair<std::weak_ptr<ISystemObject>, ISystemObject*>;
@@ -32,11 +38,32 @@ namespace vlx
 		using SortedSystems = std::map<LayerType, SystemTracker>;
 
 	public:
-		VELOX_API World(const Window& window, const Time& time);
+		VELOX_API World(const std::string_view name);
 
 	public:
-		VELOX_API [[nodiscard]] EntityAdmin&		GetEntityAdmin() noexcept;
-		VELOX_API [[nodiscard]] const EntityAdmin&	GetEntityAdmin() const noexcept;
+		VELOX_API [[nodiscard]] const ControlMap& GetControls() const noexcept;
+		VELOX_API [[nodiscard]] ControlMap& GetControls() noexcept;
+
+		VELOX_API [[nodiscard]] const Window& GetWindow() const noexcept;
+		VELOX_API [[nodiscard]] Window& GetWindow() noexcept;
+
+		VELOX_API [[nodiscard]] const Camera& GetCamera() const noexcept;
+		VELOX_API [[nodiscard]] Camera& GetCamera() noexcept;
+
+		VELOX_API [[nodiscard]] const TextureHolder& GetTextureHolder() const noexcept;
+		VELOX_API [[nodiscard]] TextureHolder& GetTextureHolder() noexcept;
+
+		VELOX_API [[nodiscard]] const FontHolder& GetFontHolder() const noexcept;
+		VELOX_API [[nodiscard]] FontHolder& GetFontHolder() noexcept;
+
+		VELOX_API [[nodiscard]] const Time& GetTime() const noexcept;
+		VELOX_API [[nodiscard]] Time& GetTime() noexcept;
+
+		VELOX_API [[nodiscard]] const StateStack& GetStateStack() const noexcept;
+		VELOX_API [[nodiscard]] StateStack& GetStateStack() noexcept;
+
+		VELOX_API [[nodiscard]] const EntityAdmin& GetEntityAdmin() const noexcept;
+		VELOX_API [[nodiscard]] EntityAdmin& GetEntityAdmin() noexcept;
 
 	public:
 		template<std::derived_from<ISystemObject> S>
@@ -55,24 +82,35 @@ namespace vlx
 		bool HasSystem() const;
 
 	public:
-		VELOX_API const ControlMap& GetControls() const noexcept;
-		VELOX_API ControlMap& GetControls() noexcept;
+		VELOX_API void RemoveSystem(const LayerType id);
+		VELOX_API bool HasSystem(const LayerType id) const;
 
 	public:
-		VELOX_API void RemoveSystem(LayerType id);
-		VELOX_API bool HasSystem(LayerType id) const;
+		VELOX_API void Run();
 
-	public:
+	private:
+		VELOX_API void PreUpdate();
 		VELOX_API void Update();
-		VELOX_API void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
+		VELOX_API void FixedUpdate();
+		VELOX_API void PostUpdate();
+
+		VELOX_API void ProcessEvents();
+		VELOX_API void Draw();
 
 	private:
 		EntityAdmin		m_entity_admin;
-
 		WorldSystems	m_systems;
 		SortedSystems	m_sorted_systems;
 
 		ControlMap		m_controls;
+		Window			m_window;
+		Camera			m_camera;
+
+		TextureHolder	m_textures;
+		FontHolder		m_fonts;
+
+		Time			m_time;
+		StateStack		m_state_stack;
 	};
 
 	template<std::derived_from<ISystemObject> S>
@@ -105,7 +143,7 @@ namespace vlx
 	inline void World::RemoveSystem()
 	{
 		m_systems.erase(typeid(S));
-		
+
 		m_sorted_systems.erase(std::find_if(m_sorted_systems.begin(), m_sorted_systems.end(), // find system that was removed
 			[](const auto& item)
 			{

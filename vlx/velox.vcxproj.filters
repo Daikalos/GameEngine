@@ -30,6 +30,8 @@
     <ClCompile Include="src\World\Systems\RelationSystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\World\Systems\GUISystem.cpp" />
+    <ClCompile Include="src\Scene\StateStack.cpp" />
+    <ClCompile Include="src\Scene\State.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -50,8 +52,8 @@
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
     <ClInclude Include="include\Velox\Input\MouseCursor.h" />
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
-    <ClInclude Include="include\Velox\Scene\State.hpp" />
-    <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
+    <ClInclude Include="include\Velox\Scene\State.h" />
+    <ClInclude Include="include\Velox\Scene\StateStack.h" />
     <ClInclude Include="include\Velox\Utilities\ArithmeticUtils.h" />
     <ClInclude Include="include\Velox\Utilities\Benchmark.h" />
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />
@@ -103,6 +105,8 @@
     <ClInclude Include="include\Velox\ECS\IComponentRef.hpp" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
+    <ClInclude Include="include\Velox\Window.hpp" />
+    <ClInclude Include="include\Velox\Scene\Identifiers.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
@@ -111,5 +115,8 @@
     <Filter Include="source">
       <UniqueIdentifier>{e75c2c96-1db8-4935-941d-1dfd7a5d492b}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

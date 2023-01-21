@@ -8,9 +8,11 @@ namespace vlx::gui
 	{
 		TopLeft,
 		TopRight,
+		MidLeft,
+		Middle,
+		MidRight,
 		BotLeft,
-		BotRight,
-		Middle
+		BotRight
 	};
 
 	struct Anchor : public IComponent

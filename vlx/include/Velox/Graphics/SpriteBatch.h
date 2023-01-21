@@ -13,7 +13,7 @@
 
 namespace vlx
 {
-	constexpr std::uint8_t TRIANGLE_COUNT = 3;
+	static constexpr std::uint8_t TRIANGLE_COUNT = 3;
 
 	enum class BatchMode : std::uint8_t
 	{
@@ -91,7 +91,7 @@ namespace vlx
 		SizeType							m_size				{0};
 
 		mutable std::vector<BatchInfo>		m_batches;
-		mutable std::vector<SizeType>		m_proxy;
+		mutable std::vector<SizeType>		m_indices;
 		mutable sf::VertexArray				m_vertices;
 
 		BatchMode							m_batch_mode		{BatchMode::Deferred};

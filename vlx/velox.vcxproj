@@ -174,6 +174,7 @@
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
+    <ClInclude Include="include\Velox\Scene\Identifiers.h" />
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
@@ -193,8 +194,8 @@
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
     <ClInclude Include="include\Velox\Input\MouseCursor.h" />
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
-    <ClInclude Include="include\Velox\Scene\State.hpp" />
-    <ClInclude Include="include\Velox\Scene\StateStack.hpp" />
+    <ClInclude Include="include\Velox\Scene\State.h" />
+    <ClInclude Include="include\Velox\Scene\StateStack.h" />
     <ClInclude Include="include\Velox\World\Systems\AnchorSystem.h" />
     <ClInclude Include="include\Velox\World\Systems\GUISystem.h" />
     <ClInclude Include="include\Velox\World\Systems\ISystemObject.h" />
@@ -223,8 +224,11 @@
     <ClInclude Include="include\Velox\Window\CameraBehavior.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
+    <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Scene\State.cpp" />
+    <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\World\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />
@@ -254,6 +258,9 @@
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\CameraBehavior.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

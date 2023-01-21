@@ -38,6 +38,8 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 		});
 
 	m_local_system.Exclude<Relation>();		// runs on any entity that does not have a relation
+
+	m_local_system.SetPriority(0.0f);
 	m_global_system.SetPriority(1.0f);
 	m_cleaning_system.SetPriority(2.0f);	// cleaning system runs before global
 }

@@ -3,6 +3,8 @@
 #include <Velox/Window/CameraBehavior.h>
 #include <Velox/Window/Camera.h>
 
+#include "../Binds.h"
+
 namespace vlx
 {
 	class CameraDrag final : public CameraBehavior

@@ -27,6 +27,17 @@ Entity::~Entity()
 		m_entity_admin->RemoveEntity(m_id);
 }
 
+Entity& Entity::operator=(Entity&& rhs) noexcept
+{
+	m_id = rhs.m_id;
+	m_entity_admin = rhs.m_entity_admin;
+
+	rhs.m_id = NULL_ENTITY;
+	rhs.m_entity_admin = nullptr;
+
+	return *this;
+}
+
 Entity Entity::Duplicate() const
 {
 	return Entity(*m_entity_admin, m_entity_admin->Duplicate(m_id));

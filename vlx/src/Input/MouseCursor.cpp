@@ -2,19 +2,18 @@
 
 using namespace vlx;
 
-MouseCursor::MouseCursor(Window& window, const sf::Texture& texture) 
-	: MouseCursor(window, texture, m_sensitivity, m_locked) {}
+MouseCursor::MouseCursor(Window& window) 
+	: MouseCursor(window, m_sensitivity, m_locked) {}
 
-MouseCursor::MouseCursor(Window& window, const sf::Texture& texture, bool locked) 
-	: MouseCursor(window, texture, m_sensitivity, locked) {}
+MouseCursor::MouseCursor(Window& window, bool locked) 
+	: MouseCursor(window, m_sensitivity, locked) {}
 
-MouseCursor::MouseCursor(Window& window, const sf::Texture& texture, float sensitivity)
-	: MouseCursor(window, texture, sensitivity, m_locked) {}
+MouseCursor::MouseCursor(Window& window, float sensitivity)
+	: MouseCursor(window, sensitivity, m_locked) {}
 
-MouseCursor::MouseCursor(Window& window, const sf::Texture& texture, float sensitivity, bool locked)
+MouseCursor::MouseCursor(Window& window, float sensitivity, bool locked)
 	: m_window(&window), m_sensitivity(sensitivity), m_locked(locked)
 {
-	SetTexture(texture);
 }
 
 const sf::Vector2i& MouseCursor::GetPosition() const noexcept

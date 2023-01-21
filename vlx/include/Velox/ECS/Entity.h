@@ -11,11 +11,14 @@ namespace vlx
 	class Entity
 	{
 	public:
+		VELOX_API Entity() = default;
 		VELOX_API explicit Entity(EntityAdmin& entity_admin, const EntityID entity_id);
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
 		VELOX_API Entity(Entity&& entity) noexcept;
 
 		VELOX_API virtual ~Entity();
+
+		VELOX_API Entity& operator=(Entity&& rhs) noexcept;
 
 	public:
 		VELOX_API [[nodiscard]] constexpr EntityID GetID() const noexcept;
@@ -56,8 +59,8 @@ namespace vlx
 		VELOX_API void Destroy();
 
 	protected:
-		EntityID		m_id; // entity is just an id
-		EntityAdmin*	m_entity_admin;
+		EntityID		m_id			{NULL_ENTITY}; // entity is just an id
+		EntityAdmin*	m_entity_admin	{nullptr};
 	};
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>

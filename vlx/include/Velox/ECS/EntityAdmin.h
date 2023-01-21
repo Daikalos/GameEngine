@@ -224,9 +224,9 @@ namespace vlx
 		/// <summary>
 		///		Sorts the components for all entities that exactly contains the specified components. 
 		///		The components is sorted according to the comparison function. Do note that it will 
-		///		also sort all other components the entities may contain in order to maintain order.
+		///		also sort all other components the entities may contain to maintain order.
 		/// </summary>
-		template<IsComponents... Cs, class Comp>
+		template<class... Cs, class Comp> requires IsComponents<Cs...>
 		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
 
 		/// <summary>
@@ -716,7 +716,7 @@ namespace vlx
 		return ComponentAlloc<C>::GetTypeID();
 	}
 
-	template<IsComponents... Cs, class Comp>
+	template<class... Cs, class Comp> requires IsComponents<Cs...>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
 		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } });

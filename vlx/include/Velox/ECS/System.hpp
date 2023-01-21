@@ -2,6 +2,8 @@
 
 #include <functional>
 #include <span>
+#include <future>
+#include <unordered_set>
 
 #include <Velox/Utilities.hpp>
 
@@ -39,6 +41,8 @@ namespace vlx
 		using Func = std::function<void(std::span<const EntityID>, Cs*...)>;
 		using ComponentTypes = std::tuple<Cs...>;
 
+		using ArchetypeCache = std::unordered_set<ArchetypeID>;
+
 	public:
 		System(EntityAdmin& entity_admin, const LayerType layer);
 		~System();
@@ -70,14 +74,17 @@ namespace vlx
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
 		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const;
 
+	private:
+		bool IsArchetypeExcluded(const Archetype* archetype) const;
+
 	protected:
 		EntityAdmin*	m_entity_admin;
 		LayerType		m_layer			{LYR_NONE};	// controls the overall order of calls
+		Func			m_func;
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
-		Func			m_func;
-
-		ComponentIDs	m_exclusion;
+		ComponentIDs			m_exclusion;
+		mutable ArchetypeCache	m_excluded_archetypes;
 
 		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};
 		mutable ComponentIDs	m_arch_key;
@@ -149,15 +156,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
-		if (m_func) // check if func stores callable object
+		if (m_func && !IsArchetypeExcluded(archetype)) // check if func stores callable object and that archetype is not excluded
 		{
-			for (const ComponentTypeID component_id : m_exclusion)
-			{
-				const auto it = cu::FindSorted(archetype->type, component_id);
-				if (it != archetype->type.end() && *it == component_id) // if contains excluded component, return
-					return;
-			}
-
 			DoAction(
 				archetype->type, 
 				archetype->entities, 
@@ -191,6 +191,23 @@ namespace vlx
 	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
 	{
 		m_func(entity_ids, ts...);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	bool System<Cs...>::IsArchetypeExcluded(const Archetype* archetype) const
+	{
+		const auto it = m_excluded_archetypes.find(archetype->id);
+		if (it != m_excluded_archetypes.end())
+			return true;
+
+		for (const ComponentTypeID component_id : m_exclusion)
+		{
+			const auto it = cu::FindSorted(archetype->type, component_id);
+			if (it != archetype->type.end() && *it == component_id) // if contains excluded component
+				return m_excluded_archetypes.insert(archetype->id).second;
+		}
+
+		return false;
 	}
 }
 

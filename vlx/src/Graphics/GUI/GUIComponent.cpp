@@ -7,6 +7,10 @@ GUIComponent::GUIComponent(const SizeType width, const SizeType height) : m_size
 
 GUIComponent::~GUIComponent() = default;
 
+auto GUIComponent::GetSize() const noexcept -> const Vector2Type&
+{
+	return m_size;
+}
 constexpr bool GUIComponent::IsActive() const noexcept
 {
 	return m_active;

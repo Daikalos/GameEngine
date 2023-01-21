@@ -23,7 +23,8 @@ namespace vlx::gui
 		void Update() override;
 
 	private:
-		System<Button>	m_button_system;
-		System<Label>	m_label_system;
+		System<Container>	m_container_system;
+		System<Button>		m_button_system;
+		System<Label>		m_label_system;
 	};
 }

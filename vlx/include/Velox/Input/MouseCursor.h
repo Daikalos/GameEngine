@@ -13,10 +13,10 @@ namespace vlx
 	class VELOX_API MouseCursor : public InputHandler
 	{
 	public:
-		MouseCursor(Window& window, const sf::Texture& texture);
-		MouseCursor(Window& window, const sf::Texture& texture, bool locked);
-		MouseCursor(Window& window, const sf::Texture& texture, float sensitivity);
-		MouseCursor(Window& window, const sf::Texture& texture, float sensitivity, bool locked);
+		MouseCursor(Window& window);
+		MouseCursor(Window& window, bool locked);
+		MouseCursor(Window& window, float sensitivity);
+		MouseCursor(Window& window, float sensitivity, bool locked);
 
 	public:
 		[[nodiscard]] const sf::Vector2i& GetPosition() const noexcept;
@@ -59,7 +59,7 @@ namespace vlx
 		sf::Vector2f			m_delta;
 
 		float					m_sensitivity	{1.0f};
-		bool					m_locked		{true}; // locks the cursor inside the window if true
+		bool					m_locked		{false}; // locks the cursor inside the window if true
 		bool					m_in_focus		{true};
 	};
 }

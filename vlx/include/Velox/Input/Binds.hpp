@@ -28,14 +28,14 @@ namespace vlx
 		[[nodiscard]] Reg& At(const Bind name);
 		[[nodiscard]] const Reg& At(const Bind name) const;
 
-		////////////////////////////////////////////////////////////
-		// Set the bind name to match to button
-		////////////////////////////////////////////////////////////
+		/// <summary>
+		///		Set the bind name to match to button
+		/// </summary>
 		void Set(const Bind name, const Reg button);
 
-		////////////////////////////////////////////////////////////
-		// Remove the existing bind
-		////////////////////////////////////////////////////////////
+		/// <summary>
+		///		Remove the existing bind
+		/// </summary>
 		void Remove(const Bind name);
 
 	public:

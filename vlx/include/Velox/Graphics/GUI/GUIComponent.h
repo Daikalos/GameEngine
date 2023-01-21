@@ -26,10 +26,11 @@ namespace vlx::gui
 		virtual ~GUIComponent() = 0;
 
 	public:
+		[[nodiscard]] auto GetSize() const noexcept -> const Vector2Type&;
 		[[nodiscard]] constexpr bool IsActive() const noexcept;
+		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 
 		virtual constexpr bool IsSelectable() const noexcept = 0;
-		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 
 	public:
 		void Activate();
