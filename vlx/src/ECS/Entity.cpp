@@ -38,6 +38,11 @@ Entity& Entity::operator=(Entity&& rhs) noexcept
 	return *this;
 }
 
+Entity::operator EntityID() const
+{
+	return m_id;
+}
+
 Entity Entity::Duplicate() const
 {
 	return Entity(*m_entity_admin, m_entity_admin->Duplicate(m_id));

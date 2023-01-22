@@ -8,11 +8,11 @@
 #include <Velox/Components/Transform.h>
 #include <Velox/Components/Relation.h>
 
-#include "ISystemObject.h"
+#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {
-	class VELOX_API TransformSystem : public ISystemObject
+	class VELOX_API TransformSystem : public SystemObject
 	{
 	private:
 		using EntityPair = std::pair<EntityID, EntityID>;
@@ -22,9 +22,7 @@ namespace vlx
 		using GlobalSystem = System<Transform, Relation>;
 
 	public:
-		TransformSystem(EntityAdmin& entity_admin);
-
-		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+		TransformSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
 		void SetGlobalPosition(	const EntityID entity, const sf::Vector2f& position);
@@ -45,8 +43,6 @@ namespace vlx
 		void UpdateLocalTransform(Transform& transform) const;
 
 	private:
-		EntityAdmin*			m_entity_admin{nullptr};
-
 		LocalSystem				m_local_system;
 		GlobalSystem			m_global_system;
 		GlobalSystem			m_cleaning_system;

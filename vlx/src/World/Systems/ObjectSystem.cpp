@@ -2,8 +2,8 @@
 
 using namespace vlx;
 
-ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
-	: m_entity_admin(&entity_admin), m_object_system(entity_admin, LYR_OBJECTS)
+ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, const LayerType id)
+	: SystemObject(entity_admin, id), m_object_system(entity_admin, id)
 {
 	m_object_system.Action([this](std::span<const EntityID> entities, Object* objects)
 		{
@@ -13,11 +13,6 @@ ObjectSystem::ObjectSystem(EntityAdmin& entity_admin)
 					DeleteObjectDelayed(entities[i]);
 			}
 		});
-}
-
-constexpr LayerType vlx::ObjectSystem::GetID() const noexcept
-{
-	return LYR_OBJECTS;
 }
 
 Entity ObjectSystem::CreateObject() const
@@ -36,8 +31,7 @@ void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 
 void ObjectSystem::Update()
 {
-	m_entity_admin->RunSystems(LYR_OBJECTS);
-	PostUpdate();
+	m_entity_admin->RunSystems(GetID());
 }
 
 void ObjectSystem::PostUpdate()

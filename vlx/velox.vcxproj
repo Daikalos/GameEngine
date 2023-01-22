@@ -198,7 +198,7 @@
     <ClInclude Include="include\Velox\Scene\StateStack.h" />
     <ClInclude Include="include\Velox\World\Systems\AnchorSystem.h" />
     <ClInclude Include="include\Velox\World\Systems\GUISystem.h" />
-    <ClInclude Include="include\Velox\World\Systems\ISystemObject.h" />
+    <ClInclude Include="include\Velox\World\SystemObject.h" />
     <ClInclude Include="include\Velox\World\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\World\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\World\Systems\RenderSystem.h" />
@@ -229,6 +229,7 @@
   <ItemGroup>
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />
+    <ClCompile Include="src\World\SystemObject.cpp" />
     <ClCompile Include="src\World\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />

@@ -24,4 +24,6 @@ private:
 
 	vlx::Entity e0, e1, e2;
 	vlx::ComponentRefPtr<vlx::Transform> et0, et1;
+
+	int test = 0;
 };

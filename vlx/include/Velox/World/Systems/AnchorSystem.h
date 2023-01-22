@@ -8,25 +8,22 @@
 #include <Velox/Window/Window.h>
 #include <Velox/Config.hpp>
 
-#include "ISystemObject.h"
+#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {
-	class VELOX_API AnchorSystem : public ISystemObject
+	class VELOX_API AnchorSystem : public SystemObject
 	{
 	private:
 		using System = System<Transform, gui::Anchor>;
 
 	public:
-		AnchorSystem(EntityAdmin& entity_admin, const Window& window);
-
-		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+		AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window);
 
 	public:
 		void Update() override;
 
 	private:
-		EntityAdmin*	m_entity_admin {nullptr};
-		System			m_system;
+		System m_system;
 	};
 }

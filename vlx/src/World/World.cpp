@@ -12,11 +12,11 @@ World::World(const std::string_view name) :
 {
 	m_window.Initialize();
 
-	AddSystem<ObjectSystem>(m_entity_admin);
-	AddSystem<RelationSystem>(m_entity_admin);
-	AddSystem<TransformSystem>(m_entity_admin);
-	AddSystem<AnchorSystem>(m_entity_admin, m_window);
-	AddSystem<RenderSystem>(m_entity_admin);
+	AddSystem<ObjectSystem>(m_entity_admin,		LYR_OBJECTS);
+	AddSystem<RelationSystem>(m_entity_admin,	LYR_NONE);
+	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
+	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
+	AddSystem<RenderSystem>(m_entity_admin,		LYR_RENDERING);
 
 	m_controls.Add<KeyboardInput>();
 	m_controls.Add<MouseInput>();
@@ -107,6 +107,9 @@ void World::PreUpdate()
 {
 	m_state_stack.PreUpdate(m_time);
 	m_camera.PreUpdate(m_time);
+
+	for (const auto& system : m_sorted_systems)
+		system.second.second->PreUpdate();
 }
 
 void World::Update()
@@ -122,12 +125,18 @@ void World::FixedUpdate()
 {
 	m_state_stack.FixedUpdate(m_time);
 	m_camera.FixedUpdate(m_time);
+
+	for (const auto& system : m_sorted_systems)
+		system.second.second->FixedUpdate();
 }
 
 void World::PostUpdate()
 {
 	m_state_stack.PostUpdate(m_time);
 	m_camera.PostUpdate(m_time);
+
+	for (const auto& system : m_sorted_systems)
+		system.second.second->PostUpdate();
 
 	if (m_state_stack.IsEmpty())
 		m_window.close();
@@ -151,7 +160,7 @@ void World::Draw()
 	m_window.setView(m_camera);
 
 	if (HasSystem<RenderSystem>())
-		m_window.draw(Get<RenderSystem>());
+		m_window.draw(GetSystem<RenderSystem>());
 
 	m_state_stack.Draw();
 

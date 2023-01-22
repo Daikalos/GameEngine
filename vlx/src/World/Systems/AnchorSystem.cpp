@@ -2,8 +2,8 @@
 
 using namespace vlx;
 
-AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const Window& window) 
-	: m_entity_admin(&entity_admin), m_system(*m_entity_admin, LYR_ANCHOR)
+AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window)
+	: SystemObject(entity_admin, id), m_system(entity_admin, id)
 {
 	m_system.Action([this, &window](std::span<const EntityID> entities, Transform* transforms, gui::Anchor* anchors)
 		{
@@ -31,12 +31,7 @@ AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const Window& window)
 		});
 }
 
-constexpr LayerType AnchorSystem::GetID() const noexcept
-{
-	return LYR_ANCHOR;
-}
-
 void AnchorSystem::Update()
 {
-	m_entity_admin->RunSystems(LYR_ANCHOR);
+	m_entity_admin->RunSystems(GetID());
 }

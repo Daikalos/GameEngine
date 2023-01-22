@@ -6,7 +6,7 @@ void StateTest::OnCreated()
 {
     m_entity_admin = &GetWorld().GetEntityAdmin();
 
-	ObjectSystem& object_system = GetWorld().Get<ObjectSystem>();
+	ObjectSystem& object_system = GetWorld().GetSystem<ObjectSystem>();
 
 	e0 = object_system.CreateObject();
 	e0.AddComponents(ObjectType{});
@@ -20,7 +20,7 @@ void StateTest::OnCreated()
 	e1 = e0.Duplicate();
 	et1 = e1.GetComponentRef<Transform>();
 
-	GetWorld().Get<RelationSystem>().AttachInstant(e0.GetID(), e1.GetID());
+	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0.GetID(), e1.GetID());
 
 	e2 = e1.Duplicate();
 	e2.AddComponent<gui::Label>(105, 105);
@@ -45,10 +45,15 @@ bool StateTest::HandleEvent(const sf::Event& event)
 
 bool StateTest::Update(Time& time)
 {
-	if (m_entity_admin->IsEntityRegistered(e0.GetID()))
+	if (m_entity_admin->IsEntityRegistered(e0))
 		et0->Get()->Move({ 5.0f * time.GetDT(), 0.0f });
 
 	et1->Get()->SetPosition({ 0.0f, 5.0f * time.GetDT() });
+
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
+
+	GetWorld().GetWindow().setTitle(std::to_string(test));
 
     return true;
 }

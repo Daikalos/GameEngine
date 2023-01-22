@@ -2,16 +2,16 @@
 
 using namespace vlx;
 
-RenderSystem::RenderSystem(EntityAdmin& entity_admin)
-	: m_entity_admin(&entity_admin), m_system(entity_admin, LYR_RENDERING)
+RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
+	: SystemObject(entity_admin, id), m_system(entity_admin, id)
 {
 	m_system.Action([this](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
 				Object& object			= objects[i];
-				Sprite& sprite			= sprites[i];
 				Transform& transform	= transforms[i];
+				Sprite& sprite			= sprites[i];
 
 				if (!object.IsVisible)
 					continue;
@@ -27,11 +27,6 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin)
 				}
 			}
 		});
-}
-
-constexpr LayerType vlx::RenderSystem::GetID() const noexcept
-{
-	return LYR_RENDERING;
 }
 
 void RenderSystem::SetBatchMode(const BatchMode batch_mode)
@@ -59,9 +54,7 @@ void RenderSystem::PreUpdate()
 }
 void RenderSystem::Update()
 {
-	PreUpdate();
-	m_entity_admin->RunSystems(LYR_RENDERING);
-	PostUpdate();
+	m_entity_admin->RunSystems(GetID());
 }
 void RenderSystem::PostUpdate()
 {

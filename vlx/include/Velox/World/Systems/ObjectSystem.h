@@ -8,11 +8,11 @@
 
 #include <Velox/Components/Object.h>
 
-#include "ISystemObject.h"
+#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {
-	class ObjectSystem : public ISystemObject
+	class ObjectSystem : public SystemObject
 	{
 	private:
 		enum CommandType : std::uint8_t
@@ -43,9 +43,7 @@ namespace vlx
 		using Command = std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
 
 	public:
-		VELOX_API ObjectSystem(EntityAdmin& entity_admin);
-
-		VELOX_API [[nodiscard]] constexpr LayerType GetID() const noexcept override;
+		ObjectSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
 		VELOX_API Entity CreateObject() const;
@@ -76,10 +74,8 @@ namespace vlx
 		void AddComponentsInstant(const EntityID entity_id);
 
 	private:
-		EntityAdmin*							m_entity_admin	{nullptr};
-		System<Object>							m_object_system;
-
-		std::queue<Command>						m_commands;
+		System<Object>		m_object_system;
+		std::queue<Command>	m_commands;
 	};
 
 	template<IsComponent C>

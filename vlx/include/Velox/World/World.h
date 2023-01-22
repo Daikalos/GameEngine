@@ -32,9 +32,9 @@ namespace vlx
 	class World : private NonCopyable
 	{
 	private:
-		using SystemTracker = std::pair<std::weak_ptr<ISystemObject>, ISystemObject*>;
+		using SystemTracker = std::pair<std::weak_ptr<SystemObject>, SystemObject*>;
 
-		using WorldSystems	= std::unordered_map<std::type_index, ISystemObject::Ptr>;
+		using WorldSystems	= std::unordered_map<std::type_index, SystemObject::Ptr>;
 		using SortedSystems = std::map<LayerType, SystemTracker>;
 
 	public:
@@ -66,19 +66,19 @@ namespace vlx
 		VELOX_API [[nodiscard]] EntityAdmin& GetEntityAdmin() noexcept;
 
 	public:
-		template<std::derived_from<ISystemObject> S>
-		[[nodiscard]] const S& Get() const;
+		template<std::derived_from<SystemObject> S>
+		[[nodiscard]] const S& GetSystem() const;
 
-		template<std::derived_from<ISystemObject> S>
-		[[nodiscard]] S& Get();
+		template<std::derived_from<SystemObject> S>
+		[[nodiscard]] S& GetSystem();
 
-		template<std::derived_from<ISystemObject> S, typename... Args>
+		template<std::derived_from<SystemObject> S, typename... Args>
 		std::pair<S*, bool> AddSystem(Args&&... args) requires std::constructible_from<S, Args...>;
 
-		template<std::derived_from<ISystemObject> S>
+		template<std::derived_from<SystemObject> S>
 		void RemoveSystem();
 
-		template<std::derived_from<ISystemObject> S>
+		template<std::derived_from<SystemObject> S>
 		bool HasSystem() const;
 
 	public:
@@ -113,25 +113,25 @@ namespace vlx
 		StateStack		m_state_stack;
 	};
 
-	template<std::derived_from<ISystemObject> S>
-	inline const S& World::Get() const
+	template<std::derived_from<SystemObject> S>
+	inline const S& World::GetSystem() const
 	{
 		return *static_cast<S*>(m_systems.at(typeid(S)).get());
 	}
 
-	template<std::derived_from<ISystemObject> S>
-	inline S& World::Get()
+	template<std::derived_from<SystemObject> S>
+	inline S& World::GetSystem()
 	{
-		return const_cast<S&>(std::as_const(*this).Get<S>());
+		return const_cast<S&>(std::as_const(*this).GetSystem<S>());
 	}
 
-	template<std::derived_from<ISystemObject> S, typename... Args>
+	template<std::derived_from<SystemObject> S, typename... Args>
 	inline std::pair<S*, bool> World::AddSystem(Args&&... args) requires std::constructible_from<S, Args...>
 	{
 		if (HasSystem<S>()) // don't add if already exists
 			return { nullptr, false };
 
-		ISystemObject::Ptr system = std::make_shared<S>(std::forward<Args>(args)...);
+		SystemObject::Ptr system = std::make_shared<S>(std::forward<Args>(args)...);
 
 		m_systems[typeid(S)] = system;
 		m_sorted_systems[system->GetID()] = std::make_pair(system, system.get());
@@ -139,7 +139,7 @@ namespace vlx
 		return { static_cast<S*>(system.get()), true };
 	}
 
-	template<std::derived_from<ISystemObject> S>
+	template<std::derived_from<SystemObject> S>
 	inline void World::RemoveSystem()
 	{
 		m_systems.erase(typeid(S));
@@ -151,7 +151,7 @@ namespace vlx
 			})); // and erase it from list
 	}
 
-	template<std::derived_from<ISystemObject> S>
+	template<std::derived_from<SystemObject> S>
 	inline bool World::HasSystem() const
 	{
 		return m_systems.contains(typeid(S));

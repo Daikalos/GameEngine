@@ -20,6 +20,8 @@ namespace vlx
 
 		VELOX_API Entity& operator=(Entity&& rhs) noexcept;
 
+		VELOX_API operator EntityID() const;
+
 	public:
 		VELOX_API [[nodiscard]] constexpr EntityID GetID() const noexcept;
 

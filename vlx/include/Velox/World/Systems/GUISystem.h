@@ -6,18 +6,15 @@
 #include <Velox/Input.hpp>
 #include <Velox/Config.hpp>
 
-#include "ISystemObject.h"
+#include <Velox/World/SystemObject.h>
 
 namespace vlx::gui
 {
 
-	class VELOX_API GUISystem : public ISystemObject
+	class VELOX_API GUISystem : public SystemObject
 	{
 	public:
-		GUISystem(EntityAdmin& entity_admin, const ControlMap& controls);
-
-	public:
-		constexpr LayerType GetID() const noexcept override;
+		GUISystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
 		void Update() override;

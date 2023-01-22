@@ -2,11 +2,11 @@
 
 using namespace vlx;
 
-TransformSystem::TransformSystem(EntityAdmin& entity_admin)
-	: m_entity_admin(&entity_admin), 
-	m_local_system(entity_admin, LYR_TRANSFORM), 
-	m_global_system(entity_admin, LYR_TRANSFORM), 
-	m_cleaning_system(entity_admin, LYR_TRANSFORM)
+TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
+	: SystemObject(entity_admin, id), 
+	m_local_system(entity_admin, id),
+	m_global_system(entity_admin, id),
+	m_cleaning_system(entity_admin, id)
 {
 	m_local_system.Action([this](std::span<const EntityID> entities, Transform* transforms)
 		{
@@ -44,11 +44,6 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin)
 	m_cleaning_system.SetPriority(2.0f);	// cleaning system runs before global
 }
 
-constexpr LayerType vlx::TransformSystem::GetID() const noexcept
-{
-	return LYR_TRANSFORM;
-}
-
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
 {
 	SetGlobalPosition(m_entity_admin->GetComponent<Transform>(entity), 
@@ -81,7 +76,7 @@ void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation
 
 void TransformSystem::Update()
 {
-	m_entity_admin->RunSystems(LYR_TRANSFORM);
+	m_entity_admin->RunSystems(GetID());
 }
 
 void TransformSystem::CleanTransforms(Transform& transform, const Relation& relation) const

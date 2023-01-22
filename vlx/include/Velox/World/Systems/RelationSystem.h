@@ -7,19 +7,17 @@
 
 #include <Velox/Components/Relation.h>
 
-#include "ISystemObject.h"
+#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {
-	class VELOX_API RelationSystem : public ISystemObject
+	class VELOX_API RelationSystem : public SystemObject
 	{
 	private:
 		using EntityPair = std::pair<EntityID, EntityID>;
 
 	public:
-		RelationSystem(EntityAdmin& entity_admin);
-
-		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+		using SystemObject::SystemObject;
 
 	public:
 		void AttachInstant(const EntityID parent_id, const EntityID child_id);
@@ -39,8 +37,6 @@ namespace vlx
 		void DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child);
 
 	private:
-		EntityAdmin* m_entity_admin	{nullptr};
-
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;
 	};

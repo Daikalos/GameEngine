@@ -32,6 +32,7 @@
     <ClCompile Include="src\World\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
+    <ClCompile Include="src\World\SystemObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -88,7 +89,7 @@
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
-    <ClInclude Include="include\Velox\World\Systems\ISystemObject.h" />
+    <ClInclude Include="include\Velox\World\SystemObject.h" />
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />

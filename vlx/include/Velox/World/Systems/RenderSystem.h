@@ -12,19 +12,17 @@
 
 #include <Velox/Config.hpp>
 
-#include "ISystemObject.h"
+#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {
-	class VELOX_API RenderSystem : public ISystemObject, public sf::Drawable
+	class VELOX_API RenderSystem : public SystemObject, public sf::Drawable
 	{
 	private:
 		using System = System<Object, Transform, Sprite>;
 
 	public:
-		RenderSystem(EntityAdmin& entity_admin);
-
-		[[nodiscard]] constexpr LayerType GetID() const noexcept override;
+		RenderSystem(EntityAdmin& entity, const LayerType id);
 
 	public:
 		void SetBatchMode(const BatchMode batch_mode);
@@ -41,8 +39,6 @@ namespace vlx
 		void PostUpdate();
 
 	private:
-		EntityAdmin*		m_entity_admin;
-
 		System				m_system;
 
 		SpriteBatch			m_static_batch;
