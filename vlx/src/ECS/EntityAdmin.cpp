@@ -320,6 +320,102 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	return true;
 }
 
+void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& component_ids)
+{
+	const auto eit = m_entity_archetype_map.find(entity_id);
+	if (eit == m_entity_archetype_map.end())
+		return;
+
+	Record& record = eit->second;
+	Archetype* old_archetype = record.archetype;
+
+	Archetype* new_archetype = nullptr; // we are going to be moving to a new archetype
+
+	if (old_archetype) // already has an attached archetype, define a new archetype
+	{
+		ComponentIDs new_archetype_id = old_archetype->type; // create copy
+		for (const ComponentTypeID id : component_ids)
+		{
+			if (!cu::InsertUniqueSorted(new_archetype_id, id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+				return;
+		}
+
+		new_archetype = GetArchetype(new_archetype_id);
+		assert(new_archetype_id == new_archetype->type);
+
+		const EntityID last_entity_id = old_archetype->entities.back();
+		Record& last_record = m_entity_archetype_map[last_entity_id];
+
+		const bool same_entity = (last_entity_id == entity_id);
+
+		for (std::size_t i = 0, j = 0, k = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
+		{
+			const ComponentTypeID component_id	= new_archetype_id[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
+
+			const std::size_t current_size	= new_archetype->entities.size() * component_size;
+			const std::size_t new_size		= current_size + component_size;
+
+			if (new_size > new_archetype->component_data_size[i])
+				MakeRoom(new_archetype, component, component_size, i);
+
+			if (component_id == component_ids[k]) // TODO: check if maybe out-of-bounds
+			{
+				component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
+				++k;
+			}
+			else
+			{
+				component->MoveDestroyData(*this, entity_id,
+					&old_archetype->component_data[j][record.index * component_size],
+					&new_archetype->component_data[i][current_size]);
+
+				if (!same_entity)
+				{
+					component->MoveDestroyData(*this, last_entity_id,
+						&old_archetype->component_data[j][last_record.index * component_size],
+						&old_archetype->component_data[j][record.index * component_size]); // move data to last
+				}
+
+				++j;
+			}
+		}
+
+		if (!same_entity) // move back to current
+		{
+			old_archetype->entities[record.index] = old_archetype->entities.back();
+			last_record.index = record.index;
+		}
+
+		old_archetype->entities.pop_back(); // by only removing the last entity, it means that when the next component is added, it will overwrite the previous
+	}
+	else // if the entity has no archetype, first components
+	{
+		const ComponentIDs& new_archetype_id = component_ids;
+		new_archetype = GetArchetype(new_archetype_id);	// construct or get archetype using the id
+
+		for (std::size_t i = 0; i < new_archetype_id.size(); ++i)
+		{
+			const ComponentTypeID component_id = new_archetype_id[i];
+			const IComponentAlloc* component = m_component_map[component_id].get();
+			const std::size_t& component_size = component->GetSize();
+
+			const std::size_t current_size = new_archetype->entities.size() * component_size;
+			const std::size_t new_size = current_size + component_size;
+
+			if (new_size > new_archetype->component_data_size[i])
+				MakeRoom(new_archetype, component, component_size, i); // make room and move over existing data
+
+			component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
+		}
+	}
+
+	new_archetype->entities.push_back(entity_id);
+	record.index = static_cast<IDType>(new_archetype->entities.size() - 1);
+	record.archetype = new_archetype;
+}
+
 EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 {
 	const auto eit = m_entity_archetype_map.find(entity_id);

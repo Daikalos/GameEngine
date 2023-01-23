@@ -62,8 +62,7 @@ void JoystickInput::Update(const Time& time, const bool focus)
 			prev_state = curr_state;
 			curr_state = focus && sf::Joystick::isButtonPressed(i, j);
 
-			held_time = curr_state ?
-				held_time + (held_time < m_held_threshold ? time.GetRealDT() : 0.0f) : 0.0f;
+			held_time = curr_state ? held_time + time.GetRealDT() : 0.0f;
 		}
 
 		for (uint32_t j = 0; j < sf::Joystick::AxisCount; ++j)

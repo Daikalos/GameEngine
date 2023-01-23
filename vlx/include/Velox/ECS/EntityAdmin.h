@@ -113,7 +113,7 @@ namespace vlx
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
-		///		Shortcut for adding multiple components to entity. Cannot pass constructor arguments.
+		///		Optimized for quickly adding multiple components to an entity. Cannot pass constructor arguments.
 		/// </summary>
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(const EntityID entity_id);
@@ -270,6 +270,8 @@ namespace vlx
 
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
+
+		VELOX_API void AddComponents(const EntityID entity_id, const ComponentIDs& component_ids);
 
 	public:
 		/// <summary>
@@ -448,6 +450,18 @@ namespace vlx
 		record.archetype = new_archetype;
 
 		return add_component;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void EntityAdmin::AddComponents(const EntityID entity_id)
+	{
+		AddComponents(entity_id, cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }));
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void EntityAdmin::AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
+	{
+		AddComponents<Cs...>(entity_id);
 	}
 
 	template<IsComponent C>
@@ -690,19 +704,6 @@ namespace vlx
 	{
 		return m_component_map.contains(GetComponentID<C>());
 	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::AddComponents(const EntityID entity_id)
-	{
-		(AddComponent(entity_id, GetComponentID<Cs>()), ...);
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
-	{
-		AddComponents<Cs...>(entity_id);
-	}
-
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const

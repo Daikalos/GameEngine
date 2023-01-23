@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <span>
-#include <future>
 #include <unordered_set>
 
 #include <Velox/Utilities.hpp>

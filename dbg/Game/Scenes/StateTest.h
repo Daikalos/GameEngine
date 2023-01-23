@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <Velox/ECS.hpp>
 #include <Velox/Utilities.hpp>
 #include <Velox/World/World.h>
 #include <Velox/ObjectTypes.hpp>
@@ -25,5 +26,5 @@ private:
 	vlx::Entity e0, e1, e2;
 	vlx::ComponentRefPtr<vlx::Transform> et0, et1;
 
-	int test = 0;
+	vlx::Entity b0, b1;
 };

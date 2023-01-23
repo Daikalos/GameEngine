@@ -26,10 +26,10 @@ namespace vlx
 		ComponentSet(ComponentRefPtr<Cs>... refs);
 
 		template<IsComponent C> requires Contains<C, Cs...>
-		const C& Get() const;
+		[[nodiscard]] const C& Get() const;
 
 		template<IsComponent C> requires Contains<C, Cs...>
-		C& Get();
+		[[nodiscard]] C& Get();
 
 	private:
 		ComponentSetMap m_components;

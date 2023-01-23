@@ -26,7 +26,7 @@ namespace vlx
 		explicit EventHandler(const FuncType& func);
 
 		EventHandler(const EventHandler& other);
-		EventHandler(EventHandler&& other);
+		EventHandler(EventHandler&& other) noexcept;
 
 		auto operator=(const EventHandler& other) -> EventHandler&;
 		auto operator=(EventHandler&& other) -> EventHandler&;
@@ -58,7 +58,7 @@ namespace vlx
 		: m_func(other.m_func), m_id(other.m_id) { }
 
 	template<typename... Args>
-	inline EventHandler<Args...>::EventHandler(EventHandler&& other)
+	inline EventHandler<Args...>::EventHandler(EventHandler&& other) noexcept
 		: m_func(std::move(other.m_func)), m_id(other.m_id)
 	{
 		other.m_id = NULL;

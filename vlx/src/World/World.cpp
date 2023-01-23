@@ -12,17 +12,22 @@ World::World(const std::string_view name) :
 {
 	m_window.Initialize();
 
-	AddSystem<ObjectSystem>(m_entity_admin,		LYR_OBJECTS);
-	AddSystem<RelationSystem>(m_entity_admin,	LYR_NONE);
-	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
-	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
-	AddSystem<RenderSystem>(m_entity_admin,		LYR_RENDERING);
-
 	m_controls.Add<KeyboardInput>();
 	m_controls.Add<MouseInput>();
 	m_controls.Add<JoystickInput>();
 	m_controls.Add<MouseCursor>(m_window);
 
+	m_controls.Get<KeyboardInput>().AddMap<ebn::Key>();
+	m_controls.Get<MouseInput>().AddMap<ebn::Button>();
+
+	m_controls.Get<MouseInput>().GetMap<ebn::Button>().Set(ebn::Button::GUIButton, sf::Mouse::Left);
+
+	AddSystem<ObjectSystem>(m_entity_admin,		LYR_OBJECTS);
+	AddSystem<RelationSystem>(m_entity_admin,	LYR_NONE);
+	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
+	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
+	AddSystem<RenderSystem>(m_entity_admin,		LYR_RENDERING);
+	AddSystem<gui::GUISystem>(m_entity_admin,	LYR_GUI, m_controls);
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
@@ -156,15 +161,22 @@ void World::ProcessEvents()
 
 void World::Draw()
 {
+	RenderSystem* render_system = nullptr;
+	if (HasSystem<RenderSystem>())
+		render_system = &GetSystem<RenderSystem>();
+
 	m_window.clear(sf::Color::Black);
 	m_window.setView(m_camera);
 
-	if (HasSystem<RenderSystem>())
-		m_window.draw(GetSystem<RenderSystem>());
+	if (render_system)
+		render_system->Draw(m_window);
 
 	m_state_stack.Draw();
 
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
+
+	if (render_system)
+		render_system->DrawGUI(m_window);
 
 	m_window.display();
 }

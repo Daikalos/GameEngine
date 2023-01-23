@@ -2,11 +2,9 @@
 
 namespace vlx
 {
-	//////////////////////////////////////////////
-	// 
-	// Combines a bunch of textures into one
-	// 
-	//////////////////////////////////////////////
+	/// <summary>
+	///		Combines a bunch of textures into one to reduce number of drawcalls
+	/// </summary>
 	class TextureAtlas
 	{
 

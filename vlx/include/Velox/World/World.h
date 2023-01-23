@@ -9,6 +9,7 @@
 #include "Systems/RenderSystem.h"
 #include "Systems/RelationSystem.h"
 #include "Systems/TransformSystem.h"
+#include "Systems/GUISystem.h"
 
 #include <Velox/Window/Window.h>
 #include <Velox/Window/Camera.h>
@@ -23,6 +24,8 @@
 #include <typeindex>
 #include <map>
 #include <unordered_map>
+
+#include "EngineBinds.h"
 
 namespace vlx
 {

@@ -108,6 +108,7 @@
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Window.hpp" />
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
+    <ClInclude Include="include\Velox\World\EngineBinds.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -15,8 +15,6 @@
 
 namespace vlx
 {
-	
-	
 	/// <summary>
 	/// 	Expanded camera containing a variety of functionalities,
 	///		most notably is the ability to contain a multitude of

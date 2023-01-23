@@ -30,6 +30,8 @@ namespace vlx::gui
 		[[nodiscard]] constexpr bool IsActive() const noexcept;
 		[[nodiscard]] constexpr bool IsSelected() const noexcept;
 
+		void SetSize(const Vector2Type& size);
+
 		virtual constexpr bool IsSelectable() const noexcept = 0;
 
 	public:

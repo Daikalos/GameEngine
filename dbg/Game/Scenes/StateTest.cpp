@@ -20,7 +20,7 @@ void StateTest::OnCreated()
 	e1 = e0.Duplicate();
 	et1 = e1.GetComponentRef<Transform>();
 
-	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0.GetID(), e1.GetID());
+	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0, e1);
 
 	e2 = e1.Duplicate();
 	e2.AddComponent<gui::Label>(105, 105);
@@ -36,6 +36,21 @@ void StateTest::OnCreated()
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 		added.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
 	}
+
+	b0 = object_system.CreateObject();
+	b0.AddComponents(gui::ButtonType{});
+
+	b0.GetComponent<Object>().IsGUI = true;
+	b0.GetComponent<gui::Button>().SetSize({ 128, 128 });
+	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
+	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
+	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+	b0.GetComponent<gui::Button>().Pressed += []() { std::puts("a"); };
+
+	b1 = b0.Duplicate();
+	b1.GetComponent<Transform>().SetPosition({ 300, 100 });
+	b1.GetComponent<gui::Button>().Pressed.Clear();
+	b1.GetComponent<gui::Button>().Pressed += []() { std::puts("b"); };
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)
@@ -53,7 +68,7 @@ bool StateTest::Update(Time& time)
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
 
-	GetWorld().GetWindow().setTitle(std::to_string(test));
+	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFramerate()));
 
     return true;
 }

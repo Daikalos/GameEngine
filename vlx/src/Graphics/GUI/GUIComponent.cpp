@@ -21,6 +21,11 @@ constexpr bool GUIComponent::IsSelected() const noexcept
 	return m_selected;
 }
 
+void GUIComponent::SetSize(const Vector2Type& size)
+{
+	m_size = size;
+}
+
 void GUIComponent::Select()
 {
 	if (!IsSelected())

@@ -12,6 +12,8 @@
 #include "Graphics/GUI/Label.h"
 #include "Graphics/GUI/TextBox.h"
 
+// TODO: maybe expand this to return constructed object with default parameters set, e.g., factory
+
 namespace vlx
 {
 	using AllTypes		= std::tuple<Object, Transform, Relation, Sprite, gui::Container, gui::Button, gui::Label>;

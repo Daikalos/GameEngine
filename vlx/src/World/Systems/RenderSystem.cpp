@@ -16,14 +16,29 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 				if (!object.IsVisible)
 					continue;
 
-				if (object.IsStatic)
+				if (!object.IsGUI)
 				{
-					if (m_update_static_bash)
-						m_static_batch.Batch(sprite, transform, sprite.GetDepth());
+					if (object.IsStatic)
+					{
+						if (m_update_static_bash)
+							m_static_batch.Batch(sprite, transform, sprite.GetDepth());
+					}
+					else
+					{
+						m_dynamic_batch.Batch(sprite, transform, sprite.GetDepth());
+					}
 				}
 				else
 				{
-					m_dynamic_batch.Batch(sprite, transform, sprite.GetDepth());
+					if (object.IsStatic)
+					{
+						if (m_update_static_gui_bash)
+							m_static_gui_batch.Batch(sprite, transform, sprite.GetDepth());
+					}
+					else
+					{
+						m_dynamic_gui_batch.Batch(sprite, transform, sprite.GetDepth());
+					}
 				}
 			}
 		});
@@ -45,12 +60,31 @@ void RenderSystem::UpdateStaticBatch()
 	m_update_static_bash = true;
 }
 
+void RenderSystem::SetGUIBatchMode(const BatchMode batch_mode)
+{
+	m_static_gui_batch.SetBatchMode(batch_mode);
+	m_dynamic_gui_batch.SetBatchMode(batch_mode);
+}
+
+void RenderSystem::SetGUIBatchingEnabled(const bool flag)
+{
+	m_gui_batching_enabled = flag;
+}
+
+void RenderSystem::UpdateStaticGUIBatch()
+{
+	m_update_static_gui_bash = true;
+}
+
 void RenderSystem::PreUpdate()
 {
 	if (m_update_static_bash)
 		m_static_batch.Clear();
+	if (m_update_static_gui_bash)
+		m_static_gui_batch.Clear();
 
 	m_dynamic_batch.Clear();
+	m_dynamic_gui_batch.Clear();
 }
 void RenderSystem::Update()
 {
@@ -59,10 +93,17 @@ void RenderSystem::Update()
 void RenderSystem::PostUpdate()
 {
 	m_update_static_bash = false;
+	m_update_static_gui_bash = false;
 }
 
-void RenderSystem::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
+void RenderSystem::Draw(Window& window) const
 {
- 	m_static_batch.draw(target, states);
-	m_dynamic_batch.draw(target, states);
+	window.draw(m_static_batch);
+	window.draw(m_dynamic_batch);
+}
+
+void RenderSystem::DrawGUI(Window& window) const
+{
+	window.draw(m_static_gui_batch);
+	window.draw(m_dynamic_gui_batch);
 }

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <Velox/Utilities.hpp>
+#include "NonCopyable.h"
 
 namespace vlx
 {
@@ -20,13 +20,13 @@ namespace vlx
 	};
 
 	template<class Func, class T>
-	static std::function<bool()> WeakEvent::Weak(Func&& func, const std::shared_ptr<T>& obj)
+	inline static std::function<bool()> WeakEvent::Weak(Func&& func, const std::shared_ptr<T>& obj)
 	{
 		return std::bind(Wrapper(), std::weak_ptr<T>(obj), std::function<void()>(std::bind(std::forward<Func>(func), obj.get())));
 	}
 
 	template<class T>
-	bool WeakEvent::Wrapper::operator()(const std::weak_ptr<T>& obj, std::function<void()>& func)
+	inline bool WeakEvent::Wrapper::operator()(const std::weak_ptr<T>& obj, std::function<void()>& func)
 	{
 		if (!obj.expired())
 		{

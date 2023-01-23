@@ -28,8 +28,8 @@ namespace vlx
 		operator bool() const noexcept;
 
 	public:
-		C* Get();
-		const C* Get() const;
+		[[nodiscard]] C* Get();
+		[[nodiscard]] const C* Get() const;
 
 	public:
 		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
