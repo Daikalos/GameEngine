@@ -25,17 +25,23 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 				const auto& position	= sf::Vector2i(transform.GetPosition());
 				const auto& size		= sf::Vector2i(button.GetSize());
 
-				if (pressed || released)
+				sf::Rect rectangle(position, size);
+				bool within_bounds = rectangle.contains(mouse_pos);
+
+				if (within_bounds)
 				{
-					sf::Rect rectangle(position, size);
-					if (rectangle.contains(mouse_pos))
-					{
-						if (pressed)
-							button.Pressed();
-						if (released)
-							button.Released();
-					}
+					button.Enter();
+
+					if (pressed)
+						button.Press();
 				}
+				else
+				{
+					button.Exit();
+				}
+
+				if (released)
+					button.Release();
 			}
 		});
 }

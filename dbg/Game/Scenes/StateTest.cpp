@@ -45,12 +45,11 @@ void StateTest::OnCreated()
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
 	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-	b0.GetComponent<gui::Button>().Pressed += []() { std::puts("a"); };
+	b0.GetComponent<gui::Button>().Pressed += []() { std::puts("Press"); };
+	b0.GetComponent<gui::Button>().Released += []() { std::puts("Relased"); };
+	b0.GetComponent<gui::Button>().Entered += []() { std::puts("Entered"); };
+	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
-	b1 = b0.Duplicate();
-	b1.GetComponent<Transform>().SetPosition({ 300, 100 });
-	b1.GetComponent<gui::Button>().Pressed.Clear();
-	b1.GetComponent<gui::Button>().Pressed += []() { std::puts("b"); };
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)
