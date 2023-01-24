@@ -50,6 +50,8 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Entered += []() { std::puts("Entered"); };
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
+	b0.RemoveComponents<gui::Button, gui::Label>();
+
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)

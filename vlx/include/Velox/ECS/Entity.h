@@ -38,7 +38,10 @@ namespace vlx
 		void AddComponents(std::tuple<Cs...>&& tuple);
 
 		template<IsComponent C>
-		void RemoveComponent();
+		bool RemoveComponent();
+
+		template<class... Cs> requires IsComponents<Cs...>
+		bool RemoveComponents();
 
 		template<IsComponent C>
 		[[nodiscard]] auto& GetComponent() const;
@@ -90,9 +93,15 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void Entity::RemoveComponent()
+	inline bool Entity::RemoveComponent()
 	{
-		m_entity_admin->RemoveComponent<C>(m_id);
+		return m_entity_admin->RemoveComponent<C>(m_id);
+	}
+
+	template<class ...Cs> requires IsComponents<Cs...>
+	inline bool Entity::RemoveComponents()
+	{
+		return m_entity_admin->RemoveComponents<Cs...>(m_id);
 	}
 
 	template<IsComponent C>

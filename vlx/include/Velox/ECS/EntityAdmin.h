@@ -113,11 +113,14 @@ namespace vlx
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
-		///		Optimized for quickly adding multiple components to an entity. Cannot pass constructor arguments.
+		///		Optimized for quickly adding multiple components to an entity. Cannot pass constructor arguments and returns void.
 		/// </summary>
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(const EntityID entity_id);
 
+		/// <summary>
+		///		Optimized for quickly adding multiple components to an entity. Cannot pass constructor arguments and returns void.
+		/// </summary>
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
@@ -141,6 +144,20 @@ namespace vlx
 		bool RemoveComponent(const EntityID entity_id);
 
 		/// <summary>
+		///		Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
+		///		Returns whether if it was able to remove any component on the entity.
+		/// </summary>
+		template<class... Cs> requires IsComponents<Cs...>
+		bool RemoveComponents(const EntityID entity_id);
+
+		/// <summary>
+		///		Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
+		///		Returns whether if it was able to remove any component on the entity.
+		/// </summary>
+		template<class... Cs> requires IsComponents<Cs...>
+		bool RemoveComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
+
+		/// <summary>
 		///		GetComponent is designed to be as fast as possible without checks to
 		///		see if it exists, otherwise, will throw error. Therefore, take some caution when 
 		///		using this function. Use e.g. TryGetComponent or GetComponentRef for better safety.
@@ -154,6 +171,9 @@ namespace vlx
 		template<IsComponent C>
 		[[nodiscard]] std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
+		/// <summary>
+		///		Returns of a component set constructed from specified component types
+		/// </summary>
 		template<class... Cs> requires IsComponents<Cs...>
 		[[nodiscard]] ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
 
@@ -162,8 +182,8 @@ namespace vlx
 		/// 
 		/// 	[Incredibly risky, requires base to be first in inheritance, other base classes cannot be 
 		///		automatically found without using voodoo magic, for now, offset can be specified to find 
-		///		the correct base class in the inheritance order, for example, "class C : B, A", to find A 
-		///		you specify offset with the value of sizeof(B)]
+		///		the correct base class in the inheritance order, for example, "class Component : B, A", to find A 
+		///		you pass offset with sizeof(B)]
 		/// </summary>
 		template<class B>
 		[[nodiscard]] B& GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
@@ -272,16 +292,13 @@ namespace vlx
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
 		VELOX_API void AddComponents(const EntityID entity_id, const ComponentIDs& component_ids);
+		VELOX_API bool RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids);
 
 	public:
 		/// <summary>
 		///		Returns a duplicated entity with the same properties as the specified one
 		/// </summary>
 		VELOX_API [[nodiscard]] EntityID Duplicate(const EntityID entity_id);
-
-		VELOX_API [[nodiscard]] std::vector<EntityID> GetEntitiesWith(const ComponentIDs& component_ids, bool restricted = false) const;
-
-		VELOX_API void Reserve(const ComponentIDs& component_ids, const std::size_t component_count);
 
 		/// <summary>
 		///		Shrinks the ECS by removing all the empty archetypes
@@ -291,6 +308,9 @@ namespace vlx
 		///		invalidate all the existing pointers from e.g., GetComponent
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
+
+		VELOX_API [[nodiscard]] std::vector<EntityID> GetEntitiesWith(const ComponentIDs& component_ids, bool restricted = false) const;
+		VELOX_API void Reserve(const ComponentIDs& component_ids, const std::size_t component_count);
 
 		VELOX_API void ClearComponentRefs();
 		VELOX_API void ClearComponentRefs(const EntityID entity_id);
@@ -368,7 +388,7 @@ namespace vlx
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
 			ComponentIDs new_archetype_id = old_archetype->type; // create copy
-			if (!cu::InsertUniqueSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+			if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 				return nullptr;
 
 			new_archetype = GetArchetype(new_archetype_id);
@@ -536,6 +556,18 @@ namespace vlx
 	inline bool EntityAdmin::RemoveComponent(const EntityID entity_id)
 	{
 		return RemoveComponent(entity_id, GetComponentID<C>());
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id)
+	{
+		return RemoveComponents(entity_id, cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... }}));
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
+	{
+		return RemoveComponents<Cs...>(entity_id);
 	}
 
 	template<IsComponent C>

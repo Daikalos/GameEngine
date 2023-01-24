@@ -68,30 +68,31 @@ namespace vlx::cu
 	}
 
 	template<class T>
-	static constexpr auto InsertSorted(std::vector<T>& vector, const T& item)
+	static constexpr bool InsertSorted(std::vector<T>& vector, const T& item)
 	{
-		return vector.insert(std::upper_bound(
-			vector.begin(), vector.end(), item), item);
+		const auto it = std::lower_bound(vector.begin(), vector.end(), item);
+
+		if (it == vector.end() || *it != item)
+		{
+			vector.insert(it, item);
+			return true;
+		}
+
+		return false;
 	}
 
 	template<class T>
-	static constexpr bool InsertUniqueSorted(std::vector<T>& vector, const T& item)
+	static bool EraseSorted(std::vector<T>& vector, const T& item)
 	{
-		for (auto it = vector.begin(); it != vector.end(); ++it) // custom algorithm for inserting an item in a sorted list containing only unique values
-		{
-			if (*it == item) // the item already exists
-				return false;
+		const auto it = std::lower_bound(vector.begin(), vector.end(), item);
 
-			if (*it > item)
-			{
-				vector.insert(it, item);
-				return true;
-			}
+		if (it != vector.end() && *it == item)
+		{
+			vector.erase(it);
+			return true;
 		}
 
-		vector.push_back(item); // item did not exist, just add it
-
-		return true;
+		return false;
 	}
 
 	template<class T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
@@ -148,11 +149,35 @@ namespace vlx::cu
 		return vec;
 	}
 
-	template<typename T, typename Pred>
-	static std::vector<T> Sort(std::vector<T>&& vec, Pred&& predicate)
+	template<typename T>
+	static void Sort(std::vector<T>& vec)
 	{
-		std::sort(vec.begin(), vec.end(), predicate);
+		std::sort(vec.begin(), vec.end());
+	}
+
+	template<typename T, typename Comp>
+	static std::vector<T> Sort(std::vector<T>&& vec, Comp&& comp)
+	{
+		std::sort(vec.begin(), vec.end(), comp);
 		return vec;
+	}
+
+	template<typename T, typename Comp>
+	static void Sort(std::vector<T>& vec, Comp&& comp)
+	{
+		std::sort(vec.begin(), vec.end(), comp);
+	}
+
+	template<typename T>
+	static bool IsSorted(std::vector<T>&& vec)
+	{
+		return std::is_sorted(vec.begin(), vec.end());
+	}
+
+	template<typename T, typename Comp>
+	static bool IsSorted(std::vector<T>&& vec, Comp&& comp)
+	{
+		return std::is_sorted(vec.begin(), vec.end(), comp);
 	}
 
 	template<IsVector T, Integral SizeType = typename T::value_type>

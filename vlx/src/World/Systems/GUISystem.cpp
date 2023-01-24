@@ -19,8 +19,8 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Transform& transform = transforms[i];
-				Button& button = buttons[i];
+				Transform& transform	= transforms[i];
+				Button& button			= buttons[i];
 
 				const auto& position	= sf::Vector2i(transform.GetPosition());
 				const auto& size		= sf::Vector2i(button.GetSize());
