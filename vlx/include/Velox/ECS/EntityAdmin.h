@@ -291,8 +291,8 @@ namespace vlx
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
-		VELOX_API void AddComponents(const EntityID entity_id, const ComponentIDs& component_ids);
-		VELOX_API bool RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids);
+		VELOX_API void AddComponents(const EntityID entity_id, ComponentIDs&& component_ids);
+		VELOX_API bool RemoveComponents(const EntityID entity_id, ComponentIDs&& component_ids);
 
 	public:
 		/// <summary>

@@ -174,10 +174,22 @@ namespace vlx::cu
 		return std::is_sorted(vec.begin(), vec.end());
 	}
 
+	template<typename T>
+	static bool IsSorted(const std::vector<T>& vec)
+	{
+		return std::is_sorted(vec.begin(), vec.end());
+	}
+
 	template<typename T, typename Comp>
 	static bool IsSorted(std::vector<T>&& vec, Comp&& comp)
 	{
 		return std::is_sorted(vec.begin(), vec.end(), comp);
+	}
+
+	template<typename T, typename Comp>
+	static bool IsSorted(const std::vector<T>& vec, Comp&& comp)
+	{
+		return std::is_sorted(vec.begin(), vec.end());
 	}
 
 	template<IsVector T, Integral SizeType = typename T::value_type>

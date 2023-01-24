@@ -12,7 +12,8 @@
 #include "Graphics/GUI/Label.h"
 #include "Graphics/GUI/TextBox.h"
 
-// TODO: maybe expand this to return constructed object with default parameters set, e.g., factory
+// TODO: maybe expand this to return constructed object with default parameters set, e.g., 
+// quickly return a button object with added components and default parameters set
 
 namespace vlx
 {

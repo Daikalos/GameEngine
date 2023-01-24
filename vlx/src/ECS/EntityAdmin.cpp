@@ -116,7 +116,7 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 		m_entity_archetype_map.erase(entity_id);
 		m_reusable_entity_ids.push(entity_id);
 
-		return false;
+		return true;
 	}
 
 	EntityID last_entity_id = archetype->entities.back();
@@ -165,9 +165,9 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	return RemoveComponents(entity_id, { rmv_component_id });
 }
 
-void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& component_ids)
+void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& component_ids)
 {
-	assert(cu::IsSorted(component_ids));
+	assert(cu::IsSorted(component_ids) && !component_ids.empty());
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -181,11 +181,18 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 	if (old_archetype) // already has an attached archetype, define a new archetype
 	{
 		ComponentIDs new_archetype_id = old_archetype->type; // create copy
-		for (const ComponentTypeID id : component_ids)
+		for (auto rit = component_ids.rbegin(), nit = rit; rit != component_ids.rend(); rit = nit)
 		{
-			if (!cu::InsertSorted(new_archetype_id, id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
-				return;
+			nit = std::next(rit);
+
+			if (!cu::InsertSorted(new_archetype_id, *rit)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+				nit = decltype(rit){ component_ids.erase(std::next(rit).base()) };
 		}
+
+		if (component_ids.empty()) // unable to add any component
+			return;
+
+		assert(new_archetype_id != old_archetype->type);
 
 		new_archetype = GetArchetype(new_archetype_id);
 		assert(new_archetype_id == new_archetype->type);
@@ -207,7 +214,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 			if (new_size > new_archetype->component_data_size[i])
 				MakeRoom(new_archetype, component, component_size, i);
 
-			if (component_id == component_ids[k]) // TODO: check if maybe out-of-bounds
+			if (k < component_ids.size() && component_id == component_ids[k])
 			{
 				component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
 				++k;
@@ -239,14 +246,13 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 	}
 	else // if the entity has no archetype, first components
 	{
-		const ComponentIDs& new_archetype_id = component_ids;
-		new_archetype = GetArchetype(new_archetype_id);	// construct or get archetype using the id
+		new_archetype = GetArchetype(component_ids);	// construct or get archetype using the id
 
-		for (std::size_t i = 0; i < new_archetype_id.size(); ++i)
+		for (std::size_t i = 0; i < component_ids.size(); ++i)
 		{
-			const ComponentTypeID component_id = new_archetype_id[i];
-			const IComponentAlloc* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
+			const ComponentTypeID component_id	= component_ids[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
 
 			const std::size_t current_size = new_archetype->entities.size() * component_size;
 			const std::size_t new_size = current_size + component_size;
@@ -263,7 +269,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 	record.archetype = new_archetype;
 }
 
-bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids)
+bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& component_ids)
 {
 	assert(cu::IsSorted(component_ids));
 
@@ -278,15 +284,15 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 		return false;
 
 	ComponentIDs new_archetype_id = old_archetype->type;
-	ComponentIDs components_removal = component_ids;
-
-	for (auto rit = components_removal.rbegin(); rit != components_removal.rend(); ++rit)
+	for (auto rit = component_ids.rbegin(), nit = rit; rit != component_ids.rend(); rit = nit)
 	{
+		nit = std::next(rit);
+
 		if (!cu::EraseSorted(new_archetype_id, *rit)) // if component did not exist
-			components_removal.erase(std::next(rit).base());
+			nit = decltype(rit) { component_ids.erase(std::next(rit).base()) };
 	}
 
-	if (components_removal.empty()) // unable to remove any component
+	if (component_ids.empty()) // unable to remove any component
 		return false;
 
 	Archetype* new_archetype = GetArchetype(new_archetype_id);
@@ -303,7 +309,7 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 		const IComponentAlloc* component	= m_component_map[component_id].get();
 		const std::size_t& component_size	= component->GetSize();
 
-		if (component_id == components_removal[k]) // this is the component that should be destroyed
+		if (k < component_ids.size() && component_id == component_ids[k]) // this is the component that should be destroyed
 		{
 			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
 			++k;

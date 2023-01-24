@@ -35,6 +35,11 @@ void StateTest::OnCreated()
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 		added.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
+		added.RemoveComponents<Object>();
+		added.AddComponents<Object>();
+		added.RemoveComponents<Object>();
+		added.RemoveComponents<Object>();
+		added.AddComponents<Object>();
 	}
 
 	b0 = object_system.CreateObject();
@@ -50,7 +55,7 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Entered += []() { std::puts("Entered"); };
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
-	b0.RemoveComponents<gui::Button, gui::Label>();
+	//b0.RemoveComponents<gui::Button, gui::Label>();
 
 }
 
