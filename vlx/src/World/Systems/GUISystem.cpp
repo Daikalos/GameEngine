@@ -7,7 +7,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 	m_button_system(entity_admin, id),
 	m_label_system(entity_admin, id)
 {
-	m_button_system.Action([&controls](std::span<const EntityID> entities, Transform* transforms, Button* buttons)
+	m_button_system.Action([&controls](std::span<const EntityID> entities, Object* objects, Transform* transforms, Button* buttons)
 		{
 			const MouseInput& mouse_input = controls.Get<MouseInput>();
 			const MouseCursor& mouse_cursor = controls.Get<MouseCursor>();
@@ -21,23 +21,30 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 			{
 				Transform& transform	= transforms[i];
 				Button& button			= buttons[i];
+				Object& object			= objects[i];
 
 				const auto& position	= sf::Vector2i(transform.GetPosition());
 				const auto& size		= sf::Vector2i(button.GetSize());
 
-				sf::Rect rectangle(position, size);
-				bool within_bounds = rectangle.contains(mouse_pos);
-
-				if (within_bounds)
+				if (object.IsVisible)
 				{
-					button.Enter();
+					sf::Rect rectangle(position, size);
+					bool within_bounds = rectangle.contains(mouse_pos);
 
-					if (pressed)
-						button.Press();
-				}
-				else
-				{
-					button.Exit();
+					if (within_bounds)
+					{
+						button.Enter();
+
+						if (pressed)
+							button.Press();
+
+						if (released) // if released within bounds, click will occur
+							button.Click();
+					}
+					else
+					{
+						button.Exit();
+					}
 				}
 
 				if (released)

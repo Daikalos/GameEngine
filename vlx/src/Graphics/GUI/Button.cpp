@@ -7,6 +7,14 @@ constexpr bool Button::IsSelectable() const noexcept
     return true;
 }
 
+void Button::Click()
+{
+    if (m_pressed)
+    {
+        Clicked();
+    }
+}
+
 void Button::Press()
 {
     if (!m_pressed)

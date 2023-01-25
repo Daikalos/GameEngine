@@ -19,12 +19,14 @@ namespace vlx::gui
 		[[nodiscard]] constexpr bool IsSelectable() const noexcept override;
 
 	public:
+		void Click();
 		void Press();
 		void Release();
 		void Enter();
 		void Exit();
 
 	public:
+		vlx::Event<> Clicked;
 		vlx::Event<> Pressed;
 		vlx::Event<> Released;
 		vlx::Event<> Entered;

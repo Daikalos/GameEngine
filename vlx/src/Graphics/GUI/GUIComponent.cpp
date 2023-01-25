@@ -2,7 +2,7 @@
 
 using namespace vlx::gui;
 
-GUIComponent::GUIComponent(const Vector2Type& size) : m_size(size) { }
+GUIComponent::GUIComponent(const Vector2Type& size) : GUIComponent(size.x, size.y) { }
 GUIComponent::GUIComponent(const SizeType width, const SizeType height) : m_size(width, height) { }
 
 GUIComponent::~GUIComponent() = default;

@@ -33,6 +33,7 @@
     <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\World\SystemObject.cpp" />
+    <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

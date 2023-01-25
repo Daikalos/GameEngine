@@ -7,6 +7,7 @@
 #include <Velox/Graphics.hpp>
 #include <Velox/Input.hpp>
 #include <Velox/Config.hpp>
+#include <Velox/Components/Object.h>
 
 #include <Velox/World/SystemObject.h>
 
@@ -24,7 +25,7 @@ namespace vlx::gui
 		void Update() override;
 
 	private:
-		System<Transform, Button>	m_button_system;
-		System<Transform, Label>	m_label_system;
+		System<Object, Transform, Button>	m_button_system;
+		System<Object, Transform, Label>	m_label_system;
 	};
 }

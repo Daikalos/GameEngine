@@ -238,7 +238,7 @@ namespace vlx
 		///		Returns the unique ID of a component
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] ComponentTypeID GetComponentID() const;
+		[[nodiscard]] static constexpr ComponentTypeID GetComponentID();
 
 	public:
 		/// <summary>
@@ -383,7 +383,7 @@ namespace vlx
 		C* add_component = nullptr;
 		Archetype* new_archetype = nullptr; // we are going to be moving to a new archetype
 
-		const ComponentTypeID add_component_id = GetComponentID<C>();
+		constexpr ComponentTypeID add_component_id = GetComponentID<C>();
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
@@ -489,10 +489,10 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
+		constexpr ComponentTypeID component_id = GetComponentID<C>();
+
 		const Record& record = m_entity_archetype_map.find(entity_id)->second;
 		const Archetype* archetype = record.archetype;
-
-		const ComponentTypeID& component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		const auto ait = cit->second.find(archetype->id);
@@ -526,7 +526,7 @@ namespace vlx
 		if (archetype == nullptr)
 			return { nullptr, false };
 
-		const ComponentTypeID& component_id = GetComponentID<C>();
+		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -561,7 +561,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id)
 	{
-		return RemoveComponents(entity_id, cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... }}));
+		return RemoveComponents(entity_id, cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }));
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -575,14 +575,14 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
-		const Record& record = m_entity_archetype_map.at(entity_id);
-		const Archetype* archetype = record.archetype;
+		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
-		const ComponentTypeID& component_id = GetComponentID<C>();
+		const auto& record = m_entity_archetype_map.at(entity_id);
+		const auto* archetype = record.archetype;
 
 		const auto& map = m_component_archetypes_map.at(component_id);
 		const auto& arch_record = map.at(archetype->id);
-
+		
 		C* components = reinterpret_cast<C*>(&archetype->component_data[arch_record.column][0]);
 		return components[record.index];
 	}
@@ -596,13 +596,13 @@ namespace vlx
 		if (eit == m_entity_archetype_map.end())
 			return { nullptr, false };
 
-		const Record& record = eit->second;
-		const Archetype* archetype = record.archetype;
+		const auto& record		= eit->second;
+		const auto* archetype	= record.archetype;
 
 		if (archetype == nullptr)
 			return { nullptr, false };
 
-		const ComponentTypeID& component_id = GetComponentID<C>();
+		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
@@ -612,7 +612,7 @@ namespace vlx
 		if (ait == cit->second.end())
 			return { nullptr, false };
 
-		const ArchetypeRecord& arch_record = ait->second;
+		const auto& arch_record = ait->second;
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[arch_record.column][0]);
 		return { &components[record.index], true };
@@ -621,16 +621,16 @@ namespace vlx
 	template<class B>
 	inline B& EntityAdmin::GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
 	{
-		const Record& record = m_entity_archetype_map.find(entity_id)->second;
-		const Archetype* archetype = record.archetype;
+		const auto& record = m_entity_archetype_map.at(entity_id);
+		const auto* archetype = record.archetype;
 
-		const auto cit = m_component_archetypes_map.find(child_component_id);
-		const auto ait = cit->second.find(archetype->id);
+		const auto& map = m_component_archetypes_map.at(child_component_id);
+		const auto& arch_record = map.at(archetype->id);
 
-		const IComponentAlloc* component	= m_component_map.find(child_component_id)->second.get();
-		const std::size_t& component_size	= component->GetSize();
+		const auto* component = m_component_map.at(child_component_id).get();
+		const auto& component_size	= component->GetSize();
 
-		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
+		auto ptr = &archetype->component_data[arch_record.column][record.index * component_size];
 		B* base_component = reinterpret_cast<B*>(ptr + offset);	
 
 		return *base_component;
@@ -643,8 +643,8 @@ namespace vlx
 		if (eit == m_entity_archetype_map.end())
 			return { nullptr, false };
 
-		const Record& record = eit->second;
-		const Archetype* archetype = record.archetype;
+		const auto& record = eit->second;
+		const auto* archetype = record.archetype;
 
 		if (archetype == nullptr)
 			return { nullptr, false };
@@ -661,7 +661,7 @@ namespace vlx
 		if (iit == m_component_map.end())
 			return { nullptr, false };
 
-		const std::size_t& component_size = iit->second->GetSize();
+		const auto& component_size = iit->second->GetSize();
 
 		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
 		B* base_component = reinterpret_cast<B*>(ptr + offset);
@@ -675,7 +675,7 @@ namespace vlx
 		assert(IsComponentRegistered<C>());
 
 		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
-		const ComponentTypeID& component_id = GetComponentID<C>();
+		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = component_proxies.find(component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
@@ -744,7 +744,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline ComponentTypeID EntityAdmin::GetComponentID() const
+	inline static constexpr ComponentTypeID EntityAdmin::GetComponentID()
 	{
 		return ComponentAlloc<C>::GetTypeID();
 	}
@@ -765,7 +765,7 @@ namespace vlx
 			throw std::runtime_error("the specified archetype does not exist");
 
 		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
-		const ComponentTypeID& component_id = GetComponentID<C>();
+		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())

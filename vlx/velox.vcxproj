@@ -228,6 +228,7 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\World\SystemObject.cpp" />

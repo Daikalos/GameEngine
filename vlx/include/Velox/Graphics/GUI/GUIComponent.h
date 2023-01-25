@@ -14,7 +14,7 @@ namespace vlx::gui
 	/// </summary>
 	class VELOX_API GUIComponent : public IComponent
 	{
-	private:
+	protected:
 		using SizeType		= std::uint16_t;
 		using Vector2Type	= sf::Vector2<SizeType>;
 
@@ -48,7 +48,7 @@ namespace vlx::gui
 		vlx::Event<> Selected;
 		vlx::Event<> Deselected;
 
-	private:
+	protected:
 		Vector2Type m_size;
 		bool		m_selected		{false};
 		bool		m_active		{false};

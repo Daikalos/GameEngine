@@ -184,7 +184,6 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 		for (auto rit = component_ids.rbegin(), nit = rit; rit != component_ids.rend(); rit = nit)
 		{
 			nit = std::next(rit);
-
 			if (!cu::InsertSorted(new_archetype_id, *rit)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 				nit = decltype(rit){ component_ids.erase(std::next(rit).base()) };
 		}
@@ -271,7 +270,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 
 bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& component_ids)
 {
-	assert(cu::IsSorted(component_ids));
+	assert(cu::IsSorted(component_ids) && !component_ids.empty());
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -287,7 +286,6 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& comp
 	for (auto rit = component_ids.rbegin(), nit = rit; rit != component_ids.rend(); rit = nit)
 	{
 		nit = std::next(rit);
-
 		if (!cu::EraseSorted(new_archetype_id, *rit)) // if component did not exist
 			nit = decltype(rit) { component_ids.erase(std::next(rit).base()) };
 	}
@@ -404,7 +402,7 @@ void EntityAdmin::Shrink(bool extensive)
 				return true;
 			}
 
-	return false;
+			return false;
 		}), m_archetypes.end());
 
 	// remove any archetypes that holds no components (cant be used anyways), should not exist in the first place
@@ -424,8 +422,10 @@ void EntityAdmin::Shrink(bool extensive)
 				return true;
 			}
 
-	return false;
+			return false;
 		}), m_archetypes.end());
+
+	m_archetype_cache.clear();
 
 	if (extensive) // shrink all archetypes data
 	{
@@ -515,11 +515,11 @@ void EntityAdmin::Reserve(const ComponentIDs& component_ids, const std::size_t c
 
 			const auto i = ait->second.column;
 
-			const IComponentAlloc* component = m_component_map[component_id].get();
-			const std::size_t& component_size = component->GetSize();
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
 
-			const std::size_t current_size = archetype->component_data_size[i];
-			const std::size_t new_size = component_count * component_size;
+			const std::size_t current_size		= archetype->component_data_size[i];
+			const std::size_t new_size			= component_count * component_size;
 
 			if (new_size > current_size) // no need to reserve if already equal
 			{
