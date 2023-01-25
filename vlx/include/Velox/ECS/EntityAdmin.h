@@ -475,7 +475,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
-		AddComponents(entity_id, cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }));
+		AddComponents(entity_id, cu::Sort<std::vector<ComponentTypeID>>({ { GetComponentID<Cs>()... } }));
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -827,13 +827,13 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		Reserve(cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }), component_count);
+		Reserve(cu::Sort<std::vector<ComponentTypeID>>({ { GetComponentID<Cs>()... } }), component_count);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		return GetEntitiesWith(cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }), restricted);
+		return GetEntitiesWith(cu::Sort<std::vector<ComponentTypeID>>({ { GetComponentID<Cs>()... } }), restricted);
 	}
 
 	template<IsComponent C>

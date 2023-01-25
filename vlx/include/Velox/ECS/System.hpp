@@ -134,7 +134,7 @@ namespace vlx
 	inline const ComponentIDs& System<Cs...>::GetArchKey() const
 	{
 		if (m_arch_key.empty())
-			m_arch_key = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs>::GetTypeID()... } });
+			m_arch_key = cu::Sort<std::vector<ComponentTypeID>>({ { ComponentAlloc<Cs>::GetTypeID()... } });
 
 		return m_arch_key;
 	}
@@ -168,8 +168,8 @@ namespace vlx
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& c, Ts... cs) const
 	{
-		using CompType = std::tuple_element_t<Index, ComponentTypes>;			// get type of component at index in system components
-		const ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
+		using CompType = std::tuple_element_t<Index, ComponentTypes>;				// get type of component at index in system components
+		constexpr ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
 
 		std::size_t i = 0;
 		ComponentTypeID archetype_comp_id = component_ids[i];
