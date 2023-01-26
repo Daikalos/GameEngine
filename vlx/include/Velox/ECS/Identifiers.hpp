@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <vector>
 
+#include <Velox/Utilities/Concepts.h>
+
 namespace vlx
 {
 	using IDType			= std::uint32_t;
@@ -16,6 +18,9 @@ namespace vlx
 	using ComponentTypeID	= IDType;
 	using ArchetypeID		= IDType;
 	using ComponentIDs		= std::vector<ComponentTypeID>;
+
+	template<class... Cs> requires IsComponents<Cs...>
+	using ArrComponentIDs	= std::array<ComponentTypeID, sizeof...(Cs)>;
 
 	static constexpr EntityID NULL_ENTITY		= NULL;
 	static constexpr ArchetypeID NULL_ARCHETYPE	= NULL;

@@ -82,7 +82,7 @@ namespace vlx
 		Func			m_func;
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
-		ComponentIDs			m_exclusion;
+		ArrComponentIDs<Cs...>	m_exclusion;
 		mutable ArchetypeCache	m_excluded_archetypes;
 
 		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};
@@ -125,7 +125,12 @@ namespace vlx
 	inline const ArchetypeID& System<Cs...>::GetIDKey() const
 	{
 		if (m_id_key == NULL_ARCHETYPE)
-			m_id_key = cu::ContainerHash<ComponentIDs>()(GetArchKey());
+		{
+			constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ ComponentAlloc<Cs>::GetTypeID()... });
+			constexpr auto archetype_id		= cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+			m_id_key = archetype_id;
+		}
 
 		return m_id_key;
 	}	
@@ -134,7 +139,10 @@ namespace vlx
 	inline const ComponentIDs& System<Cs...>::GetArchKey() const
 	{
 		if (m_arch_key.empty())
-			m_arch_key = cu::Sort<ComponentIDs>({ { ComponentAlloc<Cs>::GetTypeID()... } });
+		{
+			constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ ComponentAlloc<Cs>::GetTypeID()... });
+			m_arch_key = { component_ids.begin(), component_ids.end() };
+		}
 
 		return m_arch_key;
 	}
@@ -149,7 +157,7 @@ namespace vlx
 	template<class... Cs2> requires IsComponents<Cs2...>
 	inline void System<Cs1...>::Exclude()
 	{
-		m_exclusion = cu::Sort<ComponentIDs>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
+		m_exclusion = cu::Sort<ArrComponentIDs<Cs2...>>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

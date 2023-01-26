@@ -37,8 +37,6 @@ void StateTest::OnCreated()
 		added.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
 	}
 
-	std::vector<EntityID> entities = m_entity_admin->GetEntitiesWith<Sprite>();
-
 	b0 = object_system.CreateObject();
 	b0.AddComponents(gui::ButtonType{});
 

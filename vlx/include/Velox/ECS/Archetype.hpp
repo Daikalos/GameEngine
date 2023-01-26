@@ -9,6 +9,8 @@ namespace vlx
 {
 	using ComponentData = typename std::unique_ptr<ByteArray>;
 
+	// TODO: maybe switch to using arrays...
+
 	struct Archetype // an archetype for every unique list of components for an entity
 	{
 		ArchetypeID					id{NULL_ARCHETYPE};

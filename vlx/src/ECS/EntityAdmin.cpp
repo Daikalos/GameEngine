@@ -462,86 +462,9 @@ void EntityAdmin::Shrink(bool extensive)
 	}
 }
 
-std::vector<EntityID> EntityAdmin::GetEntitiesWith(const ComponentIDs& component_ids, bool restricted) const
-{
-	assert(cu::IsSorted(component_ids));
-
-	std::vector<EntityID> entities;
-
-	const ArchetypeID archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
-
-	if (!restricted)
-	{
-		for (const Archetype* archetype : GetArchetypes(component_ids, archetype_id))
-		{
-			entities.insert(entities.end(),
-				archetype->entities.begin(),
-				archetype->entities.end());
-		}
-	}
-	else
-	{
-		const auto it = m_archetype_map.find(archetype_id);
-		if (it == m_archetype_map.end())
-			return entities;
-
-		entities = it->second->entities;
-	}
-
-	return entities;
-}
-
-void EntityAdmin::Reserve(const ComponentIDs& component_ids, const std::size_t component_count)
-{
-	assert(cu::IsSorted(component_ids));
-
-	const ArchetypeID archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
-
-	if (!m_archetype_map.contains(archetype_id))
-		CreateArchetype(component_ids, archetype_id); // create if does not exist
-
-	const auto& archetypes = GetArchetypes(component_ids, archetype_id);
-	for (Archetype* archetype : archetypes)
-	{
-		for (const ComponentTypeID component_id : component_ids)
-		{
-			const auto cit = m_component_archetypes_map.find(component_id);
-			if (cit == m_component_archetypes_map.end())
-				continue;
-
-			const auto ait = cit->second.find(archetype->id);
-			if (ait == cit->second.end())
-				continue;
-
-			const auto i = ait->second.column;
-
-			const IComponentAlloc* component	= m_component_map[component_id].get();
-			const std::size_t& component_size	= component->GetSize();
-
-			const std::size_t current_size		= archetype->component_data_size[i];
-			const std::size_t new_size			= component_count * component_size;
-
-			if (new_size > current_size) // no need to reserve if already equal
-			{
-				archetype->component_data_size[i] = new_size;
-				ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
-
-				for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-				{
-					component->MoveDestroyData(*this, archetype->entities[j],
-						&archetype->component_data[i][j * component_size],
-						&new_data[j * component_size]);
-				}
-
-				archetype->component_data[i] = std::move(new_data);
-			}
-		}
-	}
-}
-
 void EntityAdmin::ClearComponentRefs()
 {
-	for (auto& pair1 : m_entity_component_proxy_map)
+	for (auto& pair1 : m_entity_component_ref_map)
 	{
 		std::erase_if(pair1.second,
 			[](const auto& pair2)
@@ -559,8 +482,8 @@ void EntityAdmin::ClearComponentRefs()
 
 void EntityAdmin::ClearComponentRefs(const EntityID entity_id)
 {
-	const auto it = m_entity_component_proxy_map.find(entity_id);
-	if (it == m_entity_component_proxy_map.end())
+	const auto it = m_entity_component_ref_map.find(entity_id);
+	if (it == m_entity_component_ref_map.end())
 		return;
 
 	std::erase_if(it->second,
@@ -631,24 +554,6 @@ Archetype* EntityAdmin::CreateArchetype(const ComponentIDs& component_ids, const
 	return m_archetypes.emplace_back(std::move(new_archetype)).get();
 }
 
-const std::vector<Archetype*>& EntityAdmin::GetArchetypes(const ComponentIDs& component_ids, const ArchetypeID id) const
-{
-	assert(cu::IsSorted(component_ids));
-
-	const auto it = m_archetype_cache.find(id);
-	if (it != m_archetype_cache.end())
-		return it->second;
-
-	std::vector<Archetype*> result;
-	for (const ArchetypePtr& archetype : m_archetypes)
-	{
-		if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
-			result.push_back(archetype.get());
-	}
-
-	return m_archetype_cache.emplace(id, result).first->second;
-}
-
 void EntityAdmin::MakeRoom(
 	Archetype* archetype,
 	const IComponentAlloc* component,
@@ -672,8 +577,8 @@ void EntityAdmin::MakeRoom(
 
 void EntityAdmin::ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const
 {
-	const auto eit = m_entity_component_proxy_map.find(entity_id);
-	if (eit == m_entity_component_proxy_map.end())
+	const auto eit = m_entity_component_ref_map.find(entity_id);
+	if (eit == m_entity_component_ref_map.end())
 		return;
 
 	const auto cit = eit->second.find(component_id);

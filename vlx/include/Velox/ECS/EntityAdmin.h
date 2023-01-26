@@ -269,6 +269,16 @@ namespace vlx
 		template<class... Cs> requires IsComponents<Cs...>
 		void Reserve(const std::size_t component_count);
 
+	public:
+		template<IsContainer T>
+		[[nodiscard]] std::vector<EntityID> GetEntitiesWith(const T& component_ids, const ArchetypeID archetype_id, bool restricted = false) const;
+
+		template<IsContainer T>
+		void Reserve(const T& component_ids, const ArchetypeID archetype_id, const std::size_t component_count);
+
+		template<IsContainer T>
+		[[nodiscard]] const std::vector<Archetype*>& GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
+
 	private:
 		template<IsComponent C>
 		void ResetComponentRefs(const EntityID entity_id) const;
@@ -309,9 +319,6 @@ namespace vlx
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
 
-		VELOX_API [[nodiscard]] std::vector<EntityID> GetEntitiesWith(const ComponentIDs& component_ids, bool restricted = false) const;
-		VELOX_API void Reserve(const ComponentIDs& component_ids, const std::size_t component_count);
-
 		VELOX_API void ClearComponentRefs();
 		VELOX_API void ClearComponentRefs(const EntityID entity_id);
 
@@ -319,13 +326,7 @@ namespace vlx
 		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);
 		VELOX_API [[nodiscard]] Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
 
-		VELOX_API [[nodiscard]] const std::vector<Archetype*>& GetArchetypes(const ComponentIDs& component_ids, const ArchetypeID id) const;
-
-		VELOX_API void MakeRoom(
-			Archetype* archetype,
-			const IComponentAlloc* component,
-			const std::size_t data_size,
-			const std::size_t i);
+		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i);
 
 		VELOX_API void ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const;
 
@@ -341,7 +342,7 @@ namespace vlx
 		ComponentTypeIDBaseMap	m_component_map;				// access to helper functions for modifying each unique component
 		
 		mutable ArchetypeCache			m_archetype_cache;
-		mutable EntityComponentRefMap	m_entity_component_proxy_map;
+		mutable EntityComponentRefMap	m_entity_component_ref_map;
 	};
 }
 
@@ -475,7 +476,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
-		AddComponents(entity_id, cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } }));
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		AddComponents(entity_id, { component_ids.begin(), component_ids.end() });
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -550,7 +552,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id)
 	{
-		return RemoveComponents(entity_id, cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } }));
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		return RemoveComponents(entity_id, { component_ids.begin(), component_ids.end() });
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -663,7 +666,7 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>());
 
-		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+		auto& component_proxies = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = component_proxies.find(component_id);
@@ -690,7 +693,7 @@ namespace vlx
 	template<class B>
 	inline auto EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset) const -> BaseRefPtr<B>
 	{
-		auto& component_proxies = m_entity_component_proxy_map[entity_id]; // will construct new if it does not exist
+		auto& component_proxies = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_proxies.find(child_component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
@@ -741,8 +744,10 @@ namespace vlx
 	template<class... Cs, class Comp> requires IsComponents<Cs...>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
-		const ComponentIDs component_ids = cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } });
-		const ArchetypeID archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
+		constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		constexpr auto archetype_id		= cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		assert(cu::IsSorted(component_ids));
 
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
@@ -816,13 +821,111 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		Reserve(cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } }), component_count);
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		Reserve(component_ids, archetype_id, component_count);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		return GetEntitiesWith(cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } }), restricted);
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		return GetEntitiesWith(component_ids, archetype_id, restricted);
+	}
+
+	template<IsContainer T>
+	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(const T& component_ids, const ArchetypeID archetype_id, bool restricted) const
+	{
+		assert(cu::IsSorted(component_ids));
+
+		std::vector<EntityID> entities;
+
+		if (!restricted)
+		{
+			for (const Archetype* archetype : GetArchetypes(component_ids, archetype_id))
+			{
+				entities.insert(entities.end(),
+					archetype->entities.begin(),
+					archetype->entities.end());
+			}
+		}
+		else
+		{
+			const auto it = m_archetype_map.find(archetype_id);
+			if (it == m_archetype_map.end())
+				return entities;
+
+			entities = it->second->entities;
+		}
+
+		return entities;
+	}
+
+	template<IsContainer T>
+	inline void EntityAdmin::Reserve(const T& component_ids, const ArchetypeID archetype_id, const std::size_t component_count)
+	{
+		assert(cu::IsSorted(component_ids));
+
+		if (!m_archetype_map.contains(archetype_id))
+			CreateArchetype(ComponentIDs { component_ids.begin(), component_ids.end() }, archetype_id); // create if does not exist
+
+		const auto& archetypes = GetArchetypes(component_ids, archetype_id);
+		for (Archetype* archetype : archetypes)
+		{
+			for (const ComponentTypeID component_id : component_ids)
+			{
+				const auto cit = m_component_archetypes_map.find(component_id);
+				if (cit == m_component_archetypes_map.end())
+					continue;
+
+				const auto ait = cit->second.find(archetype->id);
+				if (ait == cit->second.end())
+					continue;
+
+				const auto i = ait->second.column;
+
+				const IComponentAlloc* component = m_component_map[component_id].get();
+				const std::size_t& component_size = component->GetSize();
+
+				const std::size_t current_size = archetype->component_data_size[i];
+				const std::size_t new_size = component_count * component_size;
+
+				if (new_size > current_size) // no need to reserve if already equal
+				{
+					archetype->component_data_size[i] = new_size;
+					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
+
+					for (std::size_t j = 0; j < archetype->entities.size(); ++j)
+					{
+						component->MoveDestroyData(*this, archetype->entities[j],
+							&archetype->component_data[i][j * component_size],
+							&new_data[j * component_size]);
+					}
+
+					archetype->component_data[i] = std::move(new_data);
+				}
+			}
+		}
+	}
+
+	template<IsContainer T>
+	inline const std::vector<Archetype*>& EntityAdmin::GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const
+	{
+		const auto it = m_archetype_cache.find(archetype_id);
+		if (it != m_archetype_cache.end())
+			return it->second;
+
+		std::vector<Archetype*> result;
+		for (const ArchetypePtr& archetype : m_archetypes)
+		{
+			if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
+				result.push_back(archetype.get());
+		}
+
+		return m_archetype_cache.emplace(archetype_id, result).first->second;
 	}
 
 	template<IsComponent C>
