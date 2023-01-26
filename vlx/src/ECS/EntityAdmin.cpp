@@ -468,7 +468,7 @@ std::vector<EntityID> EntityAdmin::GetEntitiesWith(const ComponentIDs& component
 
 	std::vector<EntityID> entities;
 
-	const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
+	const ArchetypeID archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
 
 	if (!restricted)
 	{
@@ -495,7 +495,7 @@ void EntityAdmin::Reserve(const ComponentIDs& component_ids, const std::size_t c
 {
 	assert(cu::IsSorted(component_ids));
 
-	const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
+	const ArchetypeID archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
 
 	if (!m_archetype_map.contains(archetype_id))
 		CreateArchetype(component_ids, archetype_id); // create if does not exist
@@ -580,7 +580,7 @@ Archetype* EntityAdmin::GetArchetype(const ComponentIDs& component_ids)
 {
 	assert(cu::IsSorted(component_ids));
 
-	const ArchetypeID id = cu::VectorHash<ComponentIDs>()(component_ids);
+	const ArchetypeID id = cu::ContainerHash<ComponentIDs>()(component_ids);
 
 	const auto it = m_archetype_map.find(id);
 	if (it != m_archetype_map.end())

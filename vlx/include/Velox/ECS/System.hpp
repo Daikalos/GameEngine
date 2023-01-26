@@ -125,7 +125,7 @@ namespace vlx
 	inline const ArchetypeID& System<Cs...>::GetIDKey() const
 	{
 		if (m_id_key == NULL_ARCHETYPE)
-			m_id_key = cu::VectorHash<ComponentIDs>()(GetArchKey());
+			m_id_key = cu::ContainerHash<ComponentIDs>()(GetArchKey());
 
 		return m_id_key;
 	}	
@@ -134,7 +134,7 @@ namespace vlx
 	inline const ComponentIDs& System<Cs...>::GetArchKey() const
 	{
 		if (m_arch_key.empty())
-			m_arch_key = cu::Sort<std::vector<ComponentTypeID>>({ { ComponentAlloc<Cs>::GetTypeID()... } });
+			m_arch_key = cu::Sort<ComponentIDs>({ { ComponentAlloc<Cs>::GetTypeID()... } });
 
 		return m_arch_key;
 	}
@@ -149,13 +149,13 @@ namespace vlx
 	template<class... Cs2> requires IsComponents<Cs2...>
 	inline void System<Cs1...>::Exclude()
 	{
-		m_exclusion = cu::Sort<ComponentTypeID>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
+		m_exclusion = cu::Sort<ComponentIDs>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
-		if (m_func && !IsArchetypeExcluded(archetype)) // check if func stores callable object and that archetype is not excluded
+		if (m_func && !IsArchetypeExcluded(archetype)) // check if func stores callable object and that the archetype is not excluded
 		{
 			DoAction(
 				archetype->type, 
@@ -168,7 +168,7 @@ namespace vlx
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& c, Ts... cs) const
 	{
-		using CompType = std::tuple_element_t<Index, ComponentTypes>;				// get type of component at index in system components
+		using CompType = std::tuple_element_t<Index, ComponentTypes>;			// get type of component at index in system components
 		constexpr ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
 
 		std::size_t i = 0;
@@ -179,8 +179,7 @@ namespace vlx
 			archetype_comp_id = component_ids[++i];
 		}
 
-		if (i == component_ids.size())
-			throw std::runtime_error("System was executed against an incorrect Archetype");
+		assert(i != component_ids.size());
 
 		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<CompType*>(&c[i][0])); // run again on next component, or call final DoAction
 	}

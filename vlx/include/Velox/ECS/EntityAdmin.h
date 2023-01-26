@@ -475,7 +475,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
-		AddComponents(entity_id, cu::Sort<std::vector<ComponentTypeID>>({ { GetComponentID<Cs>()... } }));
+		AddComponents(entity_id, cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } }));
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -487,18 +487,7 @@ namespace vlx
 	template<IsComponent C>
 	inline C& EntityAdmin::SetComponent(const EntityID entity_id, const C& new_component)
 	{
-		assert(IsComponentRegistered<C>()); // component should be registered
-
-		constexpr ComponentTypeID component_id = GetComponentID<C>();
-
-		const Record& record = m_entity_archetype_map.find(entity_id)->second;
-		const Archetype* archetype = record.archetype;
-
-		const auto cit = m_component_archetypes_map.find(component_id);
-		const auto ait = cit->second.find(archetype->id);
-
-		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-		C& component = components[record.index];
+		C& component = GetComponent<C>(entity_id);
 
 		if (&component == &new_component)
 			throw std::runtime_error("cannot set the same component");
@@ -752,8 +741,8 @@ namespace vlx
 	template<class... Cs, class Comp> requires IsComponents<Cs...>
 	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
-		const ComponentIDs component_ids = cu::Sort<ComponentTypeID>({ { GetComponentID<Cs>()... } });
-		const ArchetypeID archetype_id = cu::VectorHash<ComponentIDs>()(component_ids);
+		const ComponentIDs component_ids = cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } });
+		const ArchetypeID archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
@@ -827,13 +816,13 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
-		Reserve(cu::Sort<std::vector<ComponentTypeID>>({ { GetComponentID<Cs>()... } }), component_count);
+		Reserve(cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } }), component_count);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		return GetEntitiesWith(cu::Sort<std::vector<ComponentTypeID>>({ { GetComponentID<Cs>()... } }), restricted);
+		return GetEntitiesWith(cu::Sort<ComponentIDs>({ { GetComponentID<Cs>()... } }), restricted);
 	}
 
 	template<IsComponent C>

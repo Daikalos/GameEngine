@@ -96,8 +96,8 @@ namespace vlx::cu
 			vector.begin(), vector.end(), item, std::forward<Pred>(pred)), item);
 	}
 
-	template<typename T>
-	[[nodiscard]] static constexpr auto FindSorted(const std::vector<T>& vector, const T& item)
+	template<IsContainer T, typename U = typename T::value_type>
+	[[nodiscard]] static constexpr auto FindSorted(const T& vector, const U& item)
 	{
 		return std::lower_bound(vector.begin(), vector.end(), item);
 	}
@@ -122,19 +122,6 @@ namespace vlx::cu
 		return cntn;
 	}
 
-	template<IsContainer T, std::size_t N>
-	static constexpr void Sort(std::array<T, N>& array)
-	{
-		std::sort(array.begin(), array.end());
-	}
-
-	template<IsContainer T, std::size_t N>
-	static constexpr auto Sort(std::array<T, N>&& array)
-	{
-		std::sort(array.begin(), array.end());
-		return array;
-	}
-
 	template<IsContainer T>
 	static constexpr bool IsSorted(T&& cntn)
 	{
@@ -156,7 +143,7 @@ namespace vlx::cu
 	template<IsContainer T, typename Comp>
 	static constexpr bool IsSorted(const T& cntn, Comp&& comp)
 	{
-		return std::is_sorted(cntn.begin(), cntn.end());
+		return std::is_sorted(cntn.begin(), cntn.end(), comp);
 	}
 
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
@@ -200,29 +187,9 @@ namespace vlx::cu
 	}
 
 	template<IsContainer T, Integral SizeType = typename T::value_type>
-	struct VectorHash
+	struct ContainerHash
 	{
 		constexpr SizeType operator()(const T& IsContainer) const
-		{
-			std::size_t seed = IsContainer.size();
-
-			for (auto x : IsContainer)
-			{
-				x = ((x >> 16) ^ x) * 0x45d9f3b;
-				x = ((x >> 16) ^ x) * 0x45d9f3b;
-				x = (x >> 16) ^ x;
-
-				seed ^= static_cast<std::size_t>(x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-			}
-
-			return static_cast<SizeType>(seed);
-		}
-	};
-
-	template<class T, std::size_t N, Integral SizeType = typename T::value_type>
-	struct ArrayHash
-	{
-		constexpr SizeType operator()(const std::array<T, N>& IsContainer) const
 		{
 			std::size_t seed = IsContainer.size();
 
