@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
+#include <Velox/Utilities/NonCopyable.h>
 
 namespace vlx
 {

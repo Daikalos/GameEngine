@@ -2,8 +2,8 @@
 
 #include <Velox/Utilities.hpp>
 
-#include "Identifiers.hpp"
 #include "EntityAdmin.h"
+#include "Identifiers.hpp"
 #include "ComponentRef.hpp"
 
 namespace vlx

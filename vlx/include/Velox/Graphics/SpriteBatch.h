@@ -1,14 +1,13 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include <numeric>
 #include <unordered_set>
+
+#include <SFML/Graphics.hpp>
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/Components/IBatchable.h>
-#include <Velox/Components/Sprite.h>
 #include <Velox/Components/Transform.h>
 
 namespace vlx

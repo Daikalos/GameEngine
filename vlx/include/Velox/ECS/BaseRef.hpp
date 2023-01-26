@@ -1,12 +1,11 @@
 #pragma once
 
+#include "EntityAdmin.h"
 #include "Identifiers.hpp"
 #include "IComponentRef.hpp"
 
 namespace vlx
 {
-	class EntityAdmin;
-
 	template<class B>
 	class BaseRef final : public IComponentRef
 	{

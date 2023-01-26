@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
+
+#include <SFML/Graphics.hpp>
 
 #include <string_view>
 
@@ -16,7 +16,7 @@ namespace vlx
 	{
 		Windowed,
 		Fullscreen,
-		BorderlessWindowed // TODO : FIX BORDERLESS WINDOWED ON LOWER RESOLUTION, ALSO LOOK FOR SOLUTION ON FULLSCREEN AT MAX RESOLUTION
+		BorderlessWindowed // TODO: FIX BORDERLESS WINDOWED ON LOWER RESOLUTION, ALSO LOOK FOR SOLUTION ON FULLSCREEN AT MAX RESOLUTION
 	};
 
 	/// <summary>
@@ -66,7 +66,6 @@ namespace vlx
 		sf::Vector2f		m_ratio_cmp;								// current ratio in percentage when compared to default desktop mode
 		bool				m_vertical_sync	{false};					// vertical sync
 		int					m_frame_rate	{144};						// maximum frame rate
-		bool				m_hide_cursor	{false};
 
 		mutable std::vector<sf::VideoMode> m_cached_modes;
 	};

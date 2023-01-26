@@ -51,6 +51,14 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 					button.Release();
 			}
 		});
+
+	m_label_system.Action([](std::span<const EntityID> entities, Object* objects, Transform* transforms, Label* labels)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+			{
+
+			}
+		});
 }
 
 void GUISystem::Update()

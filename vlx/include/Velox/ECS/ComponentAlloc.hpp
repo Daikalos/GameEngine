@@ -1,9 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
-#include <Velox/Utilities.hpp>
-
 #include "Identifiers.hpp"
 #include "IComponent.h"
 

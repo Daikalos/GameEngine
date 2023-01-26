@@ -1,8 +1,19 @@
 #pragma once
 
+#include <typeindex>
+#include <map>
+#include <unordered_map>
+
 #include <SFML/Graphics.hpp>
 
 #include <Velox/ECS.hpp>
+#include <Velox/Utilities.hpp>
+#include <Velox/Input.hpp>
+#include <Velox/Graphics.hpp>
+#include <Velox/Config.hpp>
+#include <Velox/Window.hpp>
+
+#include <Velox/Scene/StateStack.h>
 
 #include "Systems/AnchorSystem.h"
 #include "Systems/ObjectSystem.h"
@@ -10,20 +21,6 @@
 #include "Systems/RelationSystem.h"
 #include "Systems/TransformSystem.h"
 #include "Systems/GUISystem.h"
-
-#include <Velox/Window/Window.h>
-#include <Velox/Window/Camera.h>
-
-#include <Velox/Utilities.hpp>
-#include <Velox/Input.hpp>
-#include <Velox/Graphics.hpp>
-#include <Velox/Config.hpp>
-
-#include <Velox/Scene/StateStack.h>
-
-#include <typeindex>
-#include <map>
-#include <unordered_map>
 
 #include "EngineBinds.h"
 

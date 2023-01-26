@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
 #include <unordered_map>
 #include <memory>
+
+#include <Velox/Utilities/Concepts.h>
 
 namespace vlx
 {

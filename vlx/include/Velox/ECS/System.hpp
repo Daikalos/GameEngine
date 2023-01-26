@@ -1,7 +1,7 @@
 #pragma once
 
-#include <functional>
 #include <span>
+#include <functional>
 #include <unordered_set>
 
 #include <Velox/Utilities.hpp>
@@ -82,7 +82,7 @@ namespace vlx
 		Func			m_func;
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
-		ArrComponentIDs<Cs...>	m_exclusion;
+		ArrComponentIDs<Cs...>	m_exclusion{};
 		mutable ArchetypeCache	m_excluded_archetypes;
 
 		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};

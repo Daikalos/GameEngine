@@ -1,10 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include <unordered_map>
 #include <typeindex>
 #include <memory>
+
+#include <SFML/Graphics.hpp>
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>

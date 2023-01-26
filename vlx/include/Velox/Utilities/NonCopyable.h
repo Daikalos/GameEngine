@@ -4,7 +4,7 @@
 
 namespace vlx
 {
-	class VELOX_API_EXPORT NonCopyable // custom NonCopyable because sfml's gives weird linking error
+	class VELOX_API NonCopyable // custom NonCopyable because sfml's gives weird linking error
 	{
 	protected:
 		NonCopyable() { }

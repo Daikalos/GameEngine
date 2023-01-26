@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include <memory>
 #include <functional>
+
+#include <SFML/Graphics.hpp>
 
 #include <Velox/Config.hpp>
 #include <Velox/Utilities.hpp>

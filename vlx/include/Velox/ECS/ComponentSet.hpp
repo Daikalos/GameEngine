@@ -1,11 +1,9 @@
 #pragma once
 
-#include <Velox/ECS.hpp>
-
-#include <Velox/Utilities.hpp>
-
 #include <unordered_map>
 #include <memory>
+
+#include <Velox/Utilities.hpp>
 
 #include "ComponentRef.hpp"
 #include "ComponentAlloc.hpp"

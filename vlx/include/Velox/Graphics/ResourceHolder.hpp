@@ -1,12 +1,12 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include <future>
 #include <memory>
 #include <unordered_map>
 #include <string_view>
 #include <thread>
+
+#include <SFML/Graphics.hpp>
 
 #include <Velox/Utilities.hpp>
 

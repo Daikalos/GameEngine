@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Graphics/ResourceHolder.hpp>
 #include <Velox/Window/Window.h>
 #include <Velox/Utilities.hpp>
 

@@ -8,9 +8,9 @@
 
 #include "Concepts.h"
 
-////////////////////////////////////////////////////////////
-// General utility class for arithmetic numbers
-////////////////////////////////////////////////////////////
+/// <summary>
+///		General utility class for arithmetic numbers
+/// </summary>
 namespace vlx::au
 {
 	template<Arithmetic T>

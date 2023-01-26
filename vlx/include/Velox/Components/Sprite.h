@@ -4,7 +4,6 @@
 
 #include <Velox/Config.hpp>
 #include <Velox/Utilities.hpp>
-
 #include <Velox/ECS/IComponent.h>
 
 #include "IBatchable.h"

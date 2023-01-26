@@ -4,5 +4,5 @@
 
 namespace vlx
 {
-	using StateID = int64_t;
+	using StateID = int32_t;
 }
