@@ -13,7 +13,6 @@ namespace vlx
 		virtual ~IComponentRef() = default;
 
 		virtual constexpr bool IsValid() const noexcept = 0;
-		virtual constexpr bool IsExpired() const = 0;
 
 		virtual void Reset() = 0;
 		virtual void ForceUpdate() = 0;

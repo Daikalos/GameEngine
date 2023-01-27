@@ -2,9 +2,9 @@
 
 using namespace vlx;
 
-constexpr bool Relation::HasParent() const noexcept
+bool Relation::HasParent() const noexcept
 {
-	return m_parent != NULL_ENTITY;
+	return m_parent != nullptr;
 }
 
 constexpr bool Relation::HasChildren() const noexcept
@@ -12,11 +12,11 @@ constexpr bool Relation::HasChildren() const noexcept
 	return !m_children.empty();
 }
 
-const EntityID& Relation::GetParent() const noexcept
+auto Relation::GetParent() const noexcept -> const RelationPtr
 {
 	return m_parent;
 }
-const std::vector<EntityID>& Relation::GetChildren() const noexcept
+auto Relation::GetChildren() const noexcept -> const std::vector<RelationPtr>&
 {
 	return m_children;
 }
@@ -27,9 +27,9 @@ void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 
 	if (HasParent())
 	{
-		Relation& parent = entity_admin.GetComponent<Relation>(m_parent);
+		Relation& parent = **m_parent;
 
-		parent.m_children.emplace_back(entity_id);
+		parent.m_children.push_back(entity_admin.GetComponentRef<Relation>(entity_id, this));
 		parent.PropagateAttach(entity_admin, entity_id, *this);
 	}
 
@@ -47,15 +47,10 @@ void Relation::Modified(const EntityAdmin& entity_admin, const EntityID entity_i
 	const Relation& new_relation = static_cast<const Relation&>(new_data);
 
 	if (new_relation.HasParent())
-	{
-		entity_admin.GetComponent<Relation>(new_relation.m_parent)
-			.AttachChild(entity_admin, new_relation.m_parent, entity_id, *this);
-	}
+		(*new_relation.m_parent)->AttachChild(entity_admin, new_relation.m_parent->GetEntityID(), entity_id, *this);
 
-	for (const EntityID child : new_relation.m_children)
-	{
-		AttachChild(entity_admin, entity_id, child, entity_admin.GetComponent<Relation>(child));
-	}
+	for (const auto& child : new_relation.m_children)
+		AttachChild(entity_admin, entity_id, child->GetEntityID(), **child);
 }
 
 void Relation::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
@@ -63,15 +58,10 @@ void Relation::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_
 	// When the relation is destroyed, we need to detach it accordingly
 
 	if (HasParent())
-	{
-		entity_admin.GetComponent<Relation>(m_parent)
-			.DetachChild(entity_admin, m_parent, entity_id, *this);
-	}
+		(*m_parent)->DetachChild(entity_admin, m_parent->GetEntityID(), entity_id, *this);
 
-	for (const EntityID child : m_children)
-	{
-		DetachChild(entity_admin, entity_id, child, entity_admin.GetComponent<Relation>(child));
-	}
+	for (const auto& child : m_children)
+		DetachChild(entity_admin, entity_id, child->GetEntityID(), **child);
 }
 
 void Relation::AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child)
@@ -79,39 +69,37 @@ void Relation::AttachChild(const EntityAdmin& entity_admin, const EntityID entit
 	if (m_descendants.contains(child_id))
 		throw std::runtime_error("The new parent cannot be a descendant of the child");
 
-	if (child.m_parent == entity_id) // child is already correctly parented
+	if (child.HasParent() && child.m_parent->GetEntityID() == entity_id) // child is already correctly parented
 		return;
 
-	if (m_parent == child_id) // special case
-	{
-		entity_admin.GetComponent<Relation>(m_parent)
-			.DetachChild(entity_admin, m_parent, entity_id, *this);
-	}
+	if (HasParent() && m_parent->GetEntityID() == child_id) // special case
+		(*m_parent)->DetachChild(entity_admin, m_parent->GetEntityID(), entity_id, *this);
 
-	if (child.m_parent != NULL_ENTITY) // if child already has an attached parent we need to detach it
-	{
-		entity_admin.GetComponent<Relation>(child.m_parent)
-			.DetachChild(entity_admin, child.m_parent, child_id, child);
-	}
+	if (child.HasParent()) // if child already has an attached parent we need to detach it
+		(*child.m_parent)->DetachChild(entity_admin, child.m_parent->GetEntityID(), child_id, child);
 
-	child.m_parent = entity_id;
-	m_children.push_back(child_id);
+	child.m_parent = entity_admin.GetComponentRef<Relation>(entity_id, this);
+	m_children.push_back(entity_admin.GetComponentRef<Relation>(child_id, &child));
 
 	PropagateAttach(entity_admin, child_id, child);
 }
 
-const EntityID Relation::DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child)
+EntityID Relation::DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child)
 {
-	auto found = std::find(m_children.begin(), m_children.end(), child_id);
+	auto found = std::find_if(m_children.begin(), m_children.end(), 
+		[&child_id](const RelationPtr& ptr)
+		{
+			return ptr->GetEntityID() == child_id;
+		});
 
 	if (found == m_children.end())
 		return NULL_ENTITY;
 
 	PropagateDetach(entity_admin, child_id, child);
 
-	child.m_parent = NULL_ENTITY;
+	child.m_parent.reset();
 
-	*found = m_children.back();
+	*found = m_children.back(); // TODO: uncertain if works
 	m_children.pop_back();
 
 	return child_id;
@@ -129,10 +117,7 @@ void Relation::PropagateAttach(const EntityAdmin& entity_admin, const EntityID c
 	m_descendants.insert(child.m_descendants.begin(), child.m_descendants.end());
 
 	if (HasParent())
-	{
-		entity_admin.GetComponent<Relation>(m_parent)
-			.PropagateAttach(entity_admin, child_id, child);
-	}
+		(*m_parent)->PropagateAttach(entity_admin, child_id, child);
 }
 
 void Relation::PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation& child)
@@ -147,8 +132,5 @@ void Relation::PropagateDetach(const EntityAdmin& entity_admin, const EntityID c
 	m_descendants.erase(child.m_descendants.begin(), child.m_descendants.end());
 
 	if (HasParent())
-	{
-		entity_admin.GetComponent<Relation>(m_parent)
-			.PropagateDetach(entity_admin, child_id, child);
-	}
+		(*m_parent)->PropagateDetach(entity_admin, child_id, child);
 }

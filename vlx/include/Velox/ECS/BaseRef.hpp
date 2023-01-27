@@ -28,9 +28,7 @@ namespace vlx
 
 	public:
 		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
-
 		[[nodiscard]] constexpr bool IsValid() const noexcept override;
-		[[nodiscard]] constexpr bool IsExpired() const override;
 
 	public:
 		void Reset() override;
@@ -39,12 +37,9 @@ namespace vlx
 	private:
 		const EntityAdmin*	m_entity_admin			{nullptr};
 		EntityID			m_entity_id				{NULL_ENTITY};
-
 		ComponentTypeID		m_child_component_id	{0};
 		std::uint32_t		m_offset				{0};
-
 		B*					m_base_component		{nullptr};
-		bool				m_expired				{false};
 	};
 
 	template<class B>
@@ -78,7 +73,7 @@ namespace vlx
 	template<class B>
 	inline BaseRef<B>::operator bool() const noexcept
 	{
-		return IsExpired();
+		return IsValid();
 	}
 
 	template<class B>
@@ -107,12 +102,6 @@ namespace vlx
 	}
 
 	template<class B>
-	inline constexpr bool BaseRef<B>::IsExpired() const
-	{
-		return m_expired;
-	}
-
-	template<class B>
 	inline void BaseRef<B>::Reset()
 	{
 		m_base_component = nullptr;
@@ -125,16 +114,7 @@ namespace vlx
 
 		if (!IsValid())
 		{
-			auto [base_component, success] = m_entity_admin->TryGetBase<B>(m_entity_id, m_child_component_id, m_offset);
-
-			if (!success)
-			{
-				m_expired = true;
-				return;
-			}
-
-			m_base_component = base_component;
-			m_expired = false;
+			m_base_component = m_entity_admin->TryGetBase<B>(m_entity_id, m_child_component_id, m_offset).first;
 		}
 	}
 }

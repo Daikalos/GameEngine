@@ -11,6 +11,8 @@
 
 namespace vlx
 {
+	static constexpr std::uint8_t QUAD_COUNT = 4;
+
 	class SpriteBatch;
 
 	/// <summary>
@@ -20,7 +22,7 @@ namespace vlx
 	class VELOX_API Sprite : public IComponent, public IBatchable
 	{
 	private:
-		using VertexArray = std::array<sf::Vertex, 4>;
+		using VertexArray = std::array<sf::Vertex, QUAD_COUNT>;
 		using TextureRect = sf::Rect<std::uint16_t>; // textures are usually not larger than unsigned short in either width or height
 
 	public:

@@ -6,6 +6,7 @@
 
 #include <Velox/ECS/EntityAdmin.h>
 #include <Velox/ECS/Identifiers.hpp>
+#include <Velox/ECS/ComponentRef.hpp>
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
@@ -17,6 +18,9 @@ namespace vlx
 	class Relation : public IComponent
 	{
 	private:
+		using RelationPtr = ComponentRefPtr<Relation>;
+		using ChildrenPtr = std::vector<RelationPtr>;
+
 		template<class C>
 		using CompFunc = std::function<bool(C&)>;
 
@@ -24,15 +28,15 @@ namespace vlx
 		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
-		VELOX_API [[nodiscard]] constexpr bool HasParent() const noexcept;
+		VELOX_API [[nodiscard]] bool HasParent() const noexcept;
 		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
 
-		VELOX_API [[nodiscard]] const EntityID& GetParent() const noexcept;
-		VELOX_API [[nodiscard]] const std::vector<EntityID>& GetChildren() const noexcept;
+		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationPtr;
+		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const std::vector<RelationPtr>&;
 
 	public:
 		VELOX_API void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
-		VELOX_API const EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
+		VELOX_API EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
 
 	private:
 		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
@@ -49,19 +53,19 @@ namespace vlx
 		template<class C>
 		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = false);
 
-	protected:
-		EntityID						m_parent	{NULL_ENTITY};
-		std::vector<EntityID>			m_children;
+	private:
+		RelationPtr	m_parent;
+		ChildrenPtr	m_children;
 
-		std::unordered_set<EntityID>	m_descendants; // list of all descendants (to prevent parenting them when attaching)
+		std::unordered_set<EntityID> m_descendants; // list of all descendants (to prevent parenting them when attaching)
 	};
 
 	template<class C>
 	inline void Relation::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants) const
 	{
-		for (const EntityID child_id : m_children)
+		for (const RelationPtr& ptr : m_children)
 		{
-			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(child_id);
+			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(ptr->GetEntityID());
 
 			if (success)
 			{
@@ -71,8 +75,7 @@ namespace vlx
 
 			if (include_descendants) // continue iterating descendants
 			{
-				entity_admin.GetComponent<Relation>(child_id)
-					.IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
+				(*ptr)->IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
 			}
 		}
 	}
@@ -81,14 +84,14 @@ namespace vlx
 	inline void Relation::SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
 	{
 		std::sort(m_children.begin(), m_children.end(),
-			[&func, &entity_admin](const EntityID lhs, const EntityID rhs)
+			[&func, &entity_admin](const RelationPtr& lhs, const RelationPtr& rhs)
 			{
-				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs);
+				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs->GetEntityID());
 
 				if (!lhs_success)
 					return false;
 
-				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs);
+				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs->GetEntityID());
 
 				if (!rhs_success)
 					return false;
@@ -98,10 +101,9 @@ namespace vlx
 
 		if (include_descendants)
 		{
-			for (const EntityID child_id : m_children)
+			for (const RelationPtr& ptr : m_children)
 			{
-				entity_admin.GetComponent<Relation>(child_id)
-					.SortChildren(func, entity_admin, include_descendants);
+				(*ptr)->SortChildren(func, entity_admin, include_descendants);
 			}
 		}
 	}

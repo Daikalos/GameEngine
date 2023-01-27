@@ -498,7 +498,7 @@ void EntityAdmin::ClearComponentRefs()
 				auto ptr = pair2.second.lock();
 
 				ptr->ForceUpdate();
-				return ptr->IsExpired();
+				return !ptr->IsValid();
 			});
 	}
 }
@@ -518,7 +518,7 @@ void EntityAdmin::ClearComponentRefs(const EntityID entity_id)
 			auto ptr = pair.second.lock();
 
 			ptr->ForceUpdate();
-			return ptr->IsExpired();
+			return !ptr->IsValid();
 		});
 }
 

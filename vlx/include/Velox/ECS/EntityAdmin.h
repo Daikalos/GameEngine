@@ -23,7 +23,7 @@ namespace vlx
 
 	class IComponentRef;
 
-	template<IsComponent>
+	template<class>
 	class ComponentRef;
 
 	template<class>
@@ -34,8 +34,8 @@ namespace vlx
 
 	// global using
 
-	template<IsComponent C>
-	using ComponentRefPtr	= std::shared_ptr<ComponentRef<C>>;
+	template<class C>
+	using ComponentRefPtr = std::shared_ptr<ComponentRef<C>>;
 	template<class B>
 	using BaseRefPtr = std::shared_ptr<BaseRef<B>>;
 
@@ -199,14 +199,14 @@ namespace vlx
 		///		modified. The proxy will internally get the component's new data location once it has been modified.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] auto GetComponentRef(const EntityID entity_id) const -> ComponentRefPtr<C>;
+		[[nodiscard]] auto GetComponentRef(const EntityID entity_id, C* component = nullptr) const -> ComponentRefPtr<C>;
 
 		/// <summary>
 		///		Tries to return a component proxy, will most likely always succeed, and will only return false if the 
 		///		entity does not exist or other unknown error occurs.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] auto TryGetComponentRef(const EntityID entity_id) const -> std::pair<ComponentRefPtr<C>, bool>;
+		[[nodiscard]] auto TryGetComponentRef(const EntityID entity_id, C* component = nullptr) const -> std::pair<ComponentRefPtr<C>, bool>;
 
 		/// <summary>
 		///		Returns a proxy for the base whose pointer will remain valid even when the internal data is 
@@ -646,7 +646,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline auto EntityAdmin::GetComponentRef(const EntityID entity_id) const -> ComponentRefPtr<C>
+	inline auto EntityAdmin::GetComponentRef(const EntityID entity_id, C* component) const -> ComponentRefPtr<C>
 	{
 		assert(IsComponentRegistered<C>());
 
@@ -656,7 +656,7 @@ namespace vlx
 		const auto cit = component_proxies.find(component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			ComponentRefPtr<C> proxy = std::make_shared<ComponentRef<C>>(*this, entity_id);
+			ComponentRefPtr<C> proxy = std::make_shared<ComponentRef<C>>(*this, entity_id, component);
 			component_proxies[component_id] = proxy;
 
 			return proxy;
@@ -666,12 +666,12 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline auto EntityAdmin::TryGetComponentRef(const EntityID entity_id) const -> std::pair<ComponentRefPtr<C>, bool>
+	inline auto EntityAdmin::TryGetComponentRef(const EntityID entity_id, C* component) const -> std::pair<ComponentRefPtr<C>, bool>
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent<C>(entity_id))
 			return { nullptr, false };
 
-		return { GetComponentRef<C>(entity_id), true};
+		return { GetComponentRef<C>(entity_id, component), true};
 	}
 
 	template<class B>

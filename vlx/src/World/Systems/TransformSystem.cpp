@@ -62,7 +62,7 @@ void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle a
 
 void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation, const sf::Vector2f& position)
 {
-	Transform& parent = m_entity_admin->GetComponent<Transform>(relation.GetParent());
+	Transform& parent = m_entity_admin->GetComponent<Transform>(relation.GetParent()->GetEntityID());
 	transform.SetPosition(parent.GetInverseTransform() * position);
 }
 void TransformSystem::SetGlobalScale(Transform& transform, Relation& relation, const sf::Vector2f& scale)
@@ -89,10 +89,9 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 
 	transform.m_dirty = false;
 
-	for (const EntityID child_id : relation.GetChildren()) // all of the children needs their global transform to be updated
+	for (const auto& ptr : relation.GetChildren()) // all of the children needs their global transform to be updated
 	{
-		CleanTransforms(m_entity_admin->GetComponent<Transform>(child_id), 
-			m_entity_admin->GetComponent<Relation>(child_id));
+		CleanTransforms(m_entity_admin->GetComponent<Transform>(ptr->GetEntityID()), **ptr);
 	}
 }
 void TransformSystem::UpdateTransforms(Transform& transform, const Relation& relation) const
@@ -102,10 +101,9 @@ void TransformSystem::UpdateTransforms(Transform& transform, const Relation& rel
 
 	if (relation.HasParent())
 	{
-		Transform& parent_transform = m_entity_admin->GetComponent<Transform>(relation.GetParent()); // TODO: find way to replace GetComponent, maybe use ComponentRef
-		const Relation& parent_relation = m_entity_admin->GetComponent<Relation>(relation.GetParent());
+		Transform& parent_transform = m_entity_admin->GetComponent<Transform>(relation.GetParent()->GetEntityID()); // TODO: find way to replace GetComponent, maybe use ComponentRef
 
-		UpdateTransforms(parent_transform, parent_relation);
+		UpdateTransforms(parent_transform, **relation.GetParent());
 		transform.ComputeTransform(parent_transform.GetTransform());
 
 		const float* matrix = transform.m_model_transform.getMatrix();
