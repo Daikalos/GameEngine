@@ -84,8 +84,6 @@ namespace vlx // concepts is the best thing ever
 
 	// UNIQUE
 
-	class IComponent;
-
 	template<class Resource>
 	concept IsLoadable = requires(Resource resource)
 	{
@@ -99,6 +97,8 @@ namespace vlx // concepts is the best thing ever
 		{ input.Released(Bind()) } -> std::same_as<bool>;
 		{ input.Held(Bind()) } -> std::same_as<bool>;
 	};
+
+	class IComponent;
 
 	template<class C>
 	concept IsComponent = std::derived_from<C, IComponent> && std::is_class_v<C> && std::semiregular<C> && sizeof(C) > 1;

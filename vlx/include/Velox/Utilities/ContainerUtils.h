@@ -10,11 +10,11 @@ namespace vlx::cu
 	template<IsContainer T, Integral SizeType = typename T::value_type>
 	struct ContainerHash
 	{
-		constexpr SizeType operator()(const T& IsContainer) const
+		constexpr SizeType operator()(const T& container) const
 		{
-			std::size_t seed = IsContainer.size();
+			std::size_t seed = container.size();
 
-			for (auto x : IsContainer)
+			for (auto x : container)
 			{
 				x = ((x >> 16) ^ x) * 0x45d9f3b;
 				x = ((x >> 16) ^ x) * 0x45d9f3b;
@@ -94,9 +94,9 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	static constexpr bool SwapPop(std::vector<T>& vector, const T& compare)
+	static constexpr bool SwapPop(std::vector<T>& vector, const T& item)
 	{
-		auto it = std::find(vector.begin(), vector.end(), compare);
+		auto it = std::find(vector.begin(), vector.end(), item);
 
 		if (it == vector.end())
 			return false;
@@ -121,10 +121,16 @@ namespace vlx::cu
 		return true;
 	}
 
+	template<IsContainer T, typename U = typename T::value_type>
+	[[nodiscard]] static constexpr auto FindSorted(const T& vector, const U& item)
+	{
+		return std::lower_bound(vector.begin(), vector.end(), item);
+	}
+
 	template<typename T>
 	static constexpr bool InsertSorted(std::vector<T>& vector, const T& item)
 	{
-		const auto it = std::lower_bound(vector.begin(), vector.end(), item);
+		const auto it = FindSorted(vector, item);
 
 		if (it == vector.end() || *it != item)
 		{
@@ -138,7 +144,7 @@ namespace vlx::cu
 	template<typename T>
 	static constexpr bool EraseSorted(std::vector<T>& vector, const T& item)
 	{
-		const auto it = std::lower_bound(vector.begin(), vector.end(), item);
+		const auto it = FindSorted(vector, item);
 
 		if (it != vector.end() && *it == item)
 		{
@@ -147,19 +153,6 @@ namespace vlx::cu
 		}
 
 		return false;
-	}
-
-	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	static constexpr auto InsertSorted(std::vector<T>& vector, const T& item, Pred&& pred)
-	{
-		return vector.insert(std::upper_bound(
-			vector.begin(), vector.end(), item, std::forward<Pred>(pred)), item);
-	}
-
-	template<IsContainer T, typename U = typename T::value_type>
-	[[nodiscard]] static constexpr auto FindSorted(const T& vector, const U& item)
-	{
-		return std::lower_bound(vector.begin(), vector.end(), item);
 	}
 
 	template<IsContainer T>

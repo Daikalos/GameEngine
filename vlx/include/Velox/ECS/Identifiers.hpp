@@ -22,8 +22,9 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	using ArrComponentIDs	= std::array<ComponentTypeID, sizeof...(Cs)>;
 
-	static constexpr EntityID NULL_ENTITY		= NULL;
-	static constexpr ArchetypeID NULL_ARCHETYPE	= NULL;
+	static constexpr EntityID			NULL_ENTITY		= NULL;
+	static constexpr ComponentTypeID	NULL_COMPONENT	= NULL;
+	static constexpr ArchetypeID		NULL_ARCHETYPE	= NULL;
 
 	enum SystemLayers : LayerType
 	{

@@ -82,7 +82,7 @@ namespace vlx
 		Func			m_func;
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
 
-		ArrComponentIDs<Cs...>	m_exclusion{};
+		ComponentIDs			m_exclusion;
 		mutable ArchetypeCache	m_excluded_archetypes;
 
 		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};
@@ -157,7 +157,7 @@ namespace vlx
 	template<class... Cs2> requires IsComponents<Cs2...>
 	inline void System<Cs1...>::Exclude()
 	{
-		m_exclusion = cu::Sort<ArrComponentIDs<Cs2...>>({ { ComponentAlloc<Cs2>::GetTypeID()... } });
+		m_exclusion = cu::Sort<ComponentIDs>({ ComponentAlloc<Cs2>::GetTypeID()... });
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

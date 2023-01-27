@@ -134,7 +134,7 @@ namespace vlx
 		///		Tries to set the component for entity, will return false if it fails.
 		/// </summary>
 		template<IsComponent C>
-		[[nodiscard]] std::pair<C*, bool> TrySetComponent(const EntityID entity_id, const C& new_component);
+		std::pair<C*, bool> TrySetComponent(const EntityID entity_id, const C& new_component);
 
 		/// <summary>
 		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
@@ -260,8 +260,7 @@ namespace vlx
 		[[nodiscard]] std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
 		/// <summary>
-		///		Increase the capacity in each matching archetype to reduce reallocations. Do note that it
-		///		will create new archetypes to reserve if they do not exist.
+		///		Increases the capacity of the archetype containing an exact match of the specified components.
 		/// </summary>
 		/// <param name="component_count:">
 		///		Number of components to reserve for in the archetypes
@@ -280,6 +279,11 @@ namespace vlx
 		[[nodiscard]] const std::vector<Archetype*>& GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
 
 	private:
+		template<IsContainer T>
+		[[nodiscard]] Archetype* GetArchetype(const T& component_ids, const ArchetypeID archetype_id);
+		template<IsContainer T>
+		Archetype* CreateArchetype(const T& component_ids, const ArchetypeID archetype_id);
+
 		template<IsComponent C>
 		void ResetComponentRefs(const EntityID entity_id) const;
 
@@ -301,7 +305,7 @@ namespace vlx
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
-		VELOX_API void AddComponents(const EntityID entity_id, ComponentIDs&& component_ids);
+		VELOX_API void AddComponents(const EntityID entity_id, ComponentIDs&& component_ids, const ArchetypeID archetype_id);
 		VELOX_API bool RemoveComponents(const EntityID entity_id, ComponentIDs&& component_ids);
 
 	public:
@@ -323,11 +327,7 @@ namespace vlx
 		VELOX_API void ClearComponentRefs(const EntityID entity_id);
 
 	private:
-		VELOX_API [[nodiscard]] Archetype* GetArchetype(const ComponentIDs& component_ids);
-		VELOX_API [[nodiscard]] Archetype* CreateArchetype(const ComponentIDs& component_ids, const ArchetypeID id);
-
 		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i);
-
 		VELOX_API void ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const;
 
 	private:
@@ -392,7 +392,7 @@ namespace vlx
 			if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 				return nullptr;
 
-			new_archetype = GetArchetype(new_archetype_id);
+			new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
 			assert(new_archetype_id == new_archetype->type);
 
 			const EntityID last_entity_id = old_archetype->entities.back();
@@ -449,7 +449,7 @@ namespace vlx
 		else // if the entity has no archetype, first component
 		{
 			ComponentIDs new_archetype_id(1, add_component_id);	// construct archetype with the component id
-			new_archetype = GetArchetype(new_archetype_id);		// construct or get archetype using the id
+			new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id)); // construct or get archetype using the id
 
 			const IComponentAlloc* component	= m_component_map[add_component_id].get();
 			const std::size_t& component_size	= component->GetSize();
@@ -477,7 +477,9 @@ namespace vlx
 	inline void EntityAdmin::AddComponents(const EntityID entity_id)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		AddComponents(entity_id, { component_ids.begin(), component_ids.end() });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		AddComponents(entity_id, { component_ids.begin(), component_ids.end() }, archetype_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -507,40 +509,22 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
-		const auto eit = m_entity_archetype_map.find(entity_id);
-		if (eit == m_entity_archetype_map.end())
-			return { nullptr, false };
+		const auto [component, success] = TryGetComponent<C>(entity_id);
 
-		const Record& record = eit->second;
-		const Archetype* archetype = record.archetype;
+		if (!success)
+			return { component, success };
 
-		if (archetype == nullptr)
-			return { nullptr, false };
+		if (component != &new_component)
+		{
+			static_cast<IComponent&>(*component).Modified(
+				*this, entity_id, static_cast<const IComponent&>(new_component));
 
-		constexpr ComponentTypeID component_id = GetComponentID<C>();
+			*component = new_component;
 
-		const auto cit = m_component_archetypes_map.find(component_id);
-		if (cit == m_component_archetypes_map.end())
-			return { nullptr, false };
+			return { component, success };
+		}
 
-		const auto ait = cit->second.find(archetype->id);
-		if (ait == cit->second.end())
-			return { nullptr, false };
-
-		const ArchetypeRecord& a_record = ait->second;
-
-		C* components = reinterpret_cast<C*>(&archetype->component_data[ait->second.column][0]);
-		C& component = components[record.index];
-
-		if (&component == &new_component)
-			throw std::runtime_error("cant set the same component");
-
-		static_cast<IComponent&>(component).Modified(
-			*this, entity_id, static_cast<const IComponent&>(new_component));
-
-		component = new_component;
-
-		return { &component, true };
+		return { nullptr, false };
 	}
 
 	template<IsComponent C>
@@ -869,44 +853,28 @@ namespace vlx
 	{
 		assert(cu::IsSorted(component_ids));
 
-		if (!m_archetype_map.contains(archetype_id))
-			CreateArchetype(ComponentIDs { component_ids.begin(), component_ids.end() }, archetype_id); // create if does not exist
-
-		const auto& archetypes = GetArchetypes(component_ids, archetype_id);
-		for (Archetype* archetype : archetypes)
+		Archetype* archetype = GetArchetype(component_ids, archetype_id);
+		for (std::size_t i = 0; i < archetype->type.size(); ++i)
 		{
-			for (const ComponentTypeID component_id : component_ids)
+			const IComponentAlloc* component	= m_component_map[archetype->type[i]].get();
+			const std::size_t& component_size	= component->GetSize();
+
+			const std::size_t current_size	= archetype->component_data_size[i];
+			const std::size_t new_size		= component_count * component_size;
+
+			if (new_size > current_size) // only reserve if larger than current size
 			{
-				const auto cit = m_component_archetypes_map.find(component_id);
-				if (cit == m_component_archetypes_map.end())
-					continue;
+				ComponentData new_data = std::make_unique<ByteArray>(new_size);
 
-				const auto ait = cit->second.find(archetype->id);
-				if (ait == cit->second.end())
-					continue;
-
-				const auto i = ait->second.column;
-
-				const IComponentAlloc* component = m_component_map[component_id].get();
-				const std::size_t& component_size = component->GetSize();
-
-				const std::size_t current_size = archetype->component_data_size[i];
-				const std::size_t new_size = component_count * component_size;
-
-				if (new_size > current_size) // no need to reserve if already equal
+				for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 				{
-					archetype->component_data_size[i] = new_size;
-					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
-
-					for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-					{
-						component->MoveDestroyData(*this, archetype->entities[j],
-							&archetype->component_data[i][j * component_size],
-							&new_data[j * component_size]);
-					}
-
-					archetype->component_data[i] = std::move(new_data);
+					component->MoveDestroyData(*this, archetype->entities[j],
+						&archetype->component_data[i][j * component_size],
+						&new_data[j * component_size]);
 				}
+
+				archetype->component_data_size[i]	= new_size;
+				archetype->component_data[i]		= std::move(new_data);
 			}
 		}
 	}
@@ -926,6 +894,61 @@ namespace vlx
 		}
 
 		return m_archetype_cache.emplace(archetype_id, result).first->second;
+	}
+
+	template<IsContainer T>
+	inline Archetype* EntityAdmin::GetArchetype(const T& component_ids, const ArchetypeID archetype_id)
+	{
+		assert(cu::IsSorted(component_ids));
+
+		const auto it = m_archetype_map.find(archetype_id);
+		if (it != m_archetype_map.end())
+			return it->second;
+
+		return CreateArchetype(component_ids, archetype_id); // archetype does not exist, create new one
+	}
+
+	template<IsContainer T>
+	inline Archetype* EntityAdmin::CreateArchetype(const T& component_ids, const ArchetypeID archetype_id)
+	{
+		assert(cu::IsSorted(component_ids));
+
+		ArchetypePtr new_archetype = std::make_unique<Archetype>();
+
+		new_archetype->id = archetype_id;
+		new_archetype->type = { component_ids.begin(), component_ids.end() };
+
+		m_archetype_map[archetype_id] = new_archetype.get();
+
+		new_archetype->component_data.reserve(new_archetype->type.size()); // prevent any reallocations
+		new_archetype->component_data_size.reserve(new_archetype->type.size());
+
+		for (std::size_t i = 0; i < new_archetype->type.size(); ++i) // add empty array for each component in type
+		{
+			constexpr std::size_t DEFAULT_SIZE = 64; // default size in bytes to reduce number of reallocations
+
+			new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
+			new_archetype->component_data_size.push_back(DEFAULT_SIZE);
+
+			m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
+		}
+
+#if defined(VELOX_DEBUG)
+		for (const auto& archetype : m_archetypes)
+		{
+			for (const auto& archetype1 : m_archetypes)
+			{
+				if (archetype.get() == archetype1.get())
+					continue;
+
+				assert(archetype->type != archetype1->type); // no duplicates
+			}
+		}
+#endif
+
+		m_archetype_cache.clear(); // unfortunately for now, we'll have to clear the cache whenever an archetype has been added
+
+		return m_archetypes.emplace_back(std::move(new_archetype)).get();
 	}
 
 	template<IsComponent C>
