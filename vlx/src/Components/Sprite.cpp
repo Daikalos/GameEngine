@@ -30,7 +30,7 @@ Sprite::Sprite(const sf::Texture& texture, const sf::Vector2f& size, const Textu
 	SetTexture(texture);
 }
 
-void Sprite::Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const
+void Sprite::Batch(SpriteBatch& sprite_batch, const sf::Transform& transform, float depth) const
 {
 	sprite_batch.Batch(transform, m_vertices.data(), m_vertices.size(), GetPrimitive(), m_texture, m_shader, m_depth);
 }

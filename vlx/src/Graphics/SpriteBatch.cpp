@@ -25,7 +25,7 @@ void SpriteBatch::Shrink()
 }
 
 void SpriteBatch::AddTriangle(
-	const Transform& transform, 
+	const sf::Transform& transform, 
 	const sf::Vertex& v0, 
 	const sf::Vertex& v1, 
 	const sf::Vertex& v2, 
@@ -33,37 +33,23 @@ void SpriteBatch::AddTriangle(
 	const sf::Shader* shader, 
 	const float depth)
 {
-	assert(m_size <= m_triangles.size() && m_size <= m_indices.size());
+	m_triangles.emplace_back(
+		sf::Vertex(transform * v0.position, v0.color, v0.texCoords),
+		sf::Vertex(transform * v1.position, v1.color, v1.texCoords),
+		sf::Vertex(transform * v2.position, v2.color, v2.texCoords), texture, shader, depth);
 
-	if (m_size == m_triangles.size())
-	{
-		m_triangles.emplace_back(
-			sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
-			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
-			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth);
-
-		m_indices.push_back(m_size++);
-	}
-	else // reuse
-	{
-		m_triangles[m_size++] = 
-		{
-			sf::Vertex(transform.GetTransform() * v0.position, v0.color, v0.texCoords),
-			sf::Vertex(transform.GetTransform() * v1.position, v1.color, v1.texCoords),
-			sf::Vertex(transform.GetTransform() * v2.position, v2.color, v2.texCoords), texture, shader, depth 
-		};
-	}
+	m_indices.push_back((SizeType)m_triangles.size() - 1);
 
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const IBatchable& batchable, const Transform& transform, const float depth)
+void SpriteBatch::Batch(const IBatchable& batchable, const sf::Transform& transform, const float depth)
 {
 	batchable.Batch(*this, transform, depth);
 }
 
 void SpriteBatch::Batch(
-	const Transform& transform, 
+	const sf::Transform& transform, 
 	const sf::Vertex* vertices, 
 	const std::size_t count,
 	const sf::PrimitiveType type, 
@@ -139,21 +125,21 @@ void SpriteBatch::SortTriangles() const
 	switch (m_batch_mode)
 	{
 	case BatchMode::BackToFront:
-		std::stable_sort(m_indices.begin(), m_indices.begin() + m_size,
+		std::stable_sort(m_indices.begin(), m_indices.end(),
 			[this](const auto i0, const auto i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::FrontToBack:
-		std::stable_sort(m_indices.begin(), m_indices.begin() + m_size,
+		std::stable_sort(m_indices.begin(), m_indices.end(),
 			[this](const auto i0, const auto i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::Texture:
-		std::stable_sort(m_indices.begin(), m_indices.begin() + m_size,
+		std::stable_sort(m_indices.begin(), m_indices.end(),
 			[this](const auto i0, const auto i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);
@@ -166,16 +152,16 @@ void SpriteBatch::SortTriangles() const
 
 void SpriteBatch::CreateBatches() const
 {
-	if (!m_size)
+	if (m_triangles.empty())
 		return;
 
-	m_vertices.resize(m_size * TRIANGLE_COUNT);
+	m_vertices.resize(m_triangles.size() * TRIANGLE_COUNT);
 
 	auto last_texture = m_triangles[m_indices.front()].texture;
 	auto last_shader = m_triangles[m_indices.front()].shader;
 
 	SizeType start = 0, next = 0;
-	for (; next < m_size; ++next)
+	for (; next < m_triangles.size(); ++next)
 	{
 		const Triangle& triangle = m_triangles[m_indices[next]];
 
@@ -190,19 +176,20 @@ void SpriteBatch::CreateBatches() const
 		}
 
 		for (auto i = 0; i < TRIANGLE_COUNT; ++i)
-			m_vertices[next * TRIANGLE_COUNT + i] = triangle.vertices[i];
+			m_vertices[(std::size_t)next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 
-	if (start != m_size) // deal with leftover
+	if (start != m_triangles.size()) // deal with leftover
 	{
 		const Triangle& triangle = m_triangles[m_indices[start]];
-		m_batches.emplace_back(triangle.texture, triangle.shader, (m_size - start) * TRIANGLE_COUNT);
+		m_batches.emplace_back(triangle.texture, triangle.shader, ((SizeType)m_triangles.size() - start) * TRIANGLE_COUNT);
 	}
 }
 
 void SpriteBatch::Clear()
 {
-	m_size = 0;
+	m_triangles.clear();
+	m_indices.clear();
 	m_batches.clear();
 	m_update_required = false;
 }

@@ -8,7 +8,6 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/Components/IBatchable.h>
-#include <Velox/Components/Transform.h>
 
 namespace vlx
 {
@@ -51,7 +50,7 @@ namespace vlx
 		void Shrink();
 
 		void AddTriangle(
-			const Transform& transform, 
+			const sf::Transform& transform, 
 			const sf::Vertex& v0, 
 			const sf::Vertex& v1, 
 			const sf::Vertex& v2, 
@@ -61,11 +60,11 @@ namespace vlx
 
 		void Batch(
 			const IBatchable& batchable, 
-			const Transform& transform, 
+			const sf::Transform& transform, 
 			const float depth = 0.0f);
 
 		void Batch(
-			const Transform& transform, 
+			const sf::Transform& transform, 
 			const sf::Vertex* vertices, 
 			const std::size_t count, 
 			const sf::PrimitiveType type, 
@@ -87,7 +86,6 @@ namespace vlx
 
 	private:
 		std::vector<Triangle>				m_triangles;
-		SizeType							m_size				{0};
 
 		mutable std::vector<BatchInfo>		m_batches;
 		mutable std::vector<SizeType>		m_indices;

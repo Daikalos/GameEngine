@@ -7,6 +7,7 @@
 #include <Velox/Graphics.hpp>
 #include <Velox/Input.hpp>
 #include <Velox/Config.hpp>
+#include <Velox/Components/Transform.h>
 #include <Velox/Components/Object.h>
 
 #include <Velox/World/SystemObject.h>

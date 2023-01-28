@@ -7,7 +7,6 @@
 #include <Velox/ECS/IComponent.h>
 
 #include "IBatchable.h"
-#include "Transform.h"
 
 namespace vlx
 {
@@ -49,7 +48,7 @@ namespace vlx
 		void SetOpacity(const float opacity);
 
 	public:
-		void Batch(SpriteBatch& sprite_batch, const Transform& transform, float depth) const override;
+		void Batch(SpriteBatch& sprite_batch, const sf::Transform& transform, float depth) const override;
 
 	private:
 		void UpdatePositions();

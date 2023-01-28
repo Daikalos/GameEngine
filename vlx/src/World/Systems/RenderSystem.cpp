@@ -21,11 +21,11 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 					if (object.IsStatic)
 					{
 						if (m_update_static_bash)
-							m_static_batch.Batch(sprite, transform, sprite.GetDepth());
+							m_static_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
 					}
 					else
 					{
-						m_dynamic_batch.Batch(sprite, transform, sprite.GetDepth());
+						m_dynamic_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
 					}
 				}
 				else
@@ -33,11 +33,11 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 					if (object.IsStatic)
 					{
 						if (m_update_static_gui_bash)
-							m_static_gui_batch.Batch(sprite, transform, sprite.GetDepth());
+							m_static_gui_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
 					}
 					else
 					{
-						m_dynamic_gui_batch.Batch(sprite, transform, sprite.GetDepth());
+						m_dynamic_gui_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
 					}
 				}
 			}
