@@ -126,21 +126,9 @@ void TransformSystem::UpdateTransforms(Transform& transform, const Relation& rel
 		UpdateTransforms(*parent_transform, **relation.GetParent());
 		transform.m_global_transform = parent_transform->GetTransform() * transform.GetLocalTransform();
 
-		const float* matrix = transform.GetTransform().getMatrix();
-
-		const auto mv = [&matrix](const int x, const int y) -> float
-		{
-			constexpr int WIDTH = 4;
-			return matrix[x + y * WIDTH];
-		};
-
-		transform.m_global_position.x = mv(0, 3);
-		transform.m_global_position.y = mv(1, 3);
-
-		transform.m_global_scale.x = au::Sign(mv(0, 0)) * au::SP2(mv(0, 0), mv(1, 0));
-		transform.m_global_scale.y = au::Sign(mv(1, 1)) * au::SP2(mv(0, 1), mv(1, 1));
-
-		transform.m_global_rotation = sf::radians(std::atan2f(mv(1, 0), mv(1, 1)));
+		transform.m_update_position = true;
+		transform.m_update_scale = true;
+		transform.m_update_rotation = true;
 	}
 	else
 	{

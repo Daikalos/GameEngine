@@ -10,6 +10,8 @@
 
 namespace vlx
 {
+	static constexpr int MATRIX_WIDTH = 4;
+
 	/// <summary>
 	///		Represents the transform
 	/// </summary>
@@ -56,9 +58,13 @@ namespace vlx
 		sf::Vector2f			m_scale;
 		sf::Angle				m_rotation;
 
-		sf::Vector2f			m_global_position;
-		sf::Vector2f			m_global_scale;
-		sf::Angle				m_global_rotation;
+		mutable sf::Vector2f	m_global_position;
+		mutable sf::Vector2f	m_global_scale;
+		mutable sf::Angle		m_global_rotation;
+
+		mutable bool			m_update_position			{true};
+		mutable bool			m_update_scale				{true};
+		mutable bool			m_update_rotation			{true};
 
 		mutable sf::Transform	m_local_transform;
 		mutable sf::Transform	m_local_inverse_transform;
