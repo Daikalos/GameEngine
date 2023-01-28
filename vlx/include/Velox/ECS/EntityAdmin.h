@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <execution>
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>

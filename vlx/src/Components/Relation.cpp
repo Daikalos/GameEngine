@@ -16,7 +16,7 @@ auto Relation::GetParent() const noexcept -> const RelationPtr
 {
 	return m_parent;
 }
-auto Relation::GetChildren() const noexcept -> const std::vector<RelationPtr>&
+auto Relation::GetChildren() const noexcept -> const Children&
 {
 	return m_children;
 }

@@ -51,7 +51,7 @@ namespace vlx
 
 	template<class C>
 	inline ComponentRef<C>::ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id)
-		: ComponentRef(entity_admin, entity_id, m_component) { }
+		: ComponentRef(entity_admin, entity_id, nullptr) { }
 
 	template<class C>
 	inline C* ComponentRef<C>::operator->()

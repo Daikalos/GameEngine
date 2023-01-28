@@ -21,13 +21,20 @@ namespace vlx
 	public:
 		virtual ~ISystem() = default;
 
-		virtual bool operator>(const ISystem& rhs) const = 0;
+		bool operator>(const ISystem& rhs) const 
+		{
+			return GetPriority() > rhs.GetPriority();
+		}
 
+	public:
 		virtual const ArchetypeID& GetIDKey() const = 0;
 		virtual const ComponentIDs& GetArchKey() const = 0;
 
 		virtual float GetPriority() const noexcept = 0;
 		virtual void SetPriority(const float val) = 0;
+
+		virtual constexpr bool IsRunningParallel() const noexcept = 0;
+		virtual void RunParallel(const bool flag) noexcept = 0;
 
 	protected:
 		virtual void DoAction(Archetype* archetype) const = 0;
@@ -46,8 +53,6 @@ namespace vlx
 		System(EntityAdmin& entity_admin, const LayerType layer);
 		~System();
 
-		bool operator>(const ISystem& rhs) const override;
-
 	public:
 		const ArchetypeID& GetIDKey() const override;
 		const ComponentIDs& GetArchKey() const override;
@@ -55,6 +60,10 @@ namespace vlx
 		[[nodiscard]] float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
 
+		[[nodiscard]] constexpr bool IsRunningParallel() const noexcept override;
+		void RunParallel(const bool flag) noexcept override;
+
+	public:
 		void Action(Func&& func);
 
 	public:
@@ -81,6 +90,7 @@ namespace vlx
 		LayerType		m_layer			{LYR_NONE};	// controls the overall order of calls
 		Func			m_func;
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
+		bool			m_run_parallel	{false};
 
 		ComponentIDs			m_exclusion;
 		mutable ArchetypeCache	m_excluded_archetypes;
@@ -104,12 +114,6 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline bool System<Cs...>::operator>(const ISystem& rhs) const
-	{
-		return GetPriority() > rhs.GetPriority();
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
 	inline float System<Cs...>::GetPriority() const noexcept
 	{
 		return m_priority;
@@ -119,6 +123,17 @@ namespace vlx
 	{
 		m_priority = val;
 		m_entity_admin->SortSystems(m_layer);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline constexpr bool System<Cs...>::IsRunningParallel() const noexcept
+	{
+		return m_run_parallel;
+	}
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void System<Cs...>::RunParallel(const bool flag) noexcept
+	{
+		m_run_parallel = flag;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

@@ -50,10 +50,6 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
-		void ComputeTransform();
-		void ComputeTransform(const sf::Transform& transform);
-
-	private:
 		// local space information
 		sf::Vector2f			m_origin;
 		sf::Vector2f			m_position;
@@ -65,14 +61,14 @@ namespace vlx
 		sf::Angle				m_global_rotation;
 
 		mutable sf::Transform	m_local_transform;
-		mutable sf::Transform	m_inverse_local_transform;
+		mutable sf::Transform	m_local_inverse_transform;
 		mutable bool			m_update_local				{true};
-		mutable bool			m_update_inverse_local		{true};
+		mutable bool			m_update_local_inverse		{true};
 
-		mutable sf::Transform	m_model_transform;			// combined transform of all parents and this (global space)
-		mutable sf::Transform	m_inverse_model_transform;
-		mutable bool			m_update_model				{true};
-		mutable bool			m_update_inverse_model		{true};
+		mutable sf::Transform	m_global_transform;			// combined transform of all parents and this (global space)
+		mutable sf::Transform	m_global_inverse_transform;
+		mutable bool			m_update_global				{true};
+		mutable bool			m_update_global_inverse		{true};
 
 		mutable bool			m_dirty						{true};
 

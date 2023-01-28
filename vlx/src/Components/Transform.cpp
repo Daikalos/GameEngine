@@ -19,17 +19,17 @@ Transform::Transform(const sf::Vector2f& position)
 
 const sf::Transform& Transform::GetTransform() const
 {
-	return m_model_transform;
+	return m_global_transform;
 }
 const sf::Transform& Transform::GetInverseTransform() const
 {
-	if (m_update_inverse_model)
+	if (m_update_global_inverse)
 	{
-		m_inverse_model_transform = GetTransform().getInverse();
-		m_update_inverse_model = false;
+		m_global_inverse_transform = GetTransform().getInverse();
+		m_update_global_inverse = false;
 	}
 
-	return m_inverse_model_transform;
+	return m_global_inverse_transform;
 }
 const sf::Vector2f& Transform::GetOrigin() const
 {
@@ -73,13 +73,13 @@ const sf::Transform& Transform::GetLocalTransform() const
 }
 const sf::Transform& Transform::GetInverseLocalTransform() const
 {
-	if (m_update_inverse_local)
+	if (m_update_local_inverse)
 	{
-		m_inverse_local_transform = GetLocalTransform().getInverse();
-		m_update_inverse_local = false;
+		m_local_inverse_transform = GetLocalTransform().getInverse();
+		m_update_local_inverse = false;
 	}
 
-	return m_inverse_local_transform;
+	return m_local_inverse_transform;
 }
 const sf::Vector2f& Transform::GetLocalPosition() const
 {
@@ -99,7 +99,7 @@ void Transform::SetOrigin(const sf::Vector2f& origin)
 	m_origin = origin;
 
 	m_update_local = true;
-	m_update_inverse_local = true;
+	m_update_local_inverse = true;
 
 	m_dirty = true;
 }
@@ -108,7 +108,7 @@ void Transform::SetPosition(const sf::Vector2f& position)
 	m_position = position;
 
 	m_update_local = true;
-	m_update_inverse_local = true;
+	m_update_local_inverse = true;
 
 	m_dirty = true;
 }
@@ -117,7 +117,7 @@ void Transform::SetScale(const sf::Vector2f& scale)
 	m_scale = scale;
 
 	m_update_local = true;
-	m_update_inverse_local = true;
+	m_update_local_inverse = true;
 
 	m_dirty = true;
 }
@@ -126,7 +126,7 @@ void Transform::SetRotation(const sf::Angle angle)
 	m_rotation = angle.wrapUnsigned();
 	
 	m_update_local = true;
-	m_update_inverse_local = true;
+	m_update_local_inverse = true;
 
 	m_dirty = true;
 }
@@ -143,13 +143,4 @@ void Transform::Scale(const sf::Vector2f& factor)
 void Transform::Rotate(const sf::Angle angle)
 {
 	SetRotation(GetLocalRotation() + angle);
-}
-
-void Transform::ComputeTransform()
-{
-	m_model_transform = GetLocalTransform();
-}
-void Transform::ComputeTransform(const sf::Transform& transform)
-{
-	m_model_transform = transform * GetLocalTransform();
 }

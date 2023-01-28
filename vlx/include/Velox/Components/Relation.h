@@ -19,7 +19,7 @@ namespace vlx
 	{
 	private:
 		using RelationPtr = ComponentRefPtr<Relation>;
-		using ChildrenPtr = std::vector<RelationPtr>;
+		using Children = std::vector<RelationPtr>;
 
 		template<class C>
 		using CompFunc = std::function<bool(C&)>;
@@ -32,7 +32,7 @@ namespace vlx
 		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
 
 		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationPtr;
-		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const std::vector<RelationPtr>&;
+		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const Children&;
 
 	public:
 		VELOX_API void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
@@ -55,7 +55,7 @@ namespace vlx
 
 	private:
 		RelationPtr	m_parent;
-		ChildrenPtr	m_children;
+		Children	m_children;
 
 		std::unordered_set<EntityID> m_descendants; // list of all descendants (to prevent parenting them when attaching)
 	};

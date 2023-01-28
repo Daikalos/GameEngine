@@ -7,10 +7,10 @@
 
 namespace vlx::cu
 {
-	template<IsContainer T, Integral SizeType = typename T::value_type>
+	template<IsContainer T>
 	struct ContainerHash
 	{
-		constexpr SizeType operator()(const T& container) const
+		constexpr std::size_t operator()(const T& container) const
 		{
 			std::size_t seed = container.size();
 
@@ -23,7 +23,7 @@ namespace vlx::cu
 				seed ^= static_cast<std::size_t>(x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 			}
 
-			return static_cast<SizeType>(seed);
+			return seed;
 		}
 	};
 

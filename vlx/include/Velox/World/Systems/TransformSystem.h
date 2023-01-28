@@ -34,13 +34,17 @@ namespace vlx
 		void SetGlobalRotation(	Transform& transform, Relation& relation, const sf::Angle angle);
 
 	public:
+		void PreUpdate() override;
 		void Update() override;
+		void PostUpdate() override;
 
 	private:
 		void CleanTransforms(Transform& transform, const Relation& relation) const;
 		void UpdateTransforms(Transform& transform, const Relation& relation) const;
 
 		void UpdateLocalTransform(Transform& transform) const;
+
+		Transform* CheckCache(const EntityID entity_id) const;
 
 	private:
 		LocalSystem				m_local_system;
@@ -49,5 +53,7 @@ namespace vlx
 
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;
+		
+		mutable std::unordered_map<EntityID, ComponentRef<Transform>> m_cache;
 	};
 }

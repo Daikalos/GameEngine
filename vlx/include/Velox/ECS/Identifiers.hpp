@@ -15,8 +15,8 @@ namespace vlx
 	using DataPtr			= std::byte*;
 
 	using EntityID			= IDType;
-	using ComponentTypeID	= IDType;
-	using ArchetypeID		= IDType;
+	using ComponentTypeID	= std::size_t;
+	using ArchetypeID		= std::size_t;
 	using ComponentIDs		= std::vector<ComponentTypeID>;
 
 	template<class... Cs> requires IsComponents<Cs...>
