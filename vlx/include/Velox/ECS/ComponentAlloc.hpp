@@ -58,7 +58,7 @@ namespace vlx
 		static_cast<IComponent*>(data_location)->Destroyed(entity_admin, entity_id);
 		data_location->~C(); // now destroy
 
-		entity_admin.ResetComponentRefs<C>(entity_id); // need to reset references now that the component has been altered
+		entity_admin.EraseComponentRef<C>(entity_id);
 	}
 
 	template<IsComponent C>
@@ -67,7 +67,7 @@ namespace vlx
 		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
 		static_cast<IComponent*>(data_location)->Moved(entity_admin, entity_id);
 
-		entity_admin.ResetComponentRefs<C>(entity_id);
+		entity_admin.UpdateComponentRef<C>(entity_id, data_location);
 	}
 
 	template<IsComponent C>

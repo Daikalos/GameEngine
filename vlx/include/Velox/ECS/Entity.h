@@ -98,7 +98,7 @@ namespace vlx
 		return m_entity_admin->RemoveComponent<C>(m_id);
 	}
 
-	template<class ...Cs> requires IsComponents<Cs...>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline bool Entity::RemoveComponents()
 	{
 		return m_entity_admin->RemoveComponents<Cs...>(m_id);

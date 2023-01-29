@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "EntityAdmin.h"
 #include "Identifiers.hpp"
 #include "IComponentRef.hpp"
@@ -14,8 +16,7 @@ namespace vlx
 	class ComponentRef final : public IComponentRef
 	{
 	public:
-		ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id, C* component);
-		ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id);
+		ComponentRef(const EntityID entity_id, C* component);
 
 	public:
 		C* operator->();
@@ -25,33 +26,19 @@ namespace vlx
 		const C& operator*() const;
 
 	public:
-		operator bool() const noexcept;
-
-	public:
 		[[nodiscard]] C* Get();
 		[[nodiscard]] const C* Get() const;
 
-	public:
-		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
-		[[nodiscard]] constexpr bool IsValid() const noexcept override;
-
-	public:
-		void Reset() override;
-		void ForceUpdate() override;
+	private:
+		void Update(const EntityAdmin& entity_admin, void* updated_data) override;
 
 	private:
-		const EntityAdmin*	m_entity_admin	{nullptr};
-		EntityID			m_entity_id		{NULL_ENTITY};
-		C*					m_component		{nullptr};
+		C* m_component {nullptr};
 	};
 
 	template<class C>
-	inline ComponentRef<C>::ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id, C* component)
-		: m_entity_admin(&entity_admin), m_entity_id(entity_id), m_component(component) { }
-
-	template<class C>
-	inline ComponentRef<C>::ComponentRef(const EntityAdmin& entity_admin, const EntityID entity_id)
-		: ComponentRef(entity_admin, entity_id, nullptr) { }
+	inline ComponentRef<C>::ComponentRef(const EntityID entity_id, C* component)
+		: IComponentRef(entity_id), m_component(component) { }
 
 	template<class C>
 	inline C* ComponentRef<C>::operator->()
@@ -78,21 +65,8 @@ namespace vlx
 	}
 
 	template<class C>
-	inline ComponentRef<C>::operator bool() const noexcept
-	{
-		return IsValid();
-	}
-
-	template<class C>
-	inline constexpr EntityID ComponentRef<C>::GetEntityID() const noexcept
-	{
-		return m_entity_id;
-	}
-
-	template<class C>
 	inline C* ComponentRef<C>::Get()
 	{
-		ForceUpdate();
 		return m_component;
 	}
 
@@ -103,26 +77,8 @@ namespace vlx
 	}
 
 	template<class C>
-	inline constexpr bool ComponentRef<C>::IsValid() const noexcept
+	inline void ComponentRef<C>::Update(const EntityAdmin& entity_admin, void* component_data)
 	{
-		return m_component != nullptr;
-	}
-
-
-	template<class C>
-	inline void ComponentRef<C>::Reset()
-	{
-		m_component = nullptr;
-	}
-
-	template<class C>
-	inline void ComponentRef<C>::ForceUpdate()
-	{
-		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
-
-		if (!IsValid())
-		{
-			m_component = m_entity_admin->TryGetComponent<C>(m_entity_id).first;
-		}
+		m_component = static_cast<C*>(component_data);
 	}
 }

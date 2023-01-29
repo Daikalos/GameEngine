@@ -500,41 +500,13 @@ void EntityAdmin::Shrink(bool extensive)
 	}
 }
 
-void EntityAdmin::ClearComponentRefs()
+void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const
 {
-	for (auto& pair1 : m_entity_component_ref_map)
-	{
-		std::erase_if(pair1.second,
-			[](const auto& pair2)
-			{
-				if (pair2.second.expired())
-					return true;
-
-				auto ptr = pair2.second.lock();
-
-				ptr->ForceUpdate();
-				return !ptr->IsValid();
-			});
-	}
-}
-
-void EntityAdmin::ClearComponentRefs(const EntityID entity_id)
-{
-	const auto it = m_entity_component_ref_map.find(entity_id);
-	if (it == m_entity_component_ref_map.end())
+	const auto eit = m_entity_component_ref_map.find(entity_id);
+	if (eit == m_entity_component_ref_map.end())
 		return;
 
-	std::erase_if(it->second,
-		[](const auto& pair)
-		{
-			if (pair.second.expired())
-				return true;
-
-			auto ptr = pair.second.lock();
-
-			ptr->ForceUpdate();
-			return !ptr->IsValid();
-		});
+	eit->second.erase(component_id);
 }
 
 void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i)
@@ -552,23 +524,4 @@ void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* componen
 	}
 
 	archetype->component_data[i] = std::move(new_data);
-}
-
-void EntityAdmin::ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const
-{
-	const auto eit = m_entity_component_ref_map.find(entity_id);
-	if (eit == m_entity_component_ref_map.end())
-		return;
-
-	const auto cit = eit->second.find(component_id);
-	if (cit == eit->second.end())
-		return;
-
-	if (cit->second.expired())
-	{
-		eit->second.erase(component_id);
-		return;
-	}
-
-	cit->second.lock()->Reset(); // finally reset
 }

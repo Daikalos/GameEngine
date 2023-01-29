@@ -93,7 +93,7 @@ namespace vlx::cu
 		return true;
 	}
 
-	template<typename T>
+	template<typename T> 
 	static constexpr bool SwapPop(std::vector<T>& vector, const T& item)
 	{
 		auto it = std::find(vector.begin(), vector.end(), item);

@@ -34,6 +34,8 @@ namespace vlx
 		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationPtr;
 		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const Children&;
 
+		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant);
+
 	public:
 		VELOX_API void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
 		VELOX_API EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
@@ -42,9 +44,6 @@ namespace vlx
 		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		VELOX_API void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) override;
 		VELOX_API void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
-
-		VELOX_API void PropagateAttach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation& child);
-		VELOX_API void PropagateDetach(const EntityAdmin& entity_admin, const EntityID child_id, const Relation& child);
 
 	public:
 		template<class C>
@@ -56,8 +55,6 @@ namespace vlx
 	private:
 		RelationPtr	m_parent;
 		Children	m_children;
-
-		std::unordered_set<EntityID> m_descendants; // list of all descendants (to prevent parenting them when attaching)
 	};
 
 	template<class C>

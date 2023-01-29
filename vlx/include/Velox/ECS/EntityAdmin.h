@@ -286,7 +286,10 @@ namespace vlx
 		Archetype* CreateArchetype(const T& component_ids, const ArchetypeID archetype_id);
 
 		template<IsComponent C>
-		void ResetComponentRefs(const EntityID entity_id) const;
+		void EraseComponentRef(const EntityID entity_id) const;
+
+		template<IsComponent C>
+		void UpdateComponentRef(const EntityID entity_id, C* new_component) const;
 
 	public:
 		VELOX_API [[nodiscard]] EntityID GetNewEntityID();
@@ -324,12 +327,10 @@ namespace vlx
 		/// </param>
 		VELOX_API void Shrink(bool extensive = false);
 
-		VELOX_API void ClearComponentRefs();
-		VELOX_API void ClearComponentRefs(const EntityID entity_id);
-
 	private:
+		VELOX_API void EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const;
+
 		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i);
-		VELOX_API void ResetComponentRefs(const EntityID entity_id, const ComponentTypeID component_id) const;
 
 	private:
 		EntityID				m_entity_id_counter;	// current id counter for entities
@@ -657,7 +658,10 @@ namespace vlx
 		const auto cit = component_proxies.find(component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			ComponentRefPtr<C> proxy = std::make_shared<ComponentRef<C>>(*this, entity_id, component);
+			if (component == nullptr)
+				component = &GetComponent<C>(entity_id);
+
+			ComponentRefPtr<C> proxy = std::make_shared<ComponentRef<C>>(entity_id, component);
 			component_proxies[component_id] = proxy;
 
 			return proxy;
@@ -683,7 +687,7 @@ namespace vlx
 		const auto cit = component_proxies.find(child_component_id);
 		if (cit == component_proxies.end() || cit->second.expired()) // it does not yet exist, create new one
 		{
-			BaseRefPtr<B> proxy = std::make_shared<BaseRef<B>>(*this, entity_id, child_component_id, offset);
+			BaseRefPtr<B> proxy = std::make_shared<BaseRef<B>>(entity_id, offset);
 			component_proxies[child_component_id] = proxy;
 
 			return proxy;
@@ -953,9 +957,34 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::ResetComponentRefs(const EntityID entity_id) const
+	inline void EntityAdmin::EraseComponentRef(const EntityID entity_id) const
 	{
-		ResetComponentRefs(entity_id, GetComponentID<C>());
+		EraseComponentRef(entity_id, GetComponentID<C>());
+	}
+
+	template<IsComponent C>
+	inline void EntityAdmin::UpdateComponentRef(const EntityID entity_id, C* new_component) const
+	{
+		const auto eit = m_entity_component_ref_map.find(entity_id);
+		if (eit == m_entity_component_ref_map.end())
+			return;
+
+		constexpr auto component_id = GetComponentID<C>();
+
+		const auto cit = eit->second.find(component_id);
+		if (cit == eit->second.end())
+			return;
+
+		auto weak_ptr = cit->second;
+
+		if (weak_ptr.expired()) // no refs exists
+		{
+			eit->second.erase(component_id);
+		}
+		else
+		{
+			weak_ptr.lock()->Update(*this, new_component);
+		}
 	}
 }
 

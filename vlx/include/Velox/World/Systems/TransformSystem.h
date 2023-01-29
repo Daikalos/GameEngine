@@ -54,6 +54,6 @@ namespace vlx
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;
 		
-		mutable std::unordered_map<EntityID, ComponentRef<Transform>> m_cache;
+		mutable std::unordered_map<EntityID, ComponentRefPtr<Transform>> m_cache;
 	};
 }

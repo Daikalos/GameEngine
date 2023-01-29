@@ -110,6 +110,9 @@
     <ClInclude Include="include\Velox\Window.hpp" />
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
+    <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
+    <ClInclude Include="include\Velox\Components\LocalTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

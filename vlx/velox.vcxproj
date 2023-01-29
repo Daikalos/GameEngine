@@ -152,6 +152,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
+    <ClInclude Include="include\Velox\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponentRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />

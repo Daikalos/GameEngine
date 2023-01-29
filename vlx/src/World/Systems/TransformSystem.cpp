@@ -151,7 +151,9 @@ Transform* vlx::TransformSystem::CheckCache(const EntityID entity_id) const
 {
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())
-		return m_cache.try_emplace(entity_id, *m_entity_admin, entity_id).first->second.Get();
+	{
+		return m_cache.try_emplace(entity_id, m_entity_admin->GetComponentRef<Transform>(entity_id)).first->second->Get();
+	}
 
-	return it->second.Get();
+	return it->second->Get();
 }

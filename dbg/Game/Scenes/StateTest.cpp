@@ -22,6 +22,8 @@ void StateTest::OnCreated()
 
 	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0, e1);
 
+	Entity e4 = e1.Duplicate();
+
 	e2 = e1.Duplicate();
 	e2.AddComponent<gui::Label>(105, 105);
 
@@ -36,6 +38,10 @@ void StateTest::OnCreated()
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 		added.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
 	}
+
+	int a = sizeof(Relation);
+	int c = sizeof(Transform);
+	int b = sizeof(std::unordered_set<EntityID>);
 
 	b0 = object_system.CreateObject();
 	b0.AddComponents(gui::ButtonType{});

@@ -10,7 +10,7 @@ namespace vlx
 	class BaseRef final : public IComponentRef
 	{
 	public:
-		BaseRef(const EntityAdmin& entity_admin, const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0);
+		BaseRef(const EntityID entity_id, const std::uint32_t offset = 0);
 
 	public:
 		B* operator->();
@@ -20,31 +20,20 @@ namespace vlx
 		const B& operator*() const;
 
 	public:
-		operator bool() const noexcept;
-
-	public:
 		B* Get();
 		const B* Get() const;
 
-	public:
-		[[nodiscard]] constexpr EntityID GetEntityID() const noexcept;
-		[[nodiscard]] constexpr bool IsValid() const noexcept override;
-
-	public:
-		void Reset() override;
-		void ForceUpdate() override;
+	private:
+		void Update(const EntityAdmin& entity_admin, void* component_data) override;
 
 	private:
-		const EntityAdmin*	m_entity_admin			{nullptr};
-		EntityID			m_entity_id				{NULL_ENTITY};
-		ComponentTypeID		m_child_component_id	{0};
-		std::uint32_t		m_offset				{0};
-		B*					m_base_component		{nullptr};
+		B*				m_base_component		{nullptr};
+		std::uint32_t	m_offset				{0};
 	};
 
 	template<class B>
-	inline BaseRef<B>::BaseRef(const EntityAdmin& entity_admin, const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset)
-		: m_entity_admin(&entity_admin), m_entity_id(entity_id), m_child_component_id(child_component_id), m_offset(offset) { }
+	inline BaseRef<B>::BaseRef(const EntityID entity_id, const std::uint32_t offset)
+		: IComponentRef(entity_id), m_base_component(nullptr), m_offset(offset) { }
 
 	template<class B>
 	inline B* BaseRef<B>::operator->()
@@ -71,21 +60,8 @@ namespace vlx
 	}
 
 	template<class B>
-	inline BaseRef<B>::operator bool() const noexcept
-	{
-		return IsValid();
-	}
-
-	template<class B>
-	inline constexpr EntityID BaseRef<B>::GetEntityID() const noexcept
-	{
-		return m_entity_id;
-	}
-
-	template<class B>
 	inline B* BaseRef<B>::Get()
 	{
-		ForceUpdate();
 		return m_base_component;
 	}
 
@@ -93,28 +69,5 @@ namespace vlx
 	inline const B* BaseRef<B>::Get() const
 	{
 		return const_cast<BaseRef<B>&>(*this).Get();
-	}
-
-	template<class B>
-	inline constexpr bool BaseRef<B>::IsValid() const noexcept
-	{
-		return m_base_component != nullptr;
-	}
-
-	template<class B>
-	inline void BaseRef<B>::Reset()
-	{
-		m_base_component = nullptr;
-	}
-
-	template<class B>
-	inline void BaseRef<B>::ForceUpdate()
-	{
-		assert(m_entity_admin != nullptr && m_entity_id != NULL_ENTITY);
-
-		if (!IsValid())
-		{
-			m_base_component = m_entity_admin->TryGetBase<B>(m_entity_id, m_child_component_id, m_offset).first;
-		}
 	}
 }
