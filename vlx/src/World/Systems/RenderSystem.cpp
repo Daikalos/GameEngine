@@ -9,37 +9,7 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Object& object			= objects[i];
-				Transform& transform	= transforms[i];
-				Sprite& sprite			= sprites[i];
-
-				if (!object.IsVisible)
-					continue;
-
-				if (!object.IsGUI)
-				{
-					if (object.IsStatic)
-					{
-						if (m_update_static_bash)
-							m_static_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
-					}
-					else
-					{
-						m_dynamic_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
-					}
-				}
-				else
-				{
-					if (object.IsStatic)
-					{
-						if (m_update_static_gui_bash)
-							m_static_gui_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
-					}
-					else
-					{
-						m_dynamic_gui_batch.Batch(sprite, transform.GetTransform(), sprite.GetDepth());
-					}
-				}
+				DrawObject(objects[i], sprites[i], transforms[i].GetTransform(), sprites[i].GetDepth());
 			}
 		});
 }
@@ -94,6 +64,37 @@ void RenderSystem::PostUpdate()
 {
 	m_update_static_bash = false;
 	m_update_static_gui_bash = false;
+}
+
+void RenderSystem::DrawObject(const Object& object, const IBatchable& batchable, const sf::Transform& transform, const float depth)
+{
+	if (!object.IsVisible)
+		return;
+
+	if (!object.IsGUI)
+	{
+		if (object.IsStatic)
+		{
+			if (m_update_static_bash)
+				m_static_batch.Batch(batchable, transform, depth);
+		}
+		else
+		{
+			m_dynamic_batch.Batch(batchable, transform, depth);
+		}
+	}
+	else
+	{
+		if (object.IsStatic)
+		{
+			if (m_update_static_gui_bash)
+				m_static_gui_batch.Batch(batchable, transform, depth);
+		}
+		else
+		{
+			m_dynamic_gui_batch.Batch(batchable, transform, depth);
+		}
+	}
 }
 
 void RenderSystem::Draw(Window& window) const

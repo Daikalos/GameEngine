@@ -48,6 +48,8 @@ namespace vlx
 		void PreUpdate();
 		void PostUpdate();
 
+		void DrawObject(const Object& object, const IBatchable& batchable, const sf::Transform& transform, const float depth = 0.0f);
+
 	private:
 		System			m_system;
 

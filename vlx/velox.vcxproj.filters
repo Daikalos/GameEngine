@@ -34,6 +34,7 @@
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\World\SystemObject.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
+    <ClCompile Include="src\Components\LocalTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -104,7 +105,6 @@
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\World\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
-    <ClInclude Include="include\Velox\ECS\IComponentRef.hpp" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Window.hpp" />

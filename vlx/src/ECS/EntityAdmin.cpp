@@ -1,7 +1,5 @@
 #include <Velox/ECS/EntityAdmin.h>
 
-#include <Velox/ECS/IComponentRef.hpp>
-
 using namespace vlx;
 
 EntityAdmin::EntityAdmin() : m_entity_id_counter(1) { }
@@ -107,7 +105,7 @@ void EntityAdmin::SortSystems(const LayerType layer)
 	std::stable_sort(it->second.begin(), it->second.end(),
 		[](const ISystem* lhs, const ISystem* rhs)
 		{
-			return lhs > rhs;
+			return *lhs > *rhs;
 		});
 }
 

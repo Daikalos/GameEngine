@@ -14,13 +14,15 @@ void StateTest::OnCreated()
 	e0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::IdleCursor));
 	e0.GetComponent<Sprite>().SetOpacity(1.0f);
 
-	et0 = e0.GetComponentRef<Transform>();
-	et0->Get()->SetPosition({ 50.0f, 50.0f });
+	et0 = e0.GetComponentRef<LocalTransform>();
+	et0->SetPosition({ 50.0f, 50.0f });
 
 	e1 = e0.Duplicate();
-	et1 = e1.GetComponentRef<Transform>();
+	et1 = e1.GetComponentRef<LocalTransform>();
 
 	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0, e1);
+
+	auto t = m_entity_admin->GetComponents<Transform>(e1);
 
 	Entity e4 = e1.Duplicate();
 
@@ -32,11 +34,11 @@ void StateTest::OnCreated()
 
 	m_entities.reserve(100000);
 
-	m_entity_admin->Reserve<Object, Transform, Relation, Sprite>(m_entities.capacity());
+	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
-		added.GetComponent<Transform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
+		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
 	}
 
 	int a = sizeof(Relation);
@@ -49,7 +51,7 @@ void StateTest::OnCreated()
 	b0.GetComponent<Object>().IsGUI = true;
 	b0.GetComponent<gui::Button>().SetSize({ 128, 128 });
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
-	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
+	b0.GetComponent<LocalTransform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	b0.GetComponent<gui::Button>().Pressed += []() { std::puts("Press"); };
 	b0.GetComponent<gui::Button>().Released += []() { std::puts("Relased"); };
@@ -68,9 +70,9 @@ bool StateTest::HandleEvent(const sf::Event& event)
 bool StateTest::Update(Time& time)
 {
 	if (m_entity_admin->IsEntityRegistered(e0))
-		et0->Get()->Move({ 5.0f * time.GetDT(), 0.0f });
+		et0->Move({ 5.0f * time.GetDT(), 0.0f });
 
-	et1->Get()->SetPosition({ 0.0f, 5.0f * time.GetDT() });
+	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed

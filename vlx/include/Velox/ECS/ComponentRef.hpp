@@ -2,9 +2,7 @@
 
 #include <memory>
 
-#include "EntityAdmin.h"
 #include "Identifiers.hpp"
-#include "IComponentRef.hpp"
 
 namespace vlx
 {
@@ -13,10 +11,14 @@ namespace vlx
 	///		has been modified. This is to prevent having to write GetComponent everywhere all the time.
 	/// </summary>
 	template<class C>
-	class ComponentRef final : public IComponentRef
+	class ComponentRef final
 	{
 	public:
-		ComponentRef(const EntityID entity_id, C* component);
+		using value_type = C;
+
+	public:
+		ComponentRef() = default;
+		ComponentRef(const EntityID entity_id, std::shared_ptr<IComponent*> component);
 
 	public:
 		C* operator->();
@@ -29,16 +31,24 @@ namespace vlx
 		[[nodiscard]] C* Get();
 		[[nodiscard]] const C* Get() const;
 
-	private:
-		void Update(const EntityAdmin& entity_admin, void* updated_data) override;
+	public:
+		EntityID GetEntityID() const noexcept;
+		bool IsValid() const noexcept;
+
+	public:
+		void Reset();
 
 	private:
-		C* m_component {nullptr};
+		EntityID						m_entity_id	{NULL_ENTITY};
+		std::shared_ptr<IComponent*>	m_component {nullptr};
+
+		template<class... Cs> requires IsComponents<Cs...>
+		friend class ComponentSet;
 	};
 
 	template<class C>
-	inline ComponentRef<C>::ComponentRef(const EntityID entity_id, C* component)
-		: IComponentRef(entity_id), m_component(component) { }
+	inline ComponentRef<C>::ComponentRef(const EntityID entity_id, std::shared_ptr<IComponent*> component)
+		: m_entity_id(entity_id), m_component(component) { }
 
 	template<class C>
 	inline C* ComponentRef<C>::operator->()
@@ -67,7 +77,7 @@ namespace vlx
 	template<class C>
 	inline C* ComponentRef<C>::Get()
 	{
-		return m_component;
+		return static_cast<C*>(*m_component);
 	}
 
 	template<class C>
@@ -77,8 +87,20 @@ namespace vlx
 	}
 
 	template<class C>
-	inline void ComponentRef<C>::Update(const EntityAdmin& entity_admin, void* component_data)
+	inline EntityID ComponentRef<C>::GetEntityID() const noexcept
 	{
-		m_component = static_cast<C*>(component_data);
+		return m_entity_id;
+	}
+
+	template<class C>
+	inline bool ComponentRef<C>::IsValid() const noexcept
+	{
+		return m_component != nullptr;
+	}
+
+	template<class C>
+	inline void ComponentRef<C>::Reset()
+	{
+		m_component.reset();
 	}
 }

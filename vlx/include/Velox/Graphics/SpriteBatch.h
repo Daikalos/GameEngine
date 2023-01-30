@@ -11,8 +11,6 @@
 
 namespace vlx
 {
-	static constexpr std::uint8_t TRIANGLE_COUNT = 3;
-
 	enum class BatchMode : std::uint8_t
 	{
 		Deferred,

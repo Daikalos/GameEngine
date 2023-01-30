@@ -2,12 +2,11 @@
 
 #include "EntityAdmin.h"
 #include "Identifiers.hpp"
-#include "IComponentRef.hpp"
 
 namespace vlx
 {
 	template<class B>
-	class BaseRef final : public IComponentRef
+	class BaseRef final
 	{
 	public:
 		BaseRef(const EntityID entity_id, const std::uint32_t offset = 0);
@@ -23,12 +22,17 @@ namespace vlx
 		B* Get();
 		const B* Get() const;
 
-	private:
-		void Update(const EntityAdmin& entity_admin, void* component_data) override;
+	public:
+		EntityID GetEntityID() const noexcept;
+		bool IsValid() const noexcept;
+
+	public:
+		void Reset();
 
 	private:
-		B*				m_base_component		{nullptr};
-		std::uint32_t	m_offset				{0};
+		EntityID			m_entity_id			{NULL_ENTITY};
+		std::shared_ptr<B*>	m_base_component	{nullptr};
+		std::uint32_t		m_offset			{0};
 	};
 
 	template<class B>
@@ -62,12 +66,30 @@ namespace vlx
 	template<class B>
 	inline B* BaseRef<B>::Get()
 	{
-		return m_base_component;
+		return *m_base_component;
 	}
 
 	template<class B>
 	inline const B* BaseRef<B>::Get() const
 	{
 		return const_cast<BaseRef<B>&>(*this).Get();
+	}
+
+	template<class B>
+	inline EntityID BaseRef<B>::GetEntityID() const noexcept
+	{
+		return m_entity_id;
+	}
+
+	template<class B>
+	inline bool BaseRef<B>::IsValid() const noexcept
+	{
+		return m_base_component != nullptr;
+	}
+
+	template<class B>
+	inline void BaseRef<B>::Reset()
+	{
+		m_base_component.reset();
 	}
 }

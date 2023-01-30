@@ -1,10 +1,12 @@
 #pragma once
 
 #include <unordered_map>
+#include <tuple>
 #include <memory>
 
 #include <Velox/Utilities.hpp>
 
+#include "IComponent.h"
 #include "ComponentRef.hpp"
 #include "ComponentAlloc.hpp"
 
@@ -15,41 +17,43 @@ namespace vlx
 	///		the components of an object.
 	/// </summary>
 	template<class... Cs> requires IsComponents<Cs...>
-	class ComponentSet final : private NonCopyable
+	class ComponentSet final
 	{
 	private:
-		using ComponentSetMap = std::unordered_map<ComponentTypeID, std::shared_ptr<IComponentRef>>;
+		using ComponentTypes	= std::tuple<Cs...>;
+		using ComponentRefs		= std::tuple<std::shared_ptr<Cs*>...>;
 
 	public:
-		ComponentSet(ComponentRefPtr<Cs>... refs);
+		ComponentSet(ComponentRef<Cs>&&... refs);
 
-		template<IsComponent C> requires Contains<C, Cs...>
-		[[nodiscard]] const C& Get() const;
+	public:
+		template<std::size_t N>
+		[[nodiscard]] auto Get() const -> const std::tuple_element_t<N, ComponentTypes>*;
 
-		template<IsComponent C> requires Contains<C, Cs...>
-		[[nodiscard]] C& Get();
+		template<std::size_t N>
+		[[nodiscard]] auto Get() -> std::tuple_element_t<N, ComponentTypes>*;
 
 	private:
-		ComponentSetMap m_components;
+		ComponentRefs m_components;
 	};
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline ComponentSet<Cs...>::ComponentSet(ComponentRefPtr<Cs>... refs)
+	inline ComponentSet<Cs...>::ComponentSet(ComponentRef<Cs>&&... refs)
+		: m_components(std::reinterpret_pointer_cast<Cs*>(std::forward<ComponentRef<Cs>>(refs).m_component)...) { }
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<std::size_t N>
+	inline auto ComponentSet<Cs...>::Get() const -> const std::tuple_element_t<N, ComponentTypes>*
 	{
-		(m_components.try_emplace(ComponentAlloc<Cs>::GetTypeID(), refs), ...);
+		using ComponentType = std::tuple_element_t<N, ComponentTypes>;
+		return static_cast<ComponentType*>(*std::get<N>(m_components).get());
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	template<IsComponent C> requires Contains<C, Cs...>
-	inline const C& ComponentSet<Cs...>::Get() const
+	template<std::size_t N>
+	inline auto ComponentSet<Cs...>::Get() -> std::tuple_element_t<N, ComponentTypes>*
 	{
-		return *static_cast<ComponentRef<C>&>(*m_components.at(ComponentAlloc<C>::GetTypeID())).Get();
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	template<IsComponent C> requires Contains<C, Cs...>
-	inline C& ComponentSet<Cs...>::Get()
-	{
-		return const_cast<C&>(std::as_const(*this).Get<C>());
+		using ComponentType = std::tuple_element_t<N, ComponentTypes>;
+		return const_cast<ComponentType*>(std::as_const(*this).Get<N>());
 	}
 }

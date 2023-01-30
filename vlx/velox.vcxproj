@@ -156,7 +156,6 @@
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
-    <ClInclude Include="include\Velox\ECS\IComponentRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
@@ -231,6 +230,7 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />

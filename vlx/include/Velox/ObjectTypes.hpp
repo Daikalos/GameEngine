@@ -3,6 +3,7 @@
 #include "Utilities.hpp"
 
 #include "Components/Object.h"
+#include "Components/LocalTransform.h"
 #include "Components/Transform.h"
 #include "Components/Relation.h"
 #include "Components/Sprite.h"
@@ -17,14 +18,14 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, Transform, Relation, Sprite, gui::Container, gui::Button, gui::Label>;
-	using ObjectType	= std::tuple<Object, Transform, Relation, Sprite>;
+	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, gui::Container, gui::Button, gui::Label>;
+	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
 
 	namespace gui
 	{
-		using ContainerType = std::tuple<Object, Transform, Relation, gui::Container>;
-		using ImageType		= std::tuple<Object, Transform, Relation, Sprite>;
-		using ButtonType	= std::tuple<Object, Transform, Relation, Sprite, gui::Button>;
-		using LabelType		= std::tuple<Object, Transform, Relation, gui::Label>;
+		using ContainerType = std::tuple<Object, LocalTransform, Transform, Relation, gui::Container>;
+		using ImageType		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
+		using ButtonType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, gui::Button>;
+		using LabelType		= std::tuple<Object, LocalTransform, Transform, Relation, gui::Label>;
 	}
 }

@@ -5,30 +5,39 @@ using namespace vlx;
 TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemObject(entity_admin, id), 
 	m_local_system(entity_admin, id),
-	m_global_system(entity_admin, id),
-	m_cleaning_system(entity_admin, id)
+	m_dirty_system(entity_admin, id),
+	m_cleaning_system(entity_admin, id),
+	m_global_system(entity_admin, id)
 {
-	m_local_system.Action([this](std::span<const EntityID> entities, Transform* transforms)
+	m_local_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Transform& transform = transforms[i];
+				LocalTransform& local_transform = local_transforms[i];
 
-				if (transform.m_dirty)
+				if (local_transform.m_dirty)
 				{
-					UpdateLocalTransform(transform);
-					transform.m_dirty = false;
+					SetLocalTransform(local_transform, transforms[i]);
+					local_transform.m_dirty = false;
 				}
 			}
 		});
 
-	m_global_system.Action([this](std::span<const EntityID> entities, Transform* transforms, Relation* relations)
+	m_dirty_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
-				UpdateTransforms(transforms[i], relations[i]);
+			{
+				LocalTransform& local_transform = local_transforms[i];
+
+				if (local_transform.m_dirty)
+				{
+					transforms[i].m_dirty = true;
+					local_transform.m_dirty = false;
+				}
+			}
 		});
 
-	m_cleaning_system.Action([this](std::span<const EntityID> entities, Transform* transforms, Relation* relations)
+	m_cleaning_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms, Relation* relations)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
@@ -37,38 +46,47 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			}
 		});
 
+	m_global_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms, Relation* relations)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				UpdateTransforms(local_transforms[i], transforms[i], relations[i]);
+		});
+
 	m_local_system.Exclude<Relation>();		// runs on any entity that does not have a relation
 
-	m_local_system.SetPriority(0.0f);
-	m_global_system.SetPriority(1.0f);
+	m_dirty_system.SetPriority(3.0f);
 	m_cleaning_system.SetPriority(2.0f);	// cleaning system runs before global
+	m_global_system.SetPriority(1.0f);
 
 	m_local_system.RunParallel(true);
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
 {
-	SetGlobalPosition(*CheckCache(entity), m_entity_admin->GetComponent<Relation>(entity), position);
+	SetGlobalPosition(m_entity_admin->GetComponent<LocalTransform>(entity),
+		m_entity_admin->GetComponent<Relation>(entity), position);
 }
 void TransformSystem::SetGlobalScale(const EntityID entity, const sf::Vector2f& scale)
 {
-	SetGlobalScale(*CheckCache(entity), m_entity_admin->GetComponent<Relation>(entity), scale);
+	SetGlobalScale(m_entity_admin->GetComponent<LocalTransform>(entity), 
+		m_entity_admin->GetComponent<Relation>(entity), scale);
 }
 void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle angle)
 {
-	SetGlobalRotation(*CheckCache(entity), m_entity_admin->GetComponent<Relation>(entity), angle);
+	SetGlobalRotation(m_entity_admin->GetComponent<LocalTransform>(entity), 
+		m_entity_admin->GetComponent<Relation>(entity), angle);
 }
 
-void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation, const sf::Vector2f& position)
+void TransformSystem::SetGlobalPosition(LocalTransform& transform, Relation& relation, const sf::Vector2f& position)
 {
-	Transform& parent = m_entity_admin->GetComponent<Transform>(relation.GetParent()->GetEntityID());
-	transform.SetPosition(parent.GetInverseTransform() * position);
+	//Transform& parent = *CheckCache(relation.GetParent()->GetEntityID());
+	//transform.SetPosition(parent.GetInverseTransform() * position);
 }
-void TransformSystem::SetGlobalScale(Transform& transform, Relation& relation, const sf::Vector2f& scale)
+void TransformSystem::SetGlobalScale(LocalTransform& transform, Relation& relation, const sf::Vector2f& scale)
 {
 	// TODO: implement
 }
-void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation, const sf::Angle angle)
+void TransformSystem::SetGlobalRotation(LocalTransform& transform, Relation& relation, const sf::Angle angle)
 {
 	// TODO: implement
 }
@@ -90,41 +108,62 @@ void TransformSystem::PostUpdate()
 
 void TransformSystem::CleanTransforms(Transform& transform, const Relation& relation) const
 {
-	if (transform.m_update_global) // no need to update if already cleaned
-		return;
+	const auto RecursiveClean = [this](Transform& child_transform, const Relation& child_relation) 
+	{
+		auto RecursiveImpl = [this](Transform& child_transform, const Relation& child_relation, auto& recursive_ref) mutable
+		{
+			if (child_transform.m_dirty)
+				return;
 
-	transform.m_update_global = true;
-	transform.m_update_global_inverse = true;
+			child_transform.m_dirty = true;
 
-	transform.m_dirty = false;
+			for (const auto& ptr : child_relation.GetChildren()) // all of the children needs their global transform to be updated
+			{
+				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<1>();
+
+				if (child_transform == nullptr)
+					continue;
+
+				recursive_ref(*child_transform, *ptr, recursive_ref);
+			}
+		};
+
+		return RecursiveImpl(child_transform, child_relation, RecursiveImpl);
+	};
+
+	transform.m_dirty = true;
 
 	for (const auto& ptr : relation.GetChildren()) // all of the children needs their global transform to be updated
 	{
-		Transform* child_transform = CheckCache(ptr->GetEntityID());
+		Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<1>();
 
 		if (child_transform == nullptr)
 			continue;
 
-		CleanTransforms(*child_transform, **ptr);
+		RecursiveClean(*child_transform, *ptr);
 	}
 }
-void TransformSystem::UpdateTransforms(Transform& transform, const Relation& relation) const
+void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const
 {
-	if (!transform.m_update_global) // already up-to-date
+	if (!transform.m_dirty) // already up-to-date
 		return;
 
 	if (relation.HasParent())
 	{
-		Transform* parent_transform = CheckCache(relation.GetParent()->GetEntityID());
+		auto& set = CheckCache(relation.GetParent().GetEntityID());
+
+		Transform* parent_transform = set.Get<1>();
 
 		if (parent_transform == nullptr)
 		{
-			UpdateLocalTransform(transform);
+			SetLocalTransform(local_transform, transform);
 			return;
 		}
 
-		UpdateTransforms(*parent_transform, **relation.GetParent());
-		transform.m_global_transform = parent_transform->GetTransform() * transform.GetLocalTransform();
+		UpdateTransforms(*set.Get<0>(), *parent_transform, *relation.GetParent());
+		transform.m_transform = parent_transform->GetTransform() * local_transform.GetTransform();
+
+		transform.m_update_inverse = true;
 
 		transform.m_update_position = true;
 		transform.m_update_scale = true;
@@ -132,28 +171,29 @@ void TransformSystem::UpdateTransforms(Transform& transform, const Relation& rel
 	}
 	else
 	{
-		UpdateLocalTransform(transform);
+		SetLocalTransform(local_transform, transform);
 	}
 
-	transform.m_update_global = false;
+	transform.m_dirty = false;
 }
 
-void TransformSystem::UpdateLocalTransform(Transform& transform) const
+void TransformSystem::SetLocalTransform(LocalTransform& local_transform, Transform& transform) const
 {
-	transform.m_global_transform = transform.GetLocalTransform();
+	transform.m_transform	= local_transform.GetTransform();
 
-	transform.m_global_position = transform.m_position;
-	transform.m_global_scale = transform.m_scale;
-	transform.m_global_rotation = transform.m_rotation;
+	transform.m_position	= local_transform.m_position;
+	transform.m_scale		= local_transform.m_scale;
+	transform.m_rotation	= local_transform.m_rotation;
 }
 
-Transform* vlx::TransformSystem::CheckCache(const EntityID entity_id) const
+auto vlx::TransformSystem::CheckCache(EntityID entity_id) const -> TransformSet&
 {
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())
 	{
-		return m_cache.try_emplace(entity_id, m_entity_admin->GetComponentRef<Transform>(entity_id)).first->second->Get();
+		return m_cache.try_emplace(entity_id, 
+			m_entity_admin->GetComponents<LocalTransform, Transform>(entity_id)).first->second;
 	}
 
-	return it->second->Get();
+	return it->second;
 }

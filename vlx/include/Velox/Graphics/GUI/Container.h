@@ -13,7 +13,7 @@ namespace vlx::gui
 	{
 	private:
 		using SizeType			= std::int16_t;
-		using ChildType			= BaseRefPtr<GUIComponent>;
+		using ChildType			= BaseRef<GUIComponent>;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;
@@ -64,7 +64,7 @@ namespace vlx::gui
 		const auto it = std::find(m_children.begin(), m_children.end(), 
 			[&entity_id](const ChildType& child)
 			{
-				return child->GetEntityID() == entity_id;
+				return child.GetEntityID() == entity_id;
 			});
 
 		if (it == m_children.end()) // prevent duplicates
@@ -82,7 +82,7 @@ namespace vlx::gui
 		const auto it = std::find(m_children.begin(), m_children.end(),
 			[&entity_id](const ChildType& child)
 			{
-				return child->GetEntityID() == entity_id;
+				return child.GetEntityID() == entity_id;
 			});
 
 		if (it == m_children.end())
@@ -102,12 +102,12 @@ namespace vlx::gui
 		std::sort(m_children.begin(), m_children.end(),
 			[&entity_admin](const ChildType& lhs, const ChildType& rhs)
 			{
-				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs->GetEntityID());
+				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
 
 				if (!lhs_success)
 					return false;
 
-				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs->GetEntityID());
+				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs.GetEntityID());
 
 				if (!rhs_success)
 					return false;

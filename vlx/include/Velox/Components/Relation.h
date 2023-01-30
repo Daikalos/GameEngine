@@ -18,7 +18,7 @@ namespace vlx
 	class Relation : public IComponent
 	{
 	private:
-		using RelationPtr = ComponentRefPtr<Relation>;
+		using RelationPtr = ComponentRef<Relation>;
 		using Children = std::vector<RelationPtr>;
 
 		template<class C>
@@ -31,10 +31,10 @@ namespace vlx
 		VELOX_API [[nodiscard]] bool HasParent() const noexcept;
 		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
 
-		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationPtr;
+		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationPtr&;
 		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const Children&;
 
-		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant);
+		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant) const;
 
 	public:
 		VELOX_API void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
@@ -42,7 +42,7 @@ namespace vlx
 
 	private:
 		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
-		VELOX_API void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, const IComponent& new_data) override;
+		VELOX_API void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
 		VELOX_API void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
 	public:
@@ -72,7 +72,7 @@ namespace vlx
 
 			if (include_descendants) // continue iterating descendants
 			{
-				(*ptr)->IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
+				ptr->IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
 			}
 		}
 	}
@@ -83,12 +83,12 @@ namespace vlx
 		std::sort(m_children.begin(), m_children.end(),
 			[&func, &entity_admin](const RelationPtr& lhs, const RelationPtr& rhs)
 			{
-				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs->GetEntityID());
+				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
 
 				if (!lhs_success)
 					return false;
 
-				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs->GetEntityID());
+				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs.GetEntityID());
 
 				if (!rhs_success)
 					return false;
@@ -100,7 +100,7 @@ namespace vlx
 		{
 			for (const RelationPtr& ptr : m_children)
 			{
-				(*ptr)->SortChildren(func, entity_admin, include_descendants);
+				ptr->SortChildren(func, entity_admin, include_descendants);
 			}
 		}
 	}
