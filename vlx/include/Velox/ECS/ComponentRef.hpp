@@ -14,9 +14,6 @@ namespace vlx
 	class ComponentRef final
 	{
 	public:
-		using value_type = C;
-
-	public:
 		ComponentRef() = default;
 		ComponentRef(const EntityID entity_id, std::shared_ptr<IComponent*> component);
 

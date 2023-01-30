@@ -88,7 +88,10 @@ void Relation::AttachChild(const EntityAdmin& entity_admin, const EntityID entit
 	if (IsDescendant(child_id))
 		throw std::runtime_error("The new parent cannot be a descendant of the child");
 
-	if (child.HasParent() && child.m_parent.GetEntityID() == entity_id) // child is already correctly parented
+	if (entity_id == child_id || this == &child) // cant attach to itself
+		return;
+
+	if (child.HasParent() && child.GetParent().GetEntityID() == entity_id) // child is already correctly parented
 		return;
 
 	if (HasParent() && m_parent.GetEntityID() == child_id) // special case

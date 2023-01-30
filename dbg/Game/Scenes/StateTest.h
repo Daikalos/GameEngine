@@ -10,7 +10,7 @@
 class StateTest : public vlx::State
 {
 public:
-	using State::State;
+	StateTest(const vlx::StateID state_id, vlx::StateStack& state_stack, vlx::World& world);
 
 	void OnCreated() override;
 
@@ -27,4 +27,6 @@ private:
 	vlx::ComponentRef<vlx::LocalTransform> et0, et1;
 
 	vlx::Entity b0, b1;
+
+	vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
 };

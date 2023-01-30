@@ -2,6 +2,12 @@
 
 using namespace vlx;
 
+StateTest::StateTest(const StateID state_id, StateStack& state_stack, World& world)
+	: State(state_id, state_stack, world), sys(world.GetEntityAdmin(), 100)
+{
+
+}
+
 void StateTest::OnCreated()
 {
     m_entity_admin = &GetWorld().GetEntityAdmin();
@@ -34,11 +40,17 @@ void StateTest::OnCreated()
 
 	m_entities.reserve(100000);
 
-	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
+	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite, Velocity>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
-		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 10000, rnd::random() * 10000 });
+
+		Velocity* vel = added.AddComponent<Velocity>();
+		vel->velocity.x = rnd::random(-50.0f, 50.0f);
+		vel->velocity.y = rnd::random(-50.0f, 50.0f);
+
+		added.GetComponent<LocalTransform>().SetPosition({ -1000.0f + rnd::random() * 2000, -1000.0f + rnd::random() * 2000 });
+		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
 
 	int a = sizeof(Relation);
@@ -57,6 +69,13 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Released += []() { std::puts("Relased"); };
 	b0.GetComponent<gui::Button>().Entered += []() { std::puts("Entered"); };
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
+
+	Time& time = GetWorld().GetTime();
+	sys.Action([&time](std::span<const EntityID> entities, Velocity* velocities, LocalTransform* local_transforms)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				local_transforms[i].Move(velocities[i].velocity * time.GetDT());
+		});
 
 	//b0.RemoveComponents<gui::Button, gui::Label>();
 
@@ -78,6 +97,8 @@ bool StateTest::Update(Time& time)
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFramerate()));
+
+	m_entity_admin->RunSystems(100);
 
     return true;
 }

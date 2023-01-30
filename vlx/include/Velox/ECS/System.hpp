@@ -27,7 +27,7 @@ namespace vlx
 		}
 
 	public:
-		virtual const ArchetypeID& GetIDKey() const = 0;
+		virtual ArchetypeID GetIDKey() const = 0;
 		virtual const ComponentIDs& GetArchKey() const = 0;
 
 		virtual float GetPriority() const noexcept = 0;
@@ -50,11 +50,20 @@ namespace vlx
 		using ArchetypeCache = std::unordered_set<ArchetypeID>;
 
 	public:
+		inline static constexpr ArrComponentIDs<Cs...> SystemIDs = 
+			cu::Sort<ArrComponentIDs<Cs...>>({ ComponentAlloc<Cs>::GetTypeID()... });
+
+		inline static constexpr ArchetypeID SystemID =
+			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
+
+	public:
+		System() = default;
 		System(EntityAdmin& entity_admin, const LayerType layer);
+
 		~System();
 
 	public:
-		const ArchetypeID& GetIDKey() const override;
+		ArchetypeID GetIDKey() const override;
 		const ComponentIDs& GetArchKey() const override;
 
 		[[nodiscard]] float GetPriority() const noexcept override;
@@ -86,7 +95,7 @@ namespace vlx
 		bool IsArchetypeExcluded(const Archetype* archetype) const;
 
 	protected:
-		EntityAdmin*	m_entity_admin;
+		EntityAdmin*	m_entity_admin	{nullptr};
 		LayerType		m_layer			{LYR_NONE};	// controls the overall order of calls
 		Func			m_func;
 		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
@@ -95,7 +104,6 @@ namespace vlx
 		ComponentIDs			m_exclusion;
 		mutable ArchetypeCache	m_excluded_archetypes;
 
-		mutable ArchetypeID		m_id_key	{NULL_ARCHETYPE};
 		mutable ComponentIDs	m_arch_key;
 	};
 
@@ -105,6 +113,7 @@ namespace vlx
 	{
 		m_entity_admin->RegisterSystem(m_layer, this);
 	}
+
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::~System()
@@ -137,27 +146,16 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline const ArchetypeID& System<Cs...>::GetIDKey() const
+	inline ArchetypeID System<Cs...>::GetIDKey() const
 	{
-		if (m_id_key == NULL_ARCHETYPE)
-		{
-			constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ ComponentAlloc<Cs>::GetTypeID()... });
-			constexpr auto archetype_id		= cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
-
-			m_id_key = archetype_id;
-		}
-
-		return m_id_key;
+		return SystemID;
 	}	
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline const ComponentIDs& System<Cs...>::GetArchKey() const
 	{
 		if (m_arch_key.empty())
-		{
-			constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ ComponentAlloc<Cs>::GetTypeID()... });
-			m_arch_key = { component_ids.begin(), component_ids.end() };
-		}
+			m_arch_key = { SystemIDs.begin(), SystemIDs.end() };
 
 		return m_arch_key;
 	}
@@ -191,20 +189,19 @@ namespace vlx
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& c, Ts... cs) const
 	{
-		using CompType = std::tuple_element_t<Index, ComponentTypes>;			// get type of component at index in system components
-		constexpr ComponentTypeID comp_id = ComponentAlloc<CompType>::GetTypeID();	// get the id for the type of element at index
+		using ComponentType = std::tuple_element_t<Index, ComponentTypes>; // get type of component at index in system components
+		constexpr auto component_id = ComponentAlloc<ComponentType>::GetTypeID();
 
 		std::size_t i = 0;
 		ComponentTypeID archetype_comp_id = component_ids[i];
-
-		while (archetype_comp_id != comp_id && i < component_ids.size())	// iterate until matching component is found
+		while (archetype_comp_id != component_id && i < component_ids.size())	// iterate until matching component is found
 		{
 			archetype_comp_id = component_ids[++i];
 		}
 
 		assert(i != component_ids.size());
 
-		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<CompType*>(&c[i][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final DoAction
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

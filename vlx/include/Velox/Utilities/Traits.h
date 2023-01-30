@@ -2,6 +2,8 @@
 
 #include <type_traits>
 
+#include "IDGenerator.h"
+
 namespace vlx::traits
 {
     template <typename T>
@@ -41,25 +43,98 @@ namespace vlx::traits
         constexpr operator bool() const { return true; }
     };
 
-    template<std::size_t Index, typename T, typename Tuple>
-    static constexpr std::size_t IndexInTupleFn() 
+    namespace hidden
     {
-        static_assert(Index < std::tuple_size<Tuple>::value, "The element is not in the tuple");
-
-        using TupleType = std::tuple_element_t<Index, Tuple>;
-        if constexpr (std::is_same_v<T, TupleType>)
+        template<std::size_t Index, typename T, typename Tuple>
+        static constexpr std::size_t IndexInTupleFn()
         {
-            return Index;
-        }
-        else 
-        {
-            return IndexInTupleFn<Index + 1, T, Tuple>();
+            static_assert(Index < std::tuple_size_v<Tuple>, "The element is not in the tuple");
+            if constexpr (std::is_same_v<T, std::tuple_element_t<Index, Tuple>>)
+            {
+                return Index;
+            }
+            else
+            {
+                return IndexInTupleFn<Index + 1, T, Tuple>();
+            }
         }
     }
 
+    /// <summary>
+    ///     Returns in compile-time the index to where in tuple the type is located at
+    /// </summary>
     template<typename T, typename Tuple>
     struct IndexInTuple
     {
-        static constexpr size_t value = IndexInTupleFn<0, T, Tuple>();
+        static constexpr size_t value = hidden::IndexInTupleFn<0, T, Tuple>();
     };
+
+    /// <summary>
+    ///     Sorts a tuple given a comparator, e.g., DescendingID
+    ///     Thanks to: https://codereview.stackexchange.com/questions/131194/selection-sorting-a-type-list-compile-time
+    /// </summary>
+    namespace sort
+    {
+        template<bool B>
+        struct Conditional 
+        {
+            template<class T, class> using type = T;
+        };
+
+        template<>
+        struct Conditional<false> 
+        {
+            template<class, class U> using type = U;
+        };
+
+        template<class T, class U>
+        using DescendingID = Conditional<(id::Type<T>::ID() > id::Type<U>::ID())>;
+
+        template <std::size_t I, std::size_t J, class Tuple>
+        class TupleElementSwap
+        {
+            template <class>
+            struct TupleElementSwapImpl;
+
+            template <std::size_t... Is>
+            struct TupleElementSwapImpl<std::index_sequence<Is...>>
+            {
+                using type = std::tuple<std::tuple_element_t<Is != I && Is != J ? Is : Is == I ? J : I, Tuple>...>;
+            };
+
+        public:
+            using type = typename TupleElementSwapImpl<std::make_index_sequence<std::tuple_size_v<Tuple>>>::type;
+        };
+
+        template <template <class, class> class Comparator, class Tuple>
+        class TupleSelectionSort
+        {
+            template<size_t I, size_t J, size_t N, class LoopTuple>
+            struct TupleSelectionSortImpl
+            {
+                using NextLoopTuple = typename Comparator<
+                    std::tuple_element_t<I, LoopTuple>, 
+                    std::tuple_element_t<J, LoopTuple>>::template type<typename TupleElementSwap<I, J, LoopTuple>::type, LoopTuple>;
+
+                using type = typename TupleSelectionSortImpl<I, J + 1, N, NextLoopTuple>::type;
+            };
+
+            template <std::size_t I, std::size_t TupleSize, class LoopTuple>
+            struct TupleSelectionSortImpl<I, TupleSize, TupleSize, LoopTuple>
+            {
+                // once j == tuple_size, we increment i and start j at i + 1 and recurse
+                using type = typename TupleSelectionSortImpl<I + 1, I + 2, TupleSize, LoopTuple>::type;
+            };
+
+            template <std::size_t j, std::size_t TupleSize, class LoopTuple>
+            struct TupleSelectionSortImpl<TupleSize, j, TupleSize, LoopTuple>
+            {
+                // once i == tuple_size, we know that every element has been compared
+                using type = LoopTuple;
+            };
+
+        public:
+            using type = typename TupleSelectionSortImpl<0, 1, std::tuple_size_v<Tuple>, Tuple>::type;
+        };
+    }
 }

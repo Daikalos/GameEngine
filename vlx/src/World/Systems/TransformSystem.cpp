@@ -121,26 +121,20 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 			{
 				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
 
-				if (child_transform == nullptr)
-					continue;
-
-				recursive_ref(*child_transform, *ptr, recursive_ref);
+				if (child_transform != nullptr)
+					recursive_ref(*child_transform, *ptr, recursive_ref);
 			}
 		};
 
 		return RecursiveImpl(child_transform, child_relation, RecursiveImpl);
 	};
 
-	transform.m_dirty = true;
-
 	for (const auto& ptr : relation.GetChildren()) // all of the children needs their global transform to be updated
 	{
 		Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
 
-		if (child_transform == nullptr)
-			continue;
-
-		RecursiveClean(*child_transform, *ptr);
+		if (child_transform != nullptr)
+			RecursiveClean(*child_transform, *ptr);
 	}
 }
 void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const
