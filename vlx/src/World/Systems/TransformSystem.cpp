@@ -119,7 +119,7 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 
 			for (const auto& ptr : child_relation.GetChildren()) // all of the children needs their global transform to be updated
 			{
-				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<1>();
+				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
 
 				if (child_transform == nullptr)
 					continue;
@@ -135,7 +135,7 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 
 	for (const auto& ptr : relation.GetChildren()) // all of the children needs their global transform to be updated
 	{
-		Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<1>();
+		Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
 
 		if (child_transform == nullptr)
 			continue;
@@ -152,7 +152,7 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 	{
 		auto& set = CheckCache(relation.GetParent().GetEntityID());
 
-		Transform* parent_transform = set.Get<1>();
+		Transform* parent_transform = set.Get<Transform>();
 
 		if (parent_transform == nullptr)
 		{
@@ -160,7 +160,7 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 			return;
 		}
 
-		UpdateTransforms(*set.Get<0>(), *parent_transform, *relation.GetParent());
+		UpdateTransforms(*set.Get<LocalTransform>(), *parent_transform, *relation.GetParent());
 		transform.m_transform = parent_transform->GetTransform() * local_transform.GetTransform();
 
 		transform.m_update_inverse = true;
@@ -192,7 +192,7 @@ auto vlx::TransformSystem::CheckCache(EntityID entity_id) const -> TransformSet&
 	if (it == m_cache.end())
 	{
 		return m_cache.try_emplace(entity_id, 
-			m_entity_admin->GetComponents<LocalTransform, Transform>(entity_id)).first->second;
+			m_entity_admin->GetComponents<LocalTransform, Transform>(entity_id)).first->second; // stupid intellisense error
 	}
 
 	return it->second;

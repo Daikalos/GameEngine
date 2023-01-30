@@ -11,7 +11,7 @@
 namespace vlx
 {
 	/// <summary>
-	///		Represents the transform
+	///		Represents the final transform
 	/// </summary>
 	class VELOX_API Transform : public IComponent
 	{ 

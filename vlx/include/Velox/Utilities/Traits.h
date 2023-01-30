@@ -40,4 +40,26 @@ namespace vlx::traits
     {
         constexpr operator bool() const { return true; }
     };
+
+    template<std::size_t Index, typename T, typename Tuple>
+    static constexpr std::size_t IndexInTupleFn() 
+    {
+        static_assert(Index < std::tuple_size<Tuple>::value, "The element is not in the tuple");
+
+        using TupleType = std::tuple_element_t<Index, Tuple>;
+        if constexpr (std::is_same_v<T, TupleType>)
+        {
+            return Index;
+        }
+        else 
+        {
+            return IndexInTupleFn<Index + 1, T, Tuple>();
+        }
+    }
+
+    template<typename T, typename Tuple>
+    struct IndexInTuple
+    {
+        static constexpr size_t value = IndexInTupleFn<0, T, Tuple>();
+    };
 }
