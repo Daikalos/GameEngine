@@ -17,10 +17,11 @@ namespace vlx
 	/// </summary>
 	class Relation : public IComponent
 	{
-	private:
-		using RelationPtr = ComponentRef<Relation>;
-		using Children = std::vector<RelationPtr>;
+	public:
+		using RelationRef = ComponentRef<Relation>;
+		using ChildrenRef = std::vector<RelationRef>;
 
+	private:
 		template<class C>
 		using CompFunc = std::function<bool(C&)>;
 
@@ -31,14 +32,10 @@ namespace vlx
 		VELOX_API [[nodiscard]] bool HasParent() const noexcept;
 		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
 
-		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationPtr&;
-		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const Children&;
+		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationRef&;
+		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const ChildrenRef&;
 
 		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant) const;
-
-	public:
-		VELOX_API void AttachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
-		VELOX_API EntityID DetachChild(const EntityAdmin& entity_admin, const EntityID entity_id, const EntityID child_id, Relation& child);
 
 	private:
 		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
@@ -53,14 +50,16 @@ namespace vlx
 		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = false);
 
 	private:
-		RelationPtr	m_parent;
-		Children	m_children;
+		RelationRef	m_parent;
+		ChildrenRef	m_children;
+		
+		friend class RelationSystem;
 	};
 
 	template<class C>
 	inline void Relation::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants) const
 	{
-		for (const RelationPtr& ptr : m_children)
+		for (const RelationRef& ptr : m_children)
 		{
 			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(ptr->GetEntityID());
 
@@ -81,7 +80,7 @@ namespace vlx
 	inline void Relation::SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
 	{
 		std::sort(m_children.begin(), m_children.end(),
-			[&func, &entity_admin](const RelationPtr& lhs, const RelationPtr& rhs)
+			[&func, &entity_admin](const RelationRef& lhs, const RelationRef& rhs)
 			{
 				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
 
@@ -98,7 +97,7 @@ namespace vlx
 
 		if (include_descendants)
 		{
-			for (const RelationPtr& ptr : m_children)
+			for (const RelationRef& ptr : m_children)
 			{
 				ptr->SortChildren(func, entity_admin, include_descendants);
 			}

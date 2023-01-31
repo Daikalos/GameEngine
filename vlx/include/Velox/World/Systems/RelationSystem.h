@@ -34,7 +34,7 @@ namespace vlx
 		void DetachChild(const EntityID parent_id, const EntityID child_id);
 
 		void AttachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child);
-		void DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child);
+		EntityID DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child);
 
 	private:
 		std::queue<EntityPair>	m_attachments;

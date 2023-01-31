@@ -52,9 +52,39 @@ void RelationSystem::DetachChild(const EntityID parent_id, const EntityID child_
 
 void RelationSystem::AttachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child)
 {
-	parent.AttachChild(*m_entity_admin, parent_id, child_id, child);
+	if (parent_id == child_id || &parent == &child) // cant attach to itself
+		return;
+
+	if (child.HasParent() && child.GetParent().GetEntityID() == parent_id) // child is already correctly parented
+		return;
+
+	if (parent.IsDescendant(child_id))
+		throw std::runtime_error("The new parent cannot be a descendant of the child");
+
+	if (parent.HasParent() && parent.GetParent().GetEntityID() == child_id) // special case
+		DetachChild(parent.m_parent.GetEntityID(), *parent.m_parent, parent_id, parent);
+
+	if (child.HasParent()) // if child already has an attached parent we need to detach it
+		DetachChild(child.m_parent.GetEntityID(), *child.m_parent, child_id, child);
+
+	child.m_parent = m_entity_admin->GetComponentRef<Relation>(parent_id, &parent);
+	parent.m_children.push_back(m_entity_admin->GetComponentRef<Relation>(child_id, &child));
 }
-void RelationSystem::DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child)
+EntityID RelationSystem::DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child)
 {
-	parent.DetachChild(*m_entity_admin, parent_id, child_id, child);
+	auto found = std::find_if(parent.m_children.begin(), parent.m_children.end(),
+		[&child_id](const Relation::RelationRef& ptr)
+		{
+			return ptr.GetEntityID() == child_id;
+		});
+
+	if (found == parent.m_children.end())
+		return NULL_ENTITY;
+
+	child.m_parent.Reset();
+
+	*found = parent.m_children.back();
+	parent.m_children.pop_back();
+
+	return child_id;
 }

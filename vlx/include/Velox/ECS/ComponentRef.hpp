@@ -40,7 +40,7 @@ namespace vlx
 		std::shared_ptr<IComponent*>	m_component {nullptr};
 
 		template<class... Cs> requires IsComponents<Cs...>
-		friend class ComponentSet;
+		friend class ComponentSet; // to enable access to m_component
 	};
 
 	template<class C>

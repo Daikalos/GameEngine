@@ -9,7 +9,7 @@ namespace vlx
 {
 	using ComponentData = typename std::unique_ptr<ByteArray>;
 
-	// TODO: maybe switch to using arrays since each archetype is statically defined 
+	// TODO: maybe switch to using arrays since each archetype size is statically defined 
 	// by their type that will never change, using vector for now is only of convenience 
 	// for add and removal when creating new archetypes, question is mostly how to properly store them
 

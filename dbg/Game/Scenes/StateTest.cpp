@@ -49,7 +49,7 @@ void StateTest::OnCreated()
 		vel->velocity.x = rnd::random(-50.0f, 50.0f);
 		vel->velocity.y = rnd::random(-50.0f, 50.0f);
 
-		added.GetComponent<LocalTransform>().SetPosition({ -1000.0f + rnd::random() * 2000, -1000.0f + rnd::random() * 2000 });
+		added.GetComponent<LocalTransform>().SetPosition({ 0, 0 });
 		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
 
@@ -94,7 +94,13 @@ bool StateTest::Update(Time& time)
 	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+	{
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
+		for (const Entity& entity : m_entities)
+		{
+			m_entity_admin->SetComponent(entity, Velocity({ rnd::random(-50.0f, 50.0f), rnd::random(-50.0f, 50.0f) }));
+		}
+	}
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFramerate()));
 

@@ -9,7 +9,8 @@ namespace vlx
 	class BaseRef final
 	{
 	public:
-		BaseRef(const EntityID entity_id, const std::uint32_t offset = 0);
+		BaseRef() = default;
+		BaseRef(const EntityID entity_id, std::shared_ptr<void*> base_component);
 
 	public:
 		B* operator->();
@@ -30,14 +31,13 @@ namespace vlx
 		void Reset();
 
 	private:
-		EntityID			m_entity_id			{NULL_ENTITY};
-		std::shared_ptr<B*>	m_base_component	{nullptr};
-		std::uint32_t		m_offset			{0};
+		EntityID				m_entity_id			{NULL_ENTITY};
+		std::shared_ptr<void*>	m_base_component	{nullptr};
 	};
 
 	template<class B>
-	inline BaseRef<B>::BaseRef(const EntityID entity_id, const std::uint32_t offset)
-		: IComponentRef(entity_id), m_base_component(nullptr), m_offset(offset) { }
+	inline BaseRef<B>::BaseRef(const EntityID entity_id, std::shared_ptr<void*> base_component)
+		: IComponentRef(entity_id), m_base_component(base_component) { }
 
 	template<class B>
 	inline B* BaseRef<B>::operator->()
@@ -66,7 +66,7 @@ namespace vlx
 	template<class B>
 	inline B* BaseRef<B>::Get()
 	{
-		return *m_base_component;
+		return static_cast<B*>(*m_base_component);
 	}
 
 	template<class B>

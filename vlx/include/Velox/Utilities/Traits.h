@@ -90,6 +90,9 @@ namespace vlx::traits
         template<class T, class U>
         using DescendingID = Conditional<(id::Type<T>::ID() > id::Type<U>::ID())>;
 
+        template<class T, class U>
+        using AscendingID = Conditional<(id::Type<T>::ID() < id::Type<U>::ID())>;
+
         template <std::size_t I, std::size_t J, class Tuple>
         class TupleElementSwap
         {
