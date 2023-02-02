@@ -5,7 +5,7 @@ using namespace vlx;
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemObject(entity_admin, id), m_system(entity_admin, id)
 {
-	m_system.Action([this](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
+	m_system.All([this](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

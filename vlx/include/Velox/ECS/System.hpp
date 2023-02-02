@@ -44,14 +44,16 @@ namespace vlx
 	class System : public ISystem
 	{
 	public:
-		using Func = std::function<void(std::span<const EntityID>, Cs*...)>;
+		using AllFunc = std::function<void(std::span<const EntityID>, Cs*...)>;
+		using EachFunc = std::function<void(const EntityID, Cs&...)>;
+
 		using ComponentTypes = std::tuple<Cs...>;
 
 		using ArchetypeCache = std::unordered_set<ArchetypeID>;
 
 	public:
 		inline static constexpr ArrComponentIDs<Cs...> SystemIDs = 
-			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()...}); // another stupid intellisense error
+			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()... }); // another stupid intellisense error
 
 		inline static constexpr ArchetypeID SystemID =
 			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
@@ -72,8 +74,11 @@ namespace vlx
 		[[nodiscard]] constexpr bool IsRunningParallel() const noexcept override;
 		void RunParallel(const bool flag) noexcept override;
 
+		const Archetype* GetCurrentArchetype() const;
+
 	public:
-		void Action(Func&& func);
+		void All(AllFunc&& func);
+		void Each(EachFunc&& func);
 
 	public:
 		/// <summary>
@@ -86,25 +91,28 @@ namespace vlx
 		virtual void DoAction(Archetype* archetype) const override;
 
 		template<std::size_t Index = 0, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const;
+		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const;
 
 		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const;
+		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const;
 
 	private:
 		bool IsArchetypeExcluded(const Archetype* archetype) const;
 
 	protected:
-		EntityAdmin*	m_entity_admin	{nullptr};
-		LayerType		m_layer			{LYR_NONE};	// controls the overall order of calls
-		Func			m_func;
-		float			m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
-		bool			m_run_parallel	{false};
+		EntityAdmin*		m_entity_admin	{nullptr};
+		LayerType			m_layer			{LYR_NONE};	// controls the overall order of calls
+		AllFunc				m_all_func;
+		EachFunc			m_each_func;
+		float				m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
+		bool				m_run_parallel	{false};
 
 		ComponentIDs			m_exclusion;
 		mutable ArchetypeCache	m_excluded_archetypes;
 
 		mutable ComponentIDs	m_arch_key;
+
+		mutable const Archetype* m_archetype{nullptr};
 	};
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -146,6 +154,12 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
+	inline const Archetype* System<Cs...>::GetCurrentArchetype() const
+	{
+		return m_archetype;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
 	inline ArchetypeID System<Cs...>::GetIDKey() const
 	{
 		return SystemID;
@@ -161,9 +175,15 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::Action(Func&& func)
+	inline void System<Cs...>::All(AllFunc&& func)
 	{
-		m_func = std::forward<Func>(func);
+		m_all_func = std::forward<AllFunc>(func);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void System<Cs...>::Each(EachFunc&& func)
+	{
+		m_each_func = std::forward<EachFunc>(func);
 	}
 
 	template<class... Cs1> requires IsComponents<Cs1...>
@@ -176,18 +196,25 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::DoAction(Archetype* archetype) const
 	{
-		if (m_func && !IsArchetypeExcluded(archetype)) // check if func stores callable object and that the archetype is not excluded
+		if (IsArchetypeExcluded(archetype)) // check that it is not excluded
+			return;
+
+		if (m_all_func || m_each_func) // check if func stores callable object
 		{
+			m_archetype = archetype;
+
 			DoAction(
 				archetype->type, 
 				archetype->entities, 
 				archetype->component_data);
+
+			m_archetype = nullptr;
 		}
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& c, Ts... cs) const
+	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& c, Ts... cs) const
 	{
 		using ComponentType = std::tuple_element_t<Index, ComponentTypes>; // get type of component at index in system components
 		constexpr auto component_id = ComponentAlloc<ComponentType>::GetTypeID();
@@ -201,14 +228,21 @@ namespace vlx
 
 		assert(i != component_ids.size());
 
-		DoAction<Index + 1>(component_ids, entity_ids, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final DoAction
+		DoAction<Index + 1>(component_ids, entities, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final DoAction
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entity_ids, T& t, Ts... ts) const
+	inline void System<Cs...>::DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const
 	{
-		m_func(entity_ids, ts...);
+		if (m_all_func)
+			m_all_func(entities, ts...);
+
+		if (m_each_func)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				m_each_func(entities[i], ts[i]...);
+		}
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

@@ -71,7 +71,7 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
 	Time& time = GetWorld().GetTime();
-	sys.Action([&time](std::span<const EntityID> entities, Velocity* velocities, LocalTransform* local_transforms)
+	sys.All([&time](std::span<const EntityID> entities, Velocity* velocities, LocalTransform* local_transforms)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 				local_transforms[i].Move(velocities[i].velocity * time.GetDT());

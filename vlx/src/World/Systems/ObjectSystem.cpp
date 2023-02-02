@@ -5,7 +5,7 @@ using namespace vlx;
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemObject(entity_admin, id), m_object_system(entity_admin, id)
 {
-	m_object_system.Action([this](std::span<const EntityID> entities, Object* objects)
+	m_object_system.All([this](std::span<const EntityID> entities, Object* objects)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

@@ -5,7 +5,7 @@ using namespace vlx;
 AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window)
 	: SystemObject(entity_admin, id), m_system(entity_admin, id)
 {
-	m_system.Action([this, &window](std::span<const EntityID> entities, Transform* transforms, gui::Anchor* anchors)
+	m_system.All([this, &window](std::span<const EntityID> entities, Transform* transforms, gui::Anchor* anchors)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

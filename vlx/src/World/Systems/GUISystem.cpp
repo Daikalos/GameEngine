@@ -7,7 +7,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 	m_button_system(entity_admin, id),
 	m_label_system(entity_admin, id)
 {
-	m_button_system.Action([&controls](std::span<const EntityID> entities, Object* objects, Transform* transforms, Button* buttons)
+	m_button_system.All([&controls](std::span<const EntityID> entities, Object* objects, Transform* transforms, Button* buttons)
 		{
 			const MouseInput& mouse_input = controls.Get<MouseInput>();
 			const MouseCursor& mouse_cursor = controls.Get<MouseCursor>();
@@ -52,7 +52,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Contro
 			}
 		});
 
-	m_label_system.Action([](std::span<const EntityID> entities, Object* objects, Transform* transforms, Label* labels)
+	m_label_system.All([](std::span<const EntityID> entities, Object* objects, Transform* transforms, Label* labels)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

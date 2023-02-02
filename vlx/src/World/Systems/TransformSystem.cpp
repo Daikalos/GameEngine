@@ -9,47 +9,33 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_cleaning_system(entity_admin, id),
 	m_global_system(entity_admin, id)
 {
-	m_local_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms)
+	m_local_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
+			if (local_transform.m_dirty)
 			{
-				LocalTransform& local_transform = local_transforms[i];
-
-				if (local_transform.m_dirty)
-				{
-					UpdateToLocal(local_transform, transforms[i]);
-					local_transform.m_dirty = false;
-				}
+				UpdateToLocal(local_transform, transform);
+				local_transform.m_dirty = false;
 			}
 		});
 
-	m_dirty_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms)
+	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
+			if (local_transform.m_dirty) // if local is dirty, so is global transform
 			{
-				LocalTransform& local_transform = local_transforms[i];
-
-				if (local_transform.m_dirty) // if local is dirty, so is global transform
-				{
-					transforms[i].m_dirty = true;
-					local_transform.m_dirty = false;
-				}
+				transform.m_dirty = true;
+				local_transform.m_dirty = false;
 			}
 		});
 
-	m_cleaning_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms, Relation* relations)
+	m_cleaning_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
-			{
-				if (transforms[i].m_dirty)
-					CleanTransforms(transforms[i], relations[i]);
-			}
+			if (transform.m_dirty)
+				CleanTransforms(transform, relation);
 		});
 
-	m_global_system.Action([this](std::span<const EntityID> entities, LocalTransform* local_transforms, Transform* transforms, Relation* relations)
+	m_global_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
-				UpdateTransforms(local_transforms[i], transforms[i], relations[i]);
+			UpdateTransforms(local_transform, transform, relation);
 		});
 
 	m_local_system.Exclude<Relation>();		// runs on any entity that does not have a relation
