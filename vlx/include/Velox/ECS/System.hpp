@@ -51,7 +51,7 @@ namespace vlx
 
 	public:
 		inline static constexpr ArrComponentIDs<Cs...> SystemIDs = 
-			cu::Sort<ArrComponentIDs<Cs...>>({ ComponentAlloc<Cs>::GetTypeID()... }); // another stupid intellisense error
+			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()...}); // another stupid intellisense error
 
 		inline static constexpr ArchetypeID SystemID =
 			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);

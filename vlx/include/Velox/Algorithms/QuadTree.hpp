@@ -9,11 +9,13 @@
 
 namespace vlx
 {
+	static constexpr int CHILD_COUNT = 4;
+
 	template<class T>
 	class QuadTree
 	{
 	private:
-		using Quad = sf::Rect<int>;
+		using Rect = sf::Rect<int>;
 
 	private:
 		struct QuadNode
@@ -25,7 +27,7 @@ namespace vlx
 		struct QuadElt
 		{
 			int id;
-			Quad quad;
+			Rect rect;
 		};
 
 		struct QuadEltNode
@@ -34,7 +36,20 @@ namespace vlx
 			int element;
 		};
 
-	private:
+	public:
+		QuadTree(int max_depth = 8);
 
+	public:
+
+
+	private:
+		std::vector<QuadElt>		m_quads;
+		std::vector<QuadEltNode>	m_elt_nodes;
+		std::vector<QuadNode>		m_nodes;
+
+		Rect m_root_rect;
+
+		int m_free_node;
+		int	m_max_depth{8};
 	};
 }

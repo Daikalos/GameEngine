@@ -17,7 +17,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 
 				if (local_transform.m_dirty)
 				{
-					SetLocalTransform(local_transform, transforms[i]);
+					UpdateToLocal(local_transform, transforms[i]);
 					local_transform.m_dirty = false;
 				}
 			}
@@ -29,7 +29,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			{
 				LocalTransform& local_transform = local_transforms[i];
 
-				if (local_transform.m_dirty)
+				if (local_transform.m_dirty) // if local is dirty, so is global transform
 				{
 					transforms[i].m_dirty = true;
 					local_transform.m_dirty = false;
@@ -110,18 +110,13 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 {
 	const auto RecursiveClean = [this](Transform& child_transform, const Relation& child_relation) 
 	{
-		auto RecursiveImpl = [this](Transform& child_transform, const Relation& child_relation, auto& recursive_ref) mutable
+		auto RecursiveImpl = [this](Transform& child_transform, const Relation& child_relation, auto& recursive_ref) mutable -> void
 		{
-			if (child_transform.m_dirty)
-				return;
-
-			child_transform.m_dirty = true;
-
-			for (const auto& ptr : child_relation.GetChildren()) // all of the children needs their global transform to be updated
+			child_transform.m_dirty = true; // all of the children needs their global transform to be updated
+			for (const auto& ptr : child_relation.GetChildren())
 			{
 				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
-
-				if (child_transform != nullptr)
+				if (child_transform != nullptr && !child_transform->m_dirty)
 					recursive_ref(*child_transform, *ptr, recursive_ref);
 			}
 		};
@@ -129,49 +124,47 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 		return RecursiveImpl(child_transform, child_relation, RecursiveImpl);
 	};
 
-	for (const auto& ptr : relation.GetChildren()) // all of the children needs their global transform to be updated
-	{
-		Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
-
-		if (child_transform != nullptr)
-			RecursiveClean(*child_transform, *ptr);
-	}
+	RecursiveClean(transform, relation);
 }
 void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const
 {
-	if (!transform.m_dirty) // already up-to-date
-		return;
-
 	if (relation.HasParent())
 	{
-		auto& set = CheckCache(relation.GetParent().GetEntityID());
+		auto& parent_set = CheckCache(relation.GetParent().GetEntityID());
 
-		Transform* parent_transform = set.Get<Transform>();
+		Transform* parent_transform = parent_set.Get<Transform>();
 
 		if (parent_transform == nullptr)
 		{
-			SetLocalTransform(local_transform, transform);
+			UpdateToLocal(local_transform, transform);
 			return;
 		}
 
-		UpdateTransforms(*set.Get<LocalTransform>(), *parent_transform, *relation.GetParent());
-		transform.m_transform = parent_transform->GetTransform() * local_transform.GetTransform();
+		if (parent_transform->m_dirty) // only update if not up-to-date
+			UpdateTransforms(*parent_set.Get<LocalTransform>(), *parent_transform, *relation.GetParent());
 
-		transform.m_update_inverse = true;
+		// update transform values
 
-		transform.m_update_position = true;
-		transform.m_update_scale = true;
-		transform.m_update_rotation = true;
+		sf::Transform new_transform = parent_transform->GetTransform() * local_transform.GetTransform();
+		if (new_transform != transform.m_transform)
+		{
+			transform.m_transform = new_transform;
+
+			transform.m_update_inverse	= true;
+			transform.m_update_position = true;
+			transform.m_update_scale	= true;
+			transform.m_update_rotation = true;
+		}
 	}
 	else
 	{
-		SetLocalTransform(local_transform, transform);
+		UpdateToLocal(local_transform, transform);
 	}
 
 	transform.m_dirty = false;
 }
 
-void TransformSystem::SetLocalTransform(LocalTransform& local_transform, Transform& transform) const
+void TransformSystem::UpdateToLocal(LocalTransform& local_transform, Transform& transform) const
 {
 	transform.m_transform	= local_transform.GetTransform();
 

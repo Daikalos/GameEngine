@@ -29,5 +29,7 @@
 #   define VELOX_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
 
+#define NODISC [[nodiscard]]
+
 static constexpr int MATRIX_WIDTH = 4;
 static constexpr int TRIANGLE_COUNT = 3;

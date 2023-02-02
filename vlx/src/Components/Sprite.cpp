@@ -55,13 +55,13 @@ const sf::Vector2f& Sprite::GetSize() const noexcept
 {
 	return m_size;
 }
-const float& Sprite::GetDepth() const noexcept
+float Sprite::GetDepth() const noexcept
 {
 	return m_depth;
 }
-const float& Sprite::GetOpacity() const noexcept
+float Sprite::GetOpacity() const noexcept
 {
-	return m_opacity;
+	return (float)m_vertices[0].color.a / 255.0f;
 }
 
 constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
@@ -106,12 +106,9 @@ void Sprite::SetColor(const sf::Color& color)
 }
 void Sprite::SetOpacity(const float opacity)
 {
-	assert(opacity >= 0.0f && opacity <= 1.0f);
-
-	m_opacity = opacity;
-
+	const sf::Uint8 alpha = sf::Uint8(opacity * UINT8_MAX);
 	for (sf::Vertex& vertex : m_vertices)
-		vertex.color.a = sf::Uint8(m_opacity * UINT8_MAX);
+		vertex.color.a = alpha;
 }
 void Sprite::SetDepth(const float val)
 {

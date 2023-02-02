@@ -21,7 +21,7 @@ namespace vlx
 	{
 	private:
 		using ComponentTypes	= std::tuple<Cs...>;
-		using ComponentRefs		= std::tuple<std::shared_ptr<Cs*>...>;
+		using ComponentRefs		= std::array<std::shared_ptr<IComponent*>, sizeof...(Cs)>;
 
 		template<std::size_t N>
 		using ComponentType = std::tuple_element_t<N, ComponentTypes>;
@@ -48,14 +48,14 @@ namespace vlx
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline ComponentSet<Cs...>::ComponentSet(ComponentRef<Cs>&&... refs)
-		: m_components(std::reinterpret_pointer_cast<Cs*>(std::forward<ComponentRef<Cs>>(refs).m_component)...) { }
+		: m_components{ std::forward<ComponentRef<Cs>>(refs).m_component... } { }
 
 	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t N>
 	inline auto ComponentSet<Cs...>::Get() const -> const ComponentType<N>*
 	{
 		using ComponentType = std::tuple_element_t<N, ComponentTypes>;
-		return static_cast<ComponentType*>(*std::get<N>(m_components).get());
+		return static_cast<ComponentType*>(*m_components[N].get());
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

@@ -2,6 +2,16 @@
 
 using namespace vlx;
 
+void RelationSystem::Attach(const EntityID parent_id, const EntityID child_id)
+{
+	AttachDelay(parent_id, child_id);
+}
+
+void RelationSystem::Detach(const EntityID parent_id, const EntityID child_id)
+{
+	AttachDelay(parent_id, child_id);
+}
+
 void RelationSystem::AttachInstant(const EntityID parent_id, const EntityID child_id)
 {
 	AttachChild(parent_id, child_id);
@@ -13,13 +23,11 @@ void RelationSystem::DetachInstant(const EntityID parent_id, const EntityID chil
 
 void RelationSystem::AttachDelay(const EntityID parent_id, const EntityID child_id)
 {
-	if (parent_id != child_id)
-		m_attachments.emplace(parent_id, child_id);
+	m_attachments.emplace(parent_id, child_id);
 }
 void RelationSystem::DetachDelay(const EntityID parent_id, const EntityID child_id)
 {
-	if (parent_id != child_id)
-		m_detachments.emplace(parent_id, child_id);
+	m_detachments.emplace(parent_id, child_id);
 }
 
 void RelationSystem::Update()

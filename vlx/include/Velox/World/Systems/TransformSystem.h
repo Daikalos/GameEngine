@@ -44,7 +44,7 @@ namespace vlx
 		void CleanTransforms(Transform& transform, const Relation& relation) const;
 		void UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const;
 
-		void SetLocalTransform(LocalTransform& local_transform, Transform& transform) const;
+		void UpdateToLocal(LocalTransform& local_transform, Transform& transform) const;
 
 		auto CheckCache(EntityID entity_id) const -> TransformSet&;
 

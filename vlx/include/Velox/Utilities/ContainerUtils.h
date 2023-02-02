@@ -101,7 +101,7 @@ namespace vlx::cu
 		if (it == vector.end())
 			return false;
 				
-		*it = vector.back();
+		*it = std::move(vector.back());
 		vector.pop_back();
 
 		return true;
@@ -115,7 +115,7 @@ namespace vlx::cu
 		if (it == vector.end())
 			return false;
 
-		*it = vector.back();
+		*it = std::move(vector.back());
 		vector.pop_back();
 
 		return true;

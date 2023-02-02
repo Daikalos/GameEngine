@@ -20,6 +20,9 @@ namespace vlx
 		using SystemObject::SystemObject;
 
 	public:
+		void Attach(const EntityID parent_id, const EntityID child_id);
+		void Detach(const EntityID parent_id, const EntityID child_id);
+
 		void AttachInstant(const EntityID parent_id, const EntityID child_id);
 		void DetachInstant(const EntityID parent_id, const EntityID child_id);
 

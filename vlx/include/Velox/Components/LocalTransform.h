@@ -42,9 +42,9 @@ namespace vlx
 
 		mutable sf::Transform	m_transform;
 		mutable sf::Transform	m_inverse_transform;
+
 		mutable bool			m_update				{true};
 		mutable bool			m_update_inverse		{true};
-
 		mutable bool			m_dirty					{true};
 
 		friend class TransformSystem;

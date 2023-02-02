@@ -79,7 +79,7 @@ namespace vlx::gui
 	template<IsComponent C>
 	inline void Container::Erase(const EntityID entity_id)
 	{
-		const auto it = std::find(m_children.begin(), m_children.end(),
+		const auto it = std::find_if(m_children.begin(), m_children.end(),
 			[&entity_id](const ChildType& child)
 			{
 				return child.GetEntityID() == entity_id;

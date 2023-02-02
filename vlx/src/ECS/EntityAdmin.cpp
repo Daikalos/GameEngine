@@ -229,12 +229,12 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 
 		for (std::size_t i = 0, j = 0, k = component_start; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
 		{
-			const ComponentTypeID component_id	= new_archetype_id[i];
-			const IComponentAlloc* component	= m_component_map[component_id].get();
-			const std::size_t& component_size	= component->GetSize();
+			const auto component_id		= new_archetype_id[i];
+			const auto component		= m_component_map[component_id].get();
+			const auto component_size	= component->GetSize();
 
-			const std::size_t current_size	= new_archetype->entities.size() * component_size;
-			const std::size_t new_size		= current_size + component_size;
+			const auto current_size	= new_archetype->entities.size() * component_size;
+			const auto new_size		= current_size + component_size;
 
 			if (new_size > new_archetype->component_data_size[i])
 				MakeRoom(new_archetype, component, component_size, i);
@@ -275,12 +275,12 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 
 		for (std::size_t i = 0; i < component_ids.size(); ++i)
 		{
-			const ComponentTypeID component_id	= component_ids[i];
-			const IComponentAlloc* component	= m_component_map[component_id].get();
-			const std::size_t& component_size	= component->GetSize();
+			const auto component_id		= component_ids[i];
+			const auto component		= m_component_map[component_id].get();
+			const auto component_size	= component->GetSize();
 
-			const std::size_t current_size = new_archetype->entities.size() * component_size;
-			const std::size_t new_size = current_size + component_size;
+			const auto current_size = new_archetype->entities.size() * component_size;
+			const auto new_size		= current_size + component_size;
 
 			if (new_size > new_archetype->component_data_size[i])
 				MakeRoom(new_archetype, component, component_size, i); // make room and move over existing data
@@ -339,9 +339,9 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& comp
 	const ComponentIDs& old_archetype_id = old_archetype->type;
 	for (std::size_t i = 0, j = 0, k = component_start; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
 	{
-		const ComponentTypeID component_id	= old_archetype_id[i];
-		const IComponentAlloc* component	= m_component_map[component_id].get();
-		const std::size_t& component_size	= component->GetSize();
+		const auto component_id		= old_archetype_id[i];
+		const auto component		= m_component_map[component_id].get();
+		const auto component_size	= component->GetSize();
 
 		if (k < component_ids.size() && component_id == component_ids[k]) // this is the component that should be destroyed
 		{
@@ -350,8 +350,8 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& comp
 		}
 		else
 		{
-			const std::size_t current_size = new_archetype->entities.size() * component_size;
-			const std::size_t new_size = current_size + component_size;
+			const auto current_size = new_archetype->entities.size() * component_size;
+			const auto new_size		= current_size + component_size;
 
 			if (new_size > new_archetype->component_data_size[j])
 				MakeRoom(new_archetype, component, component_size, j); // make room to fit data
@@ -405,10 +405,10 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 	{
 		const ComponentTypeID component_id	= archetype->type[i];
 		const IComponentAlloc* component	= m_component_map[component_id].get();
-		const std::size_t& component_size	= component->GetSize();
+		const auto& component_size			= component->GetSize();
 
-		const std::size_t current_size = archetype->entities.size() * component_size;
-		const std::size_t new_size = current_size + component_size;
+		const auto current_size = std::uint32_t(archetype->entities.size()) * component_size;
+		const auto new_size = current_size + component_size;
 
 		if (new_size > archetype->component_data_size[i])
 			MakeRoom(archetype, component, component_size, i); // make room to fit data
@@ -474,10 +474,10 @@ void EntityAdmin::Shrink(bool extensive)
 			{
 				const ComponentTypeID& component_id = archetype->type[i];
 				const IComponentAlloc* component = m_component_map[component_id].get();
-				const std::size_t& component_size = component->GetSize();
+				const auto& component_size = component->GetSize();
 
-				const std::size_t current_size = archetype->entities.size() * component_size;
-				const std::size_t current_capacity = archetype->component_data_size[j];
+				const auto current_size = std::uint32_t(archetype->entities.size()) * component_size;
+				const auto current_capacity = archetype->component_data_size[j];
 
 				if (current_capacity > current_size)
 				{
@@ -504,7 +504,92 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 	if (eit == m_entity_component_ref_map.end())
 		return;
 
-	eit->second.erase(component_id);
+	const auto cit = eit->second.find(component_id);
+	if (cit == eit->second.end())
+		return;
+
+	DataRef& data_ref = cit->second;
+	switch (data_ref.flag)
+	{
+	case RefFlag::Component:
+	{
+		if (data_ref.component_ptr.expired())
+		{
+			eit->second.erase(component_id);
+		}
+		else *data_ref.component_ptr.lock() = nullptr;
+	}
+	break;
+	case RefFlag::Base:
+	{
+		if (data_ref.base.ptr.expired())
+		{
+			eit->second.erase(component_id);
+		}
+		else *data_ref.base.ptr.lock() = nullptr;
+	}
+	break;
+	case RefFlag::All:
+	{
+		if (data_ref.component_ptr.expired() && data_ref.base.ptr.expired())
+		{
+			eit->second.erase(component_id);
+		}
+		else
+		{
+			*data_ref.component_ptr.lock() = nullptr;
+			*data_ref.base.ptr.lock() = nullptr;
+		}
+	}
+	break;
+	}
+}
+
+void EntityAdmin::UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, IComponent* new_component) const
+{
+	const auto eit = m_entity_component_ref_map.find(entity_id);
+	if (eit == m_entity_component_ref_map.end())
+		return;
+
+	const auto cit = eit->second.find(component_id);
+	if (cit == eit->second.end())
+		return;
+
+	DataRef& data_ref = cit->second;
+	switch (data_ref.flag)
+	{
+	case RefFlag::Component:
+	{
+		if (data_ref.component_ptr.expired())
+		{
+			eit->second.erase(component_id);
+		}
+		else *data_ref.component_ptr.lock() = new_component;
+	}
+	break;
+	case RefFlag::Base:
+	{
+		if (data_ref.base.ptr.expired())
+		{
+			eit->second.erase(component_id);
+		}
+		else *data_ref.base.ptr.lock() = reinterpret_cast<void*>(new_component + data_ref.base.offset);
+	}
+	break;
+	case RefFlag::All:
+	{
+		if (data_ref.component_ptr.expired() && data_ref.base.ptr.expired())
+		{
+			eit->second.erase(component_id);
+		}
+		else
+		{
+			*data_ref.component_ptr.lock() = new_component;
+			*data_ref.base.ptr.lock() = reinterpret_cast<void*>(new_component + data_ref.base.offset);
+		}
+	}
+	break;
+	}
 }
 
 void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i)

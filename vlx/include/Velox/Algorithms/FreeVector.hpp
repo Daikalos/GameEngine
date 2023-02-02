@@ -16,13 +16,12 @@ namespace vlx
 		FreeVector() = default;
 
 	public:
-		T& operator[](size_type n);
-		const T& operator[](size_type n) const;
+		T& operator[](const size_type n);
+		const T& operator[](const size_type n) const;
 
 	public:
 		constexpr auto Insert(const T& element) -> size_type;
-
-		void Erase(size_type n);
+		void Erase(const size_type n);
 
 		void Clear();
 
@@ -40,13 +39,13 @@ namespace vlx
 	};
 
 	template<class T>
-	inline T& FreeVector<T>::operator[](size_type n)
+	inline T& FreeVector<T>::operator[](const size_type n)
 	{
 		return m_data[n].element;
 	}
 
 	template<class T>
-	inline const T& FreeVector<T>::operator[](size_type n) const
+	inline const T& FreeVector<T>::operator[](const size_type n) const
 	{
 		return m_data[n].element;
 	}
@@ -73,7 +72,7 @@ namespace vlx
 	}
 
 	template<class T>
-	inline void FreeVector<T>::Erase(size_type n)
+	inline void FreeVector<T>::Erase(const size_type n)
 	{
 		m_data[n].next = m_first_free;
 		m_first_free = n;

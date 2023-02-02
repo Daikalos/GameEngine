@@ -36,8 +36,8 @@ namespace vlx
 		[[nodiscard]] const VertexArray& GetVertices() const noexcept;
 		[[nodiscard]] const TextureRect& GetTextureRect() const noexcept;
 		[[nodiscard]] const sf::Vector2f& GetSize() const noexcept;
-		[[nodiscard]] const float& GetDepth() const noexcept;
-		[[nodiscard]] const float& GetOpacity() const noexcept;
+		[[nodiscard]] float GetDepth() const noexcept;
+		[[nodiscard]] float GetOpacity() const noexcept;
 		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 
 		void SetTexture(const sf::Texture& texture, bool reset_rect = false, bool reset_size = false);
@@ -61,6 +61,5 @@ namespace vlx
 		TextureRect			m_texture_rect;
 		sf::Vector2f		m_size;
 		float				m_depth			{0.0f};
-		float				m_opacity		{1.0f};
 	};
 }
