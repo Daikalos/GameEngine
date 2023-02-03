@@ -154,7 +154,10 @@
   <ItemGroup>
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
+    <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
+    <ClInclude Include="include\Velox\Components\Child.h" />
+    <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />
@@ -164,7 +167,6 @@
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
-    <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

@@ -18,8 +18,8 @@ namespace vlx
 	class Relation : public IComponent
 	{
 	public:
-		using RelationRef = ComponentRef<Relation>;
-		using ChildrenRef = std::vector<RelationRef>;
+		using Ref = ComponentRef<Relation>;
+		using ChildrenRef = std::vector<Ref>;
 
 	private:
 		template<class C>
@@ -32,7 +32,7 @@ namespace vlx
 		VELOX_API [[nodiscard]] bool HasParent() const noexcept;
 		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
 
-		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const RelationRef&;
+		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const Ref&;
 		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const ChildrenRef&;
 
 		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant) const;
@@ -50,7 +50,7 @@ namespace vlx
 		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = false);
 
 	private:
-		RelationRef	m_parent;
+		Ref			m_parent;
 		ChildrenRef	m_children;
 		
 		friend class RelationSystem;
@@ -59,7 +59,7 @@ namespace vlx
 	template<class C>
 	inline void Relation::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants) const
 	{
-		for (const RelationRef& ptr : m_children)
+		for (const Ref& ptr : m_children)
 		{
 			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(ptr->GetEntityID());
 
@@ -80,7 +80,7 @@ namespace vlx
 	inline void Relation::SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
 	{
 		std::sort(m_children.begin(), m_children.end(),
-			[&func, &entity_admin](const RelationRef& lhs, const RelationRef& rhs)
+			[&func, &entity_admin](const Ref& lhs, const Ref& rhs)
 			{
 				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
 
@@ -97,9 +97,9 @@ namespace vlx
 
 		if (include_descendants)
 		{
-			for (const RelationRef& ptr : m_children)
+			for (const Ref& ref : m_children)
 			{
-				ptr->SortChildren(func, entity_admin, include_descendants);
+				ref->SortChildren(func, entity_admin, include_descendants);
 			}
 		}
 	}

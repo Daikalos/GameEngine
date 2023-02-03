@@ -190,10 +190,22 @@ namespace vlx
 		NODISC std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
 
 		/// <summary>
+		///		
+		/// </summary>
+		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
+		NODISC std::tuple<Cs*...> GetComponents(const EntityID entity_id) const;
+
+		/// <summary>
+		///		
+		/// </summary>
+		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
+		NODISC std::tuple_element_t<0, std::tuple<Cs...>>& GetComponents(const EntityID entity_id) const;
+
+		/// <summary>
 		///		Returns of a component set constructed from specified component types
 		/// </summary>
 		template<class... Cs> requires IsComponents<Cs...>
-		NODISC ComponentSet<Cs...> GetComponents(const EntityID entity_id) const;
+		NODISC ComponentSet<Cs...> GetComponentsRef(const EntityID entity_id) const;
 
 		/// <summary>
 		///		Allows for you to retrieve any base class without having to know the type of the child.
@@ -747,8 +759,37 @@ namespace vlx
 		return m_component_map.contains(GetComponentID<C>());
 	}
 
+	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
+	inline std::tuple<Cs*...> EntityAdmin::GetComponents(const EntityID entity_id) const
+	{
+		using ComponentTypes = std::tuple<Cs...>;
+
+		std::tuple<Cs*...> result;
+
+		const auto& record = m_entity_archetype_map.at(entity_id);
+
+		(([this, &result]<class C, std::size_t N>(const Record& record) -> void
+		{
+			constexpr ComponentTypeID component_id = GetComponentID<C>();
+
+			const auto& map = m_component_archetypes_map.at(component_id);
+			const auto& arch_record = map.at(record.archetype->id);
+
+			C* components = reinterpret_cast<C*>(&record.archetype->component_data[arch_record.column][0]);
+			std::get<N>(result) = &components[record.index];
+		}.operator()<Cs, traits::IndexInTuple<Cs, ComponentTypes>::value>(record)), ...);
+
+		return result;
+	}
+
+	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
+	inline std::tuple_element_t<0, std::tuple<Cs...>>& EntityAdmin::GetComponents(const EntityID entity_id) const
+	{
+		return GetComponent<Cs...>(entity_id);
+	}
+
 	template<class... Cs> requires IsComponents<Cs...>
-	inline ComponentSet<Cs...> EntityAdmin::GetComponents(const EntityID entity_id) const
+	inline ComponentSet<Cs...> EntityAdmin::GetComponentsRef(const EntityID entity_id) const
 	{
 		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id, &GetComponent<Cs>(entity_id))...);
 	}

@@ -85,7 +85,6 @@
     <ClInclude Include="include\Velox\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\World\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\World\Systems\TransformSystem.h" />
-    <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\World\Systems\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Components\Object.h" />
     <ClInclude Include="include\Velox\World\World.h" />
@@ -113,6 +112,7 @@
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
+    <ClInclude Include="include\Velox\Components\Relation.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

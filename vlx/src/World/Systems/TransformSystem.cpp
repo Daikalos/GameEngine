@@ -6,7 +6,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemObject(entity_admin, id), 
 	m_local_system(entity_admin, id),
 	m_dirty_system(entity_admin, id),
-	m_cleaning_system(entity_admin, id),
+	m_dirty_children_system(entity_admin, id),
 	m_global_system(entity_admin, id)
 {
 	m_local_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
@@ -27,24 +27,20 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			}
 		});
 
-	m_cleaning_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_dirty_children_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
-				CleanTransforms(transform, relation);
+				DirtyChildrenTransform(transform, relation);
 		});
 
 	m_global_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
-			UpdateTransforms(local_transform, transform, relation);
+			if (transform.m_dirty)
+				UpdateTransforms(local_transform, transform, relation);
 		});
 
-	m_local_system.Exclude<Relation>();		// runs on any entity that does not have a relation
-
-	m_dirty_system.SetPriority(3.0f);
-	m_cleaning_system.SetPriority(2.0f);	// cleaning system runs before global
-	m_global_system.SetPriority(1.0f);
-
-	m_local_system.RunParallel(true);
+	m_local_system.Exclude<Relation>();	// runs on any entity that does not have a parent or child
+	m_local_system.RunParallel(true);			// allow multiple archetypes to run simultaneously on this system
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
@@ -92,14 +88,14 @@ void TransformSystem::PostUpdate()
 	// TODO: figure out how to keep cache at reasonable size
 }
 
-void TransformSystem::CleanTransforms(Transform& transform, const Relation& relation) const
+void TransformSystem::DirtyChildrenTransform(Transform& transform, const Relation& relation) const
 {
-	const auto RecursiveClean = [this](Transform& child_transform, const Relation& child_relation) 
+	const auto RecursiveClean = [this](Transform& child_transform, const Relation& relation)
 	{
-		auto RecursiveImpl = [this](Transform& child_transform, const Relation& child_relation, auto& recursive_ref) mutable -> void
+		auto RecursiveImpl = [this](Transform& child_transform, const Relation& relation, auto& recursive_ref) mutable -> void
 		{
 			child_transform.m_dirty = true; // all of the children needs their global transform to be updated
-			for (const auto& ptr : child_relation.GetChildren())
+			for (const auto& ptr : relation.GetChildren())
 			{
 				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
 				if (child_transform != nullptr && !child_transform->m_dirty)
@@ -107,7 +103,7 @@ void TransformSystem::CleanTransforms(Transform& transform, const Relation& rela
 			}
 		};
 
-		return RecursiveImpl(child_transform, child_relation, RecursiveImpl);
+		return RecursiveImpl(child_transform, relation, RecursiveImpl);
 	};
 
 	RecursiveClean(transform, relation);
@@ -165,7 +161,7 @@ auto vlx::TransformSystem::CheckCache(EntityID entity_id) const -> TransformSet&
 	if (it == m_cache.end())
 	{
 		return m_cache.try_emplace(entity_id, 
-			m_entity_admin->GetComponents<LocalTransform, Transform>(entity_id)).first->second; // stupid intellisense error
+			m_entity_admin->GetComponentsRef<LocalTransform, Transform>(entity_id)).first->second; // stupid intellisense error
 	}
 
 	return it->second;

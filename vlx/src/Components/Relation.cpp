@@ -12,7 +12,7 @@ constexpr bool Relation::HasChildren() const noexcept
 	return !m_children.empty();
 }
 
-auto Relation::GetParent() const noexcept -> const RelationRef&
+auto Relation::GetParent() const noexcept -> const Ref&
 {
 	return m_parent;
 }
@@ -73,7 +73,7 @@ void Relation::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_
 	{
 		Relation& parent_relation = *m_parent;
 		cu::SwapPop(parent_relation.m_children,
-			[&entity_id](const RelationRef& ptr)
+			[&entity_id](const Ref& ptr)
 			{
 				return ptr.GetEntityID() == entity_id;
 			});

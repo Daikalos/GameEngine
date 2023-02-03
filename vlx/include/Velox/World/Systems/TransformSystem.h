@@ -41,7 +41,7 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void CleanTransforms(Transform& transform, const Relation& relation) const;
+		void DirtyChildrenTransform(Transform& transform, const Relation& relation) const;
 		void UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const;
 
 		void UpdateToLocal(LocalTransform& local_transform, Transform& transform) const;
@@ -51,7 +51,7 @@ namespace vlx
 	private:
 		LocalSystem				m_local_system;
 		LocalSystem				m_dirty_system;
-		GlobalSystem			m_cleaning_system;
+		GlobalSystem			m_dirty_children_system;
 		GlobalSystem			m_global_system;
 
 		std::queue<EntityPair>	m_attachments;

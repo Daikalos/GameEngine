@@ -6,8 +6,6 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
-#include "Relation.h"
-
 namespace vlx
 {
 	/// <summary>

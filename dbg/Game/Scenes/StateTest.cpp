@@ -77,6 +77,7 @@ void StateTest::OnCreated()
 				local_transforms[i].Move(velocities[i].velocity * time.GetDT());
 		});
 
+	auto components = m_entity_admin->GetComponents<Transform>(m_entities.front());
 	//b0.RemoveComponents<gui::Button, gui::Label>();
 
 }
