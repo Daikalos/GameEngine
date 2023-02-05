@@ -21,7 +21,7 @@ void StateTest::OnCreated()
 	e0.GetComponent<Sprite>().SetOpacity(1.0f);
 
 	et0 = e0.GetComponentRef<LocalTransform>();
-	et0->SetPosition({ 50.0f, 50.0f });
+	et0->SetPosition({ 0.0f, 0.0f });
 
 	e1 = e0.Duplicate();
 	et1 = e1.GetComponentRef<LocalTransform>();
@@ -49,8 +49,9 @@ void StateTest::OnCreated()
 		vel->velocity.x = rnd::random(-50.0f, 50.0f);
 		vel->velocity.y = rnd::random(-50.0f, 50.0f);
 
-		added.GetComponent<LocalTransform>().SetPosition({ 0, 0 });
-		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
+		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 1000, rnd::random() * 1000 });
+		GetWorld().GetSystem<RelationSystem>().DetachInstant(e0, added);
+		//GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, std::min<int>(6, m_entities.size() - 1))), added);
 	}
 
 	int a = sizeof(Relation);
@@ -77,9 +78,6 @@ void StateTest::OnCreated()
 				local_transforms[i].Move(velocities[i].velocity * time.GetDT());
 		});
 
-	auto components = m_entity_admin->GetComponents<Transform>(m_entities.front());
-	//b0.RemoveComponents<gui::Button, gui::Label>();
-
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)
@@ -99,7 +97,7 @@ bool StateTest::Update(Time& time)
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
 		for (const Entity& entity : m_entities)
 		{
-			m_entity_admin->SetComponent(entity, Velocity({ rnd::random(-50.0f, 50.0f), rnd::random(-50.0f, 50.0f) }));
+			m_entity_admin->SetComponent(entity, Velocity({ rnd::random(-500.0f, 500.0f), rnd::random(-500.0f, 500.0f) }));
 		}
 	}
 

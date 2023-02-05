@@ -41,8 +41,8 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void DirtyChildrenTransform(Transform& transform, const Relation& relation) const;
-		void UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const;
+		void DirtyChildrenTransform(Transform& transform, const Relation::Children& children) const;
+		void UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation::Parent& parent) const;
 
 		void UpdateToLocal(LocalTransform& local_transform, Transform& transform) const;
 

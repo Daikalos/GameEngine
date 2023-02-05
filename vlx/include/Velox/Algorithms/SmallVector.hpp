@@ -5,7 +5,7 @@
 
 namespace vlx
 {
-	template<class T, std::size_t N, class Alloc = std::allocator<T>>
+	template<class T, std::size_t N = 128, class Alloc = std::allocator<T>>
 	class SmallVector
 	{
 	public:
@@ -20,7 +20,7 @@ namespace vlx
 	public:
 		SmallVector() = default;
 
-		explicit SmallVector(const size_type count, const_reference value = T(), const Alloc& alloc = Allocator());
+		explicit SmallVector(const size_type count, const_reference value = T(), const Alloc& alloc = Alloc());
 
 		SmallVector(const )
 

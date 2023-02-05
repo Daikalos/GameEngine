@@ -30,17 +30,17 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_dirty_children_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
-				DirtyChildrenTransform(transform, relation);
+				DirtyChildrenTransform(transform, relation.GetChildren());
 		});
 
 	m_global_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
-				UpdateTransforms(local_transform, transform, relation);
+				UpdateTransforms(local_transform, transform, relation.GetParent());
 		});
 
 	m_local_system.Exclude<Relation>();	// runs on any entity that does not have a parent or child
-	m_local_system.RunParallel(true);			// allow multiple archetypes to run simultaneously on this system
+	m_local_system.RunParallel(true);	// allow multiple archetypes to run simultaneously on this system
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
@@ -88,42 +88,36 @@ void TransformSystem::PostUpdate()
 	// TODO: figure out how to keep cache at reasonable size
 }
 
-void TransformSystem::DirtyChildrenTransform(Transform& transform, const Relation& relation) const
+void TransformSystem::DirtyChildrenTransform(Transform& transform, const Relation::Children& children) const
 {
-	const auto RecursiveClean = [this](Transform& child_transform, const Relation& relation)
+	const auto RecursiveClean = [this](Transform& child_transform, const Relation::Children& children)
 	{
-		auto RecursiveImpl = [this](Transform& child_transform, const Relation& relation, auto& recursive_ref) mutable -> void
+		auto RecursiveImpl = [this](Transform& child_transform, const Relation::Children& children, auto& recursive_ref) mutable -> void
 		{
 			child_transform.m_dirty = true; // all of the children needs their global transform to be updated
-			for (const auto& ptr : relation.GetChildren())
+			for (const auto& ref : children)
 			{
-				Transform* child_transform = CheckCache(ptr.GetEntityID()).Get<Transform>();
+				Transform* child_transform = CheckCache(ref.GetEntityID()).Get<Transform>();
 				if (child_transform != nullptr && !child_transform->m_dirty)
-					recursive_ref(*child_transform, *ptr, recursive_ref);
+					recursive_ref(*child_transform, ref->GetChildren(), recursive_ref);
 			}
 		};
 
-		return RecursiveImpl(child_transform, relation, RecursiveImpl);
+		return RecursiveImpl(child_transform, children, RecursiveImpl);
 	};
 
-	RecursiveClean(transform, relation);
+	RecursiveClean(transform, children);
 }
-void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation& relation) const
+void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation::Parent& parent) const
 {
-	if (relation.HasParent())
+	if (parent.IsValid())
 	{
-		auto& parent_set = CheckCache(relation.GetParent().GetEntityID());
+		auto& parent_set = CheckCache(parent.GetEntityID());
 
 		Transform* parent_transform = parent_set.Get<Transform>();
 
-		if (parent_transform == nullptr)
-		{
-			UpdateToLocal(local_transform, transform);
-			return;
-		}
-
 		if (parent_transform->m_dirty) // only update if not up-to-date
-			UpdateTransforms(*parent_set.Get<LocalTransform>(), *parent_transform, *relation.GetParent());
+			UpdateTransforms(*parent_set.Get<LocalTransform>(), *parent_transform, parent->GetParent());
 
 		// update transform values
 

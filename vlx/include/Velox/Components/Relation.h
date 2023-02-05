@@ -19,7 +19,9 @@ namespace vlx
 	{
 	public:
 		using Ref = ComponentRef<Relation>;
-		using ChildrenRef = std::vector<Ref>;
+
+		using Parent = Ref;
+		using Children = std::vector<Ref>;
 
 	private:
 		template<class C>
@@ -32,8 +34,8 @@ namespace vlx
 		VELOX_API [[nodiscard]] bool HasParent() const noexcept;
 		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
 
-		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const Ref&;
-		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const ChildrenRef&;
+		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const Parent&;
+		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const Children&;
 
 		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant) const;
 
@@ -50,8 +52,8 @@ namespace vlx
 		void SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants = false);
 
 	private:
-		Ref			m_parent;
-		ChildrenRef	m_children;
+		Parent		m_parent;
+		Children	m_children;
 		
 		friend class RelationSystem;
 	};
