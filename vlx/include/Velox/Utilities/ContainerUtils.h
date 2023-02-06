@@ -121,34 +121,34 @@ namespace vlx::cu
 		return true;
 	}
 
-	template<IsContainer T, typename U = typename T::value_type>
-	[[nodiscard]] static constexpr auto FindSorted(const T& vector, const U& item)
+	template<IsContainer T, class iter = typename T::const_iterator, typename U = typename T::value_type>
+	[[nodiscard]] static constexpr iter FindSorted(const T& container, const U& item)
 	{
-		return std::lower_bound(vector.begin(), vector.end(), item);
+		return std::lower_bound(container.begin(), container.end(), item);
 	}
 
-	template<typename T>
-	static constexpr bool InsertSorted(std::vector<T>& vector, const T& item)
+	template<IsContainer T>
+	static constexpr bool InsertSorted(T& container, typename T::const_reference item)
 	{
-		const auto it = FindSorted(vector, item);
+		const typename T::const_iterator it = FindSorted(container, item);
 
-		if (it == vector.end() || *it != item)
+		if (it == container.cend() || *it != item)
 		{
-			vector.insert(it, item);
+			container.insert(it, item);
 			return true;
 		}
 
 		return false;
 	}
 
-	template<typename T>
-	static constexpr bool EraseSorted(std::vector<T>& vector, const T& item)
+	template<IsContainer T>
+	static constexpr bool EraseSorted(T& container, typename T::const_reference item)
 	{
-		const auto it = FindSorted(vector, item);
+		const typename T::const_iterator it = FindSorted(container, item);
 
-		if (it != vector.end() && *it == item)
+		if (it != container.cend() && *it == item)
 		{
-			vector.erase(it);
+			container.erase(it);
 			return true;
 		}
 

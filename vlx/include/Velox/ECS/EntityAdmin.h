@@ -431,6 +431,8 @@ namespace vlx
 			const EntityID last_entity_id = old_archetype->entities.back();
 			Record& last_record = m_entity_archetype_map[last_entity_id];
 
+			assert(last_entity_id != NULL_ENTITY);
+
 			const bool same_entity = (last_entity_id == entity_id);
 
 			for (std::size_t i = 0, j = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
@@ -995,8 +997,8 @@ namespace vlx
 
 		m_archetype_map[archetype_id] = new_archetype.get();
 
-		new_archetype->component_data.reserve(new_archetype->type.size()); // prevent any reallocations
-		new_archetype->component_data_size.reserve(new_archetype->type.size());
+		//new_archetype->component_data.reserve(new_archetype->type.size()); // prevent any reallocations
+		//new_archetype->component_data_size.reserve(new_archetype->type.size());
 
 		for (std::size_t i = 0; i < new_archetype->type.size(); ++i) // add empty array for each component in type
 		{

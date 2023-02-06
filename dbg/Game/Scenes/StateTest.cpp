@@ -49,13 +49,13 @@ void StateTest::OnCreated()
 		vel->velocity.x = rnd::random(-50.0f, 50.0f);
 		vel->velocity.y = rnd::random(-50.0f, 50.0f);
 
-		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 1000, rnd::random() * 1000 });
-		GetWorld().GetSystem<RelationSystem>().DetachInstant(e0, added);
-		//GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, std::min<int>(6, m_entities.size() - 1))), added);
+		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
+		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
 
 	int a = sizeof(Relation);
 	int c = sizeof(Transform);
+	int d = sizeof(LocalTransform);
 	int b = sizeof(std::unordered_set<EntityID>);
 
 	b0 = object_system.CreateObject();

@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <vector>
 
+#include <Velox/Algorithms/SmallVector.hpp>
+
 #include <Velox/Utilities/Concepts.h>
 
 namespace vlx
@@ -17,7 +19,7 @@ namespace vlx
 	using EntityID			= IDType;
 	using ComponentTypeID	= std::size_t;
 	using ArchetypeID		= std::size_t;
-	using ComponentIDs		= std::vector<ComponentTypeID>;
+	using ComponentIDs		= SmallVector<ComponentTypeID>;
 
 	template<class... Cs> requires IsComponents<Cs...>
 	using ArrComponentIDs	= std::array<ComponentTypeID, sizeof...(Cs)>;

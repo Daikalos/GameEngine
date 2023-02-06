@@ -205,7 +205,7 @@ namespace vlx
 
 			DoAction(
 				archetype->type, 
-				archetype->entities, 
+				archetype->entities,
 				archetype->component_data);
 
 			m_archetype = nullptr;

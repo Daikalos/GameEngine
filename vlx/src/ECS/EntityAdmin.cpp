@@ -57,6 +57,8 @@ bool EntityAdmin::HasComponent(const EntityID entity_id, const ComponentTypeID c
 
 auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
 {
+	assert(entity_id != NULL_ENTITY);
+
 	auto insert = m_entity_archetype_map.try_emplace(entity_id, Record());
 	assert(insert.second);
 

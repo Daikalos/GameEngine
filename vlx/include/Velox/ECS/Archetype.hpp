@@ -3,6 +3,8 @@
 #include <memory>
 #include <vector>
 
+#include <Velox/Algorithms/SmallVector.hpp>
+
 #include "Identifiers.hpp"
 
 namespace vlx
@@ -17,8 +19,8 @@ namespace vlx
 	{
 		ArchetypeID					id{NULL_ARCHETYPE};
 		ComponentIDs				type;					// all the component ids
-		std::vector<EntityID>		entities;				// all the entities registered to this archetype
-		std::vector<ComponentData>	component_data;			// all the components data in this archetype stored by type
-		std::vector<std::size_t>	component_data_size;	// total collective size in bytes of all components stored by type
+		SmallVector<EntityID>		entities;				// all the entities registered to this archetype
+		SmallVector<ComponentData>	component_data;			// all the components data in this archetype stored by type
+		SmallVector<std::size_t>	component_data_size;	// total collective size in bytes of all components stored by type
 	};
 }
