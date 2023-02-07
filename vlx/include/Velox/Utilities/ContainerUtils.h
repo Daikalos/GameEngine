@@ -10,9 +10,12 @@ namespace vlx::cu
 	template<IsContainer T>
 	struct ContainerHash
 	{
-		constexpr std::size_t operator()(const T& container) const
+		[[nodiscard]] constexpr std::size_t operator()(const T& container) const
 		{
 			std::size_t seed = container.size();
+
+			if (seed == 1)
+				return container.front();
 
 			for (auto x : container)
 			{

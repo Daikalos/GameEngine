@@ -27,7 +27,7 @@ World::World(const std::string_view name) :
 	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
 	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
 	AddSystem<RenderSystem>(m_entity_admin,		LYR_RENDERING);
-	AddSystem<gui::GUISystem>(m_entity_admin,	LYR_GUI, m_controls);
+	AddSystem<gui::GUISystem>(m_entity_admin,	LYR_GUI, m_camera, m_controls);
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }

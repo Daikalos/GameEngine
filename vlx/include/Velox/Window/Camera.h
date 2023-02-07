@@ -1,15 +1,15 @@
 #pragma once
 
+#include <unordered_map>
+#include <memory>
+#include <concepts>
+#include <type_traits>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
-
-#include <unordered_map>
-#include <memory>
-#include <concepts>
-#include <type_traits>
 
 #include "CameraBehavior.h"
 
@@ -54,18 +54,20 @@ namespace vlx
 	public:
 		explicit Camera(CameraBehavior::Context context);
 
-		[[nodiscard]] const sf::Transform& GetViewMatrix() const;
-		[[nodiscard]] sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
-		[[nodiscard]] sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
+		NODISC const sf::Transform& GetViewMatrix() const;
+		NODISC sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
+		NODISC sf::Vector2f GetMouseWorldPosition(const sf::Vector2f& relative_pos) const;
+		NODISC sf::Vector2i GetMouseWorldPosition(const sf::Vector2i& relative_pos) const;
+		NODISC sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
 
-		[[nodiscard]] const sf::Vector2f& GetPosition() const noexcept;
-		[[nodiscard]] const sf::Vector2f& GetScale() const noexcept;
-		[[nodiscard]] const sf::Vector2f& GetSize() const noexcept;
+		NODISC const sf::Vector2f& GetPosition() const noexcept;
+		NODISC const sf::Vector2f& GetScale() const noexcept;
+		NODISC const sf::Vector2f& GetSize() const noexcept;
 
-		[[nodiscard]] sf::Vector2f GetOrigin() const;
+		NODISC sf::Vector2f GetOrigin() const;
 
-		[[nodiscard]] const CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id) const;
-		[[nodiscard]] CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id);
+		NODISC const CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id) const;
+		NODISC CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id);
 
 		void SetPosition(const sf::Vector2f& position);
 		void SetScale(const sf::Vector2f& scale);

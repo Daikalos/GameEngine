@@ -180,10 +180,13 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 
 bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id)
 {
-	return RemoveComponents(entity_id, { rmv_component_id });
+	const auto component_ids = { rmv_component_id };
+	const auto archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
+
+	return RemoveComponents(entity_id, component_ids, archetype_id);
 }
 
-void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& component_ids, const ArchetypeID archetype_id)
+void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted(component_ids) && !component_ids.empty());
 
@@ -198,40 +201,37 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 
 	if (old_archetype) // already has an attached archetype, define a new archetype
 	{
-		ComponentIDs new_archetype_id = old_archetype->type; // create copy
-
-		std::size_t component_start = 0;
-
-		bool found = false;
-		for (std::size_t i = 0; i < component_ids.size(); ++i)
+		const auto ait = old_archetype->edges.find(archetype_id);
+		if (ait == old_archetype->edges.end())
 		{
-			if (cu::InsertSorted(new_archetype_id, component_ids[i])) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+			ComponentIDs new_archetype_id = old_archetype->type; // create copy
+
+			bool found = false;
+			for (const ComponentTypeID component_id : component_ids) // determine valid components
 			{
-				if (!found)
-				{
-					component_start = i;
+				if (cu::InsertSorted(new_archetype_id, component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 					found = true;
-				}
 			}
-			else component_ids[i] = NULL_COMPONENT;
+
+			if (!found) // unable to add any component
+				return;
+
+			new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
+			old_archetype->edges[archetype_id].add = new_archetype;
+
+			assert(new_archetype_id != old_archetype->type);
+			assert(new_archetype_id == new_archetype->type);
 		}
-
-		if (!found) // unable to add any component
-			return;
-
-		new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
-
-		assert(new_archetype_id != old_archetype->type);
-		assert(new_archetype_id == new_archetype->type);
+		else new_archetype = ait->second.add;
 
 		const EntityID last_entity_id = old_archetype->entities.back();
 		Record& last_record = m_entity_archetype_map[last_entity_id];
 
 		const bool same_entity = (last_entity_id == entity_id);
 
-		for (std::size_t i = 0, j = 0, k = component_start; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
+		for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i) // move all the data from old to new and perform swaps at the same time
 		{
-			const auto component_id		= new_archetype_id[i];
+			const auto component_id		= new_archetype->type[i];
 			const auto component		= m_component_map[component_id].get();
 			const auto component_size	= component->GetSize();
 
@@ -241,10 +241,9 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 			if (new_size > new_archetype->component_data_size[i])
 				MakeRoom(new_archetype, component, component_size, i);
 
-			if (k < component_ids.size() && component_id == component_ids[k])
+			if (component_id != old_archetype->type[j])
 			{
 				component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
-				while (++k < component_ids.size() && component_ids[k] == NULL_COMPONENT); // iterate until valid component is found
 			}
 			else
 			{
@@ -296,7 +295,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, ComponentIDs&& compone
 	record.archetype = new_archetype;
 }
 
-bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& component_ids)
+bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted(component_ids) && !component_ids.empty());
 
@@ -310,28 +309,30 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& comp
 	if (old_archetype == nullptr) // not registered anyways, nothing to remove from
 		return false;
 
-	ComponentIDs new_archetype_id = old_archetype->type;
+	Archetype* new_archetype = nullptr;
 
-	std::size_t component_start = 0;
-
-	bool found = false;
-	for (std::size_t i = 0; i < component_ids.size(); ++i)
+	const auto ait = old_archetype->edges.find(archetype_id);
+	if (ait == old_archetype->edges.end())
 	{
-		if (cu::EraseSorted(new_archetype_id, component_ids[i]))
+		ComponentIDs new_archetype_id = old_archetype->type; // create copy
+
+		bool found = false;
+		for (const ComponentTypeID component_id : component_ids) // determine valid components
 		{
-			if (!found)
-			{
-				component_start = i;
+			if (cu::EraseSorted(new_archetype_id, component_id)) // erase while keeping the vector sorted (this should ensure that the archetype is always sorted)
 				found = true;
-			}
 		}
-		else component_ids[i] = NULL_COMPONENT; // if component does not exist
+
+		if (!found) // unable to add any component
+			return false;
+
+		new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
+		old_archetype->edges[archetype_id].remove = new_archetype;
+
+		assert(new_archetype_id != old_archetype->type);
+		assert(new_archetype_id == new_archetype->type);
 	}
-
-	if (!found) // unable to add any component
-		return false;
-
-	Archetype* new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
+	else new_archetype = ait->second.remove;
 
 	const EntityID last_entity_id = old_archetype->entities.back();
 	Record& last_record = m_entity_archetype_map[last_entity_id];
@@ -339,16 +340,15 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, ComponentIDs&& comp
 	const bool same_entity = (last_entity_id == entity_id);
 
 	const ComponentIDs& old_archetype_id = old_archetype->type;
-	for (std::size_t i = 0, j = 0, k = component_start; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
+	for (std::size_t i = 0, j = 0; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
 	{
 		const auto component_id		= old_archetype_id[i];
 		const auto component		= m_component_map[component_id].get();
 		const auto component_size	= component->GetSize();
 
-		if (k < component_ids.size() && component_id == component_ids[k]) // this is the component that should be destroyed
+		if (component_id != new_archetype->type[j]) // this is the component that should be destroyed
 		{
 			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
-			while (++k < component_ids.size() && component_ids[k] == NULL_COMPONENT); // iterate until valid component is found
 		}
 		else
 		{

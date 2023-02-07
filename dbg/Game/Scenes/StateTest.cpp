@@ -28,8 +28,6 @@ void StateTest::OnCreated()
 
 	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0, e1);
 
-	auto t = m_entity_admin->GetComponents<Transform>(e1);
-
 	Entity e4 = e1.Duplicate();
 
 	e2 = e1.Duplicate();
@@ -45,9 +43,10 @@ void StateTest::OnCreated()
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 
-		Velocity* vel = added.AddComponent<Velocity>();
-		vel->velocity.x = rnd::random(-50.0f, 50.0f);
-		vel->velocity.y = rnd::random(-50.0f, 50.0f);
+		added.AddComponents<Sprite, Relation, Velocity, gui::Button>();
+		Velocity& vel = added.GetComponent<Velocity>();
+		vel.velocity.x = rnd::random(-50.0f, 50.0f);
+		vel.velocity.y = rnd::random(-50.0f, 50.0f);
 
 		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
 		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
@@ -72,10 +71,9 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
 	Time& time = GetWorld().GetTime();
-	sys.All([&time](std::span<const EntityID> entities, Velocity* velocities, LocalTransform* local_transforms)
+	sys.Each([&time](const EntityID entity, Velocity& velocity, LocalTransform& local_transform)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
-				local_transforms[i].Move(velocities[i].velocity * time.GetDT());
+			local_transform.Move(velocity.velocity * time.GetDT());
 		});
 
 }

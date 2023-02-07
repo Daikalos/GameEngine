@@ -6,6 +6,7 @@
 
 #include <Velox/Graphics.hpp>
 #include <Velox/Input.hpp>
+#include <Velox/Window.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/Components/Transform.h>
 #include <Velox/Components/Object.h>
@@ -20,7 +21,7 @@ namespace vlx::gui
 	class VELOX_API GUISystem : public SystemObject
 	{
 	public:
-		GUISystem(EntityAdmin& entity_admin, const LayerType id, const ControlMap& controls);
+		GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera, const ControlMap& controls);
 
 	public:
 		void Update() override;

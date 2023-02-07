@@ -338,8 +338,8 @@ namespace vlx
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 
-		VELOX_API void AddComponents(const EntityID entity_id, ComponentIDs&& component_ids, const ArchetypeID archetype_id);
-		VELOX_API bool RemoveComponents(const EntityID entity_id, ComponentIDs&& component_ids);
+		VELOX_API void AddComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
+		VELOX_API bool RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
 
 	public:
 		/// <summary>
@@ -421,12 +421,20 @@ namespace vlx
 
 		if (old_archetype) // already has an attached archetype, define a new archetype
 		{
-			ComponentIDs new_archetype_id = old_archetype->type; // create copy
-			if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
-				return nullptr;
+			const auto ait = old_archetype->edges.find(add_component_id);
+			if (ait == old_archetype->edges.end())
+			{
+				ComponentIDs new_archetype_id = old_archetype->type; // create copy
+				if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+					return nullptr;
 
-			new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
-			assert(new_archetype_id == new_archetype->type);
+				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
+				old_archetype->edges[add_component_id].add = new_archetype;
+
+				assert(new_archetype_id != old_archetype->type);
+				assert(new_archetype_id == new_archetype->type);
+			}
+			else new_archetype = ait->second.add;
 
 			const EntityID last_entity_id = old_archetype->entities.back();
 			Record& last_record = m_entity_archetype_map[last_entity_id];
@@ -435,9 +443,9 @@ namespace vlx
 
 			const bool same_entity = (last_entity_id == entity_id);
 
-			for (std::size_t i = 0, j = 0; i < new_archetype_id.size(); ++i) // move all the data from old to new and perform swaps at the same time
+			for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i) // move all the data from old to new and perform swaps at the same time
 			{
-				const auto component_id		= new_archetype_id[i];
+				const auto component_id		= new_archetype->type[i];
 				const auto component		= m_component_map[component_id].get();
 				const auto component_size	= component->GetSize();
 
@@ -572,7 +580,9 @@ namespace vlx
 	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		return RemoveComponents(entity_id, { component_ids.begin(), component_ids.end() });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		return RemoveComponents(entity_id, { component_ids.begin(), component_ids.end() }, archetype_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
