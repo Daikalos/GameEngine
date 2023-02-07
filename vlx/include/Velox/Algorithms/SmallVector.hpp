@@ -22,11 +22,11 @@ namespace vlx
 		SmallIterator() noexcept : m_ptr(nullptr) {}
 		SmallIterator(pointer ptr) noexcept : m_ptr(ptr) {}
 
-		template<class U, int DIR2>
-		SmallIterator(const SmallIterator<U, DIR2>& rhs) noexcept : m_ptr(rhs.m_ptr) {};
+		template<int DIR2> // able to convert non-const to const, but not the other way around
+		SmallIterator(const SmallIterator<value_type, DIR2>& rhs) noexcept : m_ptr(rhs.m_ptr) {};
 
-		template<class U, int DIR2>
-		SmallIterator& operator=(const SmallIterator<U, DIR2>& rhs) noexcept { m_ptr = rhs.m_ptr; };
+		template<int DIR2>
+		SmallIterator& operator=(const SmallIterator<value_type, DIR2>& rhs) noexcept { m_ptr = rhs.m_ptr; };
 
 	public:
 		reference operator*() const noexcept	{ return *m_ptr; }
@@ -69,7 +69,7 @@ namespace vlx
 		friend class SmallIterator;
 	};
 
-	template<class T, std::size_t N = 64, class Alloc = std::allocator<T>>
+	template<class T, std::size_t N = 32, class Alloc = std::allocator<T>>
 	class SmallVector
 	{
 	public:
@@ -97,9 +97,9 @@ namespace vlx
 		constexpr SmallVector(SmallVector&& other, const allocator_type& alloc = allocator_type()) noexcept;
 		constexpr SmallVector(std::initializer_list<value_type> init_list, const allocator_type& alloc = allocator_type());
 
-		auto operator=(const SmallVector& rhs) -> SmallVector&;
-		auto operator=(SmallVector&& rhs) noexcept -> SmallVector&;
-		auto operator=(std::initializer_list<value_type> rhs) -> SmallVector&;
+		constexpr auto operator=(const SmallVector& rhs) -> SmallVector&;
+		constexpr auto operator=(SmallVector&& rhs) noexcept -> SmallVector&;
+		constexpr auto operator=(std::initializer_list<value_type> rhs) -> SmallVector&;
 
 		constexpr bool operator==(const SmallVector& rhs) const;
 		constexpr bool operator!=(const SmallVector& rhs) const;
@@ -195,7 +195,7 @@ namespace vlx
 		}
 		else
 		{
-			m_heap = std::move(std::vector<T>(last, first, alloc));
+			m_heap = std::move(std::vector<T>(first, last, alloc));
 			m_size = size;
 		}
 	}
@@ -226,7 +226,7 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline auto SmallVector<T, N, Alloc>::operator=(const SmallVector& rhs) -> SmallVector&
+	inline constexpr auto SmallVector<T, N, Alloc>::operator=(const SmallVector& rhs) -> SmallVector&
 	{
 		m_stack = rhs.m_stack;
 		m_heap = rhs.m_heap;
@@ -235,7 +235,7 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline auto SmallVector<T, N, Alloc>::operator=(SmallVector&& rhs) noexcept -> SmallVector&
+	inline constexpr auto SmallVector<T, N, Alloc>::operator=(SmallVector&& rhs) noexcept -> SmallVector&
 	{
 		m_stack = std::move(rhs.m_stack);
 		m_heap = std::move(rhs.m_heap);
@@ -245,7 +245,7 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline auto SmallVector<T, N, Alloc>::operator=(std::initializer_list<value_type> rhs) -> SmallVector&
+	inline constexpr auto SmallVector<T, N, Alloc>::operator=(std::initializer_list<value_type> rhs) -> SmallVector&
 	{
 		if (rhs.size() <= N)
 			m_stack = rhs;
@@ -420,7 +420,7 @@ namespace vlx
 			m_heap.pop_back();
 			--m_size;
 
-			if (m_size <= N)
+			if (m_size == N)
 			{
 				std::move(m_heap.begin(), m_heap.end(), m_stack.begin());
 				m_heap.clear();
@@ -448,7 +448,7 @@ namespace vlx
 			m_heap.erase(m_heap.begin() + pos);
 			--m_size;
 
-			if (m_size <= N)
+			if (m_size == N)
 			{
 				std::move(m_heap.begin(), m_heap.end(), m_stack.begin());
 				m_heap.clear();
@@ -521,27 +521,31 @@ namespace vlx
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::begin() -> iterator
 	{
-		return (m_size <= N) ? iterator(m_stack.data()) : iterator(m_heap.data());
+		return (m_size <= N) ? 
+			iterator(m_stack.data()) : 
+			iterator(m_heap.data());
 	}
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::end() -> iterator
 	{
-		return (m_size <= N) ? iterator(m_stack.data() + m_size) : iterator(m_heap.data() + m_size);
+		return (m_size <= N) ? 
+			iterator(m_stack.data() + m_size) : 
+			iterator(m_heap.data() + m_size);
 	}
 
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::begin() const -> const_iterator
 	{
 		return (m_size <= N) ?
-			const_iterator(const_cast<pointer>(m_stack.data())) : 
-			const_iterator(const_cast<pointer>(m_heap.data()));
+			const_iterator(m_stack.data()) : 
+			const_iterator(m_heap.data());
 	}
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::end() const -> const_iterator
 	{
 		return (m_size <= N) ?
-			const_iterator(const_cast<pointer>(m_stack.data() + m_size)) : 
-			const_iterator(const_cast<pointer>(m_heap.data() + m_size));
+			const_iterator(m_stack.data() + m_size) : 
+			const_iterator(m_heap.data() + m_size);
 	}
 
 	template<class T, std::size_t N, class Alloc>
