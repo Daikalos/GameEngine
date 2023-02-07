@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include <Velox/Algorithms/SmallVector.hpp>
 
@@ -15,6 +16,14 @@ namespace vlx
 	// by their type that will never change, using vector for now is only of convenience 
 	// for add and removal when creating new archetypes, question is mostly how to properly store them
 
+	struct Archetype;
+
+	struct ArchetypeEdge
+	{
+		Archetype* add		{nullptr};
+		Archetype* remove	{nullptr};
+	};
+
 	struct Archetype // an archetype for every unique list of components for an entity
 	{
 		ArchetypeID					id{NULL_ARCHETYPE};
@@ -22,5 +31,7 @@ namespace vlx
 		SmallVector<EntityID>		entities;				// all the entities registered to this archetype
 		SmallVector<ComponentData>	component_data;			// all the components data in this archetype stored by type
 		SmallVector<std::size_t>	component_data_size;	// total collective size in bytes of all components stored by type
+
+		std::unordered_map<ComponentTypeID, ArchetypeEdge> edges; // what set of component ids leads to which neighbouring archetype
 	};
 }

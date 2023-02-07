@@ -4,6 +4,8 @@
 #include <vector>
 #include <iterator>
 
+#include <Velox/Config.hpp>
+
 namespace vlx
 {
 	template<class T, int DIR>
@@ -41,23 +43,23 @@ namespace vlx
 		SmallIterator& operator+=(const difference_type i) noexcept { m_ptr += i; return *this; }
 		SmallIterator& operator-=(const difference_type i) noexcept { return *this += -i; }
 
-		difference_type operator-(const SmallIterator& rhs) const noexcept { return (m_ptr - rhs.m_ptr) * DIR; }
+		NODISC difference_type operator-(const SmallIterator& rhs) const noexcept { return (m_ptr - rhs.m_ptr) * DIR; }
 
-		SmallIterator operator+(const difference_type i) const noexcept { return (SmallIterator(*this) += i * DIR); }
-		SmallIterator operator-(const difference_type i) const noexcept { return (SmallIterator(*this) += -i * DIR); }
+		NODISC SmallIterator operator+(const difference_type i) const noexcept { return (SmallIterator(*this) += i * DIR); }
+		NODISC SmallIterator operator-(const difference_type i) const noexcept { return (SmallIterator(*this) += -i * DIR); }
 
 		reference operator[](const difference_type i) const noexcept { return *(*this + i * DIR); }
 
 		template<class U, int DIR2>
-		bool operator==(const SmallIterator<U, DIR2>& rhs) const noexcept { return m_ptr == rhs.m_ptr; }
+		NODISC bool operator==(const SmallIterator<U, DIR2>& rhs) const noexcept { return m_ptr == rhs.m_ptr; }
 
 		template<class U, int DIR2>
-		std::strong_ordering operator<=>(const SmallIterator<U, DIR2>& rhs) const noexcept
+		NODISC std::strong_ordering operator<=>(const SmallIterator<U, DIR2>& rhs) const noexcept
 		{
 			return (DIR == 1) ? (m_ptr <=> rhs.m_ptr) : 0 <=> (m_ptr <=> rhs.m_ptr);
 		}
 
-		friend SmallIterator operator+(const difference_type lhs, const SmallIterator& rhs)
+		NODISC friend SmallIterator operator+(const difference_type lhs, const SmallIterator& rhs)
 		{
 			return (rhs + lhs);
 		}
@@ -91,7 +93,7 @@ namespace vlx
 		constexpr SmallVector() = default;
 
 		constexpr explicit SmallVector(const size_type size, const_reference value = value_type(), const allocator_type& alloc = allocator_type());
-		template<class iter>
+		template<class iter> requires std::contiguous_iterator<iter>
 		constexpr SmallVector(iter first, iter last, const allocator_type& alloc = allocator_type());
 		constexpr SmallVector(const SmallVector& other, const allocator_type& alloc = allocator_type());
 		constexpr SmallVector(SmallVector&& other, const allocator_type& alloc = allocator_type()) noexcept;
@@ -101,31 +103,31 @@ namespace vlx
 		constexpr auto operator=(SmallVector&& rhs) noexcept -> SmallVector&;
 		constexpr auto operator=(std::initializer_list<value_type> rhs) -> SmallVector&;
 
-		constexpr bool operator==(const SmallVector& rhs) const;
-		constexpr bool operator!=(const SmallVector& rhs) const;
+		NODISC constexpr bool operator==(const SmallVector& rhs) const;
+		NODISC constexpr bool operator!=(const SmallVector& rhs) const;
 
 	public:
-		constexpr auto get_allocator() const noexcept -> allocator_type;
+		NODISC constexpr auto get_allocator() const noexcept -> allocator_type;
 
-		constexpr auto operator[](const size_type pos) -> reference;
-		constexpr auto operator[](const size_type pos) const -> const_reference;
+		NODISC constexpr auto operator[](const size_type pos) -> reference;
+		NODISC constexpr auto operator[](const size_type pos) const -> const_reference;
 
-		constexpr auto at(const size_type pos) -> reference;
-		constexpr auto at(const size_type pos) const -> const_reference;
+		NODISC constexpr auto at(const size_type pos) -> reference;
+		NODISC constexpr auto at(const size_type pos) const -> const_reference;
 
-		constexpr auto front() -> reference;
-		constexpr auto front() const -> const_reference;
+		NODISC constexpr auto front() -> reference;
+		NODISC constexpr auto front() const -> const_reference;
 
-		constexpr auto back() -> reference;
-		constexpr auto back() const -> const_reference;
+		NODISC constexpr auto back() -> reference;
+		NODISC constexpr auto back() const -> const_reference;
 
-		constexpr auto data() noexcept -> pointer;
-		constexpr auto data() const noexcept -> const_pointer;
+		NODISC constexpr auto data() noexcept -> pointer;
+		NODISC constexpr auto data() const noexcept -> const_pointer;
 
-		constexpr bool empty() const noexcept;
-		constexpr auto size() const noexcept -> size_type;
+		NODISC constexpr bool empty() const noexcept;
+		NODISC constexpr auto size() const noexcept -> size_type;
 
-		constexpr auto max_size() const noexcept -> size_type;
+		NODISC constexpr auto max_size() const noexcept -> size_type;
 
 	public:
 		constexpr void shrink_to_fit();
@@ -147,17 +149,17 @@ namespace vlx
 		constexpr void swap(SmallVector& other) noexcept;
 
 	public:
-		constexpr auto begin() -> iterator;
-		constexpr auto end() -> iterator;
+		NODISC constexpr auto begin() -> iterator;
+		NODISC constexpr auto end() -> iterator;
 
-		constexpr auto begin() const -> const_iterator;
-		constexpr auto end() const -> const_iterator;
+		NODISC constexpr auto begin() const -> const_iterator;
+		NODISC constexpr auto end() const -> const_iterator;
 
-		constexpr auto cbegin() const -> const_iterator;
-		constexpr auto cend() const -> const_iterator;
+		NODISC constexpr auto cbegin() const -> const_iterator;
+		NODISC constexpr auto cend() const -> const_iterator;
 
 	private:
-		std::array<T, N>		m_stack {T()}; // TODO: perhaps switch to using union since both will never be used at the same time
+		std::array<T, N>		m_stack {T()};
 		std::vector<T, Alloc>	m_heap;
 		size_type				m_size	{0};
 	};
@@ -183,7 +185,7 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	template<class iter>
+	template<class iter> requires std::contiguous_iterator<iter>
 	inline constexpr SmallVector<T, N, Alloc>::SmallVector(iter first, iter last, const allocator_type& alloc)
 	{
 		const size_type size = last - first;
