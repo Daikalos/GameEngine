@@ -31,8 +31,6 @@ namespace vlx
 		ComponentSet(ComponentRef<Cs>&&... refs);
 
 	public:
-		NODISC auto All() -> const ComponentRefs&;
-
 		template<std::size_t N>
 		NODISC auto Get() const -> const ComponentType<N>*;
 
@@ -52,12 +50,6 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline ComponentSet<Cs...>::ComponentSet(ComponentRef<Cs>&&... refs)
 		: m_components{ std::forward<ComponentRef<Cs>>(refs).m_component... } { }
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline auto ComponentSet<Cs...>::All() -> const ComponentRefs&
-	{
-		return m_components;
-	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t N>

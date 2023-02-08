@@ -50,9 +50,7 @@ void StateTest::OnCreated()
 		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
 		//GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
-
-	auto opt = m_entity_admin->TryGetComponent<Relation>(m_entities.front());
-
+	
 	m_entity_admin->SortComponents<Relation>(m_entities.front(),
 		[](const Relation& lhs, const Relation& rhs)
 		{
