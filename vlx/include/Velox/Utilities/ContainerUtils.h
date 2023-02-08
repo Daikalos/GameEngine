@@ -124,8 +124,8 @@ namespace vlx::cu
 		return true;
 	}
 
-	template<IsContainer T, class iter = typename T::const_iterator, typename U = typename T::value_type>
-	[[nodiscard]] static constexpr iter FindSorted(const T& container, const U& item)
+	template<IsContainer T, class Iter = typename T::const_iterator, typename U = typename T::value_type>
+	[[nodiscard]] static constexpr Iter FindSorted(const T& container, const U& item)
 	{
 		return std::lower_bound(container.begin(), container.end(), item);
 	}

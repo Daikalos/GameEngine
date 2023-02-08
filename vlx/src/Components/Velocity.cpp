@@ -2,11 +2,6 @@
 
 using namespace vlx;
 
-Velocity::Velocity() : velocity(0, 0) 
-{
-
-}
-Velocity::Velocity(const sf::Vector2f& vel) : velocity(vel) 
-{
-
-}
+constexpr Velocity::Velocity() : velocity(0, 0) {}
+constexpr Velocity::Velocity(const float x, const float y) : velocity(x, y) {}
+constexpr Velocity::Velocity(const sf::Vector2f& vel) : velocity(vel) {}

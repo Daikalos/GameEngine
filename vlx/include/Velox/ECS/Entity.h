@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Velox/Utilities.hpp>
+#include <Velox/Config.hpp>
 
 #include "EntityAdmin.h"
 #include "Identifiers.hpp"
@@ -11,7 +12,7 @@ namespace vlx
 	class Entity
 	{
 	public:
-		VELOX_API Entity() = default;
+		VELOX_API constexpr Entity() = default;
 		VELOX_API explicit Entity(EntityAdmin& entity_admin, const EntityID entity_id);
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
 		VELOX_API Entity(Entity&& entity) noexcept;
@@ -20,10 +21,13 @@ namespace vlx
 
 		VELOX_API Entity& operator=(Entity&& rhs) noexcept;
 
-		VELOX_API operator EntityID() const;
+	public:
+		VELOX_API constexpr operator EntityID() const;
+		VELOX_API NODISC constexpr EntityID GetID() const noexcept;
 
 	public:
-		VELOX_API [[nodiscard]] constexpr EntityID GetID() const noexcept;
+		VELOX_API NODISC Entity Duplicate() const;
+		VELOX_API void Destroy();
 
 	public:
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
@@ -44,24 +48,30 @@ namespace vlx
 		bool RemoveComponents();
 
 		template<IsComponent C>
-		[[nodiscard]] auto& GetComponent() const;
+		NODISC auto& GetComponent() const;
 		template<IsComponent C>
-		[[nodiscard]] auto TryGetComponent() const;
+		NODISC auto TryGetComponent() const;
 
 		template<IsComponent C>
-		[[nodiscard]] auto GetComponentRef() const;
+		auto SetComponent(C&& new_component);
 		template<IsComponent C>
-		[[nodiscard]] auto TryGetComponentRef() const;
+		auto TrySetComponent(C&& new_component);
+
+		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+		auto SetComponent(Args&&... args);
+		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+		auto TrySetComponent(Args&&... args);
+
+		template<IsComponent C>
+		NODISC auto GetComponentRef() const;
+		template<IsComponent C>
+		NODISC auto TryGetComponentRef() const;
 
 		template<class... Cs> requires IsComponents<Cs...>
-		[[nodiscard]] auto GetComponents() const;
+		NODISC auto GetComponents() const;
 
 		template<IsComponent C>
-		[[nodiscard]] auto HasComponent() const;
-
-	public:
-		VELOX_API [[nodiscard]] Entity Duplicate() const;
-		VELOX_API void Destroy();
+		NODISC auto HasComponent() const;
 
 	protected:
 		EntityID		m_id			{NULL_ENTITY}; // entity is just an id
@@ -114,6 +124,30 @@ namespace vlx
 	inline auto Entity::TryGetComponent() const
 	{
 		return m_entity_admin->TryGetComponent<C>(m_id);
+	}
+
+	template<IsComponent C>
+	inline auto Entity::SetComponent(C&& new_component)
+	{
+		return m_entity_admin->SetComponent<C>(m_id, std::forward<C>(new_component));
+	}
+
+	template<IsComponent C>
+	inline auto Entity::TrySetComponent(C&& new_component)
+	{
+		return m_entity_admin->TrySetComponent<C>(m_id, std::forward<C>(new_component));
+	}
+
+	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
+	inline auto Entity::SetComponent(Args&&... args)
+	{
+		return m_entity_admin->SetComponent<C>(m_id, std::forward<Args>(args)...);
+	}
+
+	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
+	inline auto Entity::TrySetComponent(Args&&... args)
+	{
+		return m_entity_admin->TrySetComponent<C>(m_id, std::forward<Args>(args)...);
 	}
 
 	template<IsComponent C>

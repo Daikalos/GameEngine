@@ -22,7 +22,7 @@ namespace vlx
 	{
 	private:
 		using VertexArray = std::array<sf::Vertex, QUAD_COUNT>;
-		using TextureRect = sf::Rect<std::uint16_t>; // textures are usually not larger than unsigned short in either width or height
+		using TextureRect = sf::FloatRect;
 
 	public:
 		Sprite() = default;
@@ -31,14 +31,14 @@ namespace vlx
 		Sprite(const sf::Texture& texture, const TextureRect& visible_rect, const float depth = 0.0f);
 		Sprite(const sf::Texture& texture, const sf::Vector2f& size, const TextureRect& visible_rect, const float depth = 0.0f);
 
-		[[nodiscard]] const sf::Texture* GetTexture() const noexcept;
-		[[nodiscard]] const sf::Shader* GetShader() const noexcept;
-		[[nodiscard]] const VertexArray& GetVertices() const noexcept;
-		[[nodiscard]] const TextureRect& GetTextureRect() const noexcept;
-		[[nodiscard]] const sf::Vector2f& GetSize() const noexcept;
-		[[nodiscard]] float GetDepth() const noexcept;
-		[[nodiscard]] float GetOpacity() const noexcept;
-		[[nodiscard]] constexpr sf::PrimitiveType GetPrimitive() const noexcept;
+		NODISC const sf::Texture* GetTexture() const noexcept;
+		NODISC const sf::Shader* GetShader() const noexcept;
+		NODISC const VertexArray& GetVertices() const noexcept;
+		NODISC TextureRect GetTextureRect() const noexcept;
+		NODISC sf::Vector2f GetSize() const noexcept;
+		NODISC float GetDepth() const noexcept;
+		NODISC float GetOpacity() const noexcept;
+		NODISC constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 
 		void SetTexture(const sf::Texture& texture, bool reset_rect = false, bool reset_size = false);
 		void SetTextureRect(const TextureRect& rect);
@@ -51,15 +51,13 @@ namespace vlx
 		void Batch(SpriteBatch& sprite_batch, const sf::Transform& transform, float depth) const override;
 
 	private:
-		void UpdatePositions();
-		void UpdateTexCoords();
+		void UpdatePositions(const sf::Vector2f& size);
+		void UpdateTexCoords(const TextureRect& texture_rect);
 
 	private:
 		const sf::Texture*	m_texture		{nullptr};
 		const sf::Shader*	m_shader		{nullptr};
 		VertexArray			m_vertices;
-		TextureRect			m_texture_rect;
-		sf::Vector2f		m_size;
 		float				m_depth			{0.0f};
 	};
 }

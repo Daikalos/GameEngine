@@ -47,13 +47,13 @@ const Sprite::VertexArray& Sprite::GetVertices() const noexcept
 {
 	return m_vertices;
 }
-const Sprite::TextureRect& Sprite::GetTextureRect() const noexcept
+Sprite::TextureRect Sprite::GetTextureRect() const noexcept
 {
-	return m_texture_rect;
+	return TextureRect(m_vertices.front().texCoords, m_vertices.back().texCoords);
 }
-const sf::Vector2f& Sprite::GetSize() const noexcept
+sf::Vector2f Sprite::GetSize() const noexcept
 {
-	return m_size;
+	return m_vertices.back().position;
 }
 float Sprite::GetDepth() const noexcept
 {
@@ -71,29 +71,23 @@ constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 
 void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect, bool reset_size)
 {
-	if (reset_rect || (m_texture == nullptr && m_texture_rect == TextureRect()))
-		SetTextureRect(TextureRect({ 0U, 0U }, sf::Vector2<std::uint16_t>(texture.getSize())));
+	if (reset_rect || (m_texture == nullptr && GetTextureRect() == TextureRect()))
+		SetTextureRect(TextureRect({ 0.0f, 0.0f }, sf::Vector2f(texture.getSize())));
 
-	if (reset_size || (m_texture == nullptr && m_size == sf::Vector2f()))
+	if (reset_size || (m_texture == nullptr && GetSize() == sf::Vector2f()))
 		SetSize(sf::Vector2f(texture.getSize()));
 
 	m_texture = &texture;
 }
 void Sprite::SetTextureRect(const TextureRect& rect)
 {
-	if (m_texture_rect != rect)
-	{
-		m_texture_rect = rect;
-		UpdateTexCoords();
-	}
+	if (GetTextureRect() != rect)
+		UpdateTexCoords(rect);
 }
 void Sprite::SetSize(const sf::Vector2f& size)
 {
-	if (m_size != size)
-	{
-		m_size = size;
-		UpdatePositions();
-	}
+	if (GetSize() != size)
+		UpdatePositions(size);
 }
 void Sprite::SetColor(const sf::Color& color)
 {
@@ -115,17 +109,15 @@ void Sprite::SetDepth(const float val)
 	m_depth = val;
 }
 
-void Sprite::UpdatePositions()
+void Sprite::UpdatePositions(const sf::Vector2f& size)
 {
 	m_vertices[0].position = sf::Vector2f(0.0f,		0.0f);
-	m_vertices[1].position = sf::Vector2f(0.0f,		m_size.y);
-	m_vertices[2].position = sf::Vector2f(m_size.x, 0.0f);
-	m_vertices[3].position = sf::Vector2f(m_size.x, m_size.y);
+	m_vertices[1].position = sf::Vector2f(0.0f,		size.y);
+	m_vertices[2].position = sf::Vector2f(size.x,	0.0f);
+	m_vertices[3].position = sf::Vector2f(size.x,	size.y);
 }
-void Sprite::UpdateTexCoords()
+void Sprite::UpdateTexCoords(const TextureRect& texture_rect)
 {
-	const sf::FloatRect texture_rect(m_texture_rect);
-
 	const float left	= texture_rect.left;
 	const float right	= left + texture_rect.width;
 	const float top		= texture_rect.top;

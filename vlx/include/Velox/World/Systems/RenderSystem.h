@@ -6,6 +6,7 @@
 
 #include <Velox/Components/Object.h>
 #include <Velox/Components/Sprite.h>
+#include <Velox/Components/LocalTransform.h>
 #include <Velox/Components/Transform.h>
 
 #include <Velox/Graphics/SpriteBatch.h>
@@ -21,7 +22,7 @@ namespace vlx
 	class VELOX_API RenderSystem : public SystemObject
 	{
 	private:
-		using System = System<Object, Transform, Sprite>;
+		using System = System<Object, LocalTransform, Transform, Sprite>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, const LayerType id);

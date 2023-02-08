@@ -11,11 +11,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 {
 	m_local_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
 		{
-			if (local_transform.m_dirty)
-			{
-				UpdateToLocal(local_transform, transform);
-				local_transform.m_dirty = false;
-			}
+			transform.m_root = true;
 		});
 
 	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
@@ -131,10 +127,12 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 			transform.m_update_scale	= true;
 			transform.m_update_rotation = true;
 		}
+
+		transform.m_root = false;
 	}
 	else
 	{
-		UpdateToLocal(local_transform, transform);
+		transform.m_root = true;
 	}
 
 	transform.m_dirty = false;

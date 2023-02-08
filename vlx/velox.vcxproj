@@ -232,6 +232,7 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Algorithms\QuadTree.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />

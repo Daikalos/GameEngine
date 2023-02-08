@@ -21,6 +21,9 @@ namespace vlx
 
 	public:
 		constexpr auto Insert(const T& element) -> size_type;
+		constexpr auto Insert(T&& element) -> size_type;
+		constexpr auto Emplace(T&& element) -> size_type;
+
 		void Erase(const size_type n);
 
 		void Clear();
@@ -31,7 +34,7 @@ namespace vlx
 		union FreeElement
 		{
 			T element;
-			size_type next;
+			size_type next {-1};
 		};
 
 		std::vector<FreeElement> m_data;
@@ -53,11 +56,23 @@ namespace vlx
 	template<class T>
 	inline constexpr auto FreeVector<T>::Insert(const T& element) -> size_type
 	{
+		return Emplace(element);
+	}
+
+	template<class T>
+	inline constexpr auto FreeVector<T>::Insert(T&& element) -> size_type
+	{
+		return Emplace(element);
+	}
+
+	template<class T>
+	inline constexpr auto FreeVector<T>::Emplace(T&& element) -> size_type
+	{
 		if (m_first_free != -1)
 		{
 			const int index = m_first_free;
 			m_first_free = m_data[m_first_free].next;
-			m_data[index].element = element;
+			m_data[index].element = T(std::forward<T>(element));
 
 			return index;
 		}
@@ -74,6 +89,7 @@ namespace vlx
 	template<class T>
 	inline void FreeVector<T>::Erase(const size_type n)
 	{
+		assert(n >= 0 && n < Range());
 		m_data[n].next = m_first_free;
 		m_first_free = n;
 	}

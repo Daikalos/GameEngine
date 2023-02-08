@@ -43,19 +43,29 @@ void StateTest::OnCreated()
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 
-		added.AddComponents<Sprite, Relation, Velocity, gui::Button>();
-		Velocity& vel = added.GetComponent<Velocity>();
-		vel.velocity.x = rnd::random(-50.0f, 50.0f);
-		vel.velocity.y = rnd::random(-50.0f, 50.0f);
+		added.AddComponent<Velocity>(
+			rnd::random(-50.0f, 50.0f),
+			rnd::random(-50.0f, 50.0f));
 
 		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
-		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
+		//GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
 
-	int a = sizeof(Relation);
+	auto opt = m_entity_admin->TryGetComponent<Relation>(m_entities.front());
+
+	m_entity_admin->SortComponents<Relation>(m_entities.front(),
+		[](const Relation& lhs, const Relation& rhs)
+		{
+			if (lhs.HasParent() && rhs.HasParent())
+				return lhs.GetParent().Get() < rhs.GetParent().Get();
+
+			return false;
+		});
+
+	int a = sizeof(Sprite);
 	int c = sizeof(Transform);
 	int d = sizeof(LocalTransform);
-	int b = sizeof(std::unordered_set<EntityID>);
+	int e = sizeof(Relation);
 
 	b0 = object_system.CreateObject();
 	b0.AddComponents(gui::ButtonType{});
@@ -95,7 +105,7 @@ bool StateTest::Update(Time& time)
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
 		for (const Entity& entity : m_entities)
 		{
-			m_entity_admin->SetComponent(entity, Velocity({ rnd::random(-500.0f, 500.0f), rnd::random(-500.0f, 500.0f) }));
+			m_entity_admin->SetComponent(entity, Velocity({ rnd::random(-100.0f, 100.0f), rnd::random(-100.0f, 100.0f) }));
 		}
 	}
 

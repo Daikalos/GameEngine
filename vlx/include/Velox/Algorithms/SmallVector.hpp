@@ -93,8 +93,8 @@ namespace vlx
 		constexpr SmallVector() = default;
 
 		constexpr explicit SmallVector(const size_type size, const_reference value = value_type(), const allocator_type& alloc = allocator_type());
-		template<class iter> requires std::contiguous_iterator<iter>
-		constexpr SmallVector(iter first, iter last, const allocator_type& alloc = allocator_type());
+		template<class Iter> requires std::contiguous_iterator<Iter>
+		constexpr SmallVector(Iter first, Iter last, const allocator_type& alloc = allocator_type());
 		constexpr SmallVector(const SmallVector& other, const allocator_type& alloc = allocator_type());
 		constexpr SmallVector(SmallVector&& other, const allocator_type& alloc = allocator_type()) noexcept;
 		constexpr SmallVector(std::initializer_list<value_type> init_list, const allocator_type& alloc = allocator_type());
@@ -185,14 +185,14 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	template<class iter> requires std::contiguous_iterator<iter>
-	inline constexpr SmallVector<T, N, Alloc>::SmallVector(iter first, iter last, const allocator_type& alloc)
+	template<class Iter> requires std::contiguous_iterator<Iter>
+	inline constexpr SmallVector<T, N, Alloc>::SmallVector(Iter first, Iter last, const allocator_type& alloc)
 	{
 		const size_type size = last - first;
 
 		if (size <= N)
 		{
-			for (iter it = first; it != last; ++it, ++m_size)
+			for (Iter it = first; it != last; ++it, ++m_size)
 				m_stack[m_size] = *it;
 		}
 		else

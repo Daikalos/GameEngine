@@ -339,10 +339,9 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 
 	const bool same_entity = (last_entity_id == entity_id);
 
-	const ComponentIDs& old_archetype_id = old_archetype->type;
-	for (std::size_t i = 0, j = 0; i < old_archetype_id.size(); ++i) // we iterate over both archetypes
+	for (std::size_t i = 0, j = 0; i < old_archetype->type.size(); ++i) // we iterate over both archetypes
 	{
-		const auto component_id		= old_archetype_id[i];
+		const auto component_id		= old_archetype->type[i];
 		const auto component		= m_component_map[component_id].get();
 		const auto component_size	= component->GetSize();
 

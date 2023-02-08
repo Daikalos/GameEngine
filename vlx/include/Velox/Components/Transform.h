@@ -14,11 +14,12 @@ namespace vlx
 	class VELOX_API Transform : public IComponent
 	{ 
 	public:
-		[[nodiscard]] const sf::Transform&	GetTransform() const;
-		[[nodiscard]] const sf::Transform&	GetInverseTransform() const;
-		[[nodiscard]] const sf::Vector2f&	GetPosition() const;
-		[[nodiscard]] const sf::Vector2f&	GetScale() const;
-		[[nodiscard]] const sf::Angle&		GetRotation() const;
+		NODISC const sf::Transform&	GetTransform() const noexcept;
+		NODISC const sf::Transform&	GetInverseTransform() const;
+		NODISC const sf::Vector2f&	GetPosition() const;
+		NODISC const sf::Vector2f&	GetScale() const;
+		NODISC const sf::Angle&		GetRotation() const;
+		NODISC bool					GetIsRoot() const noexcept;
 
 	private:
 		mutable sf::Vector2f	m_position;
@@ -33,6 +34,7 @@ namespace vlx
 		mutable bool			m_update_rotation		{true};
 		mutable bool			m_update_inverse		{true};
 		mutable bool			m_dirty					{true};
+		mutable bool			m_root					{false};
 
 		friend class TransformSystem;
 	};

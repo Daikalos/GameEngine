@@ -18,12 +18,12 @@ namespace vlx
 		LocalTransform(const sf::Vector2f& position);
 
 	public:
-		[[nodiscard]] const sf::Transform&	GetTransform() const;
-		[[nodiscard]] const sf::Transform&	GetInverseTransform() const;
-		[[nodiscard]] const sf::Vector2f&	GetOrigin() const;
-		[[nodiscard]] const sf::Vector2f&	GetPosition() const;
-		[[nodiscard]] const sf::Vector2f&	GetScale() const;
-		[[nodiscard]] const sf::Angle&		GetRotation() const;
+		NODISC const sf::Transform&	GetTransform() const;
+		NODISC const sf::Transform&	GetInverseTransform() const;
+		NODISC const sf::Vector2f&	GetOrigin() const;
+		NODISC const sf::Vector2f&	GetPosition() const;
+		NODISC const sf::Vector2f&	GetScale() const;
+		NODISC const sf::Angle&		GetRotation() const;
 
 		void SetOrigin(const sf::Vector2f& origin);
 		void SetPosition(const sf::Vector2f& position);

@@ -73,7 +73,7 @@ namespace vlx
 		[[nodiscard]] S& GetSystem();
 
 		template<std::derived_from<SystemObject> S, typename... Args>
-		std::pair<S*, bool> AddSystem(Args&&... args) requires std::constructible_from<S, Args...>;
+		std::optional<S*> AddSystem(Args&&... args) requires std::constructible_from<S, Args...>;
 
 		template<std::derived_from<SystemObject> S>
 		void RemoveSystem();
@@ -126,17 +126,17 @@ namespace vlx
 	}
 
 	template<std::derived_from<SystemObject> S, typename... Args>
-	inline std::pair<S*, bool> World::AddSystem(Args&&... args) requires std::constructible_from<S, Args...>
+	inline std::optional<S*> World::AddSystem(Args&&... args) requires std::constructible_from<S, Args...>
 	{
 		if (HasSystem<S>()) // don't add if already exists
-			return { nullptr, false };
+			return std::nullopt;
 
 		SystemObject::Ptr system = std::make_shared<S>(std::forward<Args>(args)...);
 
 		m_systems[typeid(S)] = system;
 		m_sorted_systems[system->GetID()] = std::make_pair(system, system.get());
 
-		return { static_cast<S*>(system.get()), true };
+		return static_cast<S*>(system.get());
 	}
 
 	template<std::derived_from<SystemObject> S>

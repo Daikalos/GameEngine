@@ -2,7 +2,6 @@
 
 using namespace vlx;
 
-
 Entity::Entity(EntityAdmin& entity_admin, const EntityID entity_id)
 	: m_id(entity_id), m_entity_admin(&entity_admin)
 {
@@ -38,7 +37,11 @@ Entity& Entity::operator=(Entity&& rhs) noexcept
 	return *this;
 }
 
-Entity::operator EntityID() const
+constexpr Entity::operator EntityID() const
+{
+	return m_id;
+}
+constexpr EntityID Entity::GetID() const noexcept
 {
 	return m_id;
 }
@@ -55,9 +58,4 @@ void Entity::Destroy()
 
 	m_id = NULL_ENTITY;
 	m_entity_admin = nullptr;
-}
-
-constexpr EntityID Entity::GetID() const noexcept
-{
-	return m_id;
 }

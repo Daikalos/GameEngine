@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <execution>
+#include <optional>
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
@@ -143,18 +144,6 @@ namespace vlx
 		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
 		/// <summary>
-		///		Sets the component for the entity directly, component is assumed to exist.
-		/// </summary>
-		template<IsComponent C>
-		C& SetComponent(const EntityID entity_id, C&& new_component);
-
-		/// <summary>
-		///		Tries to set the component for entity, will return false if it fails.
-		/// </summary>
-		template<IsComponent C>
-		std::pair<C*, bool> TrySetComponent(const EntityID entity_id, C&& new_component);
-
-		/// <summary>
 		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
 		///		otherwise false.
 		/// </summary>
@@ -184,10 +173,11 @@ namespace vlx
 		NODISC C& GetComponent(const EntityID entity_id) const;
 
 		/// <summary>
-		///		Tries to get the component and returns a pair containing the component ptr and success. If it fails, it returns nullptr and false.
+		///		Tries to get the component and returns a pair containing the component ptr and success. If it fails, 
+		///		it returns std::nullopt.
 		/// </summary>
 		template<IsComponent C>
-		NODISC std::pair<C*, bool> TryGetComponent(const EntityID entity_id) const;
+		NODISC std::optional<C*> TryGetComponent(const EntityID entity_id) const;
 
 		/// <summary>
 		///		
@@ -219,10 +209,36 @@ namespace vlx
 		NODISC B& GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
 		/// <summary>
-		/// 	Attempts to get base and returns a pair containing the base ptr and success. If it fails, it returns nullptr and false.
+		/// 	Attempts to get base and returns a pair containing the base ptr and success. If it fails, 
+		///		it returns std::nullopt.
 		/// </summary>
 		template<class B>
-		NODISC std::pair<B*, bool> TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		NODISC std::optional<B*> TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+
+		/// <summary>
+		///		Sets the component for the entity directly, component is assumed to exist. Returns the 
+		///		constructed component.
+		/// </summary>
+		template<IsComponent C>
+		C& SetComponent(const EntityID entity_id, C&& new_component);
+
+		/// <summary>
+		///		Tries to set the component for entity, will return false if it fails.
+		/// </summary>
+		template<IsComponent C>
+		std::optional<C*> TrySetComponent(const EntityID entity_id, C&& new_component);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+		C& SetComponent(const EntityID entity_id, Args&&... args);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		template<IsComponent C, typename... Args>  requires std::constructible_from<C, Args...>
+		std::optional<C*> TrySetComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
 		///		Returns a reference for the component whose pointer will remain valid even when the internal data is 
@@ -236,7 +252,7 @@ namespace vlx
 		///		entity does not exist or other unknown error occurs.
 		/// </summary>
 		template<IsComponent C>
-		NODISC std::pair<ComponentRef<C>, bool> TryGetComponentRef(const EntityID entity_id, C* component = nullptr) const;
+		NODISC std::optional<ComponentRef<C>> TryGetComponentRef(const EntityID entity_id, C* component = nullptr) const;
 
 		/// <summary>
 		///		Returns a reference for the base whose pointer will remain valid even when the internal data is 
@@ -250,7 +266,7 @@ namespace vlx
 		///		entity does not exist or other unknown error occurs. If the component even exists will be checked in the proxy can be extracted with IsExpired().
 		/// </summary>
 		template<class B>
-		NODISC std::pair<BaseRef<B>, bool> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0, B* base = nullptr) const;
+		NODISC std::optional<BaseRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0, B* base = nullptr) const;
 
 		/// <summary>
 		///		Returns true if the entity has the component C, otherwise false.
@@ -278,6 +294,14 @@ namespace vlx
 		/// </summary>
 		template<class... Cs, class Comp> requires IsComponents<Cs...>
 		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
+
+		/// <summary>
+		///		Sorts the components for a specific entity, will also sort the components for all other entities
+		///		that holds the same components as the specified entity. Will also sort all other components that 
+		///		the entities may contain.
+		/// </summary>
+		template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
+		void SortComponents(const EntityID entity, Comp&& comparison);
 
 		/// <summary>
 		///		Get all entities that contain the provided components
@@ -532,45 +556,6 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline C& EntityAdmin::SetComponent(const EntityID entity_id, C&& new_component)
-	{
-		C& component = GetComponent<C>(entity_id);
-
-		if (&component == &new_component)
-			throw std::runtime_error("cannot set the same component");
-
-		static_cast<IComponent&>(component).Modified(
-			*this, entity_id, static_cast<IComponent&>(new_component));
-
-		component = std::forward<C>(new_component);
-
-		return component;
-	}
-
-	template<IsComponent C>
-	inline std::pair<C*, bool> EntityAdmin::TrySetComponent(const EntityID entity_id, C&& new_component)
-	{
-		assert(IsComponentRegistered<C>()); // component should be registered
-
-		const auto [component, success] = TryGetComponent<C>(entity_id);
-
-		if (!success)
-			return { component, success };
-
-		if (component != &new_component)
-		{
-			static_cast<IComponent&>(*component).Modified(
-				*this, entity_id, static_cast<IComponent&>(new_component));
-
-			*component = std::forward<C>(new_component);
-
-			return { component, success };
-		}
-
-		return { nullptr, false };
-	}
-
-	template<IsComponent C>
 	inline bool EntityAdmin::RemoveComponent(const EntityID entity_id)
 	{
 		return RemoveComponent(entity_id, GetComponentID<C>());
@@ -609,34 +594,34 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline std::pair<C*, bool> EntityAdmin::TryGetComponent(const EntityID entity_id) const
+	inline std::optional<C*> EntityAdmin::TryGetComponent(const EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto& record		= eit->second;
 		const auto* archetype	= record.archetype;
 
 		if (archetype == nullptr)
-			return { nullptr, false };
+			return std::nullopt;
 
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto& arch_record = ait->second;
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[arch_record.column][0]);
-		return { &components[record.index], true };
+		return &components[record.index];
 	}
 
 	template<class B>
@@ -658,36 +643,89 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::pair<B*, bool> EntityAdmin::TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	inline std::optional<B*> EntityAdmin::TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto& record = eit->second;
 		const auto* archetype = record.archetype;
 
 		if (archetype == nullptr)
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto cit = m_component_archetypes_map.find(child_component_id);
 		if (cit == m_component_archetypes_map.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto iit = m_component_map.find(child_component_id);
 		if (iit == m_component_map.end())
-			return { nullptr, false };
+			return std::nullopt;
 
 		const auto component_size = iit->second->GetSize();
 
 		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
 		B* base_component = reinterpret_cast<B*>(ptr + offset);
 
-		return { base_component, true };
+		return base_component;
+	}
+
+	template<IsComponent C>
+	inline C& EntityAdmin::SetComponent(const EntityID entity_id, C&& new_component)
+	{
+		C& component = GetComponent<C>(entity_id);
+
+		if (&component == &new_component)
+			throw std::runtime_error("cannot set the same component");
+
+		static_cast<IComponent&>(component).Modified(
+			*this, entity_id, static_cast<IComponent&>(new_component));
+
+		component = std::forward<C>(new_component);
+
+		return component;
+	}
+
+	template<IsComponent C>
+	inline std::optional<C*> EntityAdmin::TrySetComponent(const EntityID entity_id, C&& new_component)
+	{
+		assert(IsComponentRegistered<C>()); // component should be registered
+
+		const auto opt_component = TryGetComponent<C>(entity_id);
+
+		if (!opt_component)
+			return std::nullopt;
+
+		auto component = opt_component.value();
+
+		if (component != &new_component)
+		{
+			static_cast<IComponent&>(*component).Modified(
+				*this, entity_id, static_cast<IComponent&>(new_component));
+
+			*component = std::forward<C>(new_component);
+
+			return component;
+		}
+
+		return std::nullopt;
+	}
+
+	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+	inline C& EntityAdmin::SetComponent(const EntityID entity_id, Args&&... args)
+	{
+		return SetComponent(entity_id, C(std::forward<Args>(args)...));
+	}
+
+	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
+	inline std::optional<C*> EntityAdmin::TrySetComponent(const EntityID entity_id, Args&&... args)
+	{
+		return TrySetComponent(entity_id, C(std::forward<Args>(args)...));
 	}
 
 	template<IsComponent C>
@@ -717,12 +755,12 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline std::pair<ComponentRef<C>, bool> EntityAdmin::TryGetComponentRef(const EntityID entity_id, C* component) const
+	inline std::optional<ComponentRef<C>> EntityAdmin::TryGetComponentRef(const EntityID entity_id, C* component) const
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent<C>(entity_id))
-			return { ComponentRef<C>(), false};
+			return std::nullopt;
 
-		return { GetComponentRef<C>(entity_id, component), true};
+		return GetComponentRef<C>(entity_id, component);
 	}
 
 	template<class B>
@@ -750,12 +788,12 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::pair<BaseRef<B>, bool> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset, B* base) const
+	inline std::optional<BaseRef<B>> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset, B* base) const
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists and has component
-			return { BaseRef<B>(), false};
+			return std::nullopt;
 
-		return { GetBaseRef<B>(entity_id, child_component_id, offset, base), true};
+		return GetBaseRef<B>(entity_id, child_component_id, offset, base);
 	}
 
 	template<IsComponent C>
@@ -824,7 +862,7 @@ namespace vlx
 		if (it == m_archetype_map.end())
 			return;
 
-		Archetype* archetype = it->second.front();
+		Archetype* archetype = it->second;
 
 		if (archetype->id != archetype_id)
 			throw std::runtime_error("the specified archetype does not exist");
@@ -871,9 +909,76 @@ namespace vlx
 			archetype->component_data[i] = std::move(new_data);
 		}
 
-		std::vector<EntityID> new_entities;
-		new_entities.reserve(archetype->entities.size());
+		decltype(archetype->entities) new_entities;
+		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
+		{
+			const auto index		= indices[i];
+			const auto entity_id	= archetype->entities[index];
 
+			auto it = m_entity_archetype_map.find(entity_id);
+			assert(it != m_entity_archetype_map.end()); // should never happen
+
+			it->second.index = i;
+			new_entities.push_back(entity_id);
+		}
+
+		archetype->entities = new_entities;
+	}
+
+	template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
+	inline void EntityAdmin::SortComponents(const EntityID entity, Comp&& comparison)
+	{
+		const auto it = m_entity_archetype_map.find(entity);
+		if (it == m_entity_archetype_map.end())
+			return;
+
+		Archetype* archetype = it->second.archetype;
+
+		if (archetype == nullptr)
+			return;
+
+		constexpr auto component_id = GetComponentID<C>();
+
+		const auto cit = m_component_archetypes_map.find(component_id);
+		if (cit == m_component_archetypes_map.end())
+			return;
+
+		const auto ait = cit->second.find(archetype->id);
+		if (ait == cit->second.end())
+			return;
+
+		const ArchetypeRecord& a_record = ait->second;
+
+		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
+
+		std::vector<std::size_t> indices(archetype->entities.size());
+		std::iota(indices.begin(), indices.end(), 0);
+
+		std::stable_sort(indices.begin(), indices.end(),
+			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
+			{
+				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
+			});
+
+		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
+		{
+			const auto component_id = archetype->type[i];
+			const auto component = m_component_map[component_id].get();
+			const auto component_size = component->GetSize();
+
+			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
+
+			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
+			{
+				component->MoveDestroyData(*this, archetype->entities[j],
+					&archetype->component_data[i][indices[j] * component_size],
+					&new_data[j * component_size]);
+			}
+
+			archetype->component_data[i] = std::move(new_data);
+		}
+
+		decltype(archetype->entities) new_entities;
 		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
 		{
 			const std::size_t index = indices[i];

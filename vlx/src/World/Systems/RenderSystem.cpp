@@ -5,12 +5,10 @@ using namespace vlx;
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemObject(entity_admin, id), m_system(entity_admin, id)
 {
-	m_system.All([this](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
+	m_system.Each([this](const EntityID entity, Object& object, LocalTransform& local_transform, Transform& transform, Sprite& sprite)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
-			{
-				DrawObject(objects[i], sprites[i], transforms[i].GetTransform(), sprites[i].GetDepth());
-			}
+			DrawObject(object, sprite, transform.GetIsRoot() ? 
+				local_transform.GetTransform() : transform.GetTransform(), sprite.GetDepth());
 		});
 }
 

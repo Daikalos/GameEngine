@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-const sf::Transform& Transform::GetTransform() const
+const sf::Transform& Transform::GetTransform() const noexcept
 {
 	return m_transform;
 }
@@ -68,4 +68,9 @@ const sf::Angle& Transform::GetRotation() const
 	}
 
 	return m_rotation;
+}
+
+bool Transform::GetIsRoot() const noexcept
+{
+	return m_root;
 }

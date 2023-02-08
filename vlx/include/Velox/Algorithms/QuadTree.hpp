@@ -2,54 +2,64 @@
 
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include <SFML/Graphics.hpp>
 
 #include <Velox/Config.hpp>
 
+#include "FreeVector.hpp"
+
 namespace vlx
 {
-	static constexpr int CHILD_COUNT = 4;
-
-	template<class T>
-	class QuadTree
+	class VELOX_API QuadTree
 	{
-	private:
-		using Rect = sf::Rect<int>;
-
 	private:
 		struct QuadNode
 		{
 			int first_child	{-1};
-			int count		{-1};
+			int count		{0};
 		};
 
 		struct QuadElt
 		{
 			int id;
-			Rect rect;
+			sf::IntRect rect;
 		};
 
 		struct QuadEltNode
 		{
-			int next;
-			int element;
+			int element {-1};
+			int next	{-1};
 		};
 
 	public:
-		QuadTree(int max_depth = 8);
+		QuadTree(const sf::IntRect& root_rect, int max_elements = 16, int max_depth = 8);
 
 	public:
+		void Insert(const QuadEltNode& elt);
+		void Erase(const QuadEltNode& elt);
 
+		std::optional<FreeVector<QuadEltNode>> Query(const sf::IntRect& rect);
+		std::optional<FreeVector<QuadEltNode>> Query(const sf::Vector2i& point);
+
+		void Cleanup();
 
 	private:
-		std::vector<QuadElt>		m_quads;
-		std::vector<QuadEltNode>	m_elt_nodes;
-		std::vector<QuadNode>		m_nodes;
+		void NodeInsert(int index, int depth, const sf::Vector2i& centre, const sf::Vector2i& half_size, int element);
+		void LeafInsert(int index, int depth, const sf::Vector2i& centre, const sf::Vector2i& half_size, int element);
 
-		Rect m_root_rect;
+		std::vector<int> FindLeaves(int index, int depth, const sf::Vector2i& centre, const sf::Vector2i& half_size, const sf::IntRect& rect);
 
-		int m_free_node;
-		int	m_max_depth{8};
+	private:
+		sf::IntRect m_root_rect;
+
+		int m_free_node		{-1};
+		int m_max_elements	{16}; // max elements before subdivision
+		int	m_max_depth		{8};  // max depth before no more leaves will be created
+
+		FreeVector<QuadElt>		m_quads;
+		FreeVector<QuadEltNode>	m_elt_nodes;
+		FreeVector<QuadNode>	m_nodes;
 	};
 }
