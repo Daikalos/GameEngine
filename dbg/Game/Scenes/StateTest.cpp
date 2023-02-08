@@ -43,7 +43,8 @@ void StateTest::OnCreated()
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 
-		added.AddComponent<Velocity>(
+		added.AddComponent<Velocity>();
+		added.SetComponent<Velocity>(
 			rnd::random(-50.0f, 50.0f),
 			rnd::random(-50.0f, 50.0f));
 
@@ -103,7 +104,7 @@ bool StateTest::Update(Time& time)
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
 		for (const Entity& entity : m_entities)
 		{
-			m_entity_admin->SetComponent(entity, Velocity({ rnd::random(-100.0f, 100.0f), rnd::random(-100.0f, 100.0f) }));
+			m_entity_admin->SetComponent<Velocity>(entity, rnd::random(-100.0f, 100.0f), rnd::random(-100.0f, 100.0f));
 		}
 	}
 

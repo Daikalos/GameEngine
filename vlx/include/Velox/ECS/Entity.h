@@ -52,11 +52,6 @@ namespace vlx
 		template<IsComponent C>
 		NODISC auto TryGetComponent() const;
 
-		template<IsComponent C>
-		auto SetComponent(C&& new_component);
-		template<IsComponent C>
-		auto TrySetComponent(C&& new_component);
-
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		auto SetComponent(Args&&... args);
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
@@ -126,18 +121,6 @@ namespace vlx
 	inline auto Entity::TryGetComponent() const
 	{
 		return m_entity_admin->TryGetComponent<C>(m_id);
-	}
-
-	template<IsComponent C>
-	inline auto Entity::SetComponent(C&& new_component)
-	{
-		return m_entity_admin->SetComponent<C>(m_id, std::forward<C>(new_component));
-	}
-
-	template<IsComponent C>
-	inline auto Entity::TrySetComponent(C&& new_component)
-	{
-		return m_entity_admin->TrySetComponent<C>(m_id, std::forward<C>(new_component));
 	}
 
 	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>

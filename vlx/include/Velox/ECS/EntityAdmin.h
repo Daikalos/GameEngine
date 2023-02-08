@@ -219,23 +219,11 @@ namespace vlx
 		///		Sets the component for the entity directly, component is assumed to exist. Returns the 
 		///		constructed component.
 		/// </summary>
-		template<IsComponent C>
-		C& SetComponent(const EntityID entity_id, C&& new_component);
-
-		/// <summary>
-		///		Tries to set the component for entity, will return false if it fails.
-		/// </summary>
-		template<IsComponent C>
-		std::optional<C*> TrySetComponent(const EntityID entity_id, C&& new_component);
-
-		/// <summary>
-		/// 
-		/// </summary>
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C& SetComponent(const EntityID entity_id, Args&&... args);
 
 		/// <summary>
-		/// 
+		///		Tries to set the component for entity, will return std::nullopt if it fails.
 		/// </summary>
 		template<IsComponent C, typename... Args>  requires std::constructible_from<C, Args...>
 		std::optional<C*> TrySetComponent(const EntityID entity_id, Args&&... args);
@@ -675,24 +663,22 @@ namespace vlx
 		return base_component;
 	}
 
-	template<IsComponent C>
-	inline C& EntityAdmin::SetComponent(const EntityID entity_id, C&& new_component)
+	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+	inline C& EntityAdmin::SetComponent(const EntityID entity_id, Args&&... args)
 	{
-		C& component = GetComponent<C>(entity_id);
+		C& old_component = GetComponent<C>(entity_id);
+		C new_component(std::forward<Args>(args)...);
 
-		if (&component == &new_component)
-			throw std::runtime_error("cannot set the same component");
-
-		static_cast<IComponent&>(component).Modified(
+		static_cast<IComponent&>(old_component).Modified(
 			*this, entity_id, static_cast<IComponent&>(new_component));
 
-		component = std::forward<C>(new_component);
+		old_component = std::move(new_component);
 
-		return component;
+		return old_component;
 	}
 
-	template<IsComponent C>
-	inline std::optional<C*> EntityAdmin::TrySetComponent(const EntityID entity_id, C&& new_component)
+	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
+	inline std::optional<C*> EntityAdmin::TrySetComponent(const EntityID entity_id, Args&&... args)
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -701,31 +687,15 @@ namespace vlx
 		if (!opt_component)
 			return std::nullopt;
 
-		auto component = opt_component.value();
+		C* old_component = opt_component.value();
+		C new_component(std::forward<Args>(args)...);
 
-		if (component != &new_component)
-		{
-			static_cast<IComponent&>(*component).Modified(
-				*this, entity_id, static_cast<IComponent&>(new_component));
+		static_cast<IComponent&>(*old_component).Modified(
+			*this, entity_id, static_cast<IComponent&>(new_component));
 
-			*component = std::forward<C>(new_component);
+		*old_component = std::move(new_component);
 
-			return component;
-		}
-
-		return std::nullopt;
-	}
-
-	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-	inline C& EntityAdmin::SetComponent(const EntityID entity_id, Args&&... args)
-	{
-		return SetComponent(entity_id, C(std::forward<Args>(args)...));
-	}
-
-	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
-	inline std::optional<C*> EntityAdmin::TrySetComponent(const EntityID entity_id, Args&&... args)
-	{
-		return TrySetComponent(entity_id, C(std::forward<Args>(args)...));
+		return old_component;
 	}
 
 	template<IsComponent C>
