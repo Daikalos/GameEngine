@@ -14,3 +14,4 @@
 #include "Utilities/IDGenerator.h"
 #include "Utilities/Event.hpp"
 #include "Utilities/EventHandler.hpp"
+#include "Utilities/Rectangle.hpp"

@@ -10,25 +10,38 @@ namespace vlx
 	class FreeVector
 	{
 	private:
-		using size_type = std::int32_t;
+		using value_type		= T;
+		using reference			= T&;
+		using const_reference	= const T&;
+		using pointer			= T*;
+		using const_pointer		= const T*;
+		using size_type			= std::int32_t;
 
 	public:
 		FreeVector() = default;
 
 	public:
-		T& operator[](const size_type n);
-		const T& operator[](const size_type n) const;
+		NODISC constexpr auto operator[](const size_type n) -> reference;
+		NODISC constexpr auto operator[](const size_type n) const -> const_reference;
+
+		NODISC constexpr auto at(const size_type n) -> reference;
+		NODISC constexpr auto at(const size_type n) const -> const_reference;
+
+		NODISC constexpr bool empty() const noexcept;
+		NODISC constexpr auto size() const noexcept -> size_type;
+
+		NODISC constexpr auto max_size() const noexcept -> size_type;
 
 	public:
-		constexpr auto Insert(const T& element) -> size_type;
-		constexpr auto Insert(T&& element) -> size_type;
-		constexpr auto Emplace(T&& element) -> size_type;
+		template<typename... Args> requires std::constructible_from<T, Args...>
+		constexpr auto emplace(Args&&... args) -> size_type;
 
-		void Erase(const size_type n);
+		constexpr auto insert(const T& element) -> size_type;
+		constexpr auto insert(T&& element) -> size_type;
 
-		void Clear();
+		constexpr void erase(const size_type n);
 
-		constexpr auto Range() const -> size_type;
+		constexpr void clear();
 
 	private:
 		union FreeElement
@@ -42,44 +55,63 @@ namespace vlx
 	};
 
 	template<class T>
-	inline T& FreeVector<T>::operator[](const size_type n)
+	inline constexpr auto FreeVector<T>::operator[](const size_type n) -> reference
 	{
 		return m_data[n].element;
 	}
 
 	template<class T>
-	inline const T& FreeVector<T>::operator[](const size_type n) const
+	inline constexpr auto FreeVector<T>::operator[](const size_type n) const -> const_reference
 	{
 		return m_data[n].element;
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::Insert(const T& element) -> size_type
+	inline constexpr auto FreeVector<T>::at(const size_type n) -> reference
 	{
-		return Emplace(element);
+		return m_data.at(n).element;
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::Insert(T&& element) -> size_type
+	inline constexpr auto FreeVector<T>::at(const size_type n) const -> const_reference
 	{
-		return Emplace(element);
+		return m_data.at(n).element;
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::Emplace(T&& element) -> size_type
+	inline constexpr bool FreeVector<T>::empty() const noexcept
+	{
+		return m_data.empty();
+	}
+
+	template<class T>
+	inline constexpr auto FreeVector<T>::size() const -> size_type
+	{
+		return static_cast<size_type>(m_data.size());
+	}
+
+	template<class T>
+	inline constexpr auto FreeVector<T>::max_size() const noexcept -> size_type
+	{
+		return static_cast<size_type>(m_data.max_size());
+	}
+
+	template<class T>
+	template<typename... Args> requires std::constructible_from<T, Args...>
+	inline constexpr auto FreeVector<T>::emplace(Args&&... args) -> size_type
 	{
 		if (m_first_free != -1)
 		{
 			const int index = m_first_free;
 			m_first_free = m_data[m_first_free].next;
-			m_data[index].element = T(std::forward<T>(element));
+			m_data[index].element = T(std::forward<Args>(args)...);
 
 			return index;
 		}
 		else
 		{
 			FreeElement free_element{};
-			free_element.element = element;
+			free_element.element = T(std::forward<Args>(args)...);
 			m_data.push_back(free_element);
 
 			return static_cast<size_type>(m_data.size() - 1);
@@ -87,7 +119,19 @@ namespace vlx
 	}
 
 	template<class T>
-	inline void FreeVector<T>::Erase(const size_type n)
+	inline constexpr auto FreeVector<T>::insert(const T& element) -> size_type
+	{
+		return Emplace(element);
+	}
+
+	template<class T>
+	inline constexpr auto FreeVector<T>::insert(T&& element) -> size_type
+	{
+		return Emplace(std::move(element));
+	}
+
+	template<class T>
+	inline constexpr void FreeVector<T>::erase(const size_type n)
 	{
 		assert(n >= 0 && n < Range());
 		m_data[n].next = m_first_free;
@@ -95,15 +139,9 @@ namespace vlx
 	}
 
 	template<class T>
-	inline void FreeVector<T>::Clear()
+	inline constexpr void FreeVector<T>::clear()
 	{
 		m_data.clear();
 		m_first_free = -1;
-	}
-
-	template<class T>
-	inline constexpr auto FreeVector<T>::Range() const -> size_type
-	{
-		return static_cast<size_type>(m_data.size());
 	}
 }

@@ -146,6 +146,8 @@ namespace vlx
 		constexpr void fill(const_reference value);
 		constexpr void resize(const size_type size, T value = T());
 
+		constexpr void clear();
+
 		constexpr void swap(SmallVector& other) noexcept;
 
 	public:
@@ -157,6 +159,15 @@ namespace vlx
 
 		NODISC constexpr auto cbegin() const -> const_iterator;
 		NODISC constexpr auto cend() const -> const_iterator;
+
+		NODISC constexpr auto rbegin() -> reverse_iterator;
+		NODISC constexpr auto rend() -> reverse_iterator;
+
+		NODISC constexpr auto rbegin() const -> const_reverse_iterator;
+		NODISC constexpr auto rend() const -> const_reverse_iterator;
+
+		NODISC constexpr auto crbegin() const -> const_reverse_iterator;
+		NODISC constexpr auto crend() const -> const_reverse_iterator;
 
 	private:
 		std::array<T, N>		m_stack {T()};
@@ -513,6 +524,15 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
+	inline constexpr void SmallVector<T, N, Alloc>::clear()
+	{
+		if (m_size > N)
+			m_heap.clear();
+
+		m_size = 0;
+	}
+
+	template<class T, std::size_t N, class Alloc>
 	inline constexpr void SmallVector<T, N, Alloc>::swap(SmallVector& other) noexcept
 	{
 		std::swap(m_stack, other.m_stack);
@@ -538,16 +558,12 @@ namespace vlx
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::begin() const -> const_iterator
 	{
-		return (m_size <= N) ?
-			const_iterator(m_stack.data()) : 
-			const_iterator(m_heap.data());
+		return const_cast<SmallVector&>(*this).begin();
 	}
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::end() const -> const_iterator
 	{
-		return (m_size <= N) ?
-			const_iterator(m_stack.data() + m_size) : 
-			const_iterator(m_heap.data() + m_size);
+		return const_cast<SmallVector&>(*this).end();
 	}
 
 	template<class T, std::size_t N, class Alloc>
@@ -559,5 +575,42 @@ namespace vlx
 	inline constexpr auto SmallVector<T, N, Alloc>::cend() const -> const_iterator
 	{
 		return end();
+	}
+
+	template<class T, std::size_t N, class Alloc>
+	inline constexpr auto SmallVector<T, N, Alloc>::rbegin() -> reverse_iterator
+	{
+		return (m_size <= N) ?
+			reverse_iterator(m_stack.data() + m_size - 1) :
+			reverse_iterator(m_heap.data() + m_size - 1);
+	}
+	template<class T, std::size_t N, class Alloc>
+	inline constexpr auto SmallVector<T, N, Alloc>::rend() -> reverse_iterator
+	{
+		return (m_size <= N) ?
+			reverse_iterator(m_stack.data() - 1) :
+			reverse_iterator(m_heap.data() - 1);
+	}
+
+	template<class T, std::size_t N, class Alloc>
+	inline constexpr auto SmallVector<T, N, Alloc>::rbegin() const -> const_reverse_iterator
+	{
+		return const_cast<SmallVector&>(*this).rbegin();
+	}
+	template<class T, std::size_t N, class Alloc>
+	inline constexpr auto SmallVector<T, N, Alloc>::rend() const -> const_reverse_iterator
+	{
+		return const_cast<SmallVector&>(*this).rend();
+	}
+
+	template<class T, std::size_t N, class Alloc>
+	inline constexpr auto SmallVector<T, N, Alloc>::crbegin() const -> const_reverse_iterator
+	{
+		return rbegin();
+	}
+	template<class T, std::size_t N, class Alloc>
+	inline constexpr auto SmallVector<T, N, Alloc>::crend() const -> const_reverse_iterator
+	{
+		return rend();
 	}
 }

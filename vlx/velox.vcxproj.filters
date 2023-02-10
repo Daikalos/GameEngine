@@ -35,7 +35,7 @@
     <ClCompile Include="src\World\SystemObject.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
-    <ClCompile Include="src\Algorithms\QuadTree.cpp" />
+    <ClCompile Include="src\Algorithms\LQuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -63,7 +63,7 @@
     <ClInclude Include="include\Velox\Utilities\Concepts.h" />
     <ClInclude Include="include\Velox\Utilities\ContainerUtils.h" />
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
-    <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\LQuadTree.hpp" />
     <ClInclude Include="include\Velox\Utilities\Random.h" />
     <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
     <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
@@ -116,6 +116,7 @@
     <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
+    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

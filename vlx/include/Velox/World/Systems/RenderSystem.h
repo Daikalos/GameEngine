@@ -2,8 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Algorithms/QuadTree.hpp>
-
 #include <Velox/Components/Object.h>
 #include <Velox/Components/Sprite.h>
 #include <Velox/Components/LocalTransform.h>

@@ -82,7 +82,7 @@ void StateTest::OnCreated()
 	Time& time = GetWorld().GetTime();
 	sys.Each([&time](const EntityID entity, Velocity& velocity, LocalTransform& local_transform)
 		{
-			local_transform.Move(velocity.velocity * time.GetDT());
+			local_transform.Move(velocity * time.GetDT());
 		});
 
 }

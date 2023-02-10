@@ -36,10 +36,10 @@ namespace vlx
 
 	enum class RefFlag
 	{
-		None = 0,
-		Component = 1 << 0,
-		Base = 1 << 1,
-		All = Component | Base
+		None		= 0,
+		Component	= 1 << 0,
+		Base		= 1 << 1,
+		All			= Component | Base
 	};
 
 	inline RefFlag operator|(RefFlag lhs, RefFlag rhs)		{ return static_cast<RefFlag>(static_cast<int>(lhs) | static_cast<int>(rhs)); }
@@ -105,6 +105,12 @@ namespace vlx
 		VELOX_API ~EntityAdmin();
 
 	public: 
+		/// <summary>
+		///		Returns the unique ID of a component
+		/// </summary>
+		template<IsComponent C>
+		NODISC static constexpr ComponentTypeID GetComponentID();
+
 		/// <summary>
 		///		Register the component for later usage. Has to be done before the component can be 
 		///		employed in the ECS.
@@ -268,12 +274,6 @@ namespace vlx
 		template<IsComponent C>
 		NODISC bool IsComponentRegistered() const;
 
-		/// <summary>
-		///		Returns the unique ID of a component
-		/// </summary>
-		template<IsComponent C>
-		NODISC static constexpr ComponentTypeID GetComponentID();
-
 	public:
 		/// <summary>
 		///		Sorts the components for all entities that exactly contains the specified components. 
@@ -281,7 +281,7 @@ namespace vlx
 		///		also sort all other components the entities may contain to maintain order.
 		/// </summary>
 		template<class... Cs, class Comp> requires IsComponents<Cs...>
-		void SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
+		bool SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
 
 		/// <summary>
 		///		Sorts the components for a specific entity, will also sort the components for all other entities
@@ -289,7 +289,7 @@ namespace vlx
 		///		the entities may contain.
 		/// </summary>
 		template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
-		void SortComponents(const EntityID entity, Comp&& comparison);
+		bool SortComponents(const EntityID entity, Comp&& comparison);
 
 		/// <summary>
 		///		Get all entities that contain the provided components
@@ -317,20 +317,24 @@ namespace vlx
 		template<IsContainer T>
 		void Reserve(const T& component_ids, const ArchetypeID archetype_id, const std::size_t component_count);
 
-		template<IsContainer T>
-		NODISC const std::vector<Archetype*>& GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
-
 	private:
 		template<IsContainer T>
 		NODISC Archetype* GetArchetype(const T& component_ids, const ArchetypeID archetype_id);
 		template<IsContainer T>
 		Archetype* CreateArchetype(const T& component_ids, const ArchetypeID archetype_id);
 
+		template<IsContainer T>
+		NODISC const std::vector<Archetype*>& GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
+
+		template<IsComponent C, class Comp>
+		bool SortComponents(Archetype* archetype, Comp&& comp);
+
 		template<IsComponent C>
 		void EraseComponentRef(const EntityID entity_id) const;
 
 		template<IsComponent C>
 		void UpdateComponentRef(const EntityID entity_id, C* new_component) const;
+
 
 	public:
 		VELOX_API NODISC EntityID GetNewEntityID();
@@ -395,6 +399,12 @@ namespace vlx
 
 namespace vlx
 {
+	template<IsComponent C>
+	inline static constexpr ComponentTypeID EntityAdmin::GetComponentID()
+	{
+		return ComponentAlloc<C>::GetTypeID();
+	}
+
 	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
@@ -814,163 +824,33 @@ namespace vlx
 		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id, &GetComponent<Cs>(entity_id))...);
 	}
 
-	template<IsComponent C>
-	inline static constexpr ComponentTypeID EntityAdmin::GetComponentID()
-	{
-		return ComponentAlloc<C>::GetTypeID();
-	}
-
 	template<class... Cs, class Comp> requires IsComponents<Cs...>
-	inline void EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
+	inline bool EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
+		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
+
 		constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id		= cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
-		assert(cu::IsSorted(component_ids));
-
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
-			return;
+			return false;
 
 		Archetype* archetype = it->second;
 
-		if (archetype->id != archetype_id)
-			throw std::runtime_error("the specified archetype does not exist");
-
-		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
-		constexpr ComponentTypeID component_id = GetComponentID<C>();
-
-		const auto cit = m_component_archetypes_map.find(component_id);
-		if (cit == m_component_archetypes_map.end())
-			return;
-
-		const auto ait = cit->second.find(archetype->id);
-		if (ait == cit->second.end())
-			return;
-
-		const ArchetypeRecord& a_record = ait->second;
-
-		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
-
-		std::vector<std::size_t> indices(archetype->entities.size());
-		std::iota(indices.begin(), indices.end(), 0);
-
-		std::stable_sort(indices.begin(), indices.end(),
-			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
-			{
-				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
-			});
-
-		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
-		{
-			const auto component_id		= archetype->type[i];
-			const auto component		= m_component_map[component_id].get();
-			const auto component_size	= component->GetSize();
-
-			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
-
-			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-			{
-				component->MoveDestroyData(*this, archetype->entities[j],
-					&archetype->component_data[i][indices[j] * component_size],
-					&new_data[j * component_size]);
-			}
-
-			archetype->component_data[i] = std::move(new_data);
-		}
-
-		decltype(archetype->entities) new_entities;
-		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
-		{
-			const auto index		= indices[i];
-			const auto entity_id	= archetype->entities[index];
-
-			auto it = m_entity_archetype_map.find(entity_id);
-			assert(it != m_entity_archetype_map.end()); // should never happen
-
-			it->second.index = i;
-			new_entities.push_back(entity_id);
-		}
-
-		archetype->entities = new_entities;
+		return SortComponents<C>(archetype, std::forward<Comp>(comparison));
 	}
 
 	template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
-	inline void EntityAdmin::SortComponents(const EntityID entity, Comp&& comparison)
+	inline bool EntityAdmin::SortComponents(const EntityID entity_id, Comp&& comparison)
 	{
-		const auto it = m_entity_archetype_map.find(entity);
+		const auto it = m_entity_archetype_map.find(entity_id);
 		if (it == m_entity_archetype_map.end())
-			return;
+			return false;
 
 		Archetype* archetype = it->second.archetype;
 
-		if (archetype == nullptr)
-			return;
-
-		constexpr auto component_id = GetComponentID<C>();
-
-		const auto cit = m_component_archetypes_map.find(component_id);
-		if (cit == m_component_archetypes_map.end())
-			return;
-
-		const auto ait = cit->second.find(archetype->id);
-		if (ait == cit->second.end())
-			return;
-
-		const ArchetypeRecord& a_record = ait->second;
-
-		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
-
-		std::vector<std::size_t> indices(archetype->entities.size());
-		std::iota(indices.begin(), indices.end(), 0);
-
-		std::stable_sort(indices.begin(), indices.end(),
-			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
-			{
-				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
-			});
-
-		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
-		{
-			const auto component_id = archetype->type[i];
-			const auto component = m_component_map[component_id].get();
-			const auto component_size = component->GetSize();
-
-			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
-
-			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-			{
-				component->MoveDestroyData(*this, archetype->entities[j],
-					&archetype->component_data[i][indices[j] * component_size],
-					&new_data[j * component_size]);
-			}
-
-			archetype->component_data[i] = std::move(new_data);
-		}
-
-		decltype(archetype->entities) new_entities;
-		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
-		{
-			const std::size_t index = indices[i];
-			const EntityID entity_id = archetype->entities[index];
-
-			auto it = m_entity_archetype_map.find(entity_id);
-			assert(it != m_entity_archetype_map.end()); // should never happen
-
-			it->second.index = i;
-			new_entities.push_back(entity_id);
-		}
-
-		archetype->entities = new_entities;
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::Reserve(const std::size_t component_count)
-	{
-		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
-
-		Reserve(component_ids, archetype_id, component_count);
+		return SortComponents<C>(archetype, std::forward<Comp>(comparison));
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -980,6 +860,15 @@ namespace vlx
 		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
 		return GetEntitiesWith(component_ids, archetype_id, restricted);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void EntityAdmin::Reserve(const std::size_t component_count)
+	{
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		Reserve(component_ids, archetype_id, component_count);
 	}
 
 	template<IsContainer T>
@@ -1042,23 +931,6 @@ namespace vlx
 	}
 
 	template<IsContainer T>
-	inline const std::vector<Archetype*>& EntityAdmin::GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const
-	{
-		const auto it = m_archetype_cache.find(archetype_id);
-		if (it != m_archetype_cache.end())
-			return it->second;
-
-		std::vector<Archetype*> result;
-		for (const ArchetypePtr& archetype : m_archetypes)
-		{
-			if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
-				result.push_back(archetype.get());
-		}
-
-		return m_archetype_cache.emplace(archetype_id, result).first->second;
-	}
-
-	template<IsContainer T>
 	inline Archetype* EntityAdmin::GetArchetype(const T& component_ids, const ArchetypeID archetype_id)
 	{
 		assert(cu::IsSorted(component_ids));
@@ -1111,6 +983,88 @@ namespace vlx
 		m_archetype_cache.clear(); // unfortunately for now, we'll have to clear the cache whenever an archetype has been added
 
 		return m_archetypes.emplace_back(std::move(new_archetype)).get();
+	}
+
+	template<IsContainer T>
+	inline const std::vector<Archetype*>& EntityAdmin::GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const
+	{
+		const auto it = m_archetype_cache.find(archetype_id);
+		if (it != m_archetype_cache.end())
+			return it->second;
+
+		std::vector<Archetype*> result;
+		for (const ArchetypePtr& archetype : m_archetypes)
+		{
+			if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
+				result.push_back(archetype.get());
+		}
+
+		return m_archetype_cache.emplace(archetype_id, result).first->second;
+	}
+
+	template<IsComponent C, class Comp>
+	inline bool EntityAdmin::SortComponents(Archetype* archetype, Comp&& comparison)
+	{
+		if (archetype == nullptr)
+			return false;
+
+		constexpr auto component_id = GetComponentID<C>();
+
+		const auto cit = m_component_archetypes_map.find(component_id);
+		if (cit == m_component_archetypes_map.end())
+			return false;
+
+		const auto ait = cit->second.find(archetype->id);
+		if (ait == cit->second.end())
+			return false;
+
+		const ArchetypeRecord& a_record = ait->second;
+
+		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
+
+		std::vector<std::size_t> indices(archetype->entities.size());
+		std::iota(indices.begin(), indices.end(), 0);
+
+		std::stable_sort(indices.begin(), indices.end(),
+			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
+			{
+				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
+			});
+
+		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
+		{
+			const auto component_id = archetype->type[i];
+			const auto component = m_component_map[component_id].get();
+			const auto component_size = component->GetSize();
+
+			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
+
+			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
+			{
+				component->MoveDestroyData(*this, archetype->entities[j],
+					&archetype->component_data[i][indices[j] * component_size],
+					&new_data[j * component_size]);
+			}
+
+			archetype->component_data[i] = std::move(new_data);
+		}
+
+		decltype(archetype->entities) new_entities;
+		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
+		{
+			const std::size_t index = indices[i];
+			const EntityID entity_id = archetype->entities[index];
+
+			auto it = m_entity_archetype_map.find(entity_id);
+			assert(it != m_entity_archetype_map.end()); // should never happen
+
+			it->second.index = IDType(i);
+			new_entities.push_back(entity_id);
+		}
+
+		archetype->entities = new_entities;
+
+		return true;
 	}
 
 	template<IsComponent C>

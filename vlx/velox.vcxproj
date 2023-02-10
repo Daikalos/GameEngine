@@ -179,6 +179,7 @@
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
+    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
@@ -219,7 +220,7 @@
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\Utilities\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Utilities\NonCopyable.h" />
-    <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\LQuadTree.hpp" />
     <ClInclude Include="include\Velox\Utilities\Random.h" />
     <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
     <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
@@ -232,7 +233,7 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Algorithms\QuadTree.cpp" />
+    <ClCompile Include="src\Algorithms\LQuadTree.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
