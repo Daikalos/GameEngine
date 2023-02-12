@@ -45,7 +45,7 @@ namespace vlx
 	{
 	public:
 		using AllFunc = std::function<void(std::span<const EntityID>, Cs*...)>;
-		using EachFunc = std::function<void(const EntityID, Cs&...)>;
+		using EachFunc = std::function<void(EntityID, Cs&...)>;
 
 		using ComponentTypes = std::tuple<Cs...>;
 

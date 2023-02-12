@@ -69,8 +69,3 @@ const sf::Angle& Transform::GetRotation() const
 
 	return m_rotation;
 }
-
-bool Transform::GetIsRoot() const noexcept
-{
-	return m_root;
-}

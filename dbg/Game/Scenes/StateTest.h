@@ -7,6 +7,8 @@
 #include <Velox/World/World.h>
 #include <Velox/ObjectTypes.hpp>
 
+#include <Velox/Algorithms/LQuadTree.hpp>
+
 class StateTest : public vlx::State
 {
 public:

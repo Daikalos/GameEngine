@@ -3,12 +3,11 @@
 using namespace vlx;
 
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemObject(entity_admin, id), m_system(entity_admin, id)
+	: SystemObject(entity_admin, id), m_render_system(entity_admin, id)
 {
-	m_system.Each([this](const EntityID entity, Object& object, LocalTransform& local_transform, Transform& transform, Sprite& sprite)
+	m_render_system.Each([this](const EntityID entity, Object& object, Transform& transform, Sprite& sprite)
 		{
-			DrawObject(object, sprite, transform.GetIsRoot() ? 
-				local_transform.GetTransform() : transform.GetTransform(), sprite.GetDepth());
+			DrawObject(object, sprite, transform.GetTransform(), sprite.GetDepth());
 		});
 }
 
@@ -56,6 +55,7 @@ void RenderSystem::PreUpdate()
 }
 void RenderSystem::Update()
 {
+	m_entity_admin->RunSystems(LYR_CULLING);
 	m_entity_admin->RunSystems(GetID());
 }
 void RenderSystem::PostUpdate()

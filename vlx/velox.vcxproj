@@ -157,6 +157,7 @@
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
+    <ClInclude Include="include\Velox\Components\QTElement.hpp" />
     <ClInclude Include="include\Velox\Components\Relation.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
     <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
+    <ClInclude Include="include\Velox\World\Systems\CullingSystem.h" />
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\Graphics\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
@@ -233,12 +235,12 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Algorithms\LQuadTree.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\World\SystemObject.cpp" />
+    <ClCompile Include="src\World\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\World\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Components\Relation.cpp" />

@@ -25,6 +25,7 @@ World::World(const std::string_view name) :
 	AddSystem<ObjectSystem>(m_entity_admin,		LYR_OBJECTS);
 	AddSystem<RelationSystem>(m_entity_admin,	LYR_NONE);
 	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
+	AddSystem<CullingSystem>(m_entity_admin, 	LYR_CULLING, m_camera);
 	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
 	AddSystem<RenderSystem>(m_entity_admin,		LYR_RENDERING);
 	AddSystem<gui::GUISystem>(m_entity_admin,	LYR_GUI, m_camera, m_controls);

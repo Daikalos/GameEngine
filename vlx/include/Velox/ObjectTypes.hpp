@@ -8,6 +8,7 @@
 #include "Components/Relation.h"
 #include "Components/Sprite.h"
 #include "Components/Velocity.h"
+#include "Components/QTElement.hpp"
 
 #include "Graphics/GUI/Container.h"
 #include "Graphics/GUI/Button.h"
@@ -19,8 +20,8 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Velocity, gui::Container, gui::Button, gui::Label>;
-	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
+	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Velocity, gui::Container, gui::Button, gui::Label, QTElement<Object*>>;
+	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, QTElement<Object*>>;
 
 	namespace gui
 	{

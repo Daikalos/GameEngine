@@ -35,7 +35,7 @@
     <ClCompile Include="src\World\SystemObject.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
-    <ClCompile Include="src\Algorithms\LQuadTree.cpp" />
+    <ClCompile Include="src\World\Systems\CullingSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -117,6 +117,8 @@
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
     <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
+    <ClInclude Include="include\Velox\Components\QTElement.hpp" />
+    <ClInclude Include="include\Velox\World\Systems\CullingSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

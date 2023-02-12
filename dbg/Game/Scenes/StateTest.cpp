@@ -84,7 +84,6 @@ void StateTest::OnCreated()
 		{
 			local_transform.Move(velocity * time.GetDT());
 		});
-
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)

@@ -6,6 +6,9 @@
 #include <Velox/Components/Sprite.h>
 #include <Velox/Components/LocalTransform.h>
 #include <Velox/Components/Transform.h>
+#include <Velox/Components/QTElement.hpp>
+
+#include <Velox/Algorithms/LQuadTree.hpp>
 
 #include <Velox/Graphics/SpriteBatch.h>
 
@@ -20,7 +23,7 @@ namespace vlx
 	class VELOX_API RenderSystem : public SystemObject
 	{
 	private:
-		using System = System<Object, LocalTransform, Transform, Sprite>;
+		using RenderSys = System<Object, Transform, Sprite>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, const LayerType id);
@@ -50,7 +53,7 @@ namespace vlx
 		void DrawObject(const Object& object, const IBatchable& batchable, const sf::Transform& transform, const float depth = 0.0f);
 
 	private:
-		System			m_system;
+		RenderSys		m_render_system;
 
 		SpriteBatch		m_static_batch;
 		SpriteBatch		m_dynamic_batch;

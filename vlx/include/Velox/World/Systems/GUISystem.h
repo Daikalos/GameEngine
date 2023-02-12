@@ -17,7 +17,6 @@
 
 namespace vlx::gui
 {
-
 	class VELOX_API GUISystem : public SystemObject
 	{
 	public:

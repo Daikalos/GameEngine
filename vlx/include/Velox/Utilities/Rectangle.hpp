@@ -38,7 +38,7 @@ namespace vlx
 		constexpr Rect Union(const Rect& other) const;
 		constexpr std::optional<Rect> Intersection(const Rect& other) const;
 
-		constexpr bool Overlap(const Rect& other) const;
+		constexpr bool Overlaps(const Rect& other) const;
 
 		constexpr bool Contains(const sf::Vector2<T>& point) const;
 		constexpr bool Contains(const Rect& other) const;
@@ -168,7 +168,7 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr bool Rect<T>::Overlap(const Rect& other) const
+	inline constexpr bool Rect<T>::Overlaps(const Rect& other) const
 	{
 		const auto min = [](T a, T b) { return (a < b) ? a : b; };
 		const auto max = [](T a, T b) { return (a < b) ? b : a; };

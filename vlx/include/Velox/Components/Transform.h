@@ -1,6 +1,7 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Transform.hpp>
 
 #include <Velox/ECS/IComponent.h>
 #include <Velox/Utilities.hpp>
@@ -19,7 +20,6 @@ namespace vlx
 		NODISC const sf::Vector2f&	GetPosition() const;
 		NODISC const sf::Vector2f&	GetScale() const;
 		NODISC const sf::Angle&		GetRotation() const;
-		NODISC bool					GetIsRoot() const noexcept;
 
 	private:
 		mutable sf::Vector2f	m_position;
@@ -34,7 +34,6 @@ namespace vlx
 		mutable bool			m_update_rotation		{true};
 		mutable bool			m_update_inverse		{true};
 		mutable bool			m_dirty					{true};
-		mutable bool			m_root					{false};
 
 		friend class TransformSystem;
 	};

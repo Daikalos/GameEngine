@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <variant>
 
 #include <Velox/Utilities/Concepts.h>
 
@@ -85,7 +86,7 @@ namespace vlx
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::size() const -> size_type
+	inline constexpr auto FreeVector<T>::size() const noexcept -> size_type
 	{
 		return static_cast<size_type>(m_data.size());
 	}
@@ -121,19 +122,19 @@ namespace vlx
 	template<class T>
 	inline constexpr auto FreeVector<T>::insert(const T& element) -> size_type
 	{
-		return Emplace(element);
+		return emplace(element);
 	}
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::insert(T&& element) -> size_type
 	{
-		return Emplace(std::move(element));
+		return emplace(std::move(element));
 	}
 
 	template<class T>
 	inline constexpr void FreeVector<T>::erase(const size_type n)
 	{
-		assert(n >= 0 && n < Range());
+		assert(n >= 0 && n < size());
 		m_data[n].next = m_first_free;
 		m_first_free = n;
 	}

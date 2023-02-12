@@ -447,11 +447,11 @@ namespace vlx
 		if (m_size == 0) // nothing to erase
 			return end();
 
-		auto pos = it - cbegin();
+		size_type pos = static_cast<size_type>(it - cbegin());
 
 		if (m_size <= N)
 		{
-			for (auto i = pos; i < (int)m_size - 1; ++i)
+			for (auto i = pos; i < m_size - 1; ++i)
 				m_stack[i] = std::move(m_stack[i + 1]);
 
 			--m_size;
@@ -474,11 +474,11 @@ namespace vlx
 	template<class T, std::size_t N, class Alloc>
 	inline constexpr auto SmallVector<T, N, Alloc>::insert(const const_iterator it, const_reference value) -> iterator
 	{
-		auto pos = it - cbegin();
+		size_type pos = static_cast<size_type>(it - cbegin());
 
 		if (m_size < N)
 		{
-			for (auto i = (int)m_size - 1; i >= pos; --i)
+			for (auto i = (int)m_size - 1; i >= (int)pos; --i)
 				m_stack[i + 1] = std::move(m_stack[i]);
 
 			m_stack[pos] = value;

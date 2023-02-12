@@ -21,6 +21,7 @@
 #include "Systems/RelationSystem.h"
 #include "Systems/TransformSystem.h"
 #include "Systems/GUISystem.h"
+#include "Systems/CullingSystem.h"
 
 #include "EngineBinds.h"
 
@@ -41,36 +42,36 @@ namespace vlx
 		VELOX_API World(const std::string_view name);
 
 	public:
-		VELOX_API [[nodiscard]] const ControlMap& GetControls() const noexcept;
-		VELOX_API [[nodiscard]] ControlMap& GetControls() noexcept;
+		VELOX_API NODISC const ControlMap& GetControls() const noexcept;
+		VELOX_API NODISC ControlMap& GetControls() noexcept;
 
-		VELOX_API [[nodiscard]] const Window& GetWindow() const noexcept;
-		VELOX_API [[nodiscard]] Window& GetWindow() noexcept;
+		VELOX_API NODISC const Window& GetWindow() const noexcept;
+		VELOX_API NODISC Window& GetWindow() noexcept;
 
-		VELOX_API [[nodiscard]] const Camera& GetCamera() const noexcept;
-		VELOX_API [[nodiscard]] Camera& GetCamera() noexcept;
+		VELOX_API NODISC const Camera& GetCamera() const noexcept;
+		VELOX_API NODISC Camera& GetCamera() noexcept;
 
-		VELOX_API [[nodiscard]] const TextureHolder& GetTextureHolder() const noexcept;
-		VELOX_API [[nodiscard]] TextureHolder& GetTextureHolder() noexcept;
+		VELOX_API NODISC const TextureHolder& GetTextureHolder() const noexcept;
+		VELOX_API NODISC TextureHolder& GetTextureHolder() noexcept;
 
-		VELOX_API [[nodiscard]] const FontHolder& GetFontHolder() const noexcept;
-		VELOX_API [[nodiscard]] FontHolder& GetFontHolder() noexcept;
+		VELOX_API NODISC const FontHolder& GetFontHolder() const noexcept;
+		VELOX_API NODISC FontHolder& GetFontHolder() noexcept;
 
-		VELOX_API [[nodiscard]] const Time& GetTime() const noexcept;
-		VELOX_API [[nodiscard]] Time& GetTime() noexcept;
+		VELOX_API NODISC const Time& GetTime() const noexcept;
+		VELOX_API NODISC Time& GetTime() noexcept;
 
-		VELOX_API [[nodiscard]] const StateStack& GetStateStack() const noexcept;
-		VELOX_API [[nodiscard]] StateStack& GetStateStack() noexcept;
+		VELOX_API NODISC const StateStack& GetStateStack() const noexcept;
+		VELOX_API NODISC StateStack& GetStateStack() noexcept;
 
-		VELOX_API [[nodiscard]] const EntityAdmin& GetEntityAdmin() const noexcept;
-		VELOX_API [[nodiscard]] EntityAdmin& GetEntityAdmin() noexcept;
+		VELOX_API NODISC const EntityAdmin& GetEntityAdmin() const noexcept;
+		VELOX_API NODISC EntityAdmin& GetEntityAdmin() noexcept;
 
 	public:
 		template<std::derived_from<SystemObject> S>
-		[[nodiscard]] const S& GetSystem() const;
+		NODISC const S& GetSystem() const;
 
 		template<std::derived_from<SystemObject> S>
-		[[nodiscard]] S& GetSystem();
+		NODISC S& GetSystem();
 
 		template<std::derived_from<SystemObject> S, typename... Args>
 		std::optional<S*> AddSystem(Args&&... args) requires std::constructible_from<S, Args...>;
