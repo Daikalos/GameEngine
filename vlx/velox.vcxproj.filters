@@ -119,6 +119,7 @@
     <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
     <ClInclude Include="include\Velox\Components\QTElement.hpp" />
     <ClInclude Include="include\Velox\World\Systems\CullingSystem.h" />
+    <ClInclude Include="include\Velox\Utilities\PolicySelect.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

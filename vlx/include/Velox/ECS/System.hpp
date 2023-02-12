@@ -5,6 +5,7 @@
 #include <unordered_set>
 
 #include <Velox/Utilities.hpp>
+#include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"
 #include "Archetype.hpp"
@@ -68,13 +69,13 @@ namespace vlx
 		ArchetypeID GetIDKey() const override;
 		const ComponentIDs& GetArchKey() const override;
 
-		[[nodiscard]] float GetPriority() const noexcept override;
+		NODISC float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
 
-		[[nodiscard]] constexpr bool IsRunningParallel() const noexcept override;
+		NODISC constexpr bool IsRunningParallel() const noexcept override;
 		void RunParallel(const bool flag) noexcept override;
 
-		const Archetype* GetCurrentArchetype() const;
+		const Archetype* GetActiveArchetype() const;
 
 	public:
 		void All(AllFunc&& func);
@@ -154,7 +155,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline const Archetype* System<Cs...>::GetCurrentArchetype() const
+	inline const Archetype* System<Cs...>::GetActiveArchetype() const
 	{
 		return m_archetype;
 	}

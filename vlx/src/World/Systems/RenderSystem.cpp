@@ -55,7 +55,6 @@ void RenderSystem::PreUpdate()
 }
 void RenderSystem::Update()
 {
-	m_entity_admin->RunSystems(LYR_CULLING);
 	m_entity_admin->RunSystems(GetID());
 }
 void RenderSystem::PostUpdate()

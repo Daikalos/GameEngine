@@ -49,7 +49,6 @@ namespace vlx
 		auto CheckCache(EntityID entity_id) const -> TransformSet&;
 
 	private:
-		LocalSystem				m_local_system;
 		LocalSystem				m_dirty_system;
 		GlobalSystem			m_dirty_children_system;
 		GlobalSystem			m_global_system;

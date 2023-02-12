@@ -4,20 +4,10 @@ using namespace vlx;
 
 TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemObject(entity_admin, id), 
-	m_local_system(entity_admin, id),
 	m_dirty_system(entity_admin, id),
 	m_dirty_children_system(entity_admin, id),
 	m_global_system(entity_admin, id)
 {
-	m_local_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
-		{
-			if (local_transform.m_dirty)
-			{
-				UpdateToLocal(local_transform, transform);
-				local_transform.m_dirty = false;
-			}
-		});
-
 	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
 		{
 			if (local_transform.m_dirty) // if local is dirty, so is global transform
@@ -38,9 +28,6 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			if (transform.m_dirty)
 				UpdateTransforms(local_transform, transform, relation.GetParent());
 		});
-
-	m_local_system.Exclude<Relation>();	// runs on any entity that does not have a parent or child
-	m_local_system.RunParallel(true);	// allow multiple archetypes to run simultaneously on this system
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
