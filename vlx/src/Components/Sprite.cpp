@@ -100,7 +100,7 @@ void Sprite::SetColor(const sf::Color& color)
 }
 void Sprite::SetOpacity(const float opacity)
 {
-	const sf::Uint8 alpha = sf::Uint8(opacity * UINT8_MAX);
+	const auto alpha = sf::Uint8(opacity * UINT8_MAX);
 	for (sf::Vertex& vertex : m_vertices)
 		vertex.color.a = alpha;
 }

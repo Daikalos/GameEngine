@@ -22,9 +22,9 @@ namespace vlx
 	public:
 		virtual ~ISystem() = default;
 
-		bool operator>(const ISystem& rhs) const 
+		auto operator<=>(const ISystem& rhs) const 
 		{
-			return GetPriority() > rhs.GetPriority();
+			return GetPriority() <=> rhs.GetPriority();
 		}
 
 	public:
@@ -34,11 +34,11 @@ namespace vlx
 		virtual float GetPriority() const noexcept = 0;
 		virtual void SetPriority(const float val) = 0;
 
-		virtual constexpr bool IsRunningParallel() const noexcept = 0;
+		virtual bool IsRunningParallel() const noexcept = 0;
 		virtual void RunParallel(const bool flag) noexcept = 0;
 
 	protected:
-		virtual void DoAction(Archetype* archetype) const = 0;
+		virtual void DoAction(const Archetype* const archetype) const = 0;
 	};
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -53,10 +53,10 @@ namespace vlx
 		using ArchetypeCache = std::unordered_set<ArchetypeID>;
 
 	public:
-		inline static constexpr ArrComponentIDs<Cs...> SystemIDs = 
+		static constexpr ArrComponentIDs<Cs...> SystemIDs = 
 			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()... }); // another stupid intellisense error
 
-		inline static constexpr ArchetypeID SystemID =
+		static constexpr ArchetypeID SystemID =
 			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
 
 	public:
@@ -72,7 +72,7 @@ namespace vlx
 		NODISC float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
 
-		NODISC constexpr bool IsRunningParallel() const noexcept override;
+		NODISC bool IsRunningParallel() const noexcept override;
 		void RunParallel(const bool flag) noexcept override;
 
 		const Archetype* ActiveArchetype() const;
@@ -89,7 +89,7 @@ namespace vlx
 		void Exclude();
 
 	protected:
-		virtual void DoAction(Archetype* archetype) const override;
+		virtual void DoAction(const Archetype* const archetype) const override;
 
 		template<std::size_t Index = 0, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 		void DoAction(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const;
@@ -144,7 +144,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline constexpr bool System<Cs...>::IsRunningParallel() const noexcept
+	inline bool System<Cs...>::IsRunningParallel() const noexcept
 	{
 		return m_run_parallel;
 	}
@@ -178,13 +178,13 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::All(AllFunc&& func)
 	{
-		m_all_func = std::forward<AllFunc>(func);
+		m_all_func = std::move(func);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::Each(EachFunc&& func)
 	{
-		m_each_func = std::forward<EachFunc>(func);
+		m_each_func = std::move(func);
 	}
 
 	template<class... Cs1> requires IsComponents<Cs1...>
@@ -195,7 +195,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::DoAction(Archetype* archetype) const
+	inline void System<Cs...>::DoAction(const Archetype* const archetype) const
 	{
 		if (IsArchetypeExcluded(archetype)) // check that it is not excluded
 			return;
@@ -249,8 +249,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	bool System<Cs...>::IsArchetypeExcluded(const Archetype* archetype) const
 	{
-		const auto it = m_excluded_archetypes.find(archetype->id);
-		if (it != m_excluded_archetypes.end())
+		if (const auto ait = m_excluded_archetypes.find(archetype->id); ait != m_excluded_archetypes.end())
 			return true;
 
 		for (const ComponentTypeID component_id : m_exclusion)

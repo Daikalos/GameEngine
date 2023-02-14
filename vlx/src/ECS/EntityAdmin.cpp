@@ -2,11 +2,9 @@
 
 using namespace vlx;
 
-EntityAdmin::EntityAdmin() : m_entity_id_counter(1) { }
-
 EntityAdmin::~EntityAdmin()
 {
-	for (auto& archetype : m_archetypes)
+	for (const auto& archetype : m_archetypes)
 	{
 		for (std::size_t i = 0; i < archetype->type.size(); ++i)
 		{
@@ -59,10 +57,10 @@ auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
 {
 	assert(entity_id != NULL_ENTITY);
 
-	auto insert = m_entity_archetype_map.try_emplace(entity_id, Record());
-	assert(insert.second);
+	auto [it, success] = m_entity_archetype_map.try_emplace(entity_id, Record());
+	assert(success);
 
-	return insert.first->second;
+	return it->second;
 }
 void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
 {
@@ -82,7 +80,7 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 		if (system->IsRunningParallel())
 		{
 			std::for_each(std::execution::par_unseq, archtypes.begin(), archtypes.end(),
-				[&system](Archetype* archetype)
+				[&system](const Archetype* const archetype)
 				{
 					system->DoAction(archetype);
 				});
@@ -90,7 +88,7 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 		else
 		{
 			std::for_each(std::execution::unseq, archtypes.begin(), archtypes.end(),
-				[&system](Archetype* archetype)
+				[&system](const Archetype* const archetype)
 				{
 					system->DoAction(archetype);
 				});
@@ -104,7 +102,7 @@ void EntityAdmin::SortSystems(const LayerType layer)
 	if (it == m_systems.end())
 		return;
 
-	std::stable_sort(it->second.begin(), it->second.end(),
+	std::ranges::stable_sort(it->second.begin(), it->second.end(),
 		[](const ISystem* lhs, const ISystem* rhs)
 		{
 			return *lhs > *rhs;
@@ -134,32 +132,38 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 		return true;
 	}
 
-	EntityID last_entity_id = archetype->entities.back();
-	Record& last_record		= m_entity_archetype_map[last_entity_id];
+	const EntityID last_entity_id = archetype->entities.back();
 
-	const bool same_entity = (last_entity_id == entity_id);
-
-	const ComponentIDs& archetype_id = archetype->type;
-	for (std::size_t i = 0; i < archetype_id.size(); ++i) // we iterate over both archetypes
+	if (last_entity_id != entity_id)
 	{
-		const ComponentTypeID component_id	= archetype_id[i];
-		const IComponentAlloc* component	= m_component_map[component_id].get();
-		const std::size_t& component_size	= component->GetSize();
+		Record& last_record = m_entity_archetype_map[last_entity_id];
 
-		component->DestroyData(*this, entity_id, &archetype->component_data[i][record.index * component_size]);
-
-		if (!same_entity)
+		for (std::size_t i = 0; i < archetype->type.size(); ++i)
 		{
+			const ComponentTypeID component_id	= archetype->type[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
+
+			component->DestroyData(*this, entity_id, &archetype->component_data[i][record.index * component_size]);
+
 			component->MoveDestroyData(*this, last_entity_id,
 				&archetype->component_data[i][last_record.index * component_size],
 				&archetype->component_data[i][record.index * component_size]);
 		}
-	}
 
-	if (!same_entity)
-	{
 		archetype->entities[record.index] = archetype->entities.back(); // now swap ids with last
 		last_record.index = record.index;
+	}
+	else
+	{
+		for (std::size_t i = 0; i < archetype->type.size(); ++i)
+		{
+			const ComponentTypeID component_id	= archetype->type[i];
+			const IComponentAlloc* component	= m_component_map[component_id].get();
+			const std::size_t& component_size	= component->GetSize();
+
+			component->DestroyData(*this, entity_id, &archetype->component_data[i][record.index * component_size]);
+		}
 	}
 
 	archetype->entities.pop_back();
@@ -225,47 +229,15 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 		else new_archetype = ait->second.add;
 
 		const EntityID last_entity_id = old_archetype->entities.back();
-		Record& last_record = m_entity_archetype_map[last_entity_id];
 
-		const bool same_entity = (last_entity_id == entity_id);
-
-		for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i) // move all the data from old to new and perform swaps at the same time
+		if (last_entity_id != entity_id)
 		{
-			const auto component_id		= new_archetype->type[i];
-			const auto component		= m_component_map[component_id].get();
-			const auto component_size	= component->GetSize();
-
-			const auto current_size	= new_archetype->entities.size() * component_size;
-			const auto new_size		= current_size + component_size;
-
-			if (new_size > new_archetype->component_data_size[i])
-				MakeRoom(new_archetype, component, component_size, i);
-
-			if (component_id != old_archetype->type[j])
-			{
-				component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
-			}
-			else
-			{
-				component->MoveDestroyData(*this, entity_id,
-					&old_archetype->component_data[j][record.index * component_size],
-					&new_archetype->component_data[i][current_size]);
-
-				if (!same_entity)
-				{
-					component->MoveDestroyData(*this, last_entity_id,
-						&old_archetype->component_data[j][last_record.index * component_size],
-						&old_archetype->component_data[j][record.index * component_size]); // move data to last
-				}
-
-				++j;
-			}
+			Record& last_record = m_entity_archetype_map[last_entity_id];
+			ConstructSwap(new_archetype, old_archetype, entity_id, record, last_entity_id, last_record);
 		}
-
-		if (!same_entity) // move back to current
+		else
 		{
-			old_archetype->entities[record.index] = old_archetype->entities.back();
-			last_record.index = record.index;
+			Construct(new_archetype, old_archetype, entity_id, record);
 		}
 
 		old_archetype->entities.pop_back(); // by only removing the last entity, it means that when the next component is added, it will overwrite the previous
@@ -311,71 +283,35 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 
 	Archetype* new_archetype = nullptr;
 
-	const auto ait = old_archetype->edges.find(archetype_id);
-	if (ait == old_archetype->edges.end())
+	if (auto ait = old_archetype->edges.find(archetype_id); ait == old_archetype->edges.end())
 	{
 		ComponentIDs new_archetype_id = old_archetype->type; // create copy
 
 		bool found = false;
-		for (const ComponentTypeID component_id : component_ids) // determine valid components
+		for (const ComponentTypeID component_id : component_ids) // erase while keeping the vector sorted
 		{
-			if (cu::EraseSorted(new_archetype_id, component_id)) // erase while keeping the vector sorted (this should ensure that the archetype is always sorted)
+			if (cu::EraseSorted(new_archetype_id, component_id))
 				found = true;
 		}
 
-		if (!found) // unable to add any component
+		if (!found) // unable to remove any component
 			return false;
 
 		new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
 		old_archetype->edges[archetype_id].remove = new_archetype;
-
-		assert(new_archetype_id != old_archetype->type);
-		assert(new_archetype_id == new_archetype->type);
 	}
 	else new_archetype = ait->second.remove;
 
 	const EntityID last_entity_id = old_archetype->entities.back();
 	Record& last_record = m_entity_archetype_map[last_entity_id];
 
-	const bool same_entity = (last_entity_id == entity_id);
-
-	for (std::size_t i = 0, j = 0; i < old_archetype->type.size(); ++i) // we iterate over both archetypes
+	if (last_entity_id != entity_id)
 	{
-		const auto component_id		= old_archetype->type[i];
-		const auto component		= m_component_map[component_id].get();
-		const auto component_size	= component->GetSize();
-
-		if (component_id != new_archetype->type[j]) // this is the component that should be destroyed
-		{
-			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
-		}
-		else
-		{
-			const auto current_size = new_archetype->entities.size() * component_size;
-			const auto new_size		= current_size + component_size;
-
-			if (new_size > new_archetype->component_data_size[j])
-				MakeRoom(new_archetype, component, component_size, j); // make room to fit data
-
-			component->MoveDestroyData(*this, entity_id,
-				&old_archetype->component_data[i][record.index * component_size],
-				&new_archetype->component_data[j][current_size]); // move all the valid data from old to new
-
-			++j;
-		}
-
-		if (!same_entity) // no point of swapping data with itself
-		{
-			component->MoveDestroyData(*this, last_entity_id,
-				&old_archetype->component_data[i][last_record.index * component_size],
-				&old_archetype->component_data[i][record.index * component_size]); // move data to last
-		}
+		DestructSwap(old_archetype, new_archetype, entity_id, record, last_entity_id, last_record);
 	}
-
-	if (!same_entity)
+	else
 	{
-		old_archetype->entities[record.index] = old_archetype->entities.back(); // now swap ids
-		last_record.index = record.index;
+		Destruct(old_archetype, new_archetype, entity_id, record);
 	}
 
 	old_archetype->entities.pop_back();
@@ -429,38 +365,8 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 
 void EntityAdmin::Shrink(bool extensive)
 {
-	// remove any dangling archetypes with no entities
-	m_archetypes.erase(std::remove_if(m_archetypes.begin(), m_archetypes.end(),
-		[this](const ArchetypePtr& archetype)
-		{
-			if (archetype->entities.empty())
-			{
-				m_archetype_map.erase(archetype->id);
-				return true;
-			}
-
-			return false;
-		}), m_archetypes.end());
-
-	// remove any archetypes that holds no components (cant be used anyways), should not exist in the first place
-	m_archetypes.erase(std::remove_if(m_archetypes.begin(), m_archetypes.end(),
-		[this](const ArchetypePtr& archetype)
-		{
-			if (archetype->type.empty())
-			{
-				m_archetype_map.erase(archetype->id);
-
-				for (const EntityID entity_id : archetype->entities)
-				{
-					m_entity_archetype_map.erase(entity_id);
-					m_reusable_entity_ids.push(entity_id);
-				}
-
-				return true;
-			}
-
-			return false;
-		}), m_archetypes.end());
+	ClearEmptyEntityArchetypes();
+	ClearEmptyTypeArchetypes();
 
 	m_archetype_cache.clear();
 
@@ -473,17 +379,18 @@ void EntityAdmin::Shrink(bool extensive)
 
 			for (std::size_t j = 0; j < archetype_id.size(); ++j)
 			{
-				const ComponentTypeID& component_id = archetype->type[i];
-				const IComponentAlloc* component = m_component_map[component_id].get();
-				const auto& component_size = component->GetSize();
+				const auto component_id		= archetype->type[j];
+				const auto component		= m_component_map[component_id].get();
+				const auto component_size	= component->GetSize();
 
-				const auto current_size = std::uint32_t(archetype->entities.size()) * component_size;
+				const auto current_size		= archetype->entities.size() * component_size;
 				const auto current_capacity = archetype->component_data_size[j];
 
 				if (current_capacity > current_size)
 				{
 					archetype->component_data_size[j] = current_size;
-					ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
+
+					auto new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
 
 					for (std::size_t k = 0; k < archetype->entities.size(); ++k)
 					{
@@ -543,6 +450,7 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 		}
 	}
 	break;
+	default: break;
 	}
 }
 
@@ -593,12 +501,192 @@ void EntityAdmin::UpdateComponentRef(const EntityID entity_id, const ComponentTy
 	}
 }
 
-void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i)
+void EntityAdmin::ClearEmptyEntityArchetypes()
+{
+	const auto [first, last] = std::ranges::remove_if(m_archetypes.begin(), m_archetypes.end(),
+		[this](const ArchetypePtr& archetype)
+		{
+			if (archetype->entities.empty())
+			{
+				m_archetype_map.erase(archetype->id);
+				return true;
+			}
+
+			return false;
+		});
+
+	m_archetypes.erase(first, last); // remove any dangling archetypes with no entities
+}
+void EntityAdmin::ClearEmptyTypeArchetypes()
+{
+	const auto [first, last] = std::ranges::remove_if(m_archetypes.begin(), m_archetypes.end(),
+		[this](const ArchetypePtr& archetype)
+		{
+			if (archetype->type.empty())
+			{
+				m_archetype_map.erase(archetype->id);
+
+				for (const EntityID entity_id : archetype->entities)
+				{
+					m_entity_archetype_map.erase(entity_id);
+					m_reusable_entity_ids.push(entity_id);
+				}
+
+				return true;
+			}
+
+			return false;
+		});
+
+	m_archetypes.erase(first, last); // remove any archetypes that holds no components (cant be used anyways), should not exist in the first place
+}
+
+void EntityAdmin::ConstructSwap(
+	Archetype* new_archetype, Archetype* old_archetype,
+	const EntityID entity_id, const Record& record,
+	const EntityID last_entity_id, Record& last_record) const
+{
+	for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i)
+	{
+		const auto component_id = new_archetype->type[i];
+		const auto component = m_component_map.at(component_id).get();
+		const auto component_size = component->GetSize();
+
+		const auto current_size = new_archetype->entities.size() * component_size;
+		const auto new_size = current_size + component_size;
+
+		if (new_size > new_archetype->component_data_size[i])
+			MakeRoom(new_archetype, component, component_size, i);
+
+		if (component_id != old_archetype->type[j])
+		{
+			component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
+		}
+		else
+		{
+			component->MoveDestroyData(*this, entity_id,
+				&old_archetype->component_data[j][record.index * component_size],
+				&new_archetype->component_data[i][current_size]);
+
+			component->MoveDestroyData(*this, last_entity_id,
+				&old_archetype->component_data[j][last_record.index * component_size],
+				&old_archetype->component_data[j][record.index * component_size]); // move data from last to current
+
+			++j;
+		}
+	}
+
+	old_archetype->entities[record.index] = old_archetype->entities.back();
+	last_record.index = record.index;
+}
+
+void EntityAdmin::Construct(
+	Archetype* new_archetype, Archetype* old_archetype, 
+	const EntityID entity_id, const Record& record) const
+{
+	for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i)
+	{
+		const auto component_id		= new_archetype->type[i];
+		const auto component		= m_component_map.at(component_id).get();
+		const auto component_size	= component->GetSize();
+
+		const auto current_size		= new_archetype->entities.size() * component_size;
+		const auto new_size			= current_size + component_size;
+
+		if (new_size > new_archetype->component_data_size[i])
+			MakeRoom(new_archetype, component, component_size, i);
+
+		if (component_id != old_archetype->type[j])
+		{
+			component->ConstructData(*this, entity_id, &new_archetype->component_data[i][current_size]);
+		}
+		else
+		{
+			component->MoveDestroyData(*this, entity_id,
+				&old_archetype->component_data[j][record.index * component_size],
+				&new_archetype->component_data[i][current_size]);
+
+			++j;
+		}
+	}
+}
+
+void EntityAdmin::DestructSwap(
+	Archetype* old_archetype, Archetype* new_archetype, 
+	const EntityID entity_id, const Record& record,
+	const EntityID last_entity_id, Record& last_record) const
+{
+	for (std::size_t i = 0, j = 0; i < old_archetype->type.size(); ++i) // we iterate over both archetypes
+	{
+		const auto component_id		= old_archetype->type[i];
+		const auto component		= m_component_map.at(component_id).get();
+		const auto component_size	= component->GetSize();
+
+		if (component_id != new_archetype->type[j]) // this is the component that should be destroyed
+		{
+			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
+		}
+		else
+		{
+			const auto current_size = new_archetype->entities.size() * component_size;
+			const auto new_size = current_size + component_size;
+
+			if (new_size > new_archetype->component_data_size[j])
+				MakeRoom(new_archetype, component, component_size, j); // make room to fit data
+
+			component->MoveDestroyData(*this, entity_id,
+				&old_archetype->component_data[i][record.index * component_size],
+				&new_archetype->component_data[j][current_size]); // move all the valid data from old to new
+
+			++j;
+		}
+
+		component->MoveDestroyData(*this, last_entity_id,
+			&old_archetype->component_data[i][last_record.index * component_size],
+			&old_archetype->component_data[i][record.index * component_size]); // move data to last
+	}
+
+	old_archetype->entities[record.index] = old_archetype->entities.back(); // now swap ids
+	last_record.index = record.index;
+}
+
+void EntityAdmin::Destruct(
+	Archetype* old_archetype, Archetype* new_archetype, 
+	const EntityID entity_id, const Record& record) const
+{
+	for (std::size_t i = 0, j = 0; i < old_archetype->type.size(); ++i) // we iterate over both archetypes
+	{
+		const auto component_id		= old_archetype->type[i];
+		const auto component		= m_component_map.at(component_id).get();
+		const auto component_size	= component->GetSize();
+
+		if (component_id != new_archetype->type[j]) // this is the component that should be destroyed
+		{
+			component->DestroyData(*this, entity_id, &old_archetype->component_data[i][record.index * component_size]);
+		}
+		else
+		{
+			const auto current_size = new_archetype->entities.size() * component_size;
+			const auto new_size = current_size + component_size;
+
+			if (new_size > new_archetype->component_data_size[j])
+				MakeRoom(new_archetype, component, component_size, j); // make room to fit data
+
+			component->MoveDestroyData(*this, entity_id,
+				&old_archetype->component_data[i][record.index * component_size],
+				&new_archetype->component_data[j][current_size]); // move all the valid data from old to new
+
+			++j;
+		}
+	}
+}
+
+void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i) const
 {
 	archetype->component_data_size[i] *= 2;
 	archetype->component_data_size[i] += data_size;
 
-	ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
+	auto new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 
 	for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 	{

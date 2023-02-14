@@ -85,7 +85,7 @@ namespace vlx
 
 	template<std::equality_comparable T>
 	inline LQuadTree<T>::LQuadTree(const RectFloat& root_rect, int max_elements, int max_depth)
-		: m_root_rect(root_rect), m_free_node(-1), m_max_elements(max_elements), m_max_depth(max_depth)
+		: m_root_rect(root_rect), m_max_elements(max_elements), m_max_depth(max_depth)
 	{
 		m_nodes.emplace();
 	}

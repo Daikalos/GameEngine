@@ -22,7 +22,7 @@ namespace vlx
 		VELOX_API Entity& operator=(Entity&& rhs) noexcept;
 
 	public:
-		VELOX_API constexpr operator EntityID() const;
+		VELOX_API constexpr operator EntityID() const; // allow implicit conversion
 		VELOX_API NODISC constexpr EntityID GetID() const noexcept;
 
 	public:
@@ -94,9 +94,9 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void Entity::AddComponents(std::tuple<Cs...>&& tuple)
+	inline void Entity::AddComponents(UNUSED std::tuple<Cs...>&& tuple)
 	{
-		m_entity_admin->AddComponents(m_id, std::forward<std::tuple<Cs...>>(tuple));
+		m_entity_admin->AddComponents<Cs...>(m_id);
 	}
 
 	template<IsComponent C>

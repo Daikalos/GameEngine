@@ -3,7 +3,7 @@
 using namespace vlx;
 
 SpriteBatch::Triangle::Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d)
-	: vertices{ v0, v1, v2 }, texture(t), shader(s), depth(d) { }
+	: vertices{ std::move(v0), std::move(v1), std::move(v2) }, texture(t), shader(s), depth(d) { }
 
 void SpriteBatch::SetBatchMode(const BatchMode batch_mode)
 {
@@ -125,21 +125,21 @@ void SpriteBatch::SortTriangles() const
 	switch (m_batch_mode)
 	{
 	case BatchMode::BackToFront:
-		std::stable_sort(m_indices.begin(), m_indices.end(),
+		std::ranges::stable_sort(m_indices.begin(), m_indices.end(),
 			[this](const auto i0, const auto i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::FrontToBack:
-		std::stable_sort(m_indices.begin(), m_indices.end(),
+		std::ranges::stable_sort(m_indices.begin(), m_indices.end(),
 			[this](const auto i0, const auto i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::Texture:
-		std::stable_sort(m_indices.begin(), m_indices.end(),
+		std::ranges::stable_sort(m_indices.begin(), m_indices.end(),
 			[this](const auto i0, const auto i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);

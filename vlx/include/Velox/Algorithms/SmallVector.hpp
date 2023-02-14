@@ -21,8 +21,8 @@ namespace vlx
 		using reference			= T&;
 
 	public:
-		SmallIterator() noexcept : m_ptr(nullptr) {}
-		SmallIterator(pointer ptr) noexcept : m_ptr(ptr) {}
+		SmallIterator() noexcept = default;
+		explicit SmallIterator(pointer ptr) noexcept : m_ptr(ptr) {}
 
 		template<int DIR2> // able to convert non-const to const, but not the other way around
 		SmallIterator(const SmallIterator<value_type, DIR2>& rhs) noexcept : m_ptr(rhs.m_ptr) {};
@@ -104,7 +104,6 @@ namespace vlx
 		constexpr auto operator=(std::initializer_list<value_type> rhs) -> SmallVector&;
 
 		NODISC constexpr bool operator==(const SmallVector& rhs) const;
-		NODISC constexpr bool operator!=(const SmallVector& rhs) const;
 
 	public:
 		NODISC constexpr auto get_allocator() const noexcept -> allocator_type;
@@ -286,12 +285,6 @@ namespace vlx
 		}
 		
 		return (m_heap == rhs.m_heap);
-	}
-
-	template<class T, std::size_t N, class Alloc>
-	inline constexpr bool SmallVector<T, N, Alloc>::operator!=(const SmallVector& rhs) const
-	{
-		return !(*this == rhs);
 	}
 
 	template<class T, std::size_t N, class Alloc>

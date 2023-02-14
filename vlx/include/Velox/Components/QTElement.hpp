@@ -18,7 +18,7 @@ namespace vlx
 	{
 	public:
 		QTElement() = default;
-		QTElement(LQuadTree<T>* quad_tree);
+		explicit QTElement(LQuadTree<T>* quad_tree);
 
 		bool Insert(const T& item, const RectFloat& rect);
 		bool Erase();
@@ -37,7 +37,7 @@ namespace vlx
 
 	template<std::equality_comparable T>
 	inline QTElement<T>::QTElement(LQuadTree<T>* quad_tree)
-		: m_quad_tree(quad_tree), m_index(-1) {}
+		: m_quad_tree(quad_tree) {}
 
 	template<std::equality_comparable T>
 	inline bool QTElement<T>::Insert(const T& item, const RectFloat& rect)

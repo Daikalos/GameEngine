@@ -102,7 +102,7 @@ namespace vlx
 		friend struct ComponentAlloc;
 
 	public:
-		VELOX_API EntityAdmin();
+		EntityAdmin() = default;
 		VELOX_API ~EntityAdmin();
 
 	public: 
@@ -325,7 +325,7 @@ namespace vlx
 		Archetype* CreateArchetype(const T& component_ids, const ArchetypeID archetype_id);
 
 		template<IsContainer T>
-		NODISC const std::vector<Archetype*>& GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
+		NODISC std::span<const Archetype* const> GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
 
 		template<IsComponent C, class Comp>
 		bool SortComponents(Archetype* archetype, Comp&& comp);
@@ -377,11 +377,20 @@ namespace vlx
 		VELOX_API void EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const;
 		VELOX_API void UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, IComponent* new_component) const;
 
-		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i);
+		VELOX_API void ClearEmptyEntityArchetypes();
+		VELOX_API void ClearEmptyTypeArchetypes();
+
+		VELOX_API void ConstructSwap(Archetype* new_archetype, Archetype* old_archetype, const EntityID entity_id, const Record& record, const EntityID last_entity_id, Record& last_record) const;
+		VELOX_API void Construct(Archetype* new_archetype, Archetype* old_archetype, const EntityID entity_id, const Record& record) const;
+
+		VELOX_API void DestructSwap(Archetype* old_archetype, Archetype* new_archetype, const EntityID entity_id, const Record& record, const EntityID last_entity_id, Record& last_record) const;
+		VELOX_API void Destruct(Archetype* old_archetype, Archetype* new_archetype, const EntityID entity_id, const Record& record) const;
+
+		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i) const;
 
 	private:
-		EntityID				m_entity_id_counter;	// current id counter for entities
-		std::queue<EntityID>	m_reusable_entity_ids;	// reusable ids of entities that have been destroyed
+		EntityID				m_entity_id_counter {1};	// current id counter for entities
+		std::queue<EntityID>	m_reusable_entity_ids;		// reusable ids of entities that have been destroyed
 
 		SystemsArrayMap			m_systems;						// map layer to array of systems (layer allows for controlling the order of calls)
 		ArchetypesArray			m_archetypes;					// find matching archetype to update matching entities
@@ -420,7 +429,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::RegisterComponents(std::tuple<Cs...>&& tuple)
+	inline void EntityAdmin::RegisterComponents(UNUSED std::tuple<Cs...>&& tuple)
 	{
 		RegisterComponents<Cs...>();
 	}
@@ -460,55 +469,81 @@ namespace vlx
 			else new_archetype = ait->second.add;
 
 			const EntityID last_entity_id = old_archetype->entities.back();
-			Record& last_record = m_entity_archetype_map[last_entity_id];
-
 			assert(last_entity_id != NULL_ENTITY);
 
-			const bool same_entity = (last_entity_id == entity_id);
-
-			for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i) // move all the data from old to new and perform swaps at the same time
+			if (last_entity_id != entity_id) // not same, we'll swap last to current for faster adding
 			{
-				const auto component_id		= new_archetype->type[i];
-				const auto component		= m_component_map[component_id].get();
-				const auto component_size	= component->GetSize();
+				Record& last_record = m_entity_archetype_map[last_entity_id];
 
-				const auto current_size	= new_archetype->entities.size() * component_size;
-				const auto new_size		= current_size + component_size;
-
-				if (new_size > new_archetype->component_data_size[i])
-					MakeRoom(new_archetype, component, component_size, i);
-
-				if (component_id == add_component_id)
+				for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i) // move all the data from old to new and perform swaps at the same time
 				{
-					assert(add_component == nullptr); // should never happen twice
+					const auto component_id		= new_archetype->type[i];
+					const auto component		= m_component_map[component_id].get();
+					const auto component_size	= component->GetSize();
 
-					add_component = new(&new_archetype->component_data[i][current_size])
-						C(std::forward<Args>(args)...);
-				}
-				else
-				{
-					component->MoveDestroyData(*this, entity_id,
-						&old_archetype->component_data[j][record.index * component_size],
-						&new_archetype->component_data[i][current_size]);
+					const auto current_size		= new_archetype->entities.size() * component_size;
+					const auto new_size			= current_size + component_size;
 
-					if (!same_entity)
+					if (new_size > new_archetype->component_data_size[i])
+						MakeRoom(new_archetype, component, component_size, i);
+
+					if (component_id == add_component_id)
 					{
+						assert(add_component == nullptr); // should never happen twice
+
+						add_component = new(&new_archetype->component_data[i][current_size])
+							C(std::forward<Args>(args)...);
+					}
+					else
+					{
+						component->MoveDestroyData(*this, entity_id,
+							&old_archetype->component_data[j][record.index * component_size],
+							&new_archetype->component_data[i][current_size]);
+
 						component->MoveDestroyData(*this, last_entity_id,
 							&old_archetype->component_data[j][last_record.index * component_size],
-							&old_archetype->component_data[j][record.index * component_size]); // move data to last
-					}
+							&old_archetype->component_data[j][record.index * component_size]); // move data from last to current
 
-					++j;
+						++j;
+					}
+				}
+
+				old_archetype->entities[record.index] = old_archetype->entities.back();
+				last_record.index = record.index;
+			}
+			else // same, usually means that this entity is at the back, just perform normal moving
+			{
+				for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i) // move all the data from old to new and perform swaps at the same time
+				{
+					const auto component_id		= new_archetype->type[i];
+					const auto component		= m_component_map[component_id].get();
+					const auto component_size	= component->GetSize();
+
+					const auto current_size		= new_archetype->entities.size() * component_size;
+					const auto new_size			= current_size + component_size;
+
+					if (new_size > new_archetype->component_data_size[i])
+						MakeRoom(new_archetype, component, component_size, i);
+
+					if (component_id == add_component_id)
+					{
+						assert(add_component == nullptr); // should never happen twice
+
+						add_component = new(&new_archetype->component_data[i][current_size])
+							C(std::forward<Args>(args)...);
+					}
+					else
+					{
+						component->MoveDestroyData(*this, entity_id,
+							&old_archetype->component_data[j][record.index * component_size],
+							&new_archetype->component_data[i][current_size]);
+
+						++j;
+					}
 				}
 			}
 
 			assert(add_component != nullptr); // a new component should have been added
-
-			if (!same_entity) // move back to current
-			{
-				old_archetype->entities[record.index] = old_archetype->entities.back();
-				last_record.index = record.index;
-			}
 
 			old_archetype->entities.pop_back(); // by only removing the last entity, it means that when the next component is added, it will overwrite the previous
 		}
@@ -549,7 +584,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
+	inline void EntityAdmin::AddComponents(const EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
 	{
 		AddComponents<Cs...>(entity_id);
 	}
@@ -570,7 +605,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple)
+	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
 	{
 		return RemoveComponents<Cs...>(entity_id);
 	}
@@ -633,7 +668,7 @@ namespace vlx
 		const auto& arch_record = map.at(archetype->id);
 
 		const auto component = m_component_map.at(child_component_id).get();
-		const auto component_size	= component->GetSize();
+		const auto component_size = component->GetSize();
 
 		auto ptr = &archetype->component_data[arch_record.column][record.index * component_size];
 		B* base_component = reinterpret_cast<B*>(ptr + offset);	
@@ -799,7 +834,7 @@ namespace vlx
 
 		const auto& record = m_entity_archetype_map.at(entity_id);
 
-		(([this, &result]<class C, std::size_t N>(const Record& record) -> void
+		(([this, &result, &record]<class C, std::size_t N>() -> void
 		{
 			constexpr ComponentTypeID component_id = GetComponentID<C>();
 
@@ -808,7 +843,7 @@ namespace vlx
 
 			C* components = reinterpret_cast<C*>(&record.archetype->component_data[arch_record.column][0]);
 			std::get<N>(result) = &components[record.index];
-		}.operator()<Cs, traits::IndexInTuple<Cs, ComponentTypes>::value>(record)), ...);
+		}.operator()<Cs, traits::IndexInTuple<Cs, ComponentTypes>::value>()), ...);
 
 		return result;
 	}
@@ -916,7 +951,7 @@ namespace vlx
 
 			if (new_size > current_size) // only reserve if larger than current size
 			{
-				ComponentData new_data = std::make_unique<ByteArray>(new_size);
+				auto new_data = std::make_unique<ByteArray>(new_size);
 
 				for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 				{
@@ -948,7 +983,7 @@ namespace vlx
 	{
 		assert(cu::IsSorted(component_ids));
 
-		ArchetypePtr new_archetype = std::make_unique<Archetype>();
+		auto new_archetype = std::make_unique<Archetype>();
 
 		new_archetype->id	= archetype_id;
 		new_archetype->type = { component_ids.begin(), component_ids.end() };
@@ -987,7 +1022,7 @@ namespace vlx
 	}
 
 	template<IsContainer T>
-	inline const std::vector<Archetype*>& EntityAdmin::GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const
+	inline std::span<const Archetype* const> EntityAdmin::GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const
 	{
 		const auto it = m_archetype_cache.find(archetype_id);
 		if (it != m_archetype_cache.end())
@@ -996,11 +1031,11 @@ namespace vlx
 		std::vector<Archetype*> result;
 		for (const ArchetypePtr& archetype : m_archetypes)
 		{
-			if (std::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
+			if (std::ranges::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
 				result.push_back(archetype.get());
 		}
 
-		return m_archetype_cache.emplace(archetype_id, result).first->second;
+		return m_archetype_cache.try_emplace(archetype_id, result).first->second;
 	}
 
 	template<IsComponent C, class Comp>
@@ -1009,9 +1044,7 @@ namespace vlx
 		if (archetype == nullptr)
 			return false;
 
-		constexpr auto component_id = GetComponentID<C>();
-
-		const auto cit = m_component_archetypes_map.find(component_id);
+		const auto cit = m_component_archetypes_map.find(GetComponentID<C>());
 		if (cit == m_component_archetypes_map.end())
 			return false;
 
@@ -1026,7 +1059,7 @@ namespace vlx
 		std::vector<std::size_t> indices(archetype->entities.size());
 		std::iota(indices.begin(), indices.end(), 0);
 
-		std::stable_sort(indices.begin(), indices.end(),
+		std::ranges::stable_sort(indices.begin(), indices.end(),
 			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
 			{
 				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
@@ -1034,9 +1067,9 @@ namespace vlx
 
 		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
 		{
-			const auto component_id = archetype->type[i];
-			const auto component = m_component_map[component_id].get();
-			const auto component_size = component->GetSize();
+			const auto component_id		= archetype->type[i];
+			const auto component		= m_component_map[component_id].get();
+			const auto component_size	= component->GetSize();
 
 			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 

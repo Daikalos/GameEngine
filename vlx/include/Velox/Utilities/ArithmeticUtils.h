@@ -80,7 +80,7 @@ namespace vlx::au
 	template<Arithmetic T>
 	NODISC static constexpr auto Sign(const T val)
 	{
-		return (val < T()) ? -1 : 1;
+		return T((val < T()) ? -1 : 1);
 	}
 
 	template<Arithmetic T>

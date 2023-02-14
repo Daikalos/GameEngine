@@ -85,6 +85,8 @@ void StateTest::OnCreated()
 			local_transform.Move(velocity * time.GetDT());
 		});
 
+	m_entity_admin->Shrink(true);
+
 	LQuadTree quad_tree({ 0,0, 1280, 1280 });
 	for (int i = 0; i < 8192 * 2 * 2 * 2 * 2; ++i)
 	{

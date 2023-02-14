@@ -30,13 +30,13 @@ namespace vlx
 		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
-		VELOX_API [[nodiscard]] bool HasParent() const noexcept;
-		VELOX_API [[nodiscard]] constexpr bool HasChildren() const noexcept;
+		VELOX_API NODISC bool HasParent() const noexcept;
+		VELOX_API NODISC constexpr bool HasChildren() const noexcept;
 
-		VELOX_API [[nodiscard]] auto GetParent() const noexcept -> const Parent&;
-		VELOX_API [[nodiscard]] auto GetChildren() const noexcept -> const Children&;
+		VELOX_API NODISC auto GetParent() const noexcept -> const Parent&;
+		VELOX_API NODISC auto GetChildren() const noexcept -> const Children&;
 
-		VELOX_API [[nodiscard]] bool IsDescendant(const EntityID descendant) const;
+		VELOX_API NODISC bool IsDescendant(const EntityID descendant) const;
 
 	private:
 		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
@@ -64,11 +64,8 @@ namespace vlx
 		{
 			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(ptr->GetEntityID());
 
-			if (success)
-			{
-				if (!func(*component))
-					continue;
-			}
+			if (success && !func(*component))
+				continue;
 
 			if (include_descendants) // continue iterating descendants
 			{
@@ -80,7 +77,7 @@ namespace vlx
 	template<class C>
 	inline void Relation::SortChildren(const SortFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants)
 	{
-		std::sort(m_children.begin(), m_children.end(),
+		std::ranges::sort(m_children.begin(), m_children.end(),
 			[&func, &entity_admin](const Ref& lhs, const Ref& rhs)
 			{
 				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());

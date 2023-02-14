@@ -25,7 +25,7 @@ namespace vlx
 		template <class Parameter>
 		void Load(const Identifier& id, const std::string_view path, const Parameter& second_param);
 
-		std::future<void> LoadAsync(const Identifier& id, const std::string_view path);
+		std::future<void> LoadAsync(const Identifier& id, const std::string& path);
 
 		Resource& Get(const Identifier& id);
 		const Resource& Get(const Identifier& id) const;
@@ -81,10 +81,10 @@ namespace vlx
 	}
 
 	template<IsLoadable Resource, Enum Identifier>
-	inline std::future<void> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string_view path)
+	inline std::future<void> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
 	{
 		return std::async(std::launch::async, 
-			[this](const Identifier id, const std::string_view path)
+			[this, id, path]() // create local copy of path because it will later be destroyed
 			{
 				ResourcePtr resource = std::make_unique<Resource>(Load(path));
 
@@ -92,8 +92,7 @@ namespace vlx
 
 				auto inserted = m_resources.try_emplace(id, std::move(resource));
 				assert(inserted.second);
-			}, 
-			id, std::string(path)); // create local copy of path because it will later be destroyed
+			});
 	}
 
 	template<IsLoadable Resource, Enum Identifier>

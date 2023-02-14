@@ -3,6 +3,7 @@
 #define _USE_MATH_DEFINES
 
 #include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vector3.hpp>
 
 #include <Velox/Config.hpp>
 
@@ -51,33 +52,33 @@ namespace vlx::vu
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr const float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	NODISC static constexpr float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
 		return Distance(Direction(from, to));
 	}
 	template<Arithmetic T>
-	NODISC static constexpr const float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	NODISC static constexpr float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
 		return DistanceSq(Direction(from, to));
 	}
 	template<Arithmetic T>
-	NODISC static constexpr const float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
+	NODISC static constexpr float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
 		return DistanceOpt(Direction(from, to));
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr const float Angle(const sf::Vector2<T>& vector)
+	NODISC static constexpr float Angle(const sf::Vector2<T>& vector)
 	{
 		return atan2f(vector.y, vector.x);
 	}
 	template<Arithmetic T>
-	NODISC static constexpr const float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float lhs_length, const float rhs_length)
+	NODISC static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float lhs_length, const float rhs_length)
 	{
 		return acosf(Dot(lhs, rhs) / (lhs_length * rhs_length));
 	}
 	template<Arithmetic T>
-	NODISC static constexpr const float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+	NODISC static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
 		return Angle(lhs, rhs, Distance(lhs), Distance(rhs));
 	}
@@ -154,7 +155,7 @@ namespace vlx::vu
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr const sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float a)
+	NODISC static constexpr sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float a)
 	{
 		return sf::Vector3<T>(
 			lerp(lhs.x, rhs.x, a),
