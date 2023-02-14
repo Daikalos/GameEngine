@@ -8,16 +8,19 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_dirty_children_system(entity_admin, id),
 	m_global_system(entity_admin, id)
 {
-	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
+	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (local_transform.m_dirty) // if local is dirty, so is global transform
 			{
 				transform.m_dirty = true;
 				local_transform.m_dirty = false;
+
+				if (!relation.HasParent())
+					UpdateToLocal(local_transform, transform);
 			}
 		});
 
-	m_dirty_children_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_dirty_children_system.Each([this](const EntityID entity, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
 				DirtyChildrenTransform(transform, relation.GetChildren());
@@ -108,20 +111,16 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 
 		// update transform values
 
-		sf::Transform new_transform = parent_transform->GetTransform() * local_transform.GetTransform();
+		const sf::Transform new_transform = parent_transform->GetTransform() * local_transform.GetTransform();
 		if (new_transform != transform.m_transform)
 		{
-			transform.m_transform = new_transform;
+			transform.m_transform		= new_transform;
 
 			transform.m_update_inverse	= true;
 			transform.m_update_position = true;
 			transform.m_update_scale	= true;
 			transform.m_update_rotation = true;
 		}
-	}
-	else
-	{
-		UpdateToLocal(local_transform, transform);
 	}
 
 	transform.m_dirty = false;

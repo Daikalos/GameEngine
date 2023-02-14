@@ -35,13 +35,12 @@ namespace vlx::bm
 			: m_message(message)
 		{ 
 			m_active = true;
-			m_thread = std::thread(&MeasureSystem::Loop, this);
+			m_thread = std::jthread(&MeasureSystem::Loop, this);
 		}
 
 		~MeasureSystem()
 		{
 			m_active = false;
-			m_thread.join();
 		}
 
 		void Loop()
@@ -124,7 +123,7 @@ namespace vlx::bm
 			std::puts(std::string("RAM USED:	"	+ print(ram_usage, 2)	+ "MB").c_str());
 			std::puts(std::string("RAM CURR:	"	+ print(ram_curr, 2)	+ "MB").c_str());
 			std::puts(std::string("RAM DIFF:	"	+ print(ram_diff, 2)	+ "MB").c_str());
-			std::puts(std::string("CPU TOTAL:	" + print(cpu_average, 2)	+ "%").c_str());
+			std::puts(std::string("CPU TOTAL:	"	+ print(cpu_average, 2)	+ "%").c_str());
 			std::puts(std::string("CPU USED:	"	+ print(cpu_usage, 2)	+ "%").c_str());
 			std::puts("");
 
@@ -166,7 +165,7 @@ namespace vlx::bm
 	private:
 		const std::string_view					m_message;
 
-		std::thread								m_thread;
+		std::jthread							m_thread;
 		bool									m_active{false};
 
 		ULARGE_INTEGER							m_last_cpu;
@@ -181,7 +180,6 @@ namespace vlx::bm
 	static void Begin(const std::string_view message = "BENCHMARK PROFILE")
 	{
 		std::lock_guard<std::mutex> lock(mutex);
-
 		queue.push(std::make_unique<MeasureSystem>(message));
 	}
 

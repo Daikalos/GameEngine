@@ -19,10 +19,6 @@ namespace vlx
 		using EntityPair = std::pair<EntityID, EntityID>;
 		using TransformSet = ComponentSet<LocalTransform, Transform>;
 
-	private:
-		using LocalSystem = System<LocalTransform, Transform>;
-		using GlobalSystem = System<LocalTransform, Transform, Relation>;
-
 	public:
 		TransformSystem(EntityAdmin& entity_admin, const LayerType id);
 
@@ -49,9 +45,9 @@ namespace vlx
 		auto CheckCache(EntityID entity_id) const -> TransformSet&;
 
 	private:
-		LocalSystem				m_dirty_system;
-		GlobalSystem			m_dirty_children_system;
-		GlobalSystem			m_global_system;
+		System<LocalTransform, Transform, Relation>	m_dirty_system;
+		System<Transform, Relation>					m_dirty_children_system;
+		System<LocalTransform, Transform, Relation>	m_global_system;
 
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;

@@ -6,37 +6,38 @@
 #include <array>
 #include <numeric>
 
+#include <Velox/Config.hpp>
+
 #include "Concepts.h"
 
 namespace vlx::rnd
 {
 	static thread_local std::mt19937_64 dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
-	[[nodiscard]] static float random()
+	NODISC static float random()
 	{
 		std::uniform_real_distribution<float> uid(0.0f, 1.0f);
 		return uid(dre);
 	}
 
 	template<std::floating_point T>
-	[[nodiscard]] static T random(const T min, const T max)
+	NODISC static T random(const T min, const T max)
 	{
 		std::uniform_real_distribution<T> uid(min, max);
 		return uid(dre);
 	}
 	template<std::integral T>
-	[[nodiscard]] static T random(const T min, const T max)
+	NODISC static T random(const T min, const T max)
 	{
 		std::uniform_int_distribution<T> uid(min, max);
 		return uid(dre);
 	}
 
-	////////////////////////////////////////////////////////////
-	// Creates a list of values up to size that are then 
-	// shuffled and finally returned
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	///		Creates a list of values up to size that are then shuffled and finally returned
+	/// </summary>
 	template<Arithmetic T>
-	[[nodiscard]] static auto random_arr(const T size)
+	NODISC static auto array(const T size)
 	{
 		std::array<T, size> result;
 
@@ -46,11 +47,11 @@ namespace vlx::rnd
 		return result;
 	}
 
-	////////////////////////////////////////////////////////////
-	// Returns a random T from the given set of arguments
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	///		Returns a random T from the given set of arguments
+	/// </summary>
 	template<typename T, typename... Args> requires IsSameType<T, Args...>
-	[[nodiscard]] static T random_arg(const T& arg0, Args&&... args)
+	NODISC static T args(const T& arg0, Args&&... args)
 	{
 		const std::size_t size = sizeof...(args) + 1;
 		const T arr[size] = { arg0, std::forward<Args>(args)... };

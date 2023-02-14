@@ -9,6 +9,10 @@
 
 namespace vlx
 {
+	/// <summary>
+	///		Designed to add convenience for interacting with quadtree, such as keeping track 
+	///		of index to element and also erasing it when entity is suddenly destroyed.
+	/// </summary>
 	template<std::equality_comparable T = int>
 	class QTElement : public IComponent
 	{
@@ -32,15 +36,13 @@ namespace vlx
 	};
 
 	template<std::equality_comparable T>
-	QTElement<T>::QTElement(LQuadTree<T>* quad_tree)
-		: m_quad_tree(quad_tree), m_index(-1)
-	{
-	}
+	inline QTElement<T>::QTElement(LQuadTree<T>* quad_tree)
+		: m_quad_tree(quad_tree), m_index(-1) {}
 
 	template<std::equality_comparable T>
-	bool QTElement<T>::Insert(const T& item, const RectFloat& rect)
+	inline bool QTElement<T>::Insert(const T& item, const RectFloat& rect)
 	{
-		if (m_index == -1)
+		if (m_index == -1 && m_quad_tree)
 		{
 			m_index = m_quad_tree->Insert({ item, rect });
 			return true;
@@ -49,9 +51,9 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	bool QTElement<T>::Erase()
+	inline bool QTElement<T>::Erase()
 	{
-		if (m_index != -1)
+		if (m_index != -1 && m_quad_tree)
 		{
 			m_quad_tree->Erase(m_index);
 			m_index = -1;
@@ -61,13 +63,13 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		m_index = -1; // copied elements will need to reinserted
 	}
 
 	template<std::equality_comparable T>
-	void QTElement<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data)
+	inline void QTElement<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data)
 	{
 		if (static_cast<QTElement&>(new_data).m_index != m_index) // erase current if new
 		{
@@ -76,7 +78,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	void QTElement<T>::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void QTElement<T>::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		Erase(); // erase when component is destroyed
 	}

@@ -157,8 +157,10 @@
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
+    <ClInclude Include="include\Velox\Components\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Components\QTElement.hpp" />
     <ClInclude Include="include\Velox\Components\Relation.h" />
+    <ClInclude Include="include\Velox\Components\Rigidbody.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\ObjectTypes.hpp" />

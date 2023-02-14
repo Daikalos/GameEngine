@@ -25,18 +25,19 @@ namespace vlx
 	public:
 		using value_type = T;
 
+	public:
+		struct Element
+		{
+			T item;					
+			RectFloat rect;			// rectangle encompassing the item
+		};
+
 	private:
 		struct Node
 		{
 			int first_child	{-1};	// first sub-branch or first element index
 			int count		{0};	// -1 for branch or it's a leaf and count means number of elements
 			RectFloat rect;			// loose AABB
-		};
-
-		struct Element
-		{
-			T item;					// the item
-			RectFloat rect;			// rectangle encompassing the item
 		};
 
 		struct ElementPtr
@@ -56,17 +57,17 @@ namespace vlx
 		bool Erase(const int element);
 		bool Erase(const Element& element);
 
-		NODISC auto Query(const RectFloat& rect) -> std::vector<Element>;
-		NODISC auto Query(const sf::Vector2f& point) -> std::vector<Element>;
+		NODISC auto Query(const RectFloat& rect) const -> std::vector<Element>;
+		NODISC auto Query(const sf::Vector2f& point) const-> std::vector<Element>;
 
 		void Cleanup();
 		void Clear();	// performs a complete cleanup
 
 	private:
 		void SplitLeaf(Node& node);
-		int FindLeaf(const sf::Vector2f& point);
-
 		void EltInsert(const int node_index, const sf::Vector2f& node_center, const int ptr_index, const sf::Vector2f& elt_center, const int depth);
+
+		int FindLeaf(const sf::Vector2f& point) const;
 
 	private:
 		RectFloat m_root_rect;
@@ -79,18 +80,18 @@ namespace vlx
 		FreeVector<ElementPtr>	m_elements_ptr;	// all the element ptrs
 		FreeVector<Node>		m_nodes;
 
-		std::shared_mutex		m_mutex;
+		mutable std::shared_mutex m_mutex;
 	};
 
 	template<std::equality_comparable T>
-	LQuadTree<T>::LQuadTree(const RectFloat& root_rect, int max_elements, int max_depth)
+	inline LQuadTree<T>::LQuadTree(const RectFloat& root_rect, int max_elements, int max_depth)
 		: m_root_rect(root_rect), m_free_node(-1), m_max_elements(max_elements), m_max_depth(max_depth)
 	{
-		m_nodes.emplace(Node());
+		m_nodes.emplace();
 	}
 
 	template<std::equality_comparable T>
-	int LQuadTree<T>::Insert(const Element& element)
+	inline int LQuadTree<T>::Insert(const Element& element)
 	{
 		std::unique_lock lock(m_mutex);
 
@@ -105,13 +106,13 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	bool LQuadTree<T>::Erase(const int element)
+	inline bool LQuadTree<T>::Erase(const int element)
 	{
 		return Erase(m_elements.at(element));
 	}
 
 	template<std::equality_comparable T>
-	bool LQuadTree<T>::Erase(const Element& element)
+	inline bool LQuadTree<T>::Erase(const Element& element)
 	{
 		std::unique_lock lock(m_mutex);
 
@@ -130,10 +131,11 @@ namespace vlx
 
 			if (elt.item == element.item)
 			{
+				m_elements.erase(elt_ptr.element);
+
 				const int temp = *cur;
 				*cur = elt_ptr.next;
 
-				m_elements.erase(elt_ptr.element);
 				m_elements_ptr.erase(temp);
 
 				--node.count;
@@ -150,7 +152,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	auto LQuadTree<T>::Query(const RectFloat& rect) -> std::vector<Element>
+	inline auto LQuadTree<T>::Query(const RectFloat& rect) const -> std::vector<Element>
 	{
 		std::shared_lock lock(m_mutex);
 
@@ -161,7 +163,7 @@ namespace vlx
 
 		while (!to_process.empty())
 		{
-			Node& node = m_nodes[to_process.back()];
+			const Node& node = m_nodes[to_process.back()];
 			to_process.pop_back();
 
 			if (!rect.Overlaps(node.rect))
@@ -172,8 +174,8 @@ namespace vlx
 				int child = node.first_child;
 				while (child != -1) // iterate over all children
 				{
-					ElementPtr& elt_ptr = m_elements_ptr[child];
-					Element& elt = m_elements[elt_ptr.element];
+					const ElementPtr& elt_ptr = m_elements_ptr[child];
+					const Element& elt = m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect))
 						result.push_back(elt);
@@ -192,7 +194,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	auto LQuadTree<T>::Query(const sf::Vector2f& point) -> std::vector<Element>
+	inline auto LQuadTree<T>::Query(const sf::Vector2f& point) const -> std::vector<Element>
 	{
 		std::shared_lock lock(m_mutex);
 
@@ -203,7 +205,7 @@ namespace vlx
 
 		while (!to_process.empty())
 		{
-			Node& node = m_nodes[to_process.back()];
+			const Node& node = m_nodes[to_process.back()];
 			to_process.pop_back();
 
 			if (!node.rect.Contains(point))
@@ -214,8 +216,8 @@ namespace vlx
 				int child = node.first_child;
 				while (child != -1) // iterate over all children
 				{
-					ElementPtr& elt_ptr = m_elements_ptr[child];
-					Element& elt = m_elements[elt_ptr.element];
+					const ElementPtr& elt_ptr = m_elements_ptr[child];
+					const Element& elt = m_elements[elt_ptr.element];
 
 					if (elt.rect.Contains(point))
 						result.emplace_back(elt);
@@ -234,14 +236,14 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	void LQuadTree<T>::Cleanup()
+	inline void LQuadTree<T>::Cleanup()
 	{
 		std::unique_lock lock(m_mutex);
 
 		SmallVector<int, 128> to_process;
 		to_process.push_back(0); // push root
 
-		SmallVector<RectFloat*> node_rects;
+		SmallVector<RectFloat*, 128> node_rects;
 
 		while (!to_process.empty())
 		{
@@ -279,11 +281,11 @@ namespace vlx
 				if (init) // this node is not empty
 				{
 					node.count = -1;
-					node_rects.push_back(&node.rect);
+					node_rects.push_back(&node.rect); // push this node rect
 				}
 				else // empty, reset
 				{
-					m_nodes[node.first_child].first_child = m_free_node;
+					m_nodes[node.first_child].first_child = m_free_node; // set new free node
 					m_free_node = node.first_child;
 
 					node = {}; // reset to default values
@@ -295,27 +297,37 @@ namespace vlx
 			{
 				to_process.pop_back();
 
-				int child = node.first_child;
-				node.count = 0;
-
-				if (child != -1)
+				if (node.count == 0) // this leaf is empty
 				{
-					++node.count;
+					assert(node.first_child == -1);
+
+					node_rects.push_back(nullptr); // push empty rect
+					node.rect = {}; // reset rect
+				}
+				else // this leaf has elements, update rect
+				{
+					int child = node.first_child;
+					assert(child != -1);
 
 					node.rect = m_elements[m_elements_ptr[child].element].rect;
 					child = m_elements_ptr[child].next;
-				}
-				else node.rect = {};
 
-				node_rects.push_back(node.count ? &node.rect : nullptr);
+					while (child != -1)
+					{
+						node.rect = node.rect.Union(m_elements[m_elements_ptr[child].element].rect);
+						child = m_elements_ptr[child].next;
+					}
+
+					node_rects.push_back(&node.rect);
+				}
 			}
 		}
 	}
 
 	template<std::equality_comparable T>
-	void LQuadTree<T>::Clear()
+	inline void LQuadTree<T>::Clear()
 	{
-		m_free_node = { -1 };
+		m_free_node = {-1};
 
 		m_elements.clear();
 		m_elements_ptr.clear();
@@ -323,7 +335,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	void LQuadTree<T>::SplitLeaf(Node& node)
+	inline void LQuadTree<T>::SplitLeaf(Node& node)
 	{
 		if (m_free_node != -1)
 		{
@@ -342,50 +354,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	int LQuadTree<T>::FindLeaf(const sf::Vector2f& point)
-	{
-		sf::Vector2f offset{ m_root_rect.Width() / 2, m_root_rect.Height() / 2 };
-		sf::Vector2f node_center = m_root_rect.Center();
-
-		int node_index = 0;
-		while (m_nodes[node_index].count == -1) // continue on branches, will exit when leaf
-		{
-			Node& node = m_nodes[node_index];
-			offset /= 2.0f;
-
-			if (point.x > node_center.x)
-			{
-				if (point.y > node_center.y)
-				{
-					node_index = node.first_child + 3;
-					node_center += offset;
-				}
-				else
-				{
-					node_index = node.first_child + 2;
-					node_center += { offset.x, -offset.y };
-				}
-			}
-			else
-			{
-				if (point.y > node_center.y)
-				{
-					node_index = node.first_child + 1;
-					node_center += { -offset.x, offset.y };
-				}
-				else
-				{
-					node_index = node.first_child + 0;
-					node_center -= offset;
-				}
-			}
-		}
-
-		return node_index;
-	}
-
-	template<std::equality_comparable T>
-	void LQuadTree<T>::EltInsert(const int node_index, const sf::Vector2f& node_center, const int ptr_index, const sf::Vector2f& elt_center, const int depth)
+	inline void LQuadTree<T>::EltInsert(const int node_index, const sf::Vector2f& node_center, const int ptr_index, const sf::Vector2f& elt_center, const int depth)
 	{
 		sf::Vector2f offset
 		{
@@ -438,5 +407,48 @@ namespace vlx
 		const auto& elt = m_elements[elt_ptr.element];
 
 		node.rect = (node.count == 1) ? elt.rect : node.rect.Union(elt.rect); // update aabb
+	}
+
+	template<std::equality_comparable T>
+	inline int LQuadTree<T>::FindLeaf(const sf::Vector2f& point) const
+	{
+		sf::Vector2f offset{ m_root_rect.Width() / 2, m_root_rect.Height() / 2 };
+		sf::Vector2f node_center = m_root_rect.Center();
+
+		int node_index = 0;
+		while (m_nodes[node_index].count == -1) // continue on branches, will exit when leaf
+		{
+			Node& node = m_nodes[node_index];
+			offset /= 2.0f;
+
+			if (point.x > node_center.x)
+			{
+				if (point.y > node_center.y)
+				{
+					node_index = node.first_child + 3;
+					node_center += offset;
+				}
+				else
+				{
+					node_index = node.first_child + 2;
+					node_center += { offset.x, -offset.y };
+				}
+			}
+			else
+			{
+				if (point.y > node_center.y)
+				{
+					node_index = node.first_child + 1;
+					node_center += { -offset.x, offset.y };
+				}
+				else
+				{
+					node_index = node.first_child + 0;
+					node_center -= offset;
+				}
+			}
+		}
+
+		return node_index;
 	}
 }

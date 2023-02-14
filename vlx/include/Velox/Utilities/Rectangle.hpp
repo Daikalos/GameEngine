@@ -2,6 +2,8 @@
 
 #include <SFML/System/Vector2.hpp>
 
+#include <Velox/Config.hpp>
+
 #include "Concepts.h"
 
 namespace vlx
@@ -16,32 +18,32 @@ namespace vlx
 		template<typename U>
 		constexpr explicit Rect(const Rect<U>& rect);
 
-		constexpr bool operator==(const Rect& rhs) const;
-		constexpr bool operator!=(const Rect& rhs) const;
+		NODISC constexpr bool operator==(const Rect& rhs) const;
+		NODISC constexpr bool operator!=(const Rect& rhs) const;
 
-		constexpr Rect operator-() const;
+		NODISC constexpr Rect operator-() const;
 
 		constexpr Rect& operator+=(const Rect& rhs);
 		constexpr Rect& operator-=(const Rect& rhs);
 
-		constexpr Rect operator+(const Rect& rhs) const;
-		constexpr Rect operator-(const Rect& rhs) const;
+		NODISC constexpr Rect operator+(const Rect& rhs) const;
+		NODISC constexpr Rect operator-(const Rect& rhs) const;
 
-		constexpr T Width() const;
-		constexpr T Height() const;
+		NODISC constexpr T Width() const;
+		NODISC constexpr T Height() const;
 
-		constexpr sf::Vector2<T> Size() const;
-		constexpr sf::Vector2<T> Center() const;
+		NODISC constexpr sf::Vector2<T> Size() const;
+		NODISC constexpr sf::Vector2<T> Center() const;
 
-		constexpr T Area() const;
+		NODISC constexpr T Area() const;
 
-		constexpr Rect Union(const Rect& other) const;
-		constexpr std::optional<Rect> Intersection(const Rect& other) const;
+		NODISC constexpr Rect Union(const Rect& other) const;
+		NODISC constexpr std::optional<Rect> Intersection(const Rect& other) const;
 
-		constexpr bool Overlaps(const Rect& other) const;
+		NODISC constexpr bool Overlaps(const Rect& other) const;
 
-		constexpr bool Contains(const sf::Vector2<T>& point) const;
-		constexpr bool Contains(const Rect& other) const;
+		NODISC constexpr bool Contains(const sf::Vector2<T>& point) const;
+		NODISC constexpr bool Contains(const Rect& other) const;
 
 		union
 		{

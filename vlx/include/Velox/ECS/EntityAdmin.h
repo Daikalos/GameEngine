@@ -78,6 +78,7 @@ namespace vlx
 			RefFlag flag {RefFlag::None};
 
 			std::weak_ptr<IComponent*> component_ptr;
+
 			struct BaseData
 			{
 				std::weak_ptr<void*> ptr;

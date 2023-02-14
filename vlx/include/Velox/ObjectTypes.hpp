@@ -20,8 +20,8 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Velocity, gui::Container, gui::Button, gui::Label, QTElement<Object*>>;
-	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, QTElement<Object*>>;
+	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Velocity, gui::Container, gui::Button, gui::Label>;
+	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
 
 	namespace gui
 	{

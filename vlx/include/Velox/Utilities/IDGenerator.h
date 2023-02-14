@@ -14,7 +14,7 @@ namespace vlx::id
 	//
 	// Generating unique ids that work across different boundaries is tricky, however, these sources have provided
 	// solutions that should solve this problem. The solution below enables for unique ids to be generated at compile-time
-	// using the full signature of a function. The signature will be altered depending on the template.
+	// using the full signature of a function. The signature is be altered depending on the template and thus generates a new id.
 
 	template<typename T>
 	static inline constexpr std::size_t HashFunction(const T& to_hash)

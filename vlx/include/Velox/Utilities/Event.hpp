@@ -4,6 +4,8 @@
 #include <mutex>
 #include <shared_mutex>
 
+#include <Velox/Config.hpp>
+
 #include "EventHandler.hpp"
 
 namespace vlx
@@ -35,8 +37,8 @@ namespace vlx
 		auto operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::IDType;
 
 	public:
-		constexpr std::size_t Count() const noexcept;
-		constexpr bool IsEmpty() const noexcept;
+		NODISC constexpr std::size_t Count() const noexcept;
+		NODISC constexpr bool IsEmpty() const noexcept;
 
 		void Reserve(const std::size_t size);
 		void Clear() noexcept;

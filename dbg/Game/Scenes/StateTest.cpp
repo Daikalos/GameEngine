@@ -84,6 +84,23 @@ void StateTest::OnCreated()
 		{
 			local_transform.Move(velocity * time.GetDT());
 		});
+
+	LQuadTree quad_tree({ 0,0, 1280, 1280 });
+	for (int i = 0; i < 8192 * 2 * 2 * 2 * 2; ++i)
+	{
+		float x = rnd::random() * 1024.0f;
+		float y = rnd::random() * 1024.0f;
+
+		float w = 1.0f + rnd::random() * 128.0f;
+		float h = 1.0f + rnd::random() * 128.0f;
+
+		quad_tree.Insert(LQuadTree<int>::Element(i, RectFloat(x, y, x + w, y + h)));
+	}
+
+	quad_tree.Cleanup();
+
+	auto test = quad_tree.Query({0,0, 5, 5});
+	int sdadsa = test.size();
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)

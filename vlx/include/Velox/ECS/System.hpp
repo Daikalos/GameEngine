@@ -75,7 +75,7 @@ namespace vlx
 		NODISC constexpr bool IsRunningParallel() const noexcept override;
 		void RunParallel(const bool flag) noexcept override;
 
-		const Archetype* GetActiveArchetype() const;
+		const Archetype* ActiveArchetype() const;
 
 	public:
 		void All(AllFunc&& func);
@@ -155,7 +155,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline const Archetype* System<Cs...>::GetActiveArchetype() const
+	inline const Archetype* System<Cs...>::ActiveArchetype() const
 	{
 		return m_archetype;
 	}

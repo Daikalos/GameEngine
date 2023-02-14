@@ -3,6 +3,8 @@
 #include <vector>
 #include <array>
 
+#include <Velox/Config.hpp>
+
 #include "Concepts.h"
 
 namespace vlx::cu
@@ -10,7 +12,7 @@ namespace vlx::cu
 	template<IsContainer T>
 	struct ContainerHash
 	{
-		[[nodiscard]] constexpr std::size_t operator()(const T& container) const
+		NODISC constexpr std::size_t operator()(const T& container) const
 		{
 			std::size_t seed = container.size();
 
@@ -31,7 +33,7 @@ namespace vlx::cu
 	};
 
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
-	[[nodiscard]] static constexpr auto PackArray(Args&&... args)
+	NODISC static constexpr auto PackArray(Args&&... args)
 	{
 		std::vector<std::byte> data;
 		data.resize((sizeof(Args) + ... + 0));
@@ -52,7 +54,7 @@ namespace vlx::cu
 	}
 
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
-	static constexpr void UnpackArray(const std::vector<std::byte>& data, Args&... args)
+	NODISC static constexpr void UnpackArray(const std::vector<std::byte>& data, Args&... args)
 	{
 		if (data.size() != (sizeof(Args) + ... + 0))
 			throw std::runtime_error("not the same size");
@@ -125,7 +127,7 @@ namespace vlx::cu
 	}
 
 	template<IsContainer T, class Iter = typename T::const_iterator, typename U = typename T::value_type>
-	[[nodiscard]] static constexpr Iter FindSorted(const T& container, const U& item)
+	NODISC  static constexpr Iter FindSorted(const T& container, const U& item)
 	{
 		return std::lower_bound(container.begin(), container.end(), item);
 	}
@@ -165,39 +167,39 @@ namespace vlx::cu
 	}
 
 	template<IsContainer T>
-	static constexpr T Sort(T&& cntn)
+	NODISC static constexpr T Sort(T&& cntn)
 	{
 		std::sort(cntn.begin(), cntn.end());
 		return cntn;
 	}
 
 	template<IsContainer T, typename Comp>
-	static constexpr T Sort(T&& cntn, Comp&& comp)
+	NODISC static constexpr T Sort(T&& cntn, Comp&& comp)
 	{
 		std::sort(cntn.begin(), cntn.end(), comp);
 		return cntn;
 	}
 
 	template<IsContainer T>
-	static constexpr bool IsSorted(T&& cntn)
+	NODISC static constexpr bool IsSorted(T&& cntn)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end());
 	}
 
 	template<IsContainer T>
-	static constexpr bool IsSorted(const T& cntn)
+	NODISC static constexpr bool IsSorted(const T& cntn)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end());
 	}
 
 	template<IsContainer T, typename Comp>
-	static constexpr bool IsSorted(T&& cntn, Comp&& comp)
+	NODISC static constexpr bool IsSorted(T&& cntn, Comp&& comp)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end(), comp);
 	}
 
 	template<IsContainer T, typename Comp>
-	static constexpr bool IsSorted(const T& cntn, Comp&& comp)
+	NODISC static constexpr bool IsSorted(const T& cntn, Comp&& comp)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end(), comp);
 	}

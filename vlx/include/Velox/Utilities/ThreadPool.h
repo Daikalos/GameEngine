@@ -36,7 +36,7 @@ namespace vlx
         template<class F, class... Args>
         auto Enqueue(F&& f, Args&&... args)
         {
-            typedef decltype(f(args...)) return_type;
+            using return_type = decltype(f(args...));
 
             auto task = std::make_shared<std::packaged_task<return_type()>>(
                 std::bind(std::forward<F>(f), 

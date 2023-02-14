@@ -26,7 +26,7 @@ namespace vlx
 		EventHandler(EventHandler&& other) noexcept;
 
 		auto operator=(const EventHandler& other) -> EventHandler&;
-		auto operator=(EventHandler&& other) -> EventHandler&;
+		auto operator=(EventHandler&& other) noexcept -> EventHandler&;
 
 		void operator()(Args... params) const;
 
@@ -71,7 +71,7 @@ namespace vlx
 	}
 
 	template<typename... Args>
-	inline auto EventHandler<Args...>::operator=(EventHandler&& other) -> EventHandler&
+	inline auto EventHandler<Args...>::operator=(EventHandler&& other) noexcept -> EventHandler&
 	{
 		m_func = std::move(other.m_func);
 
