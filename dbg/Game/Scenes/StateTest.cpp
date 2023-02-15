@@ -3,7 +3,7 @@
 using namespace vlx;
 
 StateTest::StateTest(const StateID state_id, StateStack& state_stack, World& world)
-	: State(state_id, state_stack, world), sys(world.GetEntityAdmin(), 100)
+	: State(state_id, state_stack, world)//, sys(world.GetEntityAdmin(), 100)
 {
 
 }
@@ -38,15 +38,15 @@ void StateTest::OnCreated()
 
 	m_entities.reserve(100000);
 
-	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite, Velocity>(m_entities.capacity());
+	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
 
-		added.AddComponent<Velocity>();
-		added.SetComponent<Velocity>(
-			rnd::random(-50.0f, 50.0f),
-			rnd::random(-50.0f, 50.0f));
+		//added.AddComponent<Velocity>();
+		//added.SetComponent<Velocity>(
+		//	rnd::random(-50.0f, 50.0f),
+		//	rnd::random(-50.0f, 50.0f));
 
 		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
 		//GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
@@ -80,10 +80,10 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
 	Time& time = GetWorld().GetTime();
-	sys.Each([&time](const EntityID entity, Velocity& velocity, LocalTransform& local_transform)
-		{
-			local_transform.Move(velocity * time.GetDT());
-		});
+	//sys.Each([&time](const EntityID entity, Velocity& velocity, LocalTransform& local_transform)
+	//	{
+	//		local_transform.Move(velocity * time.GetDT());
+	//	});
 
 	m_entity_admin->Shrink(true);
 
@@ -120,10 +120,10 @@ bool StateTest::Update(Time& time)
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 	{
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
-		for (const Entity& entity : m_entities)
-		{
-			m_entity_admin->SetComponent<Velocity>(entity, rnd::random(-100.0f, 100.0f), rnd::random(-100.0f, 100.0f));
-		}
+		//for (const Entity& entity : m_entities)
+		//{
+		//	m_entity_admin->SetComponent<Velocity>(entity, rnd::random(-100.0f, 100.0f), rnd::random(-100.0f, 100.0f));
+		//}
 	}
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFramerate()));

@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <Velox/Config.hpp>
+
 #include "Identifiers.hpp"
 
 namespace vlx
@@ -25,8 +27,8 @@ namespace vlx
 		const C& operator*() const;
 
 	public:
-		[[nodiscard]] C* Get();
-		[[nodiscard]] const C* Get() const;
+		NODISC C* Get();
+		NODISC const C* Get() const;
 
 	public:
 		EntityID GetEntityID() const noexcept;

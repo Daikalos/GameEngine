@@ -36,6 +36,9 @@
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\World\Systems\CullingSystem.cpp" />
+    <ClCompile Include="src\Physics\Collision.cpp" />
+    <ClCompile Include="src\Physics\Circle.cpp" />
+    <ClCompile Include="src\Physics\CircleBounds.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -76,7 +79,7 @@
     <ClInclude Include="include\Velox\Utilities.hpp" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
-    <ClInclude Include="include\Velox\Components\Velocity.h" />
+    <ClInclude Include="include\Velox\Physics\Velocity.h" />
     <ClInclude Include="include\Velox\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
@@ -120,8 +123,13 @@
     <ClInclude Include="include\Velox\Components\QTElement.hpp" />
     <ClInclude Include="include\Velox\World\Systems\CullingSystem.h" />
     <ClInclude Include="include\Velox\Utilities\PolicySelect.h" />
-    <ClInclude Include="include\Velox\Components\Rigidbody.h" />
-    <ClInclude Include="include\Velox\Components\PhysicsMaterial.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
+    <ClInclude Include="include\Velox\Physics\Shape.h" />
+    <ClInclude Include="include\Velox\Physics\Bounds.h" />
+    <ClInclude Include="include\Velox\Physics\Circle.h" />
+    <ClInclude Include="include\Velox\Physics\Collision.h" />
+    <ClInclude Include="include\Velox\Physics\CircleBounds.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

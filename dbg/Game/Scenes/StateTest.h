@@ -30,5 +30,5 @@ private:
 
 	vlx::Entity b0, b1;
 
-	vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
+	//vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
 };
