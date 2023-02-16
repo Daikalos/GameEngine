@@ -2,8 +2,6 @@
 
 #include <SFML/System/Vector2.hpp>
 
-#include "Bounds.h"
-
 namespace vlx
 {
 	struct CollisionResult

@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(100000);
+	m_entities.reserve(1000);
 
 	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
@@ -49,7 +49,7 @@ void StateTest::OnCreated()
 		//	rnd::random(-50.0f, 50.0f));
 
 		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
-		//GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
+		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
 	
 	m_entity_admin->SortComponents<Relation>(m_entities.front(),
@@ -103,6 +103,7 @@ void StateTest::OnCreated()
 
 	auto test = quad_tree.Query({0,0, 5, 5});
 	int sdadsa = test.size();
+
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)

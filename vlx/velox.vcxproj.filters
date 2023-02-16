@@ -22,7 +22,6 @@
     <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\World\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
-    <ClCompile Include="src\Components\Velocity.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\World\Systems\AnchorSystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
@@ -36,9 +35,9 @@
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\World\Systems\CullingSystem.cpp" />
-    <ClCompile Include="src\Physics\Collision.cpp" />
     <ClCompile Include="src\Physics\Circle.cpp" />
     <ClCompile Include="src\Physics\CircleBounds.cpp" />
+    <ClCompile Include="src\Physics\CollisionTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -126,10 +125,11 @@
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
     <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
     <ClInclude Include="include\Velox\Physics\Shape.h" />
-    <ClInclude Include="include\Velox\Physics\Bounds.h" />
     <ClInclude Include="include\Velox\Physics\Circle.h" />
-    <ClInclude Include="include\Velox\Physics\Collision.h" />
-    <ClInclude Include="include\Velox\Physics\CircleBounds.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsSystem.h" />
+    <ClInclude Include="include\Velox\Physics\MassData.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -3,12 +3,10 @@
 using namespace vlx;
 
 World::World(const std::string_view name) : 
-	m_entity_admin(), m_systems(), m_sorted_systems(),
-	m_controls(),
+	m_render_system(m_entity_admin, LYR_RENDERING),
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
-	m_camera(CameraBehavior::Context(m_window, m_controls)),
-	m_textures(), m_fonts(),
-	m_time(), m_state_stack(*this)
+	m_camera(CameraBehavior::Context(m_window, m_controls)), 
+	m_state_stack(*this)
 {
 	m_window.Initialize();
 
@@ -27,7 +25,6 @@ World::World(const std::string_view name) :
 	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
 	AddSystem<CullingSystem>(m_entity_admin, 	LYR_CULLING, m_camera);
 	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
-	AddSystem<RenderSystem>(m_entity_admin,		LYR_RENDERING);
 	AddSystem<gui::GUISystem>(m_entity_admin,	LYR_GUI, m_camera, m_controls);
 }
 
@@ -57,7 +54,7 @@ const EntityAdmin& World::GetEntityAdmin() const noexcept		{ return m_entity_adm
 
 void World::RemoveSystem(const LayerType id)
 {
-	m_systems.erase(std::find_if(m_systems.begin(), m_systems.end(),
+	m_systems.erase(std::ranges::find_if(m_systems.begin(), m_systems.end(),
 		[id](const auto& pair)
 		{
 			return pair.second->GetID() == id;
@@ -77,7 +74,6 @@ void World::Run()
 	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
 
 	float accumulator = FLT_EPSILON;
-	int death_spiral = 12; // guarantee prevention of infinite loop
 
 	while (m_window.isOpen())
 	{
@@ -92,16 +88,17 @@ void World::Run()
 		Update();
 
 		accumulator += m_time.GetRealDT();
+		accumulator = std::min(accumulator, 0.2f); // clamp accumulator
 
 		int ticks = 0;
-		while (accumulator >= m_time.GetFixedDT() && ticks++ < death_spiral)
+		while (accumulator >= m_time.GetFixedDT())
 		{
 			accumulator -= m_time.GetFixedDT();
 			FixedUpdate();
 		}
 
 		float interp = accumulator / m_time.GetFixedDT();
-		m_time.SetInterp(interp);
+		m_time.SetInterpolation(interp);
 
 		PostUpdate();
 
@@ -114,8 +111,10 @@ void World::PreUpdate()
 	m_state_stack.PreUpdate(m_time);
 	m_camera.PreUpdate(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system.second.second->PreUpdate();
+	for (const auto& [layer, system] : m_sorted_systems)
+		system.second->PreUpdate();
+
+	m_render_system.PreUpdate();
 }
 
 void World::Update()
@@ -123,8 +122,10 @@ void World::Update()
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system.second.second->Update();
+	for (const auto& [layer, system] : m_sorted_systems)
+		system.second->Update();
+
+	m_render_system.Update();
 }
 
 void World::FixedUpdate()
@@ -132,8 +133,8 @@ void World::FixedUpdate()
 	m_state_stack.FixedUpdate(m_time);
 	m_camera.FixedUpdate(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system.second.second->FixedUpdate();
+	for (const auto& [layer, system] : m_sorted_systems)
+		system.second->FixedUpdate();
 }
 
 void World::PostUpdate()
@@ -141,8 +142,10 @@ void World::PostUpdate()
 	m_state_stack.PostUpdate(m_time);
 	m_camera.PostUpdate(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system.second.second->PostUpdate();
+	for (const auto& [layer, system] : m_sorted_systems)
+		system.second->PostUpdate();
+
+	m_render_system.PostUpdate();
 
 	if (m_state_stack.IsEmpty())
 		m_window.close();
@@ -162,22 +165,15 @@ void World::ProcessEvents()
 
 void World::Draw()
 {
-	RenderSystem* render_system = nullptr;
-	if (HasSystem<RenderSystem>())
-		render_system = &GetSystem<RenderSystem>();
-
 	m_window.clear(sf::Color::Black);
 	m_window.setView(m_camera);
 
-	if (render_system)
-		render_system->Draw(m_window);
-
+	m_render_system.Draw(m_window);
 	m_state_stack.Draw();
 
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 
-	if (render_system)
-		render_system->DrawGUI(m_window);
+	m_render_system.DrawGUI(m_window);
 
 	m_window.display();
 }

@@ -41,15 +41,14 @@ namespace vlx
 		void UpdateStaticGUIBatch();
 
 	public:
+		void PreUpdate() override;
 		void Update() override;
+		void PostUpdate() override;
 
 		void Draw(Window& window) const;
 		void DrawGUI(Window& window) const;
 
 	private:
-		void PreUpdate();
-		void PostUpdate();
-
 		void DrawObject(const Object& object, const IBatchable& batchable, const sf::Transform& transform, const float depth = 0.0f);
 
 	private:

@@ -71,7 +71,6 @@ namespace vlx::traits
 
     /// <summary>
     ///     Sorts a tuple given a comparator, e.g., DescendingID
-    ///     Thanks to: https://codereview.stackexchange.com/questions/131194/selection-sorting-a-type-list-compile-time
     /// </summary>
     namespace sort
     {

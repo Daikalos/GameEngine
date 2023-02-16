@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Shape.h"
-#include "Bounds.h"
 #include "CollisionResult.h"
 
 namespace vlx
@@ -10,6 +9,6 @@ namespace vlx
 	{
 		float radius;
 
-		CollisionResult Collide(Bounds& bounds) const override;
+		constexpr Shape::Type GetType() const noexcept override;
 	};
 }

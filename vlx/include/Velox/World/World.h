@@ -103,6 +103,9 @@ namespace vlx
 		WorldSystems	m_systems;
 		SortedSystems	m_sorted_systems;
 
+		RenderSystem	m_render_system; // obligatory system
+		// physics system
+
 		ControlMap		m_controls;
 		Window			m_window;
 		Camera			m_camera;

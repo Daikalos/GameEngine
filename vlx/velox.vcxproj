@@ -158,10 +158,9 @@
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
     <ClInclude Include="include\Velox\Physics\Circle.h" />
-    <ClInclude Include="include\Velox\Physics\Bounds.h" />
-    <ClInclude Include="include\Velox\Physics\CircleBounds.h" />
-    <ClInclude Include="include\Velox\Physics\Collision.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
+    <ClInclude Include="include\Velox\Physics\MassData.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
     <ClInclude Include="include\Velox\Components\QTElement.hpp" />
     <ClInclude Include="include\Velox\Components\Relation.h" />
@@ -180,6 +179,8 @@
     <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Components\Transform.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsSystem.h" />
     <ClInclude Include="include\Velox\Physics\Velocity.h" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
     <ClInclude Include="include\Velox\ECS\Entity.h" />
@@ -243,9 +244,9 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Physics\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\CircleBounds.cpp" />
     <ClCompile Include="src\Physics\Circle.cpp" />
-    <ClCompile Include="src\Physics\Collision.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
@@ -258,7 +259,6 @@
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\Components\Sprite.cpp" />
     <ClCompile Include="src\Components\Transform.cpp" />
-    <ClCompile Include="src\Components\Velocity.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\World\World.cpp" />

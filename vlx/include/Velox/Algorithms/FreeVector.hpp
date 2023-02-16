@@ -45,38 +45,32 @@ namespace vlx
 		constexpr void clear();
 
 	private:
-		union FreeElement
-		{
-			T element;
-			size_type next {-1};
-		};
-
-		std::vector<FreeElement> m_data;
+		std::vector<std::variant<T, size_type>> m_data;
 		size_type m_first_free {-1};
 	};
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::operator[](const size_type n) -> reference
 	{
-		return m_data[n].element;
+		return std::get<T>(m_data[n]);
 	}
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::operator[](const size_type n) const -> const_reference
 	{
-		return m_data[n].element;
+		return std::get<T>(m_data[n]);
 	}
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::at(const size_type n) -> reference
 	{
-		return m_data.at(n).element;
+		return std::get<T>(m_data.at(n));
 	}
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::at(const size_type n) const -> const_reference
 	{
-		return m_data.at(n).element;
+		return std::get<T>(m_data.at(n));
 	}
 
 	template<class T>
@@ -103,18 +97,15 @@ namespace vlx
 	{
 		if (m_first_free != -1)
 		{
-			const int index = m_first_free;
-			m_first_free = m_data[m_first_free].next;
-			m_data[index].element = T(std::forward<Args>(args)...);
+			const auto index = m_first_free;
+			m_first_free = std::get<size_type>(m_data[m_first_free]);
+			m_data.emplace(m_data.begin() + index, std::forward<Args>(args)...);
 
 			return index;
 		}
 		else
 		{
-			FreeElement free_element{};
-			free_element.element = T(std::forward<Args>(args)...);
-			m_data.push_back(free_element);
-
+			m_data.emplace_back(std::forward<Args>(args)...);
 			return static_cast<size_type>(m_data.size() - 1);
 		}
 	}
@@ -135,7 +126,7 @@ namespace vlx
 	inline constexpr void FreeVector<T>::erase(const size_type n)
 	{
 		assert(n >= 0 && n < size());
-		m_data[n].next = m_first_free;
+		m_data[n] = m_first_free;
 		m_first_free = n;
 	}
 

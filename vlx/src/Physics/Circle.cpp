@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-CollisionResult Circle::Collide(Bounds& bounds) const
+constexpr Shape::Type Circle::GetType() const noexcept
 {
-	return bounds.Collide(*this);
+	return Shape::Circle;
 }

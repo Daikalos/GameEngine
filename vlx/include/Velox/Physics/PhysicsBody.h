@@ -1,8 +1,11 @@
 #pragma once
 
+#include "MassData.h"
+#include "PhysicsMaterial.h"
+
 namespace vlx
 {
-	enum class BodyType
+	enum class BodyType : unsigned char
 	{
 		Static,
 		Dynamic,
@@ -11,8 +14,9 @@ namespace vlx
 
 	struct PhysicsBody
 	{
-		float		restitution;
-		float		mass;
-		BodyType	type;
+		PhysicsMaterial	material;
+		MassData		mass_data;
+		BodyType		type			{BodyType::Dynamic};
+		float			gravity_scale	{1.0f};
 	};
 }

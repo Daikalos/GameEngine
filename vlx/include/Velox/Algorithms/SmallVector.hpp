@@ -91,6 +91,7 @@ namespace vlx
 
 	public:
 		constexpr SmallVector() = default;
+		~SmallVector() = default;
 
 		constexpr explicit SmallVector(const size_type size, const_reference value = value_type(), const allocator_type& alloc = allocator_type());
 		template<class Iter> requires std::contiguous_iterator<Iter>
