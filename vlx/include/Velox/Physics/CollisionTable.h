@@ -8,11 +8,7 @@
 
 namespace vlx
 {
-	struct Circle;
-	struct Rectangle;
 	struct CollisionData;
-
-	struct PhysicsBody;
 	class LocalTransform;
 	class Transform;
 

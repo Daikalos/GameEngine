@@ -45,18 +45,18 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 
 	if (dist_sqr == 0.0f)
 	{
-		collision.collided = true;
-		collision.penetration = c1.radius;
-		collision.normal = sf::Vector2f::UnitX;
+		collision.penetration	= c1.radius;
+		collision.normal		= sf::Vector2f::UnitX;
+		collision.contact_count = 1;
 
 		return;
 	}
 
 	const float distance = std::sqrt(dist_sqr);
 
-	collision.collided = true;
-	collision.penetration = radius - distance;
-	collision.normal = normal / distance;
+	collision.penetration	= radius - distance;
+	collision.normal		= normal / distance;
+	collision.contact_count = 1;
 }
 void CollisionTable::CircleToAABB(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
 {

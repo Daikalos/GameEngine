@@ -19,7 +19,6 @@ namespace vlx
 		Transform*		AT				{nullptr};
 		Transform*		BT				{nullptr};
 
-		bool			collided		{false};
 		float			penetration		{0.0f};
 		sf::Vector2f	normal;
 

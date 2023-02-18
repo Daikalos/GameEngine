@@ -36,9 +36,8 @@ namespace vlx
 		void FixedUpdate() override;
 		void PostUpdate() override;
 
-	private:
-		void UpdateForces(PhysicsBody* body);
-		void UpdateVelocity(PhysicsBody* body, LocalTransform& local_transform);
+	public:
+
 
 	private:
 		void Initialize(CollisionData& data);
@@ -49,11 +48,15 @@ namespace vlx
 		Time*			m_time		{nullptr};
 		sf::Vector2f	m_gravity	{0.0f, 10.0f};
 
+		System<PhysicsBody>					m_update_forces;
+		System<PhysicsBody, LocalTransform> m_update_velocities;
+		System<PhysicsBody>					m_clear_forces;
+
 		//System m_
 		//System m_clear_forces;
 		//System m_update_velocities;
 
-		std::vector<CollisionPair>	m_collision_pairs;
-		std::vector<CollisionData>	m_collision_results;
+		std::vector<CollisionPair>	m_collisions_pair;
+		std::vector<CollisionData>	m_collisions_data;
 	};
 }

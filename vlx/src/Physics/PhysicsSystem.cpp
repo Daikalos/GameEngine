@@ -3,12 +3,42 @@
 using namespace vlx;
 
 PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time)
-	: SystemObject(entity_admin, id), m_time(&time) {}
+	: SystemObject(entity_admin, id), m_time(&time),
+	m_update_forces(entity_admin, LYR_PHYSICS + 1),
+	m_update_velocities(entity_admin, LYR_PHYSICS + 2),
+	m_clear_forces(entity_admin, LYR_PHYSICS + 3)
+{
+	m_update_forces.Each([this](const EntityID entity_id, PhysicsBody& body)
+		{
+			if (body.GetInvMass() == 0.0f)
+				return;
+
+			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
+			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
+		});
+
+	m_update_velocities.Each([this](const EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+		{
+			if (body.GetInvMass() == 0.0f)
+				return;
+
+			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
+			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
+
+			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
+			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
+		});
+
+	m_clear_forces.Each([this](const EntityID entity_id, PhysicsBody& body)
+		{
+			body.SetForce({});
+			body.SetTorque(0.0f);
+		});
+}
 
 void PhysicsSystem::PreUpdate()
 {
-	m_collision_pairs.clear();
-	m_collision_results.clear();
+
 }
 
 void PhysicsSystem::Update()
@@ -18,30 +48,35 @@ void PhysicsSystem::Update()
 
 void PhysicsSystem::FixedUpdate()
 {
+	m_collisions_data.clear();
+
+	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody>(); // naive implementation for now
+
+	for (int i = 0; i < entities.size(); ++i)
+		for (int j = 0; j < entities.size(); ++j)
+		{
+			PhysicsBody& A = m_entity_admin->GetComponent<PhysicsBody>(entities[i]);
+			PhysicsBody& B = m_entity_admin->GetComponent<PhysicsBody>(entities[j]);
+		}
+
+	m_update_forces.ForceRun();
+	
+	for (auto& collision : m_collisions_data)
+		Initialize(collision);
+
+	for (auto& collision : m_collisions_data)
+		ResolveCollision(collision);
+
+	m_update_velocities.ForceRun();
+
+	for (auto& collision : m_collisions_data)
+		PositionalCorrection(collision);
+
+	m_clear_forces.ForceRun();
 }
 
 void PhysicsSystem::PostUpdate()
 {
-}
-
-void PhysicsSystem::UpdateForces(PhysicsBody* body)
-{
-	if (body->GetInvMass() == 0.0f)
-		return;
-
-	body->AddVelocity((body->GetForce() * body->GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
-	body->AddAngularVelocity(body->GetTorque() * body->GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
-}
-
-void PhysicsSystem::UpdateVelocity(PhysicsBody* body, LocalTransform& local_transform)
-{
-	if (body->GetInvMass() == 0.0f)
-		return;
-
-	local_transform.Move(body->GetVelocity() * m_time->GetFixedDT());
-	local_transform.Rotate(sf::radians(body->GetAngularVelocity() * m_time->GetFixedDT()));
-
-	UpdateForces(body);
 }
 
 void PhysicsSystem::Initialize(CollisionData& collision)

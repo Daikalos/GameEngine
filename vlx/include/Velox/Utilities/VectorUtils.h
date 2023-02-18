@@ -95,7 +95,7 @@ namespace vlx::vu
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, const float length, const float radius)
+	NODISC static constexpr sf::Vector2<T> Normalize(sf::Vector2<T> vector, const float length, const float radius)
 	{
 		if (length < FLT_EPSILON)
 			return vector;

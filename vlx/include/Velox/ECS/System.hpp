@@ -35,7 +35,7 @@ namespace vlx
 		virtual void SetPriority(const float val) = 0;
 
 		virtual bool IsRunningParallel() const noexcept = 0;
-		virtual void RunParallel(const bool flag) noexcept = 0;
+		virtual void SetRunParallel(const bool flag) noexcept = 0;
 
 	protected:
 		virtual void DoAction(const Archetype* const archetype) const = 0;
@@ -73,11 +73,13 @@ namespace vlx
 		void SetPriority(const float val) override;
 
 		NODISC bool IsRunningParallel() const noexcept override;
-		void RunParallel(const bool flag) noexcept override;
+		void SetRunParallel(const bool flag) noexcept override;
 
 		const Archetype* ActiveArchetype() const;
 
 	public:
+		void ForceRun();
+
 		void All(AllFunc&& func);
 		void Each(EachFunc&& func);
 
@@ -149,7 +151,7 @@ namespace vlx
 		return m_run_parallel;
 	}
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::RunParallel(const bool flag) noexcept
+	inline void System<Cs...>::SetRunParallel(const bool flag) noexcept
 	{
 		m_run_parallel = flag;
 	}
@@ -173,6 +175,12 @@ namespace vlx
 			m_arch_key = { SystemIDs.begin(), SystemIDs.end() };
 
 		return m_arch_key;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void System<Cs...>::ForceRun()
+	{
+		m_entity_admin->RunSystems(m_layer);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

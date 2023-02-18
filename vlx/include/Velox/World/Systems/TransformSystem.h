@@ -8,7 +8,7 @@
 #include <Velox/Components/LocalTransform.h>
 #include <Velox/Components/Transform.h>
 #include <Velox/Components/Relation.h>
-#include <Velox/Physics/Shape.h>
+#include <Velox/Physics/PhysicsBody.h>
 
 #include <Velox/World/SystemObject.h>
 

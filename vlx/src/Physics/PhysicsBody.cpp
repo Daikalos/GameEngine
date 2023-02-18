@@ -62,6 +62,11 @@ void PhysicsBody::AddVelocity(const sf::Vector2f& velocity)
 {
 	m_velocity += velocity;
 }
+
+void PhysicsBody::SetForce(const sf::Vector2f& force)
+{
+	m_force = force;
+}
 void PhysicsBody::ApplyForce(const sf::Vector2f& force)
 {
 	m_force += force;
@@ -74,6 +79,11 @@ void PhysicsBody::SetAngularVelocity(const float angular_velocity)
 void PhysicsBody::AddAngularVelocity(const float angular_velocity)
 {
 	m_angular_velocity += angular_velocity;
+}
+
+void PhysicsBody::SetTorque(const float torque)
+{
+	m_torque = torque;
 }
 void PhysicsBody::ApplyTorque(const float torque)
 {

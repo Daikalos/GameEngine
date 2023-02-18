@@ -929,7 +929,9 @@ namespace vlx
 			if (it == m_archetype_map.end())
 				return entities;
 
-			entities = it->second->entities;
+			entities.insert(entities.end(), 
+				it->second->entities.begin(), 
+				it->second->entities.end());
 		}
 
 		return entities;

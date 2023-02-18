@@ -3,10 +3,11 @@
 using namespace vlx;
 
 World::World(const std::string_view name) : 
-	m_render_system(m_entity_admin, LYR_RENDERING),
+	m_state_stack(*this),
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
-	m_camera(CameraBehavior::Context(m_window, m_controls)), 
-	m_state_stack(*this)
+	m_camera(CameraBehavior::Context(m_window, m_controls)),
+	m_physics_system(m_entity_admin, LYR_PHYSICS, m_time),
+	m_render_system(m_entity_admin, LYR_RENDERING)
 {
 	m_window.Initialize();
 
@@ -114,6 +115,7 @@ void World::PreUpdate()
 	for (const auto& [layer, system] : m_sorted_systems)
 		system.second->PreUpdate();
 
+	m_physics_system.PreUpdate();
 	m_render_system.PreUpdate();
 }
 
@@ -125,6 +127,7 @@ void World::Update()
 	for (const auto& [layer, system] : m_sorted_systems)
 		system.second->Update();
 
+	m_physics_system.Update();
 	m_render_system.Update();
 }
 
@@ -135,6 +138,9 @@ void World::FixedUpdate()
 
 	for (const auto& [layer, system] : m_sorted_systems)
 		system.second->FixedUpdate();
+
+	m_physics_system.FixedUpdate();
+	m_render_system.FixedUpdate();
 }
 
 void World::PostUpdate()
@@ -145,6 +151,7 @@ void World::PostUpdate()
 	for (const auto& [layer, system] : m_sorted_systems)
 		system.second->PostUpdate();
 
+	m_physics_system.FixedUpdate();
 	m_render_system.PostUpdate();
 
 	if (m_state_stack.IsEmpty())

@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(100000);
+	m_entities.reserve(10000);
 
 	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
@@ -117,6 +117,15 @@ bool StateTest::Update(Time& time)
 		et0->Move({ 5.0f * time.GetDT(), 0.0f });
 
 	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
+
+	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
+	{
+		Entity& entity = m_entities.emplace_back(e0.Duplicate());
+		entity.AddComponent<PhysicsBody>();
+
+		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
+			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+	}
 
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 	{

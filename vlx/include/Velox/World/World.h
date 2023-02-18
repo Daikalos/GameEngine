@@ -23,6 +23,8 @@
 #include "Systems/GUISystem.h"
 #include "Systems/CullingSystem.h"
 
+#include <Velox/Physics/PhysicsSystem.h>
+
 #include "EngineBinds.h"
 
 namespace vlx
@@ -100,11 +102,9 @@ namespace vlx
 
 	private:
 		EntityAdmin		m_entity_admin;
-		WorldSystems	m_systems;
-		SortedSystems	m_sorted_systems;
 
-		RenderSystem	m_render_system; // obligatory system
-		// physics system
+		Time			m_time;
+		StateStack		m_state_stack;
 
 		ControlMap		m_controls;
 		Window			m_window;
@@ -113,8 +113,11 @@ namespace vlx
 		TextureHolder	m_textures;
 		FontHolder		m_fonts;
 
-		Time			m_time;
-		StateStack		m_state_stack;
+		WorldSystems	m_systems;
+		SortedSystems	m_sorted_systems;
+
+		PhysicsSystem	m_physics_system; // obligatory systems
+		RenderSystem	m_render_system;
 	};
 
 	template<std::derived_from<SystemObject> S>

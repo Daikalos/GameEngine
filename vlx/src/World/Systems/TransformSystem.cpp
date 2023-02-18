@@ -32,7 +32,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 				UpdateTransforms(local_transform, transform, relation.GetParent());
 		});
 
-	//m_global_system.Exclude<Shape>();
+	m_global_system.Exclude<PhysicsBody>();
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
@@ -53,8 +53,12 @@ void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle a
 
 void TransformSystem::SetGlobalPosition(LocalTransform& transform, Relation& relation, const sf::Vector2f& position)
 {
-	//Transform& parent = *CheckCache(relation.GetParent()->GetEntityID());
-	//transform.SetPosition(parent.GetInverseTransform() * position);
+	if (relation.HasParent())
+	{
+		Transform& parent = *CheckCache(relation.GetParent().GetEntityID()).Get<Transform>();
+		transform.SetPosition(parent.GetInverseTransform() * position);
+	}
+	else transform.SetPosition(position);
 }
 void TransformSystem::SetGlobalScale(LocalTransform& transform, Relation& relation, const sf::Vector2f& scale)
 {
