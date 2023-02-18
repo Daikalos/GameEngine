@@ -4,21 +4,26 @@
 #include <functional>
 
 #include "Shape.h"
-#include "CollisionResult.h"
+#include "CollisionData.h"
 
 namespace vlx
 {
 	struct Circle;
 	struct Rectangle;
-	struct CollisionResult;
+	struct CollisionData;
+
+	struct PhysicsBody;
+	class LocalTransform;
+	class Transform;
 
 	class CollisionTable
 	{
 	public:
-		using Matrix = std::array<std::function<CollisionResult(Shape&, Shape&)>, Shape::Count * Shape::Count>;
+		using Matrix = std::array<std::function<void(
+			CollisionData&, Shape&,  Transform&, Shape&,  Transform&)>, Shape::Count * Shape::Count>;
 
 	public:
-		static CollisionResult Collide(Shape& s1, Shape& s2);
+		static void Collide(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
 	private:
 		/// <summary>
@@ -32,17 +37,17 @@ namespace vlx
 		///   
 		/// </summary>
 
-		static CollisionResult CircleToCircle(Shape& s1, Shape& s2);
-		static CollisionResult CircleToAABB(Shape& s1, Shape& s2);
-		static CollisionResult CircleToConvex(Shape& s1, Shape& s2);
+		static void CircleToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void CircleToAABB	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void CircleToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
-		static CollisionResult AABBToCircle(Shape& s1, Shape& s2);
-		static CollisionResult AABBToAABB(Shape& s1, Shape& s2);
-		static CollisionResult AABBToConvex(Shape& s1, Shape& s2);
+		static void AABBToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void AABBToAABB		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void AABBToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
-		static CollisionResult ConvexToCircle(Shape& s1, Shape& s2);
-		static CollisionResult ConvexToAABB(Shape& s1, Shape& s2);
-		static CollisionResult ConvexToConvex(Shape& s1, Shape& s2);
+		static void ConvexToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void ConvexToAABB	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void ConvexToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
 	private:
 		static Matrix table;

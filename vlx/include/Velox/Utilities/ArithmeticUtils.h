@@ -31,7 +31,7 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr auto lerp(const T a, const T b, const double f)
+	NODISC static constexpr auto Lerp(const T a, const T b, const double f)
 	{
 		return (a * (1.0 - f)) + (b * f);
 	}
@@ -93,5 +93,11 @@ namespace vlx::au
 	NODISC static constexpr auto SP2(const T v0, const T v1)
 	{
 		return std::sqrt(P2(v0) + P2(v1));
+	}
+
+	template<std::floating_point T>
+	NODISC static constexpr auto Equal(const T a, const T b)
+	{
+		return std::abs(a - b) <= FLT_EPSILON;
 	}
 }

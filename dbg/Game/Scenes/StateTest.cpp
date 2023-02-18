@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(1000);
+	m_entities.reserve(100000);
 
 	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)

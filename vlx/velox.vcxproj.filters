@@ -36,8 +36,9 @@
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\World\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\Physics\Circle.cpp" />
-    <ClCompile Include="src\Physics\CircleBounds.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
+    <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Physics\PhysicsBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -78,7 +79,6 @@
     <ClInclude Include="include\Velox\Utilities.hpp" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
-    <ClInclude Include="include\Velox\Physics\Velocity.h" />
     <ClInclude Include="include\Velox\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
@@ -129,7 +129,9 @@
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsSystem.h" />
-    <ClInclude Include="include\Velox\Physics\MassData.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsLayer.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionData.h" />
+    <ClInclude Include="include\Velox\Utilities\MatrixUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

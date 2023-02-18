@@ -24,6 +24,17 @@ namespace vlx::vu
 	}
 
 	template<Arithmetic T>
+	NODISC static constexpr auto Cross(const sf::Vector2<T>& lhs, const float scalar)
+	{
+		return sf::Vector2<T>(scalar * lhs.y, -scalar * lhs.x);
+	}
+	template<Arithmetic T>
+	NODISC static constexpr auto Cross(const float scalar, const sf::Vector2<T>& lhs)
+	{
+		return sf::Vector2<T>(-scalar * lhs.y, scalar * lhs.x);
+	}
+
+	template<Arithmetic T>
 	NODISC static constexpr sf::Vector2<T> Direction(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
 		return sf::Vector2<T>(to.x - from.x, to.y - from.y);
@@ -158,17 +169,19 @@ namespace vlx::vu
 	NODISC static constexpr sf::Vector2<T> Lerp(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs, const float a)
 	{
 		return sf::Vector3<T>(
-			lerp(lhs.x, rhs.x, a),
-			lerp(lhs.y, rhs.y, a));
+			Lerp(lhs.x, rhs.x, a),
+			Lerp(lhs.y, rhs.y, a));
 	}
 	template<Arithmetic T>
 	NODISC static constexpr sf::Vector3<T> Lerp(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs, const float a)
 	{
 		return sf::Vector3<T>(
-			lerp(lhs.x, rhs.x, a),
-			lerp(lhs.y, rhs.y, a),
-			lerp(lhs.z, rhs.z, a));
+			Lerp(lhs.x, rhs.x, a),
+			Lerp(lhs.y, rhs.y, a),
+			Lerp(lhs.z, rhs.z, a));
 	}
+
+	static const sf::Vector2f Zero = {};
 }
 
 namespace vlx

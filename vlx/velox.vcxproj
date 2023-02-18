@@ -158,9 +158,9 @@
     <ClInclude Include="include\Velox\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
     <ClInclude Include="include\Velox\Physics\Circle.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
-    <ClInclude Include="include\Velox\Physics\MassData.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
     <ClInclude Include="include\Velox\Components\QTElement.hpp" />
     <ClInclude Include="include\Velox\Components\Relation.h" />
@@ -179,15 +179,16 @@
     <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Components\Transform.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsLayer.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsSystem.h" />
-    <ClInclude Include="include\Velox\Physics\Velocity.h" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
     <ClInclude Include="include\Velox\ECS\Entity.h" />
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
     <ClInclude Include="include\Velox\Physics\Shape.h" />
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
+    <ClInclude Include="include\Velox\Utilities\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Utilities\PolicySelect.h" />
     <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
@@ -244,8 +245,9 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Physics\PhysicsBody.cpp" />
+    <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
-    <ClCompile Include="src\Physics\CircleBounds.cpp" />
     <ClCompile Include="src\Physics\Circle.cpp" />
     <ClCompile Include="src\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />

@@ -17,7 +17,7 @@ namespace vlx
 		virtual ~SystemObject() = default;
 
 	public:
-		[[nodiscard]] constexpr LayerType GetID() const noexcept;
+		NODISC constexpr LayerType GetID() const noexcept;
 
 	public:
 		virtual void PreUpdate() {}

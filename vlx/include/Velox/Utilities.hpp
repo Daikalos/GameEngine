@@ -15,3 +15,4 @@
 #include "Utilities/Event.hpp"
 #include "Utilities/EventHandler.hpp"
 #include "Utilities/Rectangle.hpp"
+#include "Utilities/MatrixUtils.h"

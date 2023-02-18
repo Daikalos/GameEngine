@@ -32,5 +32,4 @@
 #define NODISC [[nodiscard]]
 #define UNUSED [[maybe_unused]]
 
-static constexpr int MATRIX_WIDTH = 4;
 static constexpr int TRIANGLE_COUNT = 3;

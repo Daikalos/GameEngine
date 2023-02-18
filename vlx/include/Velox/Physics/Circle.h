@@ -7,7 +7,7 @@ namespace vlx
 {
 	struct Circle : public Shape
 	{
-		float radius;
+		float radius{0.0f};
 
 		constexpr Shape::Type GetType() const noexcept override;
 	};

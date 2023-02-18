@@ -31,6 +31,8 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			if (transform.m_dirty)
 				UpdateTransforms(local_transform, transform, relation.GetParent());
 		});
+
+	//m_global_system.Exclude<Shape>();
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 

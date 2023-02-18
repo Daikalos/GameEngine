@@ -4,7 +4,7 @@ namespace vlx
 {
 	struct PhysicsMaterial
 	{
-		float density;
-		float restitution;
+		float density		{1.0f};
+		float restitution	{0.2f};
 	};
 }
