@@ -50,15 +50,30 @@ void PhysicsSystem::FixedUpdate()
 {
 	m_collisions_data.clear();
 
-	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody>(); // naive implementation for now
+	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody, Circle, LocalTransform, Transform>(); // naive implementation for now
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		PhysicsBody& A = m_entity_admin->GetComponent<PhysicsBody>(entities[i]);
+		Circle& AC = m_entity_admin->GetComponent<Circle>(entities[i]);		
+		LocalTransform& ALT = m_entity_admin->GetComponent<LocalTransform>(entities[i]);
+		Transform& AT = m_entity_admin->GetComponent<Transform>(entities[i]);
+
 		for (int j = i + 1; j < entities.size(); ++j)
 		{
 			PhysicsBody& B = m_entity_admin->GetComponent<PhysicsBody>(entities[j]);
+			Circle& BC = m_entity_admin->GetComponent<Circle>(entities[j]);
+			LocalTransform& BLT = m_entity_admin->GetComponent<LocalTransform>(entities[j]);
+			Transform& BT = m_entity_admin->GetComponent<Transform>(entities[j]);
 
+			if (A.GetInvMass() == 0.0f && B.GetInvMass() == 0)
+				continue;
+
+			CollisionData data(&A, &B, &ALT, &BLT, &AT, &BT);
+			CollisionTable::Collide(data, AC, AT, BC, BT);
+
+			if (data.contact_count)
+				m_collisions_data.emplace_back(data);
 		}
 	}
 
@@ -103,7 +118,7 @@ void PhysicsSystem::Initialize(CollisionData& collision)
 		sf::Vector2f rv =	B.GetVelocity() + vu::Cross(B.GetAngularVelocity(), rb) -
 							A.GetVelocity() - vu::Cross(A.GetAngularVelocity(), ra);
 
-		if (rv.lengthSq() < (m_time->GetFixedDT() * m_gravity).lengthSq() + FLT_EPSILON)
+		if (rv.lengthSq() < (m_gravity * m_time->GetFixedDT()).lengthSq() + FLT_EPSILON)
 			collision.min_restitution = 0.0f;
 	}
 }
@@ -140,7 +155,7 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		const float rb_cross_n = vu::Cross(rb, collision.normal);
 
 		const float inv_mass_sum = A.GetInvMass() + B.GetInvMass() +
-			std::sqrt(ra_cross_n) * A.GetInvInertia() + std::sqrt(rb_cross_n) * B.GetInvInertia();
+			au::P2(ra_cross_n) * A.GetInvInertia() + au::P2(rb_cross_n) * B.GetInvInertia();
 
 		// impulse scalar
 		float j = -(1.0f + collision.min_restitution) * vel_along_normal;

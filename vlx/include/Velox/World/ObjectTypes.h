@@ -23,7 +23,7 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, PhysicsBody, gui::Container, gui::Button, gui::Label>;
+	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Circle, PhysicsBody, gui::Container, gui::Button, gui::Label>;
 	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
 
 	namespace gui

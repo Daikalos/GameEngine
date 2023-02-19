@@ -9,6 +9,9 @@ namespace vlx
 	{
 		float radius{0.0f};
 
-		constexpr Shape::Type GetType() const noexcept override;
+		constexpr Type GetType() const noexcept override
+		{
+			return Shape::Circle;
+		}
 	};
 }

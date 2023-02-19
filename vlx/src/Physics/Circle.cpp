@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-constexpr Shape::Type Circle::GetType() const noexcept
-{
-	return Shape::Circle;
-}
+//Shape::Type Circle::GetType() const noexcept
+//{
+//	return Shape::Circle;
+//}

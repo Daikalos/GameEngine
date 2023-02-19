@@ -32,8 +32,6 @@ namespace vlx
 	public:
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		auto AddComponent(Args&&... args);
-		template<IsComponent C>
-		auto AddComponent(C&& comp);
 
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents();
@@ -79,12 +77,6 @@ namespace vlx
 	inline auto Entity::AddComponent(Args&&... args)
 	{
 		return m_entity_admin->AddComponent<C>(m_id, std::forward<Args>(args)...);
-	}
-
-	template<IsComponent C>
-	inline auto Entity::AddComponent(C&& comp)
-	{
-		return m_entity_admin->AddComponent<C>(m_id, std::forward<C>(comp));
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

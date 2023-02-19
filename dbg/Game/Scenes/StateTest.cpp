@@ -121,6 +121,10 @@ bool StateTest::Update(Time& time)
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
+		entity.AddComponent<Circle>();
+
+		entity.GetComponent<Circle>().radius = 10.0f;
+		entity.GetComponent<LocalTransform>().SetOrigin({8, 8});
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));

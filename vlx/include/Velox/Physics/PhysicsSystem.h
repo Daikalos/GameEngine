@@ -13,6 +13,7 @@
 #include "Circle.h"
 #include "CollisionResult.h"
 #include "CollisionData.h"
+#include "CollisionTable.h"
 
 namespace vlx
 {

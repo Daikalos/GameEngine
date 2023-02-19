@@ -43,11 +43,13 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 	if (dist_sqr >= radius * radius)
 		return;
 
+	collision.contact_count = 1;
+
 	if (dist_sqr == 0.0f)
 	{
 		collision.penetration	= c1.radius;
 		collision.normal		= sf::Vector2f::UnitX;
-		collision.contact_count = 1;
+		collision.contacts[0]	= t1.GetPosition();
 
 		return;
 	}
@@ -56,7 +58,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 
 	collision.penetration	= radius - distance;
 	collision.normal		= normal / distance;
-	collision.contact_count = 1;
+	collision.contacts[0]	= collision.normal * c1.radius + t1.GetPosition();
 }
 void CollisionTable::CircleToAABB(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
 {
