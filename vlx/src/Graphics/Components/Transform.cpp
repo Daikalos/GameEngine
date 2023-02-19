@@ -1,4 +1,4 @@
-#include <Velox/Components/Transform.h>
+#include <Velox/Graphics/Components/Transform.h>
 
 using namespace vlx;
 using namespace vlx::mu;
