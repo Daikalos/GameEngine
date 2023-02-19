@@ -166,7 +166,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\Relation.h" />
     <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
-    <ClInclude Include="include\Velox\Velox.h" />
+    <ClInclude Include="include\Velox\Velox.hpp" />
     <ClInclude Include="include\Velox\World\ObjectTypes.h" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />

@@ -132,7 +132,7 @@
     <ClInclude Include="include\Velox\Physics\PhysicsLayer.h" />
     <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Utilities\MatrixUtils.h" />
-    <ClInclude Include="include\Velox\Velox.h" />
+    <ClInclude Include="include\Velox\Velox.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <Velox/Velox.h>
+#include <Velox/Velox.hpp>
 
 #include <Velox/Algorithms/LQuadTree.hpp>
 
