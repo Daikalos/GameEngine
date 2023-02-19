@@ -5,12 +5,13 @@
 #include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
 
-#include <Velox/Components/LocalTransform.h>
-#include <Velox/Components/Transform.h>
-#include <Velox/Components/Relation.h>
+#include <Velox/Graphics/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/Relation.h>
+
 #include <Velox/Physics/PhysicsBody.h>
 
-#include <Velox/World/SystemObject.h>
+#include <Velox/ECS/SystemObject.h>
 
 namespace vlx
 {

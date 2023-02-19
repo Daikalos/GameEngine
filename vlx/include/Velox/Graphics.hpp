@@ -11,3 +11,18 @@
 #include "Graphics/GUI/Button.h"
 #include "Graphics/GUI/Label.h"
 #include "Graphics/GUI/Container.h"
+
+#include "Graphics/Components/IBatchable.h"
+#include "Graphics/Components/LocalTransform.h"
+#include "Graphics/Components/Object.h"
+#include "Graphics/Components/Relation.h"
+#include "Graphics/Components/Sprite.h"
+#include "Graphics/Components/Transform.h"
+
+#include "Graphics/Systems/AnchorSystem.h"
+#include "Graphics/Systems/CullingSystem.h"
+#include "Graphics/Systems/GUISystem.h"
+#include "Graphics/Systems/ObjectSystem.h"
+#include "Graphics/Systems/RelationSystem.h"
+#include "Graphics/Systems/RenderSystem.h"
+#include "Graphics/Systems/TransformSystem.h"

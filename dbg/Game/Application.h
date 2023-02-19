@@ -6,7 +6,6 @@
 #include <string_view>
 
 #include <Velox/World/World.h>
-#include <Velox/ObjectTypes.hpp>
 
 #include "Binds.h"
 #include "Scenes/StateTest.h"

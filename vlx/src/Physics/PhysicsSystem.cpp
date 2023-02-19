@@ -53,11 +53,14 @@ void PhysicsSystem::FixedUpdate()
 	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody>(); // naive implementation for now
 
 	for (int i = 0; i < entities.size(); ++i)
-		for (int j = 0; j < entities.size(); ++j)
+	{
+		PhysicsBody& A = m_entity_admin->GetComponent<PhysicsBody>(entities[i]);
+		for (int j = i + 1; j < entities.size(); ++j)
 		{
-			PhysicsBody& A = m_entity_admin->GetComponent<PhysicsBody>(entities[i]);
 			PhysicsBody& B = m_entity_admin->GetComponent<PhysicsBody>(entities[j]);
+
 		}
+	}
 
 	m_update_forces.ForceRun();
 	

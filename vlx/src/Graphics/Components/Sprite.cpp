@@ -1,4 +1,4 @@
-#include <Velox/Components/Sprite.h>
+#include <Velox/Graphics/Components/Sprite.h>
 
 #include <Velox/Graphics/SpriteBatch.h>
 

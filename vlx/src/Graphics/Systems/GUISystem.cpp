@@ -1,4 +1,4 @@
-#include <Velox/World/Systems/GUISystem.h>
+#include <Velox/Graphics/Systems/GUISystem.h>
 
 using namespace vlx::gui;
 

@@ -1,4 +1,4 @@
-#include <Velox/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/LocalTransform.h>
 
 using namespace vlx;
 

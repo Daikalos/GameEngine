@@ -1,4 +1,4 @@
-#include <Velox/Components/Relation.h>
+#include <Velox/Graphics/Components/Relation.h>
 
 using namespace vlx;
 

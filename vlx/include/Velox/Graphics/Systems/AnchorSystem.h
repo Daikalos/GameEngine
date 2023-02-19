@@ -3,12 +3,10 @@
 #include <Velox/ECS.hpp>
 
 #include <Velox/Graphics/GUI/Anchor.h>
-#include <Velox/Components/Transform.h>
+#include <Velox/Graphics/Components/Transform.h>
 
 #include <Velox/Window/Window.h>
 #include <Velox/Config.hpp>
-
-#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {

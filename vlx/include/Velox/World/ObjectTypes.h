@@ -1,21 +1,22 @@
 #pragma once
 
-#include "Utilities.hpp"
+#include <Velox/Utilities.hpp>
 
-#include "Components/Object.h"
-#include "Components/LocalTransform.h"
-#include "Components/Transform.h"
-#include "Components/Relation.h"
-#include "Components/Sprite.h"
-#include "Components/QTElement.hpp"
+#include <Velox/Graphics/Components/Object.h>
+#include <Velox/Graphics/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/Relation.h>
+#include <Velox/Graphics/Components/Sprite.h>
 
-#include "Physics/Circle.h"
-#include "Physics/PhysicsBody.h"
+#include <Velox/Algorithms/QTElement.hpp>
 
-#include "Graphics/GUI/Container.h"
-#include "Graphics/GUI/Button.h"
-#include "Graphics/GUI/Label.h"
-#include "Graphics/GUI/TextBox.h"
+#include <Velox/Physics/Circle.h>
+#include <Velox/Physics/PhysicsBody.h>
+
+#include <Velox/Graphics/GUI/Container.h>
+#include <Velox/Graphics/GUI/Button.h>
+#include <Velox/Graphics/GUI/Label.h>
+#include <Velox/Graphics/GUI/TextBox.h>
 
 // TODO: maybe expand this to return constructed object with default parameters set, e.g., 
 // quickly return a button object with sprite, events, and default colors set

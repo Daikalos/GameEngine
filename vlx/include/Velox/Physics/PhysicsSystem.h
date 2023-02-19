@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include <Velox/Components/Transform.h>
-#include <Velox/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/LocalTransform.h>
 
-#include <Velox/World/SystemObject.h>
+#include <Velox/ECS/SystemObject.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/Utilities.hpp>
 

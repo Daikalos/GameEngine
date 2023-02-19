@@ -15,14 +15,6 @@
 
 #include <Velox/Scene/StateStack.h>
 
-#include "Systems/AnchorSystem.h"
-#include "Systems/ObjectSystem.h"
-#include "Systems/RenderSystem.h"
-#include "Systems/RelationSystem.h"
-#include "Systems/TransformSystem.h"
-#include "Systems/GUISystem.h"
-#include "Systems/CullingSystem.h"
-
 #include <Velox/Physics/PhysicsSystem.h>
 
 #include "EngineBinds.h"

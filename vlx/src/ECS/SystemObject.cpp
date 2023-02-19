@@ -1,4 +1,4 @@
-#include <Velox/World/SystemObject.h>
+#include <Velox/ECS/SystemObject.h>
 
 using namespace vlx;
 

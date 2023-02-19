@@ -1,13 +1,14 @@
 #pragma once
 
 #include <Velox/ECS/Identifiers.hpp>
-#include <Velox/World/SystemObject.h>
+#include <Velox/ECS/SystemObject.h>
 #include <Velox/Window/Camera.h>
 
-#include <Velox/Components/QTElement.hpp>
-#include <Velox/Components/Object.h>
-#include <Velox/Components/Transform.h>
-#include <Velox/Components/Sprite.h>
+#include <Velox/Algorithms/QTElement.hpp>
+
+#include <Velox/Graphics/Components/Object.h>
+#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/Sprite.h>
 
 namespace vlx
 {

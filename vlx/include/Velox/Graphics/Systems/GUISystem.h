@@ -8,12 +8,13 @@
 #include <Velox/Input.hpp>
 #include <Velox/Window.hpp>
 #include <Velox/Config.hpp>
-#include <Velox/Components/Transform.h>
-#include <Velox/Components/Object.h>
 
-#include <Velox/World/SystemObject.h>
+#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/Object.h>
 
-#include "../EngineBinds.h"
+#include <Velox/ECS/SystemObject.h>
+
+#include <Velox/World/EngineBinds.h>
 
 namespace vlx::gui
 {

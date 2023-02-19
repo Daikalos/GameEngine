@@ -1,4 +1,4 @@
-#include <Velox/World/Systems/ObjectSystem.h>
+#include <Velox/Graphics/Systems/ObjectSystem.h>
 
 using namespace vlx;
 

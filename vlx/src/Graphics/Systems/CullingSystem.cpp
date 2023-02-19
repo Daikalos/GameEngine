@@ -1,4 +1,4 @@
-#include <Velox/World/Systems/CullingSystem.h>
+#include <Velox/Graphics/Systems/CullingSystem.h>
 
 using namespace vlx;
 

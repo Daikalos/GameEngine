@@ -7,7 +7,8 @@
 
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
-#include <Velox/Components/IBatchable.h>
+
+#include <Velox/Graphics/Components/IBatchable.h>
 
 namespace vlx
 {

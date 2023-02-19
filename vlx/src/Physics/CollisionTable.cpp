@@ -3,8 +3,8 @@
 #include <Velox/Physics/Circle.h>
 #include <Velox/Physics/CollisionData.h>
 
-#include <Velox/Components/LocalTransform.h>
-#include <Velox/Components/Transform.h>
+#include <Velox/Graphics/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/Transform.h>
 
 using namespace vlx;
 

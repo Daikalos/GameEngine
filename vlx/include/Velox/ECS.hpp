@@ -10,3 +10,4 @@
 #include "ECS/BaseRef.hpp"
 #include "ECS/ComponentRef.hpp"
 #include "ECS/ComponentSet.hpp"
+#include "ECS/SystemObject.h"

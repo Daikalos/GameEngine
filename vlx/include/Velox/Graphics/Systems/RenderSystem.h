@@ -2,11 +2,10 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Components/Object.h>
-#include <Velox/Components/Sprite.h>
-#include <Velox/Components/LocalTransform.h>
-#include <Velox/Components/Transform.h>
-#include <Velox/Components/QTElement.hpp>
+#include <Velox/Graphics/Components/Object.h>
+#include <Velox/Graphics/Components/Sprite.h>
+#include <Velox/Graphics/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/Transform.h>
 
 #include <Velox/Algorithms/LQuadTree.hpp>
 
@@ -15,8 +14,6 @@
 #include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/Window.hpp>
-
-#include <Velox/World/SystemObject.h>
 
 namespace vlx
 {

@@ -2,10 +2,7 @@
 
 #include <iostream>
 
-#include <Velox/ECS.hpp>
-#include <Velox/Utilities.hpp>
-#include <Velox/World/World.h>
-#include <Velox/ObjectTypes.hpp>
+#include <Velox/Velox.h>
 
 #include <Velox/Algorithms/LQuadTree.hpp>
 

@@ -5,9 +5,7 @@
 #include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
 
-#include <Velox/Components/Relation.h>
-
-#include <Velox/World/SystemObject.h>
+#include <Velox/Graphics/Components/Relation.h>
 
 namespace vlx
 {

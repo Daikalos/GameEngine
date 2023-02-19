@@ -6,9 +6,7 @@
 #include <Velox/Config.hpp>
 #include <Velox/Utilities.hpp>
 
-#include <Velox/Components/Object.h>
-
-#include <Velox/World/SystemObject.h>
+#include <Velox/Graphics/Components/Object.h>
 
 namespace vlx
 {
