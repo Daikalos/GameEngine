@@ -103,7 +103,6 @@ void StateTest::OnCreated()
 
 	auto test = quad_tree.Query({0,0, 5, 5});
 	int sdadsa = test.size();
-
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)

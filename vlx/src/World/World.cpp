@@ -55,18 +55,28 @@ const EntityAdmin& World::GetEntityAdmin() const noexcept		{ return m_entity_adm
 
 void World::RemoveSystem(const LayerType id)
 {
+	m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
+		[&id](const auto& item)
+		{
+			return item->GetID() == id;
+		}));
+
 	m_systems.erase(std::ranges::find_if(m_systems.begin(), m_systems.end(),
 		[id](const auto& pair)
 		{
 			return pair.second->GetID() == id;
 		}));
-
-	m_sorted_systems.erase(id);
 }
 
 bool World::HasSystem(const LayerType id) const
 {
-	return m_sorted_systems.contains(id);
+	const auto it = std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
+		[&id](const auto& item)
+		{
+			return item->GetID() == id;
+		});
+
+	return it != m_sorted_systems.end();
 }
 
 void World::Run()
@@ -112,8 +122,8 @@ void World::PreUpdate()
 	m_state_stack.PreUpdate(m_time);
 	m_camera.PreUpdate(m_time);
 
-	for (const auto& [layer, system] : m_sorted_systems)
-		system.second->PreUpdate();
+	for (const auto& system : m_sorted_systems)
+		system->PreUpdate();
 
 	m_physics_system.PreUpdate();
 	m_render_system.PreUpdate();
@@ -124,8 +134,8 @@ void World::Update()
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 
-	for (const auto& [layer, system] : m_sorted_systems)
-		system.second->Update();
+	for (const auto& system : m_sorted_systems)
+		system->Update();
 
 	m_physics_system.Update();
 	m_render_system.Update();
@@ -136,8 +146,8 @@ void World::FixedUpdate()
 	m_state_stack.FixedUpdate(m_time);
 	m_camera.FixedUpdate(m_time);
 
-	for (const auto& [layer, system] : m_sorted_systems)
-		system.second->FixedUpdate();
+	for (const auto& system : m_sorted_systems)
+		system->FixedUpdate();
 
 	m_physics_system.FixedUpdate();
 	m_render_system.FixedUpdate();
@@ -148,8 +158,8 @@ void World::PostUpdate()
 	m_state_stack.PostUpdate(m_time);
 	m_camera.PostUpdate(m_time);
 
-	for (const auto& [layer, system] : m_sorted_systems)
-		system.second->PostUpdate();
+	for (const auto& system : m_sorted_systems)
+		system->PostUpdate();
 
 	m_physics_system.FixedUpdate();
 	m_render_system.PostUpdate();

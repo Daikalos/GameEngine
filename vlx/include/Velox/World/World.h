@@ -1,7 +1,6 @@
 #pragma once
 
 #include <typeindex>
-#include <map>
 #include <unordered_map>
 
 #include <SFML/Graphics.hpp>
@@ -27,10 +26,8 @@ namespace vlx
 	class World : private NonCopyable
 	{
 	private:
-		using SystemTracker = std::pair<std::weak_ptr<SystemObject>, SystemObject*>;
-
 		using WorldSystems	= std::unordered_map<std::type_index, SystemObject::Ptr>;
-		using SortedSystems = std::map<LayerType, SystemTracker>;
+		using SortedSystems = std::vector<SystemObject*>;
 
 	public:
 		VELOX_API World(const std::string_view name);
@@ -130,24 +127,32 @@ namespace vlx
 		if (HasSystem<S>()) // don't add if already exists
 			return std::nullopt;
 
-		SystemObject::Ptr system = std::make_shared<S>(std::forward<Args>(args)...);
+		auto system = std::make_unique<S>(std::forward<Args>(args)...);
+		auto system_ptr = system.get();
 
-		m_systems[typeid(S)] = system;
-		m_sorted_systems[system->GetID()] = std::make_pair(system, system.get());
+		m_systems[typeid(S)] = std::move(system);
 
-		return static_cast<S*>(system.get());
+		cu::InsertSorted(m_sorted_systems, system_ptr,
+			[](const SystemObject* lhs, const SystemObject* rhs)
+			{
+				return lhs->GetID() < rhs->GetID();
+			});
+
+		return system_ptr;
 	}
 
 	template<std::derived_from<SystemObject> S>
 	inline void World::RemoveSystem()
 	{
-		m_systems.erase(typeid(S));
+		SystemObject* system_ptr = &GetSystem<S>();
 
-		m_sorted_systems.erase(std::find_if(m_sorted_systems.begin(), m_sorted_systems.end(), // find system that was removed
-			[](const auto& item)
+		m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
+			[&system_ptr](const auto& item)
 			{
-				return item.second.first.expired();
-			})); // and erase it from list
+				return item == system_ptr;
+			}));
+
+		m_systems.erase(typeid(S));
 	}
 
 	template<std::derived_from<SystemObject> S>

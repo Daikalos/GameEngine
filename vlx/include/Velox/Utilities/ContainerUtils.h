@@ -127,15 +127,35 @@ namespace vlx::cu
 	}
 
 	template<IsContainer T, class Iter = typename T::const_iterator, typename U = typename T::value_type>
-	NODISC  static constexpr Iter FindSorted(const T& container, const U& item)
+	NODISC static constexpr Iter FindSorted(const T& container, const U& item)
 	{
 		return std::lower_bound(container.begin(), container.end(), item);
+	}
+
+	template<IsContainer T, class Comp, class Iter = typename T::const_iterator, typename U = typename T::value_type>
+	NODISC static constexpr Iter FindSorted(const T& container, const U& item, Comp&& comparison)
+	{
+		return std::lower_bound(container.begin(), container.end(), item, std::forward<Comp>(comparison));
 	}
 
 	template<IsContainer T>
 	static constexpr bool InsertSorted(T& container, typename T::const_reference item)
 	{
 		const typename T::const_iterator it = FindSorted(container, item);
+
+		if (it == container.cend() || *it != item)
+		{
+			container.insert(it, item);
+			return true;
+		}
+
+		return false;
+	}
+
+	template<IsContainer T, typename Comp>
+	static constexpr bool InsertSorted(T& container, typename T::const_reference item, Comp&& comparison)
+	{
+		const typename T::const_iterator it = FindSorted(container, item, std::forward<Comp>(comparison));
 
 		if (it == container.cend() || *it != item)
 		{

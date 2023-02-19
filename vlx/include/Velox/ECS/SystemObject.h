@@ -1,16 +1,16 @@
 #pragma once
 
-#include <Velox/ECS.hpp>
-
-#include <Velox/Config.hpp>
 #include <memory>
+
+#include <Velox/ECS.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
 	class VELOX_API SystemObject
 	{
 	public:
-		using Ptr = std::shared_ptr<SystemObject>;
+		using Ptr = std::unique_ptr<SystemObject>;
 
 	public:
 		SystemObject(EntityAdmin& entity_admin, const LayerType id);
