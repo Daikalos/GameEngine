@@ -9,11 +9,12 @@ Examples of planned features:
 - ECS design ✓
 - StateStack ✓
 - Window & Camera ✓
-- World (WIP)   
+- World ✓  
 - Graphical User Interface (WIP)       
-- Physics
-- Collisions
-- Animations     
+- Physics (WIP)
+- Collisions (WIP)
+- Animations  
+- Particle System   
 - Networking
 - Audio
 - ...
