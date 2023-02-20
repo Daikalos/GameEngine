@@ -1,16 +1,17 @@
 #pragma once
 
 #include "Shape.h"
+#include <Velox/Utilities/Rectangle.hpp>
 
 namespace vlx
 {
-	struct Circle : public Shape
+	struct Box : public Shape
 	{
-		float radius{0.0f};
+		RectFloat rectangle;
 
 		constexpr Type GetType() const noexcept override
 		{
-			return Shape::Circle;
+			return Shape::Box;
 		}
 	};
 }

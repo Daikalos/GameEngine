@@ -41,20 +41,10 @@ namespace vlx::vu
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr float Distance(const sf::Vector2<T>& vector)
-	{
-		return std::sqrtf(vector.x * vector.x + vector.y * vector.y);
-	}
-	template<Arithmetic T>
-	NODISC static constexpr float DistanceSq(const sf::Vector2<T>& vector)
-	{
-		return vector.x * vector.x + vector.y * vector.y;
-	}
-	template<Arithmetic T>
 	NODISC static constexpr float DistanceOpt(const sf::Vector2<T>& vector)
 	{
-		T dx = std::fabsf(vector.x);
-		T dy = std::fabsf(vector.y);
+		T dx = std::abs(vector.x);
+		T dy = std::abs(vector.y);
 
 		if (dy > dx)
 			std::swap(dx, dy);
@@ -108,7 +98,7 @@ namespace vlx::vu
 	template<Arithmetic T>
 	NODISC static constexpr sf::Vector2<T> Normalize(const sf::Vector2<T>& vector, const float radius = 1.0f)
 	{
-		return Normalize(vector, Distance(vector), radius);
+		return Normalize(vector, vector.length(), radius);
 	}
 
 	template<Arithmetic T>
@@ -139,6 +129,14 @@ namespace vlx::vu
 	NODISC static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, const float max_length, const float min_length)
 	{
 		return Clamp(vector, Distance(vector), max_length, min_length);
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, const sf::Vector2<T>& min, const sf::Vector2<T>& max)
+	{
+		return sf::Vector2<T>(
+			std::clamp(vector.x, min.x, max.x),
+			std::clamp(vector.y, min.y, max.y));
 	}
 
 	template<Arithmetic T>

@@ -22,11 +22,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetInvMass() == 0.0f)
 				return;
 
-			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
-			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
+			if (body.GetVelocity().length() < PHYSICS_EPSILON)
+			{
+				body.SetVelocity({});
+				body.m_awake = false;
+			}
+			else
+			{
+				local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
+				local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
 
-			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
-			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
+				body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
+				body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
+			}
 		});
 
 	m_clear_forces.Each([this](const EntityID entity_id, PhysicsBody& body)
@@ -50,27 +58,39 @@ void PhysicsSystem::FixedUpdate()
 {
 	m_collisions_data.clear();
 
-	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody, Circle, LocalTransform, Transform>(); // naive implementation for now
+	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody, LocalTransform, Transform>(); // naive implementation for now
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		PhysicsBody& A = m_entity_admin->GetComponent<PhysicsBody>(entities[i]);
-		Circle& AC = m_entity_admin->GetComponent<Circle>(entities[i]);		
 		LocalTransform& ALT = m_entity_admin->GetComponent<LocalTransform>(entities[i]);
 		Transform& AT = m_entity_admin->GetComponent<Transform>(entities[i]);
+
+		Shape* AS = nullptr;
+
+		if (m_entity_admin->HasComponent<Circle>(entities[i]))
+			AS = &m_entity_admin->GetComponent<Circle>(entities[i]);
+		else
+			AS = &m_entity_admin->GetComponent<Box>(entities[i]);
 
 		for (int j = i + 1; j < entities.size(); ++j)
 		{
 			PhysicsBody& B = m_entity_admin->GetComponent<PhysicsBody>(entities[j]);
-			Circle& BC = m_entity_admin->GetComponent<Circle>(entities[j]);
 			LocalTransform& BLT = m_entity_admin->GetComponent<LocalTransform>(entities[j]);
 			Transform& BT = m_entity_admin->GetComponent<Transform>(entities[j]);
+
+			Shape* BS = nullptr;
+
+			if (m_entity_admin->HasComponent<Circle>(entities[j]))
+				BS = &m_entity_admin->GetComponent<Circle>(entities[j]);
+			else
+				BS = &m_entity_admin->GetComponent<Box>(entities[j]);
 
 			if (A.GetInvMass() == 0.0f && B.GetInvMass() == 0)
 				continue;
 
 			CollisionData data(&A, &B, &ALT, &BLT, &AT, &BT);
-			CollisionTable::Collide(data, AC, AT, BC, BT);
+			CollisionTable::Collide(data, *AS, AT, *BS, BT);
 
 			if (data.contact_count)
 				m_collisions_data.emplace_back(data);
@@ -82,8 +102,9 @@ void PhysicsSystem::FixedUpdate()
 	for (auto& collision : m_collisions_data)
 		Initialize(collision);
 
-	for (auto& collision : m_collisions_data)
-		ResolveCollision(collision);
+	for (int i = 0; i < 10; ++i)
+		for (auto& collision : m_collisions_data)
+			ResolveCollision(collision);
 
 	m_update_velocities.ForceRun();
 
@@ -162,9 +183,9 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		j /= inv_mass_sum;
 		j /= (float)collision.contact_count;
 
-		const sf::Vector2f impulse = j * collision.normal;
+		const sf::Vector2f impulse = collision.normal * j;
 		A.ApplyImpulse(-impulse, ra);
-		B.ApplyImpulse(impulse, rb);
+		B.ApplyImpulse( impulse, rb);
 
 
 
@@ -172,7 +193,12 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 				A.GetVelocity() - vu::Cross(A.GetAngularVelocity(), ra);
 
 		sf::Vector2f t = rv - (collision.normal * vu::Dot(rv, collision.normal));
-		t = vu::Normalize(t);
+
+		float length_sqr = t.lengthSq();
+		if (length_sqr <= FLT_EPSILON)
+			return;
+
+		t = vu::Normalize(t, std::sqrt(length_sqr), 1.0f);
 
 		float jt = -vu::Dot(rv, t);
 		jt /= inv_mass_sum;
@@ -190,11 +216,12 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 
 void PhysicsSystem::PositionalCorrection(CollisionData& collision)
 {
-	const float percent = 0.4f;
-	const float k_slop = 0.05f;
+	const float percent = 0.20f;
+	const float k_slop	= 0.01f;
 
-	sf::Vector2f correction = std::max(collision.penetration - k_slop, 0.0f) / (collision.A->GetInvMass() + collision.B->GetInvMass()) * collision.normal * percent;
+	sf::Vector2f correction = (std::max(collision.penetration - k_slop, 0.0f) / 
+		(collision.A->GetInvMass() + collision.B->GetInvMass())) * collision.normal * percent;
 
-	collision.ALT->Move(-collision.A->GetInvMass() * correction);
-	collision.BLT->Move(collision.B->GetInvMass() * correction);
+	collision.ALT->Move(-correction * collision.A->GetInvMass());
+	collision.BLT->Move( correction * collision.B->GetInvMass());
 }

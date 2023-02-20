@@ -13,7 +13,8 @@ namespace vlx
 		enum Type : short
 		{
 			Circle,
-			AABB,
+			Box,
+			Point,
 			Convex,
 
 			// not sure if engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,

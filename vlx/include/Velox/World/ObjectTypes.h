@@ -11,6 +11,7 @@
 #include <Velox/Algorithms/QTElement.hpp>
 
 #include <Velox/Physics/Circle.h>
+#include <Velox/Physics/Box.h>
 #include <Velox/Physics/PhysicsBody.h>
 
 #include <Velox/Graphics/GUI/Container.h>
@@ -23,7 +24,7 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Circle, PhysicsBody, gui::Container, gui::Button, gui::Label>;
+	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Circle, Box, PhysicsBody, gui::Container, gui::Button, gui::Label>;
 	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
 
 	namespace gui

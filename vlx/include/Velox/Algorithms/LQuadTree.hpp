@@ -37,7 +37,7 @@ namespace vlx
 		{
 			int first_child	{-1};	// first sub-branch or first element index
 			int count		{0};	// -1 for branch or it's a leaf and count means number of elements
-			RectFloat rect;			// loose AABB
+			RectFloat rect;			// loose Box
 		};
 
 		struct ElementPtr

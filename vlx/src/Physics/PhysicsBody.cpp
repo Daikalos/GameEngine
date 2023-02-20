@@ -92,6 +92,11 @@ void PhysicsBody::ApplyTorque(const float torque)
 
 void PhysicsBody::ApplyImpulse(const sf::Vector2f& impulse, const sf::Vector2f& contact_vector)
 {
-	m_velocity += m_inv_mass * impulse;
-	m_angular_velocity += m_inv_inertia * vu::Cross(contact_vector, impulse);
+	if (impulse.length() > PHYSICS_EPSILON)
+	{
+		m_velocity += impulse * m_inv_mass;
+		m_angular_velocity += vu::Cross(contact_vector, impulse) * m_inv_inertia;
+
+		m_awake = true;
+	}
 }

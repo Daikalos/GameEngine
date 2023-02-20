@@ -157,6 +157,7 @@
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Graphics\Components\LocalTransform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
+    <ClInclude Include="include\Velox\Physics\Box.h" />
     <ClInclude Include="include\Velox\Physics\Circle.h" />
     <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />

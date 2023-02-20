@@ -72,7 +72,7 @@ namespace vlx
 		BodyType		m_type				{BodyType::Dynamic};
 		float			m_gravity_scale		{1.0f};
 
-		PhysicsMaterial	m_material;
+		PhysicsMaterial	m_material			{1.0f, 0.2f};
 
 		float			m_mass				{1.0f};
 		float			m_inv_mass			{1.0f};
@@ -88,5 +88,9 @@ namespace vlx
 
 		float			m_angular_velocity	{0.0f};
 		float			m_torque			{0.0f};
+
+		bool			m_awake				{true};
+
+		friend class PhysicsSystem;
 	};
 }

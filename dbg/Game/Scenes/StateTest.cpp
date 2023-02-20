@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(10000);
+	m_entities.reserve(100);
 
 	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
@@ -123,10 +123,30 @@ bool StateTest::Update(Time& time)
 		entity.AddComponent<PhysicsBody>();
 		entity.AddComponent<Circle>();
 
-		entity.GetComponent<Circle>().radius = 10.0f;
+		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
+		entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
+		entity.GetComponent<Circle>().radius = 8.0f;
 		entity.GetComponent<LocalTransform>().SetOrigin({8, 8});
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
+			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+	}
+
+	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
+	{
+		Entity& entity = m_entities.emplace_back(e0.Duplicate());
+		entity.AddComponent<PhysicsBody>();
+		entity.AddComponent<Box>();
+
+		//entity.GetComponent<Circle>().radius = 32.0f;
+		entity.GetComponent<PhysicsBody>().SetMass(0.0f);
+		entity.GetComponent<PhysicsBody>().SetInertia(0.0f);
+		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
+		entity.GetComponent<Box>().rectangle = RectFloat(0, 0, 64, 64);
+		entity.GetComponent<LocalTransform>().SetOrigin({ 32, 32 });
+
+		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 

@@ -9,8 +9,12 @@
 #include <Velox/ECS/System.hpp>
 #include <Velox/Utilities.hpp>
 
+#include <Velox/Algorithms/LQuadTree.hpp>
+#include <Velox/Algorithms/QTElement.hpp>
+
 #include "Shape.h"
 #include "Circle.h"
+#include "Box.h"
 #include "CollisionResult.h"
 #include "CollisionData.h"
 #include "CollisionTable.h"
@@ -20,7 +24,10 @@ namespace vlx
 	class PhysicsSystem : public SystemObject
 	{
 	private:
+		//using QTElement = QTElement<std::tuple<Shape*, LocalTransform*, Transform*>>;
+
 		using CircleSystem = System<Circle, LocalTransform, Transform>;
+		//using BoxSystem	= System<
 
 		struct CollisionPair
 		{

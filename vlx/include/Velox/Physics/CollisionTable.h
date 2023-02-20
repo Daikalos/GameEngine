@@ -26,23 +26,32 @@ namespace vlx
 		///		
 		///	 ___Collision Table___
 		///		 _____________
-		///		|	C	A	X 
-		///		|C	CC	CA	CX
-		///		|A	AC	AA	AX
-		///		|X	XC	XA	XX
+		///		|	C	A	P	X 
+		///		|C	CC	CA	CP	CX
+		///		|A	AC	AA	AP	AX
+		///		|P	PC	PA	PP	PX
+		///		|X	XC	XA	XP	XX
 		///   
 		/// </summary>
 
 		static void CircleToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
-		static void CircleToAABB	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void CircleToBox		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void CircleToPoint	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 		static void CircleToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
-		static void AABBToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
-		static void AABBToAABB		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
-		static void AABBToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void BoxToCircle		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void BoxToBox		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void BoxToPoint		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void BoxToConvex		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+
+		static void PointToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void PointToBox		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void PointToPoint	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void PointToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
 		static void ConvexToCircle	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
-		static void ConvexToAABB	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void ConvexToBox		(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void ConvexToPoint	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 		static void ConvexToConvex	(CollisionData&, Shape&, Transform&, Shape&, Transform&);
 
 	private:
