@@ -72,8 +72,10 @@ void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform&
 		a2.rectangle.Width() / 2.0f,
 		a2.rectangle.Height() / 2.0f);
 
-	sf::Vector2f n = t2.GetInverseTransform().transformPoint(t1.GetPosition());
-	//sf::Vector2f n2 = mu::Transpose(t2.GetTransform()) * (t2.GetPosition() - t1.GetPosition());
+	sf::Transform box_transform = t2.GetTransform(); // disgusting that I need to do this, will maybe, most likely not, look for solution
+	box_transform.translate(half_extends); // translate by extends to position correctly
+
+	sf::Vector2f n = box_transform.getInverse().transformPoint(t1.GetPosition());
 	sf::Vector2f clamped = vu::Clamp(n, -half_extends, half_extends);
 
 	bool inside = false;
@@ -87,9 +89,7 @@ void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform&
 			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	}
 
-	sf::Vector2f point = t2.GetTransform().transformPoint(clamped);
-	//sf::Vector2f point = mu::Transpose(t2.GetTransform()) * (t2.GetPosition() - clamped);
-
+	sf::Vector2f point = box_transform.transformPoint(clamped);
 	sf::Vector2f normal = vu::Direction(t1.GetPosition(), point);
 	float dist = normal.lengthSq();
 
