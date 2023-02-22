@@ -58,13 +58,13 @@ namespace vlx
 		void AddVelocity(const sf::Vector2f& velocity);
 
 		void SetForce(const sf::Vector2f& force);
-		void ApplyForce(const sf::Vector2f& force);
+		void AddForce(const sf::Vector2f& force);
 
 		void SetAngularVelocity(const float angular_velocity);
 		void AddAngularVelocity(const float angular_velocity);
 
 		void SetTorque(const float torque);
-		void ApplyTorque(const float torque);
+		void AddTorque(const float torque);
 
 		void ApplyImpulse(const sf::Vector2f& impulse, const sf::Vector2f& contact_vector);
 
@@ -74,11 +74,11 @@ namespace vlx
 
 		PhysicsMaterial	m_material			{1.0f, 0.2f};
 
-		float			m_mass				{1.0f};
-		float			m_inv_mass			{1.0f};
+		float			m_mass				{0.0f};
+		float			m_inv_mass			{0.0f};
 
-		float			m_inertia			{1.0f};
-		float			m_inv_inertia		{1.0f};
+		float			m_inertia			{0.0f};
+		float			m_inv_inertia		{0.0f};
 
 		float			m_static_friction	{0.5f};
 		float			m_dynamic_friction	{0.3f};

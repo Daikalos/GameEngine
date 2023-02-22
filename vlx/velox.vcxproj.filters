@@ -39,6 +39,8 @@
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\PhysicsBody.cpp" />
+    <ClCompile Include="src\Physics\Polygon.cpp" />
+    <ClCompile Include="src\Physics\Box.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -133,6 +135,7 @@
     <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Utilities\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
+    <ClInclude Include="include\Velox\Physics\Polygon.h" />
     <ClInclude Include="include\Velox\Physics\Box.h" />
   </ItemGroup>
   <ItemGroup>

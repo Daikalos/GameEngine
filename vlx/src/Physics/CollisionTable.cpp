@@ -13,11 +13,11 @@ using namespace vlx;
 ///		
 ///	 ___Collision Table___
 ///		 _____________
-///		|	C	A	P	X 
-///		|C	CC	CA	CP	CX
-///		|A	AC	AA	AP	AX
-///		|P	PC	PA	PP	PX
-///		|X	XC	XA	XP	XX
+///		|	C	B	P	X 
+///		|C	CC	CB	CP	CX
+///		|B	BC	BB	BP	BX
+///		|P	PC	PB	PP	PX
+///		|X	XC	XB	XP	XX
 ///   
 /// </summary>
 CollisionTable::Matrix CollisionTable::table =
@@ -41,7 +41,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 	sf::Vector2f normal = t2.GetPosition() - t1.GetPosition();
 
 	const float dist_sqr = normal.lengthSq();
-	const float radius = c1.radius + c2.radius;
+	const float radius = c1.GetRadius() + c2.GetRadius();
 
 	if (dist_sqr >= radius * radius)
 		return;
@@ -50,7 +50,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 
 	if (dist_sqr == 0.0f)
 	{
-		collision.penetration	= c1.radius;
+		collision.penetration	= c1.GetRadius();
 		collision.normal		= sf::Vector2f::UnitX;
 		collision.contacts[0]	= t1.GetPosition();
 
@@ -61,12 +61,48 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 
 	collision.penetration	= radius - distance;
 	collision.normal		= normal / distance;
-	collision.contacts[0]	= collision.normal * c1.radius + t1.GetPosition();
+	collision.contacts[0]	= collision.normal * c1.GetRadius() + t1.GetPosition();
 }
 void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
 {
-	BoxToCircle(collision, s2, t2, s1, t1);
-	collision.normal = -collision.normal;
+	Circle& c1 = reinterpret_cast<Circle&>(s1);
+	Box& a2 = reinterpret_cast<Box&>(s2);
+
+	const sf::Vector2f half_extends(
+		a2.rectangle.Width() / 2.0f,
+		a2.rectangle.Height() / 2.0f);
+
+	sf::Vector2f n = t2.GetInverseTransform().transformPoint(t1.GetPosition());
+	//sf::Vector2f n2 = mu::Transpose(t2.GetTransform()) * (t2.GetPosition() - t1.GetPosition());
+	sf::Vector2f clamped = vu::Clamp(n, -half_extends, half_extends);
+
+	bool inside = false;
+
+	if (n == clamped)
+	{
+		inside = true;
+		if (std::abs(n.x) > std::abs(n.y))
+			clamped.x = (clamped.x > 0.0f) ? half_extends.x : -half_extends.x;
+		else
+			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
+	}
+
+	sf::Vector2f point = t2.GetTransform().transformPoint(clamped);
+	//sf::Vector2f point = mu::Transpose(t2.GetTransform()) * (t2.GetPosition() - clamped);
+
+	sf::Vector2f normal = vu::Direction(t1.GetPosition(), point);
+	float dist = normal.lengthSq();
+
+	if ((dist > c1.GetRadiusSqr()) && !inside)
+		return;
+
+	dist = std::sqrt(dist);
+	n = (normal / dist);
+
+	collision.contact_count = 1;
+	collision.penetration	= c1.GetRadius() - dist;
+	collision.normal		= (inside ? -n : n);
+	collision.contacts[0]	= point; // TODO: FIX
 }
 void CollisionTable::CircleToPoint(CollisionData&, Shape&, Transform&, Shape&, Transform&)
 {
@@ -79,48 +115,8 @@ void CollisionTable::CircleToConvex(CollisionData& collision, Shape& s1, Transfo
 
 void CollisionTable::BoxToCircle(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
 {
-	Box& a1 = reinterpret_cast<Box&>(s1);
-	Circle& c2 = reinterpret_cast<Circle&>(s2);
-
-
-	//sf::Vector2f center = t1.GetPosition();
-	//center = mu::Transpose(t2.GetTransform()) * (center - t2.GetPosition());
-
-	sf::Vector2f n = t2.GetPosition() - t1.GetPosition();
-
-	sf::Vector2f closest = n;
-
-	sf::Vector2f half_extends(
-		a1.rectangle.Width() / 2.0f,
-		a1.rectangle.Height() / 2.0f);
-
-	closest = vu::Clamp(closest, -half_extends, half_extends);
-
-	bool inside = false;
-
-	if (n == closest)
-	{
-		inside = true;
-		if (std::abs(n.x) > std::abs(n.y))
-			closest.x = (closest.x > 0.0f) ? half_extends.x : -half_extends.x;
-		else
-			closest.y = (closest.y > 0.0f) ? half_extends.y : -half_extends.y;
-	}
-
-	sf::Vector2f normal = n - closest;
-	float dist = normal.lengthSq();
-	float r = c2.radius;
-
-	if ((dist > (r * r)) && !inside)
-		return;
-
-	dist = std::sqrt(dist);
-	n = (normal / dist);
-
-	collision.contact_count = 1;
-	collision.penetration	= r - dist;
-	collision.normal		= (inside ? -n : n);
-	collision.contacts[0]	= closest + t1.GetPosition(); // TODO: FIX
+	CircleToBox(collision, s2, t2, s1, t1);
+	collision.normal = -collision.normal;
 }
 void CollisionTable::BoxToBox(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
 {

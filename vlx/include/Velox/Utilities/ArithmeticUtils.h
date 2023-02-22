@@ -15,7 +15,7 @@
 /// </summary>
 namespace vlx::au
 {
-	template<Arithmetic T>
+	template<std::floating_point T = float>
 	static constexpr T PI = T(M_PI);
 
 	template<std::floating_point T>
@@ -34,6 +34,39 @@ namespace vlx::au
 	NODISC static constexpr auto Lerp(const T a, const T b, const double f)
 	{
 		return (a * (1.0 - f)) + (b * f);
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr T Pow(const T base, const std::int32_t exponent = 2)
+	{
+		if (exponent < 0)
+			return Pow(1 / base, -exponent);
+
+		if (exponent == 0)
+			return 1;
+
+		if (exponent % 2 == 0)
+			return Pow(base, exponent / 2) * Pow(base, exponent / 2);
+
+		return base * Pow(base, (exponent - 1) / 2) * Pow(base, (exponent - 1) / 2);
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr auto SqrtPow(const T v0, const T v1, const std::uint32_t exponent = 2)
+	{
+		return std::sqrt(Pow(v0, exponent) + Pow(v1, exponent));
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr int Sign(const T val)
+	{
+		return (val < T()) ? -1 : 1;
+	}
+
+	template<std::floating_point T>
+	NODISC static constexpr auto Equal(const T a, const T b, const float epsilon = FLT_EPSILON)
+	{
+		return std::abs(a - b) <= epsilon;
 	}
 
 	template<std::integral T>
@@ -73,31 +106,7 @@ namespace vlx::au
 	template<Arithmetic T>
 	NODISC static constexpr auto SetPrecision(const T val, const int places)
 	{
-		double n = std::pow(10.0, (double)places);
+		double n = Pow(10.0, places);
 		return std::round(val * n) / n;
-	}
-
-	template<Arithmetic T>
-	NODISC static constexpr auto Sign(const T val)
-	{
-		return T((val < T()) ? -1 : 1);
-	}
-
-	template<Arithmetic T>
-	NODISC static constexpr auto P2(const T val)
-	{
-		return val * val;
-	}
-
-	template<Arithmetic T>
-	NODISC static constexpr auto SP2(const T v0, const T v1)
-	{
-		return std::sqrt(P2(v0) + P2(v1));
-	}
-
-	template<std::floating_point T>
-	NODISC static constexpr auto Equal(const T a, const T b)
-	{
-		return std::abs(a - b) <= FLT_EPSILON;
 	}
 }

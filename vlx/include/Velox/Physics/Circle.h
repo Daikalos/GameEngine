@@ -2,15 +2,30 @@
 
 #include "Shape.h"
 
+#include <Velox/Config.hpp>
+
 namespace vlx
 {
-	struct Circle : public Shape
+	class VELOX_API Circle final : public Shape
 	{
-		float radius{0.0f};
+	public:
+		Circle() = default;
+		Circle(const float radius);
 
-		constexpr Type GetType() const noexcept override
-		{
-			return Shape::Circle;
-		}
+	public:
+		constexpr Type GetType() const noexcept override;
+
+		constexpr float GetRadius() const noexcept;
+		constexpr float GetRadiusSqr() const noexcept;
+
+		constexpr void SetRadius(float radius);
+
+	public:
+		void Initialize(PhysicsBody& body) const override;
+		RectFloat GetAABB() const override;
+
+	private:
+		float m_radius		{16.0f};
+		float m_radius_sqr	{256.0f};
 	};
 }

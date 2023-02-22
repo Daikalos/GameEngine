@@ -17,12 +17,12 @@ namespace vlx::vu
 	{
 		return lhs.x * rhs.x + lhs.y * rhs.y;
 	}
+
 	template<Arithmetic T>
 	NODISC static constexpr auto Cross(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
 		return lhs.x * rhs.y - lhs.y * rhs.x;
 	}
-
 	template<Arithmetic T>
 	NODISC static constexpr auto Cross(const sf::Vector2<T>& lhs, const float scalar)
 	{
@@ -55,12 +55,12 @@ namespace vlx::vu
 	template<Arithmetic T>
 	NODISC static constexpr float Distance(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
-		return Distance(Direction(from, to));
+		return Direction(from, to).length();
 	}
 	template<Arithmetic T>
 	NODISC static constexpr float DistanceSq(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
 	{
-		return DistanceSq(Direction(from, to));
+		return Direction(from, to).lengthSq();
 	}
 	template<Arithmetic T>
 	NODISC static constexpr float DistanceOpt(const sf::Vector2<T>& from, const sf::Vector2<T>& to)
@@ -81,7 +81,7 @@ namespace vlx::vu
 	template<Arithmetic T>
 	NODISC static constexpr float Angle(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
-		return Angle(lhs, rhs, Distance(lhs), Distance(rhs));
+		return Angle(lhs, rhs, lhs.length(), rhs.length());
 	}
 
 	template<Arithmetic T>
@@ -112,7 +112,7 @@ namespace vlx::vu
 	template<Arithmetic T>
 	NODISC static constexpr sf::Vector2<T> Limit(const sf::Vector2<T>& vector, const float max_length)
 	{
-		return Limit(vector, Distance(vector), max_length);
+		return Limit(vector, vector.length(), max_length);
 	}
 
 	template<Arithmetic T>
@@ -128,7 +128,7 @@ namespace vlx::vu
 	template<Arithmetic T>
 	NODISC static constexpr sf::Vector2<T> Clamp(const sf::Vector2<T>& vector, const float max_length, const float min_length)
 	{
-		return Clamp(vector, Distance(vector), max_length, min_length);
+		return Clamp(vector, vector.length(), max_length, min_length);
 	}
 
 	template<Arithmetic T>
@@ -196,34 +196,29 @@ namespace vlx
 	template <Arithmetic T>
 	static constexpr sf::Vector2<T> operator /(const float lhs, const sf::Vector2<T>& rhs)
 	{
-		sf::Vector2<T> result = { lhs, lhs };
-		result.x /= rhs.x;
-		result.y /= rhs.y;
-		return result;
-	}
-	template <Arithmetic T>
-	static constexpr sf::Vector2<T> operator /(sf::Vector2<T> lhs, const sf::Vector2<T>& rhs)
-	{
-		lhs.x /= rhs.x;
-		lhs.y /= rhs.y;
-		return lhs;
+		return { lhs / rhs.x, lhs / rhs.y };
 	}
 
 	template <Arithmetic T>
-	static constexpr sf::Vector2<T> operator *(sf::Vector2<T> lhs, const sf::Vector2<T>& rhs)
+	static constexpr sf::Vector2<T> operator /(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
 	{
-		lhs.x *= rhs.x;
-		lhs.y *= rhs.y;
-		return lhs;
+		return lhs.cwiseDiv(rhs);
+	}
+	template <Arithmetic T>
+	static constexpr sf::Vector2<T> operator *(const sf::Vector2<T>& lhs, const sf::Vector2<T>& rhs)
+	{
+		return lhs.cwiseMul(rhs);
 	}
 
 	template <Arithmetic T>
-	static constexpr sf::Vector3<T> operator *(sf::Vector3<T> lhs, const sf::Vector3<T>& rhs)
+	static constexpr sf::Vector3<T> operator /(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs)
 	{
-		lhs.x *= rhs.x;
-		lhs.y *= rhs.y;
-		lhs.z *= rhs.z;
-		return lhs;
+		return lhs.cwiseDiv(rhs);
+	}
+	template <Arithmetic T>
+	static constexpr sf::Vector3<T> operator *(const sf::Vector3<T>& lhs, const sf::Vector3<T>& rhs)
+	{
+		return lhs.cwiseMul(rhs);
 	}
 }
 

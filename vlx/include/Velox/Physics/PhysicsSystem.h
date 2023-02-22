@@ -15,6 +15,7 @@
 #include "Shape.h"
 #include "Circle.h"
 #include "Box.h"
+#include "Polygon.h"
 #include "CollisionResult.h"
 #include "CollisionData.h"
 #include "CollisionTable.h"

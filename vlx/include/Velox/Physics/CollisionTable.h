@@ -26,11 +26,11 @@ namespace vlx
 		///		
 		///	 ___Collision Table___
 		///		 _____________
-		///		|	C	A	P	X 
-		///		|C	CC	CA	CP	CX
-		///		|A	AC	AA	AP	AX
-		///		|P	PC	PA	PP	PX
-		///		|X	XC	XA	XP	XX
+		///		|	C	B	P	X 
+		///		|C	CC	CB	CP	CX
+		///		|B	BC	BB	BP	BX
+		///		|P	PC	PB	PP	PX
+		///		|X	XC	XB	XP	XX
 		///   
 		/// </summary>
 

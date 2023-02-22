@@ -2,13 +2,14 @@
 
 #include <Velox/ECS/IComponent.h>
 #include <Velox/Utilities.hpp>
+#include <Velox/Config.hpp>
 
 #include "CollisionResult.h"
 #include "PhysicsBody.h"
 
 namespace vlx
 {
-	struct Shape : public IComponent
+	struct VELOX_API Shape : public IComponent
 	{
 		enum Type : short
 		{
@@ -22,6 +23,9 @@ namespace vlx
 
 			Count // always keep last
 		};
+
+		virtual void Initialize(PhysicsBody& body) const = 0;
+		virtual RectFloat GetAABB() const = 0;
 
 		virtual constexpr Type GetType() const noexcept = 0;
 

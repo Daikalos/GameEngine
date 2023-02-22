@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(100);
+	m_entities.reserve(10000);
 
 	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
@@ -125,7 +125,7 @@ bool StateTest::Update(Time& time)
 
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
 		entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
-		entity.GetComponent<Circle>().radius = 8.0f;
+		entity.GetComponent<Circle>().SetRadius(8.0f);
 		entity.GetComponent<LocalTransform>().SetOrigin({8, 8});
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
@@ -141,6 +141,7 @@ bool StateTest::Update(Time& time)
 		//entity.GetComponent<Circle>().radius = 32.0f;
 		entity.GetComponent<PhysicsBody>().SetMass(0.0f);
 		entity.GetComponent<PhysicsBody>().SetInertia(0.0f);
+		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(0.5f));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
 		entity.GetComponent<Box>().rectangle = RectFloat(0, 0, 64, 64);

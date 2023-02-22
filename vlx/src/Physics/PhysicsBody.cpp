@@ -56,20 +56,29 @@ void PhysicsBody::SetDynamicFriction(float dynamic_friction)
 
 void PhysicsBody::SetVelocity(const sf::Vector2f& velocity)
 {
-	m_velocity = velocity;
+	if (velocity.lengthSq() > PHYSICS_EPSILON * PHYSICS_EPSILON)
+	{
+		m_velocity = velocity;
+		m_awake = true;
+	}
+	else
+	{
+		m_velocity = {};
+		m_awake = false;
+	}
 }
 void PhysicsBody::AddVelocity(const sf::Vector2f& velocity)
 {
-	m_velocity += velocity;
+	SetVelocity(m_velocity + velocity);
 }
 
 void PhysicsBody::SetForce(const sf::Vector2f& force)
 {
 	m_force = force;
 }
-void PhysicsBody::ApplyForce(const sf::Vector2f& force)
+void PhysicsBody::AddForce(const sf::Vector2f& force)
 {
-	m_force += force;
+	SetForce(m_force + force);
 }
 
 void PhysicsBody::SetAngularVelocity(const float angular_velocity)
@@ -78,25 +87,20 @@ void PhysicsBody::SetAngularVelocity(const float angular_velocity)
 }
 void PhysicsBody::AddAngularVelocity(const float angular_velocity)
 {
-	m_angular_velocity += angular_velocity;
+	SetAngularVelocity(m_angular_velocity + angular_velocity);
 }
 
 void PhysicsBody::SetTorque(const float torque)
 {
 	m_torque = torque;
 }
-void PhysicsBody::ApplyTorque(const float torque)
+void PhysicsBody::AddTorque(const float torque)
 {
-	m_torque += torque;
+	SetTorque(m_torque + torque);
 }
 
 void PhysicsBody::ApplyImpulse(const sf::Vector2f& impulse, const sf::Vector2f& contact_vector)
 {
-	if (impulse.length() > PHYSICS_EPSILON)
-	{
-		m_velocity += impulse * m_inv_mass;
-		m_angular_velocity += vu::Cross(contact_vector, impulse) * m_inv_inertia;
-
-		m_awake = true;
-	}
+	AddVelocity(impulse * m_inv_mass);
+	AddAngularVelocity(vu::Cross(contact_vector, impulse) * m_inv_inertia);
 }

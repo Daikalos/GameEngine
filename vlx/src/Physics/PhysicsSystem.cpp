@@ -22,19 +22,11 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetInvMass() == 0.0f)
 				return;
 
-			if (body.GetVelocity().length() < PHYSICS_EPSILON)
-			{
-				body.SetVelocity({});
-				body.m_awake = false;
-			}
-			else
-			{
-				local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
-				local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
+			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
+			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
 
-				body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
-				body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
-			}
+			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
+			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
 		});
 
 	m_clear_forces.Each([this](const EntityID entity_id, PhysicsBody& body)
@@ -51,7 +43,7 @@ void PhysicsSystem::PreUpdate()
 
 void PhysicsSystem::Update()
 {
-	// TODO: polygons, add area of influence, perform detailed collision test if the centroid is within the influence area http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf
+	
 }
 
 void PhysicsSystem::FixedUpdate()
@@ -176,7 +168,7 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		const float rb_cross_n = vu::Cross(rb, collision.normal);
 
 		const float inv_mass_sum = A.GetInvMass() + B.GetInvMass() +
-			au::P2(ra_cross_n) * A.GetInvInertia() + au::P2(rb_cross_n) * B.GetInvInertia();
+			au::Pow(ra_cross_n) * A.GetInvInertia() + au::Pow(rb_cross_n) * B.GetInvInertia();
 
 		// impulse scalar
 		float j = -(1.0f + collision.min_restitution) * vel_along_normal;
