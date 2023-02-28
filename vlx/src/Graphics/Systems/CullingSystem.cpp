@@ -3,7 +3,7 @@
 using namespace vlx;
 
 CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera)
-	: SystemObject(entity_admin, id), m_system(entity_admin, id), m_camera(&camera)
+	: SystemAction(entity_admin, id), m_system(entity_admin, id), m_camera(&camera)
 {
 	m_system.All([this, &camera](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
 		{
@@ -47,4 +47,21 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 void CullingSystem::Update()
 {
 	m_entity_admin->RunSystems(GetID());
+}
+
+constexpr bool CullingSystem::IsRequired() const noexcept
+{
+	return false;
+}
+
+void CullingSystem::PreUpdate()
+{
+}
+
+void CullingSystem::FixedUpdate()
+{
+}
+
+void CullingSystem::PostUpdate()
+{
 }

@@ -17,10 +17,10 @@ constexpr void Circle::SetRadius(float radius)
 void Circle::Initialize(PhysicsBody& body) const
 {
     body.SetMass(au::PI<> * m_radius_sqr * body.GetDensity());
-    body.SetInertia(au::PI<> * m_radius_sqr);
+    body.SetInertia(0.5f * body.GetMass() * m_radius_sqr);
 }
 
 RectFloat Circle::GetAABB() const
 {
-    return RectFloat();
+    return RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f);
 }

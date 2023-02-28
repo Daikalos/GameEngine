@@ -11,11 +11,9 @@
 
 #include <Velox/Physics/PhysicsBody.h>
 
-#include <Velox/ECS/SystemObject.h>
-
 namespace vlx
 {
-	class VELOX_API TransformSystem : public SystemObject
+	class VELOX_API TransformSystem final : public SystemAction
 	{
 	private:
 		using EntityPair = std::pair<EntityID, EntityID>;
@@ -23,6 +21,9 @@ namespace vlx
 
 	public:
 		TransformSystem(EntityAdmin& entity_admin, const LayerType id);
+
+	public:
+		constexpr bool IsRequired() const noexcept override;
 
 	public:
 		void SetGlobalPosition(	const EntityID entity, const sf::Vector2f& position);
@@ -36,10 +37,11 @@ namespace vlx
 	public:
 		void PreUpdate() override;
 		void Update() override;
+		void FixedUpdate() override;
 		void PostUpdate() override;
 
 	private:
-		void DirtyChildrenTransform(Transform& transform, const Relation::Children& children) const;
+		void DirtyDescendants(Transform& transform, const Relation::Children& children) const;
 		void UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation::Parent& parent) const;
 
 		void UpdateToLocal(LocalTransform& local_transform, Transform& transform) const;
@@ -48,7 +50,7 @@ namespace vlx
 
 	private:
 		System<LocalTransform, Transform, Relation>	m_dirty_system;
-		System<Transform, Relation>					m_dirty_children_system;
+		System<Transform, Relation>					m_dirty_descendants_system;
 		System<LocalTransform, Transform, Relation>	m_global_system;
 
 		std::queue<EntityPair>	m_attachments;

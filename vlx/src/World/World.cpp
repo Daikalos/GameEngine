@@ -5,9 +5,7 @@ using namespace vlx;
 World::World(const std::string_view name) : 
 	m_state_stack(*this),
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
-	m_camera(CameraBehavior::Context(m_window, m_controls)),
-	m_physics_system(m_entity_admin, LYR_PHYSICS, m_time),
-	m_render_system(m_entity_admin, LYR_RENDERING)
+	m_camera(CameraBehavior::Context(m_window, m_controls))
 {
 	m_window.Initialize();
 
@@ -21,12 +19,14 @@ World::World(const std::string_view name) :
 
 	m_controls.Get<MouseInput>().GetMap<ebn::Button>().Set(ebn::Button::GUIButton, sf::Mouse::Left);
 
-	AddSystem<ObjectSystem>(m_entity_admin,		LYR_OBJECTS);
-	AddSystem<RelationSystem>(m_entity_admin,	LYR_NONE);
-	AddSystem<TransformSystem>(m_entity_admin,	LYR_TRANSFORM);
-	AddSystem<CullingSystem>(m_entity_admin, 	LYR_CULLING, m_camera);
-	AddSystem<AnchorSystem>(m_entity_admin,		LYR_ANCHOR, m_window);
-	AddSystem<gui::GUISystem>(m_entity_admin,	LYR_GUI, m_camera, m_controls);
+	AddSystem<ObjectSystem>(	m_entity_admin,	LYR_OBJECTS);
+	AddSystem<RelationSystem>(	m_entity_admin,	LYR_NONE);
+	AddSystem<TransformSystem>(	m_entity_admin,	LYR_TRANSFORM);
+	AddSystem<CullingSystem>(	m_entity_admin, LYR_CULLING, m_camera);
+	AddSystem<AnchorSystem>(	m_entity_admin,	LYR_ANCHOR, m_window);
+	AddSystem<gui::GUISystem>(	m_entity_admin,	LYR_GUI, m_camera, m_controls);
+	AddSystem<RenderSystem>(	m_entity_admin, LYR_RENDERING);
+	AddSystem<PhysicsSystem>(	m_entity_admin,	LYR_PHYSICS, m_time);
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
@@ -55,16 +55,21 @@ const EntityAdmin& World::GetEntityAdmin() const noexcept		{ return m_entity_adm
 
 void World::RemoveSystem(const LayerType id)
 {
+	const auto it = std::ranges::find_if(m_systems.begin(), m_systems.end(),
+		[id](const auto& pair)
+		{
+			return pair.second->GetID() == id;
+		});
+
+	if (it->second.get()->IsRequired()) // cant remove if required
+		return;
+
+	m_systems.erase(it);
+
 	m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
 		[&id](const auto& item)
 		{
 			return item->GetID() == id;
-		}));
-
-	m_systems.erase(std::ranges::find_if(m_systems.begin(), m_systems.end(),
-		[id](const auto& pair)
-		{
-			return pair.second->GetID() == id;
 		}));
 }
 
@@ -124,9 +129,6 @@ void World::PreUpdate()
 
 	for (const auto& system : m_sorted_systems)
 		system->PreUpdate();
-
-	m_physics_system.PreUpdate();
-	m_render_system.PreUpdate();
 }
 
 void World::Update()
@@ -136,9 +138,6 @@ void World::Update()
 
 	for (const auto& system : m_sorted_systems)
 		system->Update();
-
-	m_physics_system.Update();
-	m_render_system.Update();
 }
 
 void World::FixedUpdate()
@@ -148,9 +147,6 @@ void World::FixedUpdate()
 
 	for (const auto& system : m_sorted_systems)
 		system->FixedUpdate();
-
-	m_physics_system.FixedUpdate();
-	m_render_system.FixedUpdate();
 }
 
 void World::PostUpdate()
@@ -160,9 +156,6 @@ void World::PostUpdate()
 
 	for (const auto& system : m_sorted_systems)
 		system->PostUpdate();
-
-	m_physics_system.FixedUpdate();
-	m_render_system.PostUpdate();
 
 	if (m_state_stack.IsEmpty())
 		m_window.close();
@@ -185,12 +178,13 @@ void World::Draw()
 	m_window.clear(sf::Color::Black);
 	m_window.setView(m_camera);
 
-	m_render_system.Draw(m_window);
+	GetSystem<RenderSystem>().Draw(m_window);
+
 	m_state_stack.Draw();
 
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 
-	m_render_system.DrawGUI(m_window);
+	GetSystem<RenderSystem>().DrawGUI(m_window);
 
 	m_window.display();
 }

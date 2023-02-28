@@ -358,8 +358,8 @@ namespace vlx
 	{
 		sf::Vector2f offset
 		{
-			m_root_rect.Width() / (2 * (depth + 1)),
-			m_root_rect.Height() / (2 * (depth + 1))
+			m_root_rect.width / (2 * (depth + 1)),
+			m_root_rect.height / (2 * (depth + 1))
 		};
 
 		auto& node = m_nodes[node_index];

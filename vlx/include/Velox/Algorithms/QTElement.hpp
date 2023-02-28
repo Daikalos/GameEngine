@@ -18,9 +18,12 @@ namespace vlx
 	{
 	public:
 		QTElement() = default;
-		explicit QTElement(LQuadTree<T>* quad_tree);
 
-		bool Insert(const T& item, const RectFloat& rect);
+	public:
+		bool IsInserted() const noexcept;
+
+	public:
+		bool Insert(LQuadTree<T>& quad_tree, const T& item, const RectFloat& rect);
 		bool Erase();
 
 	private:
@@ -31,20 +34,22 @@ namespace vlx
 	private:
 		LQuadTree<T>*	m_quad_tree {nullptr};
 		int				m_index		{-1};
-
-		friend class CullingSystem;
 	};
 
 	template<std::equality_comparable T>
-	inline QTElement<T>::QTElement(LQuadTree<T>* quad_tree)
-		: m_quad_tree(quad_tree) {}
+	inline bool QTElement<T>::IsInserted() const noexcept
+	{
+		return m_index != -1;
+	}
 
 	template<std::equality_comparable T>
-	inline bool QTElement<T>::Insert(const T& item, const RectFloat& rect)
+	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, const T& item, const RectFloat& rect)
 	{
-		if (m_index == -1 && m_quad_tree)
+		if (!IsInserted() && m_quad_tree == nullptr)
 		{
 			m_index = m_quad_tree->Insert({ item, rect });
+			m_quad_tree = &quad_tree;
+
 			return true;
 		}
 		return false;
@@ -53,10 +58,14 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline bool QTElement<T>::Erase()
 	{
-		if (m_index != -1 && m_quad_tree)
+		if (IsInserted() && m_quad_tree != nullptr)
 		{
-			m_quad_tree->Erase(m_index);
+			bool result = m_quad_tree->Erase(m_index);
+			assert(result); // make sure that it succeeded
+
 			m_index = -1;
+			m_quad_tree = nullptr;
+
 			return true;
 		}
 		return false;
@@ -66,6 +75,7 @@ namespace vlx
 	inline void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		m_index = -1; // copied elements will need to reinserted
+		m_quad_tree = nullptr;
 	}
 
 	template<std::equality_comparable T>

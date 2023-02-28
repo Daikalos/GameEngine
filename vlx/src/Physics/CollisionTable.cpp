@@ -69,10 +69,9 @@ void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform&
 	Box& a2 = reinterpret_cast<Box&>(s2);
 
 	const sf::Vector2f half_extends(
-		a2.rectangle.Width() / 2.0f,
-		a2.rectangle.Height() / 2.0f);
+		a2.GetWidth() / 2.0f, a2.GetHeight() / 2.0f);
 
-	sf::Transform box_transform = t2.GetTransform(); // disgusting that I need to do this, will maybe, most likely not, look for solution
+	sf::Transform box_transform = t2.GetTransform(); // weird that I need to do this, will maybe, most likely not, look for solution
 	box_transform.translate(half_extends); // translate by extends to position correctly
 
 	sf::Vector2f n = box_transform.getInverse().transformPoint(t1.GetPosition());

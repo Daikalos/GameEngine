@@ -16,14 +16,14 @@ namespace vlx::id
 	// solutions that should solve this problem. The solution below enables for unique ids to be generated at compile-time
 	// using the full signature of a function. The signature is be altered depending on the template and thus generates a new id.
 
-	template<typename T>
-	static inline constexpr std::size_t HashFunction(const T& to_hash)
+	template<typename T, std::size_t N>
+	static inline constexpr std::size_t HashFunction(const T(&to_hash)[N])
 	{
 		std::size_t result = 0xcbf29ce484222325; // FNV offset basis
 
-		for (const auto& c : to_hash)
+		for (std::size_t i = 0; i < N; ++i)
 		{
-			result ^= c;
+			result ^= to_hash[i];
 			result *= 1099511628211; // FNV prime
 		}
 

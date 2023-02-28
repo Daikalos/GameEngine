@@ -9,13 +9,16 @@
 
 namespace vlx
 {
-	class VELOX_API RelationSystem : public SystemObject
+	class VELOX_API RelationSystem final : public SystemAction
 	{
 	private:
 		using EntityPair = std::pair<EntityID, EntityID>;
 
 	public:
-		using SystemObject::SystemObject;
+		using SystemAction::SystemAction;
+
+	public:
+		constexpr bool IsRequired() const noexcept override;
 
 	public:
 		void Attach(const EntityID parent_id, const EntityID child_id);
@@ -28,7 +31,10 @@ namespace vlx
 		void DetachDelay(const EntityID parent_id, const EntityID child_id);
 
 	public:
+		void PreUpdate() override;
 		void Update() override;
+		void FixedUpdate() override;
+		void PostUpdate() override;
 
 	private:
 		void AttachChild(const EntityID parent_id, const EntityID child_id);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Velox/ECS/Identifiers.hpp>
-#include <Velox/ECS/SystemObject.h>
+#include <Velox/ECS/SystemAction.h>
 #include <Velox/Window/Camera.h>
 
 #include <Velox/Algorithms/QTElement.hpp>
@@ -12,7 +12,7 @@
 
 namespace vlx
 {
-	class VELOX_API CullingSystem : public SystemObject
+	class VELOX_API CullingSystem final : public SystemAction
 	{
 	public:
 		using QTSystem	= System<Object, Transform, Sprite>;
@@ -24,7 +24,13 @@ namespace vlx
 		CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera);
 
 	public:
+		bool IsRequired() const noexcept override;
+
+	public:
+		void PreUpdate() override;
 		void Update() override;
+		void FixedUpdate() override;
+		void PostUpdate() override;
 
 	private:
 		QTSystem			m_system;

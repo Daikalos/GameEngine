@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <unordered_set>
 #include <unordered_map>
 
 #include <Velox/Utilities.hpp>
@@ -12,10 +11,9 @@
 
 namespace vlx
 {
-	////////////////////////////////////////////////////////////
-	// Handles all of the joystick input, has support for 
-	// several joysticks.
-	////////////////////////////////////////////////////////////
+	/// <summary>
+	///		Handles all of the joystick input, has support for several joysticks.
+	/// </summary>
 	class JoystickInput final : public InputHandler
 	{
 	private:
@@ -68,7 +66,8 @@ namespace vlx
 
 		float	m_axis				[sf::Joystick::Count * sf::Joystick::AxisCount]		= {0.0f};
 
-		std::unordered_set<SizeType> m_available; // list of indexes of the currently available joysticks
+		bool	m_available			[sf::Joystick::Count] = {false}; // array of indexes of the currently available joysticks
+
 		std::unordered_map<std::type_index, IBinds::Ptr> m_binds;
 	};
 

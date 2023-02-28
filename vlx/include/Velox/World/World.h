@@ -26,8 +26,8 @@ namespace vlx
 	class World : private NonCopyable
 	{
 	private:
-		using WorldSystems	= std::unordered_map<std::type_index, SystemObject::Ptr>;
-		using SortedSystems = std::vector<SystemObject*>;
+		using WorldSystems	= std::unordered_map<std::type_index, SystemAction::Ptr>;
+		using SortedSystems = std::vector<SystemAction*>;
 
 	public:
 		VELOX_API World(const std::string_view name);
@@ -58,19 +58,19 @@ namespace vlx
 		VELOX_API NODISC EntityAdmin& GetEntityAdmin() noexcept;
 
 	public:
-		template<std::derived_from<SystemObject> S>
+		template<std::derived_from<SystemAction> S>
 		NODISC const S& GetSystem() const;
 
-		template<std::derived_from<SystemObject> S>
+		template<std::derived_from<SystemAction> S>
 		NODISC S& GetSystem();
 
-		template<std::derived_from<SystemObject> S, typename... Args>
+		template<std::derived_from<SystemAction> S, typename... Args>
 		std::optional<S*> AddSystem(Args&&... args) requires std::constructible_from<S, Args...>;
 
-		template<std::derived_from<SystemObject> S>
+		template<std::derived_from<SystemAction> S>
 		void RemoveSystem();
 
-		template<std::derived_from<SystemObject> S>
+		template<std::derived_from<SystemAction> S>
 		bool HasSystem() const;
 
 	public:
@@ -104,24 +104,21 @@ namespace vlx
 
 		WorldSystems	m_systems;
 		SortedSystems	m_sorted_systems;
-
-		PhysicsSystem	m_physics_system; // obligatory systems
-		RenderSystem	m_render_system;
 	};
 
-	template<std::derived_from<SystemObject> S>
+	template<std::derived_from<SystemAction> S>
 	inline const S& World::GetSystem() const
 	{
 		return *static_cast<S*>(m_systems.at(typeid(S)).get());
 	}
 
-	template<std::derived_from<SystemObject> S>
+	template<std::derived_from<SystemAction> S>
 	inline S& World::GetSystem()
 	{
 		return const_cast<S&>(std::as_const(*this).GetSystem<S>());
 	}
 
-	template<std::derived_from<SystemObject> S, typename... Args>
+	template<std::derived_from<SystemAction> S, typename... Args>
 	inline std::optional<S*> World::AddSystem(Args&&... args) requires std::constructible_from<S, Args...>
 	{
 		if (HasSystem<S>()) // don't add if already exists
@@ -133,7 +130,7 @@ namespace vlx
 		m_systems[typeid(S)] = std::move(system);
 
 		cu::InsertSorted(m_sorted_systems, system_ptr,
-			[](const SystemObject* lhs, const SystemObject* rhs)
+			[](const SystemAction* lhs, const SystemAction* rhs)
 			{
 				return lhs->GetID() < rhs->GetID();
 			});
@@ -141,21 +138,26 @@ namespace vlx
 		return system_ptr;
 	}
 
-	template<std::derived_from<SystemObject> S>
+	template<std::derived_from<SystemAction> S>
 	inline void World::RemoveSystem()
 	{
-		SystemObject* system_ptr = &GetSystem<S>();
+		const auto it = m_systems.find(typeid(S));
+		if (it == m_systems.end())
+			return;
+
+		if (it->second.get()->IsRequired()) // cant remove required system
+			return;
 
 		m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
-			[&system_ptr](const auto& item)
+			[&it](const auto& item)
 			{
-				return item == system_ptr;
+				return item == it->second.get();
 			}));
 
-		m_systems.erase(typeid(S));
+		m_systems.erase(it);
 	}
 
-	template<std::derived_from<SystemObject> S>
+	template<std::derived_from<SystemAction> S>
 	inline bool World::HasSystem() const
 	{
 		return m_systems.contains(typeid(S));

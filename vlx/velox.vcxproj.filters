@@ -31,16 +31,17 @@
     <ClCompile Include="src\Graphics\Systems\GUISystem.cpp" />
     <ClCompile Include="src\Scene\StateStack.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
-    <ClCompile Include="src\ECS\SystemObject.cpp" />
+    <ClCompile Include="src\ECS\SystemAction.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Graphics\Components\LocalTransform.cpp" />
     <ClCompile Include="src\Graphics\Systems\CullingSystem.cpp" />
-    <ClCompile Include="src\Physics\Circle.cpp" />
+    <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
-    <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\PhysicsBody.cpp" />
-    <ClCompile Include="src\Physics\Polygon.cpp" />
-    <ClCompile Include="src\Physics\Box.cpp" />
+    <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
+    <ClCompile Include="src\Physics\Shapes\Box.cpp" />
+    <ClCompile Include="src\Physics\CollisionSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -95,7 +96,7 @@
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\Utilities\Traits.h" />
     <ClInclude Include="include\Velox\ECS\IComponent.h" />
-    <ClInclude Include="include\Velox\ECS\SystemObject.h" />
+    <ClInclude Include="include\Velox\ECS\SystemAction.h" />
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
@@ -126,17 +127,20 @@
     <ClInclude Include="include\Velox\Utilities\PolicySelect.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
     <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
-    <ClInclude Include="include\Velox\Physics\Shape.h" />
-    <ClInclude Include="include\Velox\Physics\Circle.h" />
+    <ClInclude Include="include\Velox\Physics\Shapes\Shape.h" />
+    <ClInclude Include="include\Velox\Physics\Shapes\Circle.h" />
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
-    <ClInclude Include="include\Velox\Physics\PhysicsSystem.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsLayer.h" />
     <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Utilities\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
-    <ClInclude Include="include\Velox\Physics\Polygon.h" />
-    <ClInclude Include="include\Velox\Physics\Box.h" />
+    <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
+    <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionSystem.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\BroadSystem.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\NarrowSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -4,8 +4,8 @@
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
-#include "CollisionResult.h"
-#include "PhysicsBody.h"
+#include "../CollisionResult.h"
+#include "../PhysicsBody.h"
 
 namespace vlx
 {
@@ -18,7 +18,7 @@ namespace vlx
 			Point,
 			Convex,
 
-			// not sure if engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,
+			// Not sure if the engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,
 			// http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf is the closest that presents a viable solution
 
 			Count // always keep last

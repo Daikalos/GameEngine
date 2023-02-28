@@ -17,13 +17,16 @@
 
 namespace vlx
 {
-	class VELOX_API RenderSystem : public SystemObject
+	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
 		using RenderSys = System<Object, Transform, Sprite>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, const LayerType id);
+
+	public:
+		constexpr bool IsRequired() const noexcept override;
 
 	public:
 		void SetBatchMode(const BatchMode batch_mode);
@@ -40,6 +43,7 @@ namespace vlx
 	public:
 		void PreUpdate() override;
 		void Update() override;
+		void FixedUpdate() override;
 		void PostUpdate() override;
 
 		void Draw(Window& window) const;

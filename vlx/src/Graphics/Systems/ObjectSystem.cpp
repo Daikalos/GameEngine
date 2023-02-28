@@ -3,7 +3,7 @@
 using namespace vlx;
 
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemObject(entity_admin, id), m_object_system(entity_admin, id)
+	: SystemAction(entity_admin, id), m_object_system(entity_admin, id)
 {
 	m_object_system.All([this](std::span<const EntityID> entities, Object* objects)
 		{
@@ -13,6 +13,11 @@ ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, const LayerType id)
 					DeleteObjectDelayed(entities[i]);
 			}
 		});
+}
+
+constexpr bool ObjectSystem::IsRequired() const noexcept
+{
+	return true;
 }
 
 Entity ObjectSystem::CreateObject() const
@@ -29,9 +34,19 @@ void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
 	m_entity_admin->RemoveEntity(entity_id);
 }
 
+void ObjectSystem::PreUpdate()
+{
+
+}
+
 void ObjectSystem::Update()
 {
 	m_entity_admin->RunSystems(GetID());
+}
+
+void ObjectSystem::FixedUpdate()
+{
+
 }
 
 void ObjectSystem::PostUpdate()

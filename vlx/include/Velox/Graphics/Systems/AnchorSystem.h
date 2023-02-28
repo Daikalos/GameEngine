@@ -10,7 +10,7 @@
 
 namespace vlx
 {
-	class VELOX_API AnchorSystem : public SystemObject
+	class VELOX_API AnchorSystem final : public SystemAction
 	{
 	private:
 		using System = System<Transform, gui::Anchor>;
@@ -19,9 +19,16 @@ namespace vlx
 		AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window);
 
 	public:
+		constexpr bool IsRequired() const noexcept override;
+
+	public:
+		void PreUpdate() override;
 		void Update() override;
+		void FixedUpdate() override;
+		void PostUpdate() override;
 
 	private:
 		System m_system;
+
 	};
 }

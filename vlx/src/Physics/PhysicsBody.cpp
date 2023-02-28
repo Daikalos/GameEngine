@@ -56,15 +56,18 @@ void PhysicsBody::SetDynamicFriction(float dynamic_friction)
 
 void PhysicsBody::SetVelocity(const sf::Vector2f& velocity)
 {
-	if (velocity.lengthSq() > PHYSICS_EPSILON * PHYSICS_EPSILON)
+	if (m_velocity != velocity)
 	{
-		m_velocity = velocity;
-		m_awake = true;
-	}
-	else
-	{
-		m_velocity = {};
-		m_awake = false;
+		if (velocity.lengthSq() > au::Pow(PHYSICS_EPSILON))
+		{
+			m_velocity = velocity;
+			m_awake = true;
+		}
+		else
+		{
+			m_velocity = vu::Zero;
+			m_awake = false;
+		}
 	}
 }
 void PhysicsBody::AddVelocity(const sf::Vector2f& velocity)

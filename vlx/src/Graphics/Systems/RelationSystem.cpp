@@ -2,6 +2,11 @@
 
 using namespace vlx;
 
+constexpr bool RelationSystem::IsRequired() const noexcept
+{
+	return false;
+}
+
 void RelationSystem::Attach(const EntityID parent_id, const EntityID child_id)
 {
 	AttachDelay(parent_id, child_id);
@@ -30,6 +35,11 @@ void RelationSystem::DetachDelay(const EntityID parent_id, const EntityID child_
 	m_detachments.emplace(parent_id, child_id);
 }
 
+void RelationSystem::PreUpdate()
+{
+
+}
+
 void RelationSystem::Update()
 {
 	while (!m_detachments.empty()) // detach all relations first
@@ -45,6 +55,16 @@ void RelationSystem::Update()
 		AttachChild(pair.first, pair.second);
 		m_attachments.pop();
 	}
+}
+
+void RelationSystem::FixedUpdate()
+{
+
+}
+
+void RelationSystem::PostUpdate()
+{
+
 }
 
 void RelationSystem::AttachChild(const EntityID parent_id, const EntityID child_id)

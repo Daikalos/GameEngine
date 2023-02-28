@@ -10,7 +10,7 @@
 
 namespace vlx
 {
-	class ObjectSystem : public SystemObject
+	class ObjectSystem final : public SystemAction
 	{
 	private:
 		enum CommandType : std::uint8_t
@@ -44,16 +44,19 @@ namespace vlx
 		ObjectSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
+		constexpr bool IsRequired() const noexcept override;
+
+	public:
 		VELOX_API Entity CreateObject() const;
 
 		VELOX_API void DeleteObjectDelayed(const EntityID entity_id);
 		VELOX_API void DeleteObjectInstant(const EntityID entity_id);
 
 	public:
+		VELOX_API void PreUpdate() override;
 		VELOX_API void Update() override;
-
-	private:
-		VELOX_API void PostUpdate();
+		VELOX_API void FixedUpdate() override;
+		VELOX_API void PostUpdate() override;
 
 	public:
 		template<IsComponent C>

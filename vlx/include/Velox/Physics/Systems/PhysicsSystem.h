@@ -5,7 +5,7 @@
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/LocalTransform.h>
 
-#include <Velox/ECS/SystemObject.h>
+#include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/Utilities.hpp>
 
@@ -22,22 +22,13 @@
 
 namespace vlx
 {
-	class PhysicsSystem : public SystemObject
+	class PhysicsSystem final : public SystemAction
 	{
-	private:
-		//using QTElement = QTElement<std::tuple<Shape*, LocalTransform*, Transform*>>;
-
-		using CircleSystem = System<Circle, LocalTransform, Transform>;
-		//using BoxSystem	= System<
-
-		struct CollisionPair
-		{
-			Shape* A;
-			Shape* B;
-		};
-
 	public:
 		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time);
+
+	public:
+		constexpr bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;
@@ -46,7 +37,6 @@ namespace vlx
 		void PostUpdate() override;
 
 	public:
-
 
 	private:
 		void Initialize(CollisionData& data);
@@ -60,12 +50,5 @@ namespace vlx
 		System<PhysicsBody>					m_update_forces;
 		System<PhysicsBody, LocalTransform> m_update_velocities;
 		System<PhysicsBody>					m_clear_forces;
-
-		//System m_
-		//System m_clear_forces;
-		//System m_update_velocities;
-
-		std::vector<CollisionPair>	m_collisions_pair;
-		std::vector<CollisionData>	m_collisions_data;
 	};
 }

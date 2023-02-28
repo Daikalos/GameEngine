@@ -4,16 +4,14 @@ using namespace vlx;
 
 JoystickInput::JoystickInput()
 {
-	m_available.reserve(sf::Joystick::Count);
-
 	for (int i = 0; i < sf::Joystick::Count; ++i) // add already available joysticks
 		if (sf::Joystick::isConnected(i))
-			m_available.insert(i);
+			m_available[i] = true;
 }
 
 bool JoystickInput::Held(const SizeType id, const SizeType button) const
 {
-	if (!m_enabled || !m_available.contains(id))
+	if (!m_enabled || !m_available[id])
 		return false;
 
 	const int index = button + id * sf::Joystick::ButtonCount;
@@ -21,7 +19,7 @@ bool JoystickInput::Held(const SizeType id, const SizeType button) const
 }
 bool JoystickInput::Pressed(const SizeType id, const SizeType button) const
 {
-	if (!m_enabled || !m_available.contains(id))
+	if (!m_enabled || !m_available[id])
 		return false;
 
 	const int index = button + id * sf::Joystick::ButtonCount;
@@ -29,7 +27,7 @@ bool JoystickInput::Pressed(const SizeType id, const SizeType button) const
 }
 bool JoystickInput::Released(const SizeType id, const SizeType button) const
 {
-	if (!m_enabled || !m_available.contains(id))
+	if (!m_enabled || !m_available[id])
 		return false;
 
 	const int index = button + id * sf::Joystick::ButtonCount;
@@ -38,7 +36,7 @@ bool JoystickInput::Released(const SizeType id, const SizeType button) const
 
 float JoystickInput::Axis(const SizeType id, const SizeType axis) const
 {
-	if (!m_enabled || !m_available.contains(id))
+	if (!m_enabled || !m_available[id])
 		return 0.0f;
 
 	return m_axis[axis + id * sf::Joystick::AxisCount];
@@ -49,8 +47,11 @@ void JoystickInput::Update(const Time& time, const bool focus)
 	if (!m_enabled)
 		return;
 
-	for (const SizeType i : m_available)
+	for (int i = 0; i < sf::Joystick::Count; ++i)
 	{
+		if (!m_available[i])
+			continue;
+
 		for (uint32_t j = 0, size = sf::Joystick::getButtonCount(i); j < size; ++j)
 		{
 			const uint32_t k = j + i * sf::Joystick::ButtonCount;
@@ -70,7 +71,7 @@ void JoystickInput::Update(const Time& time, const bool focus)
 			const uint32_t k = j + i * sf::Joystick::AxisCount;
 
 			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(j);
-			m_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) * focus * m_enabled : 0.0f;
+			m_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) * focus : 0.0f;
 		}
 	}
 }
@@ -80,10 +81,10 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 	switch (event.type)
 	{
 	case sf::Event::JoystickConnected:
-		m_available.insert(event.joystickConnect.joystickId);
+		m_available[event.joystickConnect.joystickId] = true;
 		break;
 	case sf::Event::JoystickDisconnected:
-		m_available.erase(event.joystickConnect.joystickId);
+		m_available[event.joystickConnect.joystickId] = false;
 		break;
 	}
 }

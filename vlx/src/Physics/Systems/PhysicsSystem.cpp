@@ -6,7 +6,10 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	: SystemObject(entity_admin, id), m_time(&time),
 	m_update_forces(entity_admin, LYR_PHYSICS + 1),
 	m_update_velocities(entity_admin, LYR_PHYSICS + 2),
-	m_clear_forces(entity_admin, LYR_PHYSICS + 3)
+	m_clear_forces(entity_admin, LYR_PHYSICS + 3),
+	m_check_circles(entity_admin, LYR_BROAD_PHASE),
+	m_check_boxes(entity_admin, LYR_BROAD_PHASE),
+	m_quad_tree({-2048, -2048, 2048, 2048})
 {
 	m_update_forces.Each([this](const EntityID entity_id, PhysicsBody& body)
 		{
@@ -34,6 +37,16 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.SetForce({});
 			body.SetTorque(0.0f);
 		});
+
+	m_check_circles.Each([this](const EntityID entity_id, Circle& circle, LocalTransform& local_transform, Transform& transform, QTElement& element)
+		{
+			InsertShape(circle, local_transform, transform, element);
+		});
+
+	m_check_boxes.Each([this](const EntityID entity_id, Box& box, LocalTransform& local_transform, Transform& transform, QTElement& element)
+		{
+			InsertShape(box, local_transform, transform, element);
+		});
 }
 
 void PhysicsSystem::PreUpdate()
@@ -48,46 +61,7 @@ void PhysicsSystem::Update()
 
 void PhysicsSystem::FixedUpdate()
 {
-	m_collisions_data.clear();
 
-	auto entities = m_entity_admin->GetEntitiesWith<PhysicsBody, LocalTransform, Transform>(); // naive implementation for now
-
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		PhysicsBody& A = m_entity_admin->GetComponent<PhysicsBody>(entities[i]);
-		LocalTransform& ALT = m_entity_admin->GetComponent<LocalTransform>(entities[i]);
-		Transform& AT = m_entity_admin->GetComponent<Transform>(entities[i]);
-
-		Shape* AS = nullptr;
-
-		if (m_entity_admin->HasComponent<Circle>(entities[i]))
-			AS = &m_entity_admin->GetComponent<Circle>(entities[i]);
-		else
-			AS = &m_entity_admin->GetComponent<Box>(entities[i]);
-
-		for (int j = i + 1; j < entities.size(); ++j)
-		{
-			PhysicsBody& B = m_entity_admin->GetComponent<PhysicsBody>(entities[j]);
-			LocalTransform& BLT = m_entity_admin->GetComponent<LocalTransform>(entities[j]);
-			Transform& BT = m_entity_admin->GetComponent<Transform>(entities[j]);
-
-			Shape* BS = nullptr;
-
-			if (m_entity_admin->HasComponent<Circle>(entities[j]))
-				BS = &m_entity_admin->GetComponent<Circle>(entities[j]);
-			else
-				BS = &m_entity_admin->GetComponent<Box>(entities[j]);
-
-			if (A.GetInvMass() == 0.0f && B.GetInvMass() == 0)
-				continue;
-
-			CollisionData data(&A, &B, &ALT, &BLT, &AT, &BT);
-			CollisionTable::Collide(data, *AS, AT, *BS, BT);
-
-			if (data.contact_count)
-				m_collisions_data.emplace_back(data);
-		}
-	}
 
 	m_update_forces.ForceRun();
 	
@@ -216,4 +190,9 @@ void PhysicsSystem::PositionalCorrection(CollisionData& collision)
 
 	collision.ALT->Move(-correction * collision.A->GetInvMass());
 	collision.BLT->Move( correction * collision.B->GetInvMass());
+}
+
+bool vlx::PhysicsSystem::IsRequired() const noexcept
+{
+	return false;
 }

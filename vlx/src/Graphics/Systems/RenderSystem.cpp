@@ -3,12 +3,17 @@
 using namespace vlx;
 
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemObject(entity_admin, id), m_render_system(entity_admin, id)
+	: SystemAction(entity_admin, id), m_render_system(entity_admin, id)
 {
 	m_render_system.Each([this](const EntityID entity, Object& object, Transform& transform, Sprite& sprite)
 		{
 			DrawObject(object, sprite, transform.GetTransform(), sprite.GetDepth());
 		});
+}
+
+constexpr bool RenderSystem::IsRequired() const noexcept
+{
+	return true;
 }
 
 void RenderSystem::SetBatchMode(const BatchMode batch_mode)
@@ -53,10 +58,17 @@ void RenderSystem::PreUpdate()
 	m_dynamic_batch.Clear();
 	m_dynamic_gui_batch.Clear();
 }
+
 void RenderSystem::Update()
 {
 	m_entity_admin->RunSystems(GetID());
 }
+
+void RenderSystem::FixedUpdate()
+{
+
+}
+
 void RenderSystem::PostUpdate()
 {
 	m_update_static_bash = false;

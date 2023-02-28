@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(10000);
+	m_entities.reserve(100);
 
 	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
@@ -103,6 +103,19 @@ void StateTest::OnCreated()
 
 	auto test = quad_tree.Query({0,0, 5, 5});
 	int sdadsa = test.size();
+
+	Entity& entity = m_entities.emplace_back(e0.Duplicate());
+	entity.AddComponent<PhysicsBody>();
+	entity.AddComponent<Box>(RectFloat(0, 0, 1024, 16));
+
+	//entity.GetComponent<Circle>().radius = 32.0f;
+	entity.GetComponent<PhysicsBody>().SetMass(0.0f);
+	entity.GetComponent<PhysicsBody>().SetInertia(0.0f);
+	entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+	entity.GetComponent<Sprite>().SetSize({ 1024, 16 });
+	entity.GetComponent<LocalTransform>().SetOrigin({ 512, 8 });
+
+	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {1024, 1024});
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)
@@ -144,7 +157,6 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
-		entity.GetComponent<Box>().rectangle = RectFloat(0, 0, 64, 64);
 		entity.GetComponent<LocalTransform>().SetOrigin({ 32, 32 });
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,

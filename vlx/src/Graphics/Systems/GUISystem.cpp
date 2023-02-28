@@ -66,3 +66,20 @@ void GUISystem::Update()
 {
 	m_entity_admin->RunSystems(GetID());
 }
+
+bool vlx::gui::GUISystem::IsRequired() const noexcept
+{
+	return false;
+}
+
+void vlx::gui::GUISystem::PreUpdate()
+{
+}
+
+void vlx::gui::GUISystem::FixedUpdate()
+{
+}
+
+void vlx::gui::GUISystem::PostUpdate()
+{
+}

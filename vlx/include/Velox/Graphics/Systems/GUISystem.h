@@ -12,19 +12,25 @@
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Object.h>
 
-#include <Velox/ECS/SystemObject.h>
+#include <Velox/ECS/SystemAction.h>
 
 #include <Velox/World/EngineBinds.h>
 
 namespace vlx::gui
 {
-	class VELOX_API GUISystem : public SystemObject
+	class VELOX_API GUISystem final : public SystemAction
 	{
 	public:
 		GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera, const ControlMap& controls);
 
 	public:
+		constexpr bool IsRequired() const noexcept override;
+
+	public:
+		void PreUpdate() override;
 		void Update() override;
+		void FixedUpdate() override;
+		void PostUpdate() override;
 
 	private:
 		System<Object, Transform, Button>	m_button_system;
