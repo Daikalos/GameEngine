@@ -14,8 +14,6 @@
 
 #include <Velox/Scene/StateStack.h>
 
-#include <Velox/Physics/PhysicsSystem.h>
-
 #include "EngineBinds.h"
 
 namespace vlx

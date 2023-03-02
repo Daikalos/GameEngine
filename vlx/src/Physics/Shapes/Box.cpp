@@ -1,4 +1,4 @@
-#include <Velox/Physics/Box.h>
+#include <Velox/Physics/Shapes/Box.h>
 
 using namespace vlx;
 

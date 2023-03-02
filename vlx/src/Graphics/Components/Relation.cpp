@@ -37,8 +37,6 @@ bool Relation::IsDescendant(const EntityID descendant) const
 
 void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 {
-	// should relation really be copyable in a one-way tree?
-
 	if (HasParent())
 	{
 		Relation& parent = *m_parent;

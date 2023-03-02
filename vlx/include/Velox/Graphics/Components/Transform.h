@@ -9,9 +9,8 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Represents the final transform
-	/// </summary>
+	///	Represents the global transform of an object
+	///
 	class VELOX_API Transform : public IComponent
 	{ 
 	public:

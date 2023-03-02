@@ -6,7 +6,7 @@
 
 #include <Velox/Algorithms/QTElement.hpp>
 
-#include <Velox/Graphics/Components/Object.h>
+#include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Sprite.h>
 
@@ -15,7 +15,7 @@ namespace vlx
 	class VELOX_API CullingSystem final : public SystemAction
 	{
 	public:
-		using QTSystem	= System<Object, Transform, Sprite>;
+		using System = System<Renderable, Transform, Sprite>;
 
 	private:
 		static constexpr int LENIENCY = 128;
@@ -24,7 +24,7 @@ namespace vlx
 		CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera);
 
 	public:
-		bool IsRequired() const noexcept override;
+		constexpr bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;
@@ -33,7 +33,7 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		QTSystem			m_system;
-		const Camera*		m_camera {nullptr};
+		System			m_system;
+		const Camera*	m_camera {nullptr};
 	};
 }

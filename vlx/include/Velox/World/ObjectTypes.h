@@ -3,6 +3,7 @@
 #include <Velox/Utilities.hpp>
 
 #include <Velox/Graphics/Components/Object.h>
+#include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/LocalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Relation.h>
@@ -10,9 +11,9 @@
 
 #include <Velox/Algorithms/QTElement.hpp>
 
-#include <Velox/Physics/Circle.h>
-#include <Velox/Physics/Box.h>
-#include <Velox/Physics/Polygon.h>
+#include <Velox/Physics/Shapes/Circle.h>
+#include <Velox/Physics/Shapes/Box.h>
+#include <Velox/Physics/Shapes/Polygon.h>
 #include <Velox/Physics/PhysicsBody.h>
 
 #include <Velox/Graphics/GUI/Container.h>
@@ -25,14 +26,14 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, Circle, Box, Polygon, PhysicsBody, gui::Container, gui::Button, gui::Label>;
-	using ObjectType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
+	using AllTypes		= std::tuple<Object, Renderable, LocalTransform, Transform, Relation, Sprite, Circle, Box, Polygon, PhysicsBody, gui::Container, gui::Button, gui::Label>;
+	using ObjectType	= std::tuple<Object, Renderable, LocalTransform, Transform, Relation, Sprite>;
 
 	namespace gui
 	{
-		using ContainerType = std::tuple<Object, LocalTransform, Transform, Relation, gui::Container>;
-		using ImageType		= std::tuple<Object, LocalTransform, Transform, Relation, Sprite>;
-		using ButtonType	= std::tuple<Object, LocalTransform, Transform, Relation, Sprite, gui::Button>;
-		using LabelType		= std::tuple<Object, LocalTransform, Transform, Relation, gui::Label>;
+		using ContainerType = std::tuple<Renderable, LocalTransform, Transform, Relation, gui::Container>;
+		using ImageType		= std::tuple<Renderable, LocalTransform, Transform, Relation, Sprite>;
+		using ButtonType	= std::tuple<Renderable, LocalTransform, Transform, Relation, Sprite, gui::Button>;
+		using LabelType		= std::tuple<Renderable, LocalTransform, Transform, Relation, gui::Label>;
 	}
 }

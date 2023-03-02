@@ -8,22 +8,27 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_dirty_descendants_system(entity_admin, id),
 	m_global_system(entity_admin, id)
 {
-	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
 		{
 			if (local_transform.m_dirty) // if local is dirty, so is global transform
 			{
 				transform.m_dirty = true;
 				local_transform.m_dirty = false;
-
-				if (!relation.HasParent())
-					UpdateToLocal(local_transform, transform);
 			}
 		});
 
-	m_dirty_descendants_system.Each([this](const EntityID entity, Transform& transform, Relation& relation)
+	m_dirty_descendants_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
-			DirtyDescendants(transform, relation.GetChildren());
+			{
+				DirtyDescendants(transform, relation.GetChildren());
+
+				if (!relation.HasParent()) // can already update to local if the entity does not have any parent anyways
+				{
+					UpdateToLocal(local_transform, transform);
+					transform.m_dirty = false;
+				}
+			}
 		});
 
 	m_global_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
@@ -131,11 +136,11 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 		if (new_transform != transform.m_transform)
 		{
 			transform.m_transform		= new_transform;
+			transform.m_update_inverse	= true;
 
 			transform.m_update_position = true;
 			transform.m_update_scale	= true;
 			transform.m_update_rotation = true;
-			transform.m_update_inverse	= true;
 		}
 	}
 
@@ -144,7 +149,8 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 
 void TransformSystem::UpdateToLocal(LocalTransform& local_transform, Transform& transform) const
 {
-	transform.m_transform	= local_transform.GetTransform();
+	transform.m_transform		= local_transform.GetTransform();
+	transform.m_update_inverse	= true;
 
 	transform.m_position	= local_transform.m_position;
 	transform.m_scale		= local_transform.m_scale;

@@ -8,6 +8,8 @@
 
 namespace vlx
 {
+	/// Local transform of an object. Essential component for many systems.
+	///
 	class VELOX_API LocalTransform : public IComponent
 	{
 	public:
@@ -49,6 +51,6 @@ namespace vlx
 		mutable bool			m_dirty					{true};
 
 		friend class TransformSystem;
-		friend class PhysicsSystem;
+		friend class BroadSystem;
 	};
 }

@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Graphics/Components/Object.h>
+#include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/Sprite.h>
 #include <Velox/Graphics/Components/LocalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
@@ -20,7 +20,7 @@ namespace vlx
 	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
-		using RenderSys = System<Object, Transform, Sprite>;
+		using System = System<Renderable, Transform, Sprite>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, const LayerType id);
@@ -50,21 +50,21 @@ namespace vlx
 		void DrawGUI(Window& window) const;
 
 	private:
-		void DrawObject(const Object& object, const IBatchable& batchable, const sf::Transform& transform, const float depth = 0.0f);
+		void DrawEntity(const Renderable& renderable, const IBatchable& batchable, const sf::Transform& transform, const float depth = 0.0f);
 
 	private:
-		RenderSys		m_render_system;
+		System		m_render_system;
 
-		SpriteBatch		m_static_batch;
-		SpriteBatch		m_dynamic_batch;
+		SpriteBatch	m_static_batch;
+		SpriteBatch	m_dynamic_batch;
 
-		SpriteBatch		m_static_gui_batch;
-		SpriteBatch		m_dynamic_gui_batch;
+		SpriteBatch	m_static_gui_batch;
+		SpriteBatch	m_dynamic_gui_batch;
 
-		bool			m_batching_enabled			{true};
-		bool			m_update_static_bash		{true};
+		bool		m_batching_enabled			{true};
+		bool		m_update_static_bash		{true};
 
-		bool			m_gui_batching_enabled		{true};
-		bool			m_update_static_gui_bash	{true};
+		bool		m_gui_batching_enabled		{true};
+		bool		m_update_static_gui_bash	{true};
 	};
 }

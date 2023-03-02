@@ -3,7 +3,7 @@
 #include <array>
 #include <functional>
 
-#include "Shape.h"
+#include "Shapes/Shape.h"
 #include "CollisionData.h"
 
 namespace vlx

@@ -10,7 +10,7 @@
 namespace vlx
 {
 	template<Arithmetic T>
-	struct Rect : private sf::Rect<T>
+	struct Rect : public sf::Rect<T>
 	{
 		constexpr Rect();
 		constexpr Rect(T left, T top, T width, T height);
@@ -151,7 +151,7 @@ namespace vlx
 	template<Arithmetic T>
 	inline constexpr std::optional<Rect<T>> Rect<T>::Intersection(const Rect& other) const
 	{
-		return this->findIntersection(other);
+		return findIntersection(other);
 	}
 
 	template<Arithmetic T>
@@ -187,8 +187,8 @@ namespace vlx
 
 		const T r1l = min(left, Right());
 		const T r1t = min(top, Bottom());
-		const T r1r = (r1l == left) ? Right() : this->left;
-		const T r1b = (r1t == top) ? Bottom() : this->top;
+		const T r1r = (r1l == left) ? Right() : left;
+		const T r1b = (r1t == top) ? Bottom() : top;
 
 		const T r2l = min(other.left, other.Right());
 		const T r2t = min(other.top, other.Bottom());
@@ -234,8 +234,8 @@ namespace vlx
 	template<Arithmetic T>
 	inline constexpr Rect<T>& Rect<T>::operator+=(const sf::Vector2<T>& rhs)
 	{
-		this->left += rhs.x;
-		this->top += rhs.y;
+		left += rhs.x;
+		top += rhs.y;
 
 		return *this;
 	}

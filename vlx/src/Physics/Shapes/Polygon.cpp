@@ -1,4 +1,4 @@
-#include <Velox/Physics/Polygon.h>
+#include <Velox/Physics/Shapes/Polygon.h>
 
 using namespace vlx;
 

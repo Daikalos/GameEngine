@@ -42,6 +42,8 @@ namespace vlx
 	public:
 		BroadSystem(EntityAdmin& entity_admin, const LayerType id);
 
+	private:
+		LQuadTree<Element> m_quad_tree;
 
 	};
 }

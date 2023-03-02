@@ -22,10 +22,8 @@ namespace vlx
 	public:
 		virtual ~ISystem() = default;
 
-		auto operator<=>(const ISystem& rhs) const 
-		{
-			return GetPriority() <=> rhs.GetPriority();
-		}
+	public:
+		auto operator<=>(const ISystem& rhs) const;
 
 	public:
 		virtual ArchetypeID GetIDKey() const = 0;
@@ -102,21 +100,24 @@ namespace vlx
 	private:
 		bool IsArchetypeExcluded(const Archetype* archetype) const;
 
-	protected:
-		EntityAdmin*		m_entity_admin	{nullptr};
-		LayerType			m_layer			{LYR_NONE};	// controls the overall order of calls
-		AllFunc				m_all_func;
-		EachFunc			m_each_func;
-		float				m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
-		bool				m_run_parallel	{false};
+	protected:	
+		EntityAdmin*				m_entity_admin	{nullptr};
+		LayerType					m_layer			{LYR_NONE};	// controls the overall order of calls
+		AllFunc						m_all_func;
+		EachFunc					m_each_func;
+		float						m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
+		bool						m_run_parallel	{false};
 
-		ComponentIDs			m_exclusion;
-		mutable ArchetypeCache	m_excluded_archetypes;
-
-		mutable ComponentIDs	m_arch_key;
-
-		mutable const Archetype* m_archetype{nullptr};
+		ComponentIDs				m_exclusion;
+		mutable ArchetypeCache		m_excluded_archetypes;
+		mutable ComponentIDs		m_arch_key;
+		mutable const Archetype*	m_archetype{nullptr};
 	};
+
+	inline auto ISystem::operator<=>(const ISystem& rhs) const
+	{
+		return GetPriority() <=> rhs.GetPriority();
+	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)

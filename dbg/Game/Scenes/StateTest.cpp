@@ -38,7 +38,9 @@ void StateTest::OnCreated()
 
 	m_entities.reserve(100);
 
-	m_entity_admin->Reserve<Object, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
+	int h = sizeof(Renderable);
+
+	m_entity_admin->Reserve<Object, Renderable, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
@@ -69,7 +71,7 @@ void StateTest::OnCreated()
 	b0 = object_system.CreateObject();
 	b0.AddComponents(gui::ButtonType{});
 
-	b0.GetComponent<Object>().IsGUI = true;
+	b0.GetComponent<Renderable>().IsGUI = true;
 	b0.GetComponent<gui::Button>().SetSize({ 128, 128 });
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
 	b0.GetComponent<LocalTransform>().SetPosition({ 100, 100 });

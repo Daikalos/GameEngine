@@ -5,7 +5,7 @@ using namespace vlx;
 CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera)
 	: SystemAction(entity_admin, id), m_system(entity_admin, id), m_camera(&camera)
 {
-	m_system.All([this, &camera](std::span<const EntityID> entities, Object* objects, Transform* transforms, Sprite* sprites)
+	m_system.All([this, &camera](std::span<const EntityID> entities, Renderable* renderables, Transform* transforms, Sprite* sprites)
 		{
 			const sf::Vector2f camera_size = camera.GetSize() / camera.GetScale();
 			const sf::Vector2f camera_pos = camera.GetPosition() - camera_size / 2.0f;
@@ -28,25 +28,19 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				const sf::Vector2f pos = transforms[i].GetPosition();
-				const sf::Vector2f size = sprites[i].GetSize();
+				const auto& transform	= transforms[i];
+				const auto& sprite		= sprites[i];
 
-				const RectFloat rect =
-				{
-					pos.x,
-					pos.y,
-					pos.x + size.x,
-					pos.y + size.y
-				};
-				
-				objects[i].IsVisible = objects[i].IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect);
+				const sf::Vector2f pos = transform.GetPosition();
+				const sf::Vector2f size = sprite.GetSize();
+
+				const RectFloat rect = { 0.0f, 0.0f, size.x, size.y };
+
+				transform.GetTransform().transformRect(rect);
+
+				renderables[i].IsVisible = renderables[i].IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect);
 			}
 		});
-}
-
-void CullingSystem::Update()
-{
-	m_entity_admin->RunSystems(GetID());
 }
 
 constexpr bool CullingSystem::IsRequired() const noexcept
@@ -56,12 +50,20 @@ constexpr bool CullingSystem::IsRequired() const noexcept
 
 void CullingSystem::PreUpdate()
 {
+
+}
+
+void CullingSystem::Update()
+{
+	m_entity_admin->RunSystems(GetID());
 }
 
 void CullingSystem::FixedUpdate()
 {
+
 }
 
 void CullingSystem::PostUpdate()
 {
+
 }

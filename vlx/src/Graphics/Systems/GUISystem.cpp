@@ -3,11 +3,11 @@
 using namespace vlx::gui;
 
 GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera, const ControlMap& controls)
-	: SystemObject(entity_admin, id),
+	: SystemAction(entity_admin, id),
 	m_button_system(entity_admin, id),
 	m_label_system(entity_admin, id)
 {
-	m_button_system.All([&camera, &controls](std::span<const EntityID> entities, Object* objects, Transform* transforms, Button* buttons)
+	m_button_system.All([&camera, &controls](std::span<const EntityID> entities, Renderable* renderables, Transform* transforms, Button* buttons)
 		{
 			const MouseInput& mouse_input = controls.Get<MouseInput>();
 			const MouseCursor& mouse_cursor = controls.Get<MouseCursor>();
@@ -15,22 +15,22 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 			const bool pressed	= mouse_input.Pressed(ebn::Button::GUIButton);
 			const bool released = mouse_input.Released(ebn::Button::GUIButton);
 
-			const sf::Vector2i& mouse_pos = mouse_cursor.GetPosition();
-			const sf::Vector2i& global_mouse_pos = camera.GetMouseWorldPosition(mouse_cursor.GetPosition());
+			const sf::Vector2i mouse_pos = mouse_cursor.GetPosition();
+			const sf::Vector2i global_mouse_pos = camera.GetMouseWorldPosition(mouse_pos);
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
+				Renderable& renderable	= renderables[i];
 				Transform& transform	= transforms[i];
 				Button& button			= buttons[i];
-				Object& object			= objects[i];
 
 				const auto& position	= sf::Vector2i(transform.GetPosition());
 				const auto& size		= sf::Vector2i(button.GetSize());
 
-				if (object.IsVisible)
+				if (button.IsActive())
 				{
 					sf::Rect rectangle(position, size);
-					bool within_bounds = rectangle.contains(object.IsGUI ? mouse_pos : global_mouse_pos);
+					bool within_bounds = rectangle.contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
 
 					if (within_bounds)
 					{
@@ -53,7 +53,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 			}
 		});
 
-	m_label_system.All([](std::span<const EntityID> entities, Object* objects, Transform* transforms, Label* labels)
+	m_label_system.All([](std::span<const EntityID> entities, Renderable* renderables, Transform* transforms, Label* labels)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
@@ -62,24 +62,27 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 		});
 }
 
+constexpr bool GUISystem::IsRequired() const noexcept
+{
+	return false;
+}
+
+void GUISystem::PreUpdate()
+{
+
+}
+
 void GUISystem::Update()
 {
 	m_entity_admin->RunSystems(GetID());
 }
 
-bool vlx::gui::GUISystem::IsRequired() const noexcept
+void GUISystem::FixedUpdate()
 {
-	return false;
+
 }
 
-void vlx::gui::GUISystem::PreUpdate()
+void GUISystem::PostUpdate()
 {
-}
 
-void vlx::gui::GUISystem::FixedUpdate()
-{
-}
-
-void vlx::gui::GUISystem::PostUpdate()
-{
 }

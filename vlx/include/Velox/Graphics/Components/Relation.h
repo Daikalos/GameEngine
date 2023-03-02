@@ -11,9 +11,8 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Represents the relationship between entities that allows for scene graphs and possibly other things... 
-	/// </summary>
+	/// Represents the relationship between entities
+	/// 
 	class Relation : public IComponent
 	{
 	public:
@@ -62,9 +61,9 @@ namespace vlx
 	{
 		for (const Ref& ptr : m_children)
 		{
-			auto [component, success] = entity_admin.TryGetComponent<std::decay_t<C>>(ptr->GetEntityID());
+			const auto component = entity_admin.TryGetComponent<std::decay_t<C>>(ptr->GetEntityID());
 
-			if (success && !func(*component))
+			if (!component || !func(*component))
 				continue;
 
 			if (include_descendants) // continue iterating descendants
@@ -80,14 +79,14 @@ namespace vlx
 		std::ranges::sort(m_children.begin(), m_children.end(),
 			[&func, &entity_admin](const Ref& lhs, const Ref& rhs)
 			{
-				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
+				const auto lhs_comp = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
 
-				if (!lhs_success)
+				if (!lhs_comp)
 					return false;
 
-				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs.GetEntityID());
+				const auto rhs_comp = entity_admin.TryGetComponent<C>(rhs.GetEntityID());
 
-				if (!rhs_success)
+				if (!rhs_comp)
 					return false;
 
 				return func(*lhs_comp, *rhs_comp);

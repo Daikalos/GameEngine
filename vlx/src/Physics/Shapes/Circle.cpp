@@ -1,4 +1,4 @@
-#include <Velox/Physics/Circle.h>
+#include <Velox/Physics/Shapes/Circle.h>
 
 using namespace vlx;
 

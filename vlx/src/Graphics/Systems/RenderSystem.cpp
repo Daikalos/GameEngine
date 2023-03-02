@@ -5,9 +5,9 @@ using namespace vlx;
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id), m_render_system(entity_admin, id)
 {
-	m_render_system.Each([this](const EntityID entity, Object& object, Transform& transform, Sprite& sprite)
+	m_render_system.Each([this](const EntityID entity, Renderable& renderable, Transform& transform, Sprite& sprite)
 		{
-			DrawObject(object, sprite, transform.GetTransform(), sprite.GetDepth());
+			DrawEntity(renderable, sprite, transform.GetTransform(), sprite.GetDepth());
 		});
 }
 
@@ -75,14 +75,14 @@ void RenderSystem::PostUpdate()
 	m_update_static_gui_bash = false;
 }
 
-void RenderSystem::DrawObject(const Object& object, const IBatchable& batchable, const sf::Transform& transform, const float depth)
+void RenderSystem::DrawEntity(const Renderable& renderable, const IBatchable& batchable, const sf::Transform& transform, const float depth)
 {
-	if (!object.IsVisible)
+	if (!renderable.IsVisible)
 		return;
 
-	if (!object.IsGUI)
+	if (!renderable.IsGUI)
 	{
-		if (object.IsStatic)
+		if (renderable.IsStatic)
 		{
 			if (m_update_static_bash)
 				m_static_batch.Batch(batchable, transform, depth);
@@ -94,7 +94,7 @@ void RenderSystem::DrawObject(const Object& object, const IBatchable& batchable,
 	}
 	else
 	{
-		if (object.IsStatic)
+		if (renderable.IsStatic)
 		{
 			if (m_update_static_gui_bash)
 				m_static_gui_batch.Batch(batchable, transform, depth);

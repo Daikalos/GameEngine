@@ -9,16 +9,8 @@
 #include <Velox/ECS/System.hpp>
 #include <Velox/Utilities.hpp>
 
-#include <Velox/Algorithms/LQuadTree.hpp>
-#include <Velox/Algorithms/QTElement.hpp>
 
-#include "Shape.h"
-#include "Circle.h"
-#include "Box.h"
-#include "Polygon.h"
-#include "CollisionResult.h"
-#include "CollisionData.h"
-#include "CollisionTable.h"
+
 
 namespace vlx
 {
@@ -39,16 +31,16 @@ namespace vlx
 	public:
 
 	private:
-		void Initialize(CollisionData& data);
-		void ResolveCollision(CollisionData& data);
-		void PositionalCorrection(CollisionData& data);
+		//void Initialize(CollisionData& data);
+		//void ResolveCollision(CollisionData& data);
+		//void PositionalCorrection(CollisionData& data);
 
 	private:
 		Time*			m_time		{nullptr};
 		sf::Vector2f	m_gravity	{0.0f, 10.0f};
 
-		System<PhysicsBody>					m_update_forces;
-		System<PhysicsBody, LocalTransform> m_update_velocities;
-		System<PhysicsBody>					m_clear_forces;
+		//System<PhysicsBody>					m_update_forces;
+		//System<PhysicsBody, LocalTransform> m_update_velocities;
+		//System<PhysicsBody>					m_clear_forces;
 	};
 }

@@ -31,7 +31,7 @@ AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const 
 		});
 }
 
-bool AnchorSystem::IsRequired() const noexcept
+constexpr bool AnchorSystem::IsRequired() const noexcept
 {
 	return false;
 }

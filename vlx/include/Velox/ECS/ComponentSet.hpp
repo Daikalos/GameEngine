@@ -13,10 +13,9 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		ComponentSet is used to prevent having to write many ComponentRef to access
-	///		the components of an object.
-	/// </summary>
+	///	ComponentSet is used to prevent having to write many 
+	/// ComponentRef to access the components of an object.
+	/// 
 	template<class... Cs> requires IsComponents<Cs...>
 	class ComponentSet final
 	{

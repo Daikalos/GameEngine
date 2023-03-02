@@ -53,12 +53,8 @@ namespace vlx
 	// 
 	////////////////////////////////////////////////////////////
 
-	/// <summary>
-	///		Data-oriented ECS design. Components are stored in contiguous memory inside of archetypes.
-	///		Be warned that adding and removing components from entities is an expensive operation. 
-	///		Try to avoid performing such operations on runtime as much as possible and look at using pooling 
-	///		instead to prevent removing and adding entities often.
-	/// </summary>
+	///	Data-oriented ECS design. Components are stored in contiguous memory inside of archetypes to maximize cache locality.
+	/// 
 	class EntityAdmin final : private NonCopyable
 	{
 	private:
@@ -106,208 +102,265 @@ namespace vlx
 		VELOX_API ~EntityAdmin();
 
 	public: 
-		/// <summary>
-		///		Returns the unique ID of a component
-		/// </summary>
+		/// \returns The ID of the component
+		///
 		template<IsComponent C>
 		NODISC static constexpr ComponentTypeID GetComponentID();
 
-		/// <summary>
-		///		Register the component for later usage. Has to be done before the component can be 
-		///		employed in the ECS.
-		/// </summary>
+		/// Register the component for later usage. Has to be done before the component can be used in the ECS.
+		///
 		template<IsComponent C>
 		void RegisterComponent();
 
-		/// <summary>
-		///		Shortcut for registering multiple components.
-		/// </summary>
+		///	Shortcut for registering multiple components.
+		///
 		template<class... Cs> requires IsComponents<Cs...>
 		void RegisterComponents();
 
-		/// <summary>
-		///		Shortcut for registering multiple components.
-		/// </summary>
+		///	Shortcut for registering multiple components.
+		///
 		template<class... Cs> requires IsComponents<Cs...>
 		void RegisterComponents(std::tuple<Cs...>&& tuple);
 
-		/// <summary>
-		///		Adds a component to the specified entity. Can also pass optional constructor arguments. 
-		///		Returns pointer to the added component if it was successful, otherwise nullptr.
-		/// </summary>
+		///	Adds a component to the specified entity.
+		/// 
+		/// \param EntityID: ID of the entity to add the component to.
+		/// \param Args: Optional constructor aruguments.
+		///	
+		/// \returns Pointer to the added component if it was successful, otherwise nullptr.
+		///
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(const EntityID entity_id, Args&&... args);
 
-		/// <summary>
-		///		Optimized for quickly adding multiple components to an entity. Cannot pass constructor arguments and returns void.
-		/// </summary>
+		///	Optimized for quickly adding multiple components to an entity.
+		/// 
+		/// \param EntityID: ID of the entity to add the component to.
+		///
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(const EntityID entity_id);
 
-		/// <summary>
-		///		Optimized for quickly adding multiple components to an entity. Cannot pass constructor arguments and returns void.
-		/// </summary>
+		///	Optimized for quickly adding multiple components to an entity.
+		/// 
+		/// \param EntityID: ID of the entity to add the component to.
+		/// \param Tuple: To automatically deduce the template arguments.
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
-		/// <summary>
-		///		Removes a component from the specified entity. Will return true if it succeeded in doing such,
-		///		otherwise false.
-		/// </summary>
+		/// Removes a component from the specified entity. Will return true if it succeeded in doing such, otherwise false.
+		/// 
+		/// \param EntityID: ID of the entity to remove the component from.
+		/// 
+		/// \returns True if it succeeded in removing component, otherwise false
+		/// 
 		template<IsComponent C>
 		bool RemoveComponent(const EntityID entity_id);
 
-		/// <summary>
-		///		Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
-		///		Returns whether if it was able to remove any component on the entity.
-		/// </summary>
+		/// Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
+		///	
+		/// \param EntityID: ID of the entity to remove the components from.
+		/// 
+		/// \returns Whether if it was able to remove any component from the entity.
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		bool RemoveComponents(const EntityID entity_id);
 
-		/// <summary>
-		///		Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
-		///		Returns whether if it was able to remove any component on the entity.
-		/// </summary>
+		///	Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
+		///	
+		/// \param EntityID: ID of the entity to remove the components from.
+		/// \param Tuple: To automatically deduce the template arguments.
+		/// 
+		/// \returns Whether if it was able to remove any component from the entity.
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		bool RemoveComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
 
-		/// <summary>
-		///		GetComponent is designed to be as fast as possible without checks to
-		///		see if it exists, otherwise, will throw error. Therefore, take some caution when 
-		///		using this function. Use e.g. TryGetComponent or GetComponentRef for better safety.
-		/// </summary>
+		///	GetComponent is designed to be as fast as possible without checks to see if it exists, otherwise, will throw error. 
+		/// Therefore, take some caution when using this function. Use instead: TryGetComponent or GetComponentRef for better safety.
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the component from.
+		/// 
+		/// \returns Reference to component.
+		/// 
 		template<IsComponent C>
 		NODISC C& GetComponent(const EntityID entity_id) const;
 
-		/// <summary>
-		///		Tries to get the component and returns a pair containing the component ptr and success. If it fails, 
-		///		it returns std::nullopt.
-		/// </summary>
+		/// Tries to get the component. May fail if the entity does not exist or hold the component.
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the component from.
+		/// 
+		/// \returns Pointer to component, otherwise std::nullopt.
+		/// 
 		template<IsComponent C>
 		NODISC std::optional<C*> TryGetComponent(const EntityID entity_id) const;
 
-		/// <summary>
-		///		
-		/// </summary>
+		/// Retrieves multiple components from an entity in one go.
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the components from.
+		/// 
+		/// \returns Tuple containing pointers to component
+		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
 		NODISC std::tuple<Cs*...> GetComponents(const EntityID entity_id) const;
 
-		/// <summary>
-		///		
-		/// </summary>
+		/// Defaults to GetComponent if GetComponents only specifies one type.
+		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
 		NODISC std::tuple_element_t<0, std::tuple<Cs...>>& GetComponents(const EntityID entity_id) const;
 
-		/// <summary>
-		///		Returns of a component set constructed from specified component types
-		/// </summary>
+		///	Constructs a ComponentSet that contains a set of component references that ensures that they remain valid.
+		///
+		/// \param EntityID: ID of the entity to retrieve the components from.
+		/// 
+		/// \returns A ComponentSet constructed from the specified components.
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC ComponentSet<Cs...> GetComponentsRef(const EntityID entity_id) const;
 
-		/// <summary>
-		///		Allows for you to retrieve any base class without having to know the type of the child.
+		///	Allows for you to retrieve any base class without having to know the type of the child.
 		/// 
-		/// 	[Incredibly risky, requires base to be first in inheritance, other base classes cannot be 
-		///		automatically found without using voodoo magic, for now, offset can be specified to find 
-		///		the correct base class in the inheritance order, for example, "class Component : B, A", to find A 
-		///		you pass offset with sizeof(B)]
-		/// </summary>
+		/// [Incredibly risky, requires base to be first in inheritance, other base classes cannot be automatically 
+		/// found without using voodoo magic, for now, offset can be specified to find the correct base class in the 
+		/// inheritance order, for example, "class Component : B, A", to find A you pass offset with sizeof(B)]
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the child from.
+		/// \param ChildComponentID: ID of the child component to upcast to base.
+		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
+		/// 
+		/// \returns Reference to base.
+		/// 
 		template<class B>
 		NODISC B& GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
-		/// <summary>
-		/// 	Attempts to get base and returns a pair containing the base ptr and success. If it fails, 
-		///		it returns std::nullopt.
-		/// </summary>
+		/// Tries to get the base. May fail if entity does not exist or hold the child component.
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the child from.
+		/// \param ChildComponentID: ID of the child component to upcast to base.
+		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
+		/// 
+		/// \returns Pointer to base, otherwise std::nullopt.
+		/// 
 		template<class B>
 		NODISC std::optional<B*> TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
-		/// <summary>
-		///		Sets the component for the entity directly, component is assumed to exist. Returns the 
-		///		constructed component.
-		/// </summary>
+		/// Modifies the existing component with a newly constructed one.
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the component from.
+		/// \param Args: Optional constructor parameters.
+		/// 
+		/// \returns Reference to the component that was modified
+		/// 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C& SetComponent(const EntityID entity_id, Args&&... args);
 
-		/// <summary>
-		///		Tries to set the component for entity, will return std::nullopt if it fails.
-		/// </summary>
-		template<IsComponent C, typename... Args>  requires std::constructible_from<C, Args...>
+		/// Tries to modify the existing component with a newly constructed one. May fail if the entity does 
+		/// not exist or hold the component.
+		///
+		/// \param EntityID: ID of the entity to retrieve the component from.
+		/// \param Args: Optional constructor parameters.
+		/// 
+		/// \returns Pointer to the component that was modified, otherwise std::nullopt
+		/// 
+		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		std::optional<C*> TrySetComponent(const EntityID entity_id, Args&&... args);
 
-		/// <summary>
-		///		Returns a reference for the component whose pointer will remain valid even when the internal data is 
-		///		modified. The entity admin will make sure to update the internal data after it has been modified.
-		/// </summary>
+		///	Returns a reference for the component whose pointer will remain valid even when the archetype is modified.
+		/// 
+		///	\param EntityID: ID of the entity to retrieve the component from.
+		/// \param Component: Pointer to component, leave nullptr to automatically retrieve.
+		/// 
+		/// \returns A component reference
+		/// 
 		template<IsComponent C>
 		NODISC ComponentRef<C> GetComponentRef(const EntityID entity_id, C* component = nullptr) const;
 
-		/// <summary>
-		///		Tries to return a component proxy, will most likely always succeed, and will only return false if the 
-		///		entity does not exist or other unknown error occurs.
-		/// </summary>
+		///	Tries to return a component ref. May fail if the entity does not exist or hold the specified component.
+		/// 
+		///	\param EntityID: ID of the entity to retrieve the component from.
+		/// \param Component: Pointer to component, leave nullptr to automatically retrieve.
+		/// 
+		/// \returns A component reference if succesful, will return std::nullopt otherwise.
+		/// 
 		template<IsComponent C>
 		NODISC std::optional<ComponentRef<C>> TryGetComponentRef(const EntityID entity_id, C* component = nullptr) const;
 
-		/// <summary>
-		///		Returns a reference for the base whose pointer will remain valid even when the internal data is 
-		///		modified. The proxy will internally get the base's new data location once it has been modified.
-		/// </summary>
+		///	Returns a reference for the base whose pointer will remain valid even when the archetype is modified. 
+		/// 
+		///	\param EntityID: ID of the entity to retrieve the base from.
+		/// \param ChildComponentID: ID of the child component to upcast to base.
+		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
+		/// \param Base: Pointer to base, leave nullptr to automatically retrieve.
+		/// 
+		/// \returns A base reference if succesful, will return std::nullopt otherwise.
+		/// 
 		template<class B>
 		NODISC BaseRef<B> GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0, B* base = nullptr) const;
 
-		/// <summary>
-		///		Tries to return a base reference, will most likely always succeed, and will only return false if the 
-		///		entity does not exist or other unknown error occurs. If the component even exists will be checked in the proxy can be extracted with IsExpired().
-		/// </summary>
+		///	Tries to return a base reference. May fail if the entity does not exist or hold the specified component.
+		/// 
+		///	\param EntityID: ID of the entity to retrieve the base from.
+		/// \param ChildComponentID: ID of the child component to upcast to base.
+		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
+		/// \param Base: Pointer to base, leave nullptr to automatically retrieve.
+		/// 
+		/// \returns A base reference if succesful, will return std::nullopt otherwise.
+		/// 
 		template<class B>
 		NODISC std::optional<BaseRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0, B* base = nullptr) const;
 
-		/// <summary>
-		///		Returns true if the entity has the component C, otherwise false.
-		/// </summary>
+		///	Checks if the entity holds the specified component.
+		/// 
+		/// \param EntityID: ID of the entity to check.
+		/// 
+		/// \returns True if the entity contains the component C, otherwise false.
+		/// 
 		template<IsComponent C>
 		NODISC bool HasComponent(const EntityID entity_id) const;
 
-		/// <summary>
-		///		Returns true if the component has been registered in the ECS, otherwise false.
-		/// </summary>
+		///	Checks if the component is registered
+		/// 
+		///	\returns True if the component has been registered in the ECS, otherwise false.
+		/// 
 		template<IsComponent C>
 		NODISC bool IsComponentRegistered() const;
 
 	public:
-		/// <summary>
-		///		Sorts the components for all entities that exactly contains the specified components. 
-		///		The components is sorted according to the comparison function. Do note that it will 
-		///		also sort all other components the entities may contain to maintain order.
-		/// </summary>
+		///	Sorts the components for all entities that exactly contains the specified components. The components 
+		/// is sorted according to the comparison function. Do note that it will also sort all other components 
+		/// the entities may contain to maintain order.
+		/// 
+		/// \param Comparison: Comparison function between two components that will determine the order.
+		/// 
+		/// \returns True if sorting was succesful, otherwise false
+		/// 
 		template<class... Cs, class Comp> requires IsComponents<Cs...>
 		bool SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
 
-		/// <summary>
-		///		Sorts the components for a specific entity, will also sort the components for all other entities
-		///		that holds the same components as the specified entity. Will also sort all other components that 
-		///		the entities may contain.
-		/// </summary>
+		///	Sorts the components for a specific entity, will also sort the components for all other entities
+		///	that holds the same components as the specified entity. Will also sort all other components that 
+		///	the entities may contain.
+		/// 
+		/// \param EntityID: ID of the entity to sort by.
+		/// \param Comparison: Comparison function between two components that will determine the order.
+		/// 
+		/// \returns True if sorting was succesful, otherwise false
+		/// 
 		template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
-		bool SortComponents(const EntityID entity, Comp&& comparison);
+		bool SortComponents(const EntityID entity_id, Comp&& comparison);
 
-		/// <summary>
-		///		Get all entities that contain the provided components
-		/// </summary>
-		/// <param name="restricted:">
-		///		Get all entities that exactly match the provided components
-		/// </param>
-		/// <returns></returns>
+		/// Searches for entities that contains the specified components
+		/// 
+		/// \param Restricted: Returns all entities that exactly match the provided components
+		/// 
+		/// \returns Entities that contains the components
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
-		/// <summary>
-		///		Increases the capacity of the archetype containing an exact match of the specified components.
-		/// </summary>
-		/// <param name="component_count:">
-		///		Number of components to reserve for in the archetypes
-		/// </param>
+		///	Increases the capacity of the archetype containing an exact match of the specified components.
+		/// 
+		/// \param ComponentCount: Number of components to reserve for in the archetypes
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		void Reserve(const std::size_t component_count);
 
@@ -461,7 +514,9 @@ namespace vlx
 					return nullptr;
 
 				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
+
 				old_archetype->edges[add_component_id].add = new_archetype;
+				new_archetype->edges[add_component_id].remove = old_archetype;
 
 				assert(new_archetype_id != old_archetype->type);
 				assert(new_archetype_id == new_archetype->type);

@@ -138,9 +138,10 @@
     <ClInclude Include="include\Velox\Velox.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionSystem.h" />
     <ClInclude Include="include\Velox\Physics\Systems\BroadSystem.h" />
     <ClInclude Include="include\Velox\Physics\Systems\NarrowSystem.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
+    <ClInclude Include="include\Velox\Physics.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

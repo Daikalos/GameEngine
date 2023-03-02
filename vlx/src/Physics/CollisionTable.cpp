@@ -1,7 +1,7 @@
 #include <Velox/Physics/CollisionTable.h>
 
-#include <Velox/Physics/Circle.h>
-#include <Velox/Physics/Box.h>
+#include <Velox/Physics/Shapes/Circle.h>
+#include <Velox/Physics/Shapes/Box.h>
 #include <Velox/Physics/CollisionData.h>
 
 #include <Velox/Graphics/Components/LocalTransform.h>

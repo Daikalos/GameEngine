@@ -1,7 +1,7 @@
-#include <Velox/Physics/PhysicsSystem.h>
+#include <Velox/Physics/Systems/PhysicsSystem.h>
 
 using namespace vlx;
-
+/*
 PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time)
 	: SystemObject(entity_admin, id), m_time(&time),
 	m_update_forces(entity_admin, LYR_PHYSICS + 1),
@@ -196,3 +196,4 @@ bool vlx::PhysicsSystem::IsRequired() const noexcept
 {
 	return false;
 }
+*/
