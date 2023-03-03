@@ -14,6 +14,8 @@
 
 namespace vlx
 {
+	/// Holds resources, for example, fonts, textures, sounds.
+	///
 	template <IsLoadable Resource, Enum Identifier>
 	class ResourceHolder : private NonCopyable
 	{

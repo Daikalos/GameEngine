@@ -14,8 +14,8 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 			{ 
 				camera_pos.x - LENIENCY,
 				camera_pos.y - LENIENCY,
-				camera_pos.x + camera_size.x + LENIENCY,
-				camera_pos.y + camera_size.y + LENIENCY
+				camera_size.x + LENIENCY,
+				camera_size.y + LENIENCY
 			};
 
 			const RectFloat gui_camera_rect =
@@ -28,16 +28,7 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				const auto& transform	= transforms[i];
-				const auto& sprite		= sprites[i];
-
-				const sf::Vector2f pos = transform.GetPosition();
-				const sf::Vector2f size = sprite.GetSize();
-
-				const RectFloat rect = { 0.0f, 0.0f, size.x, size.y };
-
-				transform.GetTransform().transformRect(rect);
-
+				const RectFloat rect = transforms[i].GetTransform().transformRect({ {}, sprites[i].GetSize() });
 				renderables[i].IsVisible = renderables[i].IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect);
 			}
 		});

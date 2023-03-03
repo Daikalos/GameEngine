@@ -15,12 +15,10 @@
 
 namespace vlx
 {
-	/// <summary>
-	/// 	Expanded camera containing a variety of functionalities,
-	///		most notably is the ability to contain a multitude of
-	///		behaviours. Is treated as a unique entity rather than
-	///		being part of the ECS design.
-	/// </summary>
+	/// Expanded camera containing a variety of functionalities, most notably is the ability to 
+	/// contain a multitude of behaviours. Is treated as a unique entity rather than being part 
+	/// of the ECS design.
+	/// 
 	class VELOX_API Camera final : public sf::View, private NonCopyable
 	{
 	private:

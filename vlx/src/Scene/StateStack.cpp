@@ -24,6 +24,9 @@ void StateStack::SetPaused(bool flag)
 
 void StateStack::HandleEvent(const sf::Event& event)
 {
+	if (m_paused) // not sure if should be here
+		return;
+
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
 		if (!(*it)->HandleEvent(event))
@@ -35,6 +38,9 @@ void StateStack::HandleEvent(const sf::Event& event)
 
 void StateStack::PreUpdate(Time& time)
 {
+	if (m_paused)
+		return;
+
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
 		if (!(*it)->PreUpdate(time))
@@ -46,6 +52,9 @@ void StateStack::PreUpdate(Time& time)
 
 void StateStack::Update(Time& time)
 {
+	if (m_paused)
+		return;
+
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
 		if (!(*it)->Update(time))
@@ -57,6 +66,9 @@ void StateStack::Update(Time& time)
 
 void StateStack::FixedUpdate(Time& time)
 {
+	if (m_paused)
+		return;
+
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
 		if (!(*it)->FixedUpdate(time))
@@ -68,6 +80,9 @@ void StateStack::FixedUpdate(Time& time)
 
 void StateStack::PostUpdate(Time& time)
 {
+	if (m_paused)
+		return;
+
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
 	{
 		if (!(*it)->PostUpdate(time))

@@ -11,9 +11,8 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Handles all of the joystick input, has support for several joysticks.
-	/// </summary>
+	///	Handles all of the joystick input, has support for up to 8 joysticks.
+	/// 
 	class JoystickInput final : public InputHandler
 	{
 	private:
@@ -26,32 +25,30 @@ namespace vlx
 		VELOX_API JoystickInput();
 
 	public:
-		VELOX_API [[nodiscard]] bool Held(const SizeType id, const SizeType button) const;
-		VELOX_API [[nodiscard]] bool Pressed(const SizeType id, const SizeType button) const;
-		VELOX_API [[nodiscard]] bool Released(const SizeType id, const SizeType button) const;
+		VELOX_API NODISC bool Held(const SizeType id, const SizeType button) const;
+		VELOX_API NODISC bool Pressed(const SizeType id, const SizeType button) const;
+		VELOX_API NODISC bool Released(const SizeType id, const SizeType button) const;
 
-		VELOX_API [[nodiscard]] float Axis(const SizeType id, const SizeType axis) const;
+		VELOX_API NODISC float Axis(const SizeType id, const SizeType axis) const;
 
 	public:
 		template<Enum Bind>
-		[[nodiscard]] bool Held(const SizeType id, const Bind name) const;
+		NODISC bool Held(const SizeType id, const Bind name) const;
 		template<Enum Bind>
-		[[nodiscard]] bool Pressed(const SizeType id, const Bind name) const;
+		NODISC bool Pressed(const SizeType id, const Bind name) const;
 		template<Enum Bind>
-		[[nodiscard]] bool Released(const SizeType id, const Bind name) const;
+		NODISC bool Released(const SizeType id, const Bind name) const;
 
 		template<Enum Bind>
-		[[nodiscard]] float Axis(const SizeType id, const Bind name) const;
+		NODISC float Axis(const SizeType id, const Bind name) const;
 
 		template<Enum Bind>
-		[[nodiscard]] JoystickBinds<Bind>& GetMap();
+		NODISC JoystickBinds<Bind>& GetMap();
 		template<Enum Bind>
-		[[nodiscard]] const JoystickBinds<Bind>& GetMap() const;
+		NODISC const JoystickBinds<Bind>& GetMap() const;
 
-		/// <summary>
-		///		Add the bind for later input, must be done before any
-		///		operations are performed using the bind
-		/// </summary>
+		///	Add the bind for later input, must be done before any operations are performed using the bind
+		/// 
 		template<Enum Bind>
 		void AddMap();
 
@@ -66,7 +63,7 @@ namespace vlx
 
 		float	m_axis				[sf::Joystick::Count * sf::Joystick::AxisCount]		= {0.0f};
 
-		bool	m_available			[sf::Joystick::Count] = {false}; // array of indexes of the currently available joysticks
+		bool	m_available			[sf::Joystick::Count] = {false}; // array of bools indicating currently available joysticks
 
 		std::unordered_map<std::type_index, IBinds::Ptr> m_binds;
 	};

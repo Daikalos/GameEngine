@@ -20,6 +20,8 @@ namespace vlx
 		Texture,
 	};
 
+	/// SpriteBatch used to combine similar textures or shaders to reduce number of drawcalls. 
+	///
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	private:

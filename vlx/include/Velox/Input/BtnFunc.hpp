@@ -23,11 +23,10 @@ namespace vlx
 		return button_event;
 	}
 
-	/// <summary>
-	///		BtnFunc is small container class for mapping functions to individual key events.
-	///		This was created to have the same lifetime as the provided functions have in order to prevent common errors.
-	///		It also allows for the developer to determine when the functions should executed.
-	/// </summary>
+	///	BtnFunc is small container class for mapping functions to individual key events. This was created to 
+	/// have the same lifetime as the provided functions have in order to prevent common errors. It also allows 
+	/// for the developer to determine when the functions should executed.
+	/// 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	class BtnFunc final
 	{

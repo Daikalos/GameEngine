@@ -5,10 +5,6 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Event and EventHandler based on article by Shmuel Zang:
-	///		https://www.codeproject.com/Articles/1256352/CppEvent-How-to-Implement-Events-using-Standard-Cp
-	/// </summary>
 	template<typename... Args>
 	class EventHandler
 	{

@@ -4,8 +4,6 @@
 #include <unordered_map>
 #include <functional>
 
-#include <SFML/Graphics.hpp>
-
 #include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
@@ -14,6 +12,8 @@
 
 namespace vlx
 {
+	/// Holds all the active states in a stack that can be easily modified.
+	/// 
 	class VELOX_API StateStack : private NonCopyable
 	{
 	private:
@@ -72,9 +72,9 @@ namespace vlx
 
 		Stack						m_stack;		// all states are stored here
 		Factory						m_factory;		// factory for storing functions that creates the registered object
-		std::vector<PendingChange>	m_pending_list; // pending list of changes to the stack, applied last in the update
+		std::vector<PendingChange>	m_pending_list; // pending list of changes to the stack, applied in post update
 
-		bool m_paused{false};
+		bool m_paused {false};
 
 		friend class State;
 	};

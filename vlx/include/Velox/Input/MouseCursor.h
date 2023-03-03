@@ -1,9 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include <Velox/Window/Window.h>
 #include <Velox/Utilities.hpp>
+#include <Velox/Config.hpp>
 
 #include "InputHandler.h"
 
@@ -18,30 +19,34 @@ namespace vlx
 		MouseCursor(Window& window, float sensitivity, bool locked);
 
 	public:
-		[[nodiscard]] const sf::Vector2i& GetPosition() const noexcept;
-		[[nodiscard]] const sf::Vector2f& GetDelta() const noexcept;
-		[[nodiscard]] const float GetSensitivity() const noexcept;
-		[[nodiscard]] const bool GetIsLocked() const noexcept;
+		NODISC const sf::Vector2i& GetPosition() const noexcept;
+		NODISC const sf::Vector2f& GetDelta() const noexcept;
+		NODISC const float GetSensitivity() const noexcept;
+		NODISC const bool GetIsLocked() const noexcept;
 
-		/// <summary>
-		///		Sets the texture of the cursor
-		/// </summary>
+		///	Determines the texture of the cursor when window is in focus.
+		/// 
+		/// \param Texture: texture to use
+		/// 
 		void SetTexture(const sf::Texture& texture);
 
-		/// <summary>
-		///		Sets the sensitivity of the cursor, do note that it will not change the actual speed of the cursor,
-		///		but rather increase the delta value returned, mostly useful for when cursor is locked
-		/// </summary>
-		void SetSensitivity(const float val) noexcept;
+		///	Determines the sensitivity of the cursor, do note that it will not change the actual speed of the cursor,
+		///	but rather increase the delta value returned, mostly useful for when cursor is locked.
+		/// 
+		/// \param Sensitivity: value of sensitivity
+		/// 
+		void SetSensitivity(const float sensitivity) noexcept;
 
-		/// <summary>
-		///		Shows/Hides cursor
-		/// </summary>
+		/// Show or hide cursor.
+		/// 
+		/// \param Flag: true to show, and false to hide
+		/// 
 		void SetVisibility(const bool flag) noexcept;
 
-		/// <summary>
-		///		Locks the cursor to the middle of the window
-		/// </summary>
+		///	Locks the cursor to the middle of the window
+		/// 
+		/// \param Flag: true to lock, and false to unlock (move freely)
+		/// 
 		void SetIsLocked(const bool flag) noexcept;
 
 	public:

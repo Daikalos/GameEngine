@@ -9,10 +9,8 @@
 
 namespace vlx
 {
-	////////////////////////////////////////////////////////////
-	// Handles all of the keyboard input, only supports one
-	// keyboard at a time
-	////////////////////////////////////////////////////////////
+	/// Handles all of the keyboard input, only supports one keyboard 
+	///
 	class KeyboardInput final : public InputHandler
 	{
 	private:
@@ -20,26 +18,24 @@ namespace vlx
 		using KeyboardBinds = Binds<Bind, sf::Keyboard::Key>;
 
 	public:
-		VELOX_API [[nodiscard]] bool Held(const sf::Keyboard::Key key) const;
-		VELOX_API [[nodiscard]] bool Pressed(const sf::Keyboard::Key key) const;
-		VELOX_API [[nodiscard]] bool Released(const sf::Keyboard::Key key) const;
+		VELOX_API NODISC bool Held(const sf::Keyboard::Key key) const;
+		VELOX_API NODISC bool Pressed(const sf::Keyboard::Key key) const;
+		VELOX_API NODISC bool Released(const sf::Keyboard::Key key) const;
 
 		template<Enum Bind>
-		[[nodiscard]] bool Held(const Bind name) const;
+		NODISC bool Held(const Bind name) const;
 		template<Enum Bind>
-		[[nodiscard]] bool Pressed(const Bind name) const;
+		NODISC bool Pressed(const Bind name) const;
 		template<Enum Bind>
-		[[nodiscard]] bool Released(const Bind name) const;
+		NODISC bool Released(const Bind name) const;
 
 		template<Enum Bind>
-		[[nodiscard]] KeyboardBinds<Bind>& GetMap();
+		NODISC KeyboardBinds<Bind>& GetMap();
 		template<Enum Bind>
-		[[nodiscard]] const KeyboardBinds<Bind>& GetMap() const;
+		NODISC const KeyboardBinds<Bind>& GetMap() const;
 
-		////////////////////////////////////////////////////////////
-		// Add the bind for later input, must be done before any
-		// operations are performed using the bind
-		////////////////////////////////////////////////////////////
+		///	Add the bind for later input, must be done before any operations are performed using the bind
+		/// 
 		template<Enum Bind>
 		void AddMap();
 

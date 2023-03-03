@@ -12,9 +12,14 @@ namespace vlx
 	template<Arithmetic T>
 	struct Rect : public sf::Rect<T>
 	{
+		using sf::Rect<T>::Rect;
+
 		constexpr Rect();
 		constexpr Rect(T left, T top, T width, T height);
 		constexpr Rect(const sf::Vector2<T>& position, const sf::Vector2<T>& size);
+
+		constexpr Rect(const sf::Rect<T>& rhs);
+		constexpr Rect<T>& operator=(const sf::Rect<T>& rhs);
 
 		template<typename U>
 		constexpr explicit Rect(const Rect<U>& rect);
@@ -72,6 +77,17 @@ namespace vlx
 	template<Arithmetic T>
 	inline constexpr Rect<T>::Rect(const sf::Vector2<T>& position, const sf::Vector2<T>& size)
 		: sf::Rect<T>(position, size) {};
+
+	template<Arithmetic T>
+	inline constexpr Rect<T>::Rect(const sf::Rect<T>& rhs)
+		: sf::Rect<T>(rhs) {};
+
+	template<Arithmetic T>
+	inline constexpr Rect<T>& Rect<T>::operator=(const sf::Rect<T>& rhs)
+	{
+		sf::Rect<T>::operator=(rhs);
+		return *this;
+	}
 
 	template<Arithmetic T>
 	template<typename U>

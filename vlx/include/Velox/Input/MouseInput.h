@@ -9,10 +9,8 @@
 
 namespace vlx
 {
-	////////////////////////////////////////////////////////////
-	// Handles all of the mouse input, only supports one mouse
-	// at a time. 
-	////////////////////////////////////////////////////////////
+	/// Handles all of the mouse input, only supports one mouse at a time. 
+	///
 	class MouseInput final : public InputHandler
 	{
 	private:
@@ -40,10 +38,8 @@ namespace vlx
 		template<Enum Bind>
 		[[nodiscard]] const MouseBinds<Bind>& GetMap() const;
 
-		////////////////////////////////////////////////////////////
-		// Add the bind for later input, must be done before any
-		// operations are performed using the bind
-		////////////////////////////////////////////////////////////
+		///	Add the bind for later input, must be done before any operations are performed using the bind
+		/// 
 		template<Enum Bind>
 		void AddMap();
 

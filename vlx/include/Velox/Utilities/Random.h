@@ -33,9 +33,8 @@ namespace vlx::rnd
 		return uid(dre);
 	}
 
-	/// <summary>
-	///		Creates a list of values up to size that are then shuffled and finally returned
-	/// </summary>
+	///	Creates a list of values up to size that are then shuffled and finally returned
+	/// 
 	template<Arithmetic T>
 	NODISC static auto array(const T size)
 	{
@@ -47,9 +46,8 @@ namespace vlx::rnd
 		return result;
 	}
 
-	/// <summary>
-	///		Returns a random T from the given set of arguments
-	/// </summary>
+	///	Returns a random T from the given set of arguments
+	/// 
 	template<typename T, typename... Args> requires IsSameType<T, Args...>
 	NODISC static T args(const T& arg0, Args&&... args)
 	{

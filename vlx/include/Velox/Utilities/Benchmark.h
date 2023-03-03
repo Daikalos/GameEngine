@@ -19,7 +19,7 @@
 
 namespace vlx::bm
 {
-	// TODO: MEASURE CPU, GPU, AND MEMORY USAGE WHILE ACTIVE
+	// TODO: MEASURE GPU USAGE WHILE ACTIVE
 
 	static constexpr long double Kilobyte(const long double bytes) { return bytes / 1024.0L; }
 	static constexpr long double Megabyte(const long double bytes) { return Kilobyte(bytes) / 1024.0L; }

@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(100);
+	m_entities.reserve(10000);
 
 	int h = sizeof(Renderable);
 

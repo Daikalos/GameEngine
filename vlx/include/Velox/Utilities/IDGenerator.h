@@ -12,9 +12,10 @@ namespace vlx::id
 	// Thanks to: https://skypjack.github.io/2020-03-14-ecs-baf-part-8/
 	// and https://stackoverflow.com/questions/48896142/is-it-possible-to-get-hash-values-as-compile-time-constants
 	//
-	// Generating unique ids that work across different boundaries is tricky, however, these sources have provided
-	// solutions that should solve this problem. The solution below enables for unique ids to be generated at compile-time
-	// using the full signature of a function. The signature is be altered depending on the template and thus generates a new id.
+	// Generating unique ids that work across different boundaries is tricky (furthermore in compile time), however, these
+	// sources have provided solutions that should solve this problem. The solution below enables for unique ids to be generated 
+	// at compile-time using the full signature of a function. The signature is altered depending on the template and thus 
+	// generates a new id.
 
 	template<typename T, std::size_t N>
 	static inline constexpr std::size_t HashFunction(const T(&to_hash)[N])

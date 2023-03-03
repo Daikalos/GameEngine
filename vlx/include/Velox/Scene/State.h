@@ -36,19 +36,16 @@ namespace vlx
 		[[nodiscard]] World& GetWorld();
 
 	public:
-		/// <summary>
-		///		OnCreated is called when first constructed
-		/// </summary>
+		///	OnCreated is called when first constructed
+		/// 
 		virtual void OnCreated() {}
 
-		/// <summary>
-		///		OnActivate is called whenever the state is put as last in the stack
-		/// </summary>
+		///	OnActivate is called whenever the state is put as last in the stack
+		/// 
 		virtual void OnActivate() {}
 
-		/// <summary>
-		///		OnDestroy is called when the state is removed from the stack
-		/// </summary>
+		///	OnDestroy is called when the state is removed from the stack
+		/// 
 		virtual void OnDestroy() {}
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;

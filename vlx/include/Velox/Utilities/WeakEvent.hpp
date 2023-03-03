@@ -6,6 +6,8 @@
 
 namespace vlx
 {
+	/// WeakEvent that ensures that it can only be executed if the associated object is valid
+	/// 
 	class WeakEvent final : private NonCopyable
 	{
 	public:

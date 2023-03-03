@@ -9,12 +9,12 @@ namespace vlx::mu
 	static constexpr int M = 4; // width
 	static constexpr int N = 4; // height
 
-	NODISC static constexpr int IX(int x, int y)
+	NODISC static constexpr int IX(const int x, const int y)
 	{
 		return x + y * M;
 	}
 
-	NODISC static constexpr float MV(const float* m, int x, int y)
+	NODISC static constexpr float MV(const float* m, const int x, const int y)
 	{
 		return m[IX(x, y)];
 	}

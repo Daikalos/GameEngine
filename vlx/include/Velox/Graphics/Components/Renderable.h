@@ -4,6 +4,8 @@
 
 namespace vlx
 {
+	/// Denotes common properties for rendering
+	///
 	struct Renderable : public IComponent
 	{
 		bool IsActive	{true};

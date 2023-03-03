@@ -10,9 +10,8 @@
 
 #include "Concepts.h"
 
-/// <summary>
-///		General utility class for arithmetic numbers
-/// </summary>
+///	General utility class for arithmetic numbers
+/// 
 namespace vlx::au
 {
 	template<std::floating_point T = float>
@@ -37,7 +36,7 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr T Pow(const T base, const std::int32_t exponent = 2)
+	NODISC static constexpr T Pow(const T base, const std::int32_t exponent)
 	{
 		if (exponent < 0)
 			return Pow(1 / base, -exponent);
@@ -52,9 +51,15 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr auto SqrtPow(const T v0, const T v1, const std::uint32_t exponent = 2)
+	NODISC static constexpr T Sq(const T base)
 	{
-		return std::sqrt(Pow(v0, exponent) + Pow(v1, exponent));
+		return Pow(base, 2);
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr auto SqrtSq(const T v0, const T v1)
+	{
+		return std::sqrt(Sq(v0) + Sq(v1));
 	}
 
 	template<Arithmetic T>
@@ -82,6 +87,7 @@ namespace vlx::au
 
 		return min + ((val - min) % range_size);
 	}
+
 	template<std::floating_point T>
 	NODISC static constexpr auto Wrap(T val, const T min, const T max)
 	{

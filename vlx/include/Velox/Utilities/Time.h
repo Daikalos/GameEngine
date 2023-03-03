@@ -31,9 +31,8 @@ namespace vlx
 	public:
 		void Reset();
 
-		/// <summary>
-		///		Update to receive the latest dt, put first in loop
-		/// </summary>
+		///	Update to receive the latest dt, put first in loop
+		/// 
 		void Update();
 
 	private:
