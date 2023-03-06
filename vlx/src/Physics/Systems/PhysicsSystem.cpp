@@ -99,10 +99,10 @@ void PhysicsSystem::Initialize(CollisionData& collision)
 
 	for (std::uint32_t i = 0; i < collision.contact_count; ++i)
 	{
-		sf::Vector2f ra = collision.contacts[i] - collision.AT->GetPosition();
-		sf::Vector2f rb = collision.contacts[i] - collision.BT->GetPosition();
+		Vector2f ra = collision.contacts[i] - collision.AT->GetPosition();
+		Vector2f rb = collision.contacts[i] - collision.BT->GetPosition();
 
-		sf::Vector2f rv =	B.GetVelocity() + vu::Cross(B.GetAngularVelocity(), rb) -
+		Vector2f rv =	B.GetVelocity() + vu::Cross(B.GetAngularVelocity(), rb) -
 							A.GetVelocity() - vu::Cross(A.GetAngularVelocity(), ra);
 
 		if (rv.lengthSq() < (m_gravity * m_time->GetFixedDT()).lengthSq() + FLT_EPSILON)
@@ -127,10 +127,10 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 
 	for (std::size_t i = 0; i < collision.contact_count; ++i)
 	{
-		sf::Vector2f ra = collision.contacts[i] - collision.AT->GetPosition();
-		sf::Vector2f rb = collision.contacts[i] - collision.BT->GetPosition();
+		Vector2f ra = collision.contacts[i] - collision.AT->GetPosition();
+		Vector2f rb = collision.contacts[i] - collision.BT->GetPosition();
 
-		sf::Vector2f rv =	B.GetVelocity() + vu::Cross(B.GetAngularVelocity(), rb) -
+		Vector2f rv =	B.GetVelocity() + vu::Cross(B.GetAngularVelocity(), rb) -
 							A.GetVelocity() - vu::Cross(A.GetAngularVelocity(), ra);
 
 		const float vel_along_normal = vu::Dot(rv, collision.normal);
@@ -149,7 +149,7 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		j /= inv_mass_sum;
 		j /= (float)collision.contact_count;
 
-		const sf::Vector2f impulse = collision.normal * j;
+		const Vector2f impulse = collision.normal * j;
 		A.ApplyImpulse(-impulse, ra);
 		B.ApplyImpulse( impulse, rb);
 
@@ -158,7 +158,7 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		rv =	B.GetVelocity() + vu::Cross(B.GetAngularVelocity(), rb) -
 				A.GetVelocity() - vu::Cross(A.GetAngularVelocity(), ra);
 
-		sf::Vector2f t = rv - (collision.normal * vu::Dot(rv, collision.normal));
+		Vector2f t = rv - (collision.normal * vu::Dot(rv, collision.normal));
 
 		float length_sqr = t.lengthSq();
 		if (length_sqr <= FLT_EPSILON)
@@ -173,7 +173,7 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		if (au::Equal(jt, 0.0f))
 			return;
 
-		const sf::Vector2f tangent_impulse = (std::abs(jt) < j * collision.avg_sfriction) ? t * jt : t * -j * collision.avg_dfriction;
+		const Vector2f tangent_impulse = (std::abs(jt) < j * collision.avg_sfriction) ? t * jt : t * -j * collision.avg_dfriction;
 
 		A.ApplyImpulse(-tangent_impulse, ra);
 		B.ApplyImpulse( tangent_impulse, rb);
@@ -185,7 +185,7 @@ void PhysicsSystem::PositionalCorrection(CollisionData& collision)
 	const float percent = 0.20f;
 	const float k_slop	= 0.01f;
 
-	sf::Vector2f correction = (std::max(collision.penetration - k_slop, 0.0f) / 
+	Vector2f correction = (std::max(collision.penetration - k_slop, 0.0f) / 
 		(collision.A->GetInvMass() + collision.B->GetInvMass())) * collision.normal * percent;
 
 	collision.ALT->Move(-correction * collision.A->GetInvMass());

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Utilities.hpp>
+#include <Velox/Graphics/Rectangle.hpp>
+#include <Velox/Utilities/Event.hpp>
 #include <Velox/Config.hpp>
 
 #include "../CollisionResult.h"
@@ -24,6 +25,8 @@ namespace vlx
 			Count // always keep last
 		};
 
+		virtual ~Shape() = 0;
+
 		virtual void Initialize(PhysicsBody& body) const = 0;
 		virtual RectFloat GetAABB() const = 0;
 
@@ -33,4 +36,6 @@ namespace vlx
 		Event<CollisionResult> OnExit;
 		Event<CollisionResult> OnOverlap;
 	};
+
+	inline Shape::~Shape() = default;
 }

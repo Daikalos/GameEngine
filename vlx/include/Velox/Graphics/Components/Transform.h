@@ -1,10 +1,10 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Transform.hpp>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Utilities.hpp>
+#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/Utilities/MatrixUtils.h>
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -16,13 +16,13 @@ namespace vlx
 	public:
 		NODISC const sf::Transform&	GetTransform() const noexcept;
 		NODISC const sf::Transform&	GetInverseTransform() const;
-		NODISC const sf::Vector2f&	GetPosition() const;
-		NODISC const sf::Vector2f&	GetScale() const;
+		NODISC const Vector2f&		GetPosition() const;
+		NODISC const Vector2f&		GetScale() const;
 		NODISC const sf::Angle&		GetRotation() const;
 
 	private:
-		mutable sf::Vector2f	m_position;
-		mutable sf::Vector2f	m_scale;
+		mutable Vector2f		m_position;
+		mutable Vector2f		m_scale;
 		mutable sf::Angle		m_rotation;
 
 		mutable sf::Transform	m_transform;			// combined transform of all parents and this (global space)

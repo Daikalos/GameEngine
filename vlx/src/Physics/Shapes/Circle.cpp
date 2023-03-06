@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-Circle::Circle(const float radius) : m_radius(radius), m_radius_sqr(au::Pow(radius)) {}
+Circle::Circle(const float radius) : m_radius(radius), m_radius_sqr(au::Sq(radius)) {}
 
 constexpr Shape::Type Circle::GetType() const noexcept      { return Type::Circle; }
 constexpr float Circle::GetRadius() const noexcept          { return m_radius; }
@@ -11,7 +11,7 @@ constexpr float vlx::Circle::GetRadiusSqr() const noexcept  { return m_radius_sq
 constexpr void Circle::SetRadius(float radius)
 {
     m_radius = radius;
-    m_radius_sqr = au::Pow(radius);
+    m_radius_sqr = au::Sq(radius);
 }
 
 void Circle::Initialize(PhysicsBody& body) const

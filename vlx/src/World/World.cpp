@@ -86,7 +86,7 @@ bool World::HasSystem(const LayerType id) const
 
 void World::Run()
 {
-	m_camera.SetSize(sf::Vector2f(m_window.getSize()));
+	m_camera.SetSize(Vector2f(m_window.getSize()));
 	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
 
 	float accumulator = FLT_EPSILON;

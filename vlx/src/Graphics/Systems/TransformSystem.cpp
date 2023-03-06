@@ -45,12 +45,12 @@ constexpr bool TransformSystem::IsRequired() const noexcept
 	return true;
 }
 
-void TransformSystem::SetGlobalPosition(const EntityID entity, const sf::Vector2f& position) 
+void TransformSystem::SetGlobalPosition(const EntityID entity, const Vector2f& position) 
 {
 	SetGlobalPosition(m_entity_admin->GetComponent<LocalTransform>(entity),
 		m_entity_admin->GetComponent<Relation>(entity), position);
 }
-void TransformSystem::SetGlobalScale(const EntityID entity, const sf::Vector2f& scale)
+void TransformSystem::SetGlobalScale(const EntityID entity, const Vector2f& scale)
 {
 	SetGlobalScale(m_entity_admin->GetComponent<LocalTransform>(entity), 
 		m_entity_admin->GetComponent<Relation>(entity), scale);
@@ -61,7 +61,7 @@ void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle a
 		m_entity_admin->GetComponent<Relation>(entity), angle);
 }
 
-void TransformSystem::SetGlobalPosition(LocalTransform& transform, Relation& relation, const sf::Vector2f& position)
+void TransformSystem::SetGlobalPosition(LocalTransform& transform, Relation& relation, const Vector2f& position)
 {
 	if (relation.HasParent())
 	{
@@ -70,7 +70,7 @@ void TransformSystem::SetGlobalPosition(LocalTransform& transform, Relation& rel
 	}
 	else transform.SetPosition(position);
 }
-void TransformSystem::SetGlobalScale(LocalTransform& transform, Relation& relation, const sf::Vector2f& scale)
+void TransformSystem::SetGlobalScale(LocalTransform& transform, Relation& relation, const Vector2f& scale)
 {
 	// TODO: implement
 }

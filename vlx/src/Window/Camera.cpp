@@ -28,37 +28,37 @@ const sf::Transform& Camera::GetViewMatrix() const
 
 	return m_transform;
 }
-sf::Vector2f Camera::ViewToWorld(const sf::Vector2f& position) const 
+Vector2f Camera::ViewToWorld(const Vector2f& position) const 
 { 
 	return GetViewMatrix() * position; 
 }
-sf::Vector2f vlx::Camera::GetMouseWorldPosition(const sf::Vector2f& relative_pos) const
+Vector2f vlx::Camera::GetMouseWorldPosition(const Vector2f& relative_pos) const
 {
 	return ViewToWorld(relative_pos);
 }
-sf::Vector2i vlx::Camera::GetMouseWorldPosition(const sf::Vector2i& relative_pos) const
+Vector2i vlx::Camera::GetMouseWorldPosition(const Vector2i& relative_pos) const
 {
-	return sf::Vector2i(GetMouseWorldPosition(sf::Vector2f(relative_pos)));
+	return Vector2i(GetMouseWorldPosition(Vector2f(relative_pos)));
 }
-sf::Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
+Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
 { 
-	return GetMouseWorldPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
+	return GetMouseWorldPosition(Vector2f(sf::Mouse::getPosition(window)));
 }
 
-const sf::Vector2f& Camera::GetPosition() const noexcept
+const Vector2f& Camera::GetPosition() const noexcept
 { 
 	return m_position; 
 }
-const sf::Vector2f& Camera::GetScale() const noexcept
+const Vector2f& Camera::GetScale() const noexcept
 { 
 	return m_scale; 
 }
-const sf::Vector2f& Camera::GetSize() const noexcept
+const Vector2f& Camera::GetSize() const noexcept
 { 
 	return m_size; 
 }
 
-sf::Vector2f Camera::GetOrigin() const
+Vector2f Camera::GetOrigin() const
 {
 	return GetPosition() + (GetSize() / 2.0f);
 }
@@ -76,21 +76,21 @@ CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id)
 	return nullptr;
 }
 
-void Camera::SetPosition(const sf::Vector2f& position)
+void Camera::SetPosition(const Vector2f& position)
 {
 	setCenter(position);
 	m_position = position;
 
 	m_update_transform = true;
 }
-void Camera::SetScale(const sf::Vector2f& scale)
+void Camera::SetScale(const Vector2f& scale)
 {
 	setSize(m_size * (1.0f / scale));
 	m_scale = scale;
 
 	m_update_transform = true;
 }
-void Camera::SetSize(const sf::Vector2f& size)
+void Camera::SetSize(const Vector2f& size)
 {
 	setSize(size * (1.0f / m_scale));
 	m_size = size;

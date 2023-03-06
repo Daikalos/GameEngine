@@ -28,14 +28,14 @@ namespace vlx
 			const auto& mouse_input = GetContext().controls->Get<MouseInput>();
 			const auto& mouse_cursor = GetContext().controls->Get<MouseCursor>();
 
-			sf::Vector2f position = GetCamera().GetPosition();
+			Vector2f position = GetCamera().GetPosition();
 
 			bool pressed	= mouse_input.Pressed(bn::Button::Drag);
 			bool held		= mouse_input.Held(bn::Button::Drag);
 
 			if (pressed || held)
 			{
-				sf::Vector2f cursor_pos = sf::Vector2f(mouse_cursor.GetPosition())
+				Vector2f cursor_pos = Vector2f(mouse_cursor.GetPosition())
 					/ GetCamera().GetScale() / window->GetRatioCmp();
 
 				if (pressed)
@@ -53,11 +53,14 @@ namespace vlx
 			GetCamera().SetPosition(position);
 			m_prev_scale = GetCamera().GetScale();
 
+
+			RectFloat a = sf::FloatRect();
+
 			return true;
 		}
 
 	private:
-		sf::Vector2f	m_drag_pos;
-		sf::Vector2f	m_prev_scale;
+		Vector2f	m_drag_pos;
+		Vector2f	m_prev_scale;
 	};
 }

@@ -20,7 +20,7 @@ namespace vlx
 		RectFloat GetAABB() const override;
 
 	private:
-		SmallVector<sf::Vector2f> m_vertices;
-		SmallVector<sf::Vector2f> m_normals;
+		SmallVector<Vector2f> m_vertices;
+		SmallVector<Vector2f> m_normals;
 	};
 }

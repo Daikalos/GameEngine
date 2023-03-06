@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-LocalTransform::LocalTransform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation)
+LocalTransform::LocalTransform(const Vector2f& position, const Vector2f& scale, const sf::Angle& rotation)
 	: m_origin(0, 0), m_position(position), m_scale(scale), m_rotation(rotation)
 {
 
@@ -10,11 +10,11 @@ LocalTransform::LocalTransform(const sf::Vector2f& position, const sf::Vector2f&
 
 LocalTransform::LocalTransform()
 	: LocalTransform({ 0, 0 }, { 1.0f, 1.0f }, sf::radians(0.0f)) { }
-LocalTransform::LocalTransform(const sf::Vector2f& position, const sf::Vector2f& scale)
+LocalTransform::LocalTransform(const Vector2f& position, const Vector2f& scale)
 	: LocalTransform(position, scale, sf::radians(0.0f)) {}
-LocalTransform::LocalTransform(const sf::Vector2f& position, const sf::Angle& rotation)
+LocalTransform::LocalTransform(const Vector2f& position, const sf::Angle& rotation)
 	: LocalTransform(position, { 1.0f, 1.0f }, rotation) {}
-LocalTransform::LocalTransform(const sf::Vector2f& position)
+LocalTransform::LocalTransform(const Vector2f& position)
 	: LocalTransform(position, { 1.0f, 1.0f }, sf::radians(0.0f)) {}
 
 const sf::Transform& LocalTransform::GetTransform() const
@@ -51,15 +51,15 @@ const sf::Transform& LocalTransform::GetInverseTransform() const
 
 	return m_inverse_transform;
 }
-const sf::Vector2f& LocalTransform::GetOrigin() const
+const Vector2f& LocalTransform::GetOrigin() const
 {
 	return m_origin;
 }
-const sf::Vector2f& LocalTransform::GetPosition() const
+const Vector2f& LocalTransform::GetPosition() const
 {
 	return m_position;
 }
-const sf::Vector2f& LocalTransform::GetScale() const
+const Vector2f& LocalTransform::GetScale() const
 {
 	return m_scale;
 }
@@ -68,7 +68,7 @@ const sf::Angle& LocalTransform::GetRotation() const
 	return m_rotation;
 }
 
-void LocalTransform::SetOrigin(const sf::Vector2f& origin)
+void LocalTransform::SetOrigin(const Vector2f& origin)
 {
 	if (origin != m_origin)
 	{
@@ -80,7 +80,7 @@ void LocalTransform::SetOrigin(const sf::Vector2f& origin)
 		m_dirty = true;
 	}
 }
-void LocalTransform::SetPosition(const sf::Vector2f& position)
+void LocalTransform::SetPosition(const Vector2f& position)
 {
 	if (position != m_position)
 	{
@@ -92,7 +92,7 @@ void LocalTransform::SetPosition(const sf::Vector2f& position)
 		m_dirty = true;
 	}
 }
-void LocalTransform::SetScale(const sf::Vector2f& scale)
+void LocalTransform::SetScale(const Vector2f& scale)
 {
 	if (scale != m_scale)
 	{
@@ -118,13 +118,13 @@ void LocalTransform::SetRotation(const sf::Angle angle)
 	}
 }
 
-void LocalTransform::Move(const sf::Vector2f& move)
+void LocalTransform::Move(const Vector2f& move)
 {
 	SetPosition(GetPosition() + move);
 }
-void LocalTransform::Scale(const sf::Vector2f& factor)
+void LocalTransform::Scale(const Vector2f& factor)
 {
-	const sf::Vector2f scale = GetScale();
+	const Vector2f scale = GetScale();
 	SetScale({ scale.x * factor.x, scale.y * factor.y });
 }
 void LocalTransform::Rotate(const sf::Angle angle)

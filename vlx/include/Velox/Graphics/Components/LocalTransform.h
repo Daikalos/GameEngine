@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Transform.hpp>
 
 #include <Velox/ECS/IComponent.h>
+#include <Velox/Graphics/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -15,32 +15,32 @@ namespace vlx
 	public:
 		LocalTransform();
 
-		LocalTransform(const sf::Vector2f& position, const sf::Vector2f& scale, const sf::Angle& rotation);
-		LocalTransform(const sf::Vector2f& position, const sf::Vector2f& scale);
-		LocalTransform(const sf::Vector2f& position, const sf::Angle& rotation);
-		LocalTransform(const sf::Vector2f& position);
+		LocalTransform(const Vector2f& position, const Vector2f& scale, const sf::Angle& rotation);
+		LocalTransform(const Vector2f& position, const Vector2f& scale);
+		LocalTransform(const Vector2f& position, const sf::Angle& rotation);
+		LocalTransform(const Vector2f& position);
 
 	public:
 		NODISC const sf::Transform&	GetTransform() const;
 		NODISC const sf::Transform&	GetInverseTransform() const;
-		NODISC const sf::Vector2f&	GetOrigin() const;
-		NODISC const sf::Vector2f&	GetPosition() const;
-		NODISC const sf::Vector2f&	GetScale() const;
+		NODISC const Vector2f&		GetOrigin() const;
+		NODISC const Vector2f&		GetPosition() const;
+		NODISC const Vector2f&		GetScale() const;
 		NODISC const sf::Angle&		GetRotation() const;
 
-		void SetOrigin(const sf::Vector2f& origin);
-		void SetPosition(const sf::Vector2f& position);
-		void SetScale(const sf::Vector2f& scale);
+		void SetOrigin(const Vector2f& origin);
+		void SetPosition(const Vector2f& position);
+		void SetScale(const Vector2f& scale);
 		void SetRotation(const sf::Angle angle);
 
-		void Move(const sf::Vector2f& move);
-		void Scale(const sf::Vector2f& factor);
+		void Move(const Vector2f& move);
+		void Scale(const Vector2f& factor);
 		void Rotate(const sf::Angle angle);
 
 	private:
-		sf::Vector2f			m_origin;
-		sf::Vector2f			m_position;
-		sf::Vector2f			m_scale;
+		Vector2f				m_origin;
+		Vector2f				m_position;
+		Vector2f				m_scale;
 		sf::Angle				m_rotation;
 
 		mutable sf::Transform	m_transform;

@@ -7,8 +7,8 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 {
 	m_system.All([this, &camera](std::span<const EntityID> entities, Renderable* renderables, Transform* transforms, Sprite* sprites)
 		{
-			const sf::Vector2f camera_size = camera.GetSize() / camera.GetScale();
-			const sf::Vector2f camera_pos = camera.GetPosition() - camera_size / 2.0f;
+			const Vector2f camera_size = camera.GetSize() / camera.GetScale();
+			const Vector2f camera_pos = camera.GetPosition() - camera_size / 2.0f;
 
 			const RectFloat camera_rect = 
 			{ 

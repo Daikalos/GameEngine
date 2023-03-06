@@ -32,11 +32,11 @@ const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 	return m_cached_modes;
 }
 
-constexpr sf::Vector2i Window::GetOrigin() const noexcept
+constexpr Vector2i Window::GetOrigin() const noexcept
 {
-	return sf::Vector2i(getSize() / 2u);
+	return Vector2i(getSize() / 2u);
 }
-const sf::Vector2f& Window::GetRatioCmp() const noexcept
+const Vector2f& Window::GetRatioCmp() const noexcept
 {
 	return m_ratio_cmp;
 }
@@ -51,7 +51,7 @@ void Window::onCreate()
 	setMouseCursorVisible(true);
 	setMouseCursorGrabbed(true);
 
-	m_ratio_cmp = sf::Vector2f(
+	m_ratio_cmp = Vector2f(
 		getSize().x / (float)sf::VideoMode::getDesktopMode().size.x,
 		getSize().y / (float)sf::VideoMode::getDesktopMode().size.y);
 }

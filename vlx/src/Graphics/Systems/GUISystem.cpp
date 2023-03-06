@@ -15,8 +15,8 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 			const bool pressed	= mouse_input.Pressed(ebn::Button::GUIButton);
 			const bool released = mouse_input.Released(ebn::Button::GUIButton);
 
-			const sf::Vector2i mouse_pos = mouse_cursor.GetPosition();
-			const sf::Vector2i global_mouse_pos = camera.GetMouseWorldPosition(mouse_pos);
+			const Vector2i mouse_pos = mouse_cursor.GetPosition();
+			const Vector2i global_mouse_pos = camera.GetMouseWorldPosition(mouse_pos);
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
@@ -24,13 +24,13 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 				Transform& transform	= transforms[i];
 				Button& button			= buttons[i];
 
-				const auto& position	= sf::Vector2i(transform.GetPosition());
-				const auto& size		= sf::Vector2i(button.GetSize());
+				const auto& position	= Vector2i(transform.GetPosition());
+				const auto& size		= Vector2i(button.GetSize());
 
 				if (button.IsActive())
 				{
-					sf::Rect rectangle(position, size);
-					bool within_bounds = rectangle.contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
+					RectInt rectangle(position, size);
+					bool within_bounds = rectangle.Contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
 
 					if (within_bounds)
 					{

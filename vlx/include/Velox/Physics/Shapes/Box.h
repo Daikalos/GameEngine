@@ -2,7 +2,8 @@
 
 #include <array>
 
-#include <Velox/Utilities/Rectangle.hpp>
+#include <Velox/Graphics/Rectangle.hpp>
+#include <Velox/Graphics/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 #include "Shape.h"
@@ -12,7 +13,7 @@ namespace vlx
 	class VELOX_API Box final : public Shape
 	{
 	private:
-		using VecArr = std::array<sf::Vector2f, 4>;
+		using VecArr = std::array<Vector2f, 4>;
 
 	public:
 		static constexpr VecArr NORMALS =
@@ -26,7 +27,7 @@ namespace vlx
 	public:
 		Box() = default;
 		Box(const RectFloat& rect);
-		Box(const sf::Vector2f& min, const sf::Vector2f& max);
+		Box(const Vector2f& min, const Vector2f& max);
 		Box(float min_x, float min_y, float max_x, float max_y);
 
 	public:

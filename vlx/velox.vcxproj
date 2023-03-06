@@ -197,7 +197,7 @@
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
     <ClInclude Include="include\Velox\Utilities\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Utilities\PolicySelect.h" />
-    <ClInclude Include="include\Velox\Utilities\Rectangle.hpp" />
+    <ClInclude Include="include\Velox\Graphics\Rectangle.hpp" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\CullingSystem.h" />
     <ClInclude Include="include\Velox\World\World.h" />
@@ -244,7 +244,7 @@
     <ClInclude Include="include\Velox\Utilities\StringUtils.h" />
     <ClInclude Include="include\Velox\Utilities\ThreadPool.h" />
     <ClInclude Include="include\Velox\Utilities\Time.h" />
-    <ClInclude Include="include\Velox\Utilities\VectorUtils.h" />
+    <ClInclude Include="include\Velox\Graphics\Vector2.hpp" />
     <ClInclude Include="include\Velox\Window\Camera.h" />
     <ClInclude Include="include\Velox\Window\CameraBehavior.h" />
     <ClInclude Include="include\Velox\Window\Window.h" />

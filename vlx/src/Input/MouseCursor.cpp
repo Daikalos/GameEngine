@@ -16,11 +16,11 @@ MouseCursor::MouseCursor(Window& window, float sensitivity, bool locked)
 {
 }
 
-const sf::Vector2i& MouseCursor::GetPosition() const noexcept
+const Vector2i& MouseCursor::GetPosition() const noexcept
 { 
 	return m_position;
 }
-const sf::Vector2f& MouseCursor::GetDelta() const noexcept
+const Vector2f& MouseCursor::GetDelta() const noexcept
 { 
 	return m_delta; 
 }
@@ -69,7 +69,7 @@ void MouseCursor::Update(const Time& time, const bool focus)
 		if (m_locked)
 			sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // TODO: acts buggy if window origin is outside screen, maybe fix in future
 
-		m_delta = sf::Vector2f(m_position - m_window->GetOrigin());
+		m_delta = Vector2f(m_position - m_window->GetOrigin());
 		m_delta = m_delta * m_window->GetRatioCmp() * m_sensitivity;
 	}
 }

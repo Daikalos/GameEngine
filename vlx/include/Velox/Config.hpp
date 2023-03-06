@@ -32,5 +32,7 @@
 #define NODISC [[nodiscard]]
 #define UNUSED [[maybe_unused]]
 
-static constexpr int TRIANGLE_COUNT = 3;
-static constexpr float PHYSICS_EPSILON = 0.001f;
+#define _USE_MATH_DEFINES
+
+inline constexpr int TRIANGLE_COUNT = 3;
+inline constexpr float PHYSICS_EPSILON = 0.0001f;

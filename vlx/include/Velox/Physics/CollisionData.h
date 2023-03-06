@@ -20,9 +20,9 @@ namespace vlx
 		Transform*		BT				{nullptr};
 
 		float			penetration		{0.0f};
-		sf::Vector2f	normal;
+		Vector2f	normal;
 
-		sf::Vector2f	contacts[2];
+		Vector2f	contacts[2];
 		std::uint32_t	contact_count	{0};
 
 		float			min_restitution	{0.0f};

@@ -5,11 +5,9 @@
 #include <optional>
 #include <shared_mutex>
 
-#include <SFML/System/Vector2.hpp>
-
+#include <Velox/Graphics/Rectangle.hpp>
+#include <Velox/Graphics/Vector2.hpp>
 #include <Velox/Config.hpp>
-#include <Velox/Utilities/Rectangle.hpp>
-#include <Velox/Utilities/VectorUtils.h>
 
 #include "FreeVector.hpp"
 #include "SmallVector.hpp"
@@ -58,16 +56,16 @@ namespace vlx
 		bool Erase(const Element& element);
 
 		NODISC auto Query(const RectFloat& rect) const -> std::vector<Element>;
-		NODISC auto Query(const sf::Vector2f& point) const-> std::vector<Element>;
+		NODISC auto Query(const Vector2f& point) const-> std::vector<Element>;
 
 		void Cleanup();
 		void Clear();	// performs a complete cleanup
 
 	private:
 		void SplitLeaf(Node& node);
-		void EltInsert(const int node_index, const sf::Vector2f& node_center, const int ptr_index, const sf::Vector2f& elt_center, const int depth);
+		void EltInsert(const int node_index, const Vector2f& node_center, const int ptr_index, const Vector2f& elt_center, const int depth);
 
-		int FindLeaf(const sf::Vector2f& point) const;
+		int FindLeaf(const Vector2f& point) const;
 
 	private:
 		RectFloat m_root_rect;
@@ -194,7 +192,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto LQuadTree<T>::Query(const sf::Vector2f& point) const -> std::vector<Element>
+	inline auto LQuadTree<T>::Query(const Vector2f& point) const -> std::vector<Element>
 	{
 		std::shared_lock lock(m_mutex);
 
@@ -354,9 +352,9 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline void LQuadTree<T>::EltInsert(const int node_index, const sf::Vector2f& node_center, const int ptr_index, const sf::Vector2f& elt_center, const int depth)
+	inline void LQuadTree<T>::EltInsert(const int node_index, const Vector2f& node_center, const int ptr_index, const Vector2f& elt_center, const int depth)
 	{
-		sf::Vector2f offset
+		Vector2f offset
 		{
 			m_root_rect.width / (2 * (depth + 1)),
 			m_root_rect.height / (2 * (depth + 1))
@@ -410,10 +408,10 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline int LQuadTree<T>::FindLeaf(const sf::Vector2f& point) const
+	inline int LQuadTree<T>::FindLeaf(const Vector2f& point) const
 	{
-		sf::Vector2f offset{ m_root_rect.Width() / 2, m_root_rect.Height() / 2 };
-		sf::Vector2f node_center = m_root_rect.Center();
+		Vector2f offset{ m_root_rect.Width() / 2, m_root_rect.Height() / 2 };
+		Vector2f node_center = m_root_rect.Center();
 
 		int node_index = 0;
 		while (m_nodes[node_index].count == -1) // continue on branches, will exit when leaf

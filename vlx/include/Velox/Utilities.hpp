@@ -4,7 +4,6 @@
 #include "Utilities/Time.h"
 #include "Utilities/Random.h"
 #include "Utilities/ArithmeticUtils.h"
-#include "Utilities/VectorUtils.h"
 #include "Utilities/ContainerUtils.h"
 #include "Utilities/Benchmark.h"
 #include "Utilities/Concepts.h"
@@ -14,5 +13,4 @@
 #include "Utilities/IDGenerator.h"
 #include "Utilities/Event.hpp"
 #include "Utilities/EventHandler.hpp"
-#include "Utilities/Rectangle.hpp"
 #include "Utilities/MatrixUtils.h"

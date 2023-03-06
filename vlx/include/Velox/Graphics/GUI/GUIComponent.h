@@ -2,8 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/ECS.hpp>
-#include <Velox/Utilities.hpp>
+#include <Velox/ECS/IComponent.h>
+#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/Utilities/Event.hpp>
 
 namespace vlx::gui
 {
@@ -16,7 +17,7 @@ namespace vlx::gui
 	{
 	protected:
 		using SizeType		= std::uint16_t;
-		using Vector2Type	= sf::Vector2<SizeType>;
+		using Vector2Type	= Vector2<SizeType>;
 
 	public:
 		GUIComponent() = default;

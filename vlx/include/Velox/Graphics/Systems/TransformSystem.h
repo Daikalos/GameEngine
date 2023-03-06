@@ -26,12 +26,12 @@ namespace vlx
 		constexpr bool IsRequired() const noexcept override;
 
 	public:
-		void SetGlobalPosition(	const EntityID entity, const sf::Vector2f& position);
-		void SetGlobalScale(	const EntityID entity, const sf::Vector2f& scale);
+		void SetGlobalPosition(	const EntityID entity, const Vector2f& position);
+		void SetGlobalScale(	const EntityID entity, const Vector2f& scale);
 		void SetGlobalRotation(	const EntityID entity, const sf::Angle angle);
 
-		void SetGlobalPosition(	LocalTransform& transform, Relation& relation, const sf::Vector2f& position);
-		void SetGlobalScale(	LocalTransform& transform, Relation& relation, const sf::Vector2f& scale);
+		void SetGlobalPosition(	LocalTransform& transform, Relation& relation, const Vector2f& position);
+		void SetGlobalScale(	LocalTransform& transform, Relation& relation, const Vector2f& scale);
 		void SetGlobalRotation(	LocalTransform& transform, Relation& relation, const sf::Angle angle);
 
 	public:

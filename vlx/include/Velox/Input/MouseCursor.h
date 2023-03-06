@@ -19,8 +19,8 @@ namespace vlx
 		MouseCursor(Window& window, float sensitivity, bool locked);
 
 	public:
-		NODISC const sf::Vector2i& GetPosition() const noexcept;
-		NODISC const sf::Vector2f& GetDelta() const noexcept;
+		NODISC const Vector2i& GetPosition() const noexcept;
+		NODISC const Vector2f& GetDelta() const noexcept;
 		NODISC const float GetSensitivity() const noexcept;
 		NODISC const bool GetIsLocked() const noexcept;
 
@@ -59,8 +59,8 @@ namespace vlx
 		sf::Cursor				m_cursor;
 		const sf::Texture*		m_texture		{nullptr};
 
-		sf::Vector2i			m_position;
-		sf::Vector2f			m_delta;
+		Vector2i				m_position;
+		Vector2f				m_delta;
 
 		float					m_sensitivity	{1.0f};
 		bool					m_locked		{false}; // locks the cursor inside the window if true

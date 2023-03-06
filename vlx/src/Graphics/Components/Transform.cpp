@@ -17,7 +17,7 @@ const sf::Transform& Transform::GetInverseTransform() const
 
 	return m_inverse_transform;
 }
-const sf::Vector2f& Transform::GetPosition() const 
+const Vector2f& Transform::GetPosition() const 
 {
 	if (m_update_position)
 	{
@@ -31,14 +31,14 @@ const sf::Vector2f& Transform::GetPosition() const
 
 	return m_position;
 }
-const sf::Vector2f& Transform::GetScale() const 
+const Vector2f& Transform::GetScale() const 
 {
 	if (m_update_scale)
 	{
 		const float* m = GetTransform().getMatrix();
 
-		m_scale.x = au::Sign(MV(m, 0, 0)) * au::SqrtPow(MV(m, 0, 0), MV(m, 1, 0));
-		m_scale.y = au::Sign(MV(m, 1, 1)) * au::SqrtPow(MV(m, 0, 1), MV(m, 1, 1));
+		m_scale.x = au::Sign(MV(m, 0, 0)) * au::SqrtSq(MV(m, 0, 0), MV(m, 1, 0));
+		m_scale.y = au::Sign(MV(m, 1, 1)) * au::SqrtSq(MV(m, 0, 1), MV(m, 1, 1));
 
 		m_update_scale = false;
 	}

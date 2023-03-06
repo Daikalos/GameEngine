@@ -1,9 +1,7 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
-
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Utilities/VectorUtils.h>
+#include <Velox/Graphics/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 #include "PhysicsMaterial.h"
@@ -35,8 +33,8 @@ namespace vlx
 		NODISC constexpr float GetStaticFriction() const noexcept;
 		NODISC constexpr float GetDynamicFriction() const noexcept;
 
-		NODISC constexpr const sf::Vector2f& GetVelocity() const noexcept;
-		NODISC constexpr const sf::Vector2f& GetForce() const noexcept;
+		NODISC constexpr const Vector2f& GetVelocity() const noexcept;
+		NODISC constexpr const Vector2f& GetForce() const noexcept;
 
 		NODISC constexpr float GetAngularVelocity() const noexcept;
 		NODISC constexpr float GetTorque() const noexcept;
@@ -54,11 +52,11 @@ namespace vlx
 		void SetDynamicFriction(float dynamic_friction);
 
 	public:
-		void SetVelocity(const sf::Vector2f& velocity);
-		void AddVelocity(const sf::Vector2f& velocity);
+		void SetVelocity(const Vector2f& velocity);
+		void AddVelocity(const Vector2f& velocity);
 
-		void SetForce(const sf::Vector2f& force);
-		void AddForce(const sf::Vector2f& force);
+		void SetForce(const Vector2f& force);
+		void AddForce(const Vector2f& force);
 
 		void SetAngularVelocity(const float angular_velocity);
 		void AddAngularVelocity(const float angular_velocity);
@@ -66,7 +64,7 @@ namespace vlx
 		void SetTorque(const float torque);
 		void AddTorque(const float torque);
 
-		void ApplyImpulse(const sf::Vector2f& impulse, const sf::Vector2f& contact_vector);
+		void ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector);
 
 	private:
 		BodyType		m_type				{BodyType::Dynamic};
@@ -83,8 +81,8 @@ namespace vlx
 		float			m_static_friction	{0.5f};
 		float			m_dynamic_friction	{0.3f};
 
-		sf::Vector2f	m_velocity;
-		sf::Vector2f	m_force;
+		Vector2f		m_velocity;
+		Vector2f		m_force;
 
 		float			m_angular_velocity	{0.0f};
 		float			m_torque			{0.0f};

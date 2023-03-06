@@ -12,8 +12,8 @@ constexpr float PhysicsBody::GetInertia() const noexcept				{ return m_inertia; 
 constexpr float PhysicsBody::GetInvInertia() const noexcept				{ return m_inv_inertia; }
 constexpr float PhysicsBody::GetStaticFriction() const noexcept			{ return m_static_friction; }
 constexpr float PhysicsBody::GetDynamicFriction() const noexcept		{ return m_dynamic_friction; }
-constexpr const sf::Vector2f& PhysicsBody::GetVelocity() const noexcept { return m_velocity; }
-constexpr const sf::Vector2f& PhysicsBody::GetForce() const noexcept	{ return m_force; }
+constexpr const Vector2f& PhysicsBody::GetVelocity() const noexcept		{ return m_velocity; }
+constexpr const Vector2f& PhysicsBody::GetForce() const noexcept		{ return m_force; }
 constexpr float vlx::PhysicsBody::GetAngularVelocity() const noexcept	{ return m_angular_velocity; }
 constexpr float vlx::PhysicsBody::GetTorque() const noexcept			{ return m_torque; }
 
@@ -54,32 +54,32 @@ void PhysicsBody::SetDynamicFriction(float dynamic_friction)
 	m_dynamic_friction = dynamic_friction;
 }
 
-void PhysicsBody::SetVelocity(const sf::Vector2f& velocity)
+void PhysicsBody::SetVelocity(const Vector2f& velocity)
 {
 	if (m_velocity != velocity)
 	{
-		if (velocity.lengthSq() > au::Pow(PHYSICS_EPSILON))
+		if (velocity.LengthSq() > au::Sq(PHYSICS_EPSILON))
 		{
 			m_velocity = velocity;
 			m_awake = true;
 		}
 		else
 		{
-			m_velocity = vu::Zero;
+			m_velocity = Vector2f::Zero;
 			m_awake = false;
 		}
 	}
 }
-void PhysicsBody::AddVelocity(const sf::Vector2f& velocity)
+void PhysicsBody::AddVelocity(const Vector2f& velocity)
 {
 	SetVelocity(m_velocity + velocity);
 }
 
-void PhysicsBody::SetForce(const sf::Vector2f& force)
+void PhysicsBody::SetForce(const Vector2f& force)
 {
 	m_force = force;
 }
-void PhysicsBody::AddForce(const sf::Vector2f& force)
+void PhysicsBody::AddForce(const Vector2f& force)
 {
 	SetForce(m_force + force);
 }
@@ -102,8 +102,8 @@ void PhysicsBody::AddTorque(const float torque)
 	SetTorque(m_torque + torque);
 }
 
-void PhysicsBody::ApplyImpulse(const sf::Vector2f& impulse, const sf::Vector2f& contact_vector)
+void PhysicsBody::ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector)
 {
 	AddVelocity(impulse * m_inv_mass);
-	AddAngularVelocity(vu::Cross(contact_vector, impulse) * m_inv_inertia);
+	AddAngularVelocity(contact_vector.Cross(impulse) * m_inv_inertia);
 }

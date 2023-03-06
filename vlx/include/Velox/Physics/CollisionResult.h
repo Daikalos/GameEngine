@@ -13,6 +13,6 @@ namespace vlx
 		EntityID		B				{NULL_ENTITY};
 		bool			collided		{false};
 		float			penetration		{0.0f};
-		sf::Vector2f	normal;
+		Vector2f	normal;
 	};
 }

@@ -5,10 +5,7 @@
 #include <concepts>
 #include <type_traits>
 
-#include <SFML/Graphics.hpp>
-#include <SFML/OpenGL.hpp>
-
-#include <Velox/Utilities.hpp>
+#include <Velox/Graphics/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 #include "CameraBehavior.h"
@@ -53,23 +50,23 @@ namespace vlx
 		explicit Camera(CameraBehavior::Context context);
 
 		NODISC const sf::Transform& GetViewMatrix() const;
-		NODISC sf::Vector2f ViewToWorld(const sf::Vector2f& position) const;
-		NODISC sf::Vector2f GetMouseWorldPosition(const sf::Vector2f& relative_pos) const;
-		NODISC sf::Vector2i GetMouseWorldPosition(const sf::Vector2i& relative_pos) const;
-		NODISC sf::Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
+		NODISC Vector2f ViewToWorld(const Vector2f& position) const;
+		NODISC Vector2f GetMouseWorldPosition(const Vector2f& relative_pos) const;
+		NODISC Vector2i GetMouseWorldPosition(const Vector2i& relative_pos) const;
+		NODISC Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
 
-		NODISC const sf::Vector2f& GetPosition() const noexcept;
-		NODISC const sf::Vector2f& GetScale() const noexcept;
-		NODISC const sf::Vector2f& GetSize() const noexcept;
+		NODISC const Vector2f& GetPosition() const noexcept;
+		NODISC const Vector2f& GetScale() const noexcept;
+		NODISC const Vector2f& GetSize() const noexcept;
 
-		NODISC sf::Vector2f GetOrigin() const;
+		NODISC Vector2f GetOrigin() const;
 
 		NODISC const CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id) const;
 		NODISC CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id);
 
-		void SetPosition(const sf::Vector2f& position);
-		void SetScale(const sf::Vector2f& scale);
-		void SetSize(const sf::Vector2f& size);
+		void SetPosition(const Vector2f& position);
+		void SetScale(const Vector2f& scale);
+		void SetSize(const Vector2f& size);
 
 	public:
 		void HandleEvent(const sf::Event& event);
@@ -95,9 +92,9 @@ namespace vlx
 	private:
 		CameraBehavior::Context		m_context;
 
-		sf::Vector2f				m_position;
-		sf::Vector2f				m_scale;	 
-		sf::Vector2f				m_size;
+		Vector2f					m_position;
+		Vector2f					m_scale;	 
+		Vector2f					m_size;
 
 		mutable sf::Transform		m_transform;
 		mutable bool				m_update_transform{true};

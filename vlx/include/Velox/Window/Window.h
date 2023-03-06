@@ -1,11 +1,12 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
-#include <Velox/Config.hpp>
+#include <string_view>
 
 #include <SFML/Graphics.hpp>
 
-#include <string_view>
+#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/Utilities/NonCopyable.h>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
@@ -38,8 +39,8 @@ namespace vlx
 		/// </summary>
 		[[nodiscard]] const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
 
-		[[nodiscard]] constexpr sf::Vector2i GetOrigin() const noexcept;
-		[[nodiscard]] const sf::Vector2f& GetRatioCmp() const noexcept;
+		[[nodiscard]] constexpr Vector2i GetOrigin() const noexcept;
+		[[nodiscard]] const Vector2f& GetRatioCmp() const noexcept;
 
 	public:
 		void onCreate() override;
@@ -63,7 +64,7 @@ namespace vlx
 		sf::VideoMode		m_mode;										// current mode set
 		WindowBorder		m_border		{WindowBorder::Windowed};	// current border type
 		sf::ContextSettings m_settings;									// settings
-		sf::Vector2f		m_ratio_cmp;								// current ratio in percentage when compared to default desktop mode
+		Vector2f			m_ratio_cmp;								// current ratio in percentage when compared to default desktop mode
 		bool				m_vertical_sync	{false};					// vertical sync
 		int					m_frame_rate	{144};						// maximum frame rate
 

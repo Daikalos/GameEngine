@@ -11,7 +11,7 @@ Box::Box(const RectFloat& box)
 { 
 	SetBox(box); 
 }
-Box::Box(const sf::Vector2f& min, const sf::Vector2f& max)
+Box::Box(const Vector2f& min, const Vector2f& max)
 { 
 	SetBox({ min, max }); 
 }
@@ -41,10 +41,10 @@ float Box::GetHeight() const noexcept
 
 void Box::SetBox(const RectFloat& box)
 {
-	m_vertices[0] = sf::Vector2f(box.left,		box.top);
-	m_vertices[1] = sf::Vector2f(box.Right(),	box.top);
-	m_vertices[2] = sf::Vector2f(box.left,		box.Bottom());
-	m_vertices[3] = sf::Vector2f(box.Right(),	box.Bottom());
+	m_vertices[0] = Vector2f(box.left,		box.top);
+	m_vertices[1] = Vector2f(box.Right(),	box.top);
+	m_vertices[2] = Vector2f(box.left,		box.Bottom());
+	m_vertices[3] = Vector2f(box.Right(),	box.Bottom());
 }
 
 void Box::SetLeft(float left)
@@ -74,7 +74,7 @@ void Box::SetBottom(float bottom)
 void Box::Initialize(PhysicsBody& body) const
 {
 	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
-	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Pow(GetWidth()) + au::Pow(GetHeight())));
+	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));
 }
 
 RectFloat Box::GetAABB() const

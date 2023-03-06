@@ -3,6 +3,7 @@
 #include <list>
 #include <mutex>
 #include <shared_mutex>
+#include <future>
 
 #include <Velox/Config.hpp>
 

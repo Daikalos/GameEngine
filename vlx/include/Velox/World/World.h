@@ -18,9 +18,8 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Composite of all important systems and objects that the world runs on
-	/// </summary>
+	///	Composite of all important systems and objects that the world runs on
+	/// 
 	class World : private NonCopyable
 	{
 	private:

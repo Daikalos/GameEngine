@@ -37,7 +37,7 @@ namespace vlx
 
 	private:
 		Time*			m_time		{nullptr};
-		sf::Vector2f	m_gravity	{0.0f, 10.0f};
+		Vector2f	m_gravity	{0.0f, 10.0f};
 
 		//System<PhysicsBody>					m_update_forces;
 		//System<PhysicsBody, LocalTransform> m_update_velocities;
