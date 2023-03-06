@@ -3,9 +3,8 @@
 #include <vector>
 #include <array>
 
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
-
-#include "Concepts.h"
 
 namespace vlx::cu
 {

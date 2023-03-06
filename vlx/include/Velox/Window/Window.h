@@ -4,8 +4,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Graphics/Vector2.hpp>
-#include <Velox/Utilities/NonCopyable.h>
+#include <Velox/System/Vector2.hpp>
+#include <Velox/Utility/NonCopyable.h>
 #include <Velox/Config.hpp>
 
 namespace vlx

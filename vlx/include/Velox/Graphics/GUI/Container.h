@@ -3,7 +3,6 @@
 #include <vector>
 
 #include <Velox/ECS/BaseRef.hpp>
-#include <Velox/Utilities.hpp>
 
 #include "GUIComponent.h"
 

@@ -3,8 +3,8 @@
 #include <SFML/Graphics.hpp>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Vector2.hpp>
-#include <Velox/Graphics/Rectangle.hpp>
+#include <Velox/System/Vector2.hpp>
+#include <Velox/System/Rectangle.hpp>
 #include <Velox/Config.hpp>
 
 #include "IBatchable.h"

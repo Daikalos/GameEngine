@@ -6,9 +6,8 @@
 #include <random>
 #include <chrono>
 
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
-
-#include "Concepts.h"
 
 ///	General utility class for arithmetic numbers
 /// 

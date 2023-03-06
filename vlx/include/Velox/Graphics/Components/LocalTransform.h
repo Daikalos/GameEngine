@@ -3,7 +3,7 @@
 #include <SFML/Graphics/Transform.hpp>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx

@@ -7,9 +7,8 @@
 
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
-#include <Velox/Utilities.hpp>
 
-
+#include <Velox/System/Time.h>
 
 
 namespace vlx
@@ -36,7 +35,7 @@ namespace vlx
 		//void PositionalCorrection(CollisionData& data);
 
 	private:
-		Time*			m_time		{nullptr};
+		Time*			m_time	{nullptr};
 		Vector2f	m_gravity	{0.0f, 10.0f};
 
 		//System<PhysicsBody>					m_update_forces;

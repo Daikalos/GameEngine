@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
 #include "EntityAdmin.h"

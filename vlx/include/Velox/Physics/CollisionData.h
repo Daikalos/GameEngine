@@ -1,8 +1,6 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
-
-#include <Velox/Utilities/Time.h>
+#include <Velox/System/Vector2.hpp>
 
 namespace vlx
 {
@@ -20,9 +18,9 @@ namespace vlx
 		Transform*		BT				{nullptr};
 
 		float			penetration		{0.0f};
-		Vector2f	normal;
+		Vector2f		normal;
 
-		Vector2f	contacts[2];
+		Vector2f		contacts[2];
 		std::uint32_t	contact_count	{0};
 
 		float			min_restitution	{0.0f};

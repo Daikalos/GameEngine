@@ -5,8 +5,8 @@
 #include <optional>
 #include <shared_mutex>
 
-#include <Velox/Graphics/Rectangle.hpp>
-#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/System/Rectangle.hpp>
+#include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 #include "FreeVector.hpp"

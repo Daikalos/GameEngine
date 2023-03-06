@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Mouse.hpp>
 
+#include <Velox/System/Vector2.hpp>
 #include <Velox/Window/Window.h>
-#include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"

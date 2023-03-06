@@ -2,9 +2,9 @@
 
 #include <SFML/Graphics/Rect.hpp>
 
-#include <Velox/Utilities/Concepts.h>
 #include <Velox/Config.hpp>
 
+#include "Concepts.h"
 #include "Vector2.hpp"
 
 namespace vlx

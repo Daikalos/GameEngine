@@ -3,9 +3,11 @@
 #include <span>
 #include <functional>
 #include <unordered_set>
+#include <cassert>
 
-#include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
+#include <Velox/Utility/NonCopyable.h>
+#include <Velox/Utility/ContainerUtils.h>
 
 #include "Identifiers.hpp"
 #include "Archetype.hpp"

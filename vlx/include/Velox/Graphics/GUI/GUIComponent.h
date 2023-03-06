@@ -3,8 +3,8 @@
 #include <SFML/Graphics.hpp>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Vector2.hpp>
-#include <Velox/Utilities/Event.hpp>
+#include <Velox/System/Vector2.hpp>
+#include <Velox/System/Event.hpp>
 
 namespace vlx::gui
 {

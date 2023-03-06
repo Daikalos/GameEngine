@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "NonCopyable.h"
+#include <Velox/Utility/NonCopyable.h>
 
 namespace vlx
 {

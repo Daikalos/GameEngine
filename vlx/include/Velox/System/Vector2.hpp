@@ -2,9 +2,9 @@
 
 #include <SFML/System/Vector2.hpp>
 
-#include <Velox/Utilities/Concepts.h>
-#include <Velox/Utilities/ArithmeticUtils.h>
 #include <Velox/Config.hpp>
+
+#include "Concepts.h"
 
 namespace vlx
 {
@@ -32,8 +32,8 @@ namespace vlx
 		constexpr Vector2& operator+=(const Vector2& rhs);
 		constexpr Vector2& operator-=(const Vector2& rhs);
 
-		constexpr Vector2& operator*=(const float rhs);
-		constexpr Vector2& operator/=(const float rhs);
+		constexpr Vector2& operator*=(const T rhs);
+		constexpr Vector2& operator/=(const T rhs);
 
 		constexpr Vector2& operator*=(const Vector2& rhs);
 		constexpr Vector2& operator/=(const Vector2& rhs);
@@ -41,8 +41,8 @@ namespace vlx
 		NODISC constexpr Vector2 operator+(const Vector2& rhs) const;
 		NODISC constexpr Vector2 operator-(const Vector2& rhs) const;
 
-		NODISC constexpr Vector2 operator*(const float rhs) const;
-		NODISC constexpr Vector2 operator/(const float rhs) const;
+		NODISC constexpr Vector2 operator*(const T rhs) const;
+		NODISC constexpr Vector2 operator/(const T rhs) const;
 
 		NODISC constexpr Vector2 operator*(const Vector2& rhs) const;
 		NODISC constexpr Vector2 operator/(const Vector2& rhs) const;
@@ -51,44 +51,147 @@ namespace vlx
 		NODISC constexpr bool operator!=(const Vector2& rhs) const;
 
 	public:
-		NODISC static constexpr auto Cross(const Vector2& lhs, const float scalar);
-		NODISC static constexpr auto Cross(const float scalar, const Vector2& lhs);
+		NODISC static constexpr auto Cross(const Vector2& lhs, const T scalar);
+		NODISC static constexpr auto Cross(const T scalar, const Vector2& lhs);
 
+		/// \returns Directional vector pointing between from and to.
+		/// 
 		NODISC static constexpr Vector2 Direction(const Vector2& from, const Vector2& to);
+
+		/// Linear interpolation.
+		/// 
+		/// \param Alpha: Determines level of interpolation; range of 0.0f to 1.0f, where 0.0f yields lhs, and 1.0f yield rhs.
+		/// 
+		/// \returns Interpolated vector between lhs and rhs given by alpha value.
+		///
 		NODISC static constexpr Vector2 Lerp(const Vector2& lhs, const Vector2& rhs, const float alpha);
-		NODISC static constexpr Vector2 RotatePoint(const Vector2& point, const Vector2& center, const float angle);
+
+		/// Rotates point around center.
+		/// 
+		/// \param Point: Point to rotate.
+		/// \param Center: Point to rotate around.
+		/// \param Angle: Number of degrees to rotate point.
+		/// 
+		/// \returns Rotated vector.
+		///
+		NODISC static constexpr Vector2 RotatePoint(const Vector2& point, const Vector2& center, const sf::Angle angle);
 
 	public:
+		///	Length of the vector; only works if the vector is of floating point type.
+		/// 
 		NODISC constexpr T Length() const;
+
+		/// Square length of the vector; only works if the vector is of floating point type.
+		/// 
 		NODISC constexpr T LengthSq() const;
 
-		NODISC constexpr Vector2<T> Normalize(const float radius = 1.0f) const;
-		NODISC constexpr Vector2<T> Normalize(const float length, const float radius) const;
+		/// Computes a normalized vector; only works if the vector is of floating point type.
+		/// 
+		/// \param Radius: Length of the normalized vector.
+		/// 
+		/// \returns Normalized vector.
+		/// 
+		NODISC constexpr Vector2<T> Normalize(const T radius = 1.0f) const;
 
+		/// Computes a normalized vector; only works if the vector is of floating point type.
+		/// 
+		/// \param Length: Optimization param for when length has already been calculated.
+		/// \param Radius: Length of the normalized vector.
+		/// 
+		/// \returns Normalized vector.
+		/// 
+		NODISC constexpr Vector2<T> Normalize(const T length, const T radius) const;
+
+		/// Signed angle starting from +X or (1,0) vector; only works if the vector is of floating point type.
+		/// 
+		/// \returns Angle in the range of (-180, 180).
+		/// 
 		NODISC constexpr sf::Angle Angle() const;
+
+		/// Signed angle going from this to rhs; only works if the vector is of floating point type.
+		/// 
+		/// \returns Smallest angle which rotates this to rhs, which can be either positive or negative.
+		/// Result lies in the range (-180, 180)
+		/// 
 		NODISC constexpr sf::Angle AngleTo(const Vector2& rhs) const;
 
+		/// Dot product of two vectors.
+		/// 
 		NODISC constexpr T Dot(const Vector2& rhs) const;
+
+		/// Cross product of two vectors.
+		/// 
+		/// \returns The Z axis value.
+		/// 
 		NODISC constexpr T Cross(const Vector2 rhs) const;
 
+		/// Rotate vector clockwise by angle; only works if the vector is of floating point type.
+		/// 
+		/// \returns Vector with different direction.
+		/// 
+		NODISC constexpr Vector2 RotatedBy(sf::Angle phi) const;
+
+		/// Projects this vector onto axis; only works if the vector is of floating point type.
+		/// 
+		/// \returns Projected vector.
+		/// 
 		NODISC constexpr Vector2 ProjectedOnto(const Vector2& axis) const;
 
+		/// Essentially rotates vector clockwise +90 degrees; only works if the vector is of floating point type.
+		/// 
+		/// \returns Perpendicular vector
+		/// 
 		NODISC constexpr Vector2 Perpendicular() const;
 
-		NODISC constexpr Vector2 Limit(const float max_length) const;
-		NODISC constexpr Vector2 Limit(const float length, const float max_length) const;
+		/// Limits the length of the vector to a certain length; only works if the vector is of floating point type.
+		/// 
+		/// \param MaxLength: Length to limit by.
+		/// 
+		/// \returns Clamped vector if above length, otherwise returns an exact copy.
+		/// 
+		NODISC constexpr Vector2 Limit(const T max_length) const;
 
+		/// Limits the length of the vector to a certain length; only works if the vector is of floating point type.
+		/// 
+		/// \param Length: Optimization param for when length has already been calculated.
+		/// \param MaxLength: Length to limit by.
+		/// 
+		/// \returns Clamped vector if above length, otherwise returns an exact copy.
+		/// 
+		NODISC constexpr Vector2 Limit(const T length, const T max_length) const;
+
+		/// Clamps vector x and y coordinates by the corresponding coordinates in min and max.
+		/// 
+		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
+		/// 
 		NODISC constexpr Vector2 Clamp(const Vector2& min, const Vector2& max) const;
-		NODISC constexpr Vector2 Clamp(const float max_length, const float min_length) const;
-		NODISC constexpr Vector2 Clamp(const float length, const float max_length, const float min_length) const;
 
+		/// Clamps vector length by max length and min length.
+		/// 
+		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
+		/// 
+		NODISC constexpr Vector2 Clamp(const T max_length, const T min_length) const;
+
+		/// Clamps vector length by max length and min length.
+		/// 
+		/// \param Length: Optimization param for when length has already been calculated.
+		/// 
+		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
+		/// 
+		NODISC constexpr Vector2 Clamp(const T length, const T max_length, const T min_length) const;
+
+		/// \returns Vector containing the absolute values of this coordinates.
+		///
 		NODISC constexpr Vector2 Abs() const;
+
+		/// \returns Vector containing the floor values of this coordinates.
+		///
 		NODISC constexpr Vector2 Floor() const;
 
 	public:
 		union
 		{
-			sf::Vector2<T> vector;
+			sf::Vector2<T> vector{};
 			struct
 			{
 				T x, y;
@@ -171,7 +274,7 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator*=(const float rhs)
+	inline constexpr Vector2<T>& Vector2<T>::operator*=(const T rhs)
 	{
 		x *= rhs;
 		y *= rhs;
@@ -179,7 +282,7 @@ namespace vlx
 		return *this;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator/=(const float rhs)
+	inline constexpr Vector2<T>& Vector2<T>::operator/=(const T rhs)
 	{
 		x /= rhs;
 		y /= rhs;
@@ -216,12 +319,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator*(const float rhs) const
+	inline constexpr Vector2<T> Vector2<T>::operator*(const T rhs) const
 	{
 		return Vector2(*this) *= rhs;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator/(const float rhs) const
+	inline constexpr Vector2<T> Vector2<T>::operator/(const T rhs) const
 	{
 		return Vector2(*this) /= rhs;
 	}
@@ -249,12 +352,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr auto Vector2<T>::Cross(const Vector2<T>& lhs, const float scalar)
+	inline constexpr auto Vector2<T>::Cross(const Vector2<T>& lhs, const T scalar)
 	{
 		return Vector2<T>(scalar * lhs.y, -scalar * lhs.x);
 	}
 	template<Arithmetic T>
-	inline constexpr auto Vector2<T>::Cross(const float scalar, const Vector2<T>& lhs)
+	inline constexpr auto Vector2<T>::Cross(const T scalar, const Vector2<T>& lhs)
 	{
 		return Vector2<T>(-scalar * lhs.y, scalar * lhs.x);
 	}
@@ -272,12 +375,14 @@ namespace vlx
 			Lerp(lhs.y, rhs.y, alpha));
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::RotatePoint(const Vector2<T>& point, const Vector2<T>& center, const float angle)
+	inline constexpr Vector2<T> Vector2<T>::RotatePoint(const Vector2<T>& point, const Vector2<T>& center, const sf::Angle angle)
 	{
 		const Vector2<T> dir = Direction(center, point);
 
-		const float s = std::sin(angle);
-		const float c = std::cos(angle);
+		const float rad = angle.asRadians();
+
+		const float s = std::sin(rad);
+		const float c = std::cos(rad);
 
 		return Vector2<T>(
 			(dir.x * c - dir.y * s) + center.x,
@@ -297,19 +402,19 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Normalize(const float radius) const
+	inline constexpr Vector2<T> Vector2<T>::Normalize(const T radius) const
 	{
 		return Normalize(vector.length(), radius);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Normalize(const float length, const float radius) const
+	inline constexpr Vector2<T> Vector2<T>::Normalize(const T length, const T radius) const
 	{
+		static_assert(std::is_floating_point_v<T>, "Normalize only supported for floating point types");
+
 		if (length < FLT_EPSILON || std::abs(length - radius) < FLT_EPSILON)
 			return *this;
 
-		const float inv_len = (radius / length);
-
-		return Vector2<T>(x * inv_len, y * inv_len);
+		return (*this) * (radius / length);
 	}
 
 	template<Arithmetic T>
@@ -337,6 +442,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
+	inline constexpr Vector2<T> Vector2<T>::RotatedBy(sf::Angle phi) const
+	{
+		return vector.rotatedBy(phi);
+	}
+
+	template<Arithmetic T>
 	inline constexpr Vector2<T> Vector2<T>::ProjectedOnto(const Vector2<T>& axis) const
 	{
 		return vector.projectedOnto(axis);
@@ -349,12 +460,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Limit(const float max_length) const
+	inline constexpr Vector2<T> Vector2<T>::Limit(const T max_length) const
 	{
 		return Limit(vector.length(), max_length);
 	}
 	template<Arithmetic T> 
-	inline constexpr Vector2<T> Vector2<T>::Limit(const float length, const float max_length) const
+	inline constexpr Vector2<T> Vector2<T>::Limit(const T length, const T max_length) const
 	{
 		if (length > max_length)
 			return Normalize(length, max_length);
@@ -370,12 +481,12 @@ namespace vlx
 			std::clamp(y, min.y, max.y));
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(const float max_length, const float min_length) const
+	inline constexpr Vector2<T> Vector2<T>::Clamp(const T max_length, const T min_length) const
 	{
 		return Clamp(vector.length(), max_length, min_length);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(const float length, const float max_length, const float min_length) const
+	inline constexpr Vector2<T> Vector2<T>::Clamp(const T length, const T max_length, const T min_length) const
 	{
 		if (length > max_length)
 			return Normalize(length, max_length);
@@ -397,13 +508,13 @@ namespace vlx
 	}
 
 	template <Arithmetic T>
-	static constexpr Vector2<T> operator *(const float lhs, const Vector2<T>& rhs)
+	static constexpr Vector2<T> operator *(const T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs * rhs.x, lhs * rhs.y };
 	}
 
 	template <Arithmetic T>
-	static constexpr Vector2<T> operator /(const float lhs, const Vector2<T>& rhs)
+	static constexpr Vector2<T> operator /(const T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs / rhs.x, lhs / rhs.y };
 	}

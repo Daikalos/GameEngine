@@ -6,8 +6,9 @@
 #include <queue>
 #include <execution>
 #include <optional>
+#include <cassert>
 
-#include <Velox/Utilities.hpp>
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
+#include <functional>
+#include <array>
 
 #include "InputHandler.h"
 

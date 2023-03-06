@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 
 #include <Velox/ECS.hpp>
-#include <Velox/Utilities.hpp>
 #include <Velox/Input.hpp>
 #include <Velox/Graphics.hpp>
 #include <Velox/Config.hpp>

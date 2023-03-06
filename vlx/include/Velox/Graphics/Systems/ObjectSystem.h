@@ -4,7 +4,6 @@
 
 #include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
-#include <Velox/Utilities.hpp>
 
 #include <Velox/Graphics/Components/Object.h>
 

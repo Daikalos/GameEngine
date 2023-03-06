@@ -6,7 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <Velox/Config.hpp>
-#include <Velox/Utilities.hpp>
+#include <Velox/System/Time.h>
 
 #include "Identifiers.h"
 

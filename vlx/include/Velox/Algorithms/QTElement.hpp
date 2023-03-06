@@ -3,7 +3,7 @@
 #include <Velox/Algorithms/LQuadTree.hpp>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Rectangle.hpp>
+#include <Velox/System/Rectangle.hpp>
 
 #include <Velox/Config.hpp>
 

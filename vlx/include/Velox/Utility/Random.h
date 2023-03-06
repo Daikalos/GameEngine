@@ -6,9 +6,8 @@
 #include <array>
 #include <numeric>
 
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
-
-#include "Concepts.h"
 
 namespace vlx::rnd
 {

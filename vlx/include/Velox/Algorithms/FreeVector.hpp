@@ -3,7 +3,7 @@
 #include <vector>
 #include <variant>
 
-#include <Velox/Utilities/Concepts.h>
+#include <Velox/System/Concepts.h>
 
 namespace vlx
 {

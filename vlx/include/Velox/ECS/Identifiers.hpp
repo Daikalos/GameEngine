@@ -5,7 +5,7 @@
 
 #include <Velox/Algorithms/SmallVector.hpp>
 
-#include <Velox/Utilities/Concepts.h>
+#include <Velox/System/Concepts.h>
 
 namespace vlx
 {

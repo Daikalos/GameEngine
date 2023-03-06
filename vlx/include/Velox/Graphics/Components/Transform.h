@@ -3,8 +3,9 @@
 #include <SFML/Graphics/Transform.hpp>
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Vector2.hpp>
-#include <Velox/Utilities/MatrixUtils.h>
+#include <Velox/System/Vector2.hpp>
+#include <Velox/Utility/MatrixUtils.h>
+#include <Velox/Utility/ArithmeticUtils.h>
 #include <Velox/Config.hpp>
 
 namespace vlx

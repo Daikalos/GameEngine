@@ -2,6 +2,9 @@
 
 #include <unordered_map>
 
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"

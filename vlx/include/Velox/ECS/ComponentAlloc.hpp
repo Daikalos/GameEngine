@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"

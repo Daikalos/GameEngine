@@ -4,7 +4,7 @@
 #include <tuple>
 #include <memory>
 
-#include <Velox/Utilities.hpp>
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
 #include "IComponent.h"

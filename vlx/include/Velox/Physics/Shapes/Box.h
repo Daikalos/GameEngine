@@ -2,8 +2,8 @@
 
 #include <array>
 
-#include <Velox/Graphics/Rectangle.hpp>
-#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/System/Rectangle.hpp>
+#include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 #include "Shape.h"

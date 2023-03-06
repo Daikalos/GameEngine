@@ -5,7 +5,8 @@
 #include <concepts>
 #include <type_traits>
 
-#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/System/Vector2.hpp>
+#include <Velox/Utility/ContainerUtils.h>
 #include <Velox/Config.hpp>
 
 #include "CameraBehavior.h"

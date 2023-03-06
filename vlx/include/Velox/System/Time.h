@@ -5,14 +5,12 @@
 
 #include <Velox/Config.hpp>
 
-#include "NonCopyable.h"
-
 namespace vlx
 {
 	static constexpr float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
 	static constexpr float DEFAULT_SCALED_TIME = 1.0f;
 
-	class VELOX_API Time final : public NonCopyable
+	class VELOX_API Time final
 	{
 	public:
 		NODISC constexpr float GetDT() const noexcept;

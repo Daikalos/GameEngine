@@ -8,7 +8,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Utilities.hpp>
+#include <Velox/System/Concepts.h>
+#include <Velox/Utility/NonCopyable.h>
 
 #include "Resources.h"
 

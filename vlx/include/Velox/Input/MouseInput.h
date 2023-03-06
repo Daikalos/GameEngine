@@ -2,6 +2,9 @@
 
 #include <unordered_map>
 
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
@@ -18,25 +21,25 @@ namespace vlx
 		using MouseBinds = Binds<Bind, sf::Mouse::Button>;
 
 	public:
-		VELOX_API [[nodiscard]] bool ScrollUp() const noexcept;
-		VELOX_API [[nodiscard]] bool ScrollDown() const noexcept;
+		VELOX_API NODISC bool ScrollUp() const noexcept;
+		VELOX_API NODISC bool ScrollDown() const noexcept;
 
-		VELOX_API [[nodiscard]] bool Held(const sf::Mouse::Button button) const;
-		VELOX_API [[nodiscard]] bool Pressed(const sf::Mouse::Button button) const;
-		VELOX_API [[nodiscard]] bool Released(const sf::Mouse::Button button) const;
+		VELOX_API NODISC bool Held(const sf::Mouse::Button button) const;
+		VELOX_API NODISC bool Pressed(const sf::Mouse::Button button) const;
+		VELOX_API NODISC bool Released(const sf::Mouse::Button button) const;
 
 	public:
 		template<Enum Bind>
-		[[nodiscard]] bool Held(const Bind name) const;
+		NODISC bool Held(const Bind name) const;
 		template<Enum Bind>
-		[[nodiscard]] bool Pressed(const Bind name) const;
+		NODISC bool Pressed(const Bind name) const;
 		template<Enum Bind>
-		[[nodiscard]] bool Released(const Bind name) const;
+		NODISC bool Released(const Bind name) const;
 
 		template<Enum Bind>
-		[[nodiscard]] MouseBinds<Bind>& GetMap();
+		NODISC MouseBinds<Bind>& GetMap();
 		template<Enum Bind>
-		[[nodiscard]] const MouseBinds<Bind>& GetMap() const;
+		NODISC const MouseBinds<Bind>& GetMap() const;
 
 		///	Add the bind for later input, must be done before any operations are performed using the bind
 		/// 

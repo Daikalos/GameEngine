@@ -3,7 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <functional>
 
-#include <Velox/Utilities.hpp>
+#include <Velox/Utility/NonCopyable.h>
+#include <Velox/System/Time.h>
 #include <Velox/Input.hpp>
 #include <Velox/Config.hpp>
 
@@ -13,13 +14,10 @@ namespace vlx
 {
 	class Camera;
 
-	////////////////////////////////////////////////////////////
-	// Behaviour for the camera, e.g., attach, dragging, 
-	// lerp, shake, letterboxview, etc. The idea for Camera
-	// Behaviour is to allow for multiple types of behaviours
-	// or effects for the camera that can be easily added or 
-	// removed
-	////////////////////////////////////////////////////////////
+	/// Behaviour for the camera, e.g., attach, dragging, lerp, shake, letterboxview, etc. 
+	/// The idea for CameraBehaviour is to allow for multiple types of behaviours or effects 
+	/// for the camera that can be easily added or removed
+	/// 
 	class VELOX_API CameraBehavior : private NonCopyable
 	{
 	public:
@@ -49,16 +47,12 @@ namespace vlx
 	public:
 		virtual void OnCreate(const std::vector<std::byte>& data) {}
 
-		////////////////////////////////////////////////////////////
-		// OnActivate is called whenever the behaviour is put as 
-		// last in the stack
-		////////////////////////////////////////////////////////////
+		/// OnActivate is called whenever the behaviour is put as last in the stack
+		///
 		virtual void OnActivate() {}
 
-		////////////////////////////////////////////////////////////
-		// OnDestroy is called when the behaviour is removed from
-		// the stack
-		////////////////////////////////////////////////////////////
+		/// OnDestroy is called when the behaviour is removed from the stack
+		///
 		virtual void OnDestroy() {}
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;

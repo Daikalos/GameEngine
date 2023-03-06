@@ -5,7 +5,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
 #include <Velox/Graphics/Components/IBatchable.h>

@@ -6,7 +6,6 @@
 #include <Velox/ECS/EntityAdmin.h>
 #include <Velox/ECS/Identifiers.hpp>
 #include <Velox/ECS/ComponentRef.hpp>
-#include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx

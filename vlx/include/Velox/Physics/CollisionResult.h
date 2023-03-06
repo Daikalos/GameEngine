@@ -3,7 +3,6 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Velox/ECS/Identifiers.hpp>
-#include <Velox/Utilities/Time.h>
 
 namespace vlx
 {
@@ -13,6 +12,6 @@ namespace vlx
 		EntityID		B				{NULL_ENTITY};
 		bool			collided		{false};
 		float			penetration		{0.0f};
-		Vector2f	normal;
+		Vector2f		normal;
 	};
 }

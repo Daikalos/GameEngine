@@ -3,7 +3,9 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Velox/Utilities.hpp>
+#include <SFML/Window/Joystick.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"

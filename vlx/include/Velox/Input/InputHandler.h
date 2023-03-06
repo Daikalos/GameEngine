@@ -4,9 +4,10 @@
 #include <typeindex>
 #include <memory>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Window/Event.hpp>
 
-#include <Velox/Utilities.hpp>
+#include <Velox/Utility/NonCopyable.h>
+#include <Velox/System/Time.h>
 #include <Velox/Config.hpp>
 
 #include "Binds.hpp"

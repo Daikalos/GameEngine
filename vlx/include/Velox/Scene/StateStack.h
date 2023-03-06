@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <functional>
 
-#include <Velox/Utilities.hpp>
 #include <Velox/Config.hpp>
+#include <Velox/Utility/NonCopyable.h>
 
 #include "State.h"
 #include "Identifiers.h"

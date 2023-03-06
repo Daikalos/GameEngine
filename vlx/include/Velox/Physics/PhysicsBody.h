@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Vector2.hpp>
+#include <Velox/System/Vector2.hpp>
+#include <Velox/Utility/ArithmeticUtils.h>
 #include <Velox/Config.hpp>
 
 #include "PhysicsMaterial.h"

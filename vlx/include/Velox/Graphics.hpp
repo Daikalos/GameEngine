@@ -5,8 +5,6 @@
 #include "Graphics/Resources.h"
 #include "Graphics/SpriteAtlas.h"
 #include "Graphics/SpriteBatch.h"
-#include "Graphics/Rectangle.hpp"
-#include "Graphics/Vector2.hpp"
 
 #include "Graphics/GUI/GUIComponent.h"
 #include "Graphics/GUI/Anchor.h"

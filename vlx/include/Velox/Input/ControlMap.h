@@ -1,6 +1,9 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
+#include <SFML/Window/Event.hpp>
+
+#include <Velox/System/Time.h>
+#include <Velox/Utility/NonCopyable.h>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"

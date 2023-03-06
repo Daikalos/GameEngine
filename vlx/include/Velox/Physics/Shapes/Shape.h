@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Rectangle.hpp>
-#include <Velox/Utilities/Event.hpp>
+#include <Velox/System/Rectangle.hpp>
+#include <Velox/System/Event.hpp>
 #include <Velox/Config.hpp>
 
 #include "../CollisionResult.h"

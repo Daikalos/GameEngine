@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Utilities.hpp>
+#include <Velox/System/Event.hpp>
 
 #include "GUIComponent.h"
 
