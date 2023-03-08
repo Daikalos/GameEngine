@@ -42,6 +42,7 @@
     <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\CollisionSystem.cpp" />
+    <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -131,7 +132,7 @@
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
-    <ClInclude Include="include\Velox\Physics\PhysicsLayer.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionLayer.h" />
     <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Utility\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
@@ -142,6 +143,8 @@
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
     <ClInclude Include="include\Velox\System.hpp" />
+    <ClInclude Include="include\Velox\Physics\Collision.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

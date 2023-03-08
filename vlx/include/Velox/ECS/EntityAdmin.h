@@ -413,18 +413,18 @@ namespace vlx
 		VELOX_API bool RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
 
 	public:
-		/// <summary>
-		///		Returns a duplicated entity with the same properties as the specified one
-		/// </summary>
+		///	Returns a duplicated entity with the same properties as the specified one
+		/// 
+		/// \param EntityID: entity id of the one to copy the components from
+		/// 
+		/// \returns ID of the newly created entity containing the copied components
+		///
 		VELOX_API NODISC EntityID Duplicate(const EntityID entity_id);
 
-		/// <summary>
-		///		Shrinks the ECS by removing all the empty archetypes
-		/// </summary>
-		/// <param name="extensive:"> 
-		///		Perform a complete shrink of the ECS by removing all the extra data space, will most likely 
-		///		invalidate all the existing pointers from e.g., GetComponent
-		/// </param>
+		///	Shrinks the ECS by removing all the empty archetypes.
+		/// 
+		/// \param Extensive: Perform a complete shrink of the ECS by removing all the extra data space.
+		/// 
 		VELOX_API void Shrink(bool extensive = false);
 
 	private:

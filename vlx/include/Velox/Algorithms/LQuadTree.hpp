@@ -410,7 +410,7 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline int LQuadTree<T>::FindLeaf(const Vector2f& point) const
 	{
-		Vector2f offset{ m_root_rect.Width() / 2, m_root_rect.Height() / 2 };
+		Vector2f offset	{ m_root_rect.width / 2.0f, m_root_rect.height / 2.0f };
 		Vector2f node_center = m_root_rect.Center();
 
 		int node_index = 0;

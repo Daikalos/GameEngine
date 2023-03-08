@@ -17,19 +17,22 @@ namespace vlx
 	class QTElement : public IComponent
 	{
 	public:
+		using Value = T;
+
+	public:
 		QTElement() = default;
 
-	public:
+	protected:
 		bool IsInserted() const noexcept;
 
-	public:
+	protected:
 		bool Insert(LQuadTree<T>& quad_tree, const T& item, const RectFloat& rect);
 		bool Erase();
 
 	private:
-		void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
-		void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
-		void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+		virtual void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
+		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
 	private:
 		LQuadTree<T>*	m_quad_tree {nullptr};
@@ -47,8 +50,8 @@ namespace vlx
 	{
 		if (!IsInserted() && m_quad_tree == nullptr)
 		{
-			m_index = m_quad_tree->Insert({ item, rect });
 			m_quad_tree = &quad_tree;
+			m_index = m_quad_tree->Insert({ item, rect });
 
 			return true;
 		}

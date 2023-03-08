@@ -19,7 +19,7 @@ namespace vlx
 			CollisionData&, Shape&,  Transform&, Shape&,  Transform&)>, Shape::Count * Shape::Count>;
 
 	public:
-		static void Collide(CollisionData&, Shape&, Transform&, Shape&, Transform&);
+		static void Collide(CollisionData&, CollisionObject& a, CollisionObject& b);
 
 	private:
 		/// <summary>

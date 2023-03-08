@@ -46,7 +46,7 @@ void CullingSystem::PreUpdate()
 
 void CullingSystem::Update()
 {
-	m_entity_admin->RunSystems(GetID());
+	Execute();
 }
 
 void CullingSystem::FixedUpdate()

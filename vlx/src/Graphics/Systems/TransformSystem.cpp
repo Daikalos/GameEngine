@@ -4,11 +4,11 @@ using namespace vlx;
 
 TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id), 
-	m_dirty_system(entity_admin, id),
-	m_dirty_descendants_system(entity_admin, id),
-	m_global_system(entity_admin, id)
+	m_dirty(entity_admin, id),
+	m_dirty_descendants(entity_admin, id),
+	m_update_global(entity_admin, id)
 {
-	m_dirty_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
+	m_dirty.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
 		{
 			if (local_transform.m_dirty) // if local is dirty, so is global transform
 			{
@@ -17,7 +17,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			}
 		});
 
-	m_dirty_descendants_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_update_global.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
 			{
@@ -31,13 +31,17 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			}
 		});
 
-	m_global_system.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_update_global.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
 				UpdateTransforms(local_transform, transform, relation.GetParent());
 		});
 
-	m_global_system.Exclude<PhysicsBody>();
+	m_dirty.SetPriority(100000.0f);
+	m_dirty_descendants.SetPriority(99999.0f);
+	m_update_global.SetPriority(0.0f);
+
+	m_update_global.Exclude<PhysicsBody>();
 }
 
 constexpr bool TransformSystem::IsRequired() const noexcept
@@ -86,7 +90,7 @@ void TransformSystem::PreUpdate()
 
 void TransformSystem::Update()
 {
-	m_entity_admin->RunSystems(GetID());
+	Execute();
 }
 
 void TransformSystem::FixedUpdate()

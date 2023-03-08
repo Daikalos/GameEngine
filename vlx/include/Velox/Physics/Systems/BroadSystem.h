@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include <Velox/Utilities.hpp>
-
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/LocalTransform.h>
 
@@ -18,32 +16,52 @@
 #include <Velox/Physics/Shapes/Box.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 
+#include "../CollisionObject.h"
 #include "../CollisionResult.h"
 #include "../CollisionData.h"
 #include "../CollisionTable.h"
+#include "../Collision.h"
 
 namespace vlx
 {
 	class VELOX_API BroadSystem final : public SystemAction
 	{
 	public:
-		using Element = std::tuple<Shape*, LocalTransform*, Transform*>;
-		using QTElement = QTElement<Element>;
-
-		using CircleSystem = System<Circle, LocalTransform, Transform, QTElement>;
-		using BoxSystem = System<Box, LocalTransform, Transform, QTElement>;
+		using DirtyGlobalSystem		= System<Collision, Transform>;
+		using DirtyLocalSystem		= System<Collision, LocalTransform>;
+		using CircleSystem			= System<Circle, Collision, LocalTransform, Transform>;
+		using BoxSystem				= System<Box, Collision, LocalTransform, Transform>;
+		using CollisionSystem		= System<Collision, LocalTransform, Transform>;
 
 		struct CollisionPair
 		{
-			Shape* A {nullptr};
-			Shape* B {nullptr};
+			CollisionObject A;
+			CollisionObject B;
 		};
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, const LayerType id);
 
-	private:
-		LQuadTree<Element> m_quad_tree;
+	public:
+		NODISC constexpr bool IsRequired() const noexcept override;
 
+	public:
+		void PreUpdate() override;
+		void Update() override;
+		void FixedUpdate() override;
+		void PostUpdate() override;
+
+	private:
+		void InsertShape(Shape& shape, Collision& c, LocalTransform& lt, Transform& t);
+
+	private:
+		LQuadTree<QTCollision::Value> m_quad_tree;
+		std::vector<CollisionPair> m_collisions;
+
+		DirtyGlobalSystem	m_dirty_transform;
+		DirtyLocalSystem	m_dirty_physics;
+		CircleSystem		m_circles;
+		BoxSystem			m_boxes;
+		CollisionSystem		m_broad_collisions;
 	};
 }

@@ -41,7 +41,7 @@ void ObjectSystem::PreUpdate()
 
 void ObjectSystem::Update()
 {
-	m_entity_admin->RunSystems(GetID());
+	Execute();
 }
 
 void ObjectSystem::FixedUpdate()

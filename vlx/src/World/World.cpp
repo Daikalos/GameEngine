@@ -58,7 +58,7 @@ void World::RemoveSystem(const LayerType id)
 	const auto it = std::ranges::find_if(m_systems.begin(), m_systems.end(),
 		[id](const auto& pair)
 		{
-			return pair.second->GetID() == id;
+			return pair.second->GetLayerID() == id;
 		});
 
 	if (it->second.get()->IsRequired()) // cant remove if required
@@ -69,7 +69,7 @@ void World::RemoveSystem(const LayerType id)
 	m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
 		[&id](const auto& item)
 		{
-			return item->GetID() == id;
+			return item->GetLayerID() == id;
 		}));
 }
 
@@ -78,7 +78,7 @@ bool World::HasSystem(const LayerType id) const
 	const auto it = std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
 		[&id](const auto& item)
 		{
-			return item->GetID() == id;
+			return item->GetLayerID() == id;
 		});
 
 	return it != m_sorted_systems.end();
@@ -113,8 +113,8 @@ void World::Run()
 			FixedUpdate();
 		}
 
-		float interp = accumulator / m_time.GetFixedDT();
-		m_time.SetInterpolation(interp);
+		float alpha = accumulator / m_time.GetFixedDT();
+		m_time.SetAlpha(alpha);
 
 		PostUpdate();
 

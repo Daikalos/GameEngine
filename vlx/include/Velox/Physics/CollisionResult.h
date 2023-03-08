@@ -1,8 +1,7 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
-
 #include <Velox/ECS/Identifiers.hpp>
+#include <Velox/System/Vector2.hpp>
 
 namespace vlx
 {

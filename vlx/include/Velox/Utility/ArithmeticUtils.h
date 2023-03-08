@@ -14,7 +14,7 @@
 namespace vlx::au
 {
 	template<std::floating_point T = float>
-	static constexpr T PI = T(M_PI);
+	inline constexpr T PI = T(M_PI);
 
 	template<std::floating_point T>
 	NODISC static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees

@@ -1,22 +1,15 @@
 #pragma once
 
+#include <stdint.h>
+
 #include <Velox/System/Vector2.hpp>
+
+#include "CollisionObject.h"
 
 namespace vlx
 {
-	class PhysicsBody;
-	class LocalTransform;
-	class Transform;
-
 	struct CollisionData
 	{
-		PhysicsBody*	A				{nullptr};
-		PhysicsBody*	B				{nullptr};
-		LocalTransform* ALT				{nullptr};
-		LocalTransform* BLT				{nullptr};
-		Transform*		AT				{nullptr};
-		Transform*		BT				{nullptr};
-
 		float			penetration		{0.0f};
 		Vector2f		normal;
 

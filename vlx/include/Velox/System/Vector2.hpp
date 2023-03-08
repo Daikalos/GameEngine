@@ -60,9 +60,9 @@ namespace vlx
 
 		/// Linear interpolation.
 		/// 
-		/// \param Alpha: Determines level of interpolation; range of 0.0f to 1.0f, where 0.0f yields lhs, and 1.0f yield rhs.
+		/// \param Alpha: Determines level of interpolation; range of 0.0f to 1.0f, where 0.0f yield lhs, and 1.0f yield rhs.
 		/// 
-		/// \returns Interpolated vector between lhs and rhs given by alpha value.
+		/// \returns Interpolated vector that ranges between lhs and rhs given by alpha value.
 		///
 		NODISC static constexpr Vector2 Lerp(const Vector2& lhs, const Vector2& rhs, const float alpha);
 

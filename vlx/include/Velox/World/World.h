@@ -128,7 +128,7 @@ namespace vlx
 		cu::InsertSorted(m_sorted_systems, system_ptr,
 			[](const SystemAction* lhs, const SystemAction* rhs)
 			{
-				return lhs->GetID() < rhs->GetID();
+				return lhs->GetLayerID() < rhs->GetLayerID();
 			});
 
 		return system_ptr;

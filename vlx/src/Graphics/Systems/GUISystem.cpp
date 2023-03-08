@@ -74,7 +74,7 @@ void GUISystem::PreUpdate()
 
 void GUISystem::Update()
 {
-	m_entity_admin->RunSystems(GetID());
+	Execute();
 }
 
 void GUISystem::FixedUpdate()

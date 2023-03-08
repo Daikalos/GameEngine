@@ -23,14 +23,22 @@ using namespace vlx;
 CollisionTable::Matrix CollisionTable::table =
 {
 	&CollisionTable::CircleToCircle,	&CollisionTable::CircleToBox,		&CollisionTable::CircleToPoint,		&CollisionTable::CircleToConvex,
-	&CollisionTable::BoxToCircle,		&CollisionTable::BoxToBox,		&CollisionTable::BoxToPoint,		&CollisionTable::BoxToConvex,
+	&CollisionTable::BoxToCircle,		&CollisionTable::BoxToBox,			&CollisionTable::BoxToPoint,		&CollisionTable::BoxToConvex,
 	&CollisionTable::PointToCircle,		&CollisionTable::PointToBox,		&CollisionTable::PointToPoint,		&CollisionTable::PointToConvex,
 	&CollisionTable::ConvexToCircle,	&CollisionTable::ConvexToBox,		&CollisionTable::ConvexToPoint,		&CollisionTable::ConvexToConvex
 };
 
-void CollisionTable::Collide(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::Collide(CollisionData& collision, CollisionObject& a, CollisionObject& b)
 {
-	table[s2.GetType() + s1.GetType() * Shape::Type::Count](collision, s1, t1, s2, t2);
+	Shape& s1 = *a.Shape;
+	Shape& s2 = *b.Shape;
+
+	Transform& t1 = *a.Transform;
+	Transform& t2 = *b.Transform;
+
+	const std::uint32_t ci = s2.GetType() + s1.GetType() * Shape::Type::Count;
+
+	table[ci](collision, s1, t1, s2, t2);
 }
 
 void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
@@ -38,7 +46,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 	Circle& c1 = reinterpret_cast<Circle&>(s1); // cast is assumed safe in this kind of context
 	Circle& c2 = reinterpret_cast<Circle&>(s2);
 
-	Vector2f normal = t2.GetPosition() - t1.GetPosition();
+	Vector2f normal = Vector2f::Direction(t1.GetPosition(), t2.GetPosition());
 
 	const float dist_sqr = normal.LengthSq();
 	const float radius = c1.GetRadius() + c2.GetRadius();
@@ -71,7 +79,7 @@ void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform&
 	const Vector2f half_extends(
 		a2.GetWidth() / 2.0f, a2.GetHeight() / 2.0f);
 
-	sf::Transform box_transform = t2.GetTransform(); // weird that I need to do this, will maybe, most likely not, look for solution
+	sf::Transform box_transform = t2.GetTransform(); // weird that I need to do this, will maybe, look for solution
 	box_transform.translate(half_extends); // translate by extends to position correctly
 
 	Vector2f n = box_transform.getInverse().transformPoint(t1.GetPosition());

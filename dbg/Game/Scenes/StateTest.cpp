@@ -58,7 +58,7 @@ void StateTest::OnCreated()
 		[](const Relation& lhs, const Relation& rhs)
 		{
 			if (lhs.HasParent() && rhs.HasParent())
-				return lhs.GetParent().Get() < rhs.GetParent().Get();
+				return lhs.GetParent().GetEntityID() > rhs.GetParent().GetEntityID();
 
 			return false;
 		});

@@ -36,5 +36,6 @@ namespace vlx
 		mutable bool			m_dirty					{true};
 
 		friend class TransformSystem;
+		friend class BroadSystem;
 	};
 }

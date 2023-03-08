@@ -159,6 +159,8 @@
     <ClInclude Include="include\Velox\Components\Child.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
+    <ClInclude Include="include\Velox\Physics\Collision.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
     <ClInclude Include="include\Velox\Physics\Systems\BroadSystem.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Circle.h" />
@@ -187,7 +189,7 @@
     <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\Sprite.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
-    <ClInclude Include="include\Velox\Physics\PhysicsLayer.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionLayer.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
     <ClInclude Include="include\Velox\ECS\EntityAdmin.h" />
@@ -255,6 +257,7 @@
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\CollisionSystem.cpp" />
     <ClCompile Include="src\Physics\PhysicsBody.cpp" />
+    <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />

@@ -36,19 +36,22 @@ constexpr bool AnchorSystem::IsRequired() const noexcept
 	return false;
 }
 
-void AnchorSystem::Update()
-{
-	m_entity_admin->RunSystems(GetID());
-}
-
 void AnchorSystem::PreUpdate()
 {
+
+}
+
+void AnchorSystem::Update()
+{
+	Execute();
 }
 
 void AnchorSystem::FixedUpdate()
 {
+
 }
 
 void AnchorSystem::PostUpdate()
 {
+
 }

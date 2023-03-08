@@ -20,22 +20,16 @@ namespace vlx
 			Convex,
 
 			// Not sure if the engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,
-			// http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf is the closest that presents a viable solution
+			// http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf is the best i've found that presents a viable solution
 
 			Count // always keep last
 		};
 
-		virtual ~Shape() = 0;
+		virtual ~Shape() = default;
 
 		virtual void Initialize(PhysicsBody& body) const = 0;
 		virtual RectFloat GetAABB() const = 0;
 
 		virtual constexpr Type GetType() const noexcept = 0;
-
-		Event<CollisionResult> OnEnter;		// common events for collisions
-		Event<CollisionResult> OnExit;
-		Event<CollisionResult> OnOverlap;
 	};
-
-	inline Shape::~Shape() = default;
 }

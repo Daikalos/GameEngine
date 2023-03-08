@@ -49,9 +49,9 @@ namespace vlx
 		auto CheckCache(EntityID entity_id) const -> TransformSet&;
 
 	private:
-		System<LocalTransform, Transform>			m_dirty_system;
-		System<LocalTransform, Transform, Relation>	m_dirty_descendants_system;
-		System<LocalTransform, Transform, Relation>	m_global_system;
+		System<LocalTransform, Transform>			m_dirty;
+		System<LocalTransform, Transform, Relation>	m_dirty_descendants;
+		System<LocalTransform, Transform, Relation>	m_update_global;
 
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;
