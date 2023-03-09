@@ -10,6 +10,7 @@
 #include <Velox/Graphics.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/Window.hpp>
+#include <Velox/Physics.hpp>
 
 #include <Velox/Scene/StateStack.h>
 

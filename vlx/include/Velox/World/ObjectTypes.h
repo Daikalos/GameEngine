@@ -15,6 +15,7 @@
 #include <Velox/Physics/Shapes/Box.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 #include <Velox/Physics/PhysicsBody.h>
+#include <Velox/Physics/Collision.h>
 
 #include <Velox/Graphics/GUI/Container.h>
 #include <Velox/Graphics/GUI/Button.h>
@@ -26,7 +27,7 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, Renderable, LocalTransform, Transform, Relation, Sprite, Circle, Box, Polygon, PhysicsBody, gui::Container, gui::Button, gui::Label>;
+	using AllTypes		= std::tuple<Object, Renderable, LocalTransform, Transform, Relation, Sprite, Circle, Box, Collision, Polygon, PhysicsBody, gui::Container, gui::Button, gui::Label>;
 	using ObjectType	= std::tuple<Object, Renderable, LocalTransform, Transform, Relation, Sprite>;
 
 	namespace gui

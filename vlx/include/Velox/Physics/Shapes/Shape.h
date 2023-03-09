@@ -10,8 +10,9 @@
 
 namespace vlx
 {
-	struct VELOX_API Shape : public IComponent
+	class VELOX_API Shape : public IComponent
 	{
+	public:
 		enum Type : short
 		{
 			Circle,

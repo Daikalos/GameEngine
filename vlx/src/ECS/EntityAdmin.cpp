@@ -13,7 +13,7 @@ EntityAdmin::~EntityAdmin()
 			const std::size_t& component_size	= component->GetSize();
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-				component->DestroyData(*this, archetype->entities[j], &archetype->component_data[i][j * component_size]);
+				component->Shutdown(*this, archetype->entities[j], &archetype->component_data[i][j * component_size]);
 		}
 	}
 }

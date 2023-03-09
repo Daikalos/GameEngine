@@ -9,8 +9,9 @@ namespace vlx
 
 	/// Contains the necessary data to represent an object for collision
 	/// 
-	struct CollisionObject
+	class CollisionObject
 	{
+	public:
 		Shape*			Shape			{nullptr};
 		Collision*		Collision		{nullptr};
 		LocalTransform* LocalTransform	{nullptr};

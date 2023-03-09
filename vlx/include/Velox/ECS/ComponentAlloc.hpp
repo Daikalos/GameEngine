@@ -23,6 +23,7 @@ namespace vlx
 		virtual void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
 		virtual void CopyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
 		virtual void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const = 0;
+		virtual void Shutdown(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
 
 		virtual constexpr std::size_t GetSize() const noexcept = 0;
 	};
@@ -36,6 +37,7 @@ namespace vlx
 		void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
 		void CopyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const override;
 		void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const override;
+		void Shutdown(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const override;
 
 		NODISC constexpr std::size_t GetSize() const noexcept override;
 
@@ -58,19 +60,20 @@ namespace vlx
 	inline void ComponentAlloc<C>::DestroyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
-		static_cast<IComponent*>(data_location)->Destroyed(entity_admin, entity_id);
+		static_cast<IComponent*>(data_location)->Destroyed(entity_admin, entity_id); // call associated event
+
 		data_location->~C(); // now destroy
 
-		entity_admin.EraseComponentRef<C>(entity_id);
+		entity_admin.EraseComponentRef<C>(entity_id); // make sure that all current references are erased
 	}
 
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::MoveData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
 		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
-		static_cast<IComponent*>(data_location)->Moved(entity_admin, entity_id);
+		static_cast<IComponent*>(data_location)->Moved(entity_admin, entity_id); // call associated event
 
-		entity_admin.UpdateComponentRef<C>(entity_id, data_location);
+		entity_admin.UpdateComponentRef<C>(entity_id, data_location); // update the current references
 	}
 
 	template<IsComponent C>
@@ -92,6 +95,15 @@ namespace vlx
 
 		std::memcpy(d0, d1, size); // swaps the contents of two byte arrays
 		std::memcpy(d1, temp, size);
+	}
+
+	template<IsComponent C>
+	inline void ComponentAlloc<C>::Shutdown(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
+	{
+		C* data_location = std::launder(reinterpret_cast<C*>(data)); 
+		static_cast<IComponent*>(data_location)->Shutdown(entity_admin, entity_id); // call associated event
+
+		data_location->~C(); // call destructor to clear possible leaks
 	}
 
 	template<IsComponent C>

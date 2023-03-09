@@ -9,12 +9,13 @@
 
 namespace vlx
 {
-	struct Collision;
+	class Collision;
 
 	using QTCollision = QTElement<std::tuple<Shape*, Collision*, LocalTransform*, Transform*>>;
 
-	struct Collision : public QTCollision
+	class Collision : public QTCollision
 	{
+	public:
 		Event<CollisionResult> OnEnter;		// common events for collisions
 		Event<CollisionResult> OnExit;
 		Event<CollisionResult> OnOverlap;

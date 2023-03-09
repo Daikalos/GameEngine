@@ -81,30 +81,24 @@ void StateTest::OnCreated()
 	b0.GetComponent<gui::Button>().Entered += []() { std::puts("Entered"); };
 	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
 
-	Time& time = GetWorld().GetTime();
-	//sys.Each([&time](const EntityID entity, Velocity& velocity, LocalTransform& local_transform)
-	//	{
-	//		local_transform.Move(velocity * time.GetDT());
-	//	});
-
 	m_entity_admin->Shrink(true);
 
-	LQuadTree quad_tree({ 0,0, 1280, 1280 });
-	for (int i = 0; i < 8192 * 2 * 2 * 2 * 2; ++i)
-	{
-		float x = rnd::random() * 1024.0f;
-		float y = rnd::random() * 1024.0f;
+	//LQuadTree quad_tree({ 0,0, 1280, 1280 });
+	//for (int i = 0; i < 8192 * 2 * 2 * 2 * 2; ++i)
+	//{
+	//	float x = rnd::random() * 1024.0f;
+	//	float y = rnd::random() * 1024.0f;
 
-		float w = 1.0f + rnd::random() * 128.0f;
-		float h = 1.0f + rnd::random() * 128.0f;
+	//	float w = 1.0f + rnd::random() * 128.0f;
+	//	float h = 1.0f + rnd::random() * 128.0f;
 
-		quad_tree.Insert(LQuadTree<int>::Element(i, RectFloat(x, y, x + w, y + h)));
-	}
+	//	quad_tree.Insert(LQuadTree<int>::Element(i, RectFloat(x, y, x + w, y + h)));
+	//}
 
-	quad_tree.Cleanup();
+	//quad_tree.Cleanup();
 
-	auto test = quad_tree.Query({0,0, 5, 5});
-	int sdadsa = test.size();
+	//auto test = quad_tree.Query({0,0, 5, 5});
+	//int sdadsa = test.size();
 
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
 	entity.AddComponent<PhysicsBody>();
@@ -136,6 +130,7 @@ bool StateTest::Update(Time& time)
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
+		entity.AddComponent<Collision>();
 		entity.AddComponent<Circle>();
 
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
@@ -151,6 +146,7 @@ bool StateTest::Update(Time& time)
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
+		entity.AddComponent<Collision>();
 		entity.AddComponent<Box>();
 
 		//entity.GetComponent<Circle>().radius = 32.0f;

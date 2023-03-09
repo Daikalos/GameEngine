@@ -255,7 +255,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
-    <ClCompile Include="src\Physics\CollisionSystem.cpp" />
     <ClCompile Include="src\Physics\PhysicsBody.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />

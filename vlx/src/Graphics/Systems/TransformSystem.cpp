@@ -17,7 +17,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 			}
 		});
 
-	m_update_global.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_dirty_descendants.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
 		{
 			if (transform.m_dirty)
 			{

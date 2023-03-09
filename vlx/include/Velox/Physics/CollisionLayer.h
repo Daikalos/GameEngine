@@ -6,6 +6,9 @@ namespace vlx
 {
 	struct CollisionLayer
 	{
-		std::uint32_t layer {0};
+		operator std::uint32_t& () { return layer; }
+		operator const std::uint32_t& () const { return layer; }
+
+		std::uint32_t layer {1};
 	};
 }

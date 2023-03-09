@@ -416,7 +416,7 @@ namespace vlx
 		int node_index = 0;
 		while (m_nodes[node_index].count == -1) // continue on branches, will exit when leaf
 		{
-			Node& node = m_nodes[node_index];
+			const Node& node = m_nodes[node_index];
 			offset /= 2.0f;
 
 			if (point.x > node_center.x)
