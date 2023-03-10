@@ -28,6 +28,8 @@ namespace vlx
 		NODISC constexpr auto at(const size_type n) -> reference;
 		NODISC constexpr auto at(const size_type n) const -> const_reference;
 
+		NODISC constexpr bool valid(const size_type n) const noexcept;
+
 		NODISC constexpr bool empty() const noexcept;
 		NODISC constexpr auto size() const noexcept -> size_type;
 
@@ -74,6 +76,12 @@ namespace vlx
 	}
 
 	template<class T>
+	inline constexpr bool FreeVector<T>::valid(const size_type n) const noexcept
+	{
+		return std::holds_alternative<T>(m_data.at(n));
+	}
+
+	template<class T>
 	inline constexpr bool FreeVector<T>::empty() const noexcept
 	{
 		return m_data.empty();
@@ -99,7 +107,7 @@ namespace vlx
 		{
 			const auto index = m_first_free;
 			m_first_free = std::get<size_type>(m_data[m_first_free]);
-			m_data.emplace(m_data.begin() + index, std::forward<Args>(args)...);
+			m_data[index] = T(std::forward<Args>(args)...);
 
 			return index;
 		}
