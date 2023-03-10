@@ -29,12 +29,12 @@ namespace vlx
 		bool Insert(LQuadTree<T>& quad_tree, const T& item, const RectFloat& rect);
 		bool Erase();
 
-	private:
+	protected:
 		virtual void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
 		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 
-	private:
+	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr};
 		int				m_index		{-1};
 	};

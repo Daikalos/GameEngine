@@ -38,6 +38,7 @@ namespace vlx
 		float GetHeight() const noexcept;
 
 		void SetBox(const RectFloat& box);
+		void SetSize(const Vector2f& size);
 		
 		void SetLeft(float left);
 		void SetTop(float top);

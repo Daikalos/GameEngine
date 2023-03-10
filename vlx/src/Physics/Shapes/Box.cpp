@@ -47,6 +47,14 @@ void Box::SetBox(const RectFloat& box)
 	m_vertices[3] = Vector2f(box.Right(),	box.Bottom());
 }
 
+void Box::SetSize(const Vector2f& size)
+{
+	m_vertices[1].x = m_vertices[0].x + size.x;
+	m_vertices[3].x = m_vertices[0].x + size.x;
+	m_vertices[2].y = m_vertices[0].y + size.y;
+	m_vertices[3].y = m_vertices[0].y + size.y;
+}
+
 void Box::SetLeft(float left)
 {
 	m_vertices[0].x = left;

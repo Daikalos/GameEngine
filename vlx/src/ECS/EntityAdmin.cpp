@@ -117,6 +117,8 @@ void EntityAdmin::RemoveSystem(const LayerType layer, ISystem* system)
 
 bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 {
+	// TODO: prevent RemoveEntity being called on shutdown
+
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end()) // entity does not exist
 		return false;

@@ -90,8 +90,6 @@ namespace vlx
 		EntityAdmin		m_entity_admin;
 
 		Time			m_time;
-		StateStack		m_state_stack;
-
 		ControlMap		m_controls;
 		Window			m_window;
 		Camera			m_camera;
@@ -101,6 +99,8 @@ namespace vlx
 
 		WorldSystems	m_systems;
 		SortedSystems	m_sorted_systems;
+
+		StateStack		m_state_stack;
 	};
 
 	template<std::derived_from<SystemAction> S>

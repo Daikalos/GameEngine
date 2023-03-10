@@ -155,6 +155,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
+		entity.GetComponent<Box>().SetSize({ 64, 64 });
 		entity.GetComponent<LocalTransform>().SetOrigin({ 32, 32 });
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,

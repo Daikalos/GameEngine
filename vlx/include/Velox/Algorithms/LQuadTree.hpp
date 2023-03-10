@@ -55,6 +55,8 @@ namespace vlx
 		bool Erase(const int element);
 		bool Erase(const Element& element);
 
+		bool Update(const int element, const T& new_item);
+
 		NODISC auto Query(const RectFloat& rect) const -> std::vector<Element>;
 		NODISC auto Query(const Vector2f& point) const-> std::vector<Element>;
 
@@ -115,11 +117,12 @@ namespace vlx
 		std::unique_lock lock(m_mutex);
 
 		int leaf_node_index = FindLeaf(element.rect.Center());
-
-		if (m_nodes[leaf_node_index].count == 0)
-			return false;
-
 		Node& node = m_nodes[leaf_node_index];
+
+		assert(node.count != -1);
+
+		if (node.count == 0)
+			return false;
 
 		int* cur = &node.first_child;
 		while (*cur != -1) // search through all elements
@@ -147,6 +150,19 @@ namespace vlx
 		}
 
 		return false;
+	}
+
+	template<std::equality_comparable T>
+	inline bool LQuadTree<T>::Update(const int element, const T& new_item)
+	{
+		std::unique_lock lock(m_mutex);
+
+		if (!m_elements.valid(element))
+			return false;
+
+		m_elements[element].item = new_item;
+
+		return true;
 	}
 
 	template<std::equality_comparable T>

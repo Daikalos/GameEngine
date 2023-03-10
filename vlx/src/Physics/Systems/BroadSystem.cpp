@@ -4,7 +4,7 @@ using namespace vlx;
 
 BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id), 
-	m_quad_tree({ -4096, -4096, 4096, 4096 }), 
+	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }), 
 	m_dirty_transform(*m_entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
 	m_dirty_physics(*m_entity_admin, LYR_BROAD_PHASE),
 	m_circles(*m_entity_admin, LYR_BROAD_PHASE),
@@ -71,7 +71,9 @@ void BroadSystem::Update()
 void BroadSystem::FixedUpdate()
 {
 	m_collision_pairs.clear();
+
 	Execute();
+
 	CullDuplicates();
 }
 
@@ -97,23 +99,21 @@ void BroadSystem::QueryShape(Shape& shape, Collision& c, LocalTransform& lt, Tra
 
 	for (const auto& collision : collisions)
 	{
-		if (&shape == std::get<0>(collision.item)) // no collision against self
+		if (&shape == collision.item.Shape) // no collision against self
 			continue;
 
-		if (!(c.Layer & std::get<1>(collision.item)->Layer))
+		if (!(c.Layer & collision.item.Collision->Layer))
 			continue;
 
-		m_collision_pairs.emplace_back(CollisionObject(&shape, &c, &lt, &t), CollisionObject(
-			std::get<0>(collision.item), 
-			std::get<1>(collision.item), 
-			std::get<2>(collision.item), 
-			std::get<3>(collision.item)));
+		m_collision_pairs.emplace_back(CollisionObject(&shape, &c, &lt, &t), collision.item);
 	}
 }
 
 void BroadSystem::CullDuplicates()
 {
-	std::ranges::sort(m_collision_pairs.begin(), m_collision_pairs.end(), [](auto& lhs, auto& rhs)
+	m_unique_collisions.clear();
+
+	std::ranges::sort(m_collision_pairs.begin(), m_collision_pairs.end(), [](const auto& lhs, const auto& rhs)
 		{
 			if (lhs.A.Shape < rhs.A.Shape)
 				return true;
@@ -124,5 +124,11 @@ void BroadSystem::CullDuplicates()
 			return false;
 		});
 
-	std::puts(std::to_string(m_collision_pairs.size()).c_str());
+	const auto range = std::ranges::unique(m_collision_pairs.begin(), m_collision_pairs.end(),
+		[](const auto& lhs, const auto& rhs)
+		{
+			return lhs.A.Shape == rhs.B.Shape || lhs.B.Shape == rhs.A.Shape;
+		});
+
+	m_unique_collisions.insert(m_unique_collisions.end(), range.begin(), range.end());
 }

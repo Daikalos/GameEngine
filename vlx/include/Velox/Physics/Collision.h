@@ -6,16 +6,21 @@
 
 #include "CollisionResult.h"
 #include "CollisionLayer.h"
+#include "CollisionObject.h"
 
 namespace vlx
 {
-	class Collision;
-
-	using QTCollision = QTElement<std::tuple<Shape*, Collision*, LocalTransform*, Transform*>>;
+	using QTCollision = QTElement<CollisionObject>;
 
 	class Collision : public QTCollision
 	{
 	public:
+		void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) override
+		{
+			Erase();
+			m_dirty = true;
+		}
+
 		Event<CollisionResult> OnEnter;		// common events for collisions
 		Event<CollisionResult> OnExit;
 		Event<CollisionResult> OnOverlap;

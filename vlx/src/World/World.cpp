@@ -3,9 +3,9 @@
 using namespace vlx;
 
 World::World(const std::string_view name) : 
-	m_state_stack(*this),
 	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
-	m_camera(CameraBehavior::Context(m_window, m_controls))
+	m_camera(CameraBehavior::Context(m_window, m_controls)),
+	m_state_stack(*this)
 {
 	m_window.Initialize();
 
@@ -167,6 +167,11 @@ void World::ProcessEvents()
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{
+		if (event.type == sf::Event::Closed)
+		{
+			// TODO: perform necessary cleanup
+		}
+
 		m_controls.HandleEventAll(event);
 		m_window.HandleEvent(event);
 		m_camera.HandleEvent(event);
