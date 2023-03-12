@@ -37,14 +37,13 @@ namespace vlx
 
 	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr};
-		value_type		m_item		{};
-		RectFloat		m_rect		{};
+		int	m_index {-1};
 	};
 
 	template<std::equality_comparable T>
 	inline bool QTElement<T>::IsInserted() const noexcept
 	{
-		return m_quad_tree != nullptr;
+		return m_index != -1;
 	}
 
 	template<std::equality_comparable T>
@@ -52,11 +51,8 @@ namespace vlx
 	{
 		if (!IsInserted())
 		{
-			m_item = std::move(item);
-			m_rect = rect;
-
 			m_quad_tree = &quad_tree;
-			m_quad_tree->Insert({ m_item, m_rect });
+			m_index = m_quad_tree->Insert({ std::move(item), rect });
 
 			return true;
 		}
@@ -68,10 +64,11 @@ namespace vlx
 	{
 		if (IsInserted())
 		{
-			bool result = m_quad_tree->Erase({ m_item, m_rect });
+			bool result = m_quad_tree->Erase(m_index);
 			assert(result); // make sure that it succeeded
 
 			m_quad_tree = nullptr;
+			m_index = -1;
 
 			return true;
 		}
@@ -82,13 +79,14 @@ namespace vlx
 	inline void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		m_quad_tree = nullptr; // copied elements will need to reinserted
+		m_index = -1;
 	}
 
 	template<std::equality_comparable T>
 	inline void QTElement<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data)
 	{
 		QTElement new_element = static_cast<QTElement&>(new_data);
-		if (new_element.m_item != m_item || new_element.m_rect != m_rect) // erase current if new
+		if (new_element.m_index != m_index) // erase current if new
 		{
 			Erase();
 		}

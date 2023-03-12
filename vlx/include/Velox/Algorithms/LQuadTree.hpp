@@ -46,10 +46,12 @@ namespace vlx
 		static constexpr int CHILD_COUNT = 4;
 
 	public:
-		LQuadTree(const RectFloat& root_rect, int max_elements = 16, int max_depth = 8);
+		LQuadTree(const RectFloat& root_rect, int max_elements = 4, int max_depth = 8);
 
 	public:
-		auto Insert(const Element& element) -> const Element*;
+		int Insert(const Element& element);
+
+		bool Erase(const int elt_idx);
 		bool Erase(const Element& element);
 
 		bool Update(const int element, const T& new_item);
@@ -91,7 +93,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto LQuadTree<T>::Insert(const Element& element) -> const Element*
+	inline int LQuadTree<T>::Insert(const Element& element)
 	{
 		std::unique_lock lock(m_mutex);
 
@@ -102,7 +104,13 @@ namespace vlx
 
 		EltInsert(element.rect.Center(), m_elements_ptr.insert(elt_ptr));
 
-		return &m_elements[ptr];
+		return ptr;
+	}
+
+	template<std::equality_comparable T>
+	inline bool LQuadTree<T>::Erase(const int elt_idx)
+	{
+		return Erase(m_elements[elt_idx]);
 	}
 
 	template<std::equality_comparable T>
@@ -374,21 +382,21 @@ namespace vlx
 		struct NodeReg // nodes to process
 		{
 			RectFloat rect;
-			int depth	{0};
 			int idx		{0};
+			int depth	{0};
 		};
 
 		struct ElementReg // elements to process
 		{
 			Vector2f point;
-			int idx		{0};
+			int idx	{0};
 		};
 
 		std::vector<ElementReg> to_process;
 		std::vector<NodeReg> to_insert;
 
 		to_process.emplace_back(elt_center, ptr_idx);
-		to_insert.emplace_back(m_root_rect, 1, 0);
+		to_insert.emplace_back(m_root_rect, 0, 1);
 
 		while (!to_process.empty() && !to_insert.empty())
 		{
@@ -398,23 +406,23 @@ namespace vlx
 			Node& node = m_nodes[node_reg.idx];
 			if (node_reg.rect.Contains(elt_reg.point))
 			{
-				if (node.count == -1)
+				if (node.count == -1) // traverse branch
 				{
 					UpdateRect(m_nodes[node_reg.idx], m_elements[m_elements_ptr[elt_reg.idx].elt_idx].rect);
 
 					Vector2f center = node_reg.rect.Center();
-					Vector2f offset = { node_reg.rect.width / 2.0f, node_reg.rect.height / 2.0f };
+					Vector2f half_extends = { node_reg.rect.width / 2.0f, node_reg.rect.height / 2.0f };
 
 					if (elt_reg.point.x > center.x)
 					{
 						if (elt_reg.point.y > center.y)
 						{
-							to_insert.emplace_back(RectFloat(center.x, center.y, offset.x, offset.y), 
+							to_insert.emplace_back(RectFloat(center.x, center.y, half_extends.x, half_extends.y),
 								node.first_child + 3, node_reg.depth + 1);
 						}
 						else
 						{
-							to_insert.emplace_back(RectFloat(center.x, center.y - offset.y, offset.x, offset.y), 
+							to_insert.emplace_back(RectFloat(center.x, center.y - half_extends.y, half_extends.x, half_extends.y),
 								node.first_child + 2, node_reg.depth + 1);
 						}
 					}
@@ -422,17 +430,17 @@ namespace vlx
 					{
 						if (elt_reg.point.y > center.y)
 						{
-							to_insert.emplace_back(RectFloat(center.x - offset.x, center.y, offset.x, offset.y), 
+							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y, half_extends.x, half_extends.y),
 								node.first_child + 1, node_reg.depth + 1);
 						}
 						else
 						{
-							to_insert.emplace_back(RectFloat(center.x - offset.x, center.y - offset.y, offset.x, offset.y), 
+							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y - half_extends.y, half_extends.x, half_extends.y),
 								node.first_child + 0, node_reg.depth + 1);
 						}
 					}
 				}
-				else if (node.count < m_max_elements || node_reg.depth == m_max_depth)
+				else if (node.count < m_max_elements || node_reg.depth >= m_max_depth) // insert element into node
 				{
 					++node.count;
 
@@ -443,7 +451,7 @@ namespace vlx
 
 					to_process.pop_back();
 				}
-				else
+				else // otherwise, make space by splitting leaf and reinserting current elements
 				{
 					int child = node.first_child;
 					while (child != -1)
