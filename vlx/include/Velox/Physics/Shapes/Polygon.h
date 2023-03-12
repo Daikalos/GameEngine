@@ -17,7 +17,7 @@ namespace vlx
 
 	public:
 		void Initialize(PhysicsBody& body) const noexcept override;
-		RectFloat GetAABB() const override;
+		RectFloat GetAABB(const Transform& transform) const override;
 
 	private:
 		SmallVector<Vector2f> m_vertices;

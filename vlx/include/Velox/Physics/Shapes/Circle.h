@@ -22,7 +22,7 @@ namespace vlx
 
 	public:
 		void Initialize(PhysicsBody& body) const override;
-		RectFloat GetAABB() const override;
+		RectFloat GetAABB(const Transform& transform) const override;
 
 	private:
 		float m_radius		{16.0f};

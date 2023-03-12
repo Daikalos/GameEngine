@@ -257,6 +257,7 @@
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\PhysicsBody.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
+    <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />

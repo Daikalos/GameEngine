@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Velox/ECS/IComponent.h>
+#include <Velox/Graphics/Components/Transform.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Event.hpp>
 #include <Velox/Config.hpp>
@@ -29,7 +30,7 @@ namespace vlx
 		virtual ~Shape() = default;
 
 		virtual void Initialize(PhysicsBody& body) const = 0;
-		virtual RectFloat GetAABB() const = 0;
+		virtual RectFloat GetAABB(const Transform& transform) const = 0;
 
 		virtual constexpr Type GetType() const noexcept = 0;
 	};

@@ -27,6 +27,7 @@ World::World(const std::string_view name) :
 	AddSystem<gui::GUISystem>(	m_entity_admin,	LYR_GUI, m_camera, m_controls);
 	AddSystem<RenderSystem>(	m_entity_admin, LYR_RENDERING);
 	AddSystem<BroadSystem>(		m_entity_admin, LYR_BROAD_PHASE);
+	AddSystem<NarrowSystem>(	m_entity_admin, LYR_NARROW_PHASE);
 	//AddSystem<PhysicsSystem>(	m_entity_admin,	LYR_PHYSICS, m_time);
 }
 

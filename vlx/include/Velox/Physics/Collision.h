@@ -17,10 +17,12 @@ namespace vlx
 	public:
 		void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) override
 		{
-			Erase();
+			// since the collision object stores pointers to components,
+			// they would need to be updated if their data location is updated
 			m_dirty = true;
 		}
 
+	public:
 		Event<CollisionResult> OnEnter;		// common events for collisions
 		Event<CollisionResult> OnExit;
 		Event<CollisionResult> OnOverlap;
@@ -29,8 +31,10 @@ namespace vlx
 		bool Enabled {true};
 		
 	private:
-		bool m_dirty {true};
+		std::vector<CollisionObject> m_broad_collisions; // contains the objects this is currently colliding with in broad space
+		bool m_dirty {true}; // if should update the AABB in the quadtree
 
 		friend class BroadSystem;
+		friend class NarrowSystem;
 	};
 }

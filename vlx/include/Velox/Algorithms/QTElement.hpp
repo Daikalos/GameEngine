@@ -17,7 +17,8 @@ namespace vlx
 	class QTElement : public IComponent
 	{
 	public:
-		using Value = T;
+		using value_type = T;
+		using Element = typename LQuadTree<T>::Element;
 
 	public:
 		QTElement() = default;
@@ -26,7 +27,7 @@ namespace vlx
 		bool IsInserted() const noexcept;
 
 	protected:
-		bool Insert(LQuadTree<T>& quad_tree, const T& item, const RectFloat& rect);
+		bool Insert(LQuadTree<T>& quad_tree, T&& item, const RectFloat& rect);
 		bool Erase();
 
 	protected:
@@ -36,22 +37,26 @@ namespace vlx
 
 	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr};
-		int				m_index		{-1};
+		value_type		m_item		{};
+		RectFloat		m_rect		{};
 	};
 
 	template<std::equality_comparable T>
 	inline bool QTElement<T>::IsInserted() const noexcept
 	{
-		return m_index != -1;
+		return m_quad_tree != nullptr;
 	}
 
 	template<std::equality_comparable T>
-	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, const T& item, const RectFloat& rect)
+	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, T&& item, const RectFloat& rect)
 	{
-		if (!IsInserted() && m_quad_tree == nullptr)
+		if (!IsInserted())
 		{
+			m_item = std::move(item);
+			m_rect = rect;
+
 			m_quad_tree = &quad_tree;
-			m_index = m_quad_tree->Insert({ item, rect });
+			m_quad_tree->Insert({ m_item, m_rect });
 
 			return true;
 		}
@@ -61,12 +66,11 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline bool QTElement<T>::Erase()
 	{
-		if (IsInserted() && m_quad_tree != nullptr)
+		if (IsInserted())
 		{
-			bool result = m_quad_tree->Erase(m_index);
+			bool result = m_quad_tree->Erase({ m_item, m_rect });
 			assert(result); // make sure that it succeeded
 
-			m_index = -1;
 			m_quad_tree = nullptr;
 
 			return true;
@@ -77,14 +81,14 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
-		m_index = -1; // copied elements will need to reinserted
-		m_quad_tree = nullptr;
+		m_quad_tree = nullptr; // copied elements will need to reinserted
 	}
 
 	template<std::equality_comparable T>
 	inline void QTElement<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data)
 	{
-		if (static_cast<QTElement&>(new_data).m_index != m_index) // erase current if new
+		QTElement new_element = static_cast<QTElement&>(new_data);
+		if (new_element.m_item != m_item || new_element.m_rect != m_rect) // erase current if new
 		{
 			Erase();
 		}

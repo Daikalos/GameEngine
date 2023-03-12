@@ -58,7 +58,7 @@ namespace vlx
 		void CullDuplicates();
 
 	private:
-		LQuadTree<QTCollision::Value> m_quad_tree;
+		LQuadTree<QTCollision::value_type> m_quad_tree;
 		std::vector<CollisionPair> m_collision_pairs;
 		std::vector<CollisionPair> m_unique_collisions;
 

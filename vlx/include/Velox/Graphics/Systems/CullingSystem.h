@@ -4,8 +4,6 @@
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/Window/Camera.h>
 
-#include <Velox/Algorithms/QTElement.hpp>
-
 #include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Sprite.h>

@@ -42,6 +42,7 @@
     <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
+    <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

@@ -49,7 +49,7 @@ namespace vlx
 		constexpr Type GetType() const noexcept override;
 
 		virtual void Initialize(PhysicsBody& body) const override;
-		virtual RectFloat GetAABB() const override;
+		virtual RectFloat GetAABB(const Transform& transform) const override;
 
 	private:
 		VecArr m_vertices;

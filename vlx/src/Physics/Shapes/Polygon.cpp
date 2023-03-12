@@ -11,7 +11,7 @@ void vlx::Polygon::Initialize(PhysicsBody& body) const noexcept
 {
 }
 
-RectFloat vlx::Polygon::GetAABB() const
+RectFloat vlx::Polygon::GetAABB(const Transform& transform) const
 {
 	return RectFloat();
 }

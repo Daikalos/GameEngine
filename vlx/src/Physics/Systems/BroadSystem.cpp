@@ -87,7 +87,7 @@ void BroadSystem::InsertShape(Shape& s, Collision& c, LocalTransform& lt, Transf
 	if (c.m_dirty)
 	{
 		c.Erase();
-		c.Insert(m_quad_tree, { &s, &c, &lt, &t }, s.GetAABB() + t.GetPosition());
+		c.Insert(m_quad_tree, { &s, &c, &lt, &t }, s.GetAABB(t));
 
 		c.m_dirty = false;
 	}
@@ -95,14 +95,14 @@ void BroadSystem::InsertShape(Shape& s, Collision& c, LocalTransform& lt, Transf
 
 void BroadSystem::QueryShape(Shape& shape, Collision& c, LocalTransform& lt, Transform& t)
 {
-	auto collisions = m_quad_tree.Query(shape.GetAABB() + t.GetPosition());
+	auto collisions = m_quad_tree.Query(shape.GetAABB(t));
 
 	for (const auto& collision : collisions)
 	{
 		if (&shape == collision.item.Shape) // no collision against self
 			continue;
 
-		if (!(c.Layer & collision.item.Collision->Layer))
+		if (!(c.Layer & collision.item.Collision->Layer)) // only matching layer
 			continue;
 
 		m_collision_pairs.emplace_back(CollisionObject(&shape, &c, &lt, &t), collision.item);
@@ -113,13 +113,14 @@ void BroadSystem::CullDuplicates()
 {
 	m_unique_collisions.clear();
 
-	std::ranges::sort(m_collision_pairs.begin(), m_collision_pairs.end(), [](const auto& lhs, const auto& rhs)
+	std::ranges::sort(m_collision_pairs.begin(), m_collision_pairs.end(), 
+		[](const auto& lhs, const auto& rhs)
 		{
 			if (lhs.A.Shape < rhs.A.Shape)
 				return true;
 
 			if (lhs.A.Shape == rhs.A.Shape)
-				return lhs.B.Shape == rhs.B.Shape;
+				return lhs.B.Shape < rhs.B.Shape;
 
 			return false;
 		});

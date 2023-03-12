@@ -20,7 +20,7 @@ void Circle::Initialize(PhysicsBody& body) const
     body.SetInertia(0.5f * body.GetMass() * m_radius_sqr);
 }
 
-RectFloat Circle::GetAABB() const
+RectFloat Circle::GetAABB(const Transform& transform) const
 {
-    return RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f);
+    return RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f) + transform.GetPosition();
 }

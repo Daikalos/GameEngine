@@ -85,7 +85,7 @@ void Box::Initialize(PhysicsBody& body) const
 	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));
 }
 
-RectFloat Box::GetAABB() const
+RectFloat Box::GetAABB(const Transform& transform) const
 {
-	return GetBox();
+	return transform.GetTransform().transformRect(GetBox());
 }

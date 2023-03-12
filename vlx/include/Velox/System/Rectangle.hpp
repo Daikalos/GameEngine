@@ -165,22 +165,24 @@ namespace vlx
 		// returns a rectangle that encompasses both rects
 
 		const auto min = [](T a, T b) { return (a < b) ? a : b; };
+		const auto max = [](T a, T b) { return (a < b) ? b : a; };
 
-		const T r1l = min(left, Right());
-		const T r1t = min(top, Bottom());
-		const T r1r = (r1l == left) ? Right() : left;
-		const T r1b = (r1t == top) ? Bottom() : top;
+		const T r1l = min(left,	Right());
+		const T r1t = min(top,	Bottom());
+		const T r1r = max(left, Right());
+		const T r1b = max(top,	Bottom());
 
-		const T r2l = min(other.left, other.Right());
-		const T r2t = min(other.top, other.Bottom());
-		const T r2r = (r2l == other.left) ? other.Right() : other.left;
-		const T r2b = (r2t == other.top) ? other.Bottom() : other.top;
+		const T r2l = min(other.left,	other.Right());
+		const T r2t = min(other.top,	other.Bottom());
+		const T r2r = max(other.left,	other.Right());
+		const T r2b = max(other.top,	other.Bottom());
 
-		return Rect<T>(
-			(r1l < r2l)	? r1l : r2l,
-			(r1t < r2t)	? r1t : r2t,
-			(r1r > r2r)	? r1r : r2r,
-			(r1b > r2b)	? r1b : r2b);
+		const T r3l = min(r1l, r2l);
+		const T r3t = min(r1t, r2t);
+		const T r3r = max(r1r, r2r);
+		const T r3b = max(r1b, r2b);
+
+		return Rect<T>(r3l, r3t, r3r - r3l, r3b - r3t);
 	}
 	template<Arithmetic T>
 	inline constexpr std::optional<Rect<T>> Rect<T>::Intersection(const Rect& other) const
@@ -195,14 +197,14 @@ namespace vlx
 		const auto max = [](T a, T b) { return (a < b) ? b : a; };
 
 		const T r1l = min(left, Right());
-		const T r1t = min(top, Bottom());
-		const T r1r = (r1l == left) ? Right() : left;
-		const T r1b = (r1t == top) ? Bottom() : top;
+		const T r1t = min(top,	Bottom());
+		const T r1r = max(left, Right());
+		const T r1b = max(top,	Bottom());
 
-		const T r2l = min(other.left, other.Right());
-		const T r2t = min(other.top, other.Bottom());
-		const T r2r = (r2l == other.left) ? other.Right() : other.left;
-		const T r2b = (r2t == other.top) ? other.Bottom() : other.top;
+		const T r2l = min(other.left,	other.Right());
+		const T r2t = min(other.top,	other.Bottom());
+		const T r2r = max(other.left,	other.Right());
+		const T r2b = max(other.top,	other.Bottom());
 
 		return !(r1l > r2r || r2l > r1r || r1t > r2b || r2t > r1b);
 	}
@@ -220,14 +222,14 @@ namespace vlx
 		const auto max = [](T a, T b) { return (a < b) ? b : a; };
 
 		const T r1l = min(left, Right());
-		const T r1t = min(top, Bottom());
-		const T r1r = (r1l == left) ? Right() : left;
-		const T r1b = (r1t == top) ? Bottom() : top;
+		const T r1t = min(top,	Bottom());
+		const T r1r = max(left, Right());
+		const T r1b = max(top,	Bottom());
 
-		const T r2l = min(other.left, other.Right());
-		const T r2t = min(other.top, other.Bottom());
-		const T r2r = (r2l == other.left) ? other.Right() : other.left;
-		const T r2b = (r2t == other.top) ? other.Bottom() : other.top;
+		const T r2l = min(other.left,	other.Right());
+		const T r2t = min(other.top,	other.Bottom());
+		const T r2r = max(other.left,	other.Right());
+		const T r2b = max(other.top,	other.Bottom());
 
 		return (r2l >= r1l && r2r < r1r && r2t >= r1t && r2b < r1b);
 	}
