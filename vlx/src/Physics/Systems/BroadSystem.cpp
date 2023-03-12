@@ -132,4 +132,6 @@ void BroadSystem::CullDuplicates()
 		});
 
 	m_unique_collisions.insert(m_unique_collisions.end(), range.begin(), range.end());
+
+	std::puts(std::to_string(m_unique_collisions.size()).c_str());
 }

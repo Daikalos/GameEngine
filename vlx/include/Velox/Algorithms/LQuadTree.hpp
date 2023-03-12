@@ -97,14 +97,10 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
-		const auto ptr = m_elements.emplace(element);
+		const auto idx = m_elements.emplace(element);
+		EltInsert(element.rect.Center(), m_elements_ptr.emplace(idx));
 
-		ElementPtr elt_ptr{};
-		elt_ptr.elt_idx = ptr;
-
-		EltInsert(element.rect.Center(), m_elements_ptr.insert(elt_ptr));
-
-		return ptr;
+		return idx;
 	}
 
 	template<std::equality_comparable T>
@@ -356,6 +352,8 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline void LQuadTree<T>::SplitLeaf(Node& node)
 	{
+		assert(node.count != -1); // cant split branch
+
 		node.count = -1; // now a branch
 
 		if (m_free_node != -1)
@@ -379,17 +377,17 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline void LQuadTree<T>::EltInsert(const Vector2f& elt_center, const int ptr_idx)
 	{
+		struct ElementReg // elements to process
+		{
+			Vector2f point;
+			int idx	{0};
+		};
+
 		struct NodeReg // nodes to process
 		{
 			RectFloat rect;
 			int idx		{0};
 			int depth	{0};
-		};
-
-		struct ElementReg // elements to process
-		{
-			Vector2f point;
-			int idx	{0};
 		};
 
 		std::vector<ElementReg> to_process;
@@ -413,41 +411,41 @@ namespace vlx
 					Vector2f center = node_reg.rect.Center();
 					Vector2f half_extends = { node_reg.rect.width / 2.0f, node_reg.rect.height / 2.0f };
 
-					if (elt_reg.point.x > center.x)
+					if (elt_reg.point.x >= center.x)
 					{
-						if (elt_reg.point.y > center.y)
+						if (elt_reg.point.y >= center.y)
 						{
-							to_insert.emplace_back(RectFloat(center.x, center.y, half_extends.x, half_extends.y),
-								node.first_child + 3, node_reg.depth + 1);
+							to_insert.emplace_back(RectFloat(center.x, center.y, 
+								half_extends.x, half_extends.y), node.first_child + 3, node_reg.depth + 1);
 						}
 						else
 						{
-							to_insert.emplace_back(RectFloat(center.x, center.y - half_extends.y, half_extends.x, half_extends.y),
-								node.first_child + 2, node_reg.depth + 1);
+							to_insert.emplace_back(RectFloat(center.x, center.y - half_extends.y, 
+								half_extends.x, half_extends.y), node.first_child + 2, node_reg.depth + 1);
 						}
 					}
 					else
 					{
-						if (elt_reg.point.y > center.y)
+						if (elt_reg.point.y >= center.y)
 						{
-							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y, half_extends.x, half_extends.y),
-								node.first_child + 1, node_reg.depth + 1);
+							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y, 
+								half_extends.x, half_extends.y), node.first_child + 1, node_reg.depth + 1);
 						}
 						else
 						{
-							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y - half_extends.y, half_extends.x, half_extends.y),
-								node.first_child + 0, node_reg.depth + 1);
+							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y - half_extends.y, 
+								half_extends.x, half_extends.y), node.first_child + 0, node_reg.depth + 1);
 						}
 					}
 				}
-				else if (node.count < m_max_elements || node_reg.depth >= m_max_depth) // insert element into node
+				else if (node.count < m_max_elements || node_reg.depth == m_max_depth) // insert element into node
 				{
 					++node.count;
 
-					UpdateRect(m_nodes[node_reg.idx], m_elements[m_elements_ptr[elt_reg.idx].elt_idx].rect);
-
 					m_elements_ptr[elt_reg.idx].next = node.first_child;
 					node.first_child = elt_reg.idx;
+
+					UpdateRect(m_nodes[node_reg.idx], m_elements[m_elements_ptr[elt_reg.idx].elt_idx].rect);
 
 					to_process.pop_back();
 				}
@@ -482,9 +480,9 @@ namespace vlx
 			const Node& node = m_nodes[node_index];
 			offset /= 2.0f;
 
-			if (point.x > node_center.x)
+			if (point.x >= node_center.x)
 			{
-				if (point.y > node_center.y) // bottom right
+				if (point.y >= node_center.y) // bottom right
 				{
 					node_index = node.first_child + 3;
 					node_center += offset;
@@ -497,7 +495,7 @@ namespace vlx
 			}
 			else
 			{
-				if (point.y > node_center.y) // bottom left
+				if (point.y >= node_center.y) // bottom left
 				{
 					node_index = node.first_child + 1;
 					node_center += { -offset.x, offset.y };
