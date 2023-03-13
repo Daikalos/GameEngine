@@ -38,13 +38,13 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
+		mutable sf::Transform	m_transform;
+		mutable sf::Transform	m_inverse_transform;
+
 		Vector2f				m_origin;
 		Vector2f				m_position;
 		Vector2f				m_scale;
 		sf::Angle				m_rotation;
-
-		mutable sf::Transform	m_transform;
-		mutable sf::Transform	m_inverse_transform;
 
 		mutable bool			m_update				{true};
 		mutable bool			m_update_inverse		{true};

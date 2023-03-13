@@ -4,14 +4,14 @@ using namespace vlx;
 
 BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id), 
-	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }), 
-	m_dirty_transform(*m_entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
-	m_dirty_physics(*m_entity_admin, LYR_BROAD_PHASE),
-	m_circles(*m_entity_admin, LYR_BROAD_PHASE),
-	m_boxes(*m_entity_admin, LYR_BROAD_PHASE),
-	m_cleanup(*m_entity_admin, LYR_BROAD_PHASE),
-	m_circles_broad(*m_entity_admin, LYR_BROAD_PHASE),
-	m_boxes_broad(*m_entity_admin, LYR_BROAD_PHASE)
+	m_quad_tree(		{ -4096, -4096, 4096 * 2, 4096 * 2 }), 
+	m_dirty_transform(	*m_entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
+	m_dirty_physics(	*m_entity_admin, LYR_BROAD_PHASE),
+	m_circles(			*m_entity_admin, LYR_BROAD_PHASE),
+	m_boxes(			*m_entity_admin, LYR_BROAD_PHASE),
+	m_cleanup(			*m_entity_admin, LYR_BROAD_PHASE),
+	m_circles_broad(	*m_entity_admin, LYR_BROAD_PHASE),
+	m_boxes_broad(		*m_entity_admin, LYR_BROAD_PHASE)
 {
 	m_dirty_transform.Each([this](const EntityID entity_id, Collision& c, Transform& t)
 		{
@@ -35,10 +35,10 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 			InsertShape(b, c, lt, t);
 		});
 
-	m_cleanup.All([this](std::span<const EntityID> entity_id, Collision* c, LocalTransform* lt, Transform* t)
-		{
-			m_quad_tree.Cleanup();
-		});
+	m_cleanup.OnStart += [this]()
+	{
+		m_quad_tree.Cleanup();
+	};
 
 	m_circles_broad.Each([this](const EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
 		{
@@ -132,6 +132,4 @@ void BroadSystem::CullDuplicates()
 		});
 
 	m_unique_collisions.insert(m_unique_collisions.end(), range.begin(), range.end());
-
-	std::puts(std::to_string(m_unique_collisions.size()).c_str());
 }

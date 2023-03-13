@@ -37,7 +37,7 @@ namespace vlx
 
 	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr};
-		int	m_index {-1};
+		int				m_index		{-1};
 	};
 
 	template<std::equality_comparable T>
@@ -52,7 +52,7 @@ namespace vlx
 		if (!IsInserted())
 		{
 			m_quad_tree = &quad_tree;
-			m_index = m_quad_tree->Insert({ std::move(item), rect });
+			m_index = m_quad_tree->Insert({ rect, std::move(item) });
 
 			return true;
 		}

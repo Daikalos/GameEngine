@@ -36,7 +36,7 @@ namespace vlx
 		auto operator=(const Event& other) -> Event&;
 		auto operator=(Event&& other) noexcept -> Event&;
 
-		void operator()(Args... params);
+		void operator()(Args... params) const;
 
 		auto operator+=(const HandlerType& handler) -> typename HandlerType::IDType;
 		auto operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
@@ -127,7 +127,7 @@ namespace vlx
 	}
 
 	template<typename... Args>
-	inline void Event<Args...>::operator()(Args... params)
+	inline void Event<Args...>::operator()(Args... params) const
 	{
 		Call(params...);
 	}

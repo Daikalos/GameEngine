@@ -72,7 +72,7 @@ void PhysicsBody::SetVelocity(const Vector2f& velocity)
 }
 void PhysicsBody::AddVelocity(const Vector2f& velocity)
 {
-	SetVelocity(m_velocity + velocity);
+	SetVelocity(GetVelocity() + velocity);
 }
 
 void PhysicsBody::SetForce(const Vector2f& force)
@@ -81,7 +81,7 @@ void PhysicsBody::SetForce(const Vector2f& force)
 }
 void PhysicsBody::AddForce(const Vector2f& force)
 {
-	SetForce(m_force + force);
+	SetForce(GetForce() + force);
 }
 
 void PhysicsBody::SetAngularVelocity(const float angular_velocity)
@@ -90,7 +90,7 @@ void PhysicsBody::SetAngularVelocity(const float angular_velocity)
 }
 void PhysicsBody::AddAngularVelocity(const float angular_velocity)
 {
-	SetAngularVelocity(m_angular_velocity + angular_velocity);
+	SetAngularVelocity(GetAngularVelocity() + angular_velocity);
 }
 
 void PhysicsBody::SetTorque(const float torque)
@@ -99,11 +99,11 @@ void PhysicsBody::SetTorque(const float torque)
 }
 void PhysicsBody::AddTorque(const float torque)
 {
-	SetTorque(m_torque + torque);
+	SetTorque(GetTorque() + torque);
 }
 
 void PhysicsBody::ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector)
 {
-	AddVelocity(impulse * m_inv_mass);
-	AddAngularVelocity(contact_vector.Cross(impulse) * m_inv_inertia);
+	AddVelocity(impulse * GetInvMass());
+	AddAngularVelocity(contact_vector.Cross(impulse) * GetInvInertia());
 }

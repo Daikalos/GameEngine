@@ -34,5 +34,7 @@ namespace vlx
 		void Update() override;
 		void FixedUpdate() override;
 		void PostUpdate() override;
+
+	private:
 	};
 }

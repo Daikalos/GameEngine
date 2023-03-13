@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <Velox/System/Concepts.h>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
@@ -23,11 +24,11 @@ namespace vlx
 	class Binds final : public IBinds
 	{
 	public:
-		[[nodiscard]] Reg& operator[](const Bind name);
-		[[nodiscard]] const Reg& operator[](const Bind name) const;
+		NODISC Reg& operator[](const Bind name);
+		NODISC const Reg& operator[](const Bind name) const;
 
-		[[nodiscard]] Reg& At(const Bind name);
-		[[nodiscard]] const Reg& At(const Bind name) const;
+		NODISC Reg& At(const Bind name);
+		NODISC const Reg& At(const Bind name) const;
 
 		/// <summary>
 		///		Set the bind name to match to button
@@ -40,7 +41,7 @@ namespace vlx
 		void Remove(const Bind name);
 
 	public:
-		[[nodiscard]] constexpr bool GetEnabled() const noexcept;
+		NODISC constexpr bool GetEnabled() const noexcept;
 		void SetEnabled(const bool flag) noexcept;
 
 	protected:

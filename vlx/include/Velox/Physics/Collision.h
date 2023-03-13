@@ -31,7 +31,6 @@ namespace vlx
 		bool Enabled {true};
 		
 	private:
-		std::vector<CollisionObject> m_broad_collisions; // contains the objects this is currently colliding with in broad space
 		bool m_dirty {true}; // if should update the AABB in the quadtree
 
 		friend class BroadSystem;

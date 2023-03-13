@@ -22,12 +22,12 @@ namespace vlx
 		NODISC const sf::Angle&		GetRotation() const;
 
 	private:
+		mutable sf::Transform	m_transform;			// combined transform of all parents and this (global space)
+		mutable sf::Transform	m_inverse_transform;
+
 		mutable Vector2f		m_position;
 		mutable Vector2f		m_scale;
 		mutable sf::Angle		m_rotation;
-
-		mutable sf::Transform	m_transform;			// combined transform of all parents and this (global space)
-		mutable sf::Transform	m_inverse_transform;
 
 		mutable bool			m_update_position		{true};
 		mutable bool			m_update_scale			{true};

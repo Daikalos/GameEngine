@@ -9,9 +9,16 @@ namespace vlx
 {
 	class EntityAdmin;
 
-	///	Interface for components and contain events such as when it has been created, moved, or destroyed.
-	/// Downside to using interface is that inherited classes will contain a vtable pointer that occupies 8 bytes.
-	/// However, the interface is almost a must for certain concepts to function correctly, for example, scene graph.
+	/// Downside to using interface is that inherited classes will contain a vtable pointer that occupies 8 bytes. However, the interface is almost 
+	/// a must for certain concepts to function correctly, for example, scene graph, if a parent entity is suddenly destroyed, the child entities 
+	/// must have their data updated to reflect the new state. There are other way to deal with this scenario, e.g., a specialized system, etc. 
+	/// Because, after all, components is supposed to only contain data to adhere to the ECS paradigm. But I believe that this idea can be restrictive 
+	/// and prone to errors. For example, updating the position of a transform will require the matrix to be rebuilt, and if constructed like a POD, makes 
+	/// it difficult for this to be recognised. For each of these cases, a system will have to be built that notices these changes and I feel this can quickly get
+	/// out of hand. That is why I favor balancing the data-oriented design with the object-oriented design to maintain readability, maintainability, robustness, etc. 
+	/// I believe that performance will not be impacted too much either from this choice. 
+
+	///	Interface for components and contain events such as when it has been created, copied, or destroyed.
 	///
 	class VELOX_API IComponent
 	{

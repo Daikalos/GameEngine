@@ -22,19 +22,21 @@ namespace vlx
 	public:
 		using value_type = T;
 
+		static constexpr int CHILD_COUNT = 4;
+
 	public:
 		struct Element
-		{
-			T item;					
+		{		
 			RectFloat rect;			// rectangle encompassing the item
+			T item;
 		};
 
 	private:
 		struct Node
 		{
-			int first_child	{-1};	// first sub-branch or first element index
+			RectFloat rect;			// loose rect
+			int first_child	{-1};	// points to first sub-branch or first element index
 			int count		{0};	// -1 for branch or it's a leaf and count means number of elements
-			RectFloat rect;			// loose Box
 		};
 
 		struct ElementPtr
@@ -43,44 +45,81 @@ namespace vlx
 			int next	{-1};		// points to next elt ptr, or -1 means end of items
 		};
 
-		static constexpr int CHILD_COUNT = 4;
+	public:
+		LQuadTree(const RectFloat& root_rect, int max_elements = 8, int max_depth = 8);
 
 	public:
-		LQuadTree(const RectFloat& root_rect, int max_elements = 4, int max_depth = 8);
-
-	public:
+		/// Inserts given element into the quadtree.
+		/// 
+		/// \param Element: Element to insert containing the item and bounding rectangle.
+		/// 
+		/// \returns Index to element, can be used to directly access it when, e.g., erasing it from the tree.
+		/// 
 		int Insert(const Element& element);
 
+		/// Attempts to erase element from tree.
+		/// 
+		/// \param EltIdx: Index to element to erase.
+		/// 
+		/// \returns True if it successfully removed the element, otherwise false.
+		/// 
 		bool Erase(const int elt_idx);
+
+		/// Attempts to erase element from tree.
+		/// 
+		/// \param Element: Equivalent element to erase.
+		/// 
+		/// \returns True if it successfully removed the element, otherwise false.
+		/// 
 		bool Erase(const Element& element);
 
-		bool Update(const int element, const T& new_item);
+		/// Updates the given element with new data.
+		/// 
+		bool Update(const int idx, const T& new_item);
 
+		/// Queries the tree for elements.
+		/// 
+		/// \param Rect: Bounding rectangle where all the elements are contained.
+		/// 
+		/// \returns List of entities contained within the bounding rectangle.
+		/// 
 		NODISC auto Query(const RectFloat& rect) const -> std::vector<Element>;
+
+		/// Queries the tree for elements.
+		/// 
+		/// \param Point: Point to search for overlapping elements.
+		/// 
+		/// \returns List of entities contained at the point.
+		/// 
 		NODISC auto Query(const Vector2f& point) const-> std::vector<Element>;
 
+		/// Performs a cleanup of the tree, usually has to be called after erase.
+		/// 
 		void Cleanup();
-		void Clear();	// performs a complete cleanup
+
+		/// Completely clears the tree
+		/// 
+		void Clear();
 
 	private:
-		void SplitLeaf(Node& node);
 		void EltInsert(const Vector2f& elt_center, const int ptr_idx);
+
+		void SplitLeaf(Node& node);
 
 		int FindLeaf(const Vector2f& point) const;
 
 		void UpdateRect(Node& node, const RectFloat& elt_rect);
 
 	private:
+		FreeVector<Element>		m_elements;		// all the elements
+		FreeVector<ElementPtr>	m_elements_ptr;	// all the element ptrs
+		std::vector<Node>		m_nodes;
+
 		RectFloat m_root_rect;
 
 		int m_free_node		{-1};
 		int m_max_elements	{16}; // max elements before subdivision
 		int	m_max_depth		{8};  // max depth before no more leaves will be created
-		int m_divisions		{0};
-
-		FreeVector<Element>		m_elements;		// all the elements
-		FreeVector<ElementPtr>	m_elements_ptr;	// all the element ptrs
-		std::vector<Node>		m_nodes;
 
 		mutable std::shared_mutex m_mutex;
 	};
@@ -106,6 +145,7 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline bool LQuadTree<T>::Erase(const int elt_idx)
 	{
+		assert(m_elements.valid(elt_idx));
 		return Erase(m_elements[elt_idx]);
 	}
 
@@ -117,13 +157,10 @@ namespace vlx
 		int leaf_node_index = FindLeaf(element.rect.Center());
 		Node& node = m_nodes[leaf_node_index];
 
-		assert(node.count != -1);
+		assert(node.count != -1); // we should have reached a leaf
 
 		if (node.count == 0)
-		{
-			int test = FindLeaf(element.rect.Center());
 			return false;
-		}
 
 		int* cur = &node.first_child;
 		while (*cur != -1) // search through all elements
@@ -140,6 +177,8 @@ namespace vlx
 
 				--node.count;
 
+				assert(node.count >= 0);
+
 				// Cleanup will possibly have to be called after this to work on corrected data
 
 				return true;
@@ -148,20 +187,18 @@ namespace vlx
 			cur = &m_elements_ptr[*cur].next;
 		}
 
-		int test = FindLeaf(element.rect.Center());
-
 		return false;
 	}
 
 	template<std::equality_comparable T>
-	inline bool LQuadTree<T>::Update(const int element, const T& new_item)
+	inline bool LQuadTree<T>::Update(const int idx, const T& new_item)
 	{
 		std::unique_lock lock(m_mutex);
 
-		if (!m_elements.valid(element))
+		if (idx >= m_elements.size() || !m_elements.valid(idx))
 			return false;
 
-		m_elements[element].item = new_item;
+		m_elements[idx].item = new_item;
 
 		return true;
 	}
@@ -173,7 +210,7 @@ namespace vlx
 
 		std::vector<Element> result{};
 
-		SmallVector<int, 128> to_process;
+		SmallVector<int, 64> to_process;
 		to_process.push_back(0); // push root
 
 		while (!to_process.empty())
@@ -189,8 +226,8 @@ namespace vlx
 				int child = node.first_child;
 				while (child != -1) // iterate over all children
 				{
-					const ElementPtr& elt_ptr = m_elements_ptr[child];
-					const Element& elt = m_elements[elt_ptr.elt_idx];
+					const auto& elt_ptr = m_elements_ptr[child];
+					const auto& elt		= m_elements[elt_ptr.elt_idx];
 
 					if (elt.rect.Overlaps(rect))
 						result.push_back(elt);
@@ -215,7 +252,7 @@ namespace vlx
 
 		std::vector<Element> result{};
 
-		SmallVector<int, 128> to_process;
+		SmallVector<int> to_process;
 		to_process.push_back(0); // push root
 
 		while (!to_process.empty())
@@ -231,8 +268,8 @@ namespace vlx
 				int child = node.first_child;
 				while (child != -1) // iterate over all children
 				{
-					const ElementPtr& elt_ptr = m_elements_ptr[child];
-					const Element& elt = m_elements[elt_ptr.element];
+					const auto& elt_ptr = m_elements_ptr[child];
+					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Contains(point))
 						result.emplace_back(elt);
@@ -255,7 +292,7 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
-		std::vector<int> to_process;
+		SmallVector<int> to_process;
 		to_process.push_back(0); // push root
 
 		std::vector<RectFloat*> rects;
@@ -295,7 +332,7 @@ namespace vlx
 
 				if (init) // this node is not empty
 				{
-					node.count = -1;
+					node.count = -1; // set to branch
 					rects.push_back(&node.rect); // push this node rect
 				}
 				else // empty, reset
@@ -369,8 +406,6 @@ namespace vlx
 			node.first_child = static_cast<int>(m_nodes.size());
 			for (int i = 0; i < CHILD_COUNT; ++i)
 				m_nodes.emplace_back();
-
-			++m_divisions;
 		}
 	}
 
@@ -380,7 +415,7 @@ namespace vlx
 		struct ElementReg // elements to process
 		{
 			Vector2f point;
-			int idx	{0};
+			int idx		{0};
 		};
 
 		struct NodeReg // nodes to process
@@ -390,24 +425,22 @@ namespace vlx
 			int depth	{0};
 		};
 
-		std::vector<ElementReg> to_process;
-		std::vector<NodeReg> to_insert;
+		std::vector<ElementReg> elements;
+		std::vector<NodeReg> nodes;
 
-		to_process.emplace_back(elt_center, ptr_idx);
-		to_insert.emplace_back(m_root_rect, 0, 1);
+		elements.emplace_back(elt_center, ptr_idx);
+		nodes.emplace_back(m_root_rect, 0, 1);
 
-		while (!to_process.empty() && !to_insert.empty())
+		while (!elements.empty() && !nodes.empty())
 		{
-			const ElementReg& elt_reg = to_process.back();
-			const NodeReg& node_reg = to_insert.back();
+			const ElementReg& elt_reg = elements.back();
+			const NodeReg& node_reg = nodes.back();
 
 			Node& node = m_nodes[node_reg.idx];
 			if (node_reg.rect.Contains(elt_reg.point))
 			{
 				if (node.count == -1) // traverse branch
 				{
-					UpdateRect(m_nodes[node_reg.idx], m_elements[m_elements_ptr[elt_reg.idx].elt_idx].rect);
-
 					Vector2f center = node_reg.rect.Center();
 					Vector2f half_extends = { node_reg.rect.width / 2.0f, node_reg.rect.height / 2.0f };
 
@@ -415,12 +448,12 @@ namespace vlx
 					{
 						if (elt_reg.point.y >= center.y)
 						{
-							to_insert.emplace_back(RectFloat(center.x, center.y, 
+							nodes.emplace_back(RectFloat(center.x, center.y,
 								half_extends.x, half_extends.y), node.first_child + 3, node_reg.depth + 1);
 						}
 						else
 						{
-							to_insert.emplace_back(RectFloat(center.x, center.y - half_extends.y, 
+							nodes.emplace_back(RectFloat(center.x, center.y - half_extends.y,
 								half_extends.x, half_extends.y), node.first_child + 2, node_reg.depth + 1);
 						}
 					}
@@ -428,12 +461,12 @@ namespace vlx
 					{
 						if (elt_reg.point.y >= center.y)
 						{
-							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y, 
+							nodes.emplace_back(RectFloat(center.x - half_extends.x, center.y,
 								half_extends.x, half_extends.y), node.first_child + 1, node_reg.depth + 1);
 						}
 						else
 						{
-							to_insert.emplace_back(RectFloat(center.x - half_extends.x, center.y - half_extends.y, 
+							nodes.emplace_back(RectFloat(center.x - half_extends.x, center.y - half_extends.y,
 								half_extends.x, half_extends.y), node.first_child + 0, node_reg.depth + 1);
 						}
 					}
@@ -447,14 +480,16 @@ namespace vlx
 
 					UpdateRect(m_nodes[node_reg.idx], m_elements[m_elements_ptr[elt_reg.idx].elt_idx].rect);
 
-					to_process.pop_back();
+					elements.pop_back();
 				}
 				else // otherwise, make space by splitting leaf and reinserting current elements
 				{
+					assert(node_reg.depth < m_max_depth); // we should only ever split leaf if above depth
+
 					int child = node.first_child;
 					while (child != -1)
 					{
-						to_process.emplace_back(m_elements[m_elements_ptr[child].elt_idx].rect.Center(), child);
+						elements.emplace_back(m_elements[m_elements_ptr[child].elt_idx].rect.Center(), child);
 						child = m_elements_ptr[child].next;
 					}
 
@@ -463,7 +498,7 @@ namespace vlx
 			}
 			else
 			{
-				to_insert.pop_back();
+				nodes.pop_back();
 			}
 		}
 	}

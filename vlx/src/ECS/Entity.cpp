@@ -22,7 +22,7 @@ Entity::Entity(Entity&& entity) noexcept
 
 Entity::~Entity()
 {
-	if (m_id != NULL_ENTITY && m_entity_admin)
+	if (m_id != NULL_ENTITY && m_entity_admin) // TODO: do we really want to call remove entity when on shutdown? EntityAdmin will destroy all components anyways
 		m_entity_admin->RemoveEntity(m_id);
 }
 

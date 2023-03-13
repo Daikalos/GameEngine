@@ -9,6 +9,8 @@
 
 namespace vlx
 {
+	/// Essentially just a wrapper around an entity id
+	/// 
 	class Entity
 	{
 	public:
