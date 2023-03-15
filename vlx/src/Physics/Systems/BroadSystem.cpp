@@ -121,14 +121,16 @@ void BroadSystem::PostUpdate()
 
 void BroadSystem::InsertShape(const EntityID entity_id, Shape* s, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t)
 {
-	c->Update(CollisionObject(s, c, pb, lt, t)); // attempt to update data if already inserted, needed for cases where pointers may be modified
-
 	if (c->dirty)
 	{
 		c->Erase();
 		c->Insert(m_quad_tree, s->GetAABB(*t), CollisionObject(s, c, pb, lt, t));
 
 		c->dirty = false;
+	}
+	else
+	{
+		c->Update(CollisionObject(s, c, pb, lt, t)); // attempt to update data if already inserted, needed for cases where pointers may be modified
 	}
 }
 
