@@ -27,7 +27,12 @@ namespace vlx
 		bool IsInserted() const noexcept;
 
 	protected:
-		bool Insert(LQuadTree<T>& quad_tree, T&& item, const RectFloat& rect);
+		template<typename... Args> requires std::constructible_from<T, Args...>
+		bool Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args);
+
+		template<typename... Args> requires std::constructible_from<T, Args...>
+		bool Update(Args&&... args);
+
 		bool Erase();
 
 	protected:
@@ -47,15 +52,31 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, T&& item, const RectFloat& rect)
+	template<typename... Args> requires std::constructible_from<T, Args...>
+	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args)
 	{
 		if (!IsInserted())
 		{
 			m_quad_tree = &quad_tree;
-			m_index = m_quad_tree->Insert({ rect, std::move(item) });
+			m_index = m_quad_tree->Insert(rect, std::forward<Args>(args)...);
 
 			return true;
 		}
+		return false;
+	}
+
+	template<std::equality_comparable T>
+	template<typename... Args> requires std::constructible_from<T, Args...>
+	inline bool QTElement<T>::Update(Args&&... args)
+	{
+		if (IsInserted())
+		{
+			bool result = m_quad_tree->Update(m_index, std::forward<Args>(args)...); 
+			assert(result); // make sure it succeeded
+
+			return true;
+		}
+
 		return false;
 	}
 
@@ -65,7 +86,7 @@ namespace vlx
 		if (IsInserted())
 		{
 			bool result = m_quad_tree->Erase(m_index);
-			assert(result); // make sure that it succeeded
+			assert(result); // make sure it succeeded
 
 			m_quad_tree = nullptr;
 			m_index = -1;

@@ -13,8 +13,7 @@
 
 namespace vlx
 {
-	///	ComponentSet is used to prevent having to write many 
-	/// ComponentRef to access the components of an object.
+	///	ComponentSet is used to prevent having to write many ComponentRef to access the components of an object.
 	/// 
 	template<class... Cs> requires IsComponents<Cs...>
 	class ComponentSet final
@@ -28,6 +27,9 @@ namespace vlx
 
 	public:
 		ComponentSet(ComponentRef<Cs>&&... refs);
+
+		constexpr bool operator==(const ComponentSet& other) const;
+		constexpr bool operator!=(const ComponentSet& other) const;
 
 	public:
 		template<std::size_t N>
@@ -49,6 +51,18 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline ComponentSet<Cs...>::ComponentSet(ComponentRef<Cs>&&... refs)
 		: m_components{ std::forward<ComponentRef<Cs>>(refs).m_component... } { }
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline constexpr bool ComponentSet<Cs...>::operator==(const ComponentSet& other) const
+	{
+		return m_components == other.m_components;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline constexpr bool ComponentSet<Cs...>::operator!=(const ComponentSet& other) const
+	{
+		return !(*this == other);
+	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	template<std::size_t N>

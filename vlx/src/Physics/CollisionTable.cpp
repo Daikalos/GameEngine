@@ -30,11 +30,11 @@ CollisionTable::Matrix CollisionTable::table =
 
 void CollisionTable::Collide(CollisionData& collision, CollisionObject& a, CollisionObject& b)
 {
-	Shape& s1 = *a.Shape;
-	Shape& s2 = *b.Shape;
+	Shape& s1 = *a.shape;
+	Shape& s2 = *b.shape;
 
-	Transform& t1 = *a.Transform;
-	Transform& t2 = *b.Transform;
+	Transform& t1 = *a.transform;
+	Transform& t2 = *b.transform;
 
 	const std::uint32_t ci = s2.GetType() + s1.GetType() * Shape::Type::Count;
 

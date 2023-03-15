@@ -4,22 +4,29 @@ namespace vlx
 {
 	class Shape;
 	class Collision;
+	class PhysicsBody;
 	class LocalTransform;
 	class Transform;
 
-	/// Contains the necessary data to represent an object for collision
+	/// Contains the data that represents an object for collision
 	/// 
 	class CollisionObject
 	{
 	public:
-		Shape*			Shape			{nullptr};
-		Collision*		Collision		{nullptr};
-		LocalTransform* LocalTransform	{nullptr};
-		Transform*		Transform		{nullptr};
+		Shape*			shape			{nullptr};
+		Collision*		collision		{nullptr};
+		PhysicsBody*	body			{nullptr};
+		LocalTransform* local_transform	{nullptr};
+		Transform*		transform		{nullptr};
 
 		constexpr bool operator==(const CollisionObject& rhs) const
 		{
-			return Shape == rhs.Shape && Collision == rhs.Collision && LocalTransform == rhs.LocalTransform && Transform == rhs.Transform;
+			return 
+				shape			== rhs.shape && 
+				collision		== rhs.collision && 
+				body			== rhs.body && 
+				local_transform == rhs.local_transform && 
+				transform		== rhs.transform;
 		}
 	};
 }

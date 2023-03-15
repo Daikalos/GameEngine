@@ -2,8 +2,8 @@
 
 using namespace vlx;
 
-NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemAction(entity_admin, id)
+NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, PhysicsSystem& physics_system)
+	: SystemAction(entity_admin, id), m_physics_system(&physics_system)
 {
 
 }
@@ -25,7 +25,7 @@ void NarrowSystem::Update()
 
 void NarrowSystem::FixedUpdate()
 {
-
+	Execute();
 }
 
 void NarrowSystem::PostUpdate()

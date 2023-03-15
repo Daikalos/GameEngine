@@ -41,7 +41,7 @@ namespace vlx
 
 		struct ElementPtr
 		{
-			int elt_idx {-1};		// points to item in elements
+			int elt_idx {-1};		// points to item in elements, not sure if even needed, seems to always be aligned anyways
 			int next	{-1};		// points to next elt ptr, or -1 means end of items
 		};
 
@@ -55,27 +55,29 @@ namespace vlx
 		/// 
 		/// \returns Index to element, can be used to directly access it when, e.g., erasing it from the tree.
 		/// 
-		int Insert(const Element& element);
+		template<typename... Args> requires std::constructible_from<T, Args...>
+		int Insert(const RectFloat& rect, Args&&... args);
 
 		/// Attempts to erase element from tree.
 		/// 
 		/// \param EltIdx: Index to element to erase.
 		/// 
-		/// \returns True if it successfully removed the element, otherwise false.
+		/// \returns True if successfully removed the element, otherwise false.
 		/// 
 		bool Erase(const int elt_idx);
 
 		/// Attempts to erase element from tree.
 		/// 
-		/// \param Element: Equivalent element to erase.
+		/// \param Element: Element to erase.
 		/// 
-		/// \returns True if it successfully removed the element, otherwise false.
+		/// \returns True if successfully removed the element, otherwise false.
 		/// 
 		bool Erase(const Element& element);
 
 		/// Updates the given element with new data.
 		/// 
-		bool Update(const int idx, const T& new_item);
+		template<typename... Args> requires std::constructible_from<T, Args...>
+		bool Update(const int idx, Args&&... args);
 
 		/// Queries the tree for elements.
 		/// 
@@ -93,7 +95,7 @@ namespace vlx
 		/// 
 		NODISC auto Query(const Vector2f& point) const-> std::vector<Element>;
 
-		/// Performs a cleanup of the tree, usually has to be called after erase.
+		/// Performs a cleanup of the tree; can only be called if erase has been used.
 		/// 
 		void Cleanup();
 
@@ -117,9 +119,10 @@ namespace vlx
 
 		RectFloat m_root_rect;
 
-		int m_free_node		{-1};
-		int m_max_elements	{16}; // max elements before subdivision
-		int	m_max_depth		{8};  // max depth before no more leaves will be created
+		int		m_free_node			{-1};
+		int		m_max_elements		{16}; // max elements before subdivision
+		int		m_max_depth			{8};  // max depth before no more leaves will be created
+		bool	m_cleanup_required	{false}; 
 
 		mutable std::shared_mutex m_mutex;
 	};
@@ -132,12 +135,13 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline int LQuadTree<T>::Insert(const Element& element)
+	template<typename... Args> requires std::constructible_from<T, Args...>
+	inline int LQuadTree<T>::Insert(const RectFloat& rect, Args&&... args)
 	{
 		std::unique_lock lock(m_mutex);
 
-		const auto idx = m_elements.emplace(element);
-		EltInsert(element.rect.Center(), m_elements_ptr.emplace(idx));
+		const auto idx = m_elements.emplace(rect, std::forward<Args>(args)...);
+		EltInsert(rect.Center(), m_elements_ptr.emplace(idx));
 
 		return idx;
 	}
@@ -145,8 +149,44 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline bool LQuadTree<T>::Erase(const int elt_idx)
 	{
+		std::unique_lock lock(m_mutex);
+
 		assert(m_elements.valid(elt_idx));
-		return Erase(m_elements[elt_idx]);
+		const auto& element = m_elements[elt_idx];
+
+		int leaf_node_index = FindLeaf(element.rect.Center());
+		Node& node = m_nodes[leaf_node_index];
+
+		assert(node.count != -1); // we should have reached a leaf
+
+		if (node.count == 0)
+			return false;
+
+		int* cur = &node.first_child, i = 0;
+		while (*cur != -1) // search through all elements
+		{
+			i = *cur;
+
+			if (elt_idx == m_elements_ptr[i].elt_idx)
+			{
+				*cur = m_elements_ptr[i].next;
+
+				m_elements.erase(m_elements_ptr[i].elt_idx);
+				m_elements_ptr.erase(i);
+
+				--node.count;
+
+				assert(node.count >= 0);
+
+				// Cleanup will possibly have to be called after this to work on corrected data
+
+				return true;
+			}
+
+			cur = &m_elements_ptr[i].next;
+		}
+
+		return false;
 	}
 
 	template<std::equality_comparable T>
@@ -162,18 +202,18 @@ namespace vlx
 		if (node.count == 0)
 			return false;
 
-		int* cur = &node.first_child;
+		int* cur = &node.first_child, i = 0;
 		while (*cur != -1) // search through all elements
 		{
-			Element& elt = m_elements[m_elements_ptr[*cur].elt_idx];
+			i = *cur;
 
+			Element& elt = m_elements[m_elements_ptr[i].elt_idx];
 			if (elt.item == element.item)
 			{
-				const int temp = *cur;
-				*cur = m_elements_ptr[*cur].next;
+				*cur = m_elements_ptr[i].next;
 
-				m_elements.erase(m_elements_ptr[temp].elt_idx);
-				m_elements_ptr.erase(temp);
+				m_elements.erase(m_elements_ptr[i].elt_idx);
+				m_elements_ptr.erase(i);
 
 				--node.count;
 
@@ -184,21 +224,22 @@ namespace vlx
 				return true;
 			}
 
-			cur = &m_elements_ptr[*cur].next;
+			cur = &m_elements_ptr[i].next;
 		}
 
 		return false;
 	}
 
 	template<std::equality_comparable T>
-	inline bool LQuadTree<T>::Update(const int idx, const T& new_item)
+	template<typename... Args> requires std::constructible_from<T, Args...>
+	inline bool LQuadTree<T>::Update(const int idx, Args&&... args)
 	{
 		std::unique_lock lock(m_mutex);
 
 		if (idx >= m_elements.size() || !m_elements.valid(idx))
 			return false;
 
-		m_elements[idx].item = new_item;
+		m_elements[idx].item = T(std::forward<Args>(args)...);
 
 		return true;
 	}
@@ -269,7 +310,7 @@ namespace vlx
 				while (child != -1) // iterate over all children
 				{
 					const auto& elt_ptr = m_elements_ptr[child];
-					const auto& elt		= m_elements[elt_ptr.element];
+					const auto& elt		= m_elements[elt_ptr.elt_idx];
 
 					if (elt.rect.Contains(point))
 						result.emplace_back(elt);
@@ -292,6 +333,9 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
+		if (!m_cleanup_required)
+			return;
+
 		SmallVector<int> to_process;
 		to_process.push_back(0); // push root
 
@@ -299,8 +343,7 @@ namespace vlx
 
 		while (!to_process.empty())
 		{
-			const int node_index = to_process.back();
-			Node& node = m_nodes[node_index];
+			Node& node = m_nodes[to_process.back()];
 
 			if (node.count == -1) // branch with elements that need to be processed
 			{

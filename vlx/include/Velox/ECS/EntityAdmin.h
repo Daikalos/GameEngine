@@ -812,7 +812,7 @@ namespace vlx
 		if (cit == component_refs.end() || ((cit->second.flag & RefFlag::Component) == RefFlag::Component && cit->second.component_ptr.expired())) // it does not yet exist or has expired
 		{
 			if (component == nullptr)
-				component = &GetComponent<C>(entity_id);
+				component = TryGetComponent<C>(entity_id).value_or(nullptr);
 
 			auto ptr = std::make_shared<IComponent*>(component);
 
@@ -844,7 +844,7 @@ namespace vlx
 		if (cit == component_refs.end() || ((cit->second.flag & RefFlag::Base) == RefFlag::Base && cit->second.base.ptr.expired())) // it does not yet exist, create new one
 		{
 			if (base == nullptr)
-				base = &GetBase<B>(entity_id, child_component_id, offset);
+				base = TryGetBase<B>(entity_id, child_component_id, offset).value_or(nullptr);
 
 			auto ptr = std::make_shared<void*>(static_cast<void*>(base));
 
@@ -913,7 +913,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline ComponentSet<Cs...> EntityAdmin::GetComponentsRef(const EntityID entity_id) const
 	{
-		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id, &GetComponent<Cs>(entity_id))...);
+		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id)...);
 	}
 
 	template<class... Cs, class Comp> requires IsComponents<Cs...>

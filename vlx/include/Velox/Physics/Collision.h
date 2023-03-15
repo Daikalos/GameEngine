@@ -15,25 +15,20 @@ namespace vlx
 	class Collision : public QTCollision
 	{
 	public:
-		void Moved(const EntityAdmin& entity_admin, const EntityID entity_id) override
-		{
-			// since the collision object stores pointers to components,
-			// they would need to be updated if their data location is updated
-			m_dirty = true;
-		}
-
-	public:
 		Event<CollisionResult> OnEnter;		// common events for collisions
 		Event<CollisionResult> OnExit;
 		Event<CollisionResult> OnOverlap;
 
-		CollisionLayer Layer;
-		bool Enabled {true};
-		
+	public:
+		CollisionLayer	layer;
+		bool			enabled		{true};
+
 	private:
-		bool m_dirty {true}; // if should update the AABB in the quadtree
+		bool colliding	{false};
+		bool dirty		{true}; // if should update the AABB in the quadtree
 
 		friend class BroadSystem;
 		friend class NarrowSystem;
+		friend class PhysicsSystem;
 	};
 }

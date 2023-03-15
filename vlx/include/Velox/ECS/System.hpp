@@ -49,17 +49,37 @@ namespace vlx
 	public:
 		using AllFunc = std::function<void(std::span<const EntityID>, Cs*...)>;
 		using EachFunc = std::function<void(EntityID, Cs&...)>;
-
 		using ComponentTypes = std::tuple<Cs...>;
 
-		using ArchetypeCache = std::unordered_set<ArchetypeID>;
-
-	public:
-		static constexpr ArrComponentIDs<Cs...> SystemIDs = 
+		static constexpr ArrComponentIDs<Cs...> SystemIDs =
 			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()... }); // another stupid intellisense error
 
 		static constexpr ArchetypeID SystemID =
 			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
+
+	private:
+		struct ArchetypeExclusion
+		{
+			ArchetypeExclusion(ArchetypeID id) : id(id) {};
+
+			ArchetypeID id;
+			bool excluded {false};
+
+			constexpr bool operator==(const ArchetypeExclusion& ae) const
+			{
+				return id == ae.id;
+			}
+		};
+
+		struct HashAE
+		{
+			constexpr std::size_t operator()(const ArchetypeExclusion& ae) const
+			{
+				return ae.id; // might as well just return id, as it will always be unique *I hope*
+			}
+		};
+
+		using ArchetypeCache = std::unordered_set<ArchetypeExclusion, HashAE>;
 
 	public:
 		System() = default;
@@ -272,17 +292,24 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	bool System<Cs...>::IsArchetypeExcluded(const Archetype* archetype) const
 	{
-		if (const auto ait = m_excluded_archetypes.find(archetype->id); ait != m_excluded_archetypes.end())
-			return true;
+		const auto ait = m_excluded_archetypes.find(archetype->id);
+		if (ait != m_excluded_archetypes.end())
+			return ait->excluded;
 
+		bool excluded = false;
 		for (const ComponentTypeID component_id : m_exclusion)
 		{
 			const auto it = cu::FindSorted(archetype->type, component_id);
 			if (it != archetype->type.end() && *it == component_id) // if contains excluded component
-				return m_excluded_archetypes.insert(archetype->id).second;
+			{
+				excluded = true;
+				break;
+			}
 		}
 
-		return false;
+		m_excluded_archetypes.insert({ archetype->id, excluded });
+
+		return excluded;
 	}
 }
 
