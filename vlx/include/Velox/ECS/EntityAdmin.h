@@ -390,7 +390,6 @@ namespace vlx
 		template<IsComponent C>
 		void UpdateComponentRef(const EntityID entity_id, C* new_component) const;
 
-
 	public:
 		VELOX_API NODISC EntityID GetNewEntityID();
 
@@ -411,6 +410,9 @@ namespace vlx
 
 		VELOX_API void AddComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
 		VELOX_API bool RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
+
+		VELOX_API NODISC bool HasShutdown() const;
+		VELOX_API void Shutdown();
 
 	public:
 		///	Returns a duplicated entity with the same properties as the specified one
@@ -456,6 +458,7 @@ namespace vlx
 		mutable ArchetypeCache			m_archetype_cache;
 		mutable EntityComponentRefMap	m_entity_component_ref_map;
 
+		bool m_shutdown {false};
 	};
 }
 

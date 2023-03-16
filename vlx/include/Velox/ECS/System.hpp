@@ -7,6 +7,7 @@
 
 #include <Velox/Config.hpp>
 #include <Velox/System/Event.hpp>
+#include <Velox/System/IDGenerator.h>
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/Utility/ContainerUtils.h>
 
@@ -229,7 +230,7 @@ namespace vlx
 	template<class... Cs2> requires IsComponents<Cs2...>
 	inline void System<Cs1...>::Exclude()
 	{
-		m_exclusion = cu::Sort<ComponentIDs>({ ComponentAlloc<Cs2>::GetTypeID()... });
+		m_exclusion = cu::Sort<ComponentIDs>({ ComponentTypeID(id::Type<Cs2>::ID())... });
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -261,7 +262,7 @@ namespace vlx
 	inline void System<Cs...>::Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& c, Ts... cs) const
 	{
 		using ComponentType = std::tuple_element_t<Index, ComponentTypes>; // get type of component at index in system components
-		constexpr auto component_id = ComponentAlloc<ComponentType>::GetTypeID();
+		constexpr auto component_id = id::Type<ComponentType>::ID();
 
 		std::size_t i = 0;
 		ComponentTypeID archetype_comp_id = component_ids[i];

@@ -172,6 +172,7 @@ void World::ProcessEvents()
 		if (event.type == sf::Event::Closed)
 		{
 			// TODO: perform necessary cleanup
+			m_entity_admin.Shutdown();
 		}
 
 		m_controls.HandleEventAll(event);

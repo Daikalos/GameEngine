@@ -331,6 +331,16 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 	return true;
 }
 
+bool EntityAdmin::HasShutdown() const
+{
+	return m_shutdown;
+}
+
+void EntityAdmin::Shutdown()
+{
+	m_shutdown = true;
+}
+
 EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 {
 	const auto eit = m_entity_archetype_map.find(entity_id);
