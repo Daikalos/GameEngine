@@ -366,6 +366,21 @@ namespace vlx
 		void Reserve(const std::size_t component_count);
 
 	public:
+		///	Returns a duplicated entity with the same properties as the specified one
+		/// 
+		/// \param EntityID: entity id of the one to copy the components from
+		/// 
+		/// \returns ID of the newly created entity containing the copied components
+		///
+		VELOX_API NODISC EntityID Duplicate(const EntityID entity_id);
+
+		///	Shrinks the ECS by removing all the empty archetypes.
+		/// 
+		/// \param Extensive: Perform a complete shrink of the ECS by removing all the extra data space.
+		/// 
+		VELOX_API void Shrink(bool extensive = false);
+
+	public:
 		template<IsContainer T>
 		NODISC std::vector<EntityID> GetEntitiesWith(const T& component_ids, const ArchetypeID archetype_id, bool restricted = false) const;
 
@@ -413,21 +428,6 @@ namespace vlx
 
 		VELOX_API NODISC bool HasShutdown() const;
 		VELOX_API void Shutdown();
-
-	public:
-		///	Returns a duplicated entity with the same properties as the specified one
-		/// 
-		/// \param EntityID: entity id of the one to copy the components from
-		/// 
-		/// \returns ID of the newly created entity containing the copied components
-		///
-		VELOX_API NODISC EntityID Duplicate(const EntityID entity_id);
-
-		///	Shrinks the ECS by removing all the empty archetypes.
-		/// 
-		/// \param Extensive: Perform a complete shrink of the ECS by removing all the extra data space.
-		/// 
-		VELOX_API void Shrink(bool extensive = false);
 
 	private:
 		VELOX_API void EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const;

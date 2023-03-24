@@ -6,8 +6,8 @@ int main()
 {
 	std::string application_name = "Velox";
 
-		vlx::Application application(application_name);
-		application.Run();
+	vlx::Application application(application_name);
+	application.Run();
 
 	return EXIT_SUCCESS;
 }

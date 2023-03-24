@@ -18,7 +18,7 @@
 #include "../Collision.h"
 #include "../PhysicsBody.h"
 
-#include "PhysicsSystem.h"
+#include "BroadSystem.h"
 
 namespace vlx
 {
@@ -28,7 +28,7 @@ namespace vlx
 		using CollisionSystem = System<Collision, LocalTransform, Transform>;
 
 	public:
-		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, PhysicsSystem& physics_system);
+		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 	public:
 		NODISC constexpr bool IsRequired() const noexcept override;
@@ -40,6 +40,16 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		PhysicsSystem* m_physics_system {nullptr};
+		void CallEvents(const CollisionData& data, const CollisionObject& object);
+
+	private:
+		BroadSystem* m_broad_system{nullptr};
+
+		std::vector<CollisionData> m_collision_data;
+
+		System<PhysicsBody> m_initialize_collisions;
+		System<PhysicsBody> m_exit_collisions;
+
+		friend class PhysicsSystem;
 	};
 }

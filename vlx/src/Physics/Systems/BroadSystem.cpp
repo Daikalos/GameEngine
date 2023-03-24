@@ -2,10 +2,9 @@
 
 using namespace vlx;
 
-BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id, PhysicsSystem& physics_system)
+BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id), 
 
-	m_physics_system(		&physics_system),
 	m_quad_tree(			{ -4096, -4096, 4096 * 2, 4096 * 2 }), 
 
 	m_dirty_transform(		*m_entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
@@ -41,47 +40,47 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id, PhysicsS
 		m_quad_tree.Cleanup();
 	};
 
-	m_circles_ins.Each([this](const EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
+	m_circles_ins.Each([this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id, &s, &c, nullptr, &lt, &t);
 		});
 
-	m_circles_body_ins.Each([this](const EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_circles_body_ins.Each([this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id, &s, &c, &pb, &lt, &t);
 		});
 
-	m_boxes_ins.Each([this](const EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
+	m_boxes_ins.Each([this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id , &b, &c, nullptr, &lt, &t);
 		});
 
-	m_boxes_body_ins.Each([this](const EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_boxes_body_ins.Each([this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id, &b, &c, &pb, &lt, &t);
 		});
 
-	m_circles_query.Each([this](const EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
+	m_circles_query.Each([this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
 		{
-			QueryShape(&s, &c, nullptr, &lt, &t);
+			QueryShape(entity_id, &s, &c, nullptr, &lt, &t);
 		});
 
-	m_circles_body_query.Each([this](const EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_circles_body_query.Each([this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
-			QueryShape(&s, &c, &pb, &lt, &t);
+			QueryShape(entity_id, &s, &c, &pb, &lt, &t);
 		});
 
-	m_boxes_query.Each([this](const EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
+	m_boxes_query.Each([this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
 		{
-			QueryShape(&b, &c, nullptr, &lt, &t);
+			QueryShape(entity_id, &b, &c, nullptr, &lt, &t);
 		});
 
-	m_boxes_body_query.Each([this](const EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_boxes_body_query.Each([this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
-			QueryShape(&b, &c, &pb, &lt, &t);
+			QueryShape(entity_id, &b, &c, &pb, &lt, &t);
 		});
 
-	m_dirty_transform.SetPriority(90000.0f);
+	m_dirty_transform.SetPriority(99999.0f);
 
 	m_circles_ins.Exclude<PhysicsBody>();
 	m_boxes_ins.Exclude<PhysicsBody>();
@@ -119,22 +118,22 @@ void BroadSystem::PostUpdate()
 
 }
 
-void BroadSystem::InsertShape(const EntityID entity_id, Shape* s, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t)
+void BroadSystem::InsertShape(EntityID entity_id, Shape* s, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t)
 {
 	if (c->dirty)
 	{
 		c->Erase();
-		c->Insert(m_quad_tree, s->GetAABB(*t), CollisionObject(s, c, pb, lt, t));
+		c->Insert(m_quad_tree, s->GetAABB(*t), entity_id, s, c, pb, lt, t);
 
 		c->dirty = false;
 	}
 	else
 	{
-		c->Update(CollisionObject(s, c, pb, lt, t)); // attempt to update data if already inserted, needed for cases where pointers may be modified
+		c->Update(entity_id, s, c, pb, lt, t); // attempt to update data if already inserted, needed for cases where pointers may be modified
 	}
 }
 
-void BroadSystem::QueryShape(Shape* s, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t)
+void BroadSystem::QueryShape(EntityID entity_id, Shape* s, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t)
 {
 	auto collisions = m_quad_tree.Query(s->GetAABB(*t));
 
@@ -146,7 +145,7 @@ void BroadSystem::QueryShape(Shape* s, Collision* c, PhysicsBody* pb, LocalTrans
 		if (!(c->layer & collision.item.collision->layer)) // only matching layer
 			continue;
 
-		m_collision_pairs.emplace_back(CollisionObject(s, c, pb, lt, t), collision.item);
+		m_collision_pairs.emplace_back(CollisionObject(entity_id, s, c, pb, lt, t), collision.item);
 		m_collision_indices.emplace_back(static_cast<std::uint32_t>(m_collision_pairs.size() - 1));
 	}
 }
@@ -158,21 +157,41 @@ void BroadSystem::CullDuplicates()
 		{
 			const auto& clhs = m_collision_pairs[lhs], &crhs = m_collision_pairs[rhs];
 
-			if (clhs.first.shape < crhs.second.shape)
+			if (clhs.first.entity_id < crhs.first.entity_id)
 				return true;
 
-			if (clhs.first.shape == crhs.first.shape)
-				return clhs.second.shape < crhs.second.shape;
+			if (clhs.first.entity_id == crhs.first.entity_id)
+				return clhs.second.entity_id < crhs.second.entity_id;
 
 			return false;
 		});
 
-	const auto range = std::ranges::unique(m_collision_indices.begin(), m_collision_indices.end(),
+	const auto [first, last] = std::ranges::unique(m_collision_indices.begin(), m_collision_indices.end(),
 		[this](const auto lhs, const auto rhs)
 		{
-			const auto& clhs = m_collision_pairs[lhs], &crhs = m_collision_pairs[rhs];
-			return clhs.first.shape == crhs.second.shape || clhs.second.shape == crhs.first.shape;
+			const auto& clhs = m_collision_pairs[lhs], & crhs = m_collision_pairs[rhs];
+
+			return	clhs.first.entity_id == crhs.second.entity_id && 
+					clhs.second.entity_id == crhs.first.entity_id;
 		});
 
-	m_unique_collisions.assign(range.begin(), range.end());
+	m_collision_indices.erase(first, last);
+
+	//std::uint32_t i = 0;
+	//while (i < m_collision_indices.size())
+	//{
+	//	std::uint32_t i0 = m_collision_indices[i++];
+	//	m_unique_collisions.emplace_back(i0);
+
+	//	while (i < m_collision_indices.size())
+	//	{
+	//		std::uint32_t i1 = m_collision_indices[i];
+
+	//		if (m_collision_pairs[i0].first.entity_id != m_collision_pairs[i1].second.entity_id || 
+	//			m_collision_pairs[i0].second.entity_id != m_collision_pairs[i1].first.entity_id)
+	//			break;
+
+	//		++i;
+	//	}
+	//}
 }

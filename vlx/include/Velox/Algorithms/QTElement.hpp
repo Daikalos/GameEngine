@@ -35,6 +35,9 @@ namespace vlx
 
 		bool Erase();
 
+		const T& Get() const;
+		T& Get();
+
 	protected:
 		virtual void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
 		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
@@ -42,13 +45,13 @@ namespace vlx
 
 	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr};
-		int				m_index		{-1};
+		std::uint32_t	m_index		{0};
 	};
 
 	template<std::equality_comparable T>
 	inline bool QTElement<T>::IsInserted() const noexcept
 	{
-		return m_index != -1;
+		return m_quad_tree != nullptr;
 	}
 
 	template<std::equality_comparable T>
@@ -89,7 +92,7 @@ namespace vlx
 			assert(result); // make sure it succeeded
 
 			m_quad_tree = nullptr;
-			m_index = -1;
+			m_index = 0;
 
 			return true;
 		}
@@ -97,10 +100,22 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
+	inline const T& QTElement<T>::Get() const
+	{
+		assert(IsInserted());
+		return m_quad_tree->Get(m_index);
+	}
+	template<std::equality_comparable T>
+	inline T& QTElement<T>::Get()
+	{
+		assert(IsInserted());
+		return m_quad_tree->Get(m_index);
+	}
+
+	template<std::equality_comparable T>
 	inline void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		m_quad_tree = nullptr; // copied elements will need to reinserted
-		m_index = -1;
 	}
 
 	template<std::equality_comparable T>

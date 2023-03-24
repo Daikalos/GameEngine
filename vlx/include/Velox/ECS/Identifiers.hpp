@@ -10,7 +10,7 @@
 namespace vlx
 {
 	using IDType			= std::uint32_t;
-	using LayerType			= std::uint16_t;
+	using LayerType			= std::uint32_t;
 	using ColumnType		= std::uint16_t;
 
 	using ByteArray			= std::byte[];
@@ -31,14 +31,14 @@ namespace vlx
 	enum SystemLayers : LayerType
 	{
 		LYR_NONE			= 0,
-		LYR_GUI				= 30000,
-		LYR_OBJECTS			= 35000,
-		LYR_BROAD_PHASE		= 40000,
-		LYR_TRANSFORM		= 45000,
-		LYR_ANCHOR			= 50000,
-		LYR_NARROW_PHASE	= 52500,
-		LYR_PHYSICS			= 55000,
-		LYR_CULLING			= 59999,
-		LYR_RENDERING		= 60000
+		LYR_GUI				= 300000,
+		LYR_OBJECTS			= 350000,
+		LYR_ANCHOR			= 400000,
+		LYR_TRANSFORM		= 450000,
+		LYR_BROAD_PHASE		= 500000,
+		LYR_NARROW_PHASE	= 525000,
+		LYR_PHYSICS			= 550000,
+		LYR_CULLING			= 599999,
+		LYR_RENDERING		= 600000
 	};
 }

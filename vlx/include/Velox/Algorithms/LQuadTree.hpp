@@ -20,7 +20,8 @@ namespace vlx
 	class LQuadTree
 	{
 	public:
-		using value_type = T;
+		using element_type = T;
+		using value_type = std::remove_const_t<T>;
 
 		static constexpr int CHILD_COUNT = 4;
 
@@ -76,8 +77,25 @@ namespace vlx
 
 		/// Updates the given element with new data.
 		/// 
+		/// \param Index: index to element.
+		/// \param Args: Data to update the current element.
+		/// 
+		/// \returns True if successfully updated the element, otherwise false.
+		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
 		bool Update(const int idx, Args&&... args);
+
+		/// Retrieves an element.
+		/// 
+		/// \param Index: index to element.
+		/// 
+		NODISC T& Get(const int idx);
+
+		/// Retrieves an element.
+		/// 
+		/// \param Index: index to element.
+		/// 
+		NODISC const T& Get(const int idx) const;
 
 		/// Queries the tree for elements.
 		/// 
@@ -105,11 +123,8 @@ namespace vlx
 
 	private:
 		void EltInsert(const Vector2f& elt_center, const int ptr_idx);
-
 		void SplitLeaf(Node& node);
-
 		int FindLeaf(const Vector2f& point) const;
-
 		void UpdateRect(Node& node, const RectFloat& elt_rect);
 
 	private:
@@ -120,7 +135,7 @@ namespace vlx
 		RectFloat m_root_rect;
 
 		int		m_free_node			{-1};
-		int		m_max_elements		{16}; // max elements before subdivision
+		int		m_max_elements		{8}; // max elements before subdivision
 		int		m_max_depth			{8};  // max depth before no more leaves will be created
 		bool	m_cleanup_required	{false}; 
 
@@ -140,7 +155,7 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
-		const auto idx = m_elements.emplace(rect, std::forward<Args>(args)...);
+		const auto idx = m_elements.emplace(rect, T(std::forward<Args>(args)...));
 		EltInsert(rect.Center(), m_elements_ptr.emplace(idx));
 
 		return idx;
@@ -242,6 +257,18 @@ namespace vlx
 		m_elements[idx].item = T(std::forward<Args>(args)...);
 
 		return true;
+	}
+
+	template<std::equality_comparable T>
+	T& LQuadTree<T>::Get(const int idx)
+	{
+		return m_elements[idx].item;
+	}
+
+	template<std::equality_comparable T>
+	const T& LQuadTree<T>::Get(const int idx) const
+	{
+		return m_elements[idx].item;
 	}
 
 	template<std::equality_comparable T>

@@ -9,8 +9,8 @@ namespace vlx
 	{
 		EntityID		A				{NULL_ENTITY};
 		EntityID		B				{NULL_ENTITY};
-		bool			collided		{false};
-		float			penetration		{0.0f};
 		Vector2f		normal;
+		Vector2f		hit;
+		float			penetration		{0.0f};
 	};
 }

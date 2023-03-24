@@ -76,10 +76,10 @@ void StateTest::OnCreated()
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
 	b0.GetComponent<LocalTransform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-	b0.GetComponent<gui::Button>().Pressed += []() { std::puts("Press"); };
-	b0.GetComponent<gui::Button>().Released += []() { std::puts("Relased"); };
-	b0.GetComponent<gui::Button>().Entered += []() { std::puts("Entered"); };
-	b0.GetComponent<gui::Button>().Exited += []() { std::puts("Exited"); };
+	b0.GetComponent<gui::Button>().OnPress		+= []() { std::puts("Pressed"); };
+	b0.GetComponent<gui::Button>().OnRelease	+= []() { std::puts("Relased"); };
+	b0.GetComponent<gui::Button>().OnEnter		+= []() { std::puts("Entered"); };
+	b0.GetComponent<gui::Button>().OnExit		+= []() { std::puts("Exited"); };
 
 	m_entity_admin->Shrink(true);
 
@@ -102,6 +102,7 @@ void StateTest::OnCreated()
 
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
 	entity.AddComponent<PhysicsBody>();
+	entity.AddComponent<Collision>();
 	entity.AddComponent<Box>(RectFloat(0, 0, 1024, 16));
 
 	//entity.GetComponent<Circle>().radius = 32.0f;

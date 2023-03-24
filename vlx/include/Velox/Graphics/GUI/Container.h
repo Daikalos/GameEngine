@@ -23,8 +23,8 @@ namespace vlx::gui
 		Container() = default;
 
 	public:
-		VELOX_API [[nodiscard]] constexpr bool IsEmpty() const noexcept;
-		VELOX_API [[nodiscard]] constexpr bool IsSelectable() const noexcept override;
+		VELOX_API NODISC constexpr bool IsEmpty() const noexcept;
+		VELOX_API NODISC constexpr bool IsSelectable() const noexcept override;
 
 	public:
 		template<IsComponent C>

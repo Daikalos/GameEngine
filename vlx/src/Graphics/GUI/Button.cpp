@@ -11,7 +11,7 @@ void Button::Click()
 {
     if (m_pressed)
     {
-        Clicked();
+        OnClick();
     }
 }
 
@@ -19,7 +19,7 @@ void Button::Press()
 {
     if (!m_pressed)
     {
-        Pressed();
+        OnPress();
         m_pressed = true;
     }
 }
@@ -28,7 +28,7 @@ void Button::Release()
 {
     if (m_pressed)
     {
-        Released();
+        OnRelease();
         m_pressed = false;
     }
 }
@@ -37,7 +37,7 @@ void Button::Enter()
 {
     if (!m_entered)
     {
-        Entered();
+        OnEnter();
         m_entered = true;
     }
 }
@@ -46,7 +46,7 @@ void Button::Exit()
 {
     if (m_entered)
     {
-        Exited();
+        OnExit();
         m_entered = false;
     }
 }

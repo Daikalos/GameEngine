@@ -38,7 +38,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 		});
 
 	m_dirty.SetPriority(100000.0f);
-	m_dirty_descendants.SetPriority(99999.0f);
+	m_dirty_descendants.SetPriority(90000.0f);
 	m_update_global.SetPriority(0.0f);
 
 	m_update_global.Exclude<PhysicsBody>();

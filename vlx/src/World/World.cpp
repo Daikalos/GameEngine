@@ -26,10 +26,9 @@ World::World(const std::string_view name) :
 	AddSystem<AnchorSystem>(	m_entity_admin,	LYR_ANCHOR, m_window);
 	AddSystem<gui::GUISystem>(	m_entity_admin,	LYR_GUI, m_camera, m_controls);
 	AddSystem<RenderSystem>(	m_entity_admin, LYR_RENDERING);
-	AddSystem<PhysicsSystem>(	m_entity_admin,	LYR_PHYSICS, m_time);
-	AddSystem<BroadSystem>(		m_entity_admin, LYR_BROAD_PHASE, GetSystem<PhysicsSystem>());
-	AddSystem<NarrowSystem>(	m_entity_admin, LYR_NARROW_PHASE, GetSystem<PhysicsSystem>());
-	//AddSystem<PhysicsSystem>(	m_entity_admin,	LYR_PHYSICS, m_time);
+	AddSystem<BroadSystem>(		m_entity_admin, LYR_BROAD_PHASE);
+	AddSystem<NarrowSystem>(	m_entity_admin, LYR_NARROW_PHASE, GetSystem<BroadSystem>());
+	AddSystem<PhysicsSystem>(	m_entity_admin,	LYR_PHYSICS, m_time, GetSystem<NarrowSystem>());
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
@@ -109,7 +108,6 @@ void World::Run()
 		accumulator += m_time.GetRealDT();
 		accumulator = std::min(accumulator, 0.2f); // clamp accumulator
 
-		int ticks = 0;
 		while (accumulator >= m_time.GetFixedDT())
 		{
 			accumulator -= m_time.GetFixedDT();

@@ -26,11 +26,11 @@ namespace vlx::gui
 		void Exit();
 
 	public:
-		vlx::Event<> Clicked;
-		vlx::Event<> Pressed;
-		vlx::Event<> Released;
-		vlx::Event<> Entered;
-		vlx::Event<> Exited;
+		vlx::Event<> OnClick;
+		vlx::Event<> OnPress;
+		vlx::Event<> OnRelease;
+		vlx::Event<> OnEnter;
+		vlx::Event<> OnExit;
 
 	private:
 		bool m_pressed{false};

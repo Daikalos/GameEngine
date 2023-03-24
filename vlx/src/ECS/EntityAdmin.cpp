@@ -75,13 +75,16 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 
 	for (const ISystem* system : sit->second)
 	{
-		const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
+		if (!system->IsEnabled())
+			continue;
 
 		system->Start();
 
+		const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
+
 		if (system->IsRunningParallel())
 		{
-			std::for_each(std::execution::par_unseq, archetypes.begin(), archetypes.end(),
+			std::for_each(std::execution::par, archetypes.begin(), archetypes.end(),
 				[&system](const Archetype* const archetype)
 				{
 					system->Run(archetype);
@@ -89,7 +92,7 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 		}
 		else
 		{
-			std::for_each(std::execution::unseq, archetypes.begin(), archetypes.end(),
+			std::ranges::for_each(archetypes.begin(), archetypes.end(),
 				[&system](const Archetype* const archetype)
 				{
 					system->Run(archetype);

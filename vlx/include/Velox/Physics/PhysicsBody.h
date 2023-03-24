@@ -88,6 +88,8 @@ namespace vlx
 		float			m_angular_velocity	{0.0f};
 		float			m_torque			{0.0f};
 
+		float			m_sleep_timer_max	{0.1f};
+		float			m_sleep_timer		{0.0f};
 		bool			m_awake				{true};
 
 		friend class PhysicsSystem;

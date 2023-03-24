@@ -13,6 +13,7 @@ namespace vlx
 	class CollisionObject
 	{
 	public:
+		EntityID		entity_id		{NULL_ENTITY};
 		Shape*			shape			{nullptr};
 		Collision*		collision		{nullptr};
 		PhysicsBody*	body			{nullptr};
@@ -21,12 +22,7 @@ namespace vlx
 
 		constexpr bool operator==(const CollisionObject& rhs) const
 		{
-			return 
-				shape			== rhs.shape && 
-				collision		== rhs.collision && 
-				body			== rhs.body && 
-				local_transform == rhs.local_transform && 
-				transform		== rhs.transform;
+			return entity_id == rhs.entity_id;
 		}
 	};
 }

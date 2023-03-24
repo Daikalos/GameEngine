@@ -61,12 +61,13 @@ void PhysicsBody::SetVelocity(const Vector2f& velocity)
 		if (velocity.LengthSq() > au::Sq(PHYSICS_EPSILON))
 		{
 			m_velocity = velocity;
+
+			m_sleep_timer = m_sleep_timer_max;
 			m_awake = true;
 		}
 		else
 		{
 			m_velocity = Vector2f::Zero;
-			m_awake = false;
 		}
 	}
 }
@@ -86,7 +87,20 @@ void PhysicsBody::AddForce(const Vector2f& force)
 
 void PhysicsBody::SetAngularVelocity(const float angular_velocity)
 {
-	m_angular_velocity = angular_velocity;
+	if (m_angular_velocity != angular_velocity)
+	{
+		if (angular_velocity > PHYSICS_EPSILON)
+		{
+			m_angular_velocity = angular_velocity;
+
+			m_sleep_timer = m_sleep_timer_max;
+			m_awake = true;
+		}
+		else
+		{
+			m_angular_velocity = 0.0f;
+		}
+	}
 }
 void PhysicsBody::AddAngularVelocity(const float angular_velocity)
 {

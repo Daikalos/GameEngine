@@ -50,7 +50,7 @@ namespace vlx
 namespace vlx
 {
 	template<IsComponent C>
-	void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
+	inline void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = new (data) C();
 		static_cast<IComponent*>(data_location)->Created(entity_admin, entity_id);

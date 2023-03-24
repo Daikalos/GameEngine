@@ -30,21 +30,21 @@ CollisionTable::Matrix CollisionTable::table =
 
 void CollisionTable::Collide(CollisionData& collision, CollisionObject& a, CollisionObject& b)
 {
-	Shape& s1 = *a.shape;
-	Shape& s2 = *b.shape;
+	const Shape& s1 = *a.shape;
+	const Shape& s2 = *b.shape;
 
-	Transform& t1 = *a.transform;
-	Transform& t2 = *b.transform;
+	const Transform& t1 = *a.transform;
+	const Transform& t2 = *b.transform;
 
 	const std::uint32_t ci = s2.GetType() + s1.GetType() * Shape::Type::Count;
 
 	table[ci](collision, s1, t1, s2, t2);
 }
 
-void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
-	Circle& c1 = reinterpret_cast<Circle&>(s1); // cast is assumed safe in this kind of context
-	Circle& c2 = reinterpret_cast<Circle&>(s2);
+	const Circle& c1 = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
+	const Circle& c2 = reinterpret_cast<const Circle&>(s2);
 
 	Vector2f normal = Vector2f::Direction(t1.GetPosition(), t2.GetPosition());
 
@@ -71,10 +71,10 @@ void CollisionTable::CircleToCircle(CollisionData& collision, Shape& s1, Transfo
 	collision.normal		= normal / distance;
 	collision.contacts[0]	= collision.normal * c1.GetRadius() + t1.GetPosition();
 }
-void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
-	Circle& c1 = reinterpret_cast<Circle&>(s1);
-	Box& a2 = reinterpret_cast<Box&>(s2);
+	const Circle& c1 = reinterpret_cast<const Circle&>(s1);
+	const Box& a2 = reinterpret_cast<const Box&>(s2);
 
 	const Vector2f half_extends(a2.GetWidth() / 2.0f, a2.GetHeight() / 2.0f);
 
@@ -110,60 +110,60 @@ void CollisionTable::CircleToBox(CollisionData& collision, Shape& s1, Transform&
 	collision.normal		= (inside ? -n : n);
 	collision.contacts[0]	= point; // TODO: FIX
 }
-void CollisionTable::CircleToPoint(CollisionData&, Shape&, Transform&, Shape&, Transform&)
+void CollisionTable::CircleToPoint(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
 {
 
 }
-void CollisionTable::CircleToConvex(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::CircleToConvex(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
 
 }
 
-void CollisionTable::BoxToCircle(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::BoxToCircle(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
 	CircleToBox(collision, s2, t2, s1, t1);
 	collision.normal = -collision.normal;
 }
-void CollisionTable::BoxToBox(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::BoxToBox(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
 
 }
-void CollisionTable::BoxToPoint(CollisionData&, Shape&, Transform&, Shape&, Transform&)
+void CollisionTable::BoxToPoint(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
 {
 }
-void CollisionTable::BoxToConvex(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
-{
-
-}
-
-void CollisionTable::PointToCircle(CollisionData&, Shape&, Transform&, Shape&, Transform&)
-{
-}
-
-void CollisionTable::PointToBox(CollisionData&, Shape&, Transform&, Shape&, Transform&)
-{
-}
-
-void CollisionTable::PointToPoint(CollisionData&, Shape&, Transform&, Shape&, Transform&)
-{
-}
-
-void CollisionTable::PointToConvex(CollisionData&, Shape&, Transform&, Shape&, Transform&)
-{
-}
-
-void CollisionTable::ConvexToCircle(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::BoxToConvex(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
 
 }
-void CollisionTable::ConvexToBox(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+
+void CollisionTable::PointToCircle(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
+{
+}
+
+void CollisionTable::PointToBox(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
+{
+}
+
+void CollisionTable::PointToPoint(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
+{
+}
+
+void CollisionTable::PointToConvex(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
+{
+}
+
+void CollisionTable::ConvexToCircle(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
 
 }
-void CollisionTable::ConvexToPoint(CollisionData&, Shape&, Transform&, Shape&, Transform&)
+void CollisionTable::ConvexToBox(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
+{
+
+}
+void CollisionTable::ConvexToPoint(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
 {
 }
-void CollisionTable::ConvexToConvex(CollisionData& collision, Shape& s1, Transform& t1, Shape& s2, Transform& t2)
+void CollisionTable::ConvexToConvex(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
 
 }

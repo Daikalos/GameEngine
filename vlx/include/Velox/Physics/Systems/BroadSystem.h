@@ -36,9 +36,13 @@ namespace vlx
 		using BoxBodySystem			= System<Box, Collision, PhysicsBody, LocalTransform, Transform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
+		using CollisionList			= std::vector<CollisionPair>;
+
+	private:
+		using CollisionIndices		= std::vector<std::uint32_t>;
 
 	public:
-		BroadSystem(EntityAdmin& entity_admin, const LayerType id, PhysicsSystem& physics_system);
+		BroadSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
 		NODISC constexpr bool IsRequired() const noexcept override;
@@ -50,19 +54,16 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void InsertShape(const EntityID entity_id, Shape* shape, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t);
-		void QueryShape(Shape* shape, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t);
+		void InsertShape(EntityID entity_id, Shape* shape, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t);
+		void QueryShape(EntityID entity_id, Shape* shape, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t);
 
 		void CullDuplicates();
 
 	private:
-		PhysicsSystem* m_physics_system {nullptr};
-
 		LQuadTree<QTCollision::value_type> m_quad_tree;
 
-		std::vector<CollisionPair> m_collision_pairs;
-		std::vector<std::uint32_t> m_collision_indices;
-		std::vector<std::uint32_t> m_unique_collisions;
+		CollisionList		m_collision_pairs;
+		CollisionIndices	m_collision_indices;
 
 		DirtyGlobalSystem	m_dirty_transform;
 		DirtyLocalSystem	m_dirty_physics;
@@ -78,5 +79,7 @@ namespace vlx
 		BoxSystem			m_boxes_query;
 		CircleBodySystem	m_circles_body_query;
 		BoxBodySystem		m_boxes_body_query;
+
+		friend class NarrowSystem;
 	};
 }

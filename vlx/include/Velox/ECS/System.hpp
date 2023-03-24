@@ -30,17 +30,23 @@ namespace vlx
 		virtual ArchetypeID GetIDKey() const = 0;
 		virtual const ComponentIDs& GetArchKey() const = 0;
 
-		virtual float GetPriority() const noexcept = 0;
-		virtual void SetPriority(const float val) = 0;
+		float GetPriority() const noexcept;
+		bool IsRunningParallel() const noexcept;
+		bool IsEnabled() const noexcept;
 
-		virtual bool IsRunningParallel() const noexcept = 0;
-		virtual void SetRunParallel(const bool flag) noexcept = 0;
+		virtual void SetPriority(const float val);
+		virtual void SetRunParallel(const bool flag);
+		virtual void SetEnabled(const bool flag);
 
 	protected:
 		virtual void Start() const = 0;
 		virtual void Run(const Archetype* const archetype) const = 0;
 
 	private:
+		float	m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
+		bool	m_run_parallel	{false};
+		bool	m_enabled		{true};
+
 		friend class EntityAdmin;
 	};
 
@@ -48,9 +54,9 @@ namespace vlx
 	class System : public ISystem
 	{
 	public:
-		using AllFunc = std::function<void(std::span<const EntityID>, Cs*...)>;
-		using EachFunc = std::function<void(EntityID, Cs&...)>;
-		using ComponentTypes = std::tuple<Cs...>;
+		using AllFunc			= std::function<void(std::span<const EntityID>, Cs*...)>;
+		using EachFunc			= std::function<void(EntityID, Cs&...)>;
+		using ComponentTypes	= std::tuple<Cs...>;
 
 		static constexpr ArrComponentIDs<Cs...> SystemIDs =
 			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()... }); // another stupid intellisense error
@@ -59,14 +65,14 @@ namespace vlx
 			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
 
 	private:
-		struct ArchetypeExclusion
+		struct ArchExclude
 		{
-			ArchetypeExclusion(ArchetypeID id) : id(id) {};
+			ArchExclude(ArchetypeID id, bool excluded = false) : id(id), excluded(excluded) {};
 
 			ArchetypeID id;
-			bool excluded {false};
+			bool excluded;
 
-			constexpr bool operator==(const ArchetypeExclusion& ae) const
+			constexpr bool operator==(const ArchExclude& ae) const
 			{
 				return id == ae.id;
 			}
@@ -74,13 +80,13 @@ namespace vlx
 
 		struct HashAE
 		{
-			constexpr std::size_t operator()(const ArchetypeExclusion& ae) const
+			constexpr std::size_t operator()(const ArchExclude& ae) const
 			{
 				return ae.id; // might as well just return id, as it will always be unique *I hope*
 			}
 		};
 
-		using ArchetypeCache = std::unordered_set<ArchetypeExclusion, HashAE>;
+		using ArchExclCache = std::unordered_set<ArchExclude, HashAE>;
 
 	public:
 		System() = default;
@@ -92,13 +98,7 @@ namespace vlx
 		ArchetypeID GetIDKey() const override;
 		const ComponentIDs& GetArchKey() const override;
 
-		NODISC float GetPriority() const noexcept override;
 		void SetPriority(const float val) override;
-
-		NODISC bool IsRunningParallel() const noexcept override;
-		void SetRunParallel(const bool flag) noexcept override;
-
-		const Archetype* ActiveArchetype() const;
 
 	public:
 		void ForceRun();
@@ -136,18 +136,22 @@ namespace vlx
 		EachFunc					m_each_func;
 
 		ComponentIDs				m_exclusion;
-		mutable ArchetypeCache		m_excluded_archetypes;
+		mutable ArchExclCache		m_excluded_archetypes;
 		mutable ComponentIDs		m_arch_key;
-		mutable const Archetype*	m_archetype		{nullptr};
-
-		float						m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
-		bool						m_run_parallel	{false};
 	};
 
 	inline auto ISystem::operator<=>(const ISystem& rhs) const
 	{
 		return GetPriority() <=> rhs.GetPriority();
 	}
+
+	inline float ISystem::GetPriority() const noexcept		{ return m_priority; }
+	inline bool ISystem::IsRunningParallel() const noexcept { return m_run_parallel; }
+	inline bool ISystem::IsEnabled() const noexcept			{ return m_enabled; }
+
+	inline void ISystem::SetPriority(const float val)		{ m_priority = val; }
+	inline void ISystem::SetRunParallel(const bool flag)	{ m_run_parallel = flag; }
+	inline void ISystem::SetEnabled(const bool flag)		{ m_enabled = flag; }
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)
@@ -165,35 +169,6 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline float System<Cs...>::GetPriority() const noexcept
-	{
-		return m_priority;
-	}
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::SetPriority(const float val)
-	{
-		m_priority = val;
-		m_entity_admin->SortSystems(m_layer);
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline bool System<Cs...>::IsRunningParallel() const noexcept
-	{
-		return m_run_parallel;
-	}
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::SetRunParallel(const bool flag) noexcept
-	{
-		m_run_parallel = flag;
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline const Archetype* System<Cs...>::ActiveArchetype() const
-	{
-		return m_archetype;
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
 	inline ArchetypeID System<Cs...>::GetIDKey() const
 	{
 		return SystemID;
@@ -206,6 +181,13 @@ namespace vlx
 			m_arch_key = { SystemIDs.begin(), SystemIDs.end() };
 
 		return m_arch_key;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void System<Cs...>::SetPriority(const float val)
+	{
+		ISystem::SetPriority(val);
+		m_entity_admin->SortSystems(m_layer);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -242,18 +224,16 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::Run(const Archetype* const archetype) const
 	{
+		assert(IsEnabled());
+
 		if (m_all_func || m_each_func) // check if func stores callable object
 		{
 			if (IsArchetypeExcluded(archetype)) // check that it is not excluded
 				return;
 
-			m_archetype = archetype;
-
 			Run(archetype->type, 
 				archetype->entities,
 				archetype->component_data);
-
-			m_archetype = nullptr;
 		}
 	}
 
@@ -273,7 +253,7 @@ namespace vlx
 
 		assert(i != component_ids.size());
 
-		Run<Index + 1>(component_ids, entities, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final DoAction
+		Run<Index + 1>(component_ids, entities, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final Run
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -308,7 +288,7 @@ namespace vlx
 			}
 		}
 
-		m_excluded_archetypes.insert({ archetype->id, excluded });
+		m_excluded_archetypes.emplace(archetype->id, excluded);
 
 		return excluded;
 	}

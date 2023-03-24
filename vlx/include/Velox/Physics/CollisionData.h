@@ -10,6 +10,9 @@ namespace vlx
 {
 	struct CollisionData
 	{
+		CollisionObject* A					{nullptr};
+		CollisionObject* B					{nullptr};
+
 		float			penetration			{0.0f};
 		Vector2f		normal;
 

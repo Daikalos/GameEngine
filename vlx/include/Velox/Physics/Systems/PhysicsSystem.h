@@ -11,16 +11,14 @@
 #include <Velox/Config.hpp>
 
 #include "../CollisionObject.h"
+#include "NarrowSystem.h"
 
 namespace vlx
 {
 	class VELOX_API PhysicsSystem final : public SystemAction
 	{
-	private:
-		using CollisionPair = std::pair<CollisionObject, CollisionObject>;
-
 	public:
-		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time);
+		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time, NarrowSystem& narrow_system);
 
 	public:
 		constexpr bool IsRequired() const noexcept override;
@@ -32,28 +30,23 @@ namespace vlx
 		void PostUpdate() override;
 
 	public:
-		void SupplyBroadCollisions(
-			std::span<const CollisionPair> collision_pairs,
-			std::span<const std::uint32_t> unique_collisions);
-
-		//void SupplyNarrowCollisions(
-		//	std::span<const CollisionData
-		//)
+		const Vector2f& GetGravity() const;
+		void SetGravity(const Vector2f& gravity);
 
 	private:
-		//void Initialize(CollisionData& data);
-		//void ResolveCollision(CollisionData& data);
-		//void PositionalCorrection(CollisionData& data);
+		void Initialize(CollisionData& data);
+		void ResolveCollision(CollisionData& data);
+		void PositionalCorrection(CollisionData& data);
 
 	private:
-		Time*		m_time		{nullptr};
-		Vector2f	m_gravity	{0.0f, 10.0f};
+		Time*			m_time			{nullptr};
+		NarrowSystem*	m_narrow_system {nullptr};
 
-		std::span<const CollisionPair> m_collision_pairs;
-		std::span<const std::uint32_t> m_unique_collisions;
+		Vector2f		m_gravity		{0.0f, 9.82f};
 
-		//System<PhysicsBody>					m_update_forces;
-		//System<PhysicsBody, LocalTransform>	m_update_velocities;
-		//System<PhysicsBody>					m_clear_forces;
+		System<PhysicsBody>					m_update_forces;
+		System<PhysicsBody, LocalTransform>	m_update_velocities;
+		System<PhysicsBody>					m_clear_forces;
+		System<PhysicsBody>					m_sleep_bodies;
 	};
 }
