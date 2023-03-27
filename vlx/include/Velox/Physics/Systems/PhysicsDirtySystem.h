@@ -30,9 +30,6 @@ namespace vlx
 		using CircleSystem		= System<Circle, Collision, Transform>;
 		using BoxSystem			= System<Box, Collision, Transform>;
 
-	private:
-		using CollisionIndices = std::vector<std::uint32_t>;
-
 	public:
 		PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id);
 
