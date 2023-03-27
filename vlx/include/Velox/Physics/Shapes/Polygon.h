@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Shape.h"
-
-#include <Velox/Algorithms/SmallVector.hpp>
+#include <vector>
 
 #include <Velox/Config.hpp>
+
+#include "Shape.h"
 
 namespace vlx
 {
@@ -14,13 +14,11 @@ namespace vlx
 
 	public:
 		constexpr Type GetType() const noexcept override;
-
-	public:
+		void SetAABB(const Transform& transform) override;
 		void Initialize(PhysicsBody& body) const noexcept override;
-		RectFloat GetAABB(const Transform& transform) const override;
 
 	private:
-		SmallVector<Vector2f> m_vertices;
-		SmallVector<Vector2f> m_normals;
+		std::vector<Vector2f> m_vertices;
+		std::vector<Vector2f> m_normals;
 	};
 }

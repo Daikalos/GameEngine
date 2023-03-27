@@ -32,9 +32,9 @@ const sf::Transform& LocalTransform::GetTransform() const
 		const float ty		= m_position.y + m_origin.x * sxs - m_origin.y * syc;
 
 		m_transform = sf::Transform(
-			sxc, sys, tx,
+			 sxc, sys, tx,
 			-sxs, syc, ty,
-			0.f, 0.f, 1.f);
+			 0.f, 0.f, 1.f);
 
 		m_update = false;
 	}

@@ -156,7 +156,7 @@ void TransformSystem::UpdateToLocal(LocalTransform& local_transform, Transform& 
 	transform.m_transform		= local_transform.GetTransform();
 	transform.m_update_inverse	= true;
 
-	transform.m_position	= local_transform.m_position;
+	transform.m_position	= local_transform.m_position - local_transform.m_origin;
 	transform.m_scale		= local_transform.m_scale;
 	transform.m_rotation	= local_transform.m_rotation;
 }

@@ -89,7 +89,7 @@ void PhysicsBody::SetAngularVelocity(const float angular_velocity)
 {
 	if (m_angular_velocity != angular_velocity)
 	{
-		if (angular_velocity > PHYSICS_EPSILON)
+		if (std::abs(angular_velocity) > PHYSICS_EPSILON)
 		{
 			m_angular_velocity = angular_velocity;
 

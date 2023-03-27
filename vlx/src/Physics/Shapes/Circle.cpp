@@ -14,13 +14,13 @@ constexpr void Circle::SetRadius(float radius)
     m_radius_sqr = au::Sq(radius);
 }
 
+void Circle::SetAABB(const Transform& transform)
+{
+    m_aabb = transform.GetTransform().transformRect(RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f));
+}
+
 void Circle::Initialize(PhysicsBody& body) const
 {
     body.SetMass(au::PI<> * m_radius_sqr * body.GetDensity());
     body.SetInertia(0.5f * body.GetMass() * m_radius_sqr);
-}
-
-RectFloat Circle::GetAABB(const Transform& transform) const
-{
-    return RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f) + transform.GetPosition();
 }

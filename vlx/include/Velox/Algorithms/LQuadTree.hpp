@@ -193,6 +193,8 @@ namespace vlx
 
 				assert(node.count >= 0);
 
+				m_cleanup_required = true;
+
 				// Cleanup will possibly have to be called after this to work on corrected data
 
 				return true;
@@ -233,6 +235,8 @@ namespace vlx
 				--node.count;
 
 				assert(node.count >= 0);
+
+				m_cleanup_required = true;
 
 				// Cleanup will possibly have to be called after this to work on corrected data
 
@@ -444,6 +448,8 @@ namespace vlx
 				}
 			}
 		}
+
+		m_cleanup_required = false;
 	}
 
 	template<std::equality_comparable T>

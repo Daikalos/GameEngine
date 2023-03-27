@@ -46,7 +46,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1, c
 	const Circle& c1 = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
 	const Circle& c2 = reinterpret_cast<const Circle&>(s2);
 
-	Vector2f normal = Vector2f::Direction(t1.GetPosition(), t2.GetPosition());
+	Vector2f normal = Vector2f::Direction(s1.GetCenter(), s2.GetCenter());
 
 	const float dist_sqr = normal.LengthSq();
 	const float radius = c1.GetRadius() + c2.GetRadius();
@@ -60,7 +60,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1, c
 	{
 		collision.penetration	= c1.GetRadius();
 		collision.normal		= Vector2f::UnitX;
-		collision.contacts[0]	= t1.GetPosition();
+		collision.contacts[0]	= s1.GetCenter();
 
 		return;
 	}
@@ -69,7 +69,7 @@ void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1, c
 
 	collision.penetration	= radius - distance;
 	collision.normal		= normal / distance;
-	collision.contacts[0]	= collision.normal * c1.GetRadius() + t1.GetPosition();
+	collision.contacts[0]	= collision.normal * c1.GetRadius() + s1.GetCenter();
 }
 void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, const Transform& t1, const Shape& s2, const Transform& t2)
 {
@@ -78,10 +78,10 @@ void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, cons
 
 	const Vector2f half_extends(a2.GetWidth() / 2.0f, a2.GetHeight() / 2.0f);
 
-	sf::Transform box_transform = t2.GetTransform(); // weird that I need to do this, will maybe, look for solution
-	box_transform.translate(half_extends); // translate by extends to position correctly
+	sf::Transform box_transform = t2.GetTransform();
+	box_transform.translate(half_extends); // translate by half to point to origin
 
-	Vector2f n = box_transform.getInverse().transformPoint(t1.GetPosition());
+	Vector2f n = box_transform.getInverse().transformPoint(s1.GetCenter());
 	Vector2f clamped = n.Clamp(-half_extends, half_extends);
 
 	bool inside = false;
@@ -96,7 +96,7 @@ void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, cons
 	}
 
 	Vector2f point = box_transform.transformPoint(clamped);
-	Vector2f normal = Vector2f::Direction(t1.GetPosition(), point);
+	Vector2f normal = Vector2f::Direction(s1.GetCenter(), point);
 	float dist = normal.LengthSq();
 
 	if ((dist > c1.GetRadiusSqr()) && !inside)
@@ -108,7 +108,7 @@ void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, cons
 	collision.contact_count = 1;
 	collision.penetration	= c1.GetRadius() - dist;
 	collision.normal		= (inside ? -n : n);
-	collision.contacts[0]	= point; // TODO: FIX
+	collision.contacts[0]	= point;
 }
 void CollisionTable::CircleToPoint(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)
 {

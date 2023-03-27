@@ -20,15 +20,11 @@
 #include "../CollisionTable.h"
 #include "../Collision.h"
 
-#include "PhysicsSystem.h"
-
 namespace vlx
 {
 	class VELOX_API BroadSystem final : public SystemAction
 	{
 	public:
-		using DirtyGlobalSystem		= System<Collision, Transform>;
-		using DirtyLocalSystem		= System<Collision, LocalTransform>;
 		using GeneralSystem			= System<Collision, LocalTransform, Transform>;
 		using CircleSystem			= System<Circle, Collision, LocalTransform, Transform>;
 		using BoxSystem				= System<Box, Collision, LocalTransform, Transform>;
@@ -64,9 +60,6 @@ namespace vlx
 
 		CollisionList		m_collision_pairs;
 		CollisionIndices	m_collision_indices;
-
-		DirtyGlobalSystem	m_dirty_transform;
-		DirtyLocalSystem	m_dirty_physics;
 
 		CircleSystem		m_circles_ins;
 		BoxSystem			m_boxes_ins;

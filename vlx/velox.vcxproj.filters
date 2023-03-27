@@ -43,6 +43,8 @@
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
+    <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
+    <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -145,6 +147,7 @@
     <ClInclude Include="include\Velox\System.hpp" />
     <ClInclude Include="include\Velox\Physics\Collision.h" />
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

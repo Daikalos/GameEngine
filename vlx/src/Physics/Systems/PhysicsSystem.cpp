@@ -9,7 +9,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_narrow_system(&narrow_system),
 
 	m_update_forces(	entity_admin, LYR_PHYSICS + 1),
-	m_update_velocities(entity_admin, LYR_PHYSICS + 2),
+	m_update_positions(	entity_admin, LYR_PHYSICS + 2),
 	m_clear_forces(		entity_admin, LYR_PHYSICS + 3),
 	m_sleep_bodies(		entity_admin, LYR_PHYSICS + 4)
 
@@ -21,16 +21,9 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 
 			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
 			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
-
-			if (body.m_awake)
-			{
-				body.m_sleep_timer -= m_time->GetRealDT();
-				if (body.m_sleep_timer <= 0.0f)
-					body.m_awake = false;
-			}
 		});
 
-	m_update_velocities.Each([this](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_update_positions.Each([this](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
 		{
 			if (body.GetInvMass() <= PHYSICS_EPSILON)
 				return;
@@ -42,7 +35,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
 		});
 
-	m_clear_forces.Each([this](EntityID entity_id, PhysicsBody& body)
+	m_clear_forces.Each([](EntityID entity_id, PhysicsBody& body)
 		{
 			body.SetForce({});
 			body.SetTorque(0.0f);
@@ -50,8 +43,14 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 
 	m_sleep_bodies.Each([this](EntityID entity_id, PhysicsBody& body)
 		{
-			body.SetForce({});
-			body.SetTorque(0.0f);
+			// TODO: check if body moved this frame, if not, decrement timer, otherwise, set timer to max
+
+			if (body.m_awake)
+			{
+				body.m_sleep_timer -= m_time->GetRealDT();
+				if (body.m_sleep_timer <= 0.0f)
+					body.m_awake = false;
+			}
 		});
 }
 
@@ -93,7 +92,7 @@ void PhysicsSystem::FixedUpdate()
 		for (auto& collision : collisions_data)
 			ResolveCollision(collision);
 
-	m_update_velocities.ForceRun();
+	m_update_positions.ForceRun();
 
 	for (auto& collision : collisions_data)
 		PositionalCorrection(collision);
@@ -101,6 +100,8 @@ void PhysicsSystem::FixedUpdate()
 	m_clear_forces.ForceRun();
 
 	m_sleep_bodies.ForceRun();
+
+	std::puts(std::to_string(collisions_data.size()).c_str());
 }
 
 void PhysicsSystem::PostUpdate()
@@ -124,8 +125,8 @@ void PhysicsSystem::Initialize(CollisionData& collision)
 
 	for (std::uint32_t i = 0; i < collision.contact_count; ++i)
 	{
-		Vector2f ra = collision.contacts[i] - collision.A->local_transform->GetPosition();
-		Vector2f rb = collision.contacts[i] - collision.B->local_transform->GetPosition();
+		Vector2f ra = collision.contacts[i] - collision.A->shape->GetCenter();
+		Vector2f rb = collision.contacts[i] - collision.B->shape->GetCenter();
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
@@ -141,8 +142,6 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		collision.B->body == nullptr)
 		return;
 
-	std::puts("TEST");
-
 	PhysicsBody& AB = *collision.A->body;
 	PhysicsBody& BB = *collision.B->body;
 
@@ -156,8 +155,8 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 
 	for (std::size_t i = 0; i < collision.contact_count; ++i)
 	{
-		Vector2f ra = collision.contacts[i] - collision.A->local_transform->GetPosition();
-		Vector2f rb = collision.contacts[i] - collision.B->local_transform->GetPosition();
+		Vector2f ra = collision.contacts[i] - collision.A->shape->GetCenter();
+		Vector2f rb = collision.contacts[i] - collision.B->shape->GetCenter();
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);

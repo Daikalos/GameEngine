@@ -111,6 +111,7 @@ void StateTest::OnCreated()
 	entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	entity.GetComponent<Sprite>().SetSize({ 1024, 16 });
 	entity.GetComponent<LocalTransform>().SetOrigin({ 512, 8 });
+	entity.GetComponent<LocalTransform>().SetRotation(sf::degrees(0.0f));
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {1024, 1024});
 }

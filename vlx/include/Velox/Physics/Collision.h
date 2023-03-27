@@ -28,6 +28,7 @@ namespace vlx
 		bool collided	{false};
 		bool dirty		{true}; // if should update the AABB in the quadtree
 
+		friend class PhysicsDirtySystem;
 		friend class BroadSystem;
 		friend class NarrowSystem;
 		friend class PhysicsSystem;

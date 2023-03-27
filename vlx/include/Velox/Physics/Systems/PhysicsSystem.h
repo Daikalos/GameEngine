@@ -11,6 +11,7 @@
 #include <Velox/Config.hpp>
 
 #include "../CollisionObject.h"
+
 #include "NarrowSystem.h"
 
 namespace vlx
@@ -45,7 +46,7 @@ namespace vlx
 		Vector2f		m_gravity		{0.0f, 9.82f};
 
 		System<PhysicsBody>					m_update_forces;
-		System<PhysicsBody, LocalTransform>	m_update_velocities;
+		System<PhysicsBody, LocalTransform>	m_update_positions;
 		System<PhysicsBody>					m_clear_forces;
 		System<PhysicsBody>					m_sleep_bodies;
 	};

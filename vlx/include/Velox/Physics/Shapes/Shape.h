@@ -29,9 +29,15 @@ namespace vlx
 
 		virtual ~Shape() = default;
 
-		virtual void Initialize(PhysicsBody& body) const = 0;
-		virtual RectFloat GetAABB(const Transform& transform) const = 0;
-
 		virtual constexpr Type GetType() const noexcept = 0;
+		virtual void SetAABB(const Transform& transform) = 0;
+		virtual void Initialize(PhysicsBody& body) const = 0;
+
+	public:
+		const RectFloat& GetAABB() const;
+		Vector2f GetCenter() const;
+
+	protected:
+		RectFloat m_aabb;
 	};
 }

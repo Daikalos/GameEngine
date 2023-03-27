@@ -7,9 +7,6 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 
 	m_quad_tree(			{ -4096, -4096, 4096 * 2, 4096 * 2 }), 
 
-	m_dirty_transform(		*m_entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
-	m_dirty_physics(		*m_entity_admin, id),
-
 	m_circles_ins(			*m_entity_admin, id),
 	m_boxes_ins(			*m_entity_admin, id),
 	m_circles_body_ins(		*m_entity_admin, id),
@@ -23,64 +20,58 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_boxes_body_query(		*m_entity_admin, id)
 
 {
-	m_dirty_transform.Each([this](const EntityID entity_id, Collision& c, Transform& t)
-		{
-			if (t.m_dirty)
-				c.dirty = true;
-		});
-
-	m_dirty_physics.Each([this](const EntityID entity_id, Collision& c, LocalTransform& lt)
-		{
-			if (lt.m_dirty)
-				c.dirty = true;
-		});
-
 	m_cleanup.OnStart += [this]()
 	{
 		m_quad_tree.Cleanup();
 	};
 
-	m_circles_ins.Each([this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
+	m_circles_ins.Each(
+		[this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id, &s, &c, nullptr, &lt, &t);
 		});
 
-	m_circles_body_ins.Each([this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_circles_body_ins.Each(
+		[this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id, &s, &c, &pb, &lt, &t);
 		});
 
-	m_boxes_ins.Each([this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
+	m_boxes_ins.Each(
+		[this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id , &b, &c, nullptr, &lt, &t);
 		});
 
-	m_boxes_body_ins.Each([this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_boxes_body_ins.Each(
+		[this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
 			InsertShape(entity_id, &b, &c, &pb, &lt, &t);
 		});
 
-	m_circles_query.Each([this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
+	m_circles_query.Each(
+		[this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt, Transform& t)
 		{
 			QueryShape(entity_id, &s, &c, nullptr, &lt, &t);
 		});
 
-	m_circles_body_query.Each([this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_circles_body_query.Each(
+		[this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
 			QueryShape(entity_id, &s, &c, &pb, &lt, &t);
 		});
 
-	m_boxes_query.Each([this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
+	m_boxes_query.Each(
+		[this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt, Transform& t)
 		{
 			QueryShape(entity_id, &b, &c, nullptr, &lt, &t);
 		});
 
-	m_boxes_body_query.Each([this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
+	m_boxes_body_query.Each(
+		[this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt, Transform& t)
 		{
 			QueryShape(entity_id, &b, &c, &pb, &lt, &t);
 		});
-
-	m_dirty_transform.SetPriority(99999.0f);
 
 	m_circles_ins.Exclude<PhysicsBody>();
 	m_boxes_ins.Exclude<PhysicsBody>();
@@ -123,7 +114,7 @@ void BroadSystem::InsertShape(EntityID entity_id, Shape* s, Collision* c, Physic
 	if (c->dirty)
 	{
 		c->Erase();
-		c->Insert(m_quad_tree, s->GetAABB(*t), entity_id, s, c, pb, lt, t);
+		c->Insert(m_quad_tree, s->GetAABB(), entity_id, s, c, pb, lt, t);
 
 		c->dirty = false;
 	}
@@ -135,7 +126,7 @@ void BroadSystem::InsertShape(EntityID entity_id, Shape* s, Collision* c, Physic
 
 void BroadSystem::QueryShape(EntityID entity_id, Shape* s, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t)
 {
-	auto collisions = m_quad_tree.Query(s->GetAABB(*t));
+	auto collisions = m_quad_tree.Query(s->GetAABB());
 
 	for (const auto& collision : collisions)
 	{

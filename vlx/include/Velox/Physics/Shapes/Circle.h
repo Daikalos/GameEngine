@@ -13,16 +13,15 @@ namespace vlx
 		Circle(const float radius);
 
 	public:
-		constexpr Type GetType() const noexcept override;
-
 		constexpr float GetRadius() const noexcept;
 		constexpr float GetRadiusSqr() const noexcept;
 
 		constexpr void SetRadius(float radius);
 
 	public:
+		constexpr Type GetType() const noexcept override;
+		void SetAABB(const Transform& transform) override;
 		void Initialize(PhysicsBody& body) const override;
-		RectFloat GetAABB(const Transform& transform) const override;
 
 	private:
 		float m_radius		{16.0f};

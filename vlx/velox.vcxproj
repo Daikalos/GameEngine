@@ -167,6 +167,7 @@
     <ClInclude Include="include\Velox\Physics\CollisionData.h" />
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
     <ClInclude Include="include\Velox\Physics\Systems\NarrowSystem.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
     <ClInclude Include="include\Velox\Algorithms\QTElement.hpp" />
@@ -254,9 +255,11 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\PhysicsBody.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
+    <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />

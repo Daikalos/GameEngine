@@ -2,11 +2,6 @@
 
 using namespace vlx;
 
-constexpr Shape::Type Box::GetType() const noexcept
-{
-	return Shape::Box;
-}
-
 Box::Box(const RectFloat& box) 
 { 
 	SetBox(box); 
@@ -79,13 +74,18 @@ void Box::SetBottom(float bottom)
 	m_vertices[3].y = bottom;
 }
 
+constexpr Shape::Type Box::GetType() const noexcept
+{
+	return Shape::Box;
+}
+
+void Box::SetAABB(const Transform& transform)
+{
+	m_aabb = transform.GetTransform().transformRect(GetBox());
+}
+
 void Box::Initialize(PhysicsBody& body) const
 {
 	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
 	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));
-}
-
-RectFloat Box::GetAABB(const Transform& transform) const
-{
-	return transform.GetTransform().transformRect(GetBox());
 }

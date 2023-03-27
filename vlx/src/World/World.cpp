@@ -19,16 +19,17 @@ World::World(const std::string_view name) :
 
 	m_controls.Get<MouseInput>().GetMap<ebn::Button>().Set(ebn::Button::GUIButton, sf::Mouse::Left);
 
-	AddSystem<ObjectSystem>(	m_entity_admin,	LYR_OBJECTS);
-	AddSystem<RelationSystem>(	m_entity_admin,	LYR_NONE);
-	AddSystem<TransformSystem>(	m_entity_admin,	LYR_TRANSFORM);
-	AddSystem<CullingSystem>(	m_entity_admin, LYR_CULLING, m_camera);
-	AddSystem<AnchorSystem>(	m_entity_admin,	LYR_ANCHOR, m_window);
-	AddSystem<gui::GUISystem>(	m_entity_admin,	LYR_GUI, m_camera, m_controls);
-	AddSystem<RenderSystem>(	m_entity_admin, LYR_RENDERING);
-	AddSystem<BroadSystem>(		m_entity_admin, LYR_BROAD_PHASE);
-	AddSystem<NarrowSystem>(	m_entity_admin, LYR_NARROW_PHASE, GetSystem<BroadSystem>());
-	AddSystem<PhysicsSystem>(	m_entity_admin,	LYR_PHYSICS, m_time, GetSystem<NarrowSystem>());
+	AddSystem<ObjectSystem>(		m_entity_admin,	LYR_OBJECTS);
+	AddSystem<RelationSystem>(		m_entity_admin,	LYR_NONE);
+	AddSystem<TransformSystem>(		m_entity_admin,	LYR_TRANSFORM);
+	AddSystem<CullingSystem>(		m_entity_admin, LYR_CULLING, m_camera);
+	AddSystem<AnchorSystem>(		m_entity_admin,	LYR_ANCHOR, m_window);
+	AddSystem<gui::GUISystem>(		m_entity_admin,	LYR_GUI, m_camera, m_controls);
+	AddSystem<RenderSystem>(		m_entity_admin, LYR_RENDERING);
+	AddSystem<PhysicsDirtySystem>(	m_entity_admin, LYR_DIRTY_PHYSICS);
+	AddSystem<BroadSystem>(			m_entity_admin, LYR_BROAD_PHASE);
+	AddSystem<NarrowSystem>(		m_entity_admin, LYR_NARROW_PHASE, GetSystem<BroadSystem>());
+	AddSystem<PhysicsSystem>(		m_entity_admin,	LYR_PHYSICS, m_time, GetSystem<NarrowSystem>());
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
