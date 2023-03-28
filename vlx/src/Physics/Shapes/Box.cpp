@@ -79,12 +79,12 @@ constexpr Shape::Type Box::GetType() const noexcept
 	return Shape::Box;
 }
 
-void Box::SetAABB(const Transform& transform)
+void Box::UpdateAABBImpl(const Transform& transform)
 {
 	m_aabb = transform.GetTransform().transformRect(GetBox());
 }
 
-void Box::Initialize(PhysicsBody& body) const
+void Box::InitializeImpl(PhysicsBody& body) const
 {
 	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
 	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));

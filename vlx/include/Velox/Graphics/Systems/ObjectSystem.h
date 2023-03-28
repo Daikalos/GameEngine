@@ -43,7 +43,7 @@ namespace vlx
 		ObjectSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		VELOX_API Entity CreateObject() const;

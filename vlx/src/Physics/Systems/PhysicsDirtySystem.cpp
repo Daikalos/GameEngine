@@ -27,19 +27,25 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 	m_circles_aabb.Each([this](EntityID entity_id, Circle& s, Collision& c, Transform& t)
 		{
 			if (c.dirty)
-				s.SetAABB(t);
+			{
+				s.UpdateAABB(t);
+				s.UpdateTransform(t);
+			}
 		});
 
 	m_boxes_aabb.Each([this](EntityID entity_id, Box& b, Collision& c, Transform& t)
 		{
 			if (c.dirty)
-				b.SetAABB(t);
+			{
+				b.UpdateAABB(t);
+				b.UpdateTransform(t);
+			}
 		});
 
 	m_dirty_transform.SetPriority(99999.0f);
 }
 
-constexpr bool PhysicsDirtySystem::IsRequired() const noexcept
+bool PhysicsDirtySystem::IsRequired() const noexcept
 {
 	return true;
 }

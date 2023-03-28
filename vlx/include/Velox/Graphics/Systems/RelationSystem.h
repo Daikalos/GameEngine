@@ -18,7 +18,7 @@ namespace vlx
 		using SystemAction::SystemAction;
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void Attach(const EntityID parent_id, const EntityID child_id);

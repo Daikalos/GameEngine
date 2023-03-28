@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics/Transformable.hpp>
+
 #include <Velox/ECS/IComponent.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/System/Rectangle.hpp>
@@ -16,6 +18,7 @@ namespace vlx
 	public:
 		enum Type : short
 		{
+			None = -1,
 			Circle,
 			Box,
 			Point,
@@ -27,17 +30,53 @@ namespace vlx
 			Count // always keep last
 		};
 
+	public:
 		virtual ~Shape() = default;
 
-		virtual constexpr Type GetType() const noexcept = 0;
-		virtual void SetAABB(const Transform& transform) = 0;
-		virtual void Initialize(PhysicsBody& body) const = 0;
-
 	public:
+		const sf::Transform& GetTransform() const;
+		const sf::Transform& GetInverseTransform() const;
 		const RectFloat& GetAABB() const;
 		Vector2f GetCenter() const;
 
+	private:
+		void UpdateTransform(const Transform& transform);
+
 	protected:
-		RectFloat m_aabb;
+		sf::Transform			m_transform; // transform is needed since physics objects will need to collide around center
+		mutable sf::Transform	m_inverse_transform;
+		RectFloat				m_aabb;
+
+		mutable bool			m_update_inverse {true};
+
+		friend class PhysicsDirtySystem;
 	};
+
+	template<class S>
+	class ShapeCRTP : public Shape
+	{
+		constexpr auto GetType() const noexcept -> Shape::Type;
+		void Initialize(PhysicsBody& body) const;
+		void UpdateAABB(const Transform& transform);
+
+		friend class PhysicsDirtySystem;
+	};
+
+	template<class S>
+	inline constexpr auto ShapeCRTP<S>::GetType() const noexcept -> Type
+	{
+		return static_cast<const S*>(this)->GetType();
+	}
+
+	template<class S>
+	inline void ShapeCRTP<S>::Initialize(PhysicsBody& body) const
+	{
+		static_cast<const S*>(this)->InitializeImpl(body);
+	}
+
+	template<class S>
+	inline void ShapeCRTP<S>::UpdateAABB(const Transform& transform)
+	{
+		static_cast<S*>(this)->UpdateAABBImpl(transform);
+	}
 }

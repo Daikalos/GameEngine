@@ -25,11 +25,11 @@ namespace vlx
 	class VELOX_API BroadSystem final : public SystemAction
 	{
 	public:
-		using GeneralSystem			= System<Collision, LocalTransform, Transform>;
-		using CircleSystem			= System<Circle, Collision, LocalTransform, Transform>;
-		using BoxSystem				= System<Box, Collision, LocalTransform, Transform>;
-		using CircleBodySystem		= System<Circle, Collision, PhysicsBody, LocalTransform, Transform>;
-		using BoxBodySystem			= System<Box, Collision, PhysicsBody, LocalTransform, Transform>;
+		using GeneralSystem			= System<Collision, LocalTransform>;
+		using CircleSystem			= System<Circle, Collision, LocalTransform>;
+		using BoxSystem				= System<Box, Collision, LocalTransform>;
+		using CircleBodySystem		= System<Circle, Collision, PhysicsBody, LocalTransform>;
+		using BoxBodySystem			= System<Box, Collision, PhysicsBody, LocalTransform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
 		using CollisionList			= std::vector<CollisionPair>;
@@ -41,7 +41,7 @@ namespace vlx
 		BroadSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
-		NODISC constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;
@@ -50,8 +50,8 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void InsertShape(EntityID entity_id, Shape* shape, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t);
-		void QueryShape(EntityID entity_id, Shape* shape, Collision* c, PhysicsBody* pb, LocalTransform* lt, Transform* t);
+		void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt);
+		void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt);
 
 		void CullDuplicates();
 

@@ -13,7 +13,7 @@ NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadS
 
 }
 
-constexpr bool NarrowSystem::IsRequired() const noexcept
+bool NarrowSystem::IsRequired() const noexcept
 {
 	return true;
 }
@@ -40,32 +40,32 @@ void NarrowSystem::FixedUpdate()
 		CollisionObject& B = pair.second;
 
 		CollisionData data(&A, &B);
-		CollisionTable::Collide(data, A, B);
+		CollisionTable::Collide(data, *A.shape, A.type, *B.shape, B.type);
 
 		if (data.contact_count)
 		{
 			m_collision_data.emplace_back(data);
 
-			//CollisionResult first_result(
-			//	0, 0, 
-			//	data.normal, 
-			//	data.contacts[0], 
-			//	data.penetration);
+			CollisionResult first_result(
+				A.entity_id, B.entity_id, 
+				data.normal, 
+				data.contacts[0], 
+				data.penetration);
 
-			//CollisionResult second_result(
-			//	0, 0,
-			//	-data.normal,		// flip normal
-			//	data.contacts[0],
-			//	data.penetration);
+			CollisionResult second_result(
+				B.entity_id, A.entity_id,
+				-data.normal,		// flip normal
+				data.contacts[0],
+				data.penetration);
 
-			//if (!pair.first.collision->colliding)
-			//{
-			//	pair.first.collision->OnEnter(first_result);
-			//	pair.first.collision->colliding = true;
-			//}
+			if (!pair.first.collision->colliding)
+			{
+				pair.first.collision->OnEnter(first_result);
+				pair.first.collision->colliding = true;
+			}
 
-			//pair.first.collision->OnOverlap(first_result);
-			//pair.second.collision->OnOverlap(second_result);
+			pair.first.collision->OnOverlap(first_result);
+			pair.second.collision->OnOverlap(second_result);
 		}
 	}
 }

@@ -8,14 +8,16 @@
 
 namespace vlx
 {
-	class VELOX_API Polygon final : public Shape
+	class VELOX_API Polygon final : public ShapeCRTP<Polygon>
 	{
 	public:
 
 	public:
-		constexpr Type GetType() const noexcept override;
-		void SetAABB(const Transform& transform) override;
-		void Initialize(PhysicsBody& body) const noexcept override;
+		constexpr auto GetType() const noexcept -> Type;
+
+	public:
+		void InitializeImpl(PhysicsBody& body) const noexcept;
+		void UpdateAABBImpl(const Transform& transform);
 
 	private:
 		std::vector<Vector2f> m_vertices;

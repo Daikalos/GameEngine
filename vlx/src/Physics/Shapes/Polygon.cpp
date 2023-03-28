@@ -2,17 +2,17 @@
 
 using namespace vlx;
 
-constexpr Shape::Type Polygon::GetType() const noexcept
+constexpr auto Polygon::GetType() const noexcept -> Type
 {
 	return Type::Convex;
 }
 
-void Polygon::SetAABB(const Transform& transform)
+void Polygon::UpdateAABBImpl(const Transform& transform)
 {
 
 }
 
-void Polygon::Initialize(PhysicsBody& body) const noexcept
+void Polygon::InitializeImpl(PhysicsBody& body) const noexcept
 {
 
 }

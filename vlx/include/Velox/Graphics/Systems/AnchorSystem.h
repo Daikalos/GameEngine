@@ -19,7 +19,7 @@ namespace vlx
 		AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window);
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;

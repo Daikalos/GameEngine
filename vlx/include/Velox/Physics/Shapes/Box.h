@@ -10,7 +10,7 @@
 
 namespace vlx
 {
-	class VELOX_API Box final : public Shape
+	class VELOX_API Box final : public ShapeCRTP<Box>
 	{
 	private:
 		using VecArr = std::array<Vector2f, 4>;
@@ -46,9 +46,10 @@ namespace vlx
 		void SetBottom(float bottom);
 
 	public:
-		constexpr Type GetType() const noexcept override;
-		void SetAABB(const Transform& transform) override;
-		void Initialize(PhysicsBody& body) const override;
+		constexpr auto GetType() const noexcept -> Type;
+
+		void InitializeImpl(PhysicsBody& body) const;
+		void UpdateAABBImpl(const Transform& transform);
 
 	private:
 		VecArr m_vertices;

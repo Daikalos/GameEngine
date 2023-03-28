@@ -34,7 +34,7 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 		});
 }
 
-constexpr bool CullingSystem::IsRequired() const noexcept
+bool CullingSystem::IsRequired() const noexcept
 {
 	return false;
 }

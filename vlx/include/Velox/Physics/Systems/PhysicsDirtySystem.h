@@ -34,13 +34,16 @@ namespace vlx
 		PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
-		NODISC constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;
 		void PostUpdate() override;
+
+	private:
+		void UpdateData(Shape& shape, const Transform& transform);
 
 	private:
 		DirtyGlobalSystem	m_dirty_transform;

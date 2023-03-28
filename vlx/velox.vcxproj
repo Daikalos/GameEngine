@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Graphics\Components\LocalTransform.h" />

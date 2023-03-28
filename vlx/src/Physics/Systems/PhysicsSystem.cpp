@@ -54,7 +54,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 		});
 }
 
-constexpr bool PhysicsSystem::IsRequired() const noexcept
+bool PhysicsSystem::IsRequired() const noexcept
 {
 	return true;
 }
@@ -100,8 +100,6 @@ void PhysicsSystem::FixedUpdate()
 	m_clear_forces.ForceRun();
 
 	m_sleep_bodies.ForceRun();
-
-	std::puts(std::to_string(collisions_data.size()).c_str());
 }
 
 void PhysicsSystem::PostUpdate()

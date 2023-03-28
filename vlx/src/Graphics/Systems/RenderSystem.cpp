@@ -11,7 +11,7 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 		});
 }
 
-constexpr bool RenderSystem::IsRequired() const noexcept
+bool RenderSystem::IsRequired() const noexcept
 {
 	return true;
 }

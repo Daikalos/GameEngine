@@ -148,6 +148,7 @@
     <ClInclude Include="include\Velox\Physics\Collision.h" />
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
+    <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

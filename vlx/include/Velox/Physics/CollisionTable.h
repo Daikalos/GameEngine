@@ -9,17 +9,17 @@
 namespace vlx
 {
 	struct CollisionData;
-	class LocalTransform;
-	class Transform;
 
 	class CollisionTable
 	{
 	public:
 		using Matrix = std::array<std::function<void(
-			CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&)>, Shape::Count * Shape::Count>;
+			CollisionData&, const Shape&, const Shape&)>, Shape::Count * Shape::Count>;
 
 	public:
-		static void Collide(CollisionData&, CollisionObject& a, CollisionObject& b);
+		static void Collide(CollisionData&, 
+			const Shape& s1, typename Shape::Type st1, 
+			const Shape& s2, typename Shape::Type st2);
 
 	private:
 		/// <summary>
@@ -34,25 +34,25 @@ namespace vlx
 		///   
 		/// </summary>
 
-		static void CircleToCircle	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void CircleToBox		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void CircleToPoint	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void CircleToConvex	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
+		static void CircleToCircle	(CollisionData&, const Shape&, const Shape&);
+		static void CircleToBox		(CollisionData&, const Shape&, const Shape&);
+		static void CircleToPoint	(CollisionData&, const Shape&, const Shape&);
+		static void CircleToConvex	(CollisionData&, const Shape&, const Shape&);
 
-		static void BoxToCircle		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void BoxToBox		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void BoxToPoint		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void BoxToConvex		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
+		static void BoxToCircle		(CollisionData&, const Shape&, const Shape&);
+		static void BoxToBox		(CollisionData&, const Shape&, const Shape&);
+		static void BoxToPoint		(CollisionData&, const Shape&, const Shape&);
+		static void BoxToConvex		(CollisionData&, const Shape&, const Shape&);
 
-		static void PointToCircle	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void PointToBox		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void PointToPoint	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void PointToConvex	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
+		static void PointToCircle	(CollisionData&, const Shape&, const Shape&);
+		static void PointToBox		(CollisionData&, const Shape&, const Shape&);
+		static void PointToPoint	(CollisionData&, const Shape&, const Shape&);
+		static void PointToConvex	(CollisionData&, const Shape&, const Shape&);
 
-		static void ConvexToCircle	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void ConvexToBox		(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void ConvexToPoint	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
-		static void ConvexToConvex	(CollisionData&, const Shape&, const Transform&, const Shape&, const Transform&);
+		static void ConvexToCircle	(CollisionData&, const Shape&, const Shape&);
+		static void ConvexToBox		(CollisionData&, const Shape&, const Shape&);
+		static void ConvexToPoint	(CollisionData&, const Shape&, const Shape&);
+		static void ConvexToConvex	(CollisionData&, const Shape&, const Shape&);
 
 	private:
 		static Matrix table;

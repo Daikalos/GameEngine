@@ -15,7 +15,7 @@ ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, const LayerType id)
 		});
 }
 
-constexpr bool ObjectSystem::IsRequired() const noexcept
+bool ObjectSystem::IsRequired() const noexcept
 {
 	return true;
 }

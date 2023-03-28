@@ -113,7 +113,7 @@ namespace vlx
 		}
 		else
 		{
-			m_data.emplace_back(T(std::forward<Args>(args)...));
+			m_data.push_back(T(std::forward<Args>(args)...));
 			return static_cast<size_type>(m_data.size() - 1);
 		}
 	}

@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Shapes/Shape.h"
+
 namespace vlx
 {
-	class Shape;
 	class Collision;
 	class PhysicsBody;
 	class LocalTransform;
@@ -12,13 +13,16 @@ namespace vlx
 	/// 
 	class CollisionObject
 	{
+	private:
+		using Type = typename Shape::Type;
+
 	public:
 		EntityID		entity_id		{NULL_ENTITY};
+		Type			type			{-1};
 		Shape*			shape			{nullptr};
 		Collision*		collision		{nullptr};
 		PhysicsBody*	body			{nullptr};
 		LocalTransform* local_transform	{nullptr};
-		Transform*		transform		{nullptr};
 
 		constexpr bool operator==(const CollisionObject& rhs) const
 		{

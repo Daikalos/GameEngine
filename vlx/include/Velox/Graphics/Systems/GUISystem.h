@@ -24,7 +24,7 @@ namespace vlx::gui
 		GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera, const ControlMap& controls);
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;

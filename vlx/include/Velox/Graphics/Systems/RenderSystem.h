@@ -26,7 +26,7 @@ namespace vlx
 		RenderSystem(EntityAdmin& entity, const LayerType id);
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void SetBatchMode(const BatchMode batch_mode);

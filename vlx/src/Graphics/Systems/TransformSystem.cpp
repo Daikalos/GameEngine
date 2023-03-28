@@ -44,7 +44,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_update_global.Exclude<PhysicsBody>();
 }
 
-constexpr bool TransformSystem::IsRequired() const noexcept
+bool TransformSystem::IsRequired() const noexcept
 {
 	return true;
 }

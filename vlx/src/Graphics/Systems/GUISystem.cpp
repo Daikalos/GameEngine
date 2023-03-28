@@ -62,7 +62,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 		});
 }
 
-constexpr bool GUISystem::IsRequired() const noexcept
+bool GUISystem::IsRequired() const noexcept
 {
 	return false;
 }

@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-constexpr bool RelationSystem::IsRequired() const noexcept
+bool RelationSystem::IsRequired() const noexcept
 {
 	return false;
 }

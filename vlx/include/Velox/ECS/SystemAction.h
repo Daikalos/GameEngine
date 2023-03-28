@@ -21,11 +21,11 @@ namespace vlx
 	public:
 		/// Determines if this system is able of being removed from the world
 		///
-		NODISC virtual constexpr bool IsRequired() const noexcept = 0;
+		NODISC virtual bool IsRequired() const noexcept = 0;
 
 		/// Returns the layer this system is located in
 		///
-		NODISC constexpr LayerType GetLayerID() const noexcept;
+		NODISC LayerType GetLayerID() const noexcept;
 
 	public:
 		virtual void PreUpdate()	= 0;

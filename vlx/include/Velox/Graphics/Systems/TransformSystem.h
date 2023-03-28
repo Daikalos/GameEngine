@@ -23,7 +23,7 @@ namespace vlx
 		TransformSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void SetGlobalPosition(	const EntityID entity, const Vector2f& position);

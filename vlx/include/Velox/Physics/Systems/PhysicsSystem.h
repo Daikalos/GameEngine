@@ -22,7 +22,7 @@ namespace vlx
 		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time, NarrowSystem& narrow_system);
 
 	public:
-		constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;

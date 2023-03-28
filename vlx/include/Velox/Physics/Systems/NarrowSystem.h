@@ -31,7 +31,7 @@ namespace vlx
 		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 	public:
-		NODISC constexpr bool IsRequired() const noexcept override;
+		bool IsRequired() const noexcept override;
 
 	public:
 		void PreUpdate() override;
