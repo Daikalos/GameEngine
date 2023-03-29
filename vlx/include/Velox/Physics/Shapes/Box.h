@@ -50,6 +50,7 @@ namespace vlx
 
 		void InitializeImpl(PhysicsBody& body) const;
 		void UpdateAABBImpl(const Transform& transform);
+		void UpdateTransformImpl(const Transform& transform);
 
 	private:
 		VecArr m_vertices;

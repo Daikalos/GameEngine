@@ -27,11 +27,3 @@ Vector2f Shape::GetCenter() const
 {
 	return m_aabb.Center();
 }
-
-void Shape::UpdateTransform(const Transform& transform)
-{
-	m_transform = transform.GetTransform();
-	m_transform.translate(m_aabb.Size() / 2.0f); // this assumes that aabb perfectly encompasses object
-
-	m_update_inverse = true;
-}

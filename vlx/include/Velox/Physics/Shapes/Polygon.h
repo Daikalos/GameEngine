@@ -18,6 +18,7 @@ namespace vlx
 	public:
 		void InitializeImpl(PhysicsBody& body) const noexcept;
 		void UpdateAABBImpl(const Transform& transform);
+		void UpdateTransformImpl(const Transform& transform);
 
 	private:
 		std::vector<Vector2f> m_vertices;

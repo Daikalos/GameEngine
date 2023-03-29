@@ -79,13 +79,21 @@ constexpr Shape::Type Box::GetType() const noexcept
 	return Shape::Box;
 }
 
+void Box::InitializeImpl(PhysicsBody& body) const
+{
+	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
+	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));
+}
+
 void Box::UpdateAABBImpl(const Transform& transform)
 {
 	m_aabb = transform.GetTransform().transformRect(GetBox());
 }
 
-void Box::InitializeImpl(PhysicsBody& body) const
+void Box::UpdateTransformImpl(const Transform& transform)
 {
-	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
-	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));
+	m_transform = transform.GetTransform();
+	m_transform.translate(GetBox().Size() / 2.0f);
+
+	m_update_inverse = true;
 }

@@ -23,6 +23,7 @@ namespace vlx
 
 		void InitializeImpl(PhysicsBody& body) const;
 		void UpdateAABBImpl(const Transform& transform);
+		void UpdateTransformImpl(const Transform& transform);
 
 	private:
 		float m_radius		{16.0f};
