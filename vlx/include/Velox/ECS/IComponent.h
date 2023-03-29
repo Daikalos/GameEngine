@@ -16,7 +16,7 @@ namespace vlx
 	/// and prone to errors. For example, updating the position of a transform will require the matrix to be rebuilt, and if constructed like a POD, makes 
 	/// it difficult for this to be recognised. For each of these cases, a system will have to be built that notices these changes and I feel this can quickly get
 	/// out of hand. That is why I favor balancing the data-oriented design with the object-oriented design to maintain readability, maintainability, usability, etc. 
-	/// I believe that performance will not be impacted too much either from this choice. 
+	/// I believe that performance will not be impacted too much either from this choice. Right now, CRTP or a close alternative is being considered.
 
 	///	Interface for components and contain events such as when it has been created, copied, or destroyed.
 	///
