@@ -155,6 +155,9 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
+		if (!m_root_rect.Overlaps(rect))
+			return -1;
+
 		const auto idx = m_elements.emplace(rect, T(std::forward<Args>(args)...));
 		EltInsert(rect.Center(), m_elements_ptr.emplace(idx));
 

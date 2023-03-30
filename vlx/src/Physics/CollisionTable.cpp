@@ -68,11 +68,11 @@ void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1,  
 void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, const Shape& s2)
 {
 	const Circle& c1 = reinterpret_cast<const Circle&>(s1);
-	const Box& a2 = reinterpret_cast<const Box&>(s2);
+	const Box& b2 = reinterpret_cast<const Box&>(s2);
 
 	const Vector2f half_extends(
-		a2.GetWidth() / 2.0f, 
-		a2.GetHeight() / 2.0f);
+		b2.GetWidth() / 2.0f,
+		b2.GetHeight() / 2.0f);
 
 	Vector2f n = s2.GetInverseTransform() * s1.GetCenter();
 	Vector2f clamped = n.Clamp(-half_extends, half_extends);
@@ -107,24 +107,27 @@ void CollisionTable::CircleToPoint(CollisionData&, const Shape&, const Shape&)
 {
 
 }
-void CollisionTable::CircleToConvex(CollisionData& collision, const Shape& s1,  const Shape& s2)
+void CollisionTable::CircleToConvex(CollisionData& collision, const Shape& s1, const Shape& s2)
 {
 
 }
 
-void CollisionTable::BoxToCircle(CollisionData& collision, const Shape& s1,  const Shape& s2)
+void CollisionTable::BoxToCircle(CollisionData& collision, const Shape& s1, const Shape& s2)
 {
 	CircleToBox(collision, s2, s1);
 	collision.normal = -collision.normal; // flip normal
 }
-void CollisionTable::BoxToBox(CollisionData& collision, const Shape& s1,  const Shape& s2)
+void CollisionTable::BoxToBox(CollisionData& collision, const Shape& s1, const Shape& s2)
 {
+	const Box& b1 = reinterpret_cast<const Box&>(s1);
+	const Box& b2 = reinterpret_cast<const Box&>(s2);
+
 
 }
-void CollisionTable::BoxToPoint(CollisionData&, const Shape&, const Shape&)
+void CollisionTable::BoxToPoint(CollisionData&, const Shape&,const Shape&)
 {
 }
-void CollisionTable::BoxToConvex(CollisionData& collision, const Shape& s1,  const Shape& s2)
+void CollisionTable::BoxToConvex(CollisionData& collision, const Shape& s1, const Shape& s2)
 {
 
 }

@@ -37,8 +37,8 @@ const Vector2f& Transform::GetScale() const
 	{
 		const float* m = GetTransform().getMatrix();
 
-		m_scale.x = au::Sign(MV(m, 0, 0)) * au::SqrtSq(MV(m, 0, 0), MV(m, 1, 0));
-		m_scale.y = au::Sign(MV(m, 1, 1)) * au::SqrtSq(MV(m, 0, 1), MV(m, 1, 1));
+		m_scale.x = au::Sign(MV(m, 0, 0)) * au::SqrtSqr(MV(m, 0, 0), MV(m, 1, 0));
+		m_scale.y = au::Sign(MV(m, 1, 1)) * au::SqrtSqr(MV(m, 0, 1), MV(m, 1, 1));
 
 		m_update_scale = false;
 	}

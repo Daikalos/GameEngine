@@ -27,9 +27,7 @@ World::World(const std::string_view name) :
 	AddSystem<gui::GUISystem>(		m_entity_admin,	LYR_GUI, m_camera, m_controls);
 	AddSystem<RenderSystem>(		m_entity_admin, LYR_RENDERING);
 	AddSystem<PhysicsDirtySystem>(	m_entity_admin, LYR_DIRTY_PHYSICS);
-	AddSystem<BroadSystem>(			m_entity_admin, LYR_BROAD_PHASE);
-	AddSystem<NarrowSystem>(		m_entity_admin, LYR_NARROW_PHASE, GetSystem<BroadSystem>());
-	AddSystem<PhysicsSystem>(		m_entity_admin,	LYR_PHYSICS, m_time, GetSystem<NarrowSystem>());
+	AddSystem<PhysicsSystem>(		m_entity_admin,	LYR_PHYSICS, m_time);
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
@@ -183,7 +181,7 @@ void World::ProcessEvents()
 
 void World::Draw()
 {
-	m_window.clear(sf::Color::Black);
+	m_window.clear(sf::Color(53, 81, 92));
 	m_window.setView(m_camera);
 
 	GetSystem<RenderSystem>().Draw(m_window);

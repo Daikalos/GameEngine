@@ -82,7 +82,7 @@ constexpr Shape::Type Box::GetType() const noexcept
 void Box::InitializeImpl(PhysicsBody& body) const
 {
 	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
-	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sq(GetWidth()) + au::Sq(GetHeight())));
+	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sqr(GetWidth()) + au::Sqr(GetHeight())));
 }
 
 void Box::UpdateAABBImpl(const Transform& transform)

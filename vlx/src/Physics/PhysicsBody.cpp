@@ -58,7 +58,7 @@ void PhysicsBody::SetVelocity(const Vector2f& velocity)
 {
 	if (m_velocity != velocity)
 	{
-		if (velocity.LengthSq() > au::Sq(PHYSICS_EPSILON))
+		if (velocity.LengthSq() > au::Sqr(PHYSICS_EPSILON))
 		{
 			m_velocity = velocity;
 

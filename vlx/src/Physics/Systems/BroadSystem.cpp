@@ -2,23 +2,22 @@
 
 using namespace vlx;
 
-BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemAction(entity_admin, id), 
+BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) : 
+	m_entity_admin(&entity_admin), m_layer(id),
 
 	m_quad_tree(			{ -4096, -4096, 4096 * 2, 4096 * 2 }), 
 
-	m_circles_ins(			*m_entity_admin, id),
-	m_boxes_ins(			*m_entity_admin, id),
-	m_circles_body_ins(		*m_entity_admin, id),
-	m_boxes_body_ins(		*m_entity_admin, id),
+	m_circles_ins(			entity_admin, id),
+	m_boxes_ins(			entity_admin, id),
+	m_circles_body_ins(		entity_admin, id),
+	m_boxes_body_ins(		entity_admin, id),
 
-	m_cleanup(				*m_entity_admin, id),
+	m_cleanup(				entity_admin, id),
 
-	m_circles_query(		*m_entity_admin, id),
-	m_boxes_query(			*m_entity_admin, id),
-	m_circles_body_query(	*m_entity_admin, id),
-	m_boxes_body_query(		*m_entity_admin, id)
-
+	m_circles_query(		entity_admin, id),
+	m_boxes_query(			entity_admin, id),
+	m_circles_body_query(	entity_admin, id),
+	m_boxes_body_query(		entity_admin, id)
 {
 	m_cleanup.OnStart += [this]()
 	{
@@ -79,34 +78,14 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_boxes_query.Exclude<PhysicsBody>();
 }
 
-bool BroadSystem::IsRequired() const noexcept
-{
-	return true;
-}
-
-void BroadSystem::PreUpdate()
-{
-
-}
-
 void BroadSystem::Update()
-{
-
-}
-
-void BroadSystem::FixedUpdate()
 {
 	m_collision_pairs.clear();
 	m_collision_indices.clear();
 
-	Execute();
+	m_entity_admin->RunSystems(m_layer);
 
 	CullDuplicates();
-}
-
-void BroadSystem::PostUpdate()
-{
-
 }
 
 void BroadSystem::InsertShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt)

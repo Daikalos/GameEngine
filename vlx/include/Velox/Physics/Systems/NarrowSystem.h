@@ -22,7 +22,7 @@
 
 namespace vlx
 {
-	class VELOX_API NarrowSystem final : public SystemAction
+	class VELOX_API NarrowSystem final
 	{
 	private:
 		using CollisionSystem = System<Collision, LocalTransform, Transform>;
@@ -31,13 +31,7 @@ namespace vlx
 		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void PreUpdate() override;
-		void Update() override;
-		void FixedUpdate() override;
-		void PostUpdate() override;
+		void Update();
 
 	private:
 		void CallEvents(const CollisionData& data, const CollisionObject& object);

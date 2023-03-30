@@ -2,33 +2,13 @@
 
 using namespace vlx;
 
-NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system)
-	: SystemAction(entity_admin, id),
-
-	m_broad_system(&broad_system),
-
-	m_initialize_collisions(entity_admin, id - 1),
-	m_exit_collisions(entity_admin, id + 1)
-{
-
-}
-
-bool NarrowSystem::IsRequired() const noexcept
-{
-	return true;
-}
-
-void NarrowSystem::PreUpdate()
+NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) 
+	: m_broad_system(&broad_system), m_initialize_collisions(entity_admin, id - 1), m_exit_collisions(entity_admin, id + 1)
 {
 
 }
 
 void NarrowSystem::Update()
-{
-
-}
-
-void NarrowSystem::FixedUpdate()
 {
 	m_collision_data.clear();
 
@@ -47,9 +27,9 @@ void NarrowSystem::FixedUpdate()
 			m_collision_data.emplace_back(data);
 
 			CollisionResult first_result(
-				A.entity_id, B.entity_id, 
-				data.normal, 
-				data.contacts[0], 
+				A.entity_id, B.entity_id,
+				data.normal,
+				data.contacts[0],
 				data.penetration);
 
 			CollisionResult second_result(
@@ -68,11 +48,6 @@ void NarrowSystem::FixedUpdate()
 			pair.second.collision->OnOverlap(second_result);
 		}
 	}
-}
-
-void NarrowSystem::PostUpdate()
-{
-
 }
 
 void NarrowSystem::CallEvents(const CollisionData& data, const CollisionObject& object)

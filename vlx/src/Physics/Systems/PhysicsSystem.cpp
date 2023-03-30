@@ -2,11 +2,13 @@
 
 using namespace vlx;
 
-PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time, NarrowSystem& narrow_system)
+PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time)
 	: SystemAction(entity_admin, id), 
 
 	m_time(&time), 
-	m_narrow_system(&narrow_system),
+
+	m_broad_system(entity_admin, LYR_BROAD_PHASE),
+	m_narrow_system(entity_admin, LYR_NARROW_PHASE, m_broad_system),
 
 	m_update_forces(	entity_admin, LYR_PHYSICS + 1),
 	m_update_positions(	entity_admin, LYR_PHYSICS + 2),
@@ -43,7 +45,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 
 	m_sleep_bodies.Each([this](EntityID entity_id, PhysicsBody& body)
 		{
-			// TODO: check if body moved this frame, if not, decrement timer, otherwise, set timer to max
+			// TODO: check if body has moved above a certain threshold for the last x seconds, if not, decrement timer, otherwise, set timer to max
 
 			if (body.m_awake)
 			{
@@ -81,7 +83,10 @@ void PhysicsSystem::Update()
 
 void PhysicsSystem::FixedUpdate()
 {
-	std::span<CollisionData> collisions_data = m_narrow_system->m_collision_data;
+	m_broad_system.Update();
+	m_narrow_system.Update();
+
+	std::span<CollisionData> collisions_data = m_narrow_system.m_collision_data;
 
 	m_update_forces.ForceRun();
 
@@ -109,10 +114,6 @@ void PhysicsSystem::PostUpdate()
 
 void PhysicsSystem::Initialize(CollisionData& collision)
 {
-	if (collision.A->body == nullptr ||
-		collision.B->body == nullptr)
-		return;
-
 	PhysicsBody& AB = *collision.A->body;
 	PhysicsBody& BB = *collision.B->body;
 
@@ -136,10 +137,6 @@ void PhysicsSystem::Initialize(CollisionData& collision)
 
 void PhysicsSystem::ResolveCollision(CollisionData& collision)
 {
-	if (collision.A->body == nullptr ||
-		collision.B->body == nullptr)
-		return;
-
 	PhysicsBody& AB = *collision.A->body;
 	PhysicsBody& BB = *collision.B->body;
 
@@ -168,7 +165,7 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		const float rb_cross_n = rb.Cross(collision.normal);
 
 		const float inv_mass_sum = AB.GetInvMass() + BB.GetInvMass() +
-			au::Sq(ra_cross_n) * AB.GetInvInertia() + au::Sq(rb_cross_n) * BB.GetInvInertia();
+			au::Sqr(ra_cross_n) * AB.GetInvInertia() + au::Sqr(rb_cross_n) * BB.GetInvInertia();
 
 		// impulse scalar
 		float j = -(1.0f + collision.restitution) * vel_along_normal;
@@ -185,21 +182,17 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 			 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
 		Vector2f t = rv - (collision.normal * rv.Dot(collision.normal));
-
-		float length_sqr = t.LengthSq();
-		if (length_sqr <= FLT_EPSILON)
-			return;
-
-		t = t.Normalize(std::sqrt(length_sqr), 1.0f);
+		t = t.Normalize();
 
 		float jt = -rv.Dot(t);
 		jt /= inv_mass_sum;
 		jt /= (float)collision.contact_count;
 
-		if (au::Equal(jt, 0.0f))
+		if (au::Equal(jt, 0.0f, PHYSICS_EPSILON))
 			return;
 
-		const Vector2f tangent_impulse = (std::abs(jt) < j * collision.static_friction) ? t * jt : t * -j * collision.dynamic_friction;
+		const Vector2f tangent_impulse = (std::abs(jt) < j * collision.static_friction) 
+			? t * jt : t * -j * collision.dynamic_friction;
 
 		AB.ApplyImpulse(-tangent_impulse, ra);
 		BB.ApplyImpulse( tangent_impulse, rb);
@@ -208,15 +201,11 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 
 void PhysicsSystem::PositionalCorrection(CollisionData& collision)
 {
-	if (collision.A->body == nullptr ||
-		collision.B->body == nullptr)
-		return;
-
 	PhysicsBody& AB = *collision.A->body;
 	PhysicsBody& BB = *collision.B->body;
 
-	const float percent = 0.20f;
-	const float k_slop	= 0.01f;
+	constexpr float percent = 0.40f;
+	constexpr float k_slop	= 0.05f;
 
 	Vector2f correction = (std::max(collision.penetration - k_slop, 0.0f) / 
 		(AB.GetInvMass() + BB.GetInvMass())) * collision.normal * percent;

@@ -12,6 +12,7 @@
 
 #include "../CollisionObject.h"
 
+#include "BroadSystem.h"
 #include "NarrowSystem.h"
 
 namespace vlx
@@ -19,7 +20,7 @@ namespace vlx
 	class VELOX_API PhysicsSystem final : public SystemAction
 	{
 	public:
-		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time, NarrowSystem& narrow_system);
+		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time);
 
 	public:
 		bool IsRequired() const noexcept override;
@@ -41,9 +42,10 @@ namespace vlx
 
 	private:
 		Time*			m_time			{nullptr};
-		NarrowSystem*	m_narrow_system {nullptr};
+		Vector2f		m_gravity		{0.0f, 20.82f};
 
-		Vector2f		m_gravity		{0.0f, 9.82f};
+		BroadSystem		m_broad_system;
+		NarrowSystem	m_narrow_system;
 
 		System<PhysicsBody>					m_update_forces;
 		System<PhysicsBody, LocalTransform>	m_update_positions;

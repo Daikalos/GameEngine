@@ -50,15 +50,15 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr T Sq(const T base)
+	NODISC static constexpr T Sqr(const T base)
 	{
 		return Pow(base, 2);
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr auto SqrtSq(const T v0, const T v1)
+	NODISC static constexpr auto SqrtSqr(const T v0, const T v1)
 	{
-		return std::sqrt(Sq(v0) + Sq(v1));
+		return std::sqrt(Sqr(v0) + Sqr(v1));
 	}
 
 	template<Arithmetic T>

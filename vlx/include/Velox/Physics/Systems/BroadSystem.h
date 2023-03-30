@@ -22,7 +22,7 @@
 
 namespace vlx
 {
-	class VELOX_API BroadSystem final : public SystemAction
+	class VELOX_API BroadSystem final 
 	{
 	public:
 		using GeneralSystem			= System<Collision, LocalTransform>;
@@ -41,13 +41,7 @@ namespace vlx
 		BroadSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void PreUpdate() override;
-		void Update() override;
-		void FixedUpdate() override;
-		void PostUpdate() override;
+		void Update();
 
 	private:
 		void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt);
@@ -56,6 +50,9 @@ namespace vlx
 		void CullDuplicates();
 
 	private:
+		EntityAdmin* m_entity_admin {nullptr};
+		LayerType	 m_layer		{LYR_NONE};
+
 		LQuadTree<QTCollision::value_type> m_quad_tree;
 
 		CollisionList		m_collision_pairs;
