@@ -174,7 +174,7 @@ bool StateTest::Update(Time& time)
 		//}
 	}
 
-	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFramerate()));
+	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFPS()));
 
 	m_entity_admin->RunSystems(100);
 

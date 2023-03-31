@@ -229,7 +229,7 @@ namespace vlx
 	inline constexpr Vector2<T>::Vector2(const sf::Vector2<T>& rhs) : v(rhs) { }
 
 	template<Arithmetic T> template<Arithmetic U>
-	inline constexpr Vector2<T>::Vector2(const Vector2<U>& rhs)		: v(rhs.x, rhs.y) { }
+	inline constexpr Vector2<T>::Vector2(const Vector2<U>& rhs)		: v(static_cast<T>(rhs.x), static_cast<T>(rhs.y)) { }
 	template<Arithmetic T> template<Arithmetic U>
 	inline constexpr Vector2<T>::Vector2(const sf::Vector2<U>& rhs) : v(rhs) { }
 

@@ -13,15 +13,16 @@ namespace vlx
 	class VELOX_API Time final
 	{
 	public:
-		NODISC constexpr float GetDT() const noexcept;
-		NODISC constexpr float GetRealDT() const noexcept;
-		NODISC constexpr float GetFixedDT() const noexcept;
-		NODISC constexpr float GetRealFixedDT() const noexcept;
-		NODISC constexpr float GetScaledTime() const noexcept;
-		NODISC constexpr float GetAlpha() const noexcept;
-		NODISC constexpr long double GetTotalTime() const noexcept;
-		NODISC constexpr long double GetTotalRunTime() const noexcept;
-		NODISC constexpr int GetFramerate() const noexcept;
+		NODISC float GetDT() const noexcept;
+		NODISC float GetRealDT() const noexcept;
+		NODISC float GetFixedDT() const noexcept;
+		NODISC float GetRealFixedDT() const noexcept;
+		NODISC float GetScaledTime() const noexcept;
+		NODISC float GetAlpha() const noexcept;
+		NODISC long double GetTotalTime() const noexcept;
+		NODISC long double GetTotalRunTime() const noexcept;
+		NODISC int GetFPS() const noexcept;
+		NODISC int GetFixedFPS() const noexcept;
 
 		void SetScaledTime(const float value) noexcept;
 		void SetAlpha(const float value) noexcept;

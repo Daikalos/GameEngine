@@ -132,8 +132,33 @@ void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 		Vector2f ra = contact.position - arbiter.A->shape->GetCenter();
 		Vector2f rb = contact.position - arbiter.B->shape->GetCenter();
 
+		{
+			float rna = ra.Cross(contact.normal);
+			float rnb = rb.Cross(contact.normal);
+
+			float k_normal = AB.GetInvMass() + BB.GetInvMass() +
+				AB.GetInvInertia() * au::Sqr(rna) + BB.GetInvInertia() * au::Sqr(rnb);
+
+			contact.mass_normal = 1.0f / k_normal;
+		}
+
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
+
+		{
+			Vector2f tangent = rv - (contact.normal * rv.Dot(contact.normal));
+			tangent = tangent.Normalize();
+
+			float rta = ra.Cross(tangent);
+			float rtb = rb.Cross(tangent);
+
+			float k_tangent = AB.GetInvMass() + BB.GetInvMass() +
+				AB.GetInvInertia() * au::Sqr(rta) + BB.GetInvInertia() * au::Sqr(rtb);
+
+			contact.mass_tangent = 1.0f / k_tangent;
+		}
+
+		contact.bias = -0.2f * m_time->GetFixedFPS() * std::min(contact.penetration + 0.01f, 0.0f);
 
 		if (rv.LengthSq() < (m_gravity * m_time->GetFixedDT()).LengthSq() + FLT_EPSILON)
 			arbiter.restitution = 0.0f;
@@ -160,6 +185,55 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 
 	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 	{
+		//CollisionContact& contact = arbiter.contacts[i];
+
+		//Vector2f ra = contact.position - AS.GetCenter();
+		//Vector2f rb = contact.position - BS.GetCenter();
+
+		//Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
+		//			  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
+
+		//const float vel_along_normal = rv.Dot(contact.normal);
+
+		//if (vel_along_normal > 0.0f) // no need to resolve if they are separating
+		//	return;
+
+		//const float ra_cross_n = ra.Cross(contact.normal);
+		//const float rb_cross_n = rb.Cross(contact.normal);
+
+		//const float inv_mass_sum = AB.GetInvMass() + BB.GetInvMass() +
+		//	au::Sqr(ra_cross_n) * AB.GetInvInertia() + au::Sqr(rb_cross_n) * BB.GetInvInertia();
+
+		//// impulse scalar
+		//float j = -(1.0f + arbiter.restitution) * vel_along_normal;
+		//j /= inv_mass_sum;
+		//j /= (float)arbiter.contacts_count;
+
+		//const Vector2f impulse = contact.normal * j;
+		//AB.ApplyImpulse(-impulse, ra);
+		//BB.ApplyImpulse( impulse, rb);
+
+		//// friction
+
+		//rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
+		//	 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
+
+		//Vector2f t = rv - (contact.normal * rv.Dot(contact.normal));
+		//t = t.Normalize();
+
+		//float jt = -rv.Dot(t);
+		//jt /= inv_mass_sum;
+		//jt /= (float)arbiter.contacts_count;
+
+		//if (au::Equal(jt, 0.0f, PHYSICS_EPSILON))
+		//	return;
+
+		//const Vector2f friction_impulse = (std::abs(jt) < j * arbiter.static_friction) 
+		//	? (t * jt) : (t * -j * arbiter.dynamic_friction);
+
+		//AB.ApplyImpulse(-friction_impulse, ra);
+		//BB.ApplyImpulse( friction_impulse, rb);
+
 		CollisionContact& contact = arbiter.contacts[i];
 
 		Vector2f ra = contact.position - AS.GetCenter();
@@ -173,18 +247,11 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		if (vel_along_normal > 0.0f) // no need to resolve if they are separating
 			return;
 
-		const float ra_cross_n = ra.Cross(contact.normal);
-		const float rb_cross_n = rb.Cross(contact.normal);
+		float dpn = -(1.0f + arbiter.restitution) * vel_along_normal * contact.mass_normal + contact.bias;
+		dpn = std::max(dpn, 0.0f);
 
-		const float inv_mass_sum = AB.GetInvMass() + BB.GetInvMass() +
-			au::Sqr(ra_cross_n) * AB.GetInvInertia() + au::Sqr(rb_cross_n) * BB.GetInvInertia();
+		Vector2f impulse = dpn * contact.normal;
 
-		// impulse scalar
-		float j = -(1.0f + arbiter.restitution) * vel_along_normal;
-		j /= inv_mass_sum;
-		j /= (float)arbiter.contacts_count;
-
-		const Vector2f impulse = contact.normal * j;
 		AB.ApplyImpulse(-impulse, ra);
 		BB.ApplyImpulse( impulse, rb);
 
@@ -193,22 +260,21 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 			 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
-		Vector2f t = rv - (contact.normal * rv.Dot(contact.normal));
-		Vector2f test = t;
-		t = t.Normalize();
+		Vector2f tangent = rv - (contact.normal * rv.Dot(contact.normal));
+		tangent = tangent.Normalize();
 
-		float jt = -rv.Dot(t);
-		jt /= inv_mass_sum;
-		jt /= (float)arbiter.contacts_count;
+		float dpt = contact.mass_tangent * -rv.Dot(tangent);
 
-		if (au::Equal(jt, 0.0f, PHYSICS_EPSILON))
+		if (au::Equal(dpt, 0.0f, PHYSICS_EPSILON))
 			return;
 
-		const Vector2f friction_impulse = (std::abs(jt) < j * arbiter.static_friction) 
-			? (t * jt) : (t * -j * arbiter.dynamic_friction);
+		const Vector2f friction_impulse = (std::abs(dpt) < dpn * arbiter.static_friction) ?
+			(tangent * dpt) : (tangent * -dpn * arbiter.dynamic_friction);
 
 		AB.ApplyImpulse(-friction_impulse, ra);
 		BB.ApplyImpulse( friction_impulse, rb);
+
+		// TODO: check if accumulating impulses fixes friction
 	}
 }
 

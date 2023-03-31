@@ -9,14 +9,14 @@ NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadS
 }
 
 void NarrowSystem::Update(
-	std::span<typename BroadSystem::CollisionPair> collision_pairs,
-	std::span<typename BroadSystem::CollisionIndex> collision_indices)
+	std::span<typename BroadSystem::CollisionPair> pairs,
+	std::span<typename BroadSystem::CollisionIndex> indices)
 {
 	m_arbiters.clear();
 
-	for (const auto i : collision_indices)
+	for (const auto i : indices)
 	{
-		auto& pair = collision_pairs[i];
+		auto& pair = pairs[i];
 
 		CollisionObject& A = pair.first;
 		CollisionObject& B = pair.second;

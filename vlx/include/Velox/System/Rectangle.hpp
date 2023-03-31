@@ -80,11 +80,11 @@ namespace vlx
 
 	template<Arithmetic T>
 	inline constexpr Rect<T>::Rect(T left, T top, T width, T height)
-		: left(left), top(top), width(width), height(height) { };
+		: rect({ left, top }, { width, height }) { };
 
 	template<Arithmetic T>
 	inline constexpr Rect<T>::Rect(const Vector2<T>& position, const Vector2<T>& size)
-		: left(position.x), top(position.y), width(size.x), height(size.y) { };
+		: rect({ position.x, position.y }, { size.x, size.y }) { };
 
 	template<Arithmetic T>
 	inline constexpr Rect<T>::Rect(const sf::Rect<T>& rhs)
@@ -93,7 +93,7 @@ namespace vlx
 	template<Arithmetic T>
 	template<Arithmetic U>
 	inline constexpr Rect<T>::Rect(const Rect<U>& rhs)
-		: left(static_cast<T>(rhs.left)), top(static_cast<T>(rhs.top)), width(static_cast<T>(rhs.width)), height(static_cast<T>(rhs.height)) { };
+		: rect({ rhs.left, rhs.top }, { rhs.width, rhs.height }) { };
 
 	template<Arithmetic T>
 	template<Arithmetic U>

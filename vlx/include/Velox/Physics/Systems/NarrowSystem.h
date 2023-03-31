@@ -32,8 +32,8 @@ namespace vlx
 
 	public:
 		void Update(
-			std::span<typename BroadSystem::CollisionPair> collision_pairs,
-			std::span<typename BroadSystem::CollisionIndex> collision_indices);
+			std::span<typename BroadSystem::CollisionPair> pairs,
+			std::span<typename BroadSystem::CollisionIndex> indices);
 
 	public:
 		std::span<CollisionArbiter> GetArbiters() noexcept;
