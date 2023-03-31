@@ -13,7 +13,7 @@
 
 #include "../CollisionObject.h"
 #include "../CollisionResult.h"
-#include "../CollisionData.h"
+#include "../CollisionArbiter.h"
 #include "../CollisionTable.h"
 #include "../Collision.h"
 #include "../PhysicsBody.h"
@@ -31,15 +31,21 @@ namespace vlx
 		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 	public:
-		void Update();
+		void Update(
+			std::span<typename BroadSystem::CollisionPair> collision_pairs,
+			std::span<typename BroadSystem::CollisionIndex> collision_indices);
+
+	public:
+		std::span<CollisionArbiter> GetArbiters() noexcept;
+		std::span<const CollisionArbiter> GetArbiters() const noexcept;
 
 	private:
-		void CallEvents(const CollisionData& data, const CollisionObject& object);
+		void CallEvents(const CollisionArbiter& data, const CollisionObject& object);
 
 	private:
-		BroadSystem* m_broad_system{nullptr};
+		BroadSystem* m_broad_system {nullptr};
 
-		std::vector<CollisionData> m_collision_data;
+		std::vector<CollisionArbiter> m_arbiters;
 
 		System<PhysicsBody> m_initialize_collisions;
 		System<PhysicsBody> m_exit_collisions;

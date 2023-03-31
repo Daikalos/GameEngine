@@ -3,7 +3,7 @@
 using namespace vlx;
 
 constexpr BodyType PhysicsBody::GetType() const noexcept				{ return m_type; }
-constexpr float PhysicsBody::GetGravity() const noexcept				{ return m_gravity_scale; }
+constexpr float PhysicsBody::GetGravityScale() const noexcept			{ return m_gravity_scale; }
 constexpr float PhysicsBody::GetDensity() const noexcept				{ return m_material.density; }
 constexpr float PhysicsBody::GetRestitution() const noexcept			{ return m_material.restitution; }
 constexpr float PhysicsBody::GetMass() const noexcept					{ return m_mass; }

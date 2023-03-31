@@ -161,11 +161,12 @@
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
     <ClInclude Include="include\Velox\Physics\Collision.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionContact.h" />
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
     <ClInclude Include="include\Velox\Physics\Systems\BroadSystem.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Circle.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionData.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionArbiter.h" />
     <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />

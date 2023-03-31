@@ -1,12 +1,5 @@
 #include <Velox/Physics/CollisionTable.h>
 
-#include <Velox/Physics/Shapes/Circle.h>
-#include <Velox/Physics/Shapes/Box.h>
-#include <Velox/Physics/CollisionData.h>
-
-#include <Velox/Graphics/Components/LocalTransform.h>
-#include <Velox/Graphics/Components/Transform.h>
-
 using namespace vlx;
 
 /// <summary>
@@ -28,14 +21,14 @@ CollisionTable::Matrix CollisionTable::table =
 	&CollisionTable::ConvexToCircle,	&CollisionTable::ConvexToBox,		&CollisionTable::ConvexToPoint,		&CollisionTable::ConvexToConvex
 };
 
-void CollisionTable::Collide(CollisionData& collision, 
+void CollisionTable::Collide(CollisionArbiter& arbiter, 
 	const Shape& s1, typename Shape::Type st1,
 	const Shape& s2, typename Shape::Type st2)
 {
-	table[st2 + int(st1) * Shape::Type::Count](collision, s1, s2);
+	table[st2 + int(st1) * Shape::Type::Count](arbiter, s1, s2);
 }
 
-void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1,  const Shape& s2)
+void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1,  const Shape& s2)
 {
 	const Circle& c1 = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
 	const Circle& c2 = reinterpret_cast<const Circle&>(s2);
@@ -48,24 +41,25 @@ void CollisionTable::CircleToCircle(CollisionData& collision, const Shape& s1,  
 	if (dist_sqr >= radius * radius)
 		return;
 
-	collision.contact_count = 1;
+	CollisionContact& contact = arbiter.contacts[0];
+	arbiter.contacts_count = 1;
 
 	if (dist_sqr == 0.0f)
 	{
-		collision.penetration	= c1.GetRadius();
-		collision.normal		= Vector2f::UnitX;
-		collision.contacts[0]	= s1.GetCenter();
+		contact.penetration = c1.GetRadius();
+		contact.normal		= Vector2f::UnitX;
+		contact.position	= s1.GetCenter();
 
 		return;
 	}
 
 	const float distance = std::sqrt(dist_sqr);
 
-	collision.penetration	= radius - distance;
-	collision.normal		= normal / distance;
-	collision.contacts[0]	= collision.normal * c1.GetRadius() + s1.GetCenter();
+	contact.penetration	= radius - distance;
+	contact.normal		= normal / distance;
+	contact.position	= contact.normal * c1.GetRadius() + s1.GetCenter();
 }
-void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, const Shape& s2)
+void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	const Circle& c1 = reinterpret_cast<const Circle&>(s1);
 	const Box& b2 = reinterpret_cast<const Box&>(s2);
@@ -98,68 +92,70 @@ void CollisionTable::CircleToBox(CollisionData& collision, const Shape& s1, cons
 	dist = std::sqrt(dist);
 	n = (normal / dist);
 
-	collision.contact_count = 1;
-	collision.penetration	= c1.GetRadius() - dist;
-	collision.normal		= (inside ? -n : n);
-	collision.contacts[0]	= point;
+	CollisionContact& contact = arbiter.contacts[0];
+	arbiter.contacts_count = 1;
+
+	contact.penetration	= c1.GetRadius() - dist;
+	contact.normal		= (inside ? -n : n);
+	contact.position	= point;
 }
-void CollisionTable::CircleToPoint(CollisionData&, const Shape&, const Shape&)
+void CollisionTable::CircleToPoint(CollisionArbiter&, const Shape&, const Shape&)
 {
 
 }
-void CollisionTable::CircleToConvex(CollisionData& collision, const Shape& s1, const Shape& s2)
+void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 
 }
 
-void CollisionTable::BoxToCircle(CollisionData& collision, const Shape& s1, const Shape& s2)
+void CollisionTable::BoxToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
-	CircleToBox(collision, s2, s1);
-	collision.normal = -collision.normal; // flip normal
+	CircleToBox(arbiter, s2, s1);
+	arbiter.contacts[0].normal = -arbiter.contacts[0].normal; // flip normal
 }
-void CollisionTable::BoxToBox(CollisionData& collision, const Shape& s1, const Shape& s2)
+void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	const Box& b1 = reinterpret_cast<const Box&>(s1);
 	const Box& b2 = reinterpret_cast<const Box&>(s2);
 
 
 }
-void CollisionTable::BoxToPoint(CollisionData&, const Shape&,const Shape&)
+void CollisionTable::BoxToPoint(CollisionArbiter&, const Shape&,const Shape&)
 {
 }
-void CollisionTable::BoxToConvex(CollisionData& collision, const Shape& s1, const Shape& s2)
-{
-
-}
-
-void CollisionTable::PointToCircle(CollisionData&, const Shape&, const Shape&)
-{
-}
-
-void CollisionTable::PointToBox(CollisionData&, const Shape&, const Shape&)
-{
-}
-
-void CollisionTable::PointToPoint(CollisionData&, const Shape&, const Shape&)
-{
-}
-
-void CollisionTable::PointToConvex(CollisionData&, const Shape&, const Shape&)
-{
-}
-
-void CollisionTable::ConvexToCircle(CollisionData& collision, const Shape& s1, const Shape& s2)
+void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 
 }
-void CollisionTable::ConvexToBox(CollisionData& collision, const Shape& s1, const Shape& s2)
+
+void CollisionTable::PointToCircle(CollisionArbiter&, const Shape&, const Shape&)
+{
+}
+
+void CollisionTable::PointToBox(CollisionArbiter&, const Shape&, const Shape&)
+{
+}
+
+void CollisionTable::PointToPoint(CollisionArbiter&, const Shape&, const Shape&)
+{
+}
+
+void CollisionTable::PointToConvex(CollisionArbiter&, const Shape&, const Shape&)
+{
+}
+
+void CollisionTable::ConvexToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 
 }
-void CollisionTable::ConvexToPoint(CollisionData&, const Shape&, const Shape&)
+void CollisionTable::ConvexToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
+{
+
+}
+void CollisionTable::ConvexToPoint(CollisionArbiter&, const Shape&, const Shape&)
 {
 }
-void CollisionTable::ConvexToConvex(CollisionData& collision, const Shape& s1, const Shape& s2)
+void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 
 }

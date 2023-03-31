@@ -11,6 +11,7 @@
 #include <Velox/Config.hpp>
 
 #include "../CollisionObject.h"
+#include "../CollisionArbiter.h"
 
 #include "BroadSystem.h"
 #include "NarrowSystem.h"
@@ -36,9 +37,9 @@ namespace vlx
 		void SetGravity(const Vector2f& gravity);
 
 	private:
-		void Initialize(CollisionData& data);
-		void ResolveCollision(CollisionData& data);
-		void PositionalCorrection(CollisionData& data);
+		void Initialize(CollisionArbiter& arbiter);
+		void ResolveCollision(CollisionArbiter& arbiter);
+		void PositionalCorrection(CollisionArbiter& arbiter);
 
 	private:
 		Time*			m_time			{nullptr};

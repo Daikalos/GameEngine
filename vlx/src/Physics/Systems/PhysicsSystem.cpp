@@ -84,22 +84,25 @@ void PhysicsSystem::Update()
 void PhysicsSystem::FixedUpdate()
 {
 	m_broad_system.Update();
-	m_narrow_system.Update();
 
-	std::span<CollisionData> collisions_data = m_narrow_system.m_collision_data;
+	m_narrow_system.Update(
+		m_broad_system.GetPairs(), 
+		m_broad_system.GetIndices());
+
+	std::span<CollisionArbiter> arbiters = m_narrow_system.GetArbiters();
 
 	m_update_forces.ForceRun();
 
-	for (auto& collision : collisions_data)
+	for (auto& collision : arbiters)
 		Initialize(collision);
 
 	for (int i = 0; i < 10; ++i)
-		for (auto& collision : collisions_data)
+		for (auto& collision : arbiters)
 			ResolveCollision(collision);
 
 	m_update_positions.ForceRun();
 
-	for (auto& collision : collisions_data)
+	for (auto& collision : arbiters)
 		PositionalCorrection(collision);
 
 	m_clear_forces.ForceRun();
@@ -112,33 +115,37 @@ void PhysicsSystem::PostUpdate()
 
 }
 
-void PhysicsSystem::Initialize(CollisionData& collision)
+void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 {
-	PhysicsBody& AB = *collision.A->body;
-	PhysicsBody& BB = *collision.B->body;
+	PhysicsBody& AB = *arbiter.A->body;
+	PhysicsBody& BB = *arbiter.B->body;
 
-	collision.restitution = std::min(AB.GetRestitution(), BB.GetRestitution());
+	arbiter.restitution = std::min(AB.GetRestitution(), BB.GetRestitution());
 
-	collision.static_friction = std::sqrt(AB.GetStaticFriction() * BB.GetStaticFriction());
-	collision.dynamic_friction = std::sqrt(AB.GetDynamicFriction() * BB.GetDynamicFriction());
+	arbiter.static_friction = std::sqrt(AB.GetStaticFriction() * BB.GetStaticFriction());
+	arbiter.dynamic_friction = std::sqrt(AB.GetDynamicFriction() * BB.GetDynamicFriction());
 
-	for (std::uint32_t i = 0; i < collision.contact_count; ++i)
+	for (std::uint32_t i = 0; i < arbiter.contacts_count; ++i)
 	{
-		Vector2f ra = collision.contacts[i] - collision.A->shape->GetCenter();
-		Vector2f rb = collision.contacts[i] - collision.B->shape->GetCenter();
+		CollisionContact& contact = arbiter.contacts[i];
+
+		Vector2f ra = contact.position - arbiter.A->shape->GetCenter();
+		Vector2f rb = contact.position - arbiter.B->shape->GetCenter();
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
 		if (rv.LengthSq() < (m_gravity * m_time->GetFixedDT()).LengthSq() + FLT_EPSILON)
-			collision.restitution = 0.0f;
+			arbiter.restitution = 0.0f;
 	}
 }
 
-void PhysicsSystem::ResolveCollision(CollisionData& collision)
+void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 {
-	PhysicsBody& AB = *collision.A->body;
-	PhysicsBody& BB = *collision.B->body;
+	CollisionObject& A = *arbiter.A;
+	CollisionObject& B = *arbiter.B;
+	PhysicsBody& AB = *A.body;
+	PhysicsBody& BB = *B.body;
 
 	if (au::Equal(AB.GetInvMass() + BB.GetInvMass(), 0.0f))
 	{
@@ -148,68 +155,74 @@ void PhysicsSystem::ResolveCollision(CollisionData& collision)
 		return;
 	}
 
-	for (std::size_t i = 0; i < collision.contact_count; ++i)
+	const Shape& AS = *A.shape;
+	const Shape& BS = *B.shape;
+
+	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 	{
-		Vector2f ra = collision.contacts[i] - collision.A->shape->GetCenter();
-		Vector2f rb = collision.contacts[i] - collision.B->shape->GetCenter();
+		CollisionContact& contact = arbiter.contacts[i];
+
+		Vector2f ra = contact.position - AS.GetCenter();
+		Vector2f rb = contact.position - BS.GetCenter();
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
-		const float vel_along_normal = rv.Dot(collision.normal);
+		const float vel_along_normal = rv.Dot(contact.normal);
 
 		if (vel_along_normal > 0.0f) // no need to resolve if they are separating
 			return;
 
-		const float ra_cross_n = ra.Cross(collision.normal);
-		const float rb_cross_n = rb.Cross(collision.normal);
+		const float ra_cross_n = ra.Cross(contact.normal);
+		const float rb_cross_n = rb.Cross(contact.normal);
 
 		const float inv_mass_sum = AB.GetInvMass() + BB.GetInvMass() +
 			au::Sqr(ra_cross_n) * AB.GetInvInertia() + au::Sqr(rb_cross_n) * BB.GetInvInertia();
 
 		// impulse scalar
-		float j = -(1.0f + collision.restitution) * vel_along_normal;
+		float j = -(1.0f + arbiter.restitution) * vel_along_normal;
 		j /= inv_mass_sum;
-		j /= (float)collision.contact_count;
+		j /= (float)arbiter.contacts_count;
 
-		const Vector2f impulse = collision.normal * j;
+		const Vector2f impulse = contact.normal * j;
 		AB.ApplyImpulse(-impulse, ra);
 		BB.ApplyImpulse( impulse, rb);
 
-
+		// friction
 
 		rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 			 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
-		Vector2f t = rv - (collision.normal * rv.Dot(collision.normal));
+		Vector2f t = rv - (contact.normal * rv.Dot(contact.normal));
+		Vector2f test = t;
 		t = t.Normalize();
 
 		float jt = -rv.Dot(t);
 		jt /= inv_mass_sum;
-		jt /= (float)collision.contact_count;
+		jt /= (float)arbiter.contacts_count;
 
 		if (au::Equal(jt, 0.0f, PHYSICS_EPSILON))
 			return;
 
-		const Vector2f tangent_impulse = (std::abs(jt) < j * collision.static_friction) 
-			? t * jt : t * -j * collision.dynamic_friction;
+		const Vector2f friction_impulse = (std::abs(jt) < j * arbiter.static_friction) 
+			? (t * jt) : (t * -j * arbiter.dynamic_friction);
 
-		AB.ApplyImpulse(-tangent_impulse, ra);
-		BB.ApplyImpulse( tangent_impulse, rb);
+		AB.ApplyImpulse(-friction_impulse, ra);
+		BB.ApplyImpulse( friction_impulse, rb);
 	}
 }
 
-void PhysicsSystem::PositionalCorrection(CollisionData& collision)
+void PhysicsSystem::PositionalCorrection(CollisionArbiter& arbiter)
 {
-	PhysicsBody& AB = *collision.A->body;
-	PhysicsBody& BB = *collision.B->body;
+	PhysicsBody& AB = *arbiter.A->body;
+	PhysicsBody& BB = *arbiter.B->body;
 
 	constexpr float percent = 0.40f;
 	constexpr float k_slop	= 0.05f;
 
-	Vector2f correction = (std::max(collision.penetration - k_slop, 0.0f) / 
-		(AB.GetInvMass() + BB.GetInvMass())) * collision.normal * percent;
+	Vector2f correction = (std::max(arbiter.contacts[0].penetration - k_slop, 0.0f) /
+		(AB.GetInvMass() + BB.GetInvMass())) * arbiter.contacts[0].normal * percent;
 
-	collision.A->local_transform->Move(-correction * AB.GetInvMass());
-	collision.B->local_transform->Move( correction * BB.GetInvMass());
+	arbiter.A->local_transform->Move(-correction * AB.GetInvMass());
+	arbiter.B->local_transform->Move( correction * BB.GetInvMass());
 }

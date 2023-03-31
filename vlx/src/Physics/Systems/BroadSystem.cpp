@@ -80,12 +80,30 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) :
 
 void BroadSystem::Update()
 {
-	m_collision_pairs.clear();
-	m_collision_indices.clear();
+	m_pairs.clear();
+	m_indices.clear();
 
 	m_entity_admin->RunSystems(m_layer);
 
 	CullDuplicates();
+}
+
+auto BroadSystem::GetPairs() noexcept -> std::span<CollisionPair>
+{
+	return m_pairs;
+}
+auto BroadSystem::GetIndices() noexcept -> std::span<CollisionIndex>
+{
+	return m_indices;
+}
+
+auto BroadSystem::GetPairs() const noexcept -> std::span<const CollisionPair>
+{
+	return m_pairs;
+}
+auto BroadSystem::GetIndices() const noexcept -> std::span<const CollisionIndex>
+{
+	return m_indices;
 }
 
 void BroadSystem::InsertShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt)
@@ -115,17 +133,17 @@ void BroadSystem::QueryShape(EntityID entity_id, Shape* s, typename Shape::Type 
 		if (!(c->layer & collision.item.collision->layer)) // only matching layer
 			continue;
 
-		m_collision_pairs.emplace_back(CollisionObject(entity_id, type, s, c, pb, lt), collision.item);
-		m_collision_indices.emplace_back(static_cast<std::uint32_t>(m_collision_pairs.size() - 1));
+		m_pairs.emplace_back(CollisionObject(entity_id, type, s, c, pb, lt), collision.item);
+		m_indices.emplace_back(static_cast<std::uint32_t>(m_pairs.size() - 1));
 	}
 }
 
 void BroadSystem::CullDuplicates()
 {
-	std::ranges::sort(m_collision_indices.begin(), m_collision_indices.end(),
+	std::ranges::sort(m_indices.begin(), m_indices.end(),
 		[this](const auto lhs, const auto rhs)
 		{
-			const auto& clhs = m_collision_pairs[lhs], &crhs = m_collision_pairs[rhs];
+			const auto& clhs = m_pairs[lhs], &crhs = m_pairs[rhs];
 
 			if (clhs.first.entity_id < crhs.first.entity_id)
 				return true;
@@ -136,16 +154,16 @@ void BroadSystem::CullDuplicates()
 			return false;
 		});
 
-	const auto [first, last] = std::ranges::unique(m_collision_indices.begin(), m_collision_indices.end(),
+	const auto [first, last] = std::ranges::unique(m_indices.begin(), m_indices.end(),
 		[this](const auto lhs, const auto rhs)
 		{
-			const auto& clhs = m_collision_pairs[lhs], & crhs = m_collision_pairs[rhs];
+			const auto& clhs = m_pairs[lhs], &crhs = m_pairs[rhs];
 
 			return	clhs.first.entity_id == crhs.second.entity_id && 
 					clhs.second.entity_id == crhs.first.entity_id;
 		});
 
-	m_collision_indices.erase(first, last);
+	m_indices.erase(first, last);
 
 	//std::uint32_t i = 0;
 	//while (i < m_collision_indices.size())

@@ -8,49 +8,61 @@ NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadS
 
 }
 
-void NarrowSystem::Update()
+void NarrowSystem::Update(
+	std::span<typename BroadSystem::CollisionPair> collision_pairs,
+	std::span<typename BroadSystem::CollisionIndex> collision_indices)
 {
-	m_collision_data.clear();
+	m_arbiters.clear();
 
-	for (const auto i : m_broad_system->m_collision_indices)
+	for (const auto i : collision_indices)
 	{
-		auto& pair = m_broad_system->m_collision_pairs[i];
+		auto& pair = collision_pairs[i];
 
 		CollisionObject& A = pair.first;
 		CollisionObject& B = pair.second;
 
-		CollisionData data(&A, &B);
-		CollisionTable::Collide(data, *A.shape, A.type, *B.shape, B.type);
+		CollisionArbiter arbiter(&A, &B);
+		CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
 
-		if (data.contact_count)
+		if (arbiter.contacts_count)
 		{
-			m_collision_data.emplace_back(data);
+			m_arbiters.emplace_back(arbiter);
 
-			CollisionResult first_result(
-				A.entity_id, B.entity_id,
-				data.normal,
-				data.contacts[0],
-				data.penetration);
+			//CollisionResult first_result(
+			//	A.entity_id, B.entity_id,
+			//	data.normal,
+			//	data.contacts[0],
+			//	data.penetration);
 
-			CollisionResult second_result(
-				B.entity_id, A.entity_id,
-				-data.normal,		// flip normal
-				data.contacts[0],
-				data.penetration);
+			//CollisionResult second_result(
+			//	B.entity_id, A.entity_id,
+			//	-data.normal,		// flip normal
+			//	data.contacts[0],
+			//	data.penetration);
 
-			if (!pair.first.collision->colliding)
-			{
-				pair.first.collision->OnEnter(first_result);
-				pair.first.collision->colliding = true;
-			}
+			//if (!pair.first.collision->colliding)
+			//{
+			//	pair.first.collision->OnEnter(first_result);
+			//	pair.first.collision->colliding = true;
+			//}
 
-			pair.first.collision->OnOverlap(first_result);
-			pair.second.collision->OnOverlap(second_result);
+			//pair.first.collision->OnOverlap(first_result);
+			//pair.second.collision->OnOverlap(second_result);
 		}
 	}
 }
 
-void NarrowSystem::CallEvents(const CollisionData& data, const CollisionObject& object)
+std::span<CollisionArbiter> NarrowSystem::GetArbiters() noexcept
+{
+	return m_arbiters;
+}
+
+std::span<const CollisionArbiter> NarrowSystem::GetArbiters() const noexcept
+{
+	return m_arbiters;
+}
+
+void NarrowSystem::CallEvents(const CollisionArbiter& arbiter, const CollisionObject& object)
 {
 
 }
