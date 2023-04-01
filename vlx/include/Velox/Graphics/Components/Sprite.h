@@ -39,7 +39,7 @@ namespace vlx
 		NODISC float						GetOpacity() const noexcept;
 		NODISC constexpr sf::PrimitiveType	GetPrimitive() const noexcept;
 
-		void SetTexture(const sf::Texture& texture, bool reset_rect = false, bool reset_size = false);
+		void SetTexture(const sf::Texture& texture, bool reset_rect = true, bool reset_size = false);
 		void SetTextureRect(const RectFloat& rect);
 		void SetSize(const Vector2f& size);
 		void SetColor(const sf::Color& color);

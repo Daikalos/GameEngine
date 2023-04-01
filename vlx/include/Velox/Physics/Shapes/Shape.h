@@ -43,7 +43,6 @@ namespace vlx
 		sf::Transform			m_transform; // transform is needed since physics objects will need to collide around center
 		mutable sf::Transform	m_inverse_transform;
 		RectFloat				m_aabb;
-
 		mutable bool			m_update_inverse {true};
 
 		friend class PhysicsDirtySystem;

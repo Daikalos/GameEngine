@@ -185,55 +185,6 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 
 	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 	{
-		//CollisionContact& contact = arbiter.contacts[i];
-
-		//Vector2f ra = contact.position - AS.GetCenter();
-		//Vector2f rb = contact.position - BS.GetCenter();
-
-		//Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
-		//			  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
-
-		//const float vel_along_normal = rv.Dot(contact.normal);
-
-		//if (vel_along_normal > 0.0f) // no need to resolve if they are separating
-		//	return;
-
-		//const float ra_cross_n = ra.Cross(contact.normal);
-		//const float rb_cross_n = rb.Cross(contact.normal);
-
-		//const float inv_mass_sum = AB.GetInvMass() + BB.GetInvMass() +
-		//	au::Sqr(ra_cross_n) * AB.GetInvInertia() + au::Sqr(rb_cross_n) * BB.GetInvInertia();
-
-		//// impulse scalar
-		//float j = -(1.0f + arbiter.restitution) * vel_along_normal;
-		//j /= inv_mass_sum;
-		//j /= (float)arbiter.contacts_count;
-
-		//const Vector2f impulse = contact.normal * j;
-		//AB.ApplyImpulse(-impulse, ra);
-		//BB.ApplyImpulse( impulse, rb);
-
-		//// friction
-
-		//rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
-		//	 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
-
-		//Vector2f t = rv - (contact.normal * rv.Dot(contact.normal));
-		//t = t.Normalize();
-
-		//float jt = -rv.Dot(t);
-		//jt /= inv_mass_sum;
-		//jt /= (float)arbiter.contacts_count;
-
-		//if (au::Equal(jt, 0.0f, PHYSICS_EPSILON))
-		//	return;
-
-		//const Vector2f friction_impulse = (std::abs(jt) < j * arbiter.static_friction) 
-		//	? (t * jt) : (t * -j * arbiter.dynamic_friction);
-
-		//AB.ApplyImpulse(-friction_impulse, ra);
-		//BB.ApplyImpulse( friction_impulse, rb);
-
 		CollisionContact& contact = arbiter.contacts[i];
 
 		Vector2f ra = contact.position - AS.GetCenter();
@@ -269,12 +220,10 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 			return;
 
 		const Vector2f friction_impulse = (std::abs(dpt) < dpn * arbiter.static_friction) ?
-			(tangent * dpt) : (tangent * -dpn * arbiter.dynamic_friction);
+			(dpt * tangent) : (-dpn * tangent * arbiter.dynamic_friction);
 
 		AB.ApplyImpulse(-friction_impulse, ra);
 		BB.ApplyImpulse( friction_impulse, rb);
-
-		// TODO: check if accumulating impulses fixes friction
 	}
 }
 
