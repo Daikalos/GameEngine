@@ -63,7 +63,7 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 {
 	const Circle& c1 = reinterpret_cast<const Circle&>(s1);
 	const Box& b2 = reinterpret_cast<const Box&>(s2);
-
+	
 	const Vector2f half_extends(
 		b2.GetWidth() / 2.0f,
 		b2.GetHeight() / 2.0f);
@@ -111,7 +111,7 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 void CollisionTable::BoxToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	CircleToBox(arbiter, s2, s1);
-	arbiter.contacts[0].normal = -arbiter.contacts[0].normal; // flip normal
+	arbiter.contacts[0].normal = -arbiter.contacts[0].normal;
 }
 void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -152,10 +152,55 @@ void CollisionTable::ConvexToBox(CollisionArbiter& arbiter, const Shape& s1, con
 {
 
 }
-void CollisionTable::ConvexToPoint(CollisionArbiter&, const Shape&, const Shape&)
+void CollisionTable::ConvexToPoint(CollisionArbiter&, const Shape& s1, const Shape& s2)
 {
 }
 void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 
+}
+
+Vector2f CollisionTable::GetSupport(std::span<const Vector2f> vertices, const Vector2f& dir)
+{
+	Vector2f best_vertex;
+	float best_projection = -FLT_MAX;
+
+	for (std::uint32_t i = 0; i < vertices.size(); ++i)
+	{
+		const Vector2f v = vertices[i];
+		const float projection = v.Dot(dir);
+
+		if (projection > best_projection)
+		{
+			best_vertex = v;
+			best_projection;
+		}
+	}
+
+	return best_vertex;
+}
+
+std::tuple<float, uint32_t> CollisionTable::FindAxisLeastPenetration(
+	const Shape& s0, std::span<const Vector2f> v0, std::span<const Vector2f> n0,
+	const Shape& s1, std::span<const Vector2f> v1, std::span<const Vector2f> n1)
+{
+	float best_distance = -FLT_MAX;
+	uint32_t best_index = 0;
+
+	for (uint32_t i = 0; i < v0.size(); ++i)
+	{
+		Vector2f normal = s1.GetInverseTransform() * (s0.GetTransform() * n0[i]); // TODO: fix
+		Vector2f support = GetSupport(v1, -normal);
+		
+		Vector2f v = v0[i];
+
+	}
+
+	return { best_distance, best_index };
+}
+
+int CollisionTable::Clip(std::array<Vector2f, 2>& face, const Vector2f& n, float c)
+{
+
+	return 0;
 }

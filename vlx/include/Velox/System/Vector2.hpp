@@ -498,13 +498,19 @@ namespace vlx
 	}
 
 	template <Arithmetic T>
-	static constexpr Vector2<T> operator *(const T lhs, const Vector2<T>& rhs)
+	inline static constexpr Vector2<T> operator *(const T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs * rhs.x, lhs * rhs.y };
 	}
 
 	template <Arithmetic T>
-	static constexpr Vector2<T> operator /(const T lhs, const Vector2<T>& rhs)
+	inline static constexpr Vector2<T> operator -(const sf::Vector2<T> lhs, const Vector2<T>& rhs)
+	{
+		return Vector2<T>(lhs) - rhs;
+	}
+
+	template <Arithmetic T>
+	inline static constexpr Vector2<T> operator /(const T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs / rhs.x, lhs / rhs.y };
 	}

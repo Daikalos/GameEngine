@@ -45,6 +45,7 @@
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
     <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
+    <ClCompile Include="src\System\Mat4f.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -150,6 +151,9 @@
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
     <ClInclude Include="include\Velox\Physics\CollisionContact.h" />
+    <ClInclude Include="include\Velox\System\Mat4f.hpp" />
+    <ClInclude Include="include\Velox\System\Mat2f.hpp" />
+    <ClInclude Include="include\Velox\Utility\MathUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -36,3 +36,5 @@
 
 inline constexpr int TRIANGLE_COUNT = 3;
 inline constexpr float PHYSICS_EPSILON = 0.0001f;
+
+#include <cstdint>

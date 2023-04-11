@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-StateStack::PendingChange::PendingChange(const Action& action, const StateID state_id)
+StateStack::PendingChange::PendingChange(const Action& action, StateID state_id)
 	: action(action), state_id(state_id) { }
 
 StateStack::StateStack(World& world)
@@ -98,7 +98,7 @@ void StateStack::Draw()
 		state->Draw();
 }
 
-void StateStack::Push(const StateID state_id)
+void StateStack::Push(StateID state_id)
 {
 	m_pending_list.push_back(PendingChange(Action::Push, state_id));
 }
@@ -111,7 +111,7 @@ void StateStack::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-auto StateStack::CreateState(const StateID state_id) -> typename State::Ptr
+auto StateStack::CreateState(StateID state_id) -> typename State::Ptr
 {
 	auto found = m_factory.find(state_id);
 	assert(found != m_factory.end());

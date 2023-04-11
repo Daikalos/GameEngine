@@ -6,11 +6,11 @@
 
 namespace vlx
 {
-	class VELOX_API Circle final : public ShapeCRTP<Circle>
+	class Circle final : public ShapeCRTP<Circle>
 	{
 	public:
-		Circle() = default;
-		Circle(const float radius);
+		constexpr Circle();
+		constexpr Circle(const float radius);
 
 	public:
 		constexpr float GetRadius() const noexcept;
@@ -20,13 +20,29 @@ namespace vlx
 
 	public:
 		constexpr auto GetType() const noexcept -> Type;
-
-		void InitializeImpl(PhysicsBody& body) const;
-		void UpdateAABBImpl(const Transform& transform);
-		void UpdateTransformImpl(const Transform& transform);
+		VELOX_API void InitializeImpl(PhysicsBody& body) const;
+		VELOX_API void UpdateAABBImpl(const Transform& transform);
+		VELOX_API void UpdateTransformImpl(const Transform& transform);
 
 	private:
 		float m_radius		{16.0f};
 		float m_radius_sqr	{256.0f};
 	};
+
+	constexpr Circle::Circle() = default;
+	constexpr Circle::Circle(const float radius) : m_radius(radius), m_radius_sqr(au::Sqr(radius)) {}
+
+	constexpr float Circle::GetRadius() const noexcept			{ return m_radius; }
+	constexpr float vlx::Circle::GetRadiusSqr() const noexcept	{ return m_radius_sqr; }
+
+	constexpr void Circle::SetRadius(float radius)
+	{
+		m_radius = radius;
+		m_radius_sqr = au::Sqr(radius);
+	}
+
+	constexpr auto Circle::GetType() const noexcept -> Type
+	{
+		return Type::Circle;
+	}
 }

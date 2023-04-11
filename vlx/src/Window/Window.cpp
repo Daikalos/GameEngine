@@ -32,7 +32,7 @@ const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 	return m_cached_modes;
 }
 
-constexpr Vector2i Window::GetOrigin() const noexcept
+Vector2i Window::GetOrigin() const noexcept
 {
 	return Vector2i(getSize() / 2u);
 }

@@ -22,18 +22,18 @@ namespace vlx
 		using Func = std::function<Ptr()>;
 
 	public:
-		State(const StateID state_id, StateStack& state_stack, World& world);
+		State(StateID state_id, StateStack& state_stack, World& world);
 		virtual ~State() = default;
 
 	public:
-		[[nodiscard]] constexpr StateID GetID() const noexcept;
+		NODISC StateID GetID() const noexcept;
 
 	protected:
-		[[nodiscard]] const StateStack& GetStack() const;
-		[[nodiscard]] StateStack& GetStack();
+		NODISC const StateStack& GetStack() const;
+		NODISC StateStack& GetStack();
 
-		[[nodiscard]] const World& GetWorld() const;
-		[[nodiscard]] World& GetWorld();
+		NODISC const World& GetWorld() const;
+		NODISC World& GetWorld();
 
 	public:
 		///	OnCreated is called when first constructed

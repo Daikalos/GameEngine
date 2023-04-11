@@ -16,7 +16,7 @@ namespace vlx
 	public:
 		virtual ~IBinds() = default;
 
-		virtual constexpr bool GetEnabled() const noexcept = 0;
+		virtual bool GetEnabled() const noexcept = 0;
 		virtual void SetEnabled(const bool flag) noexcept = 0;
 	};
 
@@ -41,7 +41,7 @@ namespace vlx
 		void Remove(const Bind name);
 
 	public:
-		NODISC constexpr bool GetEnabled() const noexcept;
+		NODISC bool GetEnabled() const noexcept;
 		void SetEnabled(const bool flag) noexcept;
 
 	protected:
@@ -91,7 +91,7 @@ namespace vlx
 	}
 
 	template<ArithEnum Bind, ArithEnum Reg>
-	inline constexpr bool Binds<Bind, Reg>::GetEnabled() const noexcept
+	inline bool Binds<Bind, Reg>::GetEnabled() const noexcept
 	{
 		return m_enabled;
 	}

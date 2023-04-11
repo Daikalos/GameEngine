@@ -30,7 +30,7 @@ namespace vlx
 
 		struct PendingChange
 		{
-			explicit PendingChange(const Action& action, const StateID state_id = -1);
+			explicit PendingChange(const Action& action, StateID state_id = -1);
 
 			const Action	action;
 			const StateID	state_id;
@@ -40,14 +40,14 @@ namespace vlx
 		StateStack(World& world);
 
 	public:
-		[[nodiscard]] bool IsEmpty() const noexcept;
-		[[nodiscard]] bool IsPaused() const noexcept;
+		NODISC bool IsEmpty() const noexcept;
+		NODISC bool IsPaused() const noexcept;
 
 		void SetPaused(bool flag);
 
 	public:
 		template<std::derived_from<State> T, typename... Args>
-		void RegisterState(const StateID state_id, Args&&... args);
+		void RegisterState(StateID state_id, Args&&... args);
 
 	public:
 		void HandleEvent(const sf::Event& event);
@@ -59,12 +59,12 @@ namespace vlx
 
 		void Draw();
 
-		void Push(const StateID state_id);
+		void Push(StateID state_id);
 		void Pop();
 		void Clear();
 
 	private:
-		auto CreateState(const StateID state_id) -> typename State::Ptr;
+		auto CreateState(StateID state_id) -> typename State::Ptr;
 		void ApplyPendingChanges();
 
 	private:
@@ -80,7 +80,7 @@ namespace vlx
 	};
 
 	template<std::derived_from<State> T, typename... Args>
-	void StateStack::RegisterState(const StateID state_id, Args&&... args)
+	void StateStack::RegisterState(StateID state_id, Args&&... args)
 	{
 		m_factory[state_id] = [this, &state_id, &args...]()
 		{

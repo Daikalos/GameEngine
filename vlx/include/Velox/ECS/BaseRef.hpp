@@ -37,7 +37,7 @@ namespace vlx
 
 	template<class B>
 	inline BaseRef<B>::BaseRef(const EntityID entity_id, std::shared_ptr<void*> base_component)
-		: IComponentRef(entity_id), m_base_component(base_component) { }
+		: m_entity_id(entity_id), m_base_component(base_component) { }
 
 	template<class B>
 	inline B* BaseRef<B>::operator->()

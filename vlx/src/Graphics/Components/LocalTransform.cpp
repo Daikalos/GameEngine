@@ -17,7 +17,7 @@ LocalTransform::LocalTransform(const Vector2f& position, const sf::Angle& rotati
 LocalTransform::LocalTransform(const Vector2f& position)
 	: LocalTransform(position, { 1.0f, 1.0f }, sf::radians(0.0f)) {}
 
-const sf::Transform& LocalTransform::GetTransform() const
+const Mat4f& LocalTransform::GetTransform() const
 {
 	if (m_update)
 	{
@@ -31,7 +31,7 @@ const sf::Transform& LocalTransform::GetTransform() const
 		const float tx		= m_position.x - m_origin.x * sxc - m_origin.y * sys;
 		const float ty		= m_position.y + m_origin.x * sxs - m_origin.y * syc;
 
-		m_transform = sf::Transform(
+		m_transform = Mat4f(
 			 sxc, sys, tx,
 			-sxs, syc, ty,
 			 0.f, 0.f, 1.f);
@@ -41,11 +41,11 @@ const sf::Transform& LocalTransform::GetTransform() const
 
 	return m_transform;
 }
-const sf::Transform& LocalTransform::GetInverseTransform() const
+const Mat4f& LocalTransform::GetInverseTransform() const
 {
 	if (m_update_inverse)
 	{
-		m_inverse_transform = GetTransform().getInverse();
+		m_inverse_transform = GetTransform().GetInverse();
 		m_update_inverse = false;
 	}
 

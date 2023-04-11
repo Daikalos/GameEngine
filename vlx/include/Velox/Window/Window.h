@@ -34,13 +34,13 @@ namespace vlx
 			bool vertical_sync, int frame_rate);
 
 	public:
-		/// <summary>
-		///		Only gets modes that match the aspect ratio of the desktop
-		/// </summary>
-		[[nodiscard]] const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
+		
+		///	Only gets modes that match the aspect ratio of the desktop
+		///
+		NODISC const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
 
-		[[nodiscard]] constexpr Vector2i GetOrigin() const noexcept;
-		[[nodiscard]] const Vector2f& GetRatioCmp() const noexcept;
+		NODISC Vector2i GetOrigin() const noexcept;
+		NODISC const Vector2f& GetRatioCmp() const noexcept;
 
 	public:
 		void onCreate() override;

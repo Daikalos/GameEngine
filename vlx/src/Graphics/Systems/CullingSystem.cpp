@@ -28,7 +28,7 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				const RectFloat rect = transforms[i].GetTransform().transformRect({ {}, sprites[i].GetSize() });
+				const RectFloat rect = transforms[i].GetTransform().TransformRect({ {}, sprites[i].GetSize() });
 				renderables[i].IsVisible = renderables[i].IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect);
 			}
 		});

@@ -38,11 +38,11 @@ namespace vlx
 		CameraBehavior(const ID id, Camera& camera, Context context);
 		virtual ~CameraBehavior() = default;
 
-		[[nodiscard]] const ID& GetID() const noexcept;
+		NODISC const ID& GetID() const noexcept;
 
 	protected:
-		[[nodiscard]] Camera& GetCamera() const;
-		[[nodiscard]] const Context& GetContext() const;
+		NODISC Camera& GetCamera() const;
+		NODISC const Context& GetContext() const;
 
 	public:
 		virtual void OnCreate(const std::vector<std::byte>& data) {}

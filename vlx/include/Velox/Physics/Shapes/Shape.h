@@ -44,8 +44,6 @@ namespace vlx
 		mutable sf::Transform	m_inverse_transform;
 		RectFloat				m_aabb;
 		mutable bool			m_update_inverse {true};
-
-		friend class PhysicsDirtySystem;
 	};
 
 	template<class S>

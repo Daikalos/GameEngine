@@ -3,15 +3,15 @@
 using namespace vlx;
 using namespace vlx::mu;
 
-const sf::Transform& Transform::GetTransform() const noexcept
+const Mat4f& Transform::GetTransform() const noexcept
 {
 	return m_transform;
 }
-const sf::Transform& Transform::GetInverseTransform() const
+const Mat4f& Transform::GetInverseTransform() const
 {
 	if (m_update_inverse)
 	{
-		m_inverse_transform = GetTransform().getInverse();
+		m_inverse_transform = GetTransform().GetInverse();
 		m_update_inverse = false;
 	}
 
@@ -21,10 +21,8 @@ const Vector2f& Transform::GetPosition() const
 {
 	if (m_update_position)
 	{
-		const float* m = GetTransform().getMatrix();
-
-		m_position.x = MV(m, 0, 3);
-		m_position.y = MV(m, 1, 3);
+		m_position.x = GetTransform().Get(0, 3);
+		m_position.y = GetTransform().Get(1, 3);
 
 		m_update_position = false;
 	}
@@ -35,10 +33,8 @@ const Vector2f& Transform::GetScale() const
 {
 	if (m_update_scale)
 	{
-		const float* m = GetTransform().getMatrix();
-
-		m_scale.x = au::Sign(MV(m, 0, 0)) * au::SqrtSqr(MV(m, 0, 0), MV(m, 1, 0));
-		m_scale.y = au::Sign(MV(m, 1, 1)) * au::SqrtSqr(MV(m, 0, 1), MV(m, 1, 1));
+		m_scale.x = au::Sign(GetTransform().Get(0, 0)) * au::SqrtSqr(GetTransform().Get(0, 0), GetTransform().Get(1, 0));
+		m_scale.y = au::Sign(GetTransform().Get(1, 1)) * au::SqrtSqr(GetTransform().Get(0, 1), GetTransform().Get(1, 1));
 
 		m_update_scale = false;
 	}
@@ -49,9 +45,7 @@ const sf::Angle& Transform::GetRotation() const
 {
 	if (m_update_rotation)
 	{
-		const float* m = GetTransform().getMatrix();
-
-		m_rotation = sf::radians(std::atan2f(MV(m, 1, 0), MV(m, 1, 1)));
+		m_rotation = sf::radians(std::atan2f(GetTransform().Get(1, 0), GetTransform().Get(1, 1)));
 
 		m_update_rotation = false;
 	}

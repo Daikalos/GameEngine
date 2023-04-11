@@ -24,8 +24,6 @@ namespace vlx
 	template<IsComponent>
 	struct ComponentAlloc;
 
-	class IComponentRef;
-
 	template<class>
 	class ComponentRef;
 
@@ -514,7 +512,7 @@ namespace vlx
 			if (ait == old_archetype->edges.end())
 			{
 				ComponentIDs new_archetype_id = old_archetype->type; // create copy
-				if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+				if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted
 					return nullptr;
 
 				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));

@@ -50,8 +50,8 @@ namespace vlx
 		void operator()();
 
 	private:
-		const T* m_input {nullptr};
 		std::vector<BoundFunc> m_funcs;
+		const T* m_input {nullptr};
 	};
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>

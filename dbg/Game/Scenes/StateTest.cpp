@@ -154,7 +154,7 @@ bool StateTest::Update(Time& time)
 		entity.AddComponent<Box>();
 
 		//entity.GetComponent<Circle>().radius = 32.0f;
-		entity.GetComponent<PhysicsBody>().SetMass(0.0f);
+		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
 		entity.GetComponent<PhysicsBody>().SetInertia(1000.0f);
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));

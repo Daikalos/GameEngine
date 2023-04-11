@@ -2,10 +2,10 @@
 
 using namespace vlx;
 
-State::State(const StateID state_id, StateStack& state_stack, World& world)
+State::State(StateID state_id, StateStack& state_stack, World& world)
 	: m_id(state_id), m_state_stack(&state_stack), m_world(&world) {}
 
-constexpr StateID State::GetID() const noexcept
+StateID State::GetID() const noexcept
 {
 	return m_id;
 }

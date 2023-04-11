@@ -178,6 +178,9 @@
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
     <ClInclude Include="include\Velox\System.hpp" />
+    <ClInclude Include="include\Velox\System\Mat2f.hpp" />
+    <ClInclude Include="include\Velox\System\Mat4f.hpp" />
+    <ClInclude Include="include\Velox\Utility\MathUtility.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
     <ClInclude Include="include\Velox\World\ObjectTypes.h" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
@@ -281,6 +284,7 @@
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
+    <ClCompile Include="src\System\Mat4f.cpp" />
     <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
     <ClCompile Include="src\Graphics\gui\Label.cpp" />

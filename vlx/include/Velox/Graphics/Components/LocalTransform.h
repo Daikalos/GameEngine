@@ -1,9 +1,8 @@
 #pragma once
 
-#include <SFML/Graphics/Transform.hpp>
-
 #include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
+#include <Velox/System/Mat4f.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -21,12 +20,12 @@ namespace vlx
 		LocalTransform(const Vector2f& position);
 
 	public:
-		NODISC const sf::Transform&	GetTransform() const;
-		NODISC const sf::Transform&	GetInverseTransform() const;
-		NODISC const Vector2f&		GetOrigin() const;
-		NODISC const Vector2f&		GetPosition() const;
-		NODISC const Vector2f&		GetScale() const;
-		NODISC const sf::Angle&		GetRotation() const;
+		NODISC const Mat4f&		GetTransform() const;
+		NODISC const Mat4f&		GetInverseTransform() const;
+		NODISC const Vector2f&	GetOrigin() const;
+		NODISC const Vector2f&	GetPosition() const;
+		NODISC const Vector2f&	GetScale() const;
+		NODISC const sf::Angle&	GetRotation() const;
 
 		void SetOrigin(const Vector2f& origin);
 		void SetPosition(const Vector2f& position);
@@ -38,17 +37,17 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
-		mutable sf::Transform	m_transform;
-		mutable sf::Transform	m_inverse_transform;
+		mutable Mat4f	m_transform;
+		mutable Mat4f	m_inverse_transform;
 
-		Vector2f				m_origin;
-		Vector2f				m_position;
-		Vector2f				m_scale;
-		sf::Angle				m_rotation;
+		Vector2f		m_origin;
+		Vector2f		m_position;
+		Vector2f		m_scale;
+		sf::Angle		m_rotation;
 
-		mutable bool			m_update				{true};
-		mutable bool			m_update_inverse		{true};
-		mutable bool			m_dirty					{true};
+		mutable bool	m_update				{true};
+		mutable bool	m_update_inverse		{true};
+		mutable bool	m_dirty					{true};
 
 		friend class TransformSystem;
 		friend class PhysicsDirtySystem;

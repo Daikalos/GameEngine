@@ -136,7 +136,7 @@ void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transfor
 
 		// update transform values
 
-		const sf::Transform new_transform = parent_transform->GetTransform() * local_transform.GetTransform();
+		const Mat4f new_transform = parent_transform->GetTransform() * local_transform.GetTransform();
 		if (new_transform != transform.m_transform)
 		{
 			transform.m_transform		= new_transform;

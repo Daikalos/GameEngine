@@ -627,8 +627,10 @@ void EntityAdmin::Construct(
 		}
 		else
 		{
+			auto component_entity = record.index * component_size;
+
 			component->MoveDestroyData(*this, entity_id,
-				&old_archetype->component_data[j][record.index * component_size],
+				&old_archetype->component_data[j][component_entity],
 				&new_archetype->component_data[i][current_size]);
 
 			++j;

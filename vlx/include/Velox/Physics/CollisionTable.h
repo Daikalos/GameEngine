@@ -2,6 +2,8 @@
 
 #include <array>
 #include <functional>
+#include <span>
+#include <tuple>
 
 #include "Shapes/Shape.h"
 #include "Shapes/Circle.h"
@@ -54,6 +56,15 @@ namespace vlx
 		static void ConvexToBox		(CollisionArbiter&, const Shape&, const Shape&);
 		static void ConvexToPoint	(CollisionArbiter&, const Shape&, const Shape&);
 		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
+
+	private:
+		static Vector2f GetSupport(std::span<const Vector2f> vertices, const Vector2f& dir);
+
+		static std::tuple<float, uint32_t> FindAxisLeastPenetration(
+			const Shape& s0, std::span<const Vector2f> v0, std::span<const Vector2f> n0,
+			const Shape& s1, std::span<const Vector2f> v1, std::span<const Vector2f> n1);
+
+		static int Clip(std::array<Vector2f, 2>& face, const Vector2f& n, float c);
 
 	private:
 		static Matrix table;
