@@ -30,7 +30,7 @@ Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat
 	SetTexture(texture);
 }
 
-void Sprite::Batch(SpriteBatch& sprite_batch, const sf::Transform& transform, float depth) const
+void Sprite::Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
 {
 	sprite_batch.Batch(transform, m_vertices.data(), m_vertices.size(), GetPrimitive(), m_texture, m_shader, m_depth);
 }
@@ -62,11 +62,6 @@ float Sprite::GetDepth() const noexcept
 float Sprite::GetOpacity() const noexcept
 {
 	return (float)m_vertices[0].color.a / 255.0f;
-}
-
-constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
-{
-	return sf::TriangleStrip; // all common sprites use triangle strip
 }
 
 void Sprite::SetTexture(const sf::Texture& texture, bool reset_rect, bool reset_size)

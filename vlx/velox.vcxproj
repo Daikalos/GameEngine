@@ -204,7 +204,6 @@
     <ClInclude Include="include\Velox\ECS\System.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Shape.h" />
     <ClInclude Include="include\Velox\Scene\Identifiers.h" />
-    <ClInclude Include="include\Velox\Utility\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Utility\PolicySelect.h" />
     <ClInclude Include="include\Velox\System\Rectangle.hpp" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
@@ -262,7 +261,6 @@
   <ItemGroup>
     <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
-    <ClCompile Include="src\Physics\PhysicsBody.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />

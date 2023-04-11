@@ -1,17 +1,15 @@
 #pragma once
 
-namespace sf
-{
-	class Transform;
-};
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
 	class SpriteBatch;
+	class Mat4f;
 
 	struct VELOX_API IBatchable
 	{
 		virtual ~IBatchable() = default;
-		virtual void Batch(SpriteBatch& sprite_batch, const sf::Transform& transform, float depth = 0.0f) const = 0;
+		virtual void Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth = 0.0f) const = 0;
 	};
 }

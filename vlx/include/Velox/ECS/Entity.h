@@ -24,7 +24,7 @@ namespace vlx
 		VELOX_API Entity& operator=(Entity&& rhs) noexcept;
 
 	public:
-		VELOX_API constexpr operator EntityID() const; // allow implicit conversion
+		VELOX_API constexpr operator EntityID() const noexcept; // allow implicit conversion
 		VELOX_API NODISC constexpr EntityID GetID() const noexcept;
 
 	public:
@@ -74,6 +74,15 @@ namespace vlx
 		EntityID		m_id			{NULL_ENTITY}; // entity is just an id
 		EntityAdmin*	m_entity_admin	{nullptr};
 	};
+
+	constexpr Entity::operator EntityID() const noexcept
+	{
+		return m_id;
+	}
+	constexpr EntityID Entity::GetID() const noexcept
+	{
+		return m_id;
+	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 	inline auto Entity::AddComponent(Args&&... args)
@@ -157,4 +166,5 @@ namespace vlx
 	{
 		return m_entity_admin->HasComponent<C>(m_id);
 	}
+
 }

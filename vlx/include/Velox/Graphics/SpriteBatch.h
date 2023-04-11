@@ -5,9 +5,9 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/Config.hpp>
-
 #include <Velox/Graphics/Components/IBatchable.h>
+#include <Velox/System/Mat4f.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
@@ -50,7 +50,7 @@ namespace vlx
 		void Shrink();
 
 		void AddTriangle(
-			const sf::Transform& transform, 
+			const Mat4f& transform, 
 			const sf::Vertex& v0, 
 			const sf::Vertex& v1, 
 			const sf::Vertex& v2, 
@@ -60,11 +60,11 @@ namespace vlx
 
 		void Batch(
 			const IBatchable& batchable, 
-			const sf::Transform& transform, 
+			const Mat4f& transform,
 			const float depth = 0.0f);
 
 		void Batch(
-			const sf::Transform& transform, 
+			const Mat4f& transform,
 			const sf::Vertex* vertices, 
 			const std::size_t count, 
 			const sf::PrimitiveType type, 

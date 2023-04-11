@@ -25,7 +25,7 @@ void SpriteBatch::Shrink()
 }
 
 void SpriteBatch::AddTriangle(
-	const sf::Transform& transform, 
+	const Mat4f& transform,
 	const sf::Vertex& v0, 
 	const sf::Vertex& v1, 
 	const sf::Vertex& v2, 
@@ -43,13 +43,13 @@ void SpriteBatch::AddTriangle(
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const IBatchable& batchable, const sf::Transform& transform, const float depth)
+void SpriteBatch::Batch(const IBatchable& batchable, const Mat4f& transform, const float depth)
 {
 	batchable.Batch(*this, transform, depth);
 }
 
 void SpriteBatch::Batch(
-	const sf::Transform& transform, 
+	const Mat4f& transform,
 	const sf::Vertex* vertices, 
 	const std::size_t count,
 	const sf::PrimitiveType type, 

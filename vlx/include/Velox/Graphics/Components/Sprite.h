@@ -47,7 +47,7 @@ namespace vlx
 		void SetOpacity(const float opacity);
 
 	public:
-		void Batch(SpriteBatch& sprite_batch, const sf::Transform& transform, float depth) const override;
+		void Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const override;
 
 	private:
 		void UpdatePositions(const Vector2f& size);
@@ -59,4 +59,9 @@ namespace vlx
 		VertexArray			m_vertices;
 		float				m_depth			{0.0f};
 	};
+
+	constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
+	{
+		return sf::TriangleStrip; // all common sprites use triangle strip
+	}
 }

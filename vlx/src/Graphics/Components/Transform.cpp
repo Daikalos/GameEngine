@@ -1,7 +1,6 @@
 #include <Velox/Graphics/Components/Transform.h>
 
 using namespace vlx;
-using namespace vlx::mu;
 
 const Mat4f& Transform::GetTransform() const noexcept
 {

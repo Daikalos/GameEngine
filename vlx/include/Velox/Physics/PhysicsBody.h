@@ -41,30 +41,30 @@ namespace vlx
 		NODISC constexpr float GetTorque() const noexcept;
 
 	public:
-		void SetType(BodyType type);
-		void SetGravity(float scale);
+		constexpr void SetType(BodyType type);
+		constexpr void SetGravity(float scale);
 
-		void SetMaterial(const PhysicsMaterial& material);
+		constexpr void SetMaterial(const PhysicsMaterial& material);
 
-		void SetMass(float mass);
-		void SetInertia(float inertia);
+		constexpr void SetMass(float mass);
+		constexpr void SetInertia(float inertia);
 
-		void SetStaticFriction(float static_friction);
-		void SetDynamicFriction(float dynamic_friction);
+		constexpr void SetStaticFriction(float static_friction);
+		constexpr void SetDynamicFriction(float dynamic_friction);
 
-		void SetVelocity(const Vector2f& velocity);
-		void AddVelocity(const Vector2f& velocity);
+		constexpr void SetVelocity(const Vector2f& velocity);
+		constexpr void AddVelocity(const Vector2f& velocity);
 
-		void SetForce(const Vector2f& force);
-		void AddForce(const Vector2f& force);
+		constexpr void SetForce(const Vector2f& force);
+		constexpr void AddForce(const Vector2f& force);
 
-		void SetAngularVelocity(const float angular_velocity);
-		void AddAngularVelocity(const float angular_velocity);
+		constexpr void SetAngularVelocity(const float angular_velocity);
+		constexpr void AddAngularVelocity(const float angular_velocity);
 
-		void SetTorque(const float torque);
-		void AddTorque(const float torque);
+		constexpr void SetTorque(const float torque);
+		constexpr void AddTorque(const float torque);
 
-		void ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector);
+		constexpr void ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector);
 
 	private:
 		BodyType		m_type				{BodyType::Dynamic}; // type of body
@@ -94,4 +94,124 @@ namespace vlx
 
 		friend class PhysicsSystem;
 	};
+
+	constexpr BodyType PhysicsBody::GetType() const noexcept				{ return m_type; }
+	constexpr float PhysicsBody::GetGravityScale() const noexcept			{ return m_gravity_scale; }
+	constexpr float PhysicsBody::GetDensity() const noexcept				{ return m_material.density; }
+	constexpr float PhysicsBody::GetRestitution() const noexcept			{ return m_material.restitution; }
+	constexpr float PhysicsBody::GetMass() const noexcept					{ return m_mass; }
+	constexpr float PhysicsBody::GetInvMass() const noexcept				{ return m_inv_mass; }
+	constexpr float PhysicsBody::GetInertia() const noexcept				{ return m_inertia; }
+	constexpr float PhysicsBody::GetInvInertia() const noexcept				{ return m_inv_inertia; }
+	constexpr float PhysicsBody::GetStaticFriction() const noexcept			{ return m_static_friction; }
+	constexpr float PhysicsBody::GetDynamicFriction() const noexcept		{ return m_dynamic_friction; }
+	constexpr const Vector2f& PhysicsBody::GetVelocity() const noexcept		{ return m_velocity; }
+	constexpr const Vector2f& PhysicsBody::GetForce() const noexcept		{ return m_force; }
+	constexpr float vlx::PhysicsBody::GetAngularVelocity() const noexcept	{ return m_angular_velocity; }
+	constexpr float vlx::PhysicsBody::GetTorque() const noexcept			{ return m_torque; }
+
+	constexpr void PhysicsBody::SetType(BodyType type)
+	{
+		m_type = type;
+	}
+
+	constexpr void PhysicsBody::SetGravity(float scale)
+	{
+		m_gravity_scale = scale;
+	}
+
+	constexpr void PhysicsBody::SetMaterial(const PhysicsMaterial& material)
+	{
+		m_material = material;
+	}
+
+	constexpr void PhysicsBody::SetMass(float mass)
+	{
+		m_mass = mass;
+		m_inv_mass = (m_mass != 0.0f) ? (1.0f / m_mass) : 0.0f;
+	}
+
+	constexpr void PhysicsBody::SetInertia(float inertia)
+	{
+		m_inertia = inertia;
+		m_inv_inertia = (m_inertia != 0.0f) ? (1.0f / m_inertia) : 0.0f;
+	}
+
+	constexpr void PhysicsBody::SetStaticFriction(float static_friction)
+	{
+		m_static_friction = static_friction;
+	}
+
+	constexpr void PhysicsBody::SetDynamicFriction(float dynamic_friction)
+	{
+		m_dynamic_friction = dynamic_friction;
+	}
+
+	constexpr void PhysicsBody::SetVelocity(const Vector2f& velocity)
+	{
+		if (m_velocity != velocity)
+		{
+			if (velocity.LengthSq() > au::Sqr(PHYSICS_EPSILON))
+			{
+				m_velocity = velocity;
+
+				m_sleep_timer = m_sleep_timer_max;
+				m_awake = true;
+			}
+			else
+			{
+				m_velocity = Vector2f::Zero;
+			}
+		}
+	}
+	constexpr void PhysicsBody::AddVelocity(const Vector2f& velocity)
+	{
+		SetVelocity(GetVelocity() + velocity);
+	}
+
+	constexpr void PhysicsBody::SetForce(const Vector2f& force)
+	{
+		m_force = force;
+	}
+	constexpr void PhysicsBody::AddForce(const Vector2f& force)
+	{
+		SetForce(GetForce() + force);
+	}
+
+	constexpr void PhysicsBody::SetAngularVelocity(const float angular_velocity)
+	{
+		if (m_angular_velocity != angular_velocity)
+		{
+			if (std::abs(angular_velocity) > PHYSICS_EPSILON)
+			{
+				m_angular_velocity = angular_velocity;
+
+				m_sleep_timer = m_sleep_timer_max;
+				m_awake = true;
+			}
+			else
+			{
+				m_angular_velocity = 0.0f;
+			}
+		}
+	}
+	constexpr void PhysicsBody::AddAngularVelocity(const float angular_velocity)
+	{
+		SetAngularVelocity(GetAngularVelocity() + angular_velocity);
+	}
+
+	constexpr void PhysicsBody::SetTorque(const float torque)
+	{
+		m_torque = torque;
+	}
+	constexpr void PhysicsBody::AddTorque(const float torque)
+	{
+		SetTorque(GetTorque() + torque);
+	}
+
+	constexpr void PhysicsBody::ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector)
+	{
+		AddVelocity(impulse * GetInvMass());
+		AddAngularVelocity(contact_vector.Cross(impulse) * GetInvInertia());
+	}
 }

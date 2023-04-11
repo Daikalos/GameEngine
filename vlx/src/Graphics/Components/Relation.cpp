@@ -7,7 +7,7 @@ bool Relation::HasParent() const noexcept
 	return m_parent.IsValid();
 }
 
-constexpr bool Relation::HasChildren() const noexcept
+bool Relation::HasChildren() const noexcept
 {
 	return !m_children.empty();
 }

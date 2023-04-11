@@ -29,7 +29,7 @@ namespace vlx
 
 	public:
 		VELOX_API NODISC bool HasParent() const noexcept;
-		VELOX_API NODISC constexpr bool HasChildren() const noexcept;
+		VELOX_API NODISC bool HasChildren() const noexcept;
 
 		VELOX_API NODISC auto GetParent() const noexcept -> const Parent&;
 		VELOX_API NODISC auto GetChildren() const noexcept -> const Children&;

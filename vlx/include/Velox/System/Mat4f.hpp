@@ -30,6 +30,7 @@ namespace vlx
 		constexpr Mat4f& operator*=(const Mat4f& rhs);
 
 		constexpr Vector2f operator*(const Vector2f& rhs) const;
+		constexpr sf::Vector2f operator*(const sf::Vector2f& rhs) const;
 
 	public:
 		constexpr const float* GetMatrix() const noexcept;
@@ -39,6 +40,7 @@ namespace vlx
 		constexpr Mat4f GetTranspose() const;
 
 		constexpr Vector2f TransformPoint(const Vector2f& point) const;
+		constexpr sf::Vector2f TransformPoint(const sf::Vector2f& point) const;
 		constexpr RectFloat TransformRect(const RectFloat& rect) const;
 
 		constexpr Mat4f& Combine(const Mat4f& transform);
@@ -102,6 +104,10 @@ namespace vlx
 	{
 		return m_transform * rhs;
 	}
+	constexpr sf::Vector2f Mat4f::operator*(const sf::Vector2f& rhs) const
+	{
+		return m_transform * rhs;
+	}
 
 	constexpr const float* Mat4f::GetMatrix() const noexcept 
 	{
@@ -124,6 +130,10 @@ namespace vlx
 	}
 
 	constexpr Vector2f Mat4f::TransformPoint(const Vector2f& point) const 
+	{
+		return m_transform.transformPoint(point);
+	}
+	constexpr sf::Vector2f Mat4f::TransformPoint(const sf::Vector2f& point) const
 	{
 		return m_transform.transformPoint(point);
 	}

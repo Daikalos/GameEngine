@@ -38,7 +38,6 @@
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
-    <ClCompile Include="src\Physics\PhysicsBody.cpp" />
     <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
@@ -137,7 +136,6 @@
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
     <ClInclude Include="include\Velox\Physics\CollisionLayer.h" />
     <ClInclude Include="include\Velox\Physics\CollisionArbiter.h" />
-    <ClInclude Include="include\Velox\Utility\MatrixUtils.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
