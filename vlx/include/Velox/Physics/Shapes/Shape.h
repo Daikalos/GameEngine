@@ -23,6 +23,8 @@ namespace vlx
 			Point,
 			Convex,
 
+			// considering adding triangle and capsule in the future
+
 			// Not sure if the engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,
 			// http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf is the best i've found that presents a viable solution
 
@@ -33,8 +35,7 @@ namespace vlx
 		virtual ~Shape() = default;
 
 	public:
-		const Mat2f& GetTransform() const;
-		const Mat2f& GetInverseTransform() const;
+		const Mat2f& GetOrientation() const;
 		const RectFloat& GetAABB() const;
 		Vector2f GetCenter() const;
 
@@ -42,10 +43,10 @@ namespace vlx
 		void UpdateTransform(const Transform& transform);
 
 	protected:
-		Mat2f			m_transform; // rotation matrix
-		mutable Mat2f	m_inverse_transform;
+		mutable Mat2f	m_orientation; // rotation matrix
 		RectFloat		m_aabb;
-		mutable bool	m_update_inverse {true};
+		sf::Angle		m_angle;
+		mutable bool	m_update			{true};
 
 		friend class PhysicsDirtySystem;
 	};

@@ -4,9 +4,9 @@
 
 int main()
 {
-	std::string application_name = "Velox";
+	std::string name = "Velox";
 
-	vlx::Application application(application_name);
+	vlx::Application application(name);
 	application.Run();
 
 	return EXIT_SUCCESS;

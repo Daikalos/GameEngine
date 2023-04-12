@@ -60,18 +60,16 @@ namespace vlx::traits
         }
     }
 
-    /// <summary>
-    ///     Returns in compile-time the index to where in tuple the type is located at
-    /// </summary>
+    /// Returns in compile-time the index to where in tuple the type is located at
+    /// 
     template<typename T, typename Tuple>
     struct IndexInTuple
     {
         static constexpr size_t value = hidden::IndexInTupleFn<0, T, Tuple>();
     };
 
-    /// <summary>
-    ///     Sorts a tuple given a comparator, e.g., DescendingID
-    /// </summary>
+    /// Sorts a tuple given a comparator, e.g., DescendingID
+    ///
     namespace sort
     {
         template<bool B>

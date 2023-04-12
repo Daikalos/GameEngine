@@ -2,22 +2,16 @@
 
 using namespace vlx;
 
-const Mat2f& Shape::GetTransform() const
+const Mat2f& Shape::GetOrientation() const
 {
-	return m_transform;
-}
-
-const Mat2f& Shape::GetInverseTransform() const
-{
-	if (m_update_inverse)
+	if (m_update)
 	{
-		m_inverse_transform = m_transform.GetInverse();
-		m_update_inverse = false;
+		m_orientation.Set(m_angle);
+		m_update = false;
 	}
 
-	return m_inverse_transform;
+	return m_orientation;
 }
-
 const RectFloat& Shape::GetAABB() const
 {
 	return m_aabb;
@@ -30,6 +24,6 @@ Vector2f Shape::GetCenter() const
 
 void Shape::UpdateTransform(const Transform& transform)
 {
-	m_transform.Set(transform.GetRotation());
-	m_update_inverse = true;
+	m_angle = transform.GetRotation();
+	m_update = true;
 }

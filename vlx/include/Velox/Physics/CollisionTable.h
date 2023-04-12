@@ -19,6 +19,9 @@ namespace vlx
 		using Matrix = std::array<std::function<void(
 			CollisionArbiter&, const Shape&, const Shape&)>, Shape::Count * Shape::Count>;
 
+		using Face = std::array<Vector2f, 2>;
+		using VectorSpan = std::span<const Vector2f>;
+
 	public:
 		static void Collide(CollisionArbiter&, 
 			const Shape& s1, typename Shape::Type st1, 
@@ -58,13 +61,17 @@ namespace vlx
 		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
 
 	private:
-		static Vector2f GetSupport(std::span<const Vector2f> vertices, const Vector2f& dir);
+		static Vector2f GetSupport(VectorSpan vertices, const Vector2f& dir);
 
 		static std::tuple<float, uint32_t> FindAxisLeastPenetration(
-			const Shape& s0, std::span<const Vector2f> v0, std::span<const Vector2f> n0,
-			const Shape& s1, std::span<const Vector2f> v1, std::span<const Vector2f> n1);
+			const Shape& s0, VectorSpan v0, VectorSpan n0,
+			const Shape& s1, VectorSpan v1, VectorSpan n1);
 
-		static int Clip(std::array<Vector2f, 2>& face, const Vector2f& n, float c);
+		static auto FindIncidentFace(
+			const Shape& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
+			const Shape& ref, const Vector2f& ref_normal) -> Face;
+
+		static int Clip(Face& face, const Vector2f& n, float c);
 
 	private:
 		static Matrix table;

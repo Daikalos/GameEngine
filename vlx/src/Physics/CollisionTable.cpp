@@ -71,7 +71,7 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	Vector2f s1_center = s1.GetCenter();
 	Vector2f s2_center = s2.GetCenter();
 
-	Vector2f n = s2.GetTransform().GetTranspose() * (s1_center - s2_center);
+	Vector2f n = s2.GetOrientation().GetTranspose() * (s1_center - s2_center);
 	Vector2f clamped = n.Clamp(-half_extends, half_extends);
 
 	bool inside = false;
@@ -85,7 +85,7 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	}
 
-	Vector2f point = s2_center + s2.GetTransform() * clamped;
+	Vector2f point = s2_center + s2.GetOrientation() * clamped;
 	Vector2f normal = Vector2f::Direction(s1_center, point);
 	float dist = normal.LengthSq();
 
@@ -120,6 +120,8 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 {
 	const Box& b1 = reinterpret_cast<const Box&>(s1);
 	const Box& b2 = reinterpret_cast<const Box&>(s2);
+
+	// https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=36c66140a103b1db3b4e5b5b3074ef36c84a8f2e
 
 
 }
@@ -163,47 +165,110 @@ void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 
 }
 
-Vector2f CollisionTable::GetSupport(std::span<const Vector2f> vertices, const Vector2f& dir)
+Vector2f CollisionTable::GetSupport(VectorSpan vertices, const Vector2f& dir)
 {
-	Vector2f best_vertex;
 	float best_projection = -FLT_MAX;
+	std::uint32_t best_index = 0;
 
 	for (std::uint32_t i = 0; i < vertices.size(); ++i)
 	{
-		const Vector2f v = vertices[i];
-		const float projection = v.Dot(dir);
-
+		const float projection = vertices[i].Dot(dir);
 		if (projection > best_projection)
 		{
-			best_vertex = v;
+			best_index = i;
 			best_projection;
 		}
 	}
 
-	return best_vertex;
+	assert(best_index >= 0 && best_index < vertices.size());
+
+	return vertices[best_index];
 }
 
 std::tuple<float, uint32_t> CollisionTable::FindAxisLeastPenetration(
-	const Shape& s0, std::span<const Vector2f> v0, std::span<const Vector2f> n0,
-	const Shape& s1, std::span<const Vector2f> v1, std::span<const Vector2f> n1)
+	const Shape& s0, VectorSpan v0, VectorSpan n0,
+	const Shape& s1, VectorSpan v1, VectorSpan n1)
 {
 	float best_distance = -FLT_MAX;
 	uint32_t best_index = 0;
 
 	for (uint32_t i = 0; i < v0.size(); ++i)
 	{
-		Vector2f normal = s1.GetInverseTransform() * (s0.GetTransform() * n0[i]); // TODO: fix
-		Vector2f support = GetSupport(v1, -normal);
-		
-		Vector2f v = v0[i];
+		Mat2f s1t = s1.GetOrientation().GetTranspose();
 
+		Vector2f normal = s1t * (s0.GetOrientation() * n0[i]); // to world space -> model space of s1
+		Vector2f support = GetSupport(v1, -normal); // support from s1 along -normal
+		
+		Vector2f vertex = s1t * (s0.GetOrientation() * v0[i] + (s0.GetCenter() - s1.GetCenter())); // model space of s0 -> model space of s1
+
+		float d = normal.Dot(support - vertex); // penetration distance in s1 space
+
+		if (d > best_distance)
+		{
+			best_distance = d;
+			best_index = i;
+		}
 	}
 
 	return { best_distance, best_index };
 }
 
-int CollisionTable::Clip(std::array<Vector2f, 2>& face, const Vector2f& n, float c)
+auto CollisionTable::FindIncidentFace(
+	const Shape& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
+	const Shape& ref, const Vector2f& ref_normal) -> Face
 {
+	Face face;
 
-	return 0;
+	// calculate normal in the incident's space
+	Vector2f normal = inc.GetOrientation().GetTranspose() * (ref.GetOrientation() * ref_normal); // world space -> incident model space
+
+	float min_dot = FLT_MAX;
+	std::uint32_t incident_face = 0;
+
+	for (std::uint32_t i = 0; i < inc_normals.size(); ++i) // find 
+	{
+		float dot = normal.Dot(inc_normals[i]);
+		if (dot < min_dot)
+		{
+			min_dot = dot;
+			incident_face = i;
+		}
+	}
+
+	Vector2f pos = inc.GetCenter();
+
+	// assign the faces
+	face[0] = pos + inc.GetOrientation() * inc_vertices[incident_face];
+	incident_face = ((incident_face + 1) >= (int)inc_normals.size()) ? 0 : incident_face + 1;
+	face[1] = pos + inc.GetOrientation() * inc_vertices[incident_face];
+
+	return face;
+}
+
+int CollisionTable::Clip(Face& face, const Vector2f& normal, float offset)
+{
+	Face out = face;
+	int  op  = 0; // num of out points
+
+	float d1 = normal.Dot(face[0]) - offset;
+	float d2 = normal.Dot(face[1]) - offset;
+
+	// if negative they are behind the plane
+	if (d1 <= 0.0f) out[op++] = face[0];
+	if (d2 <= 0.0f) out[op++] = face[1];
+
+	// if they are on different sides
+	if (d1 * d2 < 0.0f)
+	{
+		assert(op < 2);
+
+		float alpha = d1 / (d1 - d2); // intersection point of edge and plane
+		out[op] = face[0] + alpha * (face[1] - face[0]); 
+		++op;
+	}
+
+	face[0] = out[0];
+	face[1] = out[1];
+
+	return op;
 }
