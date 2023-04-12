@@ -27,3 +27,9 @@ Vector2f Shape::GetCenter() const
 {
 	return m_aabb.Center();
 }
+
+void Shape::UpdateTransform(const Transform& transform)
+{
+	m_transform.Set(transform.GetRotation());
+	m_update_inverse = true;
+}

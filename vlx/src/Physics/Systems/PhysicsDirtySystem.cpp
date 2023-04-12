@@ -5,11 +5,11 @@ using namespace vlx;
 PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id),
 
-	m_dirty_transform(	*m_entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
-	m_dirty_physics(	*m_entity_admin, id),
+	m_dirty_transform(	entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
+	m_dirty_physics(	entity_admin, id),
 
-	m_circles_aabb(		*m_entity_admin, id),
-	m_boxes_aabb(		*m_entity_admin, id)
+	m_circles_aabb(		entity_admin, id),
+	m_boxes_aabb(		entity_admin, id)
 
 {
 	m_dirty_transform.Each([this](EntityID entity_id, Collision& c, Transform& t)

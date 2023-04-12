@@ -12,9 +12,3 @@ void Box::UpdateAABBImpl(const Transform& transform)
 {
 	m_aabb = transform.GetTransform().TransformRect(GetBox());
 }
-
-void Box::UpdateTransformImpl(const Transform& transform)
-{
-	m_transform.Set(transform.GetRotation());
-	m_update_inverse = true;
-}

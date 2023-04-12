@@ -12,9 +12,3 @@ void Circle::UpdateAABBImpl(const Transform& transform)
 {
     m_aabb = transform.GetTransform().TransformRect(RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f));
 }
-
-void Circle::UpdateTransformImpl(const Transform& transform)
-{
-    m_transform.Set(transform.GetRotation());
-    m_update_inverse = true;
-}

@@ -38,11 +38,16 @@ namespace vlx
 		const RectFloat& GetAABB() const;
 		Vector2f GetCenter() const;
 
+	private:
+		void UpdateTransform(const Transform& transform);
+
 	protected:
-		Mat2f			m_transform; // transform is needed since physics objects will need to collide around center
+		Mat2f			m_transform; // rotation matrix
 		mutable Mat2f	m_inverse_transform;
 		RectFloat		m_aabb;
 		mutable bool	m_update_inverse {true};
+
+		friend class PhysicsDirtySystem;
 	};
 
 	template<class S>
@@ -51,7 +56,6 @@ namespace vlx
 		constexpr auto GetType() const noexcept -> Shape::Type;
 		void Initialize(PhysicsBody& body) const;
 		void UpdateAABB(const Transform& transform);
-		void UpdateTransform(const Transform& transform);
 
 		friend class PhysicsDirtySystem;
 	};
@@ -72,11 +76,5 @@ namespace vlx
 	inline void ShapeCRTP<S>::UpdateAABB(const Transform& transform)
 	{
 		static_cast<S*>(this)->UpdateAABBImpl(transform);
-	}
-
-	template<class S>
-	inline void ShapeCRTP<S>::UpdateTransform(const Transform& transform)
-	{
-		static_cast<S*>(this)->UpdateTransformImpl(transform);
 	}
 }

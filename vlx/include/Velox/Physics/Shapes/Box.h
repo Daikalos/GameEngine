@@ -50,7 +50,6 @@ namespace vlx
 		constexpr auto GetType() const noexcept -> Type;
 		VELOX_API void InitializeImpl(PhysicsBody& body) const;
 		VELOX_API void UpdateAABBImpl(const Transform& transform);
-		VELOX_API void UpdateTransformImpl(const Transform& transform);
 
 	private:
 		VectorArray m_vertices;

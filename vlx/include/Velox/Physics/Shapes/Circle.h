@@ -22,7 +22,6 @@ namespace vlx
 		constexpr auto GetType() const noexcept -> Type;
 		VELOX_API void InitializeImpl(PhysicsBody& body) const;
 		VELOX_API void UpdateAABBImpl(const Transform& transform);
-		VELOX_API void UpdateTransformImpl(const Transform& transform);
 
 	private:
 		float m_radius		{16.0f};
@@ -30,7 +29,9 @@ namespace vlx
 	};
 
 	constexpr Circle::Circle() = default;
-	constexpr Circle::Circle(const float radius) : m_radius(radius), m_radius_sqr(au::Sqr(radius)) {}
+
+	constexpr Circle::Circle(const float radius) 
+		: m_radius(radius), m_radius_sqr(au::Sqr(radius)) {}
 
 	constexpr float Circle::GetRadius() const noexcept			{ return m_radius; }
 	constexpr float vlx::Circle::GetRadiusSqr() const noexcept	{ return m_radius_sqr; }
