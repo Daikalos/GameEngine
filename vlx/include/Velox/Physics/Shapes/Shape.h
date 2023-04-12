@@ -1,11 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics/Transformable.hpp>
-
 #include <Velox/ECS/IComponent.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Event.hpp>
+#include <Velox/System/Mat2f.hpp>
 #include <Velox/Config.hpp>
 
 #include "../CollisionResult.h"
@@ -34,16 +33,16 @@ namespace vlx
 		virtual ~Shape() = default;
 
 	public:
-		const sf::Transform& GetTransform() const;
-		const sf::Transform& GetInverseTransform() const;
+		const Mat2f& GetTransform() const;
+		const Mat2f& GetInverseTransform() const;
 		const RectFloat& GetAABB() const;
 		Vector2f GetCenter() const;
 
 	protected:
-		sf::Transform			m_transform; // transform is needed since physics objects will need to collide around center
-		mutable sf::Transform	m_inverse_transform;
-		RectFloat				m_aabb;
-		mutable bool			m_update_inverse {true};
+		Mat2f			m_transform; // transform is needed since physics objects will need to collide around center
+		mutable Mat2f	m_inverse_transform;
+		RectFloat		m_aabb;
+		mutable bool	m_update_inverse {true};
 	};
 
 	template<class S>

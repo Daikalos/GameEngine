@@ -2,16 +2,16 @@
 
 using namespace vlx;
 
-const sf::Transform& Shape::GetTransform() const
+const Mat2f& Shape::GetTransform() const
 {
 	return m_transform;
 }
 
-const sf::Transform& Shape::GetInverseTransform() const
+const Mat2f& Shape::GetInverseTransform() const
 {
 	if (m_update_inverse)
 	{
-		m_inverse_transform = m_transform.getInverse();
+		m_inverse_transform = m_transform.GetInverse();
 		m_update_inverse = false;
 	}
 

@@ -162,4 +162,6 @@ namespace vlx
 		m_transform.scale(factor, center);
 		return *this;
 	}
+
+	inline constexpr Mat4f Mat4f::Identity;
 }

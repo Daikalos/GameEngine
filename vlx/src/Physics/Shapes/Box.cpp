@@ -15,8 +15,6 @@ void Box::UpdateAABBImpl(const Transform& transform)
 
 void Box::UpdateTransformImpl(const Transform& transform)
 {
-	m_transform = transform.GetTransform();
-	m_transform.translate(GetBox().Size() / 2.0f);
-
+	m_transform.Set(transform.GetRotation());
 	m_update_inverse = true;
 }

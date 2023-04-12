@@ -5,4 +5,6 @@
 #include "Utility/ArithmeticUtils.h"
 #include "Utility/ContainerUtils.h"
 #include "Utility/Benchmark.h"
-#include "Utility/MatrixUtils.h"
+#include "Utility/MathUtility.h"
+#include "Utility/PolicySelect.h"
+#include "Utility/NonCopyable.h"

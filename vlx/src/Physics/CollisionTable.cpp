@@ -68,7 +68,10 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 		b2.GetWidth() / 2.0f,
 		b2.GetHeight() / 2.0f);
 
-	Vector2f n = s2.GetInverseTransform() * s1.GetCenter();
+	Vector2f s1_center = s1.GetCenter();
+	Vector2f s2_center = s2.GetCenter();
+
+	Vector2f n = s2.GetTransform().GetTranspose() * (s1_center - s2_center);
 	Vector2f clamped = n.Clamp(-half_extends, half_extends);
 
 	bool inside = false;
@@ -82,8 +85,8 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	}
 
-	Vector2f point = s2.GetTransform() * clamped;
-	Vector2f normal = Vector2f::Direction(s1.GetCenter(), point);
+	Vector2f point = s2_center + s2.GetTransform() * clamped;
+	Vector2f normal = Vector2f::Direction(s1_center, point);
 	float dist = normal.LengthSq();
 
 	if ((dist > c1.GetRadiusSqr()) && !inside)

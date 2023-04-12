@@ -282,6 +282,7 @@
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
+    <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\System\Mat4f.cpp" />
     <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />

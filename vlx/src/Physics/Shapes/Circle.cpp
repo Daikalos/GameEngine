@@ -15,8 +15,6 @@ void Circle::UpdateAABBImpl(const Transform& transform)
 
 void Circle::UpdateTransformImpl(const Transform& transform)
 {
-    m_transform = transform.GetTransform();
-    m_transform.translate({ m_radius, m_radius });
-
+    m_transform.Set(transform.GetRotation());
     m_update_inverse = true;
 }
