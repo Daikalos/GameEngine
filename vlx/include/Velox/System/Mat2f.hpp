@@ -41,8 +41,8 @@ namespace vlx
 		static const Mat2f Identity;
 
 	private:
-		float m_matrix[4] {1.f, 0.f,
-						   0.f, 1.f};
+		float m_matrix[4]{ 1.f, 0.f,
+							0.f, 1.f };
 	};
 
 	constexpr Mat2f::Mat2f() = default;
@@ -69,15 +69,17 @@ namespace vlx
 
 	constexpr Mat2f Mat2f::GetInverse() const 
 	{
-		const float det = m_matrix[0] * m_matrix[3] -
+		float det = m_matrix[0] * m_matrix[3] -
 						  m_matrix[2] * m_matrix[1];
 
 		if (det != 0.0f)
 		{
-			return Mat2f( m_matrix[3] / det, 
-						 -m_matrix[2] / det,
-						 -m_matrix[1] / det,
-						  m_matrix[0] / det);
+			det = 1.0f / det;
+
+			return Mat2f( m_matrix[3] * det, 
+						 -m_matrix[2] * det,
+						 -m_matrix[1] * det,
+						  m_matrix[0] * det);
 		}
 		
 		return Identity;

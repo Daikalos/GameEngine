@@ -200,6 +200,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 
 		float dpn = -(1.0f + arbiter.restitution) * vel_along_normal * contact.mass_normal + contact.bias;
 		dpn = std::max(dpn, 0.0f);
+		//dpn /= (float)arbiter.contacts_count;
 
 		Vector2f impulse = dpn * contact.normal;
 
@@ -215,6 +216,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		tangent = tangent.Normalize();
 
 		float dpt = contact.mass_tangent * -rv.Dot(tangent);
+		//dpt /= (float)arbiter.contacts_count;
 
 		if (au::Equal(dpt, 0.0f, PHYSICS_EPSILON))
 			return;

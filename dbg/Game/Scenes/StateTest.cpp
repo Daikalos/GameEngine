@@ -36,7 +36,7 @@ void StateTest::OnCreated()
 	gui::Label& label = e2.GetComponent<gui::Label>();
 	label.setString("potato");
 
-	m_entities.reserve(100);
+	m_entities.reserve(1);
 
 	int h = sizeof(Renderable);
 
@@ -103,7 +103,7 @@ void StateTest::OnCreated()
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
 	entity.AddComponent<PhysicsBody>();
 	entity.AddComponent<Collision>();
-	entity.AddComponent<Box>(RectFloat(0, 0, 1024, 16));
+	entity.AddComponent<Box>(RectFloat(-512, -8, 1024, 16));
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
 	entity.GetComponent<PhysicsBody>().SetMass(0.0f);
@@ -113,7 +113,7 @@ void StateTest::OnCreated()
 	entity.GetComponent<LocalTransform>().SetOrigin({ 512, 8 });
 	entity.GetComponent<LocalTransform>().SetRotation(sf::degrees(0.0f));
 
-	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {1024, 1024});
+	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)
@@ -151,7 +151,7 @@ bool StateTest::Update(Time& time)
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
 		entity.AddComponent<Collision>();
-		entity.AddComponent<Box>();
+		entity.AddComponent<Box>(RectFloat(-32, -32, 64, 64));
 
 		//entity.GetComponent<Circle>().radius = 32.0f;
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
@@ -159,7 +159,6 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
-		entity.GetComponent<Box>().SetSize({ 64, 64 });
 		entity.GetComponent<LocalTransform>().SetOrigin({ 32, 32 });
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,

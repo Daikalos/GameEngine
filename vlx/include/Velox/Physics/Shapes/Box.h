@@ -75,7 +75,7 @@ namespace vlx
 	}
 	constexpr RectFloat Box::GetBox() const noexcept
 	{
-		return RectFloat(m_vertices[0], m_vertices[3] - m_vertices[0]);
+		return RectFloat({}, m_vertices[2] - m_vertices[0]);
 	}
 
 	constexpr float Box::GetWidth() const noexcept
@@ -85,20 +85,20 @@ namespace vlx
 
 	constexpr float Box::GetHeight() const noexcept
 	{
-		return ma::Abs(m_vertices[2].y - m_vertices[0].y);
+		return ma::Abs(m_vertices[3].y - m_vertices[0].y);
 	}
 
 	constexpr void Box::SetBox(const RectFloat& box)
 	{
 		m_vertices[0] = Vector2f(box.left,		box.top);
 		m_vertices[1] = Vector2f(box.Right(),	box.top);
-		m_vertices[2] = Vector2f(box.left,		box.Bottom());
-		m_vertices[3] = Vector2f(box.Right(),	box.Bottom());
+		m_vertices[2] = Vector2f(box.Right(),	box.Bottom());
+		m_vertices[3] = Vector2f(box.left,		box.Bottom());
 	}
 	constexpr void Box::SetSize(const Vector2f& size)
 	{
 		m_vertices[1].x = m_vertices[0].x + size.x;
-		m_vertices[3].x = m_vertices[0].x + size.x;
+		m_vertices[2].x = m_vertices[0].x + size.x;
 		m_vertices[2].y = m_vertices[0].y + size.y;
 		m_vertices[3].y = m_vertices[0].y + size.y;
 	}
@@ -106,7 +106,7 @@ namespace vlx
 	constexpr void Box::SetLeft(float left)
 	{
 		m_vertices[0].x = left;
-		m_vertices[2].x = left;
+		m_vertices[3].x = left;
 	}
 	constexpr void Box::SetTop(float top)
 	{
@@ -116,7 +116,7 @@ namespace vlx
 	constexpr void Box::SetRight(float right)
 	{
 		m_vertices[1].x = right;
-		m_vertices[3].x = right;
+		m_vertices[2].x = right;
 	}
 	constexpr void Box::SetBottom(float bottom)
 	{

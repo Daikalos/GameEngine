@@ -22,8 +22,8 @@ const Mat4f& LocalTransform::GetTransform() const
 	if (m_update)
 	{
 		const float angle	= -m_rotation.asRadians();
-		const float cosine	= std::cosf(angle);
-		const float sine	= std::sinf(angle);
+		const float cosine	= std::cos(angle);
+		const float sine	= std::sin(angle);
 		const float sxc		= m_scale.x * cosine;
 		const float syc		= m_scale.y * cosine;
 		const float sxs		= m_scale.x * sine;

@@ -137,11 +137,17 @@ namespace vlx
 		/// 
 		NODISC constexpr Vector2 ProjectedOnto(const Vector2& axis) const requires FloatingPoint<T>;
 
-		/// Essentially rotates vector clockwise +90 degrees; only works if the vector is of floating point type.
+		/// Essentially rotates vector clockwise +90 degrees.
 		/// 
 		/// \returns Perpendicular vector
 		/// 
-		NODISC constexpr Vector2 Perpendicular() const requires FloatingPoint<T>;
+		NODISC constexpr Vector2 Perpendicular() const;
+
+		/// Essentially rotates vector counter clockwise +90 degrees.
+		/// 
+		/// \returns Perpendicular vector
+		/// 
+		NODISC constexpr Vector2 Orthogonal() const;
 
 		/// Limits the length of the vector to a certain length; only works if the vector is of floating point type.
 		/// 
@@ -444,9 +450,15 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Perpendicular() const requires FloatingPoint<T>
+	inline constexpr Vector2<T> Vector2<T>::Perpendicular() const
 	{
 		return v.perpendicular();
+	}
+
+	template<Arithmetic T>
+	inline constexpr Vector2<T> Vector2<T>::Orthogonal() const
+	{
+		return -v.perpendicular();
 	}
 
 	template<Arithmetic T>

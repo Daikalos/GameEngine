@@ -61,18 +61,18 @@ void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1, 
 }
 void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
-	const Circle& c1 = reinterpret_cast<const Circle&>(s1);
-	const Box& b2 = reinterpret_cast<const Box&>(s2);
+	const Circle& circle = reinterpret_cast<const Circle&>(s1);
+	const Box& box = reinterpret_cast<const Box&>(s2);
 	
 	const Vector2f half_extends(
-		b2.GetWidth() / 2.0f,
-		b2.GetHeight() / 2.0f);
+		box.GetWidth() / 2.0f,
+		box.GetHeight() / 2.0f);
 
-	Vector2f s1_center = s1.GetCenter();
-	Vector2f s2_center = s2.GetCenter();
+	Vector2f s1_center = circle.GetCenter();
+	Vector2f s2_center = box.GetCenter();
 
-	Vector2f n = s2.GetOrientation().GetTranspose() * (s1_center - s2_center);
-	Vector2f clamped = n.Clamp(-half_extends, half_extends);
+	Vector2f n = box.GetOrientation().GetTranspose() * (s1_center - s2_center); // transform circle to box model space
+	Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
 
 	bool inside = false;
 
@@ -89,7 +89,7 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	Vector2f normal = Vector2f::Direction(s1_center, point);
 	float dist = normal.LengthSq();
 
-	if ((dist > c1.GetRadiusSqr()) && !inside)
+	if ((dist > circle.GetRadiusSqr()) && !inside)
 		return;
 
 	dist = std::sqrt(dist);
@@ -98,7 +98,7 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	CollisionContact& contact = arbiter.contacts[0];
 	arbiter.contacts_count = 1;
 
-	contact.penetration	= c1.GetRadius() - dist;
+	contact.penetration	= circle.GetRadius() - dist;
 	contact.normal		= (inside ? -n : n);
 	contact.position	= point;
 }
@@ -121,9 +121,81 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 	const Box& b1 = reinterpret_cast<const Box&>(s1);
 	const Box& b2 = reinterpret_cast<const Box&>(s2);
 
-	// https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=36c66140a103b1db3b4e5b5b3074ef36c84a8f2e
+	arbiter.contacts_count = 0;
 
+	auto [penetration_a, face_a] = FindAxisLeastPenetration(
+		b1, b1.GetVertices(), Box::NORMALS, 
+		b2, b2.GetVertices(), Box::NORMALS);
 
+	if (penetration_a >= 0.0f)
+		return;
+
+	auto [penetration_b, face_b] = FindAxisLeastPenetration(
+		b2, b2.GetVertices(), Box::NORMALS,
+		b1, b1.GetVertices(), Box::NORMALS);
+
+	if (penetration_b >= 0.0f)
+		return;
+
+	uint32_t ref_idx = 0;
+	bool flip = false;
+
+	const Box* ref_box = nullptr;
+	const Box* inc_box = nullptr;
+
+	if (ma::BiasGreaterThan(penetration_a, penetration_b))
+	{
+		ref_box = &b1;
+		inc_box = &b2;
+		ref_idx = face_a;
+		flip = false;
+	}
+	else
+	{
+		ref_box = &b2;
+		inc_box = &b1;
+		ref_idx = face_b;
+		flip = true;
+	}
+
+	Face incident_face = FindIncidentFace(
+		*inc_box, inc_box->GetVertices(), Box::NORMALS, 
+		*ref_box, Box::NORMALS[ref_idx]);
+
+	Vector2f v1 = ref_box->GetCenter() + ref_box->GetOrientation() * ref_box->GetVertices()[ref_idx];
+	ref_idx = ((ref_idx + 1) == (uint32_t)ref_box->GetVertices().size()) ? 0 : ref_idx + 1;
+	Vector2f v2 = ref_box->GetCenter() + ref_box->GetOrientation() * ref_box->GetVertices()[ref_idx];
+
+	Vector2f side_normal = Vector2f::Direction(v1, v2).Normalize();
+
+	float neg_side = -side_normal.Dot(v1);
+	float pos_side =  side_normal.Dot(v2);
+
+	if (Clip(incident_face, -side_normal, neg_side) < 2)
+		return;
+
+	if (Clip(incident_face,  side_normal, pos_side) < 2)
+		return;
+
+	Vector2f ref_face_normal = side_normal.Orthogonal();
+	float ref_c = ref_face_normal.Dot(v1);
+
+	uint32_t cp = 0;
+	for (int i = 0; i < 2; ++i)
+	{
+		float separation = ref_face_normal.Dot(incident_face[i]) - ref_c;
+		if (separation <= 0.0f)
+		{
+			CollisionContact& contact = arbiter.contacts[cp];
+			contact.penetration = -separation;
+			contact.normal		= flip ? -ref_face_normal : ref_face_normal;
+			contact.position	= incident_face[i];
+
+			++cp;
+		}
+	}
+
+	arbiter.contacts_count = cp;
 }
 void CollisionTable::BoxToPoint(CollisionArbiter&, const Shape&,const Shape&)
 {
@@ -168,19 +240,17 @@ void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 Vector2f CollisionTable::GetSupport(VectorSpan vertices, const Vector2f& dir)
 {
 	float best_projection = -FLT_MAX;
-	std::uint32_t best_index = 0;
+	uint32_t best_index = 0;
 
-	for (std::uint32_t i = 0; i < vertices.size(); ++i)
+	for (uint32_t i = 0; i < vertices.size(); ++i)
 	{
 		const float projection = vertices[i].Dot(dir);
 		if (projection > best_projection)
 		{
+			best_projection = projection;
 			best_index = i;
-			best_projection;
 		}
 	}
-
-	assert(best_index >= 0 && best_index < vertices.size());
 
 	return vertices[best_index];
 }
@@ -199,7 +269,8 @@ std::tuple<float, uint32_t> CollisionTable::FindAxisLeastPenetration(
 		Vector2f normal = s1t * (s0.GetOrientation() * n0[i]); // to world space -> model space of s1
 		Vector2f support = GetSupport(v1, -normal); // support from s1 along -normal
 		
-		Vector2f vertex = s1t * (s0.GetOrientation() * v0[i] + (s0.GetCenter() - s1.GetCenter())); // model space of s0 -> model space of s1
+		Vector2f vertex = s1t * (s0.GetOrientation() * v0[i] + 
+			(s0.GetCenter() - s1.GetCenter())); // model space of s0 -> model space of s1
 
 		float d = normal.Dot(support - vertex); // penetration distance in s1 space
 
@@ -217,13 +288,12 @@ auto CollisionTable::FindIncidentFace(
 	const Shape& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
 	const Shape& ref, const Vector2f& ref_normal) -> Face
 {
-	Face face;
-
 	// calculate normal in the incident's space
-	Vector2f normal = inc.GetOrientation().GetTranspose() * (ref.GetOrientation() * ref_normal); // world space -> incident model space
+	Vector2f normal = inc.GetOrientation().GetTranspose() * 
+		(ref.GetOrientation() * ref_normal); // world space -> incident model space
 
 	float min_dot = FLT_MAX;
-	std::uint32_t incident_face = 0;
+	uint32_t incident_face = 0;
 
 	for (std::uint32_t i = 0; i < inc_normals.size(); ++i) // find 
 	{
@@ -235,11 +305,12 @@ auto CollisionTable::FindIncidentFace(
 		}
 	}
 
+	Face face;
 	Vector2f pos = inc.GetCenter();
 
 	// assign the faces
 	face[0] = pos + inc.GetOrientation() * inc_vertices[incident_face];
-	incident_face = ((incident_face + 1) >= (int)inc_normals.size()) ? 0 : incident_face + 1;
+	incident_face = ((incident_face + 1) >= (uint32_t)inc_normals.size()) ? 0 : incident_face + 1;
 	face[1] = pos + inc.GetOrientation() * inc_vertices[incident_face];
 
 	return face;

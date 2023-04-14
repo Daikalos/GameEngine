@@ -23,7 +23,7 @@ namespace vlx
 			Point,
 			Convex,
 
-			// considering adding triangle and capsule in the future
+			// considering adding line, triangle and capsule in the future
 
 			// Not sure if the engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,
 			// http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf is the best i've found that presents a viable solution
@@ -32,11 +32,12 @@ namespace vlx
 		};
 
 	public:
-		virtual ~Shape() = default;
+		// virtual ~Shape() = default; // i dont think this is needed
 
 	public:
 		const Mat2f& GetOrientation() const;
 		const RectFloat& GetAABB() const;
+		Vector2f GetPosition() const;
 		Vector2f GetCenter() const;
 
 	private:

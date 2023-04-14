@@ -17,6 +17,11 @@ const RectFloat& Shape::GetAABB() const
 	return m_aabb;
 }
 
+Vector2f Shape::GetPosition() const
+{
+	return m_aabb.Position();
+}
+
 Vector2f Shape::GetCenter() const
 {
 	return m_aabb.Center();
@@ -24,6 +29,10 @@ Vector2f Shape::GetCenter() const
 
 void Shape::UpdateTransform(const Transform& transform)
 {
-	m_angle = transform.GetRotation();
-	m_update = true;
+	sf::Angle new_angle = transform.GetRotation().wrapUnsigned();
+	if (m_angle != new_angle)
+	{
+		m_angle = new_angle;
+		m_update = true;
+	}
 }
