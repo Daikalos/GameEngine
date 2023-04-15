@@ -103,7 +103,7 @@ void StateTest::OnCreated()
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
 	entity.AddComponent<PhysicsBody>();
 	entity.AddComponent<Collision>();
-	entity.AddComponent<Box>(RectFloat(-512, -8, 1024, 16));
+	entity.AddComponent<Box>(1024, 16);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
 	entity.GetComponent<PhysicsBody>().SetMass(0.0f);
@@ -151,7 +151,7 @@ bool StateTest::Update(Time& time)
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
 		entity.AddComponent<Collision>();
-		entity.AddComponent<Box>(RectFloat(-32, -32, 64, 64));
+		entity.AddComponent<Box>(64, 64);
 
 		//entity.GetComponent<Circle>().radius = 32.0f;
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);

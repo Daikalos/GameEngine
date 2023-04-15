@@ -25,9 +25,6 @@ namespace vlx
 
 			// considering adding line, triangle and capsule in the future
 
-			// Not sure if the engine will support concave shapes, seems very difficult to implement and may cost a lot of performance and memory,
-			// http://wscg.zcu.cz/wscg2004/Papers_2004_Full/B83.pdf is the best i've found that presents a viable solution
-
 			Count // always keep last
 		};
 
@@ -47,7 +44,7 @@ namespace vlx
 		mutable Mat2f	m_orientation; // rotation matrix
 		RectFloat		m_aabb;
 		sf::Angle		m_angle;
-		mutable bool	m_update			{true};
+		mutable bool	m_update {true};
 
 		friend class PhysicsDirtySystem;
 	};

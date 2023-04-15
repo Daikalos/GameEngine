@@ -11,6 +11,11 @@ namespace vlx
 	class Polygon final : public ShapeCRTP<Polygon>
 	{
 	public:
+		using VectorList = std::vector<Vector2f>;
+
+	public:
+		auto GetVertices() const -> const VectorList&;
+		auto GetNormals() const -> const VectorList&;
 
 	public:
 		constexpr auto GetType() const noexcept -> Type;
@@ -18,8 +23,8 @@ namespace vlx
 		VELOX_API void UpdateAABBImpl(const Transform& transform);
 
 	private:
-		std::vector<Vector2f> m_vertices;
-		std::vector<Vector2f> m_normals;
+		VectorList m_vertices;
+		VectorList m_normals;
 	};
 
 	constexpr auto Polygon::GetType() const noexcept -> Type

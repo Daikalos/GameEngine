@@ -8,6 +8,7 @@
 #include "Shapes/Shape.h"
 #include "Shapes/Circle.h"
 #include "Shapes/Box.h"
+#include "Shapes/Polygon.h"
 
 #include "CollisionArbiter.h"
 
@@ -61,11 +62,19 @@ namespace vlx
 		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
 
 	private:
+		static constexpr bool BoxBiasGreaterThan(float a, float b, float c);
+		static constexpr bool BiasGreaterThan(float a, float b);
+
+	private:
+		static auto BoxFindIncidentFace(const Mat2f& rot, const Mat2f& rot_tsp, 
+			const Vector2f& half, const Vector2f& pos, const Vector2f& normal) -> Face;
+
+	private:
 		static Vector2f GetSupport(VectorSpan vertices, const Vector2f& dir);
 
 		static std::tuple<float, uint32_t> FindAxisLeastPenetration(
-			const Shape& s0, VectorSpan v0, VectorSpan n0,
-			const Shape& s1, VectorSpan v1, VectorSpan n1);
+			const Shape& s1, VectorSpan v1, VectorSpan n1,
+			const Shape& s2, VectorSpan v2, VectorSpan n2);
 
 		static auto FindIncidentFace(
 			const Shape& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
@@ -76,4 +85,20 @@ namespace vlx
 	private:
 		static Matrix table;
 	};
+
+	constexpr bool CollisionTable::BoxBiasGreaterThan(float a, float b, float c)
+	{
+		constexpr float k_bias_relative = 0.95f;
+		constexpr float k_bias_absolute = 0.01f;
+
+		return a >= b * k_bias_relative + c * k_bias_absolute;
+	}
+
+	constexpr bool CollisionTable::BiasGreaterThan(float a, float b)
+	{
+		constexpr float k_bias_relative = 0.95f;
+		constexpr float k_bias_absolute = 0.01f;
+
+		return a >= b * k_bias_relative + a * k_bias_absolute;
+	}
 }

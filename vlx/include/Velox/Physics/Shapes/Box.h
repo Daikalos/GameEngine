@@ -30,6 +30,8 @@ namespace vlx
 		constexpr Box(const RectFloat& rect);
 		constexpr Box(const Vector2f& min, const Vector2f& max);
 		constexpr Box(float min_x, float min_y, float max_x, float max_y);
+		constexpr Box(const Vector2f& size);
+		constexpr Box(float width, float height);
 
 	public:
 		constexpr auto GetVertices() const noexcept -> const VectorArray&;
@@ -68,6 +70,14 @@ namespace vlx
 	{
 		SetBox({ min_x, min_y, max_x, max_y });
 	}
+	constexpr Box::Box(const Vector2f& size)
+	{
+		SetSize(size);
+	}
+	constexpr Box::Box(float width, float height)
+	{
+		SetSize({ width, height });
+	}
 
 	constexpr auto Box::GetVertices() const noexcept -> const VectorArray&
 	{
@@ -97,10 +107,10 @@ namespace vlx
 	}
 	constexpr void Box::SetSize(const Vector2f& size)
 	{
-		m_vertices[1].x = m_vertices[0].x + size.x;
-		m_vertices[2].x = m_vertices[0].x + size.x;
-		m_vertices[2].y = m_vertices[0].y + size.y;
-		m_vertices[3].y = m_vertices[0].y + size.y;
+		SetLeft(-size.x / 2.0f);
+		SetTop(-size.y / 2.0f);
+		SetRight(size.x);
+		SetBottom(size.y);
 	}
 
 	constexpr void Box::SetLeft(float left)
@@ -115,13 +125,13 @@ namespace vlx
 	}
 	constexpr void Box::SetRight(float right)
 	{
-		m_vertices[1].x = right;
-		m_vertices[2].x = right;
+		m_vertices[1].x = m_vertices[0].x + right;
+		m_vertices[2].x = m_vertices[0].x + right;
 	}
 	constexpr void Box::SetBottom(float bottom)
 	{
-		m_vertices[2].y = bottom;
-		m_vertices[3].y = bottom;
+		m_vertices[2].y = m_vertices[0].y + bottom;
+		m_vertices[3].y = m_vertices[0].y + bottom;
 	}
 
 	constexpr Shape::Type Box::GetType() const noexcept

@@ -70,7 +70,7 @@ namespace vlx
 	constexpr Mat2f Mat2f::GetInverse() const 
 	{
 		float det = m_matrix[0] * m_matrix[3] -
-						  m_matrix[2] * m_matrix[1];
+					m_matrix[2] * m_matrix[1];
 
 		if (det != 0.0f)
 		{

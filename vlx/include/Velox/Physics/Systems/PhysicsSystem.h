@@ -43,7 +43,7 @@ namespace vlx
 
 	private:
 		Time*			m_time			{nullptr};
-		Vector2f		m_gravity		{0.0f, 20.82f};
+		Vector2f		m_gravity		{0.0f, 60.82f};
 
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;
