@@ -9,6 +9,7 @@
 #include "Shapes/Circle.h"
 #include "Shapes/Box.h"
 #include "Shapes/Polygon.h"
+#include "Shapes/Point.h"
 
 #include "CollisionArbiter.h"
 

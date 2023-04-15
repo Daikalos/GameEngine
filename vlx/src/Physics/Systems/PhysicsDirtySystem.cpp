@@ -9,7 +9,8 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 	m_dirty_physics(	entity_admin, id),
 
 	m_circles_aabb(		entity_admin, id),
-	m_boxes_aabb(		entity_admin, id)
+	m_boxes_aabb(		entity_admin, id),
+	m_points_aabb(		entity_admin, id)
 
 {
 	m_dirty_transform.Each([this](EntityID entity_id, Collision& c, Transform& t)
@@ -39,6 +40,15 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 			{
 				b.UpdateAABB(t);
 				b.UpdateTransform(t);
+			}
+		});
+
+	m_points_aabb.Each([this](EntityID entity_id, Point& p, Collision& c, Transform& t)
+		{
+			if (c.dirty)
+			{
+				p.UpdateAABB(t);
+				p.UpdateTransform(t);
 			}
 		});
 

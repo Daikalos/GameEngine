@@ -30,13 +30,13 @@ void CollisionTable::Collide(CollisionArbiter& arbiter,
 
 void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1,  const Shape& s2)
 {
-	const Circle& c1 = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
-	const Circle& c2 = reinterpret_cast<const Circle&>(s2);
+	const Circle& A = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
+	const Circle& B = reinterpret_cast<const Circle&>(s2);
 
-	Vector2f normal = Vector2f::Direction(s1.GetCenter(), s2.GetCenter());
+	Vector2f normal = Vector2f::Direction(A.GetCenter(), B.GetCenter());
 
 	const float dist_sqr = normal.LengthSq();
-	const float radius = c1.GetRadius() + c2.GetRadius();
+	const float radius = A.GetRadius() + B.GetRadius();
 
 	if (dist_sqr >= radius * radius)
 		return;
@@ -46,9 +46,9 @@ void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1, 
 
 	if (dist_sqr == 0.0f)
 	{
-		contact.penetration = c1.GetRadius();
+		contact.penetration = A.GetRadius();
 		contact.normal		= Vector2f::UnitX;
-		contact.position	= s1.GetCenter();
+		contact.position	= A.GetCenter();
 
 		return;
 	}
@@ -57,7 +57,7 @@ void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1, 
 
 	contact.penetration	= radius - distance;
 	contact.normal		= normal / distance;
-	contact.position	= contact.normal * c1.GetRadius() + s1.GetCenter();
+	contact.position	= contact.normal * A.GetRadius() + A.GetCenter();
 }
 void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -101,9 +101,34 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	contact.normal		= (inside ? -n : n);
 	contact.position	= point;
 }
-void CollisionTable::CircleToPoint(CollisionArbiter&, const Shape&, const Shape&)
+void CollisionTable::CircleToPoint(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	const Circle& A = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
+	const Point& B = reinterpret_cast<const Point&>(s2);
 
+	Vector2f normal = Vector2f::Direction(A.GetCenter(), B.GetCenter());
+	const float dist_sqr = normal.LengthSq();
+
+	if (dist_sqr >= A.GetRadiusSqr())
+		return;
+
+	CollisionContact& contact = arbiter.contacts[0];
+	arbiter.contacts_count = 1;
+
+	if (dist_sqr == 0.0f)
+	{
+		contact.penetration = A.GetRadius();
+		contact.normal		= Vector2f::UnitX;
+		contact.position	= A.GetCenter();
+
+		return;
+	}
+
+	const float distance = std::sqrt(dist_sqr);
+
+	contact.penetration = A.GetRadius() - distance;
+	contact.normal = normal / distance;
+	contact.position = A.GetCenter() + contact.normal * A.GetRadius();
 }
 void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -113,7 +138,7 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 void CollisionTable::BoxToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	CircleToBox(arbiter, s2, s1);
-	arbiter.contacts[0].normal = -arbiter.contacts[0].normal;
+	arbiter.contacts[0].normal *= -1;
 }
 void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -274,8 +299,10 @@ void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, con
 
 }
 
-void CollisionTable::PointToCircle(CollisionArbiter&, const Shape&, const Shape&)
+void CollisionTable::PointToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	CircleToPoint(arbiter, s2, s1);
+	arbiter.contacts[0].normal *= -1;
 }
 
 void CollisionTable::PointToBox(CollisionArbiter&, const Shape&, const Shape&)

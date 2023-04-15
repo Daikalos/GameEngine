@@ -146,6 +146,23 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
+	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::R))
+	{
+		Entity& entity = m_entities.emplace_back(e0.Duplicate());
+		entity.AddComponent<PhysicsBody>();
+		entity.AddComponent<Collision>();
+		entity.AddComponent<Point>();
+
+		entity.GetComponent<PhysicsBody>().SetMass(0.1f);
+		entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
+		entity.GetComponent<LocalTransform>().SetOrigin({ 2, 2 });
+		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
+		entity.GetComponent<Sprite>().SetSize({ 4, 4 });
+
+		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+	}
+
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());

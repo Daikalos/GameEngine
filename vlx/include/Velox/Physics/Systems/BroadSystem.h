@@ -12,6 +12,7 @@
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Circle.h>
 #include <Velox/Physics/Shapes/Box.h>
+#include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 
 #include "../CollisionObject.h"
@@ -25,8 +26,10 @@ namespace vlx
 		using GeneralSystem			= System<Collision, LocalTransform>;
 		using CircleSystem			= System<Circle, Collision, LocalTransform>;
 		using BoxSystem				= System<Box, Collision, LocalTransform>;
+		using PointSystem				= System<Point, Collision, LocalTransform>;
 		using CircleBodySystem		= System<Circle, Collision, PhysicsBody, LocalTransform>;
 		using BoxBodySystem			= System<Box, Collision, PhysicsBody, LocalTransform>;
+		using PointBodySystem			= System<Point, Collision, PhysicsBody, LocalTransform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
 		using CollisionIndex		= std::uint32_t;
@@ -64,15 +67,21 @@ namespace vlx
 
 		CircleSystem		m_circles_ins;
 		BoxSystem			m_boxes_ins;
+		PointSystem			m_points_ins;
+
 		CircleBodySystem	m_circles_body_ins;
 		BoxBodySystem		m_boxes_body_ins;
-
-		GeneralSystem		m_cleanup;
+		PointBodySystem		m_points_body_ins;
 
 		CircleSystem		m_circles_query;
 		BoxSystem			m_boxes_query;
+		PointSystem			m_points_query;
+
 		CircleBodySystem	m_circles_body_query;
 		BoxBodySystem		m_boxes_body_query;
+		PointBodySystem		m_points_body_query;
+
+		GeneralSystem		m_cleanup;
 
 		friend class NarrowSystem;
 	};

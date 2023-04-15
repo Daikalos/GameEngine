@@ -7,6 +7,7 @@
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Circle.h>
 #include <Velox/Physics/Shapes/Box.h>
+#include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 
 #include "../Collision.h"
@@ -20,6 +21,7 @@ namespace vlx
 		using DirtyLocalSystem	= System<Collision, LocalTransform>;
 		using CircleSystem		= System<Circle, Collision, Transform>;
 		using BoxSystem			= System<Box, Collision, Transform>;
+		using PointSystem		= System<Point, Collision, Transform>;
 
 	public:
 		PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id);
@@ -39,5 +41,6 @@ namespace vlx
 
 		CircleSystem		m_circles_aabb;
 		BoxSystem			m_boxes_aabb;
+		PointSystem			m_points_aabb;
 	};
 }
