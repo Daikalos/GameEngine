@@ -158,8 +158,6 @@ void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 			contact.mass_tangent = 1.0f / k_tangent;
 		}
 
-		contact.bias = -0.2f * m_time->GetFixedFPS() * std::min(contact.penetration + 0.01f, 0.0f);
-
 		if (rv.LengthSq() < (m_gravity * m_time->GetFixedDT()).LengthSq() + FLT_EPSILON)
 			arbiter.restitution = 0.0f;
 	}
@@ -198,7 +196,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		if (vel_along_normal > 0.0f) // no need to resolve if they are separating
 			return;
 
-		float dpn = -(1.0f + arbiter.restitution) * vel_along_normal * contact.mass_normal + contact.bias;
+		float dpn = (1.0f + arbiter.restitution) * -vel_along_normal * contact.mass_normal;
 		dpn = std::max(dpn, 0.0f);
 		//dpn /= (float)arbiter.contacts_count;
 
@@ -234,12 +232,17 @@ void PhysicsSystem::PositionalCorrection(CollisionArbiter& arbiter)
 	PhysicsBody& AB = *arbiter.A->body;
 	PhysicsBody& BB = *arbiter.B->body;
 
-	constexpr float percent = 0.40f;
-	constexpr float k_slop	= 0.05f;
+	constexpr float percent = 0.30f;
+	constexpr float k_slop	= 0.03f;
 
-	Vector2f correction = (std::max(arbiter.contacts[0].penetration - k_slop, 0.0f) /
-		(AB.GetInvMass() + BB.GetInvMass())) * arbiter.contacts[0].normal * percent;
+	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
+	{
+		CollisionContact& contact = arbiter.contacts[i];
 
-	arbiter.A->local_transform->Move(-correction * AB.GetInvMass());
-	arbiter.B->local_transform->Move( correction * BB.GetInvMass());
+		Vector2f correction = (std::max(contact.penetration - k_slop, 0.0f) /
+			(AB.GetInvMass() + BB.GetInvMass())) * contact.normal * percent;
+
+		arbiter.A->local_transform->Move(-correction * AB.GetInvMass());
+		arbiter.B->local_transform->Move( correction * BB.GetInvMass());
+	}
 }

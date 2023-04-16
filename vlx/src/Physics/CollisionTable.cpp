@@ -184,25 +184,25 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 	if (face_b.x > 0.0f || face_b.y > 0.0f)
 		return;
 
-	Axis axis			= FACE_A_X;
-	float separation	= face_a.x;
+	Axis axis	= FACE_A_X;
+	float sep	= face_a.x;
 
-	if (BoxBiasGreaterThan(face_a.y, separation, a_half.y))
+	if (BoxBiasGreaterThan(face_a.y, sep, a_half.y))
 	{
-		axis			= FACE_A_Y;
-		separation		= face_a.y;
+		axis	= FACE_A_Y;
+		sep		= face_a.y;
 	}
 
-	if (BoxBiasGreaterThan(face_b.x, separation, a_half.x))
+	if (BoxBiasGreaterThan(face_b.x, sep, b_half.x))
 	{
-		axis			= FACE_B_X;
-		separation		= face_b.x;
+		axis	= FACE_B_X;
+		sep		= face_b.x;
 	}
 
-	if (BoxBiasGreaterThan(face_b.y, separation, a_half.y))
+	if (BoxBiasGreaterThan(face_b.y, sep, b_half.y))
 	{
-		axis			= FACE_B_Y;
-		separation		= face_b.y;
+		axis	= FACE_B_Y;
+		sep		= face_b.y;
 	}
 
 	Face		incident_face;
@@ -320,22 +320,20 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	}
 
-	Vector2f point = a_center + A.GetOrientation() * clamped;
-	Vector2f normal = Vector2f::Direction(b_center, point);
-	float dist = normal.LengthSq();
-
-	if ((dist > 0.0f) && !inside)
+	if (!inside)
 		return;
 
-	dist = std::sqrt(dist);
-	n = (normal / dist);
+	Vector2f point = a_center + A.GetOrientation() * clamped;
+	Vector2f normal = Vector2f::Direction(b_center, point);
+	float dist = normal.Length();
 
 	CollisionContact& contact = arbiter.contacts[0];
-	arbiter.contacts_count = 1;
 
 	contact.penetration = dist;
-	contact.normal = (inside ? n : -n);
-	contact.position = point;
+	contact.normal		= normal / dist;
+	contact.position	= point;
+
+	arbiter.contacts_count = 1;
 }
 void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
