@@ -91,16 +91,24 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	if ((dist > A.GetRadiusSqr()) && !inside)
 		return;
 
+	CollisionContact& contact = arbiter.contacts[0];
+	arbiter.contacts_count = 1;
+
+	if (dist == 0.0f)
+	{
+		contact.penetration = A.GetRadius();
+		contact.normal		= Vector2f::UnitX;
+		contact.position	= point;
+
+		return;
+	}
+
 	dist = std::sqrt(dist);
 	n = (normal / dist);
-
-	CollisionContact& contact = arbiter.contacts[0];
 
 	contact.penetration	= A.GetRadius() - dist;
 	contact.normal		= (inside ? -n : n);
 	contact.position	= point;
-
-	arbiter.contacts_count = 1;
 }
 void CollisionTable::CircleToPoint(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -328,16 +336,22 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 	Vector2f normal = Vector2f::Direction(b_center, point);
 	float dist = normal.Length();
 
-	if (dist < PHYSICS_EPSILON)
-		return;
-
 	CollisionContact& contact = arbiter.contacts[0];
+	arbiter.contacts_count = 1;
+
+	if (dist == 0.0f)
+	{
+		contact.penetration = 0.0f;
+		contact.normal		= Vector2f::UnitX;
+		contact.position	= point;
+
+		return;
+	}
 
 	contact.penetration = dist;
 	contact.normal		= normal / dist;
 	contact.position	= point;
 
-	arbiter.contacts_count = 1;
 }
 void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
