@@ -57,7 +57,7 @@ namespace vlx
 		VectorArray m_vertices;
 	};
 
-	constexpr Box::Box() = default;
+	constexpr Box::Box() {};
 	constexpr Box::Box(const RectFloat& box)
 	{
 		SetBox(box);

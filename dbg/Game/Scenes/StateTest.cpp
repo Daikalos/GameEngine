@@ -154,7 +154,7 @@ bool StateTest::Update(Time& time)
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
 		entity.AddComponent<Collision>();
-		entity.AddComponent<Point>();
+		entity.AddComponent<Point>(Vector2f(2, 2));
 
 		entity.GetComponent<PhysicsBody>().SetMass(0.1f);
 		entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
