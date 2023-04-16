@@ -48,7 +48,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 			if (c.dirty)
 			{
 				p.UpdateAABB(t);
-				p.UpdateTransform(t);
+				// no need to update the orientation matrix
 			}
 		});
 

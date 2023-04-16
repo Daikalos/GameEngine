@@ -311,6 +311,7 @@ void CollisionTable::PointToBox(CollisionArbiter&, const Shape&, const Shape&)
 
 void CollisionTable::PointToPoint(CollisionArbiter&, const Shape&, const Shape&)
 {
+	// points cannot collide with each other since they are infinitely small points
 }
 
 void CollisionTable::PointToConvex(CollisionArbiter&, const Shape&, const Shape&)

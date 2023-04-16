@@ -49,7 +49,5 @@ namespace vlx
 
 		System<PhysicsBody> m_initialize_collisions;
 		System<PhysicsBody> m_exit_collisions;
-
-		friend class PhysicsSystem;
 	};
 }

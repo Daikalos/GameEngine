@@ -26,16 +26,51 @@ namespace vlx
 		using GeneralSystem			= System<Collision, LocalTransform>;
 		using CircleSystem			= System<Circle, Collision, LocalTransform>;
 		using BoxSystem				= System<Box, Collision, LocalTransform>;
-		using PointSystem				= System<Point, Collision, LocalTransform>;
+		using PointSystem			= System<Point, Collision, LocalTransform>;
 		using CircleBodySystem		= System<Circle, Collision, PhysicsBody, LocalTransform>;
 		using BoxBodySystem			= System<Box, Collision, PhysicsBody, LocalTransform>;
-		using PointBodySystem			= System<Point, Collision, PhysicsBody, LocalTransform>;
+		using PointBodySystem		= System<Point, Collision, PhysicsBody, LocalTransform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
 		using CollisionIndex		= std::uint32_t;
 
 		using CollisionList			= std::vector<CollisionPair>;
 		using CollisionIndices		= std::vector<CollisionIndex>;
+
+		using QuadTree				= LQuadTree<QTCollision::value_type>;
+
+	private:
+		template<class S>
+		class ShapeQTBehaviour
+		{
+		public:
+			using ShapeSystem = System<S, Collision, LocalTransform>;
+			using ShapeBodySystem = System<S, Collision, PhysicsBody, LocalTransform>;
+
+		public:
+			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
+
+		private:
+			ShapeSystem		m_insertion;
+			ShapeBodySystem m_body_insertion;
+			ShapeSystem		m_queries;
+			ShapeBodySystem m_body_queries;
+		};
+
+		template<>
+		class VELOX_API ShapeQTBehaviour<Point> // specialize for point since insertion is not required
+		{
+		public:
+			using ShapeSystem = System<Point, Collision, LocalTransform>;
+			using ShapeBodySystem = System<Point, Collision, PhysicsBody, LocalTransform>;
+
+		public:
+			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
+
+		private:
+			ShapeSystem		m_queries;
+			ShapeBodySystem m_body_queries;
+		};
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, const LayerType id);
@@ -57,32 +92,21 @@ namespace vlx
 		void CullDuplicates();
 
 	private:
-		EntityAdmin* m_entity_admin {nullptr};
-		LayerType	 m_layer		{LYR_NONE};
+		EntityAdmin*				m_entity_admin {nullptr};
+		LayerType					m_layer		{LYR_NONE};
 
-		LQuadTree<QTCollision::value_type> m_quad_tree;
+		QuadTree					m_quad_tree;
+		
+		CollisionList				m_pairs;
+		CollisionIndices			m_indices;
 
-		CollisionList		m_pairs;
-		CollisionIndices	m_indices;
+		ShapeQTBehaviour<Circle>	m_circles;
+		ShapeQTBehaviour<Box>		m_boxes;
+		ShapeQTBehaviour<Point>		m_points;
 
-		CircleSystem		m_circles_ins;
-		BoxSystem			m_boxes_ins;
-		PointSystem			m_points_ins;
+		GeneralSystem				m_cleanup;
 
-		CircleBodySystem	m_circles_body_ins;
-		BoxBodySystem		m_boxes_body_ins;
-		PointBodySystem		m_points_body_ins;
-
-		CircleSystem		m_circles_query;
-		BoxSystem			m_boxes_query;
-		PointSystem			m_points_query;
-
-		CircleBodySystem	m_circles_body_query;
-		BoxBodySystem		m_boxes_body_query;
-		PointBodySystem		m_points_body_query;
-
-		GeneralSystem		m_cleanup;
-
-		friend class NarrowSystem;
+		template<class S>
+		friend class ShapeQTNode;
 	};
 }

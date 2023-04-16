@@ -146,7 +146,7 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::R))
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::R))
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();

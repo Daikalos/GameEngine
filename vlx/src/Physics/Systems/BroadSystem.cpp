@@ -2,112 +2,85 @@
 
 using namespace vlx;
 
+template<class S>
+BroadSystem::ShapeQTBehaviour<S>::ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) :
+	m_insertion(entity_admin, id),
+	m_body_insertion(entity_admin, id),
+	m_queries(entity_admin, id),
+	m_body_queries(entity_admin, id)
+{
+	m_insertion.Each(
+		[&broad_system](EntityID entity_id, S& s, Collision& c, LocalTransform& lt)
+		{
+			broad_system.InsertShape(entity_id, &s, s.GetType(), &c, nullptr, &lt);
+		});
+
+	m_body_insertion.Each(
+		[&broad_system](EntityID entity_id, S& s, Collision& c, PhysicsBody& pb, LocalTransform& lt)
+		{
+			broad_system.InsertShape(entity_id, &s, s.GetType(), &c, &pb, &lt);
+		});
+
+	m_queries.Each(
+		[&broad_system](EntityID entity_id, S& s, Collision& c, LocalTransform& lt)
+		{
+			broad_system.QueryShape(entity_id, &s, s.GetType(), &c, nullptr, &lt);
+		});
+
+	m_body_queries.Each(
+		[&broad_system](EntityID entity_id, S& s, Collision& c, PhysicsBody& pb, LocalTransform& lt)
+		{
+			broad_system.QueryShape(entity_id, &s, s.GetType(), &c, &pb, &lt);
+		});
+
+	m_insertion.Exclude<PhysicsBody>();
+	m_queries.Exclude<PhysicsBody>();
+
+	m_insertion.SetPriority(2.0f);
+	m_body_insertion.SetPriority(2.0f);
+	m_queries.SetPriority(0.0f);
+	m_body_queries.SetPriority(0.0f);
+}
+
+BroadSystem::ShapeQTBehaviour<Point>::ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) :
+	m_queries(entity_admin, id),
+	m_body_queries(entity_admin, id)
+{
+	m_queries.Each(
+		[&broad_system](EntityID entity_id, Point& p, Collision& c, LocalTransform& lt)
+		{
+			broad_system.QueryShape(entity_id, &p, p.GetType(), &c, nullptr, &lt);
+		});
+
+	m_body_queries.Each(
+		[&broad_system](EntityID entity_id, Point& p, Collision& c, PhysicsBody& pb, LocalTransform& lt)
+		{
+			broad_system.QueryShape(entity_id, &p, p.GetType(), &c, &pb, &lt);
+		});
+
+	m_queries.Exclude<PhysicsBody>();
+
+	m_queries.SetPriority(0.0f);
+	m_body_queries.SetPriority(0.0f);
+}
+
 BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) : 
 	m_entity_admin(&entity_admin), m_layer(id),
 
-	m_quad_tree(			{ -4096, -4096, 4096 * 2, 4096 * 2 }), 
+	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }), 
 
-	m_circles_ins(			entity_admin, id),
-	m_boxes_ins(			entity_admin, id),
-	m_points_ins(			entity_admin, id),
+	m_circles(	entity_admin, id, *this),
+	m_boxes(	entity_admin, id, *this),
+	m_points(	entity_admin, id, *this),
 
-	m_circles_body_ins(		entity_admin, id),
-	m_boxes_body_ins(		entity_admin, id),
-	m_points_body_ins(		entity_admin, id),
-
-	m_cleanup(				entity_admin, id),
-
-	m_circles_query(		entity_admin, id),
-	m_boxes_query(			entity_admin, id),
-	m_points_query(			entity_admin, id),
-
-	m_circles_body_query(	entity_admin, id),
-	m_boxes_body_query(		entity_admin, id),
-	m_points_body_query(	entity_admin, id)
+	m_cleanup(	entity_admin, id)
 {
 	m_cleanup.OnStart += [this]()
 	{
 		m_quad_tree.Cleanup();
 	};
 
-	m_circles_ins.Each(
-		[this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt)
-		{
-			InsertShape(entity_id, &s, s.GetType(), & c, nullptr, &lt);
-		});
-
-	m_circles_body_ins.Each(
-		[this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt)
-		{
-			InsertShape(entity_id, &s, s.GetType(), &c, &pb, &lt);
-		});
-
-	m_circles_query.Each(
-		[this](EntityID entity_id, Circle& s, Collision& c, LocalTransform& lt)
-		{
-			QueryShape(entity_id, &s, s.GetType(), &c, nullptr, &lt);
-		});
-
-	m_circles_body_query.Each(
-		[this](EntityID entity_id, Circle& s, Collision& c, PhysicsBody& pb, LocalTransform& lt)
-		{
-			QueryShape(entity_id, &s, s.GetType(), &c, &pb, &lt);
-		});
-
-	m_boxes_ins.Each(
-		[this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt)
-		{
-			InsertShape(entity_id , &b, b.GetType(), &c, nullptr, &lt);
-		});
-
-	m_boxes_body_ins.Each(
-		[this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt)
-		{
-			InsertShape(entity_id, &b, b.GetType(), &c, &pb, &lt);
-		});
-
-	m_boxes_query.Each(
-		[this](EntityID entity_id, Box& b, Collision& c, LocalTransform& lt)
-		{
-			QueryShape(entity_id, &b, b.GetType(), &c, nullptr, &lt);
-		});
-
-	m_boxes_body_query.Each(
-		[this](EntityID entity_id, Box& b, Collision& c, PhysicsBody& pb, LocalTransform& lt)
-		{
-			QueryShape(entity_id, &b, b.GetType(), & c, &pb, &lt);
-		});
-
-	m_points_ins.Each(
-		[this](EntityID entity_id, Point& p, Collision& c, LocalTransform& lt)
-		{
-			InsertShape(entity_id, &p, p.GetType(), &c, nullptr, &lt);
-		});
-
-	m_points_body_ins.Each(
-		[this](EntityID entity_id, Point& p, Collision& c, PhysicsBody& pb, LocalTransform& lt)
-		{
-			InsertShape(entity_id, &p, p.GetType(), &c, &pb, &lt);
-		});
-
-	m_points_query.Each(
-		[this](EntityID entity_id, Point& p, Collision& c, LocalTransform& lt)
-		{
-			QueryShape(entity_id, &p, p.GetType(), &c, nullptr, &lt);
-		});
-
-	m_points_body_query.Each(
-		[this](EntityID entity_id, Point& p, Collision& c, PhysicsBody& pb, LocalTransform& lt)
-		{
-			QueryShape(entity_id, &p, p.GetType(), &c, &pb, &lt);
-		});
-
-	m_circles_ins.Exclude<PhysicsBody>();
-	m_circles_query.Exclude<PhysicsBody>();
-	m_boxes_ins.Exclude<PhysicsBody>();
-	m_boxes_query.Exclude<PhysicsBody>();
-	m_points_ins.Exclude<PhysicsBody>();
-	m_points_query.Exclude<PhysicsBody>();
+	m_cleanup.SetPriority(1.0f);
 }
 
 void BroadSystem::Update()
@@ -215,3 +188,6 @@ void BroadSystem::CullDuplicates()
 	//	}
 	//}
 }
+
+template class BroadSystem::ShapeQTBehaviour<Circle>;
+template class BroadSystem::ShapeQTBehaviour<Box>;
