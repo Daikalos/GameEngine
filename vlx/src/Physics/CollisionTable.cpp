@@ -67,10 +67,10 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	const Vector2f half_extends(
 		B.GetWidth() / 2.0f, B.GetHeight() / 2.0f);
 
-	Vector2f s1_center = A.GetCenter();
-	Vector2f s2_center = B.GetCenter();
+	Vector2f a_center = A.GetCenter();
+	Vector2f b_center = B.GetCenter();
 
-	Vector2f n = B.GetOrientation().GetTranspose() * (s1_center - s2_center); // transform circle to box model space
+	Vector2f n = B.GetOrientation().GetTranspose() * (a_center - b_center); // transform circle to box model space
 	Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
 
 	bool inside = false;
@@ -84,8 +84,8 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	}
 
-	Vector2f point = s2_center + s2.GetOrientation() * clamped;
-	Vector2f normal = Vector2f::Direction(s1_center, point);
+	Vector2f point = b_center + s2.GetOrientation() * clamped;
+	Vector2f normal = Vector2f::Direction(a_center, point);
 	float dist = normal.LengthSq();
 
 	if ((dist > A.GetRadiusSqr()) && !inside)
@@ -186,26 +186,23 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 
 	Axis axis			= FACE_A_X;
 	float separation	= face_a.x;
-	Vector2f normal		= da.x > 0.0f ? ar.GetAxisX() : -ar.GetAxisX();
 
 	if (BoxBiasGreaterThan(face_a.y, separation, a_half.y))
 	{
 		axis			= FACE_A_Y;
 		separation		= face_a.y;
-		normal			= da.y > 0.0f ? ar.GetAxisY() : -ar.GetAxisY();
 	}
 
 	if (BoxBiasGreaterThan(face_b.x, separation, a_half.x))
 	{
 		axis			= FACE_B_X;
 		separation		= face_b.x;
-		normal			= db.x > 0.0f ? br.GetAxisX() : -br.GetAxisX();
 	}
+
 	if (BoxBiasGreaterThan(face_b.y, separation, a_half.y))
 	{
 		axis			= FACE_B_Y;
 		separation		= face_b.y;
-		normal			= db.y > 0.0f ? br.GetAxisY() : -br.GetAxisY();
 	}
 
 	Face		incident_face;
@@ -214,53 +211,58 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 	float		front		= 0.0f;
 	float		neg_side	= 0.0f;
 	float		pos_side	= 0.0f;
+	bool		flip		= false;
 
 	switch (axis)
 	{
 	case FACE_A_X:
 		{
-			face_normal = normal;
+			face_normal = da.x > 0.0f ? ar.GetAxisX() : -ar.GetAxisX();
+			side_normal = face_normal.Perpendicular();
 			front		= ap.Dot(face_normal) + a_half.x;
-			side_normal = ar.GetAxisY();
 			float side	= ap.Dot(side_normal);
 			neg_side	= -side + a_half.y;
 			pos_side	=  side + a_half.y;
+			flip		= false;
 
 			incident_face = BoxFindIncidentFace(br, bt, b_half, bp, face_normal);
 		}
 		break;
 	case FACE_A_Y:
 		{
-			face_normal = normal;
+			face_normal = da.y > 0.0f ? ar.GetAxisY() : -ar.GetAxisY();
+			side_normal = face_normal.Perpendicular();
 			front		= ap.Dot(face_normal) + a_half.y;
-			side_normal = ar.GetAxisX();
 			float side	= ap.Dot(side_normal);
 			neg_side	= -side + a_half.x;
 			pos_side	=  side + a_half.x;
+			flip		= false;
 
 			incident_face = BoxFindIncidentFace(br, bt, b_half, bp, face_normal);
 		}
 		break;
 	case FACE_B_X:
 		{
-			face_normal = -normal;
+			face_normal = -(db.x > 0.0f ? br.GetAxisX() : -br.GetAxisX());
+			side_normal = face_normal.Perpendicular();
 			front		= bp.Dot(face_normal) + b_half.x;
-			side_normal = br.GetAxisY();
 			float side	= bp.Dot(side_normal);
-			neg_side	= -side + a_half.y;
-			pos_side	=  side + a_half.y;
+			neg_side	= -side + b_half.y;
+			pos_side	=  side + b_half.y;
+			flip		= true;
 
 			incident_face = BoxFindIncidentFace(ar, at, a_half, ap, face_normal);
 		}
 		break;
 	case FACE_B_Y:
 		{
-			face_normal = -normal;
+			face_normal = -(db.y > 0.0f ? br.GetAxisY() : -br.GetAxisY());
+			side_normal = face_normal.Perpendicular();
 			front		= bp.Dot(face_normal) + b_half.y;
-			side_normal = br.GetAxisX();
 			float side	= bp.Dot(side_normal);
-			neg_side	= -side + a_half.x;
-			pos_side	=  side + a_half.x;
+			neg_side	= -side + b_half.x;
+			pos_side	=  side + b_half.x;
+			flip		= true;
 
 			incident_face = BoxFindIncidentFace(ar, at, a_half, ap, face_normal);
 		}
@@ -282,7 +284,7 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 			CollisionContact& contact = arbiter.contacts[cp];
 
 			contact.penetration = -separation;
-			contact.normal = normal;
+			contact.normal = flip ? -face_normal : face_normal;
 			contact.position = incident_face[i] - separation * face_normal;
 
 			++cp;
@@ -291,8 +293,49 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 
 	arbiter.contacts_count = cp;
 }
-void CollisionTable::BoxToPoint(CollisionArbiter&, const Shape&,const Shape&)
+void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	const Box& A = reinterpret_cast<const Box&>(s1);
+	const Point& B = reinterpret_cast<const Point&>(s2);
+
+	const Vector2f half_extends(
+		A.GetWidth() / 2.0f, A.GetHeight() / 2.0f);
+
+	Vector2f a_center = A.GetCenter();
+	Vector2f b_center = B.GetCenter();
+
+	Vector2f n = A.GetOrientation().GetTranspose() * Vector2f::Direction(a_center, b_center); // transform circle to box model space
+	Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
+
+	bool inside = false;
+
+	if (n == clamped)
+	{
+		n /= half_extends;
+
+		inside = true;
+		if (std::abs(n.x) > std::abs(n.y))
+			clamped.x = (clamped.x > 0.0f) ? half_extends.x : -half_extends.x;
+		else
+			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
+	}
+
+	Vector2f point = a_center + A.GetOrientation() * clamped;
+	Vector2f normal = Vector2f::Direction(b_center, point);
+	float dist = normal.LengthSq();
+
+	if ((dist > 0.0f) && !inside)
+		return;
+
+	dist = std::sqrt(dist);
+	n = (normal / dist);
+
+	CollisionContact& contact = arbiter.contacts[0];
+	arbiter.contacts_count = 1;
+
+	contact.penetration = dist;
+	contact.normal = (inside ? n : -n);
+	contact.position = point;
 }
 void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -305,8 +348,10 @@ void CollisionTable::PointToCircle(CollisionArbiter& arbiter, const Shape& s1, c
 	arbiter.contacts[0].normal *= -1;
 }
 
-void CollisionTable::PointToBox(CollisionArbiter&, const Shape&, const Shape&)
+void CollisionTable::PointToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	BoxToPoint(arbiter, s2, s1);
+	arbiter.contacts[0].normal *= -1;
 }
 
 void CollisionTable::PointToPoint(CollisionArbiter&, const Shape&, const Shape&)
@@ -389,19 +434,19 @@ void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 	if (Clip(incident_face, side_normal, pos_side) < 2)
 		return;
 
-	Vector2f ref_face_normal = side_normal.Orthogonal();
-	float ref_c = ref_face_normal.Dot(v1);
+	Vector2f face_normal = side_normal.Orthogonal();
+	float front = face_normal.Dot(v1);
 
 	uint32_t cp = 0;
 	for (int i = 0; i < 2; ++i)
 	{
-		float separation = ref_face_normal.Dot(incident_face[i]) - ref_c;
+		float separation = face_normal.Dot(incident_face[i]) - front;
 		if (separation <= 0.0f)
 		{
 			CollisionContact& contact = arbiter.contacts[cp];
 
 			contact.penetration = -separation;
-			contact.normal = flip ? -ref_face_normal : ref_face_normal;
+			contact.normal = flip ? -face_normal : face_normal;
 			contact.position = incident_face[i];
 
 			++cp;

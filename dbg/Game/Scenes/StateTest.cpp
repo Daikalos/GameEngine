@@ -103,14 +103,14 @@ void StateTest::OnCreated()
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
 	entity.AddComponent<PhysicsBody>();
 	entity.AddComponent<Collision>();
-	entity.AddComponent<Box>(1024, 16);
+	entity.AddComponent<Box>(au::Pow(2, 16), 16);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
 	entity.GetComponent<PhysicsBody>().SetMass(0.0f);
 	entity.GetComponent<PhysicsBody>().SetInertia(0.0f);
 	entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-	entity.GetComponent<Sprite>().SetSize({ 1024, 16 });
-	entity.GetComponent<LocalTransform>().SetOrigin({ 512, 8 });
+	entity.GetComponent<Sprite>().SetSize({ au::Pow(2, 16), 16 });
+	entity.GetComponent<LocalTransform>().SetOrigin({ au::Pow(2, 16) / 2, 8 });
 	entity.GetComponent<LocalTransform>().SetRotation(sf::degrees(0.0f));
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
@@ -130,6 +130,9 @@ bool StateTest::Update(Time& time)
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
+		float diameter = 32 + rnd::random(0, 32);
+		float radius = diameter / 2.0f;
+
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
 		entity.AddComponent<Collision>();
@@ -137,10 +140,10 @@ bool StateTest::Update(Time& time)
 
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
 		entity.GetComponent<PhysicsBody>().SetInertia(1000.0f);
-		entity.GetComponent<Circle>().SetRadius(32.0f);
-		entity.GetComponent<LocalTransform>().SetOrigin({32, 32});
+		entity.GetComponent<Circle>().SetRadius(radius);
+		entity.GetComponent<LocalTransform>().SetOrigin({ radius, radius });
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
-		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
+		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
@@ -165,18 +168,22 @@ bool StateTest::Update(Time& time)
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
 	{
+		vlx::Vector2f size(
+			32 + rnd::random(0, 32), 
+			32 + rnd::random(0, 32));
+
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
 		entity.AddComponent<Collision>();
-		entity.AddComponent<Box>(64, 64);
+		entity.AddComponent<Box>(size);
 
 		//entity.GetComponent<Circle>().radius = 32.0f;
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
 		entity.GetComponent<PhysicsBody>().SetInertia(1000.0f);
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-		entity.GetComponent<Sprite>().SetSize({ 64, 64 });
-		entity.GetComponent<LocalTransform>().SetOrigin({ 32, 32 });
+		entity.GetComponent<Sprite>().SetSize(size);
+		entity.GetComponent<LocalTransform>().SetOrigin(size / 2.0f);
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));

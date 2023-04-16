@@ -92,8 +92,8 @@ namespace vlx
 		void CullDuplicates();
 
 	private:
-		EntityAdmin*				m_entity_admin {nullptr};
-		LayerType					m_layer		{LYR_NONE};
+		EntityAdmin*				m_entity_admin	{nullptr};
+		LayerType					m_layer			{LYR_NONE};
 
 		QuadTree					m_quad_tree;
 		
