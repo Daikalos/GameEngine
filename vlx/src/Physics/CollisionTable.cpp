@@ -95,11 +95,12 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 	n = (normal / dist);
 
 	CollisionContact& contact = arbiter.contacts[0];
-	arbiter.contacts_count = 1;
 
 	contact.penetration	= A.GetRadius() - dist;
 	contact.normal		= (inside ? -n : n);
 	contact.position	= point;
+
+	arbiter.contacts_count = 1;
 }
 void CollisionTable::CircleToPoint(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -326,6 +327,9 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 	Vector2f point = a_center + A.GetOrientation() * clamped;
 	Vector2f normal = Vector2f::Direction(b_center, point);
 	float dist = normal.Length();
+
+	if (dist < PHYSICS_EPSILON)
+		return;
 
 	CollisionContact& contact = arbiter.contacts[0];
 

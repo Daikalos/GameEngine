@@ -213,7 +213,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		Vector2f tangent = rv - (contact.normal * rv.Dot(contact.normal));
 		tangent = tangent.Normalize();
 
-		float dpt = contact.mass_tangent * -rv.Dot(tangent);
+		float dpt = -rv.Dot(tangent) * contact.mass_tangent ;
 		//dpt /= (float)arbiter.contacts_count;
 
 		if (au::Equal(dpt, 0.0f, PHYSICS_EPSILON))
