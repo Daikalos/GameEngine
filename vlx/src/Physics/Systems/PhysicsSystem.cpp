@@ -270,8 +270,8 @@ void PhysicsSystem::PositionalCorrection(CollisionArbiter& arbiter)
 	PhysicsBody& AB = *arbiter.A->body;
 	PhysicsBody& BB = *arbiter.B->body;
 
-	constexpr float percent = 0.30f;
-	constexpr float k_slop	= 0.03f;
+	constexpr float percent = 0.40f;
+	constexpr float k_slop	= 0.05f;
 
 	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 	{

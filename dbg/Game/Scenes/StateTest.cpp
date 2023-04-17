@@ -138,8 +138,8 @@ bool StateTest::Update(Time& time)
 		entity.AddComponent<Collider>();
 		entity.AddComponent<Circle>();
 
-		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
-		entity.GetComponent<PhysicsBody>().SetInertia(1000.0f);
+		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
+		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
 		entity.GetComponent<Circle>().SetRadius(radius);
 		entity.GetComponent<LocalTransform>().SetOrigin({ radius, radius });
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
@@ -183,8 +183,8 @@ bool StateTest::Update(Time& time)
 		entity.AddComponent<Box>(size);
 
 		//entity.GetComponent<Circle>().radius = 32.0f;
-		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
-		entity.GetComponent<PhysicsBody>().SetInertia(1000.0f);
+		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
+		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize(size);
