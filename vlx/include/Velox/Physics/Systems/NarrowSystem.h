@@ -15,7 +15,7 @@
 #include "../CollisionResult.h"
 #include "../CollisionArbiter.h"
 #include "../CollisionTable.h"
-#include "../Collision.h"
+#include "../Collider.h"
 #include "../PhysicsBody.h"
 
 #include "BroadSystem.h"
@@ -25,7 +25,7 @@ namespace vlx
 	class VELOX_API NarrowSystem final
 	{
 	private:
-		using CollisionSystem = System<Collision, LocalTransform, Transform>;
+		using CollisionSystem = System<Collider, LocalTransform, Transform>;
 
 	public:
 		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);

@@ -2,6 +2,8 @@
 
 #define _USE_MATH_DEFINES
 
+#include <SFML/System/Angle.hpp>
+
 #include <math.h>
 #include <random>
 #include <chrono>
@@ -26,12 +28,6 @@ namespace vlx::au
 	NODISC static constexpr T ToDegrees(const T radians)
 	{
 		return radians * (T(180.0) / PI<T>);
-	}
-
-	template<Arithmetic T>
-	NODISC static constexpr auto Lerp(const T a, const T b, const double f)
-	{
-		return (a * (1.0 - f)) + (b * f);
 	}
 
 	template<Arithmetic T>
@@ -113,5 +109,23 @@ namespace vlx::au
 	{
 		double n = Pow(10.0, places);
 		return std::round(val * n) / n;
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr T Abs(T x) noexcept
+	{
+		return std::abs(x);
+	}
+
+	template<Arithmetic T>
+	NODISC static constexpr auto Lerp(const T a, const T b, const float f)
+	{
+		return (a * (1.0 - f)) + (b * f);
+	}
+
+	NODISC static sf::Angle Lerp(const sf::Angle a, const sf::Angle b, const float f)
+	{
+		float shortest_angle = std::fmod(((std::fmod(b.asDegrees() - a.asDegrees(), 360.0f)) + 540.0f), 360.0f) - 180.0f;
+		return a + sf::degrees(shortest_angle * f);
 	}
 }

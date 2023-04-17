@@ -13,7 +13,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_update_forces(	entity_admin, LYR_PHYSICS + 1),
 	m_update_positions(	entity_admin, LYR_PHYSICS + 2),
 	m_clear_forces(		entity_admin, LYR_PHYSICS + 3),
-	m_sleep_bodies(		entity_admin, LYR_PHYSICS + 4)
+	m_sleep_bodies(		entity_admin, LYR_PHYSICS + 4),
+	m_interp_bodies(	entity_admin, LYR_PHYSICS + 5)
 
 {
 	m_update_forces.Each([this](EntityID entity_id, PhysicsBody& body)
@@ -54,6 +55,37 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 					body.m_awake = false;
 			}
 		});
+
+	m_interp_bodies.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+		{
+			Vector2f& last_pos = body.last_position;
+			Vector2f& curr_pos = body.position;
+
+			sf::Angle& last_angle = body.last_angle;
+			sf::Angle& curr_angle = body.angle;
+
+			if (body.initialize)
+			{
+				last_pos = local_transform.GetPosition();
+				last_angle = local_transform.GetRotation();
+
+				body.initialize = false;
+			}
+			else
+			{
+				last_pos = curr_pos;
+				last_angle = curr_angle;
+			}
+
+			curr_pos = local_transform.GetPosition();
+			curr_angle = local_transform.GetRotation();
+
+			local_transform.SetPosition(Vector2f::Lerp(
+				last_pos, curr_pos, time.GetAlpha()));
+
+			local_transform.SetRotation(au::Lerp(
+				last_angle, curr_angle, time.GetAlpha()));
+		});
 }
 
 bool PhysicsSystem::IsRequired() const noexcept
@@ -69,6 +101,11 @@ const Vector2f& PhysicsSystem::GetGravity() const
 void PhysicsSystem::SetGravity(const Vector2f& gravity)
 {
 	m_gravity = gravity;
+}
+
+void PhysicsSystem::SetIterations(int iterations)
+{
+	m_iterations = iterations;
 }
 
 void PhysicsSystem::PreUpdate()
@@ -96,7 +133,7 @@ void PhysicsSystem::FixedUpdate()
 	for (auto& collision : arbiters)
 		Initialize(collision);
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < m_iterations; ++i)
 		for (auto& collision : arbiters)
 			ResolveCollision(collision);
 
@@ -108,6 +145,8 @@ void PhysicsSystem::FixedUpdate()
 	m_clear_forces.ForceRun();
 
 	m_sleep_bodies.ForceRun();
+
+	m_interp_bodies.ForceRun();
 }
 
 void PhysicsSystem::PostUpdate()

@@ -102,7 +102,7 @@ void StateTest::OnCreated()
 
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
 	entity.AddComponent<PhysicsBody>();
-	entity.AddComponent<Collision>();
+	entity.AddComponent<Collider>();
 	entity.AddComponent<Box>(au::Pow(2, 16), 16);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
@@ -135,7 +135,7 @@ bool StateTest::Update(Time& time)
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
-		entity.AddComponent<Collision>();
+		entity.AddComponent<Collider>();
 		entity.AddComponent<Circle>();
 
 		entity.GetComponent<PhysicsBody>().SetMass(10.0f);
@@ -153,8 +153,8 @@ bool StateTest::Update(Time& time)
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
-		entity.AddComponent<Collision>();
-		entity.AddComponent<Point>(Vector2f(2, 2));
+		entity.AddComponent<Collider>();
+		entity.AddComponent<Point>(2, 2);
 
 		entity.GetComponent<PhysicsBody>().SetMass(0.1f);
 		entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
@@ -174,7 +174,7 @@ bool StateTest::Update(Time& time)
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
-		entity.AddComponent<Collision>();
+		entity.AddComponent<Collider>();
 		entity.AddComponent<Box>(size);
 
 		//entity.GetComponent<Circle>().radius = 32.0f;

@@ -13,19 +13,19 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 	m_points_aabb(		entity_admin, id)
 
 {
-	m_dirty_transform.Each([this](EntityID entity_id, Collision& c, Transform& t)
+	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, Transform& t)
 		{
 			if (t.m_dirty)
 				c.dirty = true;
 		});
 
-	m_dirty_physics.Each([this](EntityID entity_id, Collision& c, LocalTransform& lt)
+	m_dirty_physics.Each([this](EntityID entity_id, Collider& c, LocalTransform& lt)
 		{
 			if (lt.m_dirty)
 				c.dirty = true;
 		});
 
-	m_circles_aabb.Each([this](EntityID entity_id, Circle& s, Collision& c, Transform& t)
+	m_circles_aabb.Each([this](EntityID entity_id, Circle& s, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
@@ -34,7 +34,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 			}
 		});
 
-	m_boxes_aabb.Each([this](EntityID entity_id, Box& b, Collision& c, Transform& t)
+	m_boxes_aabb.Each([this](EntityID entity_id, Box& b, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
@@ -43,7 +43,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 			}
 		});
 
-	m_points_aabb.Each([this](EntityID entity_id, Point& p, Collision& c, Transform& t)
+	m_points_aabb.Each([this](EntityID entity_id, Point& p, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{

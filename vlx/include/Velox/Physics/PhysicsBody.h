@@ -67,6 +67,15 @@ namespace vlx
 		constexpr void ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector);
 
 	private:
+		Vector2f position;
+		Vector2f last_position;
+
+		sf::Angle angle;
+		sf::Angle last_angle;
+
+		bool initialize {true};
+
+	private:
 		BodyType		m_type				{BodyType::Dynamic}; // type of body
 		float			m_gravity_scale		{1.0f};
 

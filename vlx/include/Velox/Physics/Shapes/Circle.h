@@ -33,7 +33,7 @@ namespace vlx
 	constexpr Circle::Circle(const float radius) 
 		: m_radius(radius), m_radius_sqr(au::Sqr(radius)) {}
 
-	constexpr float Circle::GetRadius() const noexcept			{ return m_radius; }
+	constexpr float Circle::GetRadius() const noexcept		{ return m_radius; }
 	constexpr float Circle::GetRadiusSqr() const noexcept	{ return m_radius_sqr; }
 
 	constexpr void Circle::SetRadius(float radius)

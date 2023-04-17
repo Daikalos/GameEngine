@@ -4,7 +4,7 @@
 
 namespace vlx
 {
-	class Collision;
+	class Collider;
 	class PhysicsBody;
 	class LocalTransform;
 	class Transform;
@@ -18,9 +18,9 @@ namespace vlx
 
 	public:
 		EntityID		entity_id		{NULL_ENTITY};
-		Type			type			{-1};
+		Type			type			{Type::None};
 		Shape*			shape			{nullptr};
-		Collision*		collision		{nullptr};
+		Collider*		collider		{nullptr};
 		PhysicsBody*	body			{nullptr};
 		LocalTransform* local_transform	{nullptr};
 

@@ -1,14 +1,14 @@
 #pragma once
 
 #include <stdint.h>
+#include <bitset>
 
 namespace vlx
 {
 	struct CollisionLayer
 	{
-		operator std::uint32_t& () { return layer; }
-		operator const std::uint32_t& () const { return layer; }
+		operator size_t () const { return layer; }
 
-		std::uint32_t layer {1};
+		size_t layer {1};
 	};
 }

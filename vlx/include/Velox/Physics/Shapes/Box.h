@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include <Velox/Utility/MathUtility.h>
+#include <Velox/Utility/ArithmeticUtils.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
@@ -90,12 +90,12 @@ namespace vlx
 
 	constexpr float Box::GetWidth() const noexcept
 	{
-		return ma::Abs(m_vertices[1].x - m_vertices[0].x);
+		return au::Abs(m_vertices[1].x - m_vertices[0].x);
 	}
 
 	constexpr float Box::GetHeight() const noexcept
 	{
-		return ma::Abs(m_vertices[3].y - m_vertices[0].y);
+		return au::Abs(m_vertices[3].y - m_vertices[0].y);
 	}
 
 	constexpr void Box::SetBox(const RectFloat& box)

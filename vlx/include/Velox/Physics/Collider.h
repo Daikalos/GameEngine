@@ -10,9 +10,9 @@
 
 namespace vlx
 {
-	using QTCollision = QTElement<CollisionObject>;
+	using QTCollider = QTElement<CollisionObject>;
 
-	class Collision : public QTCollision
+	class Collider : public QTCollider
 	{
 	public:
 		Event<const CollisionResult&> OnEnter;		// called when collider enters another collider

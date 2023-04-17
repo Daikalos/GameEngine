@@ -10,18 +10,18 @@
 #include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 
-#include "../Collision.h"
+#include "../Collider.h"
 
 namespace vlx
 {
 	class VELOX_API PhysicsDirtySystem final : public SystemAction
 	{
 	public:
-		using DirtyGlobalSystem = System<Collision, Transform>;
-		using DirtyLocalSystem	= System<Collision, LocalTransform>;
-		using CircleSystem		= System<Circle, Collision, Transform>;
-		using BoxSystem			= System<Box, Collision, Transform>;
-		using PointSystem		= System<Point, Collision, Transform>;
+		using DirtyGlobalSystem = System<Collider, Transform>;
+		using DirtyLocalSystem	= System<Collider, LocalTransform>;
+		using CircleSystem		= System<Circle, Collider, Transform>;
+		using BoxSystem			= System<Box, Collider, Transform>;
+		using PointSystem		= System<Point, Collider, Transform>;
 
 	public:
 		PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id);

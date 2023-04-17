@@ -14,7 +14,7 @@ namespace vlx
 
 	// TODO: maybe switch to using arrays since each archetype size is statically defined 
 	// by their type that will never change, using vector for now is only of convenience 
-	// for add and removal when creating new archetypes, question is mostly how to properly store them
+	// for add and removal when creating new archetypes, question is mostly how to properly store them since each will be unique
 
 	struct Archetype;
 

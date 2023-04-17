@@ -146,14 +146,13 @@
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
     <ClInclude Include="include\Velox\System.hpp" />
-    <ClInclude Include="include\Velox\Physics\Collision.h" />
+    <ClInclude Include="include\Velox\Physics\Collider.h" />
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
     <ClInclude Include="include\Velox\Physics\CollisionContact.h" />
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
     <ClInclude Include="include\Velox\System\Mat2f.hpp" />
-    <ClInclude Include="include\Velox\Utility\MathUtility.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Point.h" />
   </ItemGroup>
   <ItemGroup>

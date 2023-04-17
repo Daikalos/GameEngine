@@ -16,20 +16,20 @@
 #include <Velox/Physics/Shapes/Polygon.h>
 
 #include "../CollisionObject.h"
-#include "../Collision.h"
+#include "../Collider.h"
 
 namespace vlx
 {
 	class VELOX_API BroadSystem final 
 	{
 	public:
-		using GeneralSystem			= System<Collision, LocalTransform>;
-		using CircleSystem			= System<Circle, Collision, LocalTransform>;
-		using BoxSystem				= System<Box, Collision, LocalTransform>;
-		using PointSystem			= System<Point, Collision, LocalTransform>;
-		using CircleBodySystem		= System<Circle, Collision, PhysicsBody, LocalTransform>;
-		using BoxBodySystem			= System<Box, Collision, PhysicsBody, LocalTransform>;
-		using PointBodySystem		= System<Point, Collision, PhysicsBody, LocalTransform>;
+		using GeneralSystem			= System<Collider, LocalTransform>;
+		using CircleSystem			= System<Circle, Collider, LocalTransform>;
+		using BoxSystem				= System<Box, Collider, LocalTransform>;
+		using PointSystem			= System<Point, Collider, LocalTransform>;
+		using CircleBodySystem		= System<Circle, Collider, PhysicsBody, LocalTransform>;
+		using BoxBodySystem			= System<Box, Collider, PhysicsBody, LocalTransform>;
+		using PointBodySystem		= System<Point, Collider, PhysicsBody, LocalTransform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
 		using CollisionIndex		= std::uint32_t;
@@ -37,15 +37,15 @@ namespace vlx
 		using CollisionList			= std::vector<CollisionPair>;
 		using CollisionIndices		= std::vector<CollisionIndex>;
 
-		using QuadTree				= LQuadTree<QTCollision::value_type>;
+		using QuadTree				= LQuadTree<QTCollider::value_type>;
 
 	private:
 		template<class S>
 		class ShapeQTBehaviour
 		{
 		public:
-			using ShapeSystem = System<S, Collision, LocalTransform>;
-			using ShapeBodySystem = System<S, Collision, PhysicsBody, LocalTransform>;
+			using ShapeSystem = System<S, Collider, LocalTransform>;
+			using ShapeBodySystem = System<S, Collider, PhysicsBody, LocalTransform>;
 
 		public:
 			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
@@ -61,8 +61,8 @@ namespace vlx
 		class VELOX_API ShapeQTBehaviour<Point> // specialize for point since insertion is not required
 		{
 		public:
-			using ShapeSystem = System<Point, Collision, LocalTransform>;
-			using ShapeBodySystem = System<Point, Collision, PhysicsBody, LocalTransform>;
+			using ShapeSystem = System<Point, Collider, LocalTransform>;
+			using ShapeBodySystem = System<Point, Collider, PhysicsBody, LocalTransform>;
 
 		public:
 			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
@@ -86,8 +86,8 @@ namespace vlx
 		auto GetIndices() const noexcept -> std::span<const CollisionIndex>;
 
 	private:
-		void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt);
-		void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collision* c, PhysicsBody* pb, LocalTransform* lt);
+		void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
+		void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
 
 		void CullDuplicates();
 

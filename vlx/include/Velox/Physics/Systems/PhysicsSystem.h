@@ -10,6 +10,7 @@
 #include <Velox/System/Time.h>
 #include <Velox/Config.hpp>
 
+#include "../Collider.h"
 #include "../CollisionObject.h"
 #include "../CollisionArbiter.h"
 
@@ -36,6 +37,8 @@ namespace vlx
 		const Vector2f& GetGravity() const;
 		void SetGravity(const Vector2f& gravity);
 
+		void SetIterations(int iterations);
+
 	private:
 		void Initialize(CollisionArbiter& arbiter);
 		void ResolveCollision(CollisionArbiter& arbiter);
@@ -44,6 +47,7 @@ namespace vlx
 	private:
 		Time*			m_time			{nullptr};
 		Vector2f		m_gravity		{0.0f, 60.82f};
+		int				m_iterations	{10};
 
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;
@@ -52,5 +56,6 @@ namespace vlx
 		System<PhysicsBody, LocalTransform>	m_update_positions;
 		System<PhysicsBody>					m_clear_forces;
 		System<PhysicsBody>					m_sleep_bodies;
+		System<PhysicsBody, LocalTransform>	m_interp_bodies;
 	};
 }

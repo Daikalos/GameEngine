@@ -33,11 +33,16 @@ namespace vlx
 		constexpr sf::Vector2f operator*(const sf::Vector2f& rhs) const;
 
 	public:
+		static constexpr Mat4f Lerp(const Mat4f& lhs, const Mat4f& rhs, float alpha);
+
+	public:
 		constexpr const float* GetMatrix() const noexcept;
 		constexpr float Get(int x, int y) const;
 
 		constexpr Mat4f GetInverse() const;
 		constexpr Mat4f GetTranspose() const;
+
+		constexpr Mat4f GetRotationMatrix() const;
 
 		constexpr Vector2f TransformPoint(const Vector2f& point) const;
 		constexpr sf::Vector2f TransformPoint(const sf::Vector2f& point) const;
@@ -109,6 +114,15 @@ namespace vlx
 		return m_transform * rhs;
 	}
 
+	constexpr Mat4f Mat4f::Lerp(const Mat4f& lhs, const Mat4f& rhs, float alpha)
+	{
+		Mat4f rot = lhs.GetRotationMatrix();
+
+		sf::Angle angle;
+
+		return Mat4f();
+	}
+
 	constexpr const float* Mat4f::GetMatrix() const noexcept 
 	{
 		return m_matrix;
@@ -124,9 +138,16 @@ namespace vlx
 	}
 	constexpr Mat4f Mat4f::GetTranspose() const 
 	{
-		return Mat4f(m_matrix[0],  m_matrix[1],  m_matrix[3],
-					 m_matrix[4],  m_matrix[5],  m_matrix[7],
-					 m_matrix[12], m_matrix[13], m_matrix[15]);
+		return Mat4f(m_matrix[0],	m_matrix[1],	m_matrix[3],
+					 m_matrix[4],	m_matrix[5],	m_matrix[7],
+					 m_matrix[12],	m_matrix[13],	m_matrix[15]);
+	}
+
+	constexpr Mat4f Mat4f::GetRotationMatrix() const
+	{
+		return Mat4f(m_matrix[0],	m_matrix[4],	0.0f,
+					 m_matrix[1],	m_matrix[5],	0.0f,
+					 0.0f,			0.0f,			1.0f);
 	}
 
 	constexpr Vector2f Mat4f::TransformPoint(const Vector2f& point) const 

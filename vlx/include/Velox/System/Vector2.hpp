@@ -3,6 +3,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Velox/Config.hpp>
+#include <Velox/Utility/ArithmeticUtils.h>
 
 #include "Concepts.h"
 
@@ -369,8 +370,8 @@ namespace vlx
 	inline constexpr Vector2<T> Vector2<T>::Lerp(const Vector2<T>& lhs, const Vector2<T>& rhs, const float alpha)
 	{
 		return Vector2<T>(
-			Lerp(lhs.x, rhs.x, alpha),
-			Lerp(lhs.y, rhs.y, alpha));
+			au::Lerp(lhs.x, rhs.x, alpha),
+			au::Lerp(lhs.y, rhs.y, alpha));
 	}
 	template<Arithmetic T>
 	inline constexpr Vector2<T> Vector2<T>::RotatePoint(const Vector2<T>& point, const Vector2<T>& center, const sf::Angle angle)

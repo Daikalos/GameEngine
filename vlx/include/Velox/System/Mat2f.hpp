@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Utility/MathUtility.h>
+#include <Velox/Utility/ArithmeticUtils.h>
 #include <Velox/Config.hpp>
 
 #include "Rectangle.hpp"
@@ -41,8 +41,8 @@ namespace vlx
 		static const Mat2f Identity;
 
 	private:
-		float m_matrix[4]{ 1.f, 0.f,
-							0.f, 1.f };
+		float m_matrix[4]{1.f, 0.f,
+						  0.f, 1.f};
 	};
 
 	constexpr Mat2f::Mat2f() = default;
@@ -102,8 +102,8 @@ namespace vlx
 
 	constexpr Mat2f Mat2f::GetAbs() const 
 	{
-		return Mat2f(ma::Abs(m_matrix[0]), ma::Abs(m_matrix[2]),
-					 ma::Abs(m_matrix[1]), ma::Abs(m_matrix[3]));
+		return Mat2f(au::Abs(m_matrix[0]), au::Abs(m_matrix[2]),
+					 au::Abs(m_matrix[1]), au::Abs(m_matrix[3]));
 	}
 
 	constexpr Vector2f Mat2f::GetAxisX() const 
