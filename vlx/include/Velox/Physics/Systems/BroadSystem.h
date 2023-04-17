@@ -51,6 +51,12 @@ namespace vlx
 			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 		private:
+			void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
+			void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
+
+		private:
+			BroadSystem&	m_broad;
+
 			ShapeSystem		m_insertion;
 			ShapeBodySystem m_body_insertion;
 			ShapeSystem		m_queries;
@@ -68,6 +74,11 @@ namespace vlx
 			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 		private:
+			void QueryPoint(EntityID entity_id, Point* point, Collider* c, PhysicsBody* pb, LocalTransform* lt);
+
+		private:
+			BroadSystem&	m_broad;
+
 			ShapeSystem		m_queries;
 			ShapeBodySystem m_body_queries;
 		};
@@ -86,9 +97,6 @@ namespace vlx
 		auto GetIndices() const noexcept -> std::span<const CollisionIndex>;
 
 	private:
-		void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
-		void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
-
 		void CullDuplicates();
 
 	private:

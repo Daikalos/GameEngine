@@ -10,5 +10,5 @@ void Circle::InitializeImpl(PhysicsBody& body) const
 
 void Circle::UpdateAABBImpl(const Transform& transform)
 {
-    m_aabb = transform.GetTransform().TransformRect(RectFloat(0, 0, m_radius * 2.0f, m_radius * 2.0f));
+    m_aabb = RectFloat(transform.GetPosition(), { m_radius * 2.0f, m_radius * 2.0f });
 }

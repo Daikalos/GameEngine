@@ -8,6 +8,5 @@ void Point::InitializeImpl(PhysicsBody& body) const
 }
 void Point::UpdateAABBImpl(const Transform& transform)
 {
-    m_aabb = transform.GetTransform().TransformRect(
-        RectFloat(-1.0f, -1.0f, 2.0f, 2.0f) + m_offset);
+    m_aabb = RectFloat(transform.GetPosition() + m_offset, {});
 }

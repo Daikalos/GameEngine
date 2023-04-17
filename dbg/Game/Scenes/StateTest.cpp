@@ -130,7 +130,7 @@ bool StateTest::Update(Time& time)
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
-		float diameter = 32 + rnd::random(0, 32);
+		float diameter = 16 + rnd::random(0, 64);
 		float radius = diameter / 2.0f;
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
@@ -151,26 +151,29 @@ bool StateTest::Update(Time& time)
 
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::R))
 	{
-		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponent<PhysicsBody>();
-		entity.AddComponent<Collider>();
-		entity.AddComponent<Point>(2, 2);
+		for (int i = 0; i < 50; ++i)
+		{
+			Entity& entity = m_entities.emplace_back(e0.Duplicate());
+			entity.AddComponent<PhysicsBody>();
+			entity.AddComponent<Collider>();
+			entity.AddComponent<Point>(2, 2);
 
-		entity.GetComponent<PhysicsBody>().SetMass(0.1f);
-		entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
-		entity.GetComponent<LocalTransform>().SetOrigin({ 2, 2 });
-		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
-		entity.GetComponent<Sprite>().SetSize({ 4, 4 });
+			entity.GetComponent<PhysicsBody>().SetMass(0.1f);
+			entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
+			entity.GetComponent<LocalTransform>().SetOrigin({ 2, 2 });
+			entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
+			entity.GetComponent<Sprite>().SetSize({ 4, 4 });
 
-		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+			GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+				GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
+		}
 	}
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
 	{
 		vlx::Vector2f size(
-			32 + rnd::random(0, 32), 
-			32 + rnd::random(0, 32));
+			16 + rnd::random(0, 64), 
+			16 + rnd::random(0, 64));
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();
