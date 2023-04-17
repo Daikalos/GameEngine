@@ -68,7 +68,12 @@ namespace vlx
 
 	private:
 		Vector2f last_pos;
+		Vector2f curr_pos;
+
 		sf::Angle last_rot;
+		sf::Angle curr_rot;
+
+		bool initialize {true};
 
 	private:
 		BodyType		m_type				{BodyType::Dynamic}; // type of body

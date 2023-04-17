@@ -14,7 +14,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_update_positions(	entity_admin, LYR_PHYSICS + 2),
 	m_clear_forces(		entity_admin, LYR_PHYSICS + 3),
 	m_sleep_bodies(		entity_admin, LYR_PHYSICS + 4),
-	m_pre_interp(		entity_admin, LYR_PHYSICS + 5),
+	m_post_update(		entity_admin, LYR_PHYSICS + 5),
 	m_interp(			entity_admin, LYR_PHYSICS + 6)
 
 {
@@ -31,6 +31,9 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 		{
 			if (body.GetInvMass() <= PHYSICS_EPSILON)
 				return;
+
+			body.last_pos = body.curr_pos;
+			body.last_rot = body.curr_rot;
 
 			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
 			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
@@ -57,19 +60,30 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			}
 		});
 
-	m_pre_interp.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_post_update.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
 		{
-			body.last_pos = local_transform.GetPosition();
-			body.last_rot = local_transform.GetRotation();
+			body.curr_pos = local_transform.GetPosition();
+			body.curr_rot = local_transform.GetRotation();
 		});
 
 	m_interp.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
 		{
+			if (body.initialize)
+			{
+				body.last_pos = local_transform.GetPosition();
+				body.last_rot = local_transform.GetRotation();
+
+				body.curr_pos = body.last_pos;
+				body.curr_rot = body.last_rot;
+
+				body.initialize = false;
+			}
+
 			local_transform.SetPosition(Vector2f::Lerp(
-				body.last_pos, local_transform.GetPosition(), time.GetAlpha()));
+				body.last_pos, body.curr_pos, time.GetAlpha()));
 
 			local_transform.SetRotation(au::Lerp(
-				body.last_rot, local_transform.GetRotation(), time.GetAlpha()));
+				body.last_rot, body.curr_rot, time.GetAlpha()));
 		});
 }
 
@@ -113,8 +127,6 @@ void PhysicsSystem::FixedUpdate()
 
 	std::span<CollisionArbiter> arbiters = m_narrow_system.GetArbiters();
 
-	m_pre_interp.ForceRun();
-
 	m_update_forces.ForceRun();
 
 	for (auto& collision : arbiters)
@@ -129,16 +141,16 @@ void PhysicsSystem::FixedUpdate()
 	for (auto& collision : arbiters)
 		PositionalCorrection(collision);
 
+	m_post_update.ForceRun();
+
 	m_clear_forces.ForceRun();
 
 	m_sleep_bodies.ForceRun();
-
-	m_interp.ForceRun();
 }
 
 void PhysicsSystem::PostUpdate()
 {
-
+	m_interp.ForceRun();
 }
 
 void PhysicsSystem::Initialize(CollisionArbiter& arbiter)

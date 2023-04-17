@@ -56,7 +56,7 @@ namespace vlx
 		System<PhysicsBody, LocalTransform>	m_update_positions;
 		System<PhysicsBody>					m_clear_forces;
 		System<PhysicsBody>					m_sleep_bodies;
-		System<PhysicsBody, LocalTransform>	m_pre_interp;
+		System<PhysicsBody, LocalTransform>	m_post_update;
 		System<PhysicsBody, LocalTransform>	m_interp;
 	};
 }

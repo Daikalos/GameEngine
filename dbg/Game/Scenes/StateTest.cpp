@@ -144,6 +144,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<LocalTransform>().SetOrigin({ radius, radius });
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
 		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
+		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
@@ -163,6 +164,7 @@ bool StateTest::Update(Time& time)
 			entity.GetComponent<LocalTransform>().SetOrigin({ 2, 2 });
 			entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
 			entity.GetComponent<Sprite>().SetSize({ 4, 4 });
+			entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 			GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
 				GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
@@ -186,6 +188,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize(size);
+		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 		entity.GetComponent<LocalTransform>().SetOrigin(size / 2.0f);
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
