@@ -130,7 +130,7 @@ bool StateTest::Update(Time& time)
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
-		float diameter = 16 + rnd::random(0, 64);
+		float diameter = 8 + rnd::random(0, 128);
 		float radius = diameter / 2.0f;
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
@@ -172,8 +172,8 @@ bool StateTest::Update(Time& time)
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
 	{
 		vlx::Vector2f size(
-			16 + rnd::random(0, 64), 
-			16 + rnd::random(0, 64));
+			8 + rnd::random(0, 64), 
+			8 + rnd::random(0, 128));
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();

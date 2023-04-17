@@ -7,14 +7,15 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 
 	m_time(&time), 
 
-	m_broad_system(entity_admin, LYR_BROAD_PHASE),
-	m_narrow_system(entity_admin, LYR_NARROW_PHASE, m_broad_system),
+	m_broad_system(		entity_admin, LYR_BROAD_PHASE),
+	m_narrow_system(	entity_admin, LYR_NARROW_PHASE, m_broad_system),
 
 	m_update_forces(	entity_admin, LYR_PHYSICS + 1),
 	m_update_positions(	entity_admin, LYR_PHYSICS + 2),
 	m_clear_forces(		entity_admin, LYR_PHYSICS + 3),
 	m_sleep_bodies(		entity_admin, LYR_PHYSICS + 4),
-	m_interp_bodies(	entity_admin, LYR_PHYSICS + 5)
+	m_pre_interp(		entity_admin, LYR_PHYSICS + 5),
+	m_interp(			entity_admin, LYR_PHYSICS + 6)
 
 {
 	m_update_forces.Each([this](EntityID entity_id, PhysicsBody& body)
@@ -56,35 +57,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			}
 		});
 
-	m_interp_bodies.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_pre_interp.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
 		{
-			Vector2f& last_pos = body.last_position;
-			Vector2f& curr_pos = body.position;
+			body.last_pos = local_transform.GetPosition();
+			body.last_rot = local_transform.GetRotation();
+		});
 
-			sf::Angle& last_angle = body.last_angle;
-			sf::Angle& curr_angle = body.angle;
-
-			if (body.initialize)
-			{
-				last_pos = local_transform.GetPosition();
-				last_angle = local_transform.GetRotation();
-
-				body.initialize = false;
-			}
-			else
-			{
-				last_pos = curr_pos;
-				last_angle = curr_angle;
-			}
-
-			curr_pos = local_transform.GetPosition();
-			curr_angle = local_transform.GetRotation();
-
+	m_interp.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+		{
 			local_transform.SetPosition(Vector2f::Lerp(
-				last_pos, curr_pos, time.GetAlpha()));
+				body.last_pos, local_transform.GetPosition(), time.GetAlpha()));
 
 			local_transform.SetRotation(au::Lerp(
-				last_angle, curr_angle, time.GetAlpha()));
+				body.last_rot, local_transform.GetRotation(), time.GetAlpha()));
 		});
 }
 
@@ -128,6 +113,8 @@ void PhysicsSystem::FixedUpdate()
 
 	std::span<CollisionArbiter> arbiters = m_narrow_system.GetArbiters();
 
+	m_pre_interp.ForceRun();
+
 	m_update_forces.ForceRun();
 
 	for (auto& collision : arbiters)
@@ -146,7 +133,7 @@ void PhysicsSystem::FixedUpdate()
 
 	m_sleep_bodies.ForceRun();
 
-	m_interp_bodies.ForceRun();
+	m_interp.ForceRun();
 }
 
 void PhysicsSystem::PostUpdate()
