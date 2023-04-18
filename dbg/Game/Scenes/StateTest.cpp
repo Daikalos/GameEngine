@@ -106,8 +106,7 @@ void StateTest::OnCreated()
 	entity.AddComponent<Box>(au::Pow(2, 16), 16);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
-	entity.GetComponent<PhysicsBody>().SetMass(0.0f);
-	entity.GetComponent<PhysicsBody>().SetInertia(0.0f);
+	entity.GetComponent<PhysicsBody>().SetType(PhysicsBody::Type::Static);
 	entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	entity.GetComponent<Sprite>().SetSize({ au::Pow(2, 16), 16 });
 	entity.GetComponent<LocalTransform>().SetOrigin({ au::Pow(2, 16) / 2, 8 });
@@ -160,7 +159,7 @@ bool StateTest::Update(Time& time)
 			entity.AddComponent<Point>(2, 2);
 
 			entity.GetComponent<PhysicsBody>().SetMass(0.1f);
-			entity.GetComponent<PhysicsBody>().SetInertia(100.0f);
+			entity.GetComponent<PhysicsBody>().SetFixedRotation(true);
 			entity.GetComponent<LocalTransform>().SetOrigin({ 2, 2 });
 			entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
 			entity.GetComponent<Sprite>().SetSize({ 4, 4 });

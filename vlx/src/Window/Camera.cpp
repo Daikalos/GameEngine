@@ -32,11 +32,11 @@ Vector2f Camera::ViewToWorld(const Vector2f& position) const
 { 
 	return GetViewMatrix() * position; 
 }
-Vector2f vlx::Camera::GetMouseWorldPosition(const Vector2f& relative_pos) const
+Vector2f Camera::GetMouseWorldPosition(const Vector2f& relative_pos) const
 {
 	return ViewToWorld(relative_pos);
 }
-Vector2i vlx::Camera::GetMouseWorldPosition(const Vector2i& relative_pos) const
+Vector2i Camera::GetMouseWorldPosition(const Vector2i& relative_pos) const
 {
 	return Vector2i(GetMouseWorldPosition(Vector2f(relative_pos)));
 }

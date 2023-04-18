@@ -7,8 +7,8 @@
 
 namespace vlx
 {
-	static constexpr float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
-	static constexpr float DEFAULT_SCALED_TIME = 1.0f;
+	inline constexpr float DEFAULT_FIXED_DELTATIME = 1.0f / 60.0f;
+	inline constexpr float DEFAULT_SCALED_TIME = 1.0f;
 
 	class VELOX_API Time final
 	{

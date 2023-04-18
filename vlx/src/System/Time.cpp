@@ -10,8 +10,8 @@ float		Time::GetScaledTime() const noexcept	{ return m_scaled_time; }
 float		Time::GetAlpha() const noexcept			{ return m_alpha; }
 long double	Time::GetTotalTime() const noexcept		{ return m_total_time; }
 long double	Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
-int			Time::GetFPS() const noexcept			{ return std::round(1.0f / GetRealDT()); }
-int			Time::GetFixedFPS() const noexcept		{ return std::round(1.0f / GetRealFixedDT()); }
+int			Time::GetFPS() const noexcept			{ return (int)std::round(1.0f / GetRealDT()); }
+int			Time::GetFixedFPS() const noexcept		{ return (int)std::round(1.0f / GetRealFixedDT()); }
 
 void Time::SetScaledTime(const float value) noexcept
 { 

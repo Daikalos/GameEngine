@@ -418,6 +418,8 @@ namespace vlx
 		VELOX_API void RunSystems(const LayerType layer) const;
 		VELOX_API void SortSystems(const LayerType layer);
 
+		VELOX_API void RunSystem(const ISystem* system) const;
+
 		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
 

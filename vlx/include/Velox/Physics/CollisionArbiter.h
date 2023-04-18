@@ -18,7 +18,7 @@ namespace vlx
 		CollisionObject*	B						{nullptr};
 
 		ContactArray		contacts;
-		std::uint16_t		contacts_count			{0};
+		std::uint8_t		contacts_count			{0};
 			
 		float				restitution				{0.0f};	// minimum TODO: allow user to change mode: min, max, or average
 		float				static_friction			{0.0f};	// average

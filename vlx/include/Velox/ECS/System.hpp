@@ -101,6 +101,8 @@ namespace vlx
 		void SetPriority(const float val) override;
 
 	public:
+		/// Forces this system to run alone, ignoring all others in the layer
+		/// 
 		void ForceRun();
 
 		void All(AllFunc&& func);
@@ -193,7 +195,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::ForceRun()
 	{
-		m_entity_admin->RunSystems(m_layer);
+		m_entity_admin->RunSystem(this);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

@@ -74,31 +74,7 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 		return;
 
 	for (const ISystem* system : sit->second)
-	{
-		if (!system->IsEnabled())
-			continue;
-
-		system->Start();
-
-		const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
-
-		if (system->IsRunningParallel())
-		{
-			std::for_each(std::execution::par, archetypes.begin(), archetypes.end(),
-				[&system](const Archetype* const archetype)
-				{
-					system->Run(archetype);
-				});
-		}
-		else
-		{
-			std::ranges::for_each(archetypes.begin(), archetypes.end(),
-				[&system](const Archetype* const archetype)
-				{
-					system->Run(archetype);
-				});
-		}
-	}
+		RunSystem(system);
 }
 
 void EntityAdmin::SortSystems(const LayerType layer)
@@ -112,6 +88,33 @@ void EntityAdmin::SortSystems(const LayerType layer)
 		{
 			return *lhs > *rhs;
 		});
+}
+
+void EntityAdmin::RunSystem(const ISystem* system) const
+{
+	if (!system->IsEnabled())
+		return;
+
+	system->Start();
+
+	const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
+
+	if (system->IsRunningParallel())
+	{
+		std::for_each(std::execution::par, archetypes.begin(), archetypes.end(),
+			[&system](const Archetype* const archetype)
+			{
+				system->Run(archetype);
+			});
+	}
+	else
+	{
+		std::ranges::for_each(archetypes.begin(), archetypes.end(),
+			[&system](const Archetype* const archetype)
+			{
+				system->Run(archetype);
+			});
+	}
 }
 
 void EntityAdmin::RemoveSystem(const LayerType layer, ISystem* system)

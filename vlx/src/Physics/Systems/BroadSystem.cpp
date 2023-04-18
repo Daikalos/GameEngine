@@ -89,11 +89,11 @@ void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, 
 		if (s == collision.item.shape) // no collision against self
 			continue;
 
-		if (!(c->layer & collision.item.collider->layer)) // only matching layer
+		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
 			continue;
 
 		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, type, s, c, pb, lt), collision.item);
-		m_broad.m_indices.emplace_back(static_cast<std::uint32_t>(m_broad.m_pairs.size() - 1));
+		m_broad.m_indices.emplace_back(static_cast<uint32_t>(m_broad.m_pairs.size() - 1));
 	}
 }
 
@@ -103,11 +103,25 @@ void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point*
 
 	for (const auto& collision : collisions)
 	{
-		if (!(c->layer & collision.item.collider->layer)) // only matching layer
+		// no need to check against self
+
+		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
 			continue;
 
+		if (pb != nullptr && collision.item.body != nullptr)
+		{
+			const auto& lhs = pb;
+			const auto& rhs = collision.item.body;
+
+			bool lhs_active = (lhs->IsAwake() && lhs->GetType() != PhysicsBody::Type::Static);
+			bool rhs_active = (rhs->IsAwake() && rhs->GetType() != PhysicsBody::Type::Static);
+
+			if (!lhs_active && !rhs_active)
+				continue;
+		}
+
 		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, Shape::Point, p, c, pb, lt), collision.item);
-		m_broad.m_indices.emplace_back(static_cast<std::uint32_t>(m_broad.m_pairs.size() - 1));
+		m_broad.m_indices.emplace_back(static_cast<uint32_t>(m_broad.m_pairs.size() - 1));
 	}
 }
 
@@ -184,24 +198,6 @@ void BroadSystem::CullDuplicates()
 		});
 
 	m_indices.erase(first, last);
-
-	//std::uint32_t i = 0;
-	//while (i < m_collision_indices.size())
-	//{
-	//	std::uint32_t i0 = m_collision_indices[i++];
-	//	m_unique_collisions.emplace_back(i0);
-
-	//	while (i < m_collision_indices.size())
-	//	{
-	//		std::uint32_t i1 = m_collision_indices[i];
-
-	//		if (m_collision_pairs[i0].first.entity_id != m_collision_pairs[i1].second.entity_id || 
-	//			m_collision_pairs[i0].second.entity_id != m_collision_pairs[i1].first.entity_id)
-	//			break;
-
-	//		++i;
-	//	}
-	//}
 }
 
 template class BroadSystem::ShapeQTBehaviour<Circle>;

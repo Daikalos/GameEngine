@@ -24,12 +24,6 @@ namespace vlx
 	{
 	public:
 		using GeneralSystem			= System<Collider, LocalTransform>;
-		using CircleSystem			= System<Circle, Collider, LocalTransform>;
-		using BoxSystem				= System<Box, Collider, LocalTransform>;
-		using PointSystem			= System<Point, Collider, LocalTransform>;
-		using CircleBodySystem		= System<Circle, Collider, PhysicsBody, LocalTransform>;
-		using BoxBodySystem			= System<Box, Collider, PhysicsBody, LocalTransform>;
-		using PointBodySystem		= System<Point, Collider, PhysicsBody, LocalTransform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
 		using CollisionIndex		= std::uint32_t;
