@@ -68,7 +68,9 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == PhysicsBody::Type::Static)
 				return;
 
-			// TODO: fix velocity always being above threshold even when object is still
+			// TODO: fix velocity always being above threshold even when object is still, e.g., 
+			// body "resting" ontop another object, however due to continually colliding and position correction,
+			// body will keep on jittering.
 
 			constexpr float vel_sleep_tolerance = au::Sqr(0.01f);
 			constexpr float ang_sleep_tolerance = au::Sqr(au::ToRadians(2.0f));
