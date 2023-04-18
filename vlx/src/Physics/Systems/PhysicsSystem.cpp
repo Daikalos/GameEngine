@@ -22,11 +22,13 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
-			if (body.GetType() == PhysicsBody::Type::Static)
+			if (body.GetType() != PhysicsBody::Type::Dynamic)
 				return;
 
-			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
-			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
+			const float half_dt = m_time->GetFixedDT() / 2.0f;
+
+			body.AddVelocity(half_dt * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce()));
+			body.AddAngularVelocity(half_dt * body.GetInvInertia() * body.GetTorque());
 		});
 
 	m_update_positions.Each([this](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
@@ -43,11 +45,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
 			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
 
-			body.AddVelocity((body.GetForce() * body.GetInvMass() + m_gravity) * (m_time->GetFixedDT() / 2.0f));
-			body.AddAngularVelocity(body.GetTorque() * body.GetInvInertia() * (m_time->GetFixedDT() / 2.0f));
+			if (body.GetType() == PhysicsBody::Type::Dynamic)
+			{
+				const float half_dt = m_time->GetFixedDT() / 2.0f;
 
-			body.m_force = Vector2f::Zero;
-			body.m_torque = 0.0f;
+				body.AddVelocity(half_dt * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce()));
+				body.AddAngularVelocity(half_dt * body.GetInvInertia() * body.GetTorque());
+
+				body.m_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetLinearDamping()));
+				body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
+
+				body.m_force = Vector2f::Zero;
+				body.m_torque = 0.0f;
+			}
 		});
 
 	m_sleep_bodies.Each([this](EntityID entity_id, PhysicsBody& body)
