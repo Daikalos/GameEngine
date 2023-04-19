@@ -118,15 +118,19 @@ namespace vlx::au
 		return std::abs(x);
 	}
 
-	template<Arithmetic T>
+	NODISC static float ShortestAngle(const sf::Angle a, const sf::Angle b)
+	{
+		return std::fmod(((std::fmod(b.asDegrees() - a.asDegrees(), 360.0f)) + 540.0f), 360.0f) - 180.0f;
+	}
+
+	template<std::floating_point T>
 	NODISC static constexpr auto Lerp(const T a, const T b, const float f)
 	{
-		return (a * (1.0 - f)) + (b * f);
+		return (a * (1.0f - f)) + (b * f);
 	}
 
 	NODISC static sf::Angle Lerp(const sf::Angle a, const sf::Angle b, const float f)
 	{
-		float shortest_angle = std::fmod(((std::fmod(b.asDegrees() - a.asDegrees(), 360.0f)) + 540.0f), 360.0f) - 180.0f;
-		return a + sf::degrees(shortest_angle * f);
+		return a + sf::degrees(ShortestAngle(a, b) * f);
 	}
 }

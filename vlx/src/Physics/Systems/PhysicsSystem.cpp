@@ -13,8 +13,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_integrate_velocity(	entity_admin, id),
 	m_integrate_position(	entity_admin, id),
 	m_sleep_bodies(			entity_admin, id),
-	m_post_update(			entity_admin, id),
-	m_interp(				entity_admin, id)
+	m_post_update(			entity_admin, id)
 
 {
 	m_integrate_velocity.Each([this](EntityID entity_id, PhysicsBody& body)
@@ -40,14 +39,6 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
-			if (body.initialize)
-			{
-				body.curr_pos = transform.GetPosition();
-				body.curr_rot = transform.GetRotation();
-
-				body.initialize = false;
-			}
-
 			body.last_pos = body.curr_pos;
 			body.last_rot = body.curr_rot;
 
@@ -70,8 +61,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			// body "resting" ontop another object, however due to continually colliding and position correction,
 			// body will keep on jittering.
 
-			constexpr float vel_sleep_tolerance = au::Sqr(0.01f);
-			constexpr float ang_sleep_tolerance = au::Sqr(au::ToRadians(2.0f));
+			constexpr float vel_sleep_tolerance = au::Sqr(P_VEL_SLEEP_TOLERANCE);
+			constexpr float ang_sleep_tolerance = au::Sqr(P_ANG_SLEEP_TOLERANCE);
 
 			if ((body.m_flags & PhysicsBody::B_AutoSleep) == 0 ||
 				au::Sqr(body.GetAngularVelocity()) > ang_sleep_tolerance ||
@@ -88,7 +79,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 				body.SetAwake(false);
 		});
 
-	m_post_update.Each([&time](EntityID entity_id, PhysicsBody& body, Transform& transform)
+	m_post_update.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -96,22 +87,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
+			if (body.initialize) // temp, will look for replacing this later
+			{
+				body.curr_pos = transform.GetPosition();
+				body.curr_rot = transform.GetRotation();
 
-		});
+				body.last_pos = body.curr_pos;
+				body.last_rot = body.curr_rot;
 
-	m_interp.Each([&time](EntityID entity_id, PhysicsBody& body, Transform& transform)
-		{
-			if (!body.IsAwake() || !body.IsEnabled())
-				return;
+				body.initialize = false;
+			}
 
-			if (body.GetType() == BodyType::Static)
-				return;
-
-			transform.SetPosition(Vector2f::Lerp(
-				body.last_pos, body.curr_pos, time.GetAlpha()));
-
-			transform.SetRotation(au::Lerp(
-				body.last_rot, body.curr_rot, time.GetAlpha()));
+			transform.SetPosition(body.curr_pos);
+			transform.SetRotation(body.curr_rot);
 		});
 }
 
@@ -169,14 +157,12 @@ void PhysicsSystem::FixedUpdate()
 	for (auto& collision : arbiters)
 		PositionalCorrection(collision);
 
-	m_post_update.ForceRun();
-
 	m_sleep_bodies.ForceRun();
 }
 
 void PhysicsSystem::PostUpdate()
 {
-	m_interp.ForceRun();
+	m_post_update.ForceRun();
 }
 
 void PhysicsSystem::Initialize(CollisionArbiter& arbiter)

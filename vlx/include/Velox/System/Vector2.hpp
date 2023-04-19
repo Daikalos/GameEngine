@@ -61,7 +61,7 @@ namespace vlx
 
 		/// Linear interpolation.
 		/// 
-		/// \param Alpha: Determines level of interpolation; range of 0.0f to 1.0f, where 0.0f yield lhs, and 1.0f yield rhs.
+		/// \param Alpha: Determines state of interpolation, where 0.0f yield lhs, and 1.0f yield rhs.
 		/// 
 		/// \returns Interpolated vector that ranges between lhs and rhs given by alpha value.
 		///

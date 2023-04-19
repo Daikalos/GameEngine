@@ -2,13 +2,42 @@
 
 using namespace vlx;
 
-RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemAction(entity_admin, id), m_render_system(entity_admin, id)
+RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id, Time& time)
+	: SystemAction(entity_admin, id), 
+
+	m_render_sprites(entity_admin, id), 
+	m_render_bodies(entity_admin, id)
 {
-	m_render_system.Each([this](const EntityID eid, Renderable& r, GlobalTransform& gt, Sprite& s)
+	m_render_sprites.Each([this](const EntityID eid, Renderable& r, Sprite& s, GlobalTransform& gt)
 		{
-			DrawEntity(r, s, gt.GetTransform(), s.GetDepth());
+			BatchEntity(r, s, gt.GetTransform(), s.GetDepth());
 		});
+
+	m_render_bodies.Each([this, &time](const EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
+		{
+			if (pb.GetType() != BodyType::Dynamic || !pb.IsAwake() || !pb.IsEnabled()) // draw normally if still
+			{
+				BatchEntity(r, s, t.GetTransform(), s.GetDepth());
+				return;
+			}
+
+			if (pb.curr_pos == pb.last_pos && pb.curr_rot == pb.last_rot) // draw normally if havent moved
+			{
+				BatchEntity(r, s, t.GetTransform(), s.GetDepth());
+			}
+			else
+			{
+				Vector2f lerp_pos = Vector2f::Lerp(pb.last_pos, pb.curr_pos, time.GetAlpha());
+				sf::Angle lerp_rot = au::Lerp(pb.last_rot, pb.curr_rot, time.GetAlpha());
+
+				Mat4f transform;
+				transform.Build(lerp_pos, t.GetOrigin(), t.GetScale(), lerp_rot);
+
+				BatchEntity(r, s, transform, s.GetDepth());
+			}
+		});
+
+	m_render_sprites.Exclude<PhysicsBody>();
 }
 
 bool RenderSystem::IsRequired() const noexcept
@@ -61,7 +90,7 @@ void RenderSystem::PreUpdate()
 
 void RenderSystem::Update()
 {
-	Execute();
+	m_render_sprites.ForceRun();
 }
 
 void RenderSystem::FixedUpdate()
@@ -71,11 +100,13 @@ void RenderSystem::FixedUpdate()
 
 void RenderSystem::PostUpdate()
 {
+	m_render_bodies.ForceRun();
+
 	m_update_static_bash = false;
 	m_update_static_gui_bash = false;
 }
 
-void RenderSystem::DrawEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, const float depth)
+void RenderSystem::BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, const float depth)
 {
 	if (!renderable.IsVisible)
 		return;

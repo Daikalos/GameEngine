@@ -129,7 +129,7 @@ bool StateTest::Update(Time& time)
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
-		float diameter = 8 + rnd::random(0, 128);
+		float diameter = 8.0f + rnd::random(0.0f, 128.0f);
 		float radius = diameter / 2.0f;
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
@@ -148,6 +148,8 @@ bool StateTest::Update(Time& time)
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
+
+	m_entities.back().GetComponent<Transform>().Move({ 25.0f * time.GetDT(), 0.0f });
 
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::R))
 	{
@@ -173,8 +175,8 @@ bool StateTest::Update(Time& time)
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
 	{
 		vlx::Vector2f size(
-			8 + rnd::random(0, 64), 
-			8 + rnd::random(0, 128));
+			8.0f + rnd::random(0.0f, 64.0f), 
+			8.0f + rnd::random(0.0f, 128.0f));
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponent<PhysicsBody>();

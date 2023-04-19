@@ -56,6 +56,21 @@ namespace vlx
 		VELOX_API Mat4f& Rotate(sf::Angle angle);
 		VELOX_API Mat4f& Rotate(sf::Angle angle, const Vector2f& center);
 
+		VELOX_API Mat4f& Build(
+			const Vector2f& position,
+			const Vector2f& origin, 
+			const Vector2f& scale, 
+			sf::Angle rot);
+
+		VELOX_API Mat4f& Build(
+			const Vector2f& position,
+			const Vector2f& scale,
+			sf::Angle rot);
+
+		VELOX_API Mat4f& Build(
+			const Vector2f& position,
+			sf::Angle rot);
+
 	public:
 		static const Mat4f Identity;
 

@@ -54,10 +54,9 @@ namespace vlx
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;
 
-		System<PhysicsBody>					m_integrate_velocity;
+		System<PhysicsBody>				m_integrate_velocity;
 		System<PhysicsBody, Transform>	m_integrate_position;
-		System<PhysicsBody>					m_sleep_bodies;
+		System<PhysicsBody>				m_sleep_bodies;
 		System<PhysicsBody, Transform>	m_post_update;
-		System<PhysicsBody, Transform>	m_interp;
 	};
 }

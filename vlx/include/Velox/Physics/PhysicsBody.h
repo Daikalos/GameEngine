@@ -89,7 +89,7 @@ namespace vlx
 		constexpr void SetLinearDamping(const float linear_damping);
 		constexpr void SetAngularDamping(const float angular_damping);
 
-		constexpr void SetGravityScale(const float scale);
+		constexpr void SetGravityScale(const float scale);		
 
 		constexpr void SetAwake(const bool flag);
 		constexpr void SetSleepingAllowed(const bool flag);
@@ -134,6 +134,7 @@ namespace vlx
 		uint16_t		m_flags				{B_Enabled | B_Awake};
 
 		friend class PhysicsSystem;
+		friend class RenderSystem;
 	};
 
 	constexpr BodyType PhysicsBody::GetType() const noexcept				{ return m_type; }

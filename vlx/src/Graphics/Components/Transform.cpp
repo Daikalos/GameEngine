@@ -21,21 +21,7 @@ const Mat4f& Transform::GetTransform() const
 {
 	if (m_update)
 	{
-		const float angle	= -m_rotation.asRadians();
-		const float cosine	= std::cos(angle);
-		const float sine	= std::sin(angle);
-		const float sxc		= m_scale.x * cosine;
-		const float syc		= m_scale.y * cosine;
-		const float sxs		= m_scale.x * sine;
-		const float sys		= m_scale.y * sine;
-		const float tx		= m_position.x - m_origin.x * sxc - m_origin.y * sys;
-		const float ty		= m_position.y + m_origin.x * sxs - m_origin.y * syc;
-
-		m_transform = Mat4f(
-			 sxc, sys, tx,
-			-sxs, syc, ty,
-			 0.f, 0.f, 1.f);
-
+		m_transform.Build(m_position, m_origin, m_scale, m_rotation);
 		m_update = false;
 	}
 
