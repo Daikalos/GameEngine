@@ -8,7 +8,7 @@ void Circle::InitializeImpl(PhysicsBody& body) const
     body.SetInertia(0.5f * body.GetMass() * m_radius_sqr);
 }
 
-void Circle::UpdateAABBImpl(const Transform& transform)
+void Circle::UpdateAABBImpl(const GlobalTransform& transform)
 {
     m_aabb = RectFloat(transform.GetPosition(), { m_radius * 2.0f, m_radius * 2.0f });
 }

@@ -3,8 +3,8 @@
 #include <vector>
 #include <span>
 
+#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
-#include <Velox/Graphics/Components/LocalTransform.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/System/Time.h>
@@ -55,9 +55,9 @@ namespace vlx
 		NarrowSystem	m_narrow_system;
 
 		System<PhysicsBody>					m_integrate_velocity;
-		System<PhysicsBody, LocalTransform>	m_integrate_position;
+		System<PhysicsBody, Transform>	m_integrate_position;
 		System<PhysicsBody>					m_sleep_bodies;
-		System<PhysicsBody, LocalTransform>	m_post_update;
-		System<PhysicsBody, LocalTransform>	m_interp;
+		System<PhysicsBody, Transform>	m_post_update;
+		System<PhysicsBody, Transform>	m_interp;
 	};
 }

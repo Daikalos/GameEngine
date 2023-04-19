@@ -13,41 +13,41 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 	m_points_aabb(		entity_admin, id)
 
 {
-	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, Transform& t)
+	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, GlobalTransform& gt)
+		{
+			if (gt.m_dirty)
+				c.dirty = true;
+		});
+
+	m_dirty_physics.Each([this](EntityID entity_id, Collider& c, Transform& t)
 		{
 			if (t.m_dirty)
 				c.dirty = true;
 		});
 
-	m_dirty_physics.Each([this](EntityID entity_id, Collider& c, LocalTransform& lt)
-		{
-			if (lt.m_dirty)
-				c.dirty = true;
-		});
-
-	m_circles_aabb.Each([this](EntityID entity_id, Circle& s, Collider& c, Transform& t)
+	m_circles_aabb.Each([this](EntityID entity_id, Circle& s, Collider& c, GlobalTransform& gt)
 		{
 			if (c.dirty)
 			{
-				s.UpdateAABB(t);
-				s.UpdateTransform(t);
+				s.UpdateAABB(gt);
+				s.UpdateTransform(gt);
 			}
 		});
 
-	m_boxes_aabb.Each([this](EntityID entity_id, Box& b, Collider& c, Transform& t)
+	m_boxes_aabb.Each([this](EntityID entity_id, Box& b, Collider& c, GlobalTransform& gt)
 		{
 			if (c.dirty)
 			{
-				b.UpdateAABB(t);
-				b.UpdateTransform(t);
+				b.UpdateAABB(gt);
+				b.UpdateTransform(gt);
 			}
 		});
 
-	m_points_aabb.Each([this](EntityID entity_id, Point& p, Collider& c, Transform& t)
+	m_points_aabb.Each([this](EntityID entity_id, Point& p, Collider& c, GlobalTransform& gt)
 		{
 			if (c.dirty)
 			{
-				p.UpdateAABB(t);
+				p.UpdateAABB(gt);
 				// no need to update the orientation matrix
 			}
 		});

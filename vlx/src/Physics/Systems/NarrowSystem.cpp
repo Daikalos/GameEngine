@@ -26,7 +26,16 @@ void NarrowSystem::Update(
 
 		if (arbiter.contacts_count)
 		{
-			m_arbiters.emplace_back(arbiter);
+			PhysicsBody* AB = arbiter.A->body;
+			PhysicsBody* BB = arbiter.B->body;
+
+			if (AB && BB) // only use physics if both entities has a physics body
+			{
+				if (AB->GetType() == BodyType::Static && BB->GetType() == BodyType::Static) // ignore if both are static
+					continue;
+
+				m_arbiters.emplace_back(arbiter);
+			}
 
 			//CollisionResult first_result(
 			//	A.entity_id, B.entity_id,

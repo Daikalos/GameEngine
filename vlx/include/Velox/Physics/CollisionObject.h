@@ -6,7 +6,6 @@ namespace vlx
 {
 	class Collider;
 	class PhysicsBody;
-	class LocalTransform;
 	class Transform;
 
 	/// Contains the data that represents an object for collision
@@ -22,7 +21,7 @@ namespace vlx
 		Shape*			shape			{nullptr};
 		Collider*		collider		{nullptr};
 		PhysicsBody*	body			{nullptr};
-		LocalTransform* local_transform	{nullptr};
+		Transform*		transform		{nullptr};
 
 		constexpr bool operator==(const CollisionObject& rhs) const
 		{

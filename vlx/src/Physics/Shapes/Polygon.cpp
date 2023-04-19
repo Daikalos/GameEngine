@@ -17,7 +17,7 @@ void Polygon::InitializeImpl(PhysicsBody& body) const noexcept
 
 }
 
-void Polygon::UpdateAABBImpl(const Transform& transform)
+void Polygon::UpdateAABBImpl(const GlobalTransform& transform)
 {
 
 }

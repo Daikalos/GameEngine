@@ -3,8 +3,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
-#include <Velox/Graphics/Components/LocalTransform.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/ECS/EntityAdmin.h>
 #include <Velox/Algorithms/LQuadTree.hpp>
@@ -25,7 +25,7 @@ namespace vlx
 	class VELOX_API BroadSystem final 
 	{
 	public:
-		using GeneralSystem			= System<Collider, LocalTransform>;
+		using GeneralSystem			= System<Collider, Transform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
 		using CollisionIndex		= uint32;
@@ -40,15 +40,15 @@ namespace vlx
 		class ShapeQTBehaviour
 		{
 		public:
-			using ShapeSystem = System<S, Collider, LocalTransform>;
-			using ShapeBodySystem = System<S, Collider, PhysicsBody, LocalTransform>;
+			using ShapeSystem = System<S, Collider, Transform>;
+			using ShapeBodySystem = System<S, Collider, PhysicsBody, Transform>;
 
 		public:
 			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 		private:
-			void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
-			void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, LocalTransform* lt);
+			void InsertShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, Transform* t);
+			void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb, Transform* t);
 
 		private:
 			BroadSystem&	m_broad;
@@ -63,20 +63,20 @@ namespace vlx
 		class VELOX_API ShapeQTBehaviour<Point> // specialize for point since insertion is not required
 		{
 		public:
-			using ShapeSystem = System<Point, Collider, LocalTransform>;
-			using ShapeBodySystem = System<Point, Collider, PhysicsBody, LocalTransform>;
+			using PointSystem = System<Point, Collider, Transform>;
+			using PointBodySystem = System<Point, Collider, PhysicsBody, Transform>;
 
 		public:
 			ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
 
 		private:
-			void QueryPoint(EntityID entity_id, Point* point, Collider* c, PhysicsBody* pb, LocalTransform* lt);
+			void QueryPoint(EntityID entity_id, Point* point, Collider* c, PhysicsBody* pb, Transform* t);
 
 		private:
 			BroadSystem&	m_broad;
 
-			ShapeSystem		m_queries;
-			ShapeBodySystem m_body_queries;
+			PointSystem		m_queries;
+			PointBodySystem m_body_queries;
 		};
 
 	public:

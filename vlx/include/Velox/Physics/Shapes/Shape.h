@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Velox/ECS/IComponent.h>
-#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Event.hpp>
 #include <Velox/System/Mat2f.hpp>
@@ -38,7 +38,7 @@ namespace vlx
 		Vector2f GetCenter() const;
 
 	private:
-		void UpdateTransform(const Transform& transform);
+		void UpdateTransform(const GlobalTransform& transform);
 
 	protected:
 		mutable Mat2f	m_orientation; // rotation matrix
@@ -54,7 +54,7 @@ namespace vlx
 	{
 		constexpr auto GetType() const noexcept -> Shape::Type;
 		void Initialize(PhysicsBody& body) const;
-		void UpdateAABB(const Transform& transform);
+		void UpdateAABB(const GlobalTransform& transform);
 
 		friend class PhysicsDirtySystem;
 	};
@@ -72,7 +72,7 @@ namespace vlx
 	}
 
 	template<class S>
-	inline void ShapeCRTP<S>::UpdateAABB(const Transform& transform)
+	inline void ShapeCRTP<S>::UpdateAABB(const GlobalTransform& transform)
 	{
 		static_cast<S*>(this)->UpdateAABBImpl(transform);
 	}

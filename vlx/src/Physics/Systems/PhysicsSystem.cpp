@@ -32,7 +32,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
 		});
 
-	m_integrate_position.Each([this](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_integrate_position.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -40,11 +40,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
+			if (body.initialize)
+			{
+				body.curr_pos = transform.GetPosition();
+				body.curr_rot = transform.GetRotation();
+
+				body.initialize = false;
+			}
+
 			body.last_pos = body.curr_pos;
 			body.last_rot = body.curr_rot;
 
-			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
-			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
+			body.curr_pos += body.GetVelocity() * m_time->GetFixedDT();
+			body.curr_rot += sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT());
 
 			body.m_force = Vector2f::Zero;
 			body.m_torque = 0.0f;
@@ -80,7 +88,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 				body.SetAwake(false);
 		});
 
-	m_post_update.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_post_update.Each([&time](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -88,11 +96,10 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
-			body.curr_pos = local_transform.GetPosition();
-			body.curr_rot = local_transform.GetRotation();
+
 		});
 
-	m_interp.Each([&time](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_interp.Each([&time](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -100,21 +107,10 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
-			if (body.initialize)
-			{
-				body.last_pos = local_transform.GetPosition();
-				body.last_rot = local_transform.GetRotation();
-
-				body.curr_pos = body.last_pos;
-				body.curr_rot = body.last_rot;
-
-				body.initialize = false;
-			}
-
-			local_transform.SetPosition(Vector2f::Lerp(
+			transform.SetPosition(Vector2f::Lerp(
 				body.last_pos, body.curr_pos, time.GetAlpha()));
 
-			local_transform.SetRotation(au::Lerp(
+			transform.SetRotation(au::Lerp(
 				body.last_rot, body.curr_rot, time.GetAlpha()));
 		});
 }
@@ -207,7 +203,7 @@ void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 			float k_normal = AB.GetInvMass() + BB.GetInvMass() +
 				AB.GetInvInertia() * au::Sqr(rna) + BB.GetInvInertia() * au::Sqr(rnb);
 
-			contact.mass_normal = 1.0f / k_normal;
+			contact.mass_normal = (k_normal > 0.0f) ? (1.0f / k_normal) : 0.0f;
 		}
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
@@ -223,7 +219,7 @@ void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 			float k_tangent = AB.GetInvMass() + BB.GetInvMass() +
 				AB.GetInvInertia() * au::Sqr(rta) + BB.GetInvInertia() * au::Sqr(rtb);
 
-			contact.mass_tangent = 1.0f / k_tangent;
+			contact.mass_tangent = (k_tangent > 0.0f) ? (1.0f / k_tangent) : 0.0f;
 		}
 
 		if (rv.LengthSq() < (m_gravity * m_time->GetFixedDT()).LengthSq() + FLT_EPSILON)
@@ -233,10 +229,8 @@ void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 
 void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 {
-	CollisionObject& A = *arbiter.A;
-	CollisionObject& B = *arbiter.B;
-	PhysicsBody& AB = *A.body;
-	PhysicsBody& BB = *B.body;
+	PhysicsBody& AB = *arbiter.A->body;
+	PhysicsBody& BB = *arbiter.B->body;
 
 	if (au::Equal(AB.GetInvMass() + BB.GetInvMass(), 0.0f))
 	{
@@ -245,9 +239,6 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 
 		return;
 	}
-
-	const Shape& AS = *A.shape;
-	const Shape& BS = *B.shape;
 
 	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 	{
@@ -295,17 +286,17 @@ void PhysicsSystem::PositionalCorrection(CollisionArbiter& arbiter)
 	PhysicsBody& AB = *arbiter.A->body;
 	PhysicsBody& BB = *arbiter.B->body;
 
-	constexpr float percent = 0.40f;
-	constexpr float k_slop	= 0.05f;
+	float am = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvMass() : 0.0f;
+	float bm = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvMass() : 0.0f;
 
 	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 	{
 		CollisionContact& contact = arbiter.contacts[i];
 
-		Vector2f correction = (std::max(contact.penetration - k_slop, 0.0f) /
-			(AB.GetInvMass() + BB.GetInvMass())) * contact.normal * percent;
+		Vector2f correction = (std::max(contact.penetration - P_SLOP, 0.0f) /
+			(am + bm)) * contact.normal * P_PERCENT;
 
-		arbiter.A->local_transform->Move(-correction * AB.GetInvMass());
-		arbiter.B->local_transform->Move( correction * BB.GetInvMass());
+		if (AB.IsAwake() && AB.IsEnabled()) AB.curr_pos += -correction * am;
+		if (BB.IsAwake() && BB.IsEnabled()) BB.curr_pos +=  correction * bm;
 	}
 }

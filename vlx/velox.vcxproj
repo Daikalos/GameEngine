@@ -158,7 +158,7 @@
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
     <ClInclude Include="include\Velox\Components\Parent.h" />
-    <ClInclude Include="include\Velox\Graphics\Components\LocalTransform.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
@@ -196,7 +196,7 @@
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\Sprite.h" />
-    <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransform.h" />
     <ClInclude Include="include\Velox\Physics\CollisionLayer.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
@@ -270,7 +270,7 @@
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
-    <ClCompile Include="src\Graphics\Components\LocalTransform.cpp" />
+    <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
     <ClCompile Include="src\Scene\State.cpp" />
@@ -282,7 +282,7 @@
     <ClCompile Include="src\Graphics\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\Graphics\Components\Sprite.cpp" />
-    <ClCompile Include="src\Graphics\Components\Transform.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransform.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\System\Mat2f.cpp" />

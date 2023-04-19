@@ -13,11 +13,11 @@
 #include "Graphics/GUI/Container.h"
 
 #include "Graphics/Components/IBatchable.h"
-#include "Graphics/Components/LocalTransform.h"
+#include "Graphics/Components/GlobalTransform.h"
+#include "Graphics/Components/Transform.h"
 #include "Graphics/Components/Object.h"
 #include "Graphics/Components/Relation.h"
 #include "Graphics/Components/Sprite.h"
-#include "Graphics/Components/Transform.h"
 
 #include "Graphics/Systems/AnchorSystem.h"
 #include "Graphics/Systems/CullingSystem.h"

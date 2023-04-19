@@ -6,7 +6,7 @@ void Point::InitializeImpl(PhysicsBody& body) const
 {
 
 }
-void Point::UpdateAABBImpl(const Transform& transform)
+void Point::UpdateAABBImpl(const GlobalTransform& transform)
 {
     m_aabb = RectFloat(transform.GetPosition() + m_offset, {});
 }

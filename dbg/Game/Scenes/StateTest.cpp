@@ -20,11 +20,11 @@ void StateTest::OnCreated()
 	e0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::IdleCursor));
 	e0.GetComponent<Sprite>().SetOpacity(1.0f);
 
-	et0 = e0.GetComponentRef<LocalTransform>();
+	et0 = e0.GetComponentRef<Transform>();
 	et0->SetPosition({ 0.0f, 0.0f });
 
 	e1 = e0.Duplicate();
-	et1 = e1.GetComponentRef<LocalTransform>();
+	et1 = e1.GetComponentRef<Transform>();
 
 	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0, e1);
 
@@ -40,7 +40,7 @@ void StateTest::OnCreated()
 
 	int h = sizeof(Renderable);
 
-	m_entity_admin->Reserve<Object, Renderable, LocalTransform, Transform, Relation, Sprite>(m_entities.capacity());
+	m_entity_admin->Reserve<Object, Renderable, Transform, GlobalTransform, Relation, Sprite>(m_entities.capacity());
 	for (int i = 0; i < m_entities.capacity(); ++i)
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
@@ -50,7 +50,7 @@ void StateTest::OnCreated()
 		//	rnd::random(-50.0f, 50.0f),
 		//	rnd::random(-50.0f, 50.0f));
 
-		added.GetComponent<LocalTransform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
+		added.GetComponent<Transform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
 		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
 	}
 	
@@ -65,7 +65,7 @@ void StateTest::OnCreated()
 
 	int a = sizeof(Sprite);
 	int c = sizeof(Transform);
-	int d = sizeof(LocalTransform);
+	int d = sizeof(GlobalTransform);
 	int e = sizeof(Relation);
 
 	b0 = object_system.CreateObject();
@@ -74,7 +74,7 @@ void StateTest::OnCreated()
 	b0.GetComponent<Renderable>().IsGUI = true;
 	b0.GetComponent<gui::Button>().SetSize({ 128, 128 });
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
-	b0.GetComponent<LocalTransform>().SetPosition({ 100, 100 });
+	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	b0.GetComponent<gui::Button>().OnPress		+= []() { std::puts("Pressed"); };
 	b0.GetComponent<gui::Button>().OnRelease	+= []() { std::puts("Relased"); };
@@ -109,8 +109,8 @@ void StateTest::OnCreated()
 	entity.GetComponent<PhysicsBody>().SetType(BodyType::Static);
 	entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	entity.GetComponent<Sprite>().SetSize({ au::Pow(2, 16), 16 });
-	entity.GetComponent<LocalTransform>().SetOrigin({ au::Pow(2, 16) / 2, 8 });
-	entity.GetComponent<LocalTransform>().SetRotation(sf::degrees(0.0f));
+	entity.GetComponent<Transform>().SetOrigin({ au::Pow(2, 16) / 2, 8 });
+	entity.GetComponent<Transform>().SetRotation(sf::degrees(0.0f));
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
 }
@@ -140,7 +140,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
 		entity.GetComponent<Circle>().SetRadius(radius);
-		entity.GetComponent<LocalTransform>().SetOrigin({ radius, radius });
+		entity.GetComponent<Transform>().SetOrigin({ radius, radius });
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
 		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
 		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
@@ -160,7 +160,7 @@ bool StateTest::Update(Time& time)
 
 			entity.GetComponent<PhysicsBody>().SetMass(0.1f);
 			entity.GetComponent<PhysicsBody>().SetFixedRotation(true);
-			entity.GetComponent<LocalTransform>().SetOrigin({ 2, 2 });
+			entity.GetComponent<Transform>().SetOrigin({ 2, 2 });
 			entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
 			entity.GetComponent<Sprite>().SetSize({ 4, 4 });
 			entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
@@ -184,11 +184,11 @@ bool StateTest::Update(Time& time)
 		//entity.GetComponent<Circle>().radius = 32.0f;
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-		entity.GetComponent<LocalTransform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
+		entity.GetComponent<Transform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 		entity.GetComponent<Sprite>().SetSize(size);
 		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
-		entity.GetComponent<LocalTransform>().SetOrigin(size / 2.0f);
+		entity.GetComponent<Transform>().SetOrigin(size / 2.0f);
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));

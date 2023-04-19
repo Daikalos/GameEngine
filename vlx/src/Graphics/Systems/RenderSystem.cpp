@@ -5,9 +5,9 @@ using namespace vlx;
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id), m_render_system(entity_admin, id)
 {
-	m_render_system.Each([this](const EntityID entity, Renderable& renderable, Transform& transform, Sprite& sprite)
+	m_render_system.Each([this](const EntityID eid, Renderable& r, GlobalTransform& gt, Sprite& s)
 		{
-			DrawEntity(renderable, sprite, transform.GetTransform(), sprite.GetDepth());
+			DrawEntity(r, s, gt.GetTransform(), s.GetDepth());
 		});
 }
 
@@ -75,7 +75,7 @@ void RenderSystem::PostUpdate()
 	m_update_static_gui_bash = false;
 }
 
-void RenderSystem::DrawEntity(const Renderable& renderable, const IBatchable& batchable, const sf::Transform& transform, const float depth)
+void RenderSystem::DrawEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, const float depth)
 {
 	if (!renderable.IsVisible)
 		return;

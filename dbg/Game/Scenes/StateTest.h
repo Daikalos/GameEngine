@@ -23,7 +23,7 @@ private:
 	std::vector<vlx::Entity> m_entities;
 
 	vlx::Entity e0, e1, e2;
-	vlx::ComponentRef<vlx::LocalTransform> et0, et1;
+	vlx::ComponentRef<vlx::Transform> et0, et1;
 
 	vlx::Entity b0, b1;
 

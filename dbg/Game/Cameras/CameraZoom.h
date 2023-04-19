@@ -40,6 +40,10 @@ namespace vlx
 
 			m_current_scale = Vector2f::Lerp(m_current_scale, m_target_scale, 20.0f * time.GetDT());
 
+			m_current_scale = Vector2f(
+				std::min(std::max(m_current_scale.x, m_min_size), m_max_size),
+				std::min(std::max(m_current_scale.y, m_min_size), m_max_size));
+
 			GetCamera().SetScale(m_current_scale);
 
 			return true;

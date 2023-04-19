@@ -8,7 +8,7 @@ void Box::InitializeImpl(PhysicsBody& body) const
 	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sqr(GetWidth()) + au::Sqr(GetHeight())));
 }
 
-void Box::UpdateAABBImpl(const Transform& transform)
+void Box::UpdateAABBImpl(const GlobalTransform& transform)
 {
 	m_aabb = transform.GetTransform().TransformRect(GetBox());
 }

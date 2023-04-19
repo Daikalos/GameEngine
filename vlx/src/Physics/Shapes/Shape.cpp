@@ -27,7 +27,7 @@ Vector2f Shape::GetCenter() const
 	return m_aabb.Center();
 }
 
-void Shape::UpdateTransform(const Transform& transform)
+void Shape::UpdateTransform(const GlobalTransform& transform)
 {
 	sf::Angle new_angle = transform.GetRotation().wrapUnsigned();
 	if (m_angle != new_angle)

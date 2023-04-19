@@ -20,7 +20,7 @@ namespace vlx
 	public:
 		constexpr auto GetType() const noexcept -> Type;
 		VELOX_API void InitializeImpl(PhysicsBody& body) const noexcept;
-		VELOX_API void UpdateAABBImpl(const Transform& transform);
+		VELOX_API void UpdateAABBImpl(const GlobalTransform& transform);
 
 	private:
 		VectorList m_vertices;

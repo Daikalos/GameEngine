@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
-#include <Velox/Graphics/Components/LocalTransform.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/Physics/Shapes/Shape.h>
@@ -17,11 +17,11 @@ namespace vlx
 	class VELOX_API PhysicsDirtySystem final : public SystemAction
 	{
 	public:
-		using DirtyGlobalSystem = System<Collider, Transform>;
-		using DirtyLocalSystem	= System<Collider, LocalTransform>;
-		using CircleSystem		= System<Circle, Collider, Transform>;
-		using BoxSystem			= System<Box, Collider, Transform>;
-		using PointSystem		= System<Point, Collider, Transform>;
+		using DirtyGlobalSystem = System<Collider, GlobalTransform>;
+		using DirtyLocalSystem	= System<Collider, Transform>;
+		using CircleSystem		= System<Circle, Collider, GlobalTransform>;
+		using BoxSystem			= System<Box, Collider, GlobalTransform>;
+		using PointSystem		= System<Point, Collider, GlobalTransform>;
 
 	public:
 		PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id);

@@ -2,8 +2,8 @@
 
 #include <vector>
 
+#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
-#include <Velox/Graphics/Components/LocalTransform.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/Physics/Shapes/Shape.h>
@@ -25,7 +25,7 @@ namespace vlx
 	class VELOX_API NarrowSystem final
 	{
 	private:
-		using CollisionSystem = System<Collider, LocalTransform, Transform>;
+		using CollisionSystem = System<Collider, Transform, GlobalTransform>;
 
 	public:
 		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);

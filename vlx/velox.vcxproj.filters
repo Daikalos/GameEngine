@@ -19,7 +19,7 @@
     <ClCompile Include="src\Graphics\Components\Sprite.cpp" />
     <ClCompile Include="src\Graphics\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\TransformSystem.cpp" />
-    <ClCompile Include="src\Graphics\Components\Transform.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransform.cpp" />
     <ClCompile Include="src\Graphics\Systems\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
@@ -33,7 +33,7 @@
     <ClCompile Include="src\Scene\State.cpp" />
     <ClCompile Include="src\ECS\SystemAction.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
-    <ClCompile Include="src\Graphics\Components\LocalTransform.cpp" />
+    <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\Graphics\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
     <ClCompile Include="src\Physics\CollisionTable.cpp" />
@@ -91,7 +91,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
     <ClInclude Include="include\Velox\System\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Input\BtnFunc.hpp" />
-    <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransform.h" />
     <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
@@ -121,7 +121,7 @@
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
-    <ClInclude Include="include\Velox\Graphics\Components\LocalTransform.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Relation.h" />
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />

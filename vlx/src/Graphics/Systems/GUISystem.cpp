@@ -7,7 +7,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 	m_button_system(entity_admin, id),
 	m_label_system(entity_admin, id)
 {
-	m_button_system.All([&camera, &controls](std::span<const EntityID> entities, Renderable* renderables, Transform* transforms, Button* buttons)
+	m_button_system.All([&camera, &controls](std::span<const EntityID> entities, Renderable* renderables, GlobalTransform* transforms, Button* buttons)
 		{
 			const MouseInput& mouse_input = controls.Get<MouseInput>();
 			const MouseCursor& mouse_cursor = controls.Get<MouseCursor>();
@@ -20,9 +20,9 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Renderable& renderable	= renderables[i];
-				Transform& transform	= transforms[i];
-				Button& button			= buttons[i];
+				Renderable& renderable		= renderables[i];
+				GlobalTransform& transform	= transforms[i];
+				Button& button				= buttons[i];
 
 				const auto& position	= Vector2i(transform.GetPosition());
 				const auto& size		= Vector2i(button.GetSize());
@@ -53,7 +53,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 			}
 		});
 
-	m_label_system.All([](std::span<const EntityID> entities, Renderable* renderables, Transform* transforms, Label* labels)
+	m_label_system.All([](std::span<const EntityID> entities, Renderable* renderables, GlobalTransform* transforms, Label* labels)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

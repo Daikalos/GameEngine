@@ -8,33 +8,36 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_dirty_descendants(entity_admin, id),
 	m_update_global(entity_admin, id)
 {
-	m_dirty.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform)
+	m_dirty.Each(
+		[this](const EntityID entity, Transform& t, GlobalTransform& gt)
 		{
-			if (local_transform.m_dirty) // if local is dirty, so is global transform
+			if (t.m_dirty) // if local is dirty, so is global transform
 			{
-				transform.m_dirty = true;
-				local_transform.m_dirty = false;
+				gt.m_dirty = true;
+				t.m_dirty = false;
 			}
 		});
 
-	m_dirty_descendants.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_dirty_descendants.Each(
+		[this](const EntityID eid, Transform& t, GlobalTransform& gt, Relation& r)
 		{
-			if (transform.m_dirty)
+			if (gt.m_dirty)
 			{
-				DirtyDescendants(transform, relation.GetChildren());
+				DirtyDescendants(gt, r.GetChildren());
 
-				if (!relation.HasParent()) // can already update to local if the entity does not have any parent anyways
+				if (!r.HasParent()) // can already update to local if the entity does not have any parent anyways
 				{
-					UpdateToLocal(local_transform, transform);
-					transform.m_dirty = false;
+					UpdateToLocal(t, gt);
+					gt.m_dirty = false;
 				}
 			}
 		});
 
-	m_update_global.Each([this](const EntityID entity, LocalTransform& local_transform, Transform& transform, Relation& relation)
+	m_update_global.Each(
+		[this](const EntityID eid, Transform& t, GlobalTransform& gt, Relation& r)
 		{
-			if (transform.m_dirty)
-				UpdateTransforms(local_transform, transform, relation.GetParent());
+			if (gt.m_dirty)
+				UpdateTransforms(t, gt, r.GetParent());
 		});
 
 	m_dirty.SetPriority(100000.0f);
@@ -51,34 +54,43 @@ bool TransformSystem::IsRequired() const noexcept
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const Vector2f& position) 
 {
-	SetGlobalPosition(m_entity_admin->GetComponent<LocalTransform>(entity),
-		m_entity_admin->GetComponent<Relation>(entity), position);
+	auto global		= CheckCache(entity).Get<Transform>();
+	auto relation	= m_entity_admin->TryGetComponent<Relation>(entity);
+
+	if (relation.has_value())
+	{
+		SetGlobalPosition(*global, *relation.value(), position);
+	}
+	else // no relation component, set position directly
+	{
+		global->SetPosition(position);
+	}
 }
 void TransformSystem::SetGlobalScale(const EntityID entity, const Vector2f& scale)
 {
-	SetGlobalScale(m_entity_admin->GetComponent<LocalTransform>(entity), 
+	SetGlobalScale(m_entity_admin->GetComponent<Transform>(entity), 
 		m_entity_admin->GetComponent<Relation>(entity), scale);
 }
 void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle angle)
 {
-	SetGlobalRotation(m_entity_admin->GetComponent<LocalTransform>(entity), 
+	SetGlobalRotation(m_entity_admin->GetComponent<Transform>(entity), 
 		m_entity_admin->GetComponent<Relation>(entity), angle);
 }
 
-void TransformSystem::SetGlobalPosition(LocalTransform& transform, Relation& relation, const Vector2f& position)
+void TransformSystem::SetGlobalPosition(Transform& global_transform, Relation& relation, const Vector2f& position)
 {
 	if (relation.HasParent())
 	{
-		Transform& parent = *CheckCache(relation.GetParent().GetEntityID()).Get<Transform>();
-		transform.SetPosition(parent.GetInverseTransform() * position);
+		GlobalTransform& parent = *CheckCache(relation.GetParent().GetEntityID()).Get<GlobalTransform>();
+		global_transform.SetPosition(parent.GetInverseTransform() * position); // global_transform position to parent space to appear global
 	}
-	else transform.SetPosition(position);
+	else global_transform.SetPosition(position);
 }
-void TransformSystem::SetGlobalScale(LocalTransform& transform, Relation& relation, const Vector2f& scale)
+void TransformSystem::SetGlobalScale(Transform& global_transform, Relation& relation, const Vector2f& scale)
 {
 	// TODO: implement
 }
-void TransformSystem::SetGlobalRotation(LocalTransform& transform, Relation& relation, const sf::Angle angle)
+void TransformSystem::SetGlobalRotation(Transform& global_transform, Relation& relation, const sf::Angle angle)
 {
 	// TODO: implement
 }
@@ -103,16 +115,16 @@ void TransformSystem::PostUpdate()
 	// TODO: figure out how to keep cache at reasonable size
 }
 
-void TransformSystem::DirtyDescendants(Transform& transform, const Relation::Children& children) const
+void TransformSystem::DirtyDescendants(GlobalTransform& global_transform, const Relation::Children& children) const
 {
-	const auto RecursiveClean = [this](Transform& child_transform, const Relation::Children& children)
+	const auto RecursiveClean = [this](GlobalTransform& child_transform, const Relation::Children& children)
 	{
-		auto RecursiveImpl = [this](Transform& child_transform, const Relation::Children& children, auto& recursive_ref) mutable -> void
+		auto RecursiveImpl = [this](GlobalTransform& child_transform, const Relation::Children& children, auto& recursive_ref) mutable -> void
 		{
-			child_transform.m_dirty = true; // all of the children needs their global transform to be updated
+			child_transform.m_dirty = true; // all of the children needs their global global_transform to be updated
 			for (const auto& ref : children)
 			{
-				Transform* child_transform = CheckCache(ref.GetEntityID()).Get<Transform>();
+				GlobalTransform* child_transform = CheckCache(ref.GetEntityID()).Get<GlobalTransform>();
 				if (child_transform != nullptr && !child_transform->m_dirty)
 					recursive_ref(*child_transform, ref->GetChildren(), recursive_ref);
 			}
@@ -121,53 +133,53 @@ void TransformSystem::DirtyDescendants(Transform& transform, const Relation::Chi
 		return RecursiveImpl(child_transform, children, RecursiveImpl);
 	};
 
-	RecursiveClean(transform, children);
+	RecursiveClean(global_transform, children);
 }
-void TransformSystem::UpdateTransforms(LocalTransform& local_transform, Transform& transform, const Relation::Parent& parent) const
+void TransformSystem::UpdateTransforms(Transform& transform, GlobalTransform& global_transform, const Relation::Parent& parent) const
 {
 	if (parent.IsValid())
 	{
-		auto& parent_set = CheckCache(parent.GetEntityID());
+		CacheSet& parent_set = CheckCache(parent.GetEntityID());
 
-		Transform* parent_transform = parent_set.Get<Transform>();
+		GlobalTransform* parent_transform = parent_set.Get<GlobalTransform>();
 
 		if (parent_transform->m_dirty) // only update if not up-to-date
-			UpdateTransforms(*parent_set.Get<LocalTransform>(), *parent_transform, parent->GetParent());
+			UpdateTransforms(*parent_set.Get<Transform>(), *parent_transform, parent->GetParent());
 
-		// update transform values
+		// update global_transform values
 
-		const Mat4f new_transform = parent_transform->GetTransform() * local_transform.GetTransform();
-		if (new_transform != transform.m_transform)
+		const Mat4f new_transform = parent_transform->GetTransform() * transform.GetTransform();
+		if (new_transform != global_transform.m_transform)
 		{
-			transform.m_transform		= new_transform;
-			transform.m_update_inverse	= true;
+			global_transform.m_transform		= new_transform;
+			global_transform.m_update_inverse	= true;
 
-			transform.m_update_position = true;
-			transform.m_update_scale	= true;
-			transform.m_update_rotation = true;
+			global_transform.m_update_position	= true;
+			global_transform.m_update_scale		= true;
+			global_transform.m_update_rotation	= true;
 		}
 	}
 
-	transform.m_dirty = false;
+	global_transform.m_dirty = false;
 }
 
-void TransformSystem::UpdateToLocal(LocalTransform& local_transform, Transform& transform) const
+void TransformSystem::UpdateToLocal(Transform& transform, GlobalTransform& global_transform) const
 {
-	transform.m_transform		= local_transform.GetTransform();
-	transform.m_update_inverse	= true;
+	global_transform.m_transform		= transform.GetTransform();
+	global_transform.m_update_inverse	= true;
 
-	transform.m_position	= local_transform.m_position - local_transform.m_origin;
-	transform.m_scale		= local_transform.m_scale;
-	transform.m_rotation	= local_transform.m_rotation;
+	global_transform.m_position	= transform.m_position - transform.m_origin;
+	global_transform.m_scale	= transform.m_scale;
+	global_transform.m_rotation	= transform.m_rotation;
 }
 
-auto vlx::TransformSystem::CheckCache(EntityID entity_id) const -> TransformSet&
+auto TransformSystem::CheckCache(EntityID entity_id) const -> CacheSet&
 {
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())
 	{
 		return m_cache.try_emplace(entity_id, 
-			m_entity_admin->GetComponentsRef<LocalTransform, Transform>(entity_id)).first->second; // stupid intellisense error
+			m_entity_admin->GetComponentsRef<Transform, GlobalTransform>(entity_id)).first->second; // stupid intellisense error
 	}
 
 	return it->second;

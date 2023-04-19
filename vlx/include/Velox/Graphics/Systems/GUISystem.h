@@ -10,7 +10,7 @@
 #include <Velox/Config.hpp>
 
 #include <Velox/Graphics/Components/Renderable.h>
-#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/GlobalTransform.h>
 
 #include <Velox/ECS/SystemAction.h>
 
@@ -33,7 +33,7 @@ namespace vlx::gui
 		void PostUpdate() override;
 
 	private:
-		System<Renderable, Transform, Button>	m_button_system;
-		System<Renderable, Transform, Label>	m_label_system;
+		System<Renderable, GlobalTransform, Button>	m_button_system;
+		System<Renderable, GlobalTransform, Label>	m_label_system;
 	};
 }

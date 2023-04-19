@@ -4,7 +4,7 @@
 
 #include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/Sprite.h>
-#include <Velox/Graphics/Components/LocalTransform.h>
+#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
 
 #include <Velox/Algorithms/LQuadTree.hpp>
@@ -20,7 +20,7 @@ namespace vlx
 	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
-		using System = System<Renderable, Transform, Sprite>;
+		using System = System<Renderable, GlobalTransform, Sprite>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, const LayerType id);
@@ -50,7 +50,7 @@ namespace vlx
 		void DrawGUI(Window& window) const;
 
 	private:
-		void DrawEntity(const Renderable& renderable, const IBatchable& batchable, const sf::Transform& transform, const float depth = 0.0f);
+		void DrawEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, const float depth = 0.0f);
 
 	private:
 		System		m_render_system;
