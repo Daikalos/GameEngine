@@ -42,6 +42,9 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.last_pos = body.curr_pos;
 			body.last_rot = body.curr_rot;
 
+			body.curr_pos = transform.GetPosition();
+			body.curr_rot = transform.GetRotation();
+
 			body.curr_pos += body.GetVelocity() * m_time->GetFixedDT();
 			body.curr_rot += sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT());
 
@@ -157,12 +160,14 @@ void PhysicsSystem::FixedUpdate()
 	for (auto& collision : arbiters)
 		PositionalCorrection(collision);
 
+	m_post_update.ForceRun();
+
 	m_sleep_bodies.ForceRun();
 }
 
 void PhysicsSystem::PostUpdate()
 {
-	m_post_update.ForceRun();
+
 }
 
 void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
