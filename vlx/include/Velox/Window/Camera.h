@@ -1,12 +1,14 @@
 #pragma once
 
 #include <unordered_map>
+#include <vector>
 #include <memory>
 #include <concepts>
 #include <type_traits>
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Utility/ContainerUtils.h>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 #include "CameraBehavior.h"
@@ -23,7 +25,7 @@ namespace vlx
 		using Stack = typename std::vector<CameraBehavior::Ptr>;
 		using Factory = typename std::unordered_map<CameraBehavior::ID, CameraBehavior::Func>;
 
-		enum class Action : std::uint8_t
+		enum class Action : uint8
 		{
 			Push,
 			Pop,

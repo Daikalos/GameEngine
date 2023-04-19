@@ -4,6 +4,7 @@
 #include <variant>
 
 #include <Velox/System/Concepts.h>
+#include <Velox/VeloxTypes.hpp>
 
 namespace vlx
 {
@@ -16,7 +17,7 @@ namespace vlx
 		using const_reference	= const T&;
 		using pointer			= T*;
 		using const_pointer		= const T*;
-		using size_type			= std::int32_t;
+		using size_type			= int64;
 
 	public:
 		FreeVector() = default;

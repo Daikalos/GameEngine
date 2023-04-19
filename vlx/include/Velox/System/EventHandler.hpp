@@ -3,6 +3,8 @@
 #include <functional>
 #include <atomic>
 
+#include <Velox/VeloxTypes.hpp>
+
 namespace vlx
 {
 	template<typename... Args>
@@ -10,7 +12,7 @@ namespace vlx
 	{
 	public:
 		using FuncType	= std::function<void(Args...)>;
-		using IDType	= std::uint32_t;
+		using IDType	= uint32;
 
 	private:
 		using AtomicID	= std::atomic<IDType>;

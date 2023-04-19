@@ -4,21 +4,21 @@
 #include <vector>
 
 #include <Velox/Algorithms/SmallVector.hpp>
-
 #include <Velox/System/Concepts.h>
+#include <Velox/VeloxTypes.hpp>
 
 namespace vlx
 {
-	using IDType			= std::uint32_t;
-	using LayerType			= std::uint32_t;
-	using ColumnType		= std::uint16_t;
+	using IDType			= uint32;
+	using LayerType			= uint32;
+	using ColumnType		= uint16;
 
 	using ByteArray			= std::byte[];
 	using DataPtr			= std::byte*;
 
 	using EntityID			= IDType;
-	using ComponentTypeID	= std::size_t;
-	using ArchetypeID		= std::size_t;
+	using ComponentTypeID	= uint64;
+	using ArchetypeID		= uint64;
 	using ComponentIDs		= SmallVector<ComponentTypeID, 16>;
 
 	template<class... Cs> requires IsComponents<Cs...>

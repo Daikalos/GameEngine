@@ -154,6 +154,8 @@
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
     <ClInclude Include="include\Velox\System\Mat2f.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Point.h" />
+    <ClInclude Include="include\Velox\VeloxTypes.hpp" />
+    <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

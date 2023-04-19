@@ -11,7 +11,7 @@
 
 namespace vlx
 {
-	enum class BatchMode : std::uint8_t
+	enum class BatchMode : uint8
 	{
 		Deferred,
 		BackToFront,
@@ -24,7 +24,10 @@ namespace vlx
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	private:
-		using SizeType = std::uint32_t;
+		static constexpr int8 TRIANGLE_COUNT = 3;
+
+	private:
+		using SizeType = uint32;
 
 		struct VELOX_API Triangle
 		{

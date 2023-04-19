@@ -14,6 +14,8 @@
 #include <Velox/Physics/Shapes/Box.h>
 #include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/Shapes/Polygon.h>
+#include <Velox/Config.hpp>
+#include <Velox/VeloxTypes.hpp>
 
 #include "../CollisionObject.h"
 #include "../Collider.h"
@@ -26,7 +28,7 @@ namespace vlx
 		using GeneralSystem			= System<Collider, LocalTransform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
-		using CollisionIndex		= std::uint32_t;
+		using CollisionIndex		= uint32;
 
 		using CollisionList			= std::vector<CollisionPair>;
 		using CollisionIndices		= std::vector<CollisionIndex>;

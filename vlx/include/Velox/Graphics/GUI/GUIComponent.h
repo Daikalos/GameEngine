@@ -1,10 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Event.hpp>
+#include <Velox/VeloxTypes.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx::gui
 {
@@ -16,7 +16,7 @@ namespace vlx::gui
 	class VELOX_API GUIComponent : public IComponent
 	{
 	protected:
-		using SizeType		= std::uint16_t;
+		using SizeType		= uint16;
 		using Vector2Type	= Vector2<SizeType>;
 
 	public:

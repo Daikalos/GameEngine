@@ -113,8 +113,8 @@ void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point*
 			const auto& lhs = pb;
 			const auto& rhs = collision.item.body;
 
-			bool lhs_active = (lhs->IsAwake() && lhs->GetType() != PhysicsBody::Type::Static);
-			bool rhs_active = (rhs->IsAwake() && rhs->GetType() != PhysicsBody::Type::Static);
+			bool lhs_active = (lhs->IsAwake() && lhs->GetType() != BodyType::Static);
+			bool rhs_active = (rhs->IsAwake() && rhs->GetType() != BodyType::Static);
 
 			if (!lhs_active && !rhs_active)
 				continue;

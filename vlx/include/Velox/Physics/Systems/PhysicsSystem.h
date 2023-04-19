@@ -8,11 +8,13 @@
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/System/Time.h>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 #include "../Collider.h"
 #include "../CollisionObject.h"
 #include "../CollisionArbiter.h"
+#include "../PhysicsCommon.hpp"
 
 #include "BroadSystem.h"
 #include "NarrowSystem.h"
@@ -52,8 +54,8 @@ namespace vlx
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;
 
-		System<PhysicsBody>					m_update_forces;
-		System<PhysicsBody, LocalTransform>	m_update_positions;
+		System<PhysicsBody>					m_integrate_velocity;
+		System<PhysicsBody, LocalTransform>	m_integrate_position;
 		System<PhysicsBody>					m_sleep_bodies;
 		System<PhysicsBody, LocalTransform>	m_post_update;
 		System<PhysicsBody, LocalTransform>	m_interp;

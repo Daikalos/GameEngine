@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <Velox/ECS/BaseRef.hpp>
+#include <Velox/VeloxTypes.hpp>
 
 #include "GUIComponent.h"
 
@@ -11,7 +12,7 @@ namespace vlx::gui
 	class Container : public GUIComponent
 	{
 	private:
-		using SizeType			= std::int16_t;
+		using SizeType			= int16;
 		using ChildType			= BaseRef<GUIComponent>;
 
 		template<class C>

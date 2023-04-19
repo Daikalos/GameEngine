@@ -9,6 +9,7 @@
 #include <cassert>
 
 #include <Velox/System/Concepts.h>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"
@@ -77,7 +78,7 @@ namespace vlx
 			struct BaseData
 			{
 				std::weak_ptr<void*> ptr;
-				std::uint32_t offset {0};
+				uint32 offset {0};
 			} base;
 		};
 
@@ -293,7 +294,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC BaseRef<B> GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0, B* base = nullptr) const;
+		NODISC BaseRef<B> GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
 
 		///	Tries to return a base reference. May fail if the entity does not exist or hold the specified component.
 		/// 
@@ -305,7 +306,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC std::optional<BaseRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset = 0, B* base = nullptr) const;
+		NODISC std::optional<BaseRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
 
 		///	Checks if the entity holds the specified component.
 		/// 
@@ -839,7 +840,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline BaseRef<B> EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset, B* base) const
+	inline BaseRef<B> EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
 	{
 		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
@@ -863,7 +864,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::optional<BaseRef<B>> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const std::uint32_t offset, B* base) const
+	inline std::optional<BaseRef<B>> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists and has component
 			return std::nullopt;

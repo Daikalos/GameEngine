@@ -1,11 +1,12 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <memory>
 #include <functional>
 
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/System/Time.h>
 #include <Velox/Input.hpp>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 #include "Window.h"
@@ -21,7 +22,7 @@ namespace vlx
 	class VELOX_API CameraBehavior : private NonCopyable
 	{
 	public:
-		using ID = std::uint16_t;
+		using ID = uint16;
 
 		using Ptr = typename std::unique_ptr<CameraBehavior>;
 		using Func = typename std::function<Ptr()>;

@@ -152,6 +152,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
+    <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />

@@ -9,6 +9,7 @@
 #include <chrono>
 
 #include <Velox/System/Concepts.h>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 ///	General utility class for arithmetic numbers
@@ -31,7 +32,7 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr T Pow(const T base, const std::int32_t exponent)
+	NODISC static constexpr T Pow(const T base, const int32 exponent)
 	{
 		if (exponent < 0)
 			return Pow(1 / base, -exponent);

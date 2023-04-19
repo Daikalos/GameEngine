@@ -3,6 +3,7 @@
 #include <variant>
 
 #include <Velox/ECS.hpp>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 #include <Velox/Graphics/Components/Object.h>
@@ -12,7 +13,7 @@ namespace vlx
 	class ObjectSystem final : public SystemAction
 	{
 	private:
-		enum CommandType : std::uint8_t
+		enum CommandType : uint8
 		{
 			ADD_COMPONENT,
 			DEL_ENTITY,

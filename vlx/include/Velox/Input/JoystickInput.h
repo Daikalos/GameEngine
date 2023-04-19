@@ -18,7 +18,7 @@ namespace vlx
 	class JoystickInput final : public InputHandler
 	{
 	private:
-		using SizeType = std::uint16_t;
+		using SizeType = uint16;
 
 		template<Enum Bind>
 		using JoystickBinds = Binds<Bind, SizeType>;

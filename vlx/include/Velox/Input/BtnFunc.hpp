@@ -7,7 +7,7 @@
 
 namespace vlx
 {
-	enum ButtonEvent : std::uint8_t
+	enum ButtonEvent : uint8
 	{
 		BE_Begin	= 0,
 
@@ -20,7 +20,7 @@ namespace vlx
 
 	inline ButtonEvent& operator++(ButtonEvent& button_event)
 	{
-		button_event = static_cast<ButtonEvent>(static_cast<std::uint8_t>(button_event) + 1);
+		button_event = static_cast<ButtonEvent>(static_cast<uint8>(button_event) + 1);
 		return button_event;
 	}
 

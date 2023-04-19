@@ -5,13 +5,14 @@
 #include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 #include "IBatchable.h"
 
 namespace vlx
 {
-	static constexpr std::uint8_t QUAD_COUNT = 4;
+	static constexpr uint8 QUAD_COUNT = 4;
 
 	class SpriteBatch;
 

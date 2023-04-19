@@ -10,33 +10,34 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_broad_system(		entity_admin, LYR_BROAD_PHASE),
 	m_narrow_system(	entity_admin, LYR_NARROW_PHASE, m_broad_system),
 
-	m_update_forces(	entity_admin, id),
-	m_update_positions(	entity_admin, id),
-	m_sleep_bodies(		entity_admin, id),
-	m_post_update(		entity_admin, id),
-	m_interp(			entity_admin, id)
+	m_integrate_velocity(	entity_admin, id),
+	m_integrate_position(	entity_admin, id),
+	m_sleep_bodies(			entity_admin, id),
+	m_post_update(			entity_admin, id),
+	m_interp(				entity_admin, id)
 
 {
-	m_update_forces.Each([this](EntityID entity_id, PhysicsBody& body)
+	m_integrate_velocity.Each([this](EntityID entity_id, PhysicsBody& body)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
-			if (body.GetType() != PhysicsBody::Type::Dynamic)
+			if (body.GetType() != BodyType::Dynamic)
 				return;
 
-			const float half_dt = m_time->GetFixedDT() / 2.0f;
+			body.AddVelocity(m_time->GetFixedDT() * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce()));
+			body.AddAngularVelocity(m_time->GetFixedDT() * body.GetInvInertia() * body.GetTorque());
 
-			body.AddVelocity(half_dt * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce()));
-			body.AddAngularVelocity(half_dt * body.GetInvInertia() * body.GetTorque());
+			body.m_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetLinearDamping()));
+			body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
 		});
 
-	m_update_positions.Each([this](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
+	m_integrate_position.Each([this](EntityID entity_id, PhysicsBody& body, LocalTransform& local_transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
-			if (body.GetType() == PhysicsBody::Type::Static)
+			if (body.GetType() == BodyType::Static)
 				return;
 
 			body.last_pos = body.curr_pos;
@@ -45,19 +46,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			local_transform.Move(body.GetVelocity() * m_time->GetFixedDT());
 			local_transform.Rotate(sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT()));
 
-			if (body.GetType() == PhysicsBody::Type::Dynamic)
-			{
-				const float half_dt = m_time->GetFixedDT() / 2.0f;
-
-				body.AddVelocity(half_dt * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce()));
-				body.AddAngularVelocity(half_dt * body.GetInvInertia() * body.GetTorque());
-
-				body.m_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetLinearDamping()));
-				body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
-
-				body.m_force = Vector2f::Zero;
-				body.m_torque = 0.0f;
-			}
+			body.m_force = Vector2f::Zero;
+			body.m_torque = 0.0f;
 		});
 
 	m_sleep_bodies.Each([this](EntityID entity_id, PhysicsBody& body)
@@ -65,7 +55,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
-			if (body.GetType() == PhysicsBody::Type::Static)
+			if (body.GetType() == BodyType::Static)
 				return;
 
 			// TODO: fix velocity always being above threshold even when object is still, e.g., 
@@ -95,7 +85,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
-			if (body.GetType() == PhysicsBody::Type::Static)
+			if (body.GetType() == BodyType::Static)
 				return;
 
 			body.curr_pos = local_transform.GetPosition();
@@ -107,7 +97,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
-			if (body.GetType() == PhysicsBody::Type::Static)
+			if (body.GetType() == BodyType::Static)
 				return;
 
 			if (body.initialize)
@@ -169,7 +159,7 @@ void PhysicsSystem::FixedUpdate()
 
 	auto arbiters = m_narrow_system.GetArbiters();
 
-	m_update_forces.ForceRun();
+	m_integrate_velocity.ForceRun();
 
 	for (auto& collision : arbiters)
 		Initialize(collision);
@@ -178,7 +168,7 @@ void PhysicsSystem::FixedUpdate()
 		for (auto& collision : arbiters)
 			ResolveCollision(collision);
 
-	m_update_positions.ForceRun();
+	m_integrate_position.ForceRun();
 
 	for (auto& collision : arbiters)
 		PositionalCorrection(collision);
@@ -203,7 +193,7 @@ void PhysicsSystem::Initialize(CollisionArbiter& arbiter)
 	arbiter.static_friction = std::sqrt(AB.GetStaticFriction() * BB.GetStaticFriction());
 	arbiter.dynamic_friction = std::sqrt(AB.GetDynamicFriction() * BB.GetDynamicFriction());
 
-	for (std::uint32_t i = 0; i < arbiter.contacts_count; ++i)
+	for (uint32 i = 0; i < arbiter.contacts_count; ++i)
 	{
 		CollisionContact& contact = arbiter.contacts[i];
 
@@ -289,7 +279,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 
 		float dpt = -rv.Dot(tangent) * contact.mass_tangent;
 
-		if (au::Equal(dpt, 0.0f, PHYSICS_EPSILON))
+		if (au::Equal(dpt, 0.0f, P_EPSILON))
 			return;
 
 		const Vector2f friction_impulse = (std::abs(dpt) < dpn * arbiter.static_friction) ?

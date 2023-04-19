@@ -6,19 +6,19 @@
 #include <Velox/Config.hpp>
 
 #include "PhysicsMaterial.h"
+#include "PhysicsCommon.hpp"
 
 namespace vlx
 {
+	enum class BodyType : uint8
+	{
+		Static,		// no mass or inertia, cannot be affected by forces or velocity, can be manually moved
+		Kinematic,	// no mass or inertia, can be affected by velocity determined by user
+		Dynamic		// no mass or inertia, can be affected by forces
+	};
+
 	class VELOX_API PhysicsBody : public IComponent
 	{
-	public:
-		enum class Type : unsigned char
-		{
-			Static,		// unnable to move and cannot be affected by any external force
-			Dynamic,	// affected by forces and interacts with all types
-			Kinematic	// cannot be affected by external forces but may move
-		};
-
 	private:
 		enum
 		{
@@ -29,7 +29,7 @@ namespace vlx
 		};
 
 	public:
-		NODISC constexpr auto GetType() const noexcept -> Type;
+		NODISC constexpr BodyType GetType() const noexcept;
 
 		NODISC constexpr const Vector2f& GetVelocity() const noexcept;
 		NODISC constexpr const Vector2f& GetForce() const noexcept;
@@ -60,7 +60,7 @@ namespace vlx
 		NODISC constexpr bool IsSleepingAllowed() const noexcept;
 
 	public:
-		constexpr void SetType(const Type type);
+		constexpr void SetType(const BodyType type);
 
 		constexpr void SetVelocity(const Vector2f& velocity);
 		constexpr void AddVelocity(const Vector2f& velocity);
@@ -106,24 +106,24 @@ namespace vlx
 		bool initialize {true};
 
 	private:
-		Type			m_type				{Type::Dynamic}; // type of body
+		BodyType		m_type				{BodyType::Dynamic}; // type of body
 
-		Vector2f		m_velocity;					// velocity of body
-		float			m_angular_velocity	{0.0f}; // angular velocity of body
+		Vector2f		m_velocity;							// velocity of body
+		float			m_angular_velocity	{0.0f};			// angular velocity of body
 
-		Vector2f		m_force;					// force being applied on body
-		float			m_torque			{0.0f};	// torque being applied on body
+		Vector2f		m_force;							// force being applied on body
+		float			m_torque			{0.0f};			// torque being applied on body
 
-		PhysicsMaterial	m_material			{1.0f, 0.2f}; // the material this body is made of
+		PhysicsMaterial	m_material			{1.0f, 0.2f};	// the material this body is made of
 
-		float			m_mass				{0.0f};	// mass of body
-		float			m_inv_mass			{0.0f};	// inverse mass
+		float			m_mass				{0.0f};			// mass of body
+		float			m_inv_mass			{0.0f};			// inverse mass
 
-		float			m_inertia			{0.0f}; // inertia of body
-		float			m_inv_inertia		{0.0f};	// inverse inertia
+		float			m_inertia			{0.0f};			// inertia of body
+		float			m_inv_inertia		{0.0f};			// inverse inertia
 
-		float			m_static_friction	{0.5f}; // static friction of body
-		float			m_dynamic_friction	{0.3f}; // dynamic friction of body
+		float			m_static_friction	{0.5f};			// static friction of body
+		float			m_dynamic_friction	{0.3f};			// dynamic friction of body
 
 		float			m_linear_damping	{0.0f};
 		float			m_angular_damping	{0.0f};
@@ -136,7 +136,7 @@ namespace vlx
 		friend class PhysicsSystem;
 	};
 
-	constexpr auto	PhysicsBody::GetType() const noexcept -> Type			{ return m_type; }
+	constexpr BodyType PhysicsBody::GetType() const noexcept				{ return m_type; }
 
 	constexpr const Vector2f& PhysicsBody::GetVelocity() const noexcept		{ return m_velocity; }
 	constexpr const Vector2f& PhysicsBody::GetForce() const noexcept		{ return m_force; }
@@ -164,14 +164,14 @@ namespace vlx
 	constexpr bool PhysicsBody::IsFixedRotation() const noexcept			{ return (m_flags & B_FixedRotation) == B_FixedRotation; }
 	constexpr bool PhysicsBody::IsSleepingAllowed() const noexcept			{ return (m_flags & B_AutoSleep) == B_AutoSleep; }
 
-	constexpr void PhysicsBody::SetType(const Type type)
+	constexpr void PhysicsBody::SetType(const BodyType type)
 	{
 		if (m_type == type)
 			return;
 
 		m_type = type;
 
-		if (m_type == Type::Static)
+		if (m_type == BodyType::Static)
 		{
 			m_velocity = Vector2f::Zero;
 			m_angular_velocity = 0.0f;
@@ -186,13 +186,13 @@ namespace vlx
 
 	constexpr void PhysicsBody::SetVelocity(const Vector2f& velocity)
 	{
-		if (m_type == Type::Static)
+		if (m_type == BodyType::Static)
 			return;
 
 		if (m_velocity == velocity)
 			return;
 
-		if (velocity.LengthSq() > au::Sqr(PHYSICS_EPSILON))
+		if (velocity.LengthSq() > au::Sqr(P_EPSILON))
 			SetAwake(true);
 
 		m_velocity = velocity;
@@ -204,13 +204,13 @@ namespace vlx
 
 	constexpr void PhysicsBody::SetAngularVelocity(const float angular_velocity)
 	{
-		if (m_type == Type::Static)
+		if (m_type == BodyType::Static)
 			return;
 
 		if (m_angular_velocity == angular_velocity)
 			return;
 
-		if (angular_velocity * angular_velocity > PHYSICS_EPSILON)
+		if (au::Sqr(angular_velocity) > P_EPSILON)
 			SetAwake(true);
 
 		if (m_flags & B_Awake)
@@ -223,7 +223,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::AddForce(const Vector2f& force, const bool wake)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		if (wake && (m_flags & B_Awake) == 0)
@@ -234,7 +234,7 @@ namespace vlx
 	}
 	constexpr void PhysicsBody::AddTorque(const float torque, const bool wake)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		if (wake && (m_flags & B_Awake) == 0)
@@ -246,7 +246,7 @@ namespace vlx
 
 	inline constexpr void PhysicsBody::ApplyForce(const Vector2f& force, const Vector2f& point, const bool wake)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		if (wake && (m_flags & B_Awake) == 0)
@@ -261,7 +261,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::ApplyImpulseToCenter(const Vector2f& impulse, const bool wake)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		if (wake && (m_flags & B_Awake) == 0)
@@ -273,7 +273,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::ApplyAngularImpulse(const float impulse, const bool wake)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		if (wake && (m_flags & B_Awake) == 0)
@@ -285,7 +285,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::ApplyImpulse(const Vector2f& impulse, const Vector2f& contact_vector, const bool wake)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		if (wake && (m_flags & B_Awake) == 0)
@@ -305,7 +305,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::SetMass(const float mass)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		m_mass = mass;
@@ -318,7 +318,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::SetInertia(const float inertia)
 	{
-		if (m_type != Type::Dynamic)
+		if (m_type != BodyType::Dynamic)
 			return;
 
 		m_inertia = 0.0f;
@@ -358,7 +358,7 @@ namespace vlx
 
 	constexpr void PhysicsBody::SetAwake(const bool flag)
 	{
-		if (m_type == Type::Static)
+		if (m_type == BodyType::Static)
 			return;
 
 		if (flag)
