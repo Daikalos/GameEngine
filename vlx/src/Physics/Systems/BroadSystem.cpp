@@ -6,81 +6,81 @@ template<class S>
 BroadSystem::ShapeQTBehaviour<S>::ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) :
 	m_broad(broad_system),
 
-	m_insertion(entity_admin, id),
-	m_body_insertion(entity_admin, id),
-	m_queries(entity_admin, id),
-	m_body_queries(entity_admin, id)
+	m_insert(entity_admin, id),
+	m_body_insert(entity_admin, id),
+	m_query(entity_admin, id),
+	m_body_query(entity_admin, id)
 {
-	m_insertion.Each(
-		[this](EntityID entity_id, S& s, Collider& c, Transform& t)
+	m_insert.Each(
+		[this](EntityID entity_id, S& s, Collider& c)
 		{
-			InsertShape(entity_id, &s, s.GetType(), &c, nullptr, &t);
+			InsertShape(entity_id, &s, s.GetType(), &c, nullptr);
 		});
 
-	m_body_insertion.Each(
-		[this](EntityID entity_id, S& s, Collider& c, PhysicsBody& pb, Transform& t)
+	m_body_insert.Each(
+		[this](EntityID entity_id, S& s, Collider& c, PhysicsBody& pb)
 		{
-			InsertShape(entity_id, &s, s.GetType(), &c, &pb, &t);
+			InsertShape(entity_id, &s, s.GetType(), &c, &pb);
 		});
 
-	m_queries.Each(
-		[this](EntityID entity_id, S& s, Collider& c, Transform& t)
+	m_query.Each(
+		[this](EntityID entity_id, S& s, Collider& c)
 		{
-			QueryShape(entity_id, &s, s.GetType(), &c, nullptr, &t);
+			QueryShape(entity_id, &s, s.GetType(), &c, nullptr);
 		});
 
-	m_body_queries.Each(
-		[this](EntityID entity_id, S& s, Collider& c, PhysicsBody& pb, Transform& t)
+	m_body_query.Each(
+		[this](EntityID entity_id, S& s, Collider& c, PhysicsBody& pb)
 		{
-			QueryShape(entity_id, &s, s.GetType(), &c, &pb, &t);
+			QueryShape(entity_id, &s, s.GetType(), &c, &pb);
 		});
 
-	m_insertion.Exclude<PhysicsBody>();
-	m_queries.Exclude<PhysicsBody>();
+	m_insert.Exclude<PhysicsBody>();
+	m_query.Exclude<PhysicsBody>();
 
-	m_insertion.SetPriority(2.0f);
-	m_body_insertion.SetPriority(2.0f);
+	m_insert.SetPriority(2.0f);
+	m_body_insert.SetPriority(2.0f);
 }
 
 BroadSystem::ShapeQTBehaviour<Point>::ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) :
 	m_broad(broad_system),
 
-	m_queries(entity_admin, id),
-	m_body_queries(entity_admin, id)
+	m_query(entity_admin, id),
+	m_body_query(entity_admin, id)
 {
-	m_queries.Each(
-		[this](EntityID entity_id, Point& p, Collider& c, Transform& t)
+	m_query.Each(
+		[this](EntityID entity_id, Point& p, Collider& c)
 		{
-			QueryPoint(entity_id, &p, &c, nullptr, &t);
+			QueryPoint(entity_id, &p, &c, nullptr);
 		});
 
-	m_body_queries.Each(
-		[this](EntityID entity_id, Point& p, Collider& c, PhysicsBody& pb, Transform& t)
+	m_body_query.Each(
+		[this](EntityID entity_id, Point& p, Collider& c, PhysicsBody& pb)
 		{
-			QueryPoint(entity_id, &p, &c, &pb, &t);
+			QueryPoint(entity_id, &p, &c, &pb);
 		});
 
-	m_queries.Exclude<PhysicsBody>();
+	m_query.Exclude<PhysicsBody>();
 }
 
 template<class S>
-void BroadSystem::ShapeQTBehaviour<S>::InsertShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb, Transform* t)
+void BroadSystem::ShapeQTBehaviour<S>::InsertShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb)
 {
 	if (c->dirty)
 	{
 		c->Erase();
-		c->Insert(m_broad.m_quad_tree, s->GetAABB(), entity_id, type, s, c, pb, t);
+		c->Insert(m_broad.m_quad_tree, s->GetAABB(), entity_id, type, s, c, pb);
 
 		c->dirty = false;
 	}
 	else
 	{
-		c->Update(entity_id, type, s, c, pb, t); // attempt to update data if already inserted, needed for cases where pointers may be invalidated
+		c->Update(entity_id, type, s, c, pb); // attempt to update data if already inserted, needed for cases where pointers may be invalidated
 	}
 }
 
 template<class S>
-void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb, Transform* t)
+void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb)
 {
 	auto collisions = m_broad.m_quad_tree.Query(s->GetAABB());
 
@@ -104,12 +104,12 @@ void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, 
 				continue;
 		}
 
-		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, type, s, c, pb, t), collision.item);
+		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, type, s, c, pb), collision.item);
 		m_broad.m_indices.emplace_back(static_cast<uint32_t>(m_broad.m_pairs.size() - 1));
 	}
 }
 
-void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point* p, Collider* c, PhysicsBody* pb, Transform* t)
+void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point* p, Collider* c, PhysicsBody* pb)
 {
 	auto collisions = m_broad.m_quad_tree.Query(p->GetPosition());
 
@@ -132,7 +132,7 @@ void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point*
 				continue;
 		}
 
-		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, Shape::Point, p, c, pb, t), collision.item);
+		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, Shape::Point, p, c, pb), collision.item);
 		m_broad.m_indices.emplace_back(static_cast<uint32_t>(m_broad.m_pairs.size() - 1));
 	}
 }

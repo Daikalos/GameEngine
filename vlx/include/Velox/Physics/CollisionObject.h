@@ -21,7 +21,6 @@ namespace vlx
 		Shape*			shape			{nullptr};
 		Collider*		collider		{nullptr};
 		PhysicsBody*	body			{nullptr};
-		Transform*		transform		{nullptr};
 
 		constexpr bool operator==(const CollisionObject& rhs) const
 		{

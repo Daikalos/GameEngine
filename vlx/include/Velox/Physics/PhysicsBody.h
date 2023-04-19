@@ -126,7 +126,7 @@ namespace vlx
 		float			m_dynamic_friction	{0.3f};			// dynamic friction of body
 
 		float			m_linear_damping	{0.0f};
-		float			m_angular_damping	{0.0f};
+		float			m_angular_damping	{2.0f};
 
 		float			m_gravity_scale		{1.0f};
 		float			m_sleep_time		{0.0f};
