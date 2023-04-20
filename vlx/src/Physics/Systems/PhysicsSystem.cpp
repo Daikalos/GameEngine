@@ -13,7 +13,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_integrate_velocity(	entity_admin, id),
 	m_integrate_position(	entity_admin, id),
 	m_sleep_bodies(			entity_admin, id),
-	m_post_update(			entity_admin, id)
+	m_pre_solve(			entity_admin, id),
+	m_post_solve(			entity_admin, id)
 
 {
 	m_integrate_velocity.Each([this](EntityID entity_id, PhysicsBody& body)
@@ -31,19 +32,13 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
 		});
 
-	m_integrate_position.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
+	m_integrate_position.Each([this](EntityID entity_id, PhysicsBody& body)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
 			if (body.GetType() == BodyType::Static)
 				return;
-
-			body.last_pos = body.curr_pos;
-			body.last_rot = body.curr_rot;
-
-			body.curr_pos = transform.GetPosition();
-			body.curr_rot = transform.GetRotation();
 
 			body.curr_pos += body.GetVelocity() * m_time->GetFixedDT();
 			body.curr_rot += sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT());
@@ -82,7 +77,22 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 				body.SetAwake(false);
 		});
 
-	m_post_update.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
+	m_pre_solve.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
+		{
+			if (!body.IsAwake() || !body.IsEnabled())
+				return;
+
+			if (body.GetType() == BodyType::Static)
+				return;
+
+			body.last_pos = body.curr_pos;
+			body.last_rot = body.curr_rot;
+
+			body.curr_pos = transform.GetPosition();
+			body.curr_rot = transform.GetRotation();
+		});
+
+	m_post_solve.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -146,6 +156,8 @@ void PhysicsSystem::FixedUpdate()
 
 	auto arbiters = m_narrow_system.GetArbiters();
 
+	m_pre_solve.ForceRun();
+
 	m_integrate_velocity.ForceRun();
 
 	for (auto& collision : arbiters)
@@ -160,7 +172,7 @@ void PhysicsSystem::FixedUpdate()
 	for (auto& collision : arbiters)
 		PositionalCorrection(collision);
 
-	m_post_update.ForceRun();
+	m_post_solve.ForceRun();
 
 	m_sleep_bodies.ForceRun();
 }
@@ -241,7 +253,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		const float vel_along_normal = rv.Dot(contact.normal);
 
 		if (vel_along_normal >= 0.0f) // no need to resolve if they are separating
-			return;
+			continue;
 
 		float dpn = (1.0f + arbiter.restitution) * -vel_along_normal * contact.mass_normal;
 		dpn = std::max(dpn, 0.0f);
@@ -262,7 +274,7 @@ void PhysicsSystem::ResolveCollision(CollisionArbiter& arbiter)
 		float dpt = -rv.Dot(tangent) * contact.mass_tangent;
 
 		if (au::Equal(dpt, 0.0f, P_EPSILON))
-			return;
+			continue;
 
 		const Vector2f friction_impulse = (std::abs(dpt) < dpn * arbiter.static_friction) ?
 			(dpt * tangent) : (-dpn * tangent * arbiter.dynamic_friction); // true is static friction, false is dynamic friction
@@ -284,10 +296,34 @@ void PhysicsSystem::PositionalCorrection(CollisionArbiter& arbiter)
 	{
 		CollisionContact& contact = arbiter.contacts[i];
 
-		Vector2f correction = (std::max(contact.penetration - P_SLOP, 0.0f) /
-			(am + bm)) * contact.normal * P_PERCENT;
+		//Vector2f correction = (std::max(contact.penetration - P_SLOP, 0.0f) /
+		//	(am + bm)) * contact.normal * P_PERCENT;
 
-		if (AB.IsAwake() && AB.IsEnabled()) AB.curr_pos += -correction * am;
-		if (BB.IsAwake() && BB.IsEnabled()) BB.curr_pos +=  correction * bm;
+		float correction = std::clamp(P_PERCENT * (-contact.penetration + P_SLOP), -P_MAX_POS_CORRECTION, 0.0f);
+
+		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
+					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
+
+		float rna = contact.ra.Cross(contact.normal);
+		float rnb = contact.rb.Cross(contact.normal);
+
+		float k_normal = AB.GetInvMass() + BB.GetInvMass() +
+				AB.GetInvInertia() * au::Sqr(rna) + BB.GetInvInertia() * au::Sqr(rnb);
+
+		float impulse = (k_normal > 0.0f) ? (-correction / k_normal) : 0.0f;
+
+		Vector2f pos = impulse * contact.normal;
+
+		if (AB.IsAwake() && AB.IsEnabled())
+		{
+			AB.curr_pos -= AB.GetInvMass() * pos;
+			AB.curr_rot -= sf::radians(AB.GetInvInertia() * contact.ra.Cross(pos));
+		}
+
+		if (BB.IsAwake() && BB.IsEnabled()) 
+		{
+			BB.curr_pos += BB.GetInvMass() * pos;
+			BB.curr_rot += sf::radians(BB.GetInvInertia() * contact.rb.Cross(pos));
+		}
 	}
 }

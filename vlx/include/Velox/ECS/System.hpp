@@ -89,9 +89,8 @@ namespace vlx
 		using ArchExclCache = std::unordered_set<ArchExclude, HashAE>;
 
 	public:
-		System() = default;
-		System(EntityAdmin& entity_admin, const LayerType layer);
-
+		System(EntityAdmin& entity_admin);
+		System(EntityAdmin& entity_admin, const LayerType layer, bool add_to_layer = true);
 		~System();
 
 	public:
@@ -140,6 +139,8 @@ namespace vlx
 		ComponentIDs				m_exclusion;
 		mutable ArchExclCache		m_excluded_archetypes;
 		mutable ComponentIDs		m_arch_key;
+
+		bool						m_registered	{false};
 	};
 
 	inline auto ISystem::operator<=>(const ISystem& rhs) const
@@ -156,17 +157,25 @@ namespace vlx
 	inline void ISystem::SetEnabled(const bool flag)		{ m_enabled = flag; }
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer)
-		: m_entity_admin(&entity_admin), m_layer(layer)
+	inline System<Cs...>::System(EntityAdmin& entity_admin)
+		: m_entity_admin(&entity_admin), m_layer(LYR_NONE), m_registered(false)
 	{
-		m_entity_admin->RegisterSystem(m_layer, this);
+
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer, bool add_to_layer)
+		: m_entity_admin(&entity_admin), m_layer(layer), m_registered(add_to_layer)
+	{
+		if (m_registered)
+			m_entity_admin->RegisterSystem(m_layer, this);
 	}
 
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::~System()
 	{
-		if (m_entity_admin != nullptr)
+		if (m_registered && m_entity_admin != nullptr)
 			m_entity_admin->RemoveSystem(m_layer, this);
 	}
 

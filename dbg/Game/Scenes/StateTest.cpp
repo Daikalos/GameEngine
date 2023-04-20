@@ -133,13 +133,11 @@ bool StateTest::Update(Time& time)
 		float radius = diameter / 2.0f;
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponent<PhysicsBody>();
-		entity.AddComponent<Collider>();
-		entity.AddComponent<Circle>();
+		entity.AddComponents<PhysicsBody, Collider>();
+		entity.AddComponent<Circle>(radius);
 
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-		entity.GetComponent<Circle>().SetRadius(radius);
 		entity.GetComponent<Transform>().SetOrigin({ radius, radius });
 		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
 		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
@@ -149,15 +147,14 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	m_entities.back().GetComponent<Transform>().Move({ 25.0f * time.GetDT(), 0.0f });
+	//m_entities.back().GetComponent<Transform>().Move({ 25.0f * time.GetDT(), 0.0f });
 
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::R))
 	{
 		for (int i = 0; i < 50; ++i)
 		{
 			Entity& entity = m_entities.emplace_back(e0.Duplicate());
-			entity.AddComponent<PhysicsBody>();
-			entity.AddComponent<Collider>();
+			entity.AddComponents<PhysicsBody, Collider>();
 			entity.AddComponent<Point>(2, 2);
 
 			entity.GetComponent<PhysicsBody>().SetMass(0.1f);
@@ -179,8 +176,7 @@ bool StateTest::Update(Time& time)
 			8.0f + rnd::random(0.0f, 128.0f));
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponent<PhysicsBody>();
-		entity.AddComponent<Collider>();
+		entity.AddComponents<PhysicsBody, Collider>();
 		entity.AddComponent<Box>(size);
 
 		//entity.GetComponent<Circle>().radius = 32.0f;
