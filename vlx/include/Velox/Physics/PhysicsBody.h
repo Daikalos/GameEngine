@@ -46,8 +46,7 @@ namespace vlx
 		NODISC constexpr float GetInertia() const noexcept;
 		NODISC constexpr float GetInvInertia() const noexcept;
 
-		NODISC constexpr float GetStaticFriction() const noexcept;
-		NODISC constexpr float GetDynamicFriction() const noexcept;
+		NODISC constexpr float GetFriction() const noexcept;
 
 		NODISC constexpr float GetLinearDamping() const noexcept;
 		NODISC constexpr float GetAngularDamping() const noexcept;
@@ -83,8 +82,7 @@ namespace vlx
 		constexpr void SetMass(const float mass);
 		constexpr void SetInertia(const float inertia);
 
-		constexpr void SetStaticFriction(const float static_friction);
-		constexpr void SetDynamicFriction(const float dynamic_friction);
+		constexpr void SetFriction(const float friction);
 
 		constexpr void SetLinearDamping(const float linear_damping);
 		constexpr void SetAngularDamping(const float angular_damping);
@@ -98,10 +96,10 @@ namespace vlx
 
 	private:
 		Vector2f last_pos;
-		Vector2f curr_pos;
+		Vector2f position;
 
 		sf::Angle last_rot;
-		sf::Angle curr_rot;
+		sf::Angle rotation;
 
 		bool initialize {true};
 
@@ -122,8 +120,7 @@ namespace vlx
 		float			m_inertia			{0.0f};			// inertia of body
 		float			m_inv_inertia		{0.0f};			// inverse inertia
 
-		float			m_static_friction	{0.5f};			// static friction of body
-		float			m_dynamic_friction	{0.3f};			// dynamic friction of body
+		float			m_friction			{0.5f};			
 
 		float			m_linear_damping	{0.0f};
 		float			m_angular_damping	{2.0f};
@@ -135,6 +132,7 @@ namespace vlx
 
 		friend class PhysicsSystem;
 		friend class RenderSystem;
+		friend class CollisionArbiter;
 	};
 
 	constexpr BodyType PhysicsBody::GetType() const noexcept				{ return m_type; }
@@ -152,8 +150,7 @@ namespace vlx
 	constexpr float PhysicsBody::GetInertia() const noexcept				{ return m_inertia; }
 	constexpr float PhysicsBody::GetInvInertia() const noexcept				{ return m_inv_inertia; }
 
-	constexpr float PhysicsBody::GetStaticFriction() const noexcept			{ return m_static_friction; }
-	constexpr float PhysicsBody::GetDynamicFriction() const noexcept		{ return m_dynamic_friction; }
+	constexpr float PhysicsBody::GetFriction() const noexcept				{ return m_friction; }
 
 	constexpr float PhysicsBody::GetLinearDamping() const noexcept			{ return m_linear_damping; }
 	constexpr float PhysicsBody::GetAngularDamping() const noexcept			{ return m_angular_damping; }
@@ -332,14 +329,9 @@ namespace vlx
 		}
 	}
 
-	constexpr void PhysicsBody::SetStaticFriction(const float static_friction)
+	constexpr void PhysicsBody::SetFriction(const float friction)
 	{
-		m_static_friction = static_friction;
-	}
-
-	constexpr void PhysicsBody::SetDynamicFriction(const float dynamic_friction)
-	{
-		m_dynamic_friction = dynamic_friction;
+		m_friction = friction;
 	}
 
 	constexpr void PhysicsBody::SetLinearDamping(const float linear_damping)
@@ -375,6 +367,8 @@ namespace vlx
 			m_angular_velocity = 0.0f;
 			m_force = Vector2f::Zero;
 			m_torque = 0.0f;
+
+			std::puts("sleep");
 		}
 	}
 

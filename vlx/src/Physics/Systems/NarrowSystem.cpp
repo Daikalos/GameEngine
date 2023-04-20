@@ -21,18 +21,21 @@ void NarrowSystem::Update(
 		CollisionObject& A = pair.first;
 		CollisionObject& B = pair.second;
 
-		CollisionArbiter arbiter(&A, &B);
+		CollisionArbiter arbiter;
 		CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
 
 		if (arbiter.contacts_count)
 		{
-			PhysicsBody* AB = arbiter.A->body;
-			PhysicsBody* BB = arbiter.B->body;
+			PhysicsBody* AB = A.body;
+			PhysicsBody* BB = B.body;
 
-			if (AB && BB) // only use physics if both entities has a physics body
+			if (AB && BB) // only resolve if both entities has a physics body
 			{
-				if (AB->GetType() == BodyType::Static && BB->GetType() == BodyType::Static) // ignore if both are static
+				if (AB->GetType() != BodyType::Dynamic && BB->GetType() != BodyType::Dynamic) // ignore if both are not dynamic
 					continue;
+
+				arbiter.A = AB;
+				arbiter.B = BB;
 
 				m_arbiters.emplace_back(arbiter);
 			}

@@ -42,14 +42,9 @@ namespace vlx
 		void SetIterations(int iterations);
 
 	private:
-		void Initialize(CollisionArbiter& arbiter);
-		void ResolveCollision(CollisionArbiter& arbiter);
-		void PositionalCorrection(CollisionArbiter& arbiter);
-
-	private:
 		Time*			m_time			{nullptr};
 		Vector2f		m_gravity		{0.0f, 60.82f};
-		int				m_iterations	{10};
+		int				m_iterations	{20};
 
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;

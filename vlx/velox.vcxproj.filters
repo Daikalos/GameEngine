@@ -47,6 +47,7 @@
     <ClCompile Include="src\System\Mat4f.cpp" />
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
+    <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

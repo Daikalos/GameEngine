@@ -15,20 +15,20 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id, Time& 
 
 	m_render_bodies.Each([this, &time](const EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
 		{
-			if (pb.GetType() != BodyType::Dynamic || !pb.IsAwake() || !pb.IsEnabled()) // draw normally if still
+			if (pb.GetType() != BodyType::Dynamic || !pb.IsAwake() || !pb.IsEnabled()) // draw normally if not moved by physics
 			{
 				BatchEntity(r, s, t.GetTransform(), s.GetDepth());
 				return;
 			}
 
-			if (pb.curr_pos == pb.last_pos && pb.curr_rot == pb.last_rot) // draw normally if havent moved
+			if (pb.position == pb.last_pos && pb.rotation == pb.last_rot) // draw normally if havent moved at all
 			{
 				BatchEntity(r, s, t.GetTransform(), s.GetDepth());
 			}
 			else
 			{
-				Vector2f lerp_pos = Vector2f::Lerp(pb.last_pos, pb.curr_pos, time.GetAlpha());
-				sf::Angle lerp_rot = au::Lerp(pb.last_rot, pb.curr_rot, time.GetAlpha());
+				Vector2f lerp_pos = Vector2f::Lerp(pb.last_pos, pb.position, time.GetAlpha());
+				sf::Angle lerp_rot = au::Lerp(pb.last_rot, pb.rotation, time.GetAlpha());
 
 				Mat4f transform;
 				transform.Build(lerp_pos, t.GetOrigin(), t.GetScale(), lerp_rot);

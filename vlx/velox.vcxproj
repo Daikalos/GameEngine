@@ -261,6 +261,7 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />

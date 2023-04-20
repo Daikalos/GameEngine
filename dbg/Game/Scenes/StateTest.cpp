@@ -195,10 +195,6 @@ bool StateTest::Update(Time& time)
 	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 	{
 		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
-		//for (const Entity& entity : m_entities)
-		//{
-		//	m_entity_admin->SetComponent<Velocity>(entity, rnd::random(-100.0f, 100.0f), rnd::random(-100.0f, 100.0f));
-		//}
 	}
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFPS()));

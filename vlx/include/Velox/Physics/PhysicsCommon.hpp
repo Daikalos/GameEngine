@@ -11,6 +11,6 @@ namespace vlx
 	inline constexpr float P_ANG_SLEEP_TOLERANCE		= au::ToRadians(2.0f);
 
 	inline constexpr float P_PERCENT					= 0.4f;
-	inline constexpr float P_SLOP						= 0.01f;
-	inline constexpr float P_MAX_POS_CORRECTION			= 0.2f;
+	inline constexpr float P_SLOP						= 0.05f;
+	inline constexpr float P_MAX_POS_CORRECTION			= 0.4f;
 }
