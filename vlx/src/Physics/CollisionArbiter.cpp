@@ -10,6 +10,13 @@ void CollisionArbiter::Initialize(const Time& time, const Vector2f& gravity)
 	restitution = std::min(AB.GetRestitution(), BB.GetRestitution());
 	friction = std::sqrt(AB.GetFriction() * BB.GetFriction());
 
+	// wake up both if either body is dynamic or kinematic
+	if (AB.GetType() != BodyType::Static && BB.GetType() != BodyType::Static)
+	{
+		AB.SetAwake(true);
+		BB.SetAwake(true);
+	}
+
 	for (uint32 i = 0; i < contacts_count; ++i)
 	{
 		CollisionContact& contact = contacts[i];
@@ -28,7 +35,7 @@ void CollisionArbiter::Initialize(const Time& time, const Vector2f& gravity)
 		}
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
-			AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
+					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
 		{
 			Vector2f tangent = rv - (contact.normal * rv.Dot(contact.normal));
@@ -67,7 +74,7 @@ void CollisionArbiter::ResolveVelocity()
 		Vector2f rb = contact.position - BB.position;
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
-			AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
+					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
 		const float vel_along_normal = rv.Dot(contact.normal);
 
@@ -85,20 +92,20 @@ void CollisionArbiter::ResolveVelocity()
 
 		if (AB.IsAwake() && AB.IsEnabled())
 		{
-			AB.m_velocity -= impulse * am;
-			AB.m_angular_velocity -= ra.Cross(impulse) * ai;
+			AB.m_velocity			-= impulse * am;
+			AB.m_angular_velocity	-= ra.Cross(impulse) * ai;
 		}
 
 		if (BB.IsAwake() && BB.IsEnabled())
 		{
-			BB.m_velocity += impulse * bm;
-			BB.m_angular_velocity += rb.Cross(impulse) * bi;
+			BB.m_velocity			+= impulse * bm;
+			BB.m_angular_velocity	+= rb.Cross(impulse) * bi;
 		}
 
 		// friction
 
 		rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
-			AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
+			 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
 
 		Vector2f tangent = rv - (contact.normal * rv.Dot(contact.normal));
 		tangent = tangent.Normalize();
@@ -153,21 +160,21 @@ void CollisionArbiter::ResolvePosition()
 		//float rna = ra.Cross(contact.normal);
 		//float rnb = rb.Cross(contact.normal);
 
-		float k_normal = am + bm; //+ ai * au::Sqr(rna) + bi * au::Sqr(rnb);
+		float k_normal = am + bm; // +ai * au::Sqr(rna) + bi * au::Sqr(rnb);
 		float impulse = (k_normal > 0.0f) ? (correction / k_normal) : 0.0f;
 
 		Vector2f p = contact.normal * impulse * P_PERCENT;
 
 		if (AB.IsAwake() && AB.IsEnabled())
 		{
-			AB.position -= am * p;
-			//AB.curr_rot -= sf::radians(ai * ra.Cross(p));
+			AB.position -= p * am;
+			//AB.rotation -= sf::radians(ai * ra.Cross(p));
 		}
 
 		if (BB.IsAwake() && BB.IsEnabled())
 		{
-			BB.position += bm * p;
-			//BB.curr_rot += sf::radians(bi * rb.Cross(p));
+			BB.position += p * bm;
+			//BB.rotation += sf::radians(bi * rb.Cross(p));
 		}
 	}
 }

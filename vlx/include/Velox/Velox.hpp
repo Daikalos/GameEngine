@@ -7,6 +7,7 @@
 #include "Window.hpp"
 #include "System.hpp"
 #include "Utility.hpp"
+#include "Physics.hpp"
 
 #include "World/World.h"
 #include "World/ObjectTypes.h"

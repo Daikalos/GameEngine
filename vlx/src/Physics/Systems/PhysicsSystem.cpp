@@ -25,10 +25,12 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() != BodyType::Dynamic)
 				return;
 
-			body.AddVelocity(m_time->GetFixedDT() * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce()));
-			body.AddAngularVelocity(m_time->GetFixedDT() * body.GetInvInertia() * body.GetTorque());
+			// velocity
+			body.m_velocity			+= m_time->GetFixedDT() * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce());
+			body.m_angular_velocity += m_time->GetFixedDT() * body.GetInvInertia() * body.GetTorque();
 
-			body.m_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetLinearDamping()));
+			// damping
+			body.m_velocity			*= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetLinearDamping()));
 			body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
 		});
 
@@ -55,9 +57,9 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
-			// TODO: fix velocity always being above threshold even when object is still, e.g., 
-			// body "resting" ontop another object, however due to continually colliding and position correction,
-			// body will keep on jittering, and this, will never be able to sleep.
+			// TODO: fix velocity always being above threshold even when object is still, i.e, 
+			// body "resting" ontop another dynamic body, however due to continually colliding,
+			// body will keep on jittering, and thus, will never be able to sleep.
 
 			constexpr float vel_sleep_tolerance = au::Sqr(P_VEL_SLEEP_TOLERANCE);
 			constexpr float ang_sleep_tolerance = au::Sqr(P_ANG_SLEEP_TOLERANCE);
@@ -111,7 +113,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 				body.initialize = false;
 			}
 
-			transform.SetPosition(body.position);
+			transform.SetPosition(body.position); // synchronize the transform
 			transform.SetRotation(body.rotation);
 		});
 }
