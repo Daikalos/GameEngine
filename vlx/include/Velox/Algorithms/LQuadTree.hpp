@@ -155,7 +155,7 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
-		if (!m_root_rect.Contains(rect.Center()))
+		if (!m_root_rect.Contains(rect.Center())) // dont attempt to add if outside boundary
 			return -1;
 
 		const auto idx = m_elements.emplace(rect, T(std::forward<Args>(args)...));

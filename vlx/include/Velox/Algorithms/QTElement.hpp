@@ -9,10 +9,9 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Designed to add convenience for interacting with quadtree, such as keeping track 
-	///		of index to element and also erasing it when entity is suddenly destroyed.
-	/// </summary>
+	///	Designed to add convenience for interacting with quadtree, such as keeping track of index 
+	/// to element and also erasing the inserted element when the associated entity is suddenly destroyed.
+	/// 
 	template<std::equality_comparable T = int>
 	class QTElement : public IComponent
 	{
@@ -23,19 +22,42 @@ namespace vlx
 	public:
 		QTElement() = default;
 
-	protected:
+	public:
 		bool IsInserted() const noexcept;
 
-	protected:
+	public:
+		/// Attempts to insert an element into the given quad tree.
+		/// 
+		/// \param QuadTree: quad tree to insert element into.
+		/// \param Rect: Boundary encompassing element.
+		/// \param Args: Constructor arguments for element.
+		/// 
+		/// \returns If it succeeded in inserting element to quadtree.
+		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
 		bool Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args);
 
+		/// Attempts to update the inserted element in the quad tree with new data.
+		/// 
+		/// \param Args: Data to update element.
+		/// 
+		/// \returns If it succeeded in updating the element in the quadtree.
+		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
 		bool Update(Args&&... args);
 
+		/// Attempts to erase the inserted element in the quad tree.
+		/// 
+		/// \returns If it succeeded in erasing the inserted element.
+		/// 
 		bool Erase();
 
+		/// Retrieves inserted element in the quad tree, will throw if no element has been inserted.
+		/// 
 		const T& Get() const;
+
+		/// Retrieves inserted element in the quad tree, will throw if no element has been inserted.
+		/// 
 		T& Get();
 
 	protected:
