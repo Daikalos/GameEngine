@@ -29,51 +29,33 @@ namespace vlx
 		};
 
 	public:
-		// virtual ~Shape() = default; // i dont think this is needed
+		constexpr virtual ~Shape() = default; // i dont think this is needed
 
 	public:
 		const Mat2f& GetOrientation() const;
 		const RectFloat& GetAABB() const;
-		Vector2f GetPosition() const;
-		Vector2f GetCenter() const;
+		const Vector2f& GetCenter() const;
+
+	public:
+		constexpr virtual auto GetType() const noexcept -> Shape::Type = 0;
+
+	protected:
+		virtual void AdjustBody(PhysicsBody& body) const = 0;
+		virtual Vector2f ComputeCenter(const Vector2f& position) const = 0;
+		virtual RectFloat ComputeAABB(const GlobalTransform& transform) const = 0;
 
 	private:
-		void UpdateTransform(const GlobalTransform& transform);
+		void UpdateOrientation(sf::Angle angle);
+		void UpdateAABB(const RectFloat& aabb);
+		void UpdateCenter(const Vector2f& center);
 
 	protected:
 		mutable Mat2f	m_orientation; // rotation matrix
 		RectFloat		m_aabb;
+		Vector2f		m_center;
 		sf::Angle		m_angle;
 		mutable bool	m_update {true};
 
 		friend class PhysicsDirtySystem;
 	};
-
-	template<class S>
-	class ShapeCRTP : public Shape
-	{
-		constexpr auto GetType() const noexcept -> Shape::Type;
-		void Initialize(PhysicsBody& body) const;
-		void UpdateAABB(const GlobalTransform& transform);
-
-		friend class PhysicsDirtySystem;
-	};
-
-	template<class S>
-	inline constexpr auto ShapeCRTP<S>::GetType() const noexcept -> Type
-	{
-		return static_cast<const S*>(this)->GetType();
-	}
-
-	template<class S>
-	inline void ShapeCRTP<S>::Initialize(PhysicsBody& body) const
-	{
-		static_cast<const S*>(this)->InitializeImpl(body);
-	}
-
-	template<class S>
-	inline void ShapeCRTP<S>::UpdateAABB(const GlobalTransform& transform)
-	{
-		static_cast<S*>(this)->UpdateAABBImpl(transform);
-	}
 }

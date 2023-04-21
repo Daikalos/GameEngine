@@ -8,7 +8,7 @@
 
 namespace vlx
 {
-	///	Global transform of an object, containing the combined transforms of all subsequent parents.
+	///	Global transform of an object, containing the combined transforms of all subsequent parents and self.
 	///
 	class VELOX_API GlobalTransform : public IComponent
 	{ 

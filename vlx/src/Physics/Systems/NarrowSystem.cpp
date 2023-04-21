@@ -2,8 +2,9 @@
 
 using namespace vlx;
 
-NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) 
-	: m_broad_system(&broad_system), m_initialize_collisions(entity_admin, id - 1), m_exit_collisions(entity_admin, id + 1)
+NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id) : 
+	m_initialize_collisions(entity_admin), 
+	m_exit_collisions(entity_admin)
 {
 
 }
@@ -64,12 +65,11 @@ void NarrowSystem::Update(
 	}
 }
 
-std::span<CollisionArbiter> NarrowSystem::GetArbiters() noexcept
+std::span<const CollisionArbiter> NarrowSystem::GetArbiters() const noexcept
 {
 	return m_arbiters;
 }
-
-std::span<const CollisionArbiter> NarrowSystem::GetArbiters() const noexcept
+std::span<CollisionArbiter> NarrowSystem::GetArbiters() noexcept
 {
 	return m_arbiters;
 }

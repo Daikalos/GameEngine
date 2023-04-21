@@ -28,7 +28,7 @@ namespace vlx
 		using CollisionSystem = System<Collider, Transform, GlobalTransform>;
 
 	public:
-		NarrowSystem(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system);
+		NarrowSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
 		void Update(
@@ -36,15 +36,13 @@ namespace vlx
 			std::span<typename BroadSystem::CollisionIndex> indices);
 
 	public:
-		std::span<CollisionArbiter> GetArbiters() noexcept;
 		std::span<const CollisionArbiter> GetArbiters() const noexcept;
+		std::span<CollisionArbiter> GetArbiters() noexcept;
 
 	private:
 		void CallEvents(const CollisionArbiter& data, const CollisionObject& object);
 
 	private:
-		BroadSystem* m_broad_system {nullptr};
-
 		std::vector<CollisionArbiter> m_arbiters;
 
 		System<PhysicsBody> m_initialize_collisions;

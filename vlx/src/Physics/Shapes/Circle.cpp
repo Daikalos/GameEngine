@@ -2,13 +2,18 @@
 
 using namespace vlx;
 
-void Circle::InitializeImpl(PhysicsBody& body) const
+void Circle::AdjustBody(PhysicsBody& body) const
 {
     body.SetMass(au::PI<> * m_radius_sqr * body.GetDensity());
     body.SetInertia(0.5f * body.GetMass() * m_radius_sqr);
 }
 
-void Circle::UpdateAABBImpl(const GlobalTransform& transform)
+Vector2f Circle::ComputeCenter(const Vector2f& position) const
 {
-    m_aabb = RectFloat(transform.GetPosition(), { m_radius * 2.0f, m_radius * 2.0f });
+    return position + Vector2f(m_radius, m_radius);
+}
+
+RectFloat Circle::ComputeAABB(const GlobalTransform& transform) const
+{
+    return RectFloat(transform.GetPosition(), Vector2f(m_radius * 2.0f, m_radius * 2.0f));
 }

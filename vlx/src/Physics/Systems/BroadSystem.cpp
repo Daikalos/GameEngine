@@ -111,7 +111,7 @@ void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, 
 
 void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point* p, Collider* c, PhysicsBody* pb)
 {
-	auto collisions = m_broad.m_quad_tree.Query(p->GetPosition());
+	auto collisions = m_broad.m_quad_tree.Query(p->GetCenter());
 
 	for (const auto& collision : collisions)
 	{
@@ -166,20 +166,20 @@ void BroadSystem::Update()
 	CullDuplicates();
 }
 
-auto BroadSystem::GetPairs() noexcept -> std::span<CollisionPair>
-{
-	return m_pairs;
-}
-auto BroadSystem::GetIndices() noexcept -> std::span<CollisionIndex>
-{
-	return m_indices;
-}
-
 auto BroadSystem::GetPairs() const noexcept -> std::span<const CollisionPair>
 {
 	return m_pairs;
 }
 auto BroadSystem::GetIndices() const noexcept -> std::span<const CollisionIndex>
+{
+	return m_indices;
+}
+
+auto BroadSystem::GetPairs() noexcept -> std::span<CollisionPair>
+{
+	return m_pairs;
+}
+auto BroadSystem::GetIndices() noexcept -> std::span<CollisionIndex>
 {
 	return m_indices;
 }

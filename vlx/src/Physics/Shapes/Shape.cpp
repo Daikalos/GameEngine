@@ -16,23 +16,27 @@ const RectFloat& Shape::GetAABB() const
 {
 	return m_aabb;
 }
-
-Vector2f Shape::GetPosition() const
+const Vector2f& vlx::Shape::GetCenter() const
 {
-	return m_aabb.Position();
+	return m_center;
 }
 
-Vector2f Shape::GetCenter() const
+void Shape::UpdateOrientation(sf::Angle angle)
 {
-	return m_aabb.Center();
-}
-
-void Shape::UpdateTransform(const GlobalTransform& transform)
-{
-	sf::Angle new_angle = transform.GetRotation().wrapUnsigned();
-	if (m_angle != new_angle)
+	//sf::Angle new_angle = transform.GetRotation().wrapUnsigned();
+	if (m_angle != angle)
 	{
-		m_angle = new_angle;
+		m_angle = angle;
 		m_update = true;
 	}
+}
+
+void Shape::UpdateAABB(const RectFloat& aabb)
+{
+	m_aabb = aabb;
+}
+
+void Shape::UpdateCenter(const Vector2f& center)
+{
+	m_center = center;
 }

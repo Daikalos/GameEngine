@@ -363,18 +363,16 @@ void CollisionTable::PointToCircle(CollisionArbiter& arbiter, const Shape& s1, c
 	CircleToPoint(arbiter, s2, s1);
 	arbiter.contacts[0].normal *= -1;
 }
-
 void CollisionTable::PointToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	BoxToPoint(arbiter, s2, s1);
 	arbiter.contacts[0].normal *= -1;
 }
-
-void CollisionTable::PointToPoint(CollisionArbiter&, const Shape&, const Shape&)
+void CollisionTable::PointToPoint(CollisionArbiter& arbiter, const Shape&, const Shape&)
 {
 	// points cannot collide with each other since they are infinitely small points
+	arbiter.contacts_count = 0;
 }
-
 void CollisionTable::PointToConvex(CollisionArbiter&, const Shape&, const Shape&)
 {
 }

@@ -11,7 +11,7 @@
 
 namespace vlx
 {
-	class Box final : public ShapeCRTP<Box>
+	class Box final : public Shape
 	{
 	private:
 		using VectorArray = std::array<Vector2f, 4>;
@@ -37,6 +37,8 @@ namespace vlx
 		constexpr auto GetVertices() const noexcept -> const VectorArray&;
 		constexpr RectFloat GetBox() const noexcept;
 
+		constexpr Vector2f GetSize() const noexcept;
+
 		constexpr float GetWidth() const noexcept;
 		constexpr float GetHeight() const noexcept;
 
@@ -49,9 +51,11 @@ namespace vlx
 		constexpr void SetBottom(float bottom);
 
 	public:
-		constexpr auto GetType() const noexcept -> Type;
-		VELOX_API void InitializeImpl(PhysicsBody& body) const;
-		VELOX_API void UpdateAABBImpl(const GlobalTransform& transform);
+		constexpr auto GetType() const noexcept -> Type override;
+
+		VELOX_API void AdjustBody(PhysicsBody& body) const override;
+		VELOX_API Vector2f ComputeCenter(const Vector2f& position) const override;
+		VELOX_API RectFloat ComputeAABB(const GlobalTransform& transform) const override;
 
 	private:
 		VectorArray m_vertices;
@@ -86,6 +90,11 @@ namespace vlx
 	constexpr RectFloat Box::GetBox() const noexcept
 	{
 		return RectFloat({}, m_vertices[2] - m_vertices[0]);
+	}
+
+	constexpr Vector2f Box::GetSize() const noexcept
+	{
+		return { GetWidth(), GetHeight() };
 	}
 
 	constexpr float Box::GetWidth() const noexcept

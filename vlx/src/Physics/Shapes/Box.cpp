@@ -2,13 +2,18 @@
 
 using namespace vlx;
 
-void Box::InitializeImpl(PhysicsBody& body) const
+void Box::AdjustBody(PhysicsBody& body) const
 {
 	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());
 	body.SetInertia((1.0f / 12.0f) * body.GetMass() * (au::Sqr(GetWidth()) + au::Sqr(GetHeight())));
 }
 
-void Box::UpdateAABBImpl(const GlobalTransform& transform)
+Vector2f Box::ComputeCenter(const Vector2f& position) const
 {
-	m_aabb = transform.GetTransform().TransformRect(GetBox());
+	return position + (GetSize() / 2.0f);
+}
+
+RectFloat Box::ComputeAABB(const GlobalTransform& transform) const
+{
+	return transform.GetTransform().TransformRect(GetBox());
 }

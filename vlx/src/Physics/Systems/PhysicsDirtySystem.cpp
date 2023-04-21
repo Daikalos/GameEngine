@@ -5,7 +5,7 @@ using namespace vlx;
 PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id)
 	: SystemAction(entity_admin, id),
 
-	m_dirty_transform(	entity_admin, LYR_TRANSFORM), // intercept the transform layer muhahaha
+	m_dirty_transform(	entity_admin, LYR_TRANSFORM), // hijack the transform layer muhahaha
 	m_dirty_physics(	entity_admin, id),
 
 	m_circles_aabb(		entity_admin, id),
@@ -21,7 +21,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 
 	m_dirty_physics.Each([this](EntityID entity_id, Collider& c, Transform& t)
 		{
-			if (t.m_dirty)
+			if (t.m_dirty) // TODO: fatten aabbs instead to reduce number of insert/erase
 				c.dirty = true;
 		});
 
@@ -29,8 +29,9 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 		{
 			if (c.dirty)
 			{
-				s.UpdateAABB(gt);
-				s.UpdateTransform(gt);
+				s.UpdateAABB(s.ComputeAABB(gt));
+				// no need to update the orientation matrix
+				s.UpdateCenter(s.ComputeCenter(gt.GetPosition()));
 			}
 		});
 
@@ -38,8 +39,9 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 		{
 			if (c.dirty)
 			{
-				b.UpdateAABB(gt);
-				b.UpdateTransform(gt);
+				b.UpdateAABB(b.ComputeAABB(gt));
+				b.UpdateOrientation(gt.GetRotation().wrapUnsigned());
+				b.UpdateCenter(b.ComputeCenter(gt.GetPosition()));
 			}
 		});
 
@@ -47,8 +49,9 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 		{
 			if (c.dirty)
 			{
-				p.UpdateAABB(gt);
+				p.UpdateAABB(p.ComputeAABB(gt));
 				// no need to update the orientation matrix
+				p.UpdateCenter(p.ComputeCenter(gt.GetPosition()));
 			}
 		});
 

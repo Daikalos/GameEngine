@@ -86,11 +86,11 @@ namespace vlx
 		void Update();
 
 	public:
-		auto GetPairs() noexcept -> std::span<CollisionPair>;
-		auto GetIndices() noexcept -> std::span<CollisionIndex>;
-
 		auto GetPairs() const noexcept -> std::span<const CollisionPair>;
 		auto GetIndices() const noexcept -> std::span<const CollisionIndex>;
+
+		auto GetPairs() noexcept -> std::span<CollisionPair>;
+		auto GetIndices() noexcept -> std::span<CollisionIndex>;
 
 	private:
 		void CullDuplicates();

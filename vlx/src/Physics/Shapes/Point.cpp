@@ -2,11 +2,17 @@
 
 using namespace vlx;
 
-void Point::InitializeImpl(PhysicsBody& body) const
+void Point::AdjustBody(PhysicsBody& body) const
 {
 
 }
-void Point::UpdateAABBImpl(const GlobalTransform& transform)
+
+Vector2f Point::ComputeCenter(const Vector2f& position) const
 {
-    m_aabb = RectFloat(transform.GetPosition() + m_offset, {});
+    return position + m_offset;
+}
+
+RectFloat Point::ComputeAABB(const GlobalTransform& transform) const
+{
+    return RectFloat();
 }

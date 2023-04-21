@@ -108,13 +108,13 @@ namespace vlx
 		{
 			const auto index = m_first_free;
 			m_first_free = std::get<size_type>(m_data[m_first_free]);
-			m_data[index] = T(std::forward<Args>(args)...);
+			m_data[index] = { std::in_place_index<0>, T(std::forward<Args>(args)...) };
 
 			return index;
 		}
 		else
 		{
-			m_data.push_back(T(std::forward<Args>(args)...));
+			m_data.emplace_back(std::in_place_index<0>, std::forward<Args>(args)...);
 			return static_cast<size_type>(m_data.size() - 1);
 		}
 	}

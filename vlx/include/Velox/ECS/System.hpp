@@ -43,9 +43,9 @@ namespace vlx
 		virtual void Run(const Archetype* const archetype) const = 0;
 
 	private:
-		float	m_priority		{0.0f};		// priority is for controlling the underlaying order of calls inside a layer
-		bool	m_run_parallel	{false};
-		bool	m_enabled		{true};
+		float	m_priority		{0.0f};		// priority is for controlling the underlying order of calls inside a layer
+		bool	m_run_parallel	{false};	// determines if whether to parallelize archetypes when being run
+		bool	m_enabled		{true};		// enables or disables system being run
 
 		friend class EntityAdmin;
 	};
@@ -78,7 +78,7 @@ namespace vlx
 			}
 		};
 
-		struct HashAE
+		struct ArchExcludeHash
 		{
 			constexpr std::size_t operator()(const ArchExclude& ae) const
 			{
@@ -86,7 +86,7 @@ namespace vlx
 			}
 		};
 
-		using ArchExclCache = std::unordered_set<ArchExclude, HashAE>;
+		using ArchExclCache = std::unordered_set<ArchExclude, ArchExcludeHash>;
 
 	public:
 		System(EntityAdmin& entity_admin);
@@ -143,18 +143,15 @@ namespace vlx
 		bool						m_registered	{false};
 	};
 
-	inline auto ISystem::operator<=>(const ISystem& rhs) const
-	{
-		return GetPriority() <=> rhs.GetPriority();
-	}
+	inline auto ISystem::operator<=>(const ISystem& rhs) const	{ return GetPriority() <=> rhs.GetPriority(); }
 
-	inline float ISystem::GetPriority() const noexcept		{ return m_priority; }
-	inline bool ISystem::IsRunningParallel() const noexcept { return m_run_parallel; }
-	inline bool ISystem::IsEnabled() const noexcept			{ return m_enabled; }
+	inline float ISystem::GetPriority() const noexcept			{ return m_priority; }
+	inline bool ISystem::IsRunningParallel() const noexcept		{ return m_run_parallel; }
+	inline bool ISystem::IsEnabled() const noexcept				{ return m_enabled; }
 
-	inline void ISystem::SetPriority(const float val)		{ m_priority = val; }
-	inline void ISystem::SetRunParallel(const bool flag)	{ m_run_parallel = flag; }
-	inline void ISystem::SetEnabled(const bool flag)		{ m_enabled = flag; }
+	inline void ISystem::SetPriority(const float val)			{ m_priority = val; }
+	inline void ISystem::SetRunParallel(const bool flag)		{ m_run_parallel = flag; }
+	inline void ISystem::SetEnabled(const bool flag)			{ m_enabled = flag; }
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin)

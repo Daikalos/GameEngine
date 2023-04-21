@@ -12,12 +12,17 @@ auto Polygon::GetNormals() const -> const VectorList&
 	return m_normals;
 }
 
-void Polygon::InitializeImpl(PhysicsBody& body) const noexcept
+void Polygon::AdjustBody(PhysicsBody& body) const noexcept
 {
 
 }
 
-void Polygon::UpdateAABBImpl(const GlobalTransform& transform)
+Vector2f Polygon::ComputeCenter(const Vector2f& position) const
 {
+	return Vector2f();
+}
 
+RectFloat Polygon::ComputeAABB(const GlobalTransform& transform) const
+{
+	return RectFloat();
 }

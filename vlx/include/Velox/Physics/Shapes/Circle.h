@@ -6,7 +6,7 @@
 
 namespace vlx
 {
-	class Circle final : public ShapeCRTP<Circle>
+	class Circle final : public Shape
 	{
 	public:
 		constexpr Circle();
@@ -19,9 +19,11 @@ namespace vlx
 		constexpr void SetRadius(float radius);
 
 	public:
-		constexpr auto GetType() const noexcept -> Type;
-		VELOX_API void InitializeImpl(PhysicsBody& body) const;
-		VELOX_API void UpdateAABBImpl(const GlobalTransform& transform);
+		constexpr auto GetType() const noexcept -> Type override;
+
+		VELOX_API void AdjustBody(PhysicsBody& body) const override;
+		VELOX_API Vector2f ComputeCenter(const Vector2f& position) const override;
+		VELOX_API RectFloat ComputeAABB(const GlobalTransform& transform) const override;
 
 	private:
 		float m_radius		{16.0f};

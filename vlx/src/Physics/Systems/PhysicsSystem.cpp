@@ -7,8 +7,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 
 	m_time(&time), 
 
-	m_broad_system(		entity_admin, LYR_BROAD_PHASE),
-	m_narrow_system(	entity_admin, LYR_NARROW_PHASE, m_broad_system),
+	m_broad_system(			entity_admin, LYR_BROAD_PHASE),
+	m_narrow_system(		entity_admin, LYR_NARROW_PHASE),
 
 	m_integrate_velocity(	entity_admin),
 	m_integrate_position(	entity_admin),
@@ -56,10 +56,6 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 
 			if (body.GetType() == BodyType::Static)
 				return;
-
-			// TODO: fix velocity always being above threshold even when object is still, i.e, 
-			// body "resting" ontop another dynamic body, however due to continually colliding,
-			// body will keep on jittering, and thus, will never be able to sleep.
 
 			constexpr float vel_sleep_tolerance = au::Sqr(P_VEL_SLEEP_TOLERANCE);
 			constexpr float ang_sleep_tolerance = au::Sqr(P_ANG_SLEEP_TOLERANCE);

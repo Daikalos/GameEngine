@@ -6,7 +6,7 @@
 
 namespace vlx
 {
-	class Point final : public ShapeCRTP<Point>
+	class Point final : public Shape
 	{
 	public:
 		constexpr Point();
@@ -18,9 +18,11 @@ namespace vlx
 		constexpr void SetOffset(const Vector2f& offset);
 
 	public:
-		constexpr auto GetType() const noexcept -> Type;
-		VELOX_API void InitializeImpl(PhysicsBody& body) const;
-		VELOX_API void UpdateAABBImpl(const GlobalTransform& transform);
+		constexpr auto GetType() const noexcept -> Type override;
+
+		VELOX_API void AdjustBody(PhysicsBody& body) const override;
+		VELOX_API Vector2f ComputeCenter(const Vector2f& position) const override;
+		VELOX_API RectFloat ComputeAABB(const GlobalTransform& transform) const override;
 
 	private:
 		Vector2f m_offset;

@@ -8,7 +8,7 @@
 
 namespace vlx
 {
-	class Polygon final : public ShapeCRTP<Polygon>
+	class Polygon final : public Shape
 	{
 	public:
 		using VectorList = std::vector<Vector2f>;
@@ -18,9 +18,11 @@ namespace vlx
 		auto GetNormals() const -> const VectorList&;
 
 	public:
-		constexpr auto GetType() const noexcept -> Type;
-		VELOX_API void InitializeImpl(PhysicsBody& body) const noexcept;
-		VELOX_API void UpdateAABBImpl(const GlobalTransform& transform);
+		constexpr auto GetType() const noexcept -> Type override;
+
+		VELOX_API void AdjustBody(PhysicsBody& body) const noexcept override;
+		VELOX_API Vector2f ComputeCenter(const Vector2f& position) const override;
+		VELOX_API RectFloat ComputeAABB(const GlobalTransform& transform) const override;
 
 	private:
 		VectorList m_vertices;
