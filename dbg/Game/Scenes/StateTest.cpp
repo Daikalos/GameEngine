@@ -113,6 +113,34 @@ void StateTest::OnCreated()
 	entity.GetComponent<Transform>().SetRotation(sf::degrees(0.0f));
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
+
+
+
+	vlx::Vector2f size(16.0f, 64.0f);
+
+	player = e0.Duplicate();
+	player.AddComponents<PhysicsBody, Collider>();
+	player.AddComponent<Box>(size);
+
+	//entity.GetComponent<Circle>().radius = 32.0f;
+	player.GetComponent<PhysicsBody>().SetMass(1.0f);
+	player.GetComponent<PhysicsBody>().SetMaterial({ 1.0f, 0.0f });
+	player.GetComponent<PhysicsBody>().SetFixedRotation(true);
+	player.GetComponent<PhysicsBody>().SetType(BodyType::Dynamic);
+	player.GetComponent<PhysicsBody>().SetGravityScale(1.5f);
+	player.GetComponent<PhysicsBody>().SetFriction(100000.0f);
+	player.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+	player.GetComponent<Sprite>().SetSize(size);
+	player.GetComponent<Sprite>().SetColor(sf::Color::Blue);
+	player.GetComponent<Transform>().SetOrigin(size / 2.0f);
+
+	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(player, { 0, -64 });
+
+	GetWorld().GetCamera().Push(2);
+	GetWorld().GetCamera().ApplyPendingChanges();
+
+	static_cast<CameraFollow*>(GetWorld().GetCamera().GetBehavior(2))->SetTarget(*m_entity_admin, player);
+	static_cast<CameraFollow*>(GetWorld().GetCamera().GetBehavior(2))->SetOffset(size / 2.0f);
 }
 
 bool StateTest::HandleEvent(const sf::Event& event)
@@ -126,6 +154,13 @@ bool StateTest::Update(Time& time)
 		et0->Move({ 5.0f * time.GetDT(), 0.0f });
 
 	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
+
+	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::A))
+		player.GetComponent<Transform>().Move({ -50.0f * time.GetDT(), 0.0f });
+	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::D))
+		player.GetComponent<Transform>().Move({  50.0f * time.GetDT(), 0.0f });
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+		player.GetComponent<PhysicsBody>().ApplyForceToCenter({ 0.0f, -4000.0f });
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
@@ -192,10 +227,10 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-	{
-		GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
-	}
+	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+	//{
+	//	GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
+	//}
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFPS()));
 

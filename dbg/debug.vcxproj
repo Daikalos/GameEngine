@@ -158,6 +158,7 @@
     <ClInclude Include="Game\Application.h" />
     <ClInclude Include="Game\Binds.h" />
     <ClInclude Include="Game\Cameras\CameraDrag.h" />
+    <ClInclude Include="Game\Cameras\CameraFollow.h" />
     <ClInclude Include="Game\Cameras\CameraGoTo.h" />
     <ClInclude Include="Game\Cameras\CameraLetterbox.h" />
     <ClInclude Include="Game\Cameras\CameraShake.h" />

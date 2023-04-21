@@ -43,6 +43,7 @@ void Application::RegisterStates()
 
 	camera.RegisterBehavior<CameraDrag>(0);
 	camera.RegisterBehavior<CameraZoom>(1);
+	camera.RegisterBehavior<CameraFollow>(2);
 
 	camera.Push(0);
 	camera.Push(1);

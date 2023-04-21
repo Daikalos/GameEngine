@@ -528,6 +528,9 @@ namespace vlx
 			}
 			else new_archetype = ait->second.add;
 
+			if (!new_archetype) // exit if no archetype was found
+				return nullptr;
+
 			const EntityID last_entity_id = old_archetype->entities.back();
 			assert(last_entity_id != NULL_ENTITY);
 

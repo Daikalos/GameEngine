@@ -9,7 +9,7 @@
 namespace vlx
 {
 	/// The ComponentRef is to ensure that the component pointers remains valid even after the internal data of the ECS
-	///	has been modified. This is to prevent having to write GetComponent everywhere all the time.
+	/// has been modified. This is to prevent having to write GetComponent everywhere all the time.
 	/// 
 	template<class C>
 	class ComponentRef final

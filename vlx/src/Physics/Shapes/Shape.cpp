@@ -23,7 +23,6 @@ const Vector2f& vlx::Shape::GetCenter() const
 
 void Shape::UpdateOrientation(sf::Angle angle)
 {
-	//sf::Angle new_angle = transform.GetRotation().wrapUnsigned();
 	if (m_angle != angle)
 	{
 		m_angle = angle;

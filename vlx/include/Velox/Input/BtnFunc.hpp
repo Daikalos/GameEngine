@@ -3,26 +3,18 @@
 #include <functional>
 #include <array>
 
+#include <Velox/Utility/ContainerUtils.h>
+
 #include "InputHandler.h"
 
 namespace vlx
 {
 	enum ButtonEvent : uint8
 	{
-		BE_Begin	= 0,
-
-		BE_Pressed	= 0,
-		BE_Released = 1,
-		BE_Held		= 2,
-
-		BE_End		= 3
+		BE_Pressed,
+		BE_Released,
+		BE_Held,
 	};
-
-	inline ButtonEvent& operator++(ButtonEvent& button_event)
-	{
-		button_event = static_cast<ButtonEvent>(static_cast<uint8>(button_event) + 1);
-		return button_event;
-	}
 
 	///	BtnFunc is small container class for mapping functions to individual key events. This was created to 
 	/// have the same lifetime as the provided functions have in order to prevent common errors. It also allows 
@@ -37,6 +29,17 @@ namespace vlx
 			std::function<void()>	func;
 			ButtonType				button;
 			ButtonEvent				event;
+			float					priority {0.0f};
+
+			bool operator==(const BoundFunc& rhs) const
+			{
+				return button == rhs.button && event == rhs.event && priority == rhs.priority;
+			}
+
+			bool operator!=(const BoundFunc& rhs) const
+			{
+				return !(*this == rhs);
+			}
 		};
 
 	public:
@@ -45,16 +48,16 @@ namespace vlx
 	
 	public:
 		template<typename Func>
-		void Add(ButtonType button, ButtonEvent event, Func&& func);
+		void Add(ButtonType button, ButtonEvent event, Func&& func, float priority = 0.0f);
 
 		template<Enum Bind, typename Func>
-		void Add(Bind key, ButtonEvent event, Func&& func);
+		void Add(Bind key, ButtonEvent event, Func&& func, float priority = 0.0f);
 
 		template<typename Func, class U>
-		void Add(ButtonType button, ButtonEvent event, Func&& func, U* object);
+		void Add(ButtonType button, ButtonEvent event, Func&& func, U* object, float priority = 0.0f);
 
 		template<Enum Bind, typename Func, class U>
-		void Add(Bind key, ButtonEvent event, Func&& func, U* object);
+		void Add(Bind key, ButtonEvent event, Func&& func, U* object, float priority = 0.0f);
 
 	public:
 		void Execute();
@@ -73,32 +76,36 @@ namespace vlx
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<typename Func>
-	inline void BtnFunc<T, ButtonType>::Add(ButtonType button, ButtonEvent event, Func&& func)
+	inline void BtnFunc<T, ButtonType>::Add(ButtonType button, ButtonEvent event, Func&& func, float priority)
 	{
-		m_funcs.emplace_back(std::forward<Func>(func), button, event);
+		cu::InsertSorted(m_funcs, BoundFunc(std::forward<Func>(func), button, event, priority),
+			[](const BoundFunc& lhs, const BoundFunc& rhs)
+			{
+				return lhs.priority > rhs.priority;
+			});
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<Enum Bind, typename Func>
-	inline void BtnFunc<T, ButtonType>::Add(Bind bind, ButtonEvent event, Func&& func)
+	inline void BtnFunc<T, ButtonType>::Add(Bind bind, ButtonEvent event, Func&& func, float priority)
 	{
 		const auto& binds = m_input->GetMap<Bind>();
-		Add(binds.At(bind), event, std::forward<Func>(func));
+		Add(binds.At(bind), event, std::forward<Func>(func), priority);
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<typename Func, class U>
-	inline void BtnFunc<T, ButtonType>::Add(ButtonType button, ButtonEvent event, Func&& func, U* object)
+	inline void BtnFunc<T, ButtonType>::Add(ButtonType button, ButtonEvent event, Func&& func, U* object, float priority)
 	{
-		m_funcs.emplace_back(std::bind(std::forward<Func>(func), object), button, event);
+		Add(button, event, std::bind(std::forward<Func>(func), object), priority);
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>
 	template<Enum Bind, typename Func, class U>
-	inline void BtnFunc<T, ButtonType>::Add(Bind key, ButtonEvent event, Func&& func, U* object)
+	inline void BtnFunc<T, ButtonType>::Add(Bind key, ButtonEvent event, Func&& func, U* object, float priority)
 	{
 		const auto& binds = m_input->GetMap<Bind>();
-		Add(binds.At(key), event, std::forward<Func>(func), object);
+		Add(binds.At(key), event, std::forward<Func>(func), object, priority);
 	}
 
 	template<std::derived_from<InputHandler> T, Enum ButtonType> requires IsButtonInput<T, ButtonType>

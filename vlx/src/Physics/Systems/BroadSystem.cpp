@@ -100,7 +100,7 @@ void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, 
 			bool lhs_active = (lhs->IsAwake() && lhs->IsEnabled());
 			bool rhs_active = (rhs->IsAwake() && rhs->IsEnabled());
 
-			if (!lhs_active && !rhs_active)
+			if (!lhs_active && !rhs_active) // dont bother colliding if both are either disabled or sleeping
 				continue;
 		}
 

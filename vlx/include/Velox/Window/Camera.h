@@ -85,12 +85,13 @@ namespace vlx
 		void Erase(const CameraBehavior::ID camera_id);
 		void Clear();
 
+		void ApplyPendingChanges();
+
 		template<std::derived_from<CameraBehavior> T, typename... Args>
 		void RegisterBehavior(const CameraBehavior::ID camera_id, Args&&... args);
 
 	private:
 		CameraBehavior::Ptr CreateBehavior(const CameraBehavior::ID camera_id);
-		void ApplyPendingChanges();
 
 	private:
 		CameraBehavior::Context		m_context;
@@ -110,7 +111,7 @@ namespace vlx
 	template<std::derived_from<CameraBehavior> T, typename... Args>
 	inline void Camera::RegisterBehavior(const CameraBehavior::ID camera_id, Args&&... args)
 	{
-		m_factory[camera_id] = [this, &camera_id, &args...]()
+		m_factory[camera_id] = [this, camera_id, &args...]()
 		{
 			return CameraBehavior::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
 		};

@@ -12,6 +12,7 @@
 
 #include "Cameras/CameraDrag.h"
 #include "Cameras/CameraZoom.h"
+#include "Cameras/CameraFollow.h"
 
 static const std::string DATA_FOLDER = "../data/";
 static const std::string AUDIO_FOLDER = DATA_FOLDER + "audio/";

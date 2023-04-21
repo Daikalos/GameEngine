@@ -240,6 +240,9 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 		}
 		else new_archetype = ait->second.add;
 
+		if (!new_archetype) // exit if no archetype was found
+			return;
+
 		const EntityID last_entity_id = old_archetype->entities.back();
 
 		if (last_entity_id != entity_id)
@@ -315,6 +318,9 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 		old_archetype->edges[archetype_id].remove = new_archetype;
 	}
 	else new_archetype = ait->second.remove;
+
+	if (!new_archetype) // exit if no archetype was found
+		return false;
 
 	const EntityID last_entity_id = old_archetype->entities.back();
 

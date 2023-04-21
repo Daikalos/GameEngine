@@ -86,7 +86,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.last_pos = body.position;
 			body.last_rot = body.rotation;
 
-			body.position = transform.GetPosition();
+			body.position = transform.GetPosition(); // possible because a physics body is not allowed to have a parent
 			body.rotation = transform.GetRotation();
 		});
 

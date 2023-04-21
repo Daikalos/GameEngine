@@ -56,5 +56,8 @@
     <ClInclude Include="Game\Cameras\CameraZoom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Cameras\CameraFollow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

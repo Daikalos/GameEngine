@@ -26,22 +26,8 @@ namespace vlx
 			m_mouse_input = &GetContext().controls->Get<MouseInput>();
 			m_mouse_cursor = &GetContext().controls->Get<MouseCursor>();
 
-			m_func.Add(bn::Button::Drag, BE_Pressed, 
-				[this]()
-				{
-					m_drag_pos = Vector2f(m_mouse_cursor->GetPosition());
-				});
-
-			m_func.Add(bn::Button::Drag, BE_Held,
-				[this]()
-				{
-					Vector2f mouse_pos = Vector2f(m_mouse_cursor->GetPosition());
-					Vector2f offset = m_drag_pos - mouse_pos;
-					m_drag_pos = mouse_pos;
-
-					GetCamera().SetPosition(GetCamera().GetPosition() + 
-						offset / GetCamera().GetScale() / m_window->GetRatioCmp());
-				});
+			m_func.Add(bn::Button::Drag, BE_Pressed, &CameraDrag::Select, this, 1.0f);
+			m_func.Add(bn::Button::Drag, BE_Held, &CameraDrag::Drag, this);
 		}
 
 		bool HandleEvent(const sf::Event& event) override 
@@ -74,6 +60,21 @@ namespace vlx
 			m_func();
 
 			return true;
+		}
+
+		void Select()
+		{
+			m_drag_pos = Vector2f(m_mouse_cursor->GetPosition());
+		}
+
+		void Drag()
+		{
+			Vector2f mouse_pos = Vector2f(m_mouse_cursor->GetPosition());
+			Vector2f offset = m_drag_pos - mouse_pos;
+			m_drag_pos = mouse_pos;
+
+			GetCamera().SetPosition(GetCamera().GetPosition() +
+				offset / GetCamera().GetScale() / m_window->GetRatioCmp());
 		}
 
 	private:

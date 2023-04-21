@@ -67,10 +67,10 @@ namespace vlx
 		constexpr void SetAngularVelocity(const float angular_velocity);
 		constexpr void AddAngularVelocity(const float angular_velocity);
 
-		constexpr void AddForce(const Vector2f& force, const bool wake = true);
-		constexpr void AddTorque(const float torque, const bool wake = true);
-
 		constexpr void ApplyForce(const Vector2f& force, const Vector2f& point, const bool wake = true);
+
+		constexpr void ApplyForceToCenter(const Vector2f& force, const bool wake = true);
+		constexpr void ApplyTorqueToCenter(const float torque, const bool wake = true);
 
 		constexpr void ApplyImpulseToCenter(const Vector2f& impulse, const bool wake = true);
 		constexpr void ApplyAngularImpulse(const float impulse, const  bool wake = true);
@@ -219,30 +219,7 @@ namespace vlx
 		SetAngularVelocity(GetAngularVelocity() + angular_velocity);
 	}
 
-	constexpr void PhysicsBody::AddForce(const Vector2f& force, const bool wake)
-	{
-		if (m_type != BodyType::Dynamic)
-			return;
-
-		if (wake && (m_flags & B_Awake) == 0)
-			SetAwake(true);
-
-		if (m_flags & B_Awake)
-			m_force += force;
-	}
-	constexpr void PhysicsBody::AddTorque(const float torque, const bool wake)
-	{
-		if (m_type != BodyType::Dynamic)
-			return;
-
-		if (wake && (m_flags & B_Awake) == 0)
-			SetAwake(true);
-
-		if (m_flags & B_Awake)
-			m_torque += torque;
-	}
-
-	inline constexpr void PhysicsBody::ApplyForce(const Vector2f& force, const Vector2f& point, const bool wake)
+	constexpr void PhysicsBody::ApplyForce(const Vector2f& force, const Vector2f& point, const bool wake)
 	{
 		if (m_type != BodyType::Dynamic)
 			return;
@@ -255,6 +232,29 @@ namespace vlx
 			m_force += force;
 			m_torque += point.Cross(force);
 		}
+	}
+
+	constexpr void PhysicsBody::ApplyForceToCenter(const Vector2f& force, const bool wake)
+	{
+		if (m_type != BodyType::Dynamic)
+			return;
+
+		if (wake && (m_flags & B_Awake) == 0)
+			SetAwake(true);
+
+		if (m_flags & B_Awake)
+			m_force += force;
+	}
+	constexpr void PhysicsBody::ApplyTorqueToCenter(const float torque, const bool wake)
+	{
+		if (m_type != BodyType::Dynamic)
+			return;
+
+		if (wake && (m_flags & B_Awake) == 0)
+			SetAwake(true);
+
+		if (m_flags & B_Awake)
+			m_torque += torque;
 	}
 
 	constexpr void PhysicsBody::ApplyImpulseToCenter(const Vector2f& impulse, const bool wake)

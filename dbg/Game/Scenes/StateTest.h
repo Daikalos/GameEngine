@@ -4,7 +4,7 @@
 
 #include <Velox/Velox.hpp>
 
-#include <Velox/Algorithms/LQuadTree.hpp>
+#include "../Cameras/CameraFollow.h"
 
 class StateTest : public vlx::State
 {
@@ -26,6 +26,8 @@ private:
 	vlx::ComponentRef<vlx::Transform> et0, et1;
 
 	vlx::Entity b0, b1;
+
+	vlx::Entity player;
 
 	//vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
 };
