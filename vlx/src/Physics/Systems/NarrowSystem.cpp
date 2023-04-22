@@ -67,23 +67,20 @@ void NarrowSystem::CheckCollision(const typename BroadSystem::CollisionPair& pai
 		PhysicsBody* AB = A.body;
 		PhysicsBody* BB = B.body;
 
-		if (AB && BB) // only resolve if both entities has a physics body
+		if (AB && BB && (AB->GetType() == BodyType::Dynamic || BB->GetType() == BodyType::Dynamic)) // only resolve if both entities has a physics body and either is dynamic
 		{
-			if (AB->GetType() == BodyType::Dynamic || BB->GetType() == BodyType::Dynamic) // ignore for physics if both are not dynamic
-			{
-				arbiter.A = AB;
-				arbiter.B = BB;
+			arbiter.A = AB;
+			arbiter.B = BB;
 
-				m_arbiters.emplace_back(arbiter);
-			}
+			m_arbiters.emplace_back(arbiter);
 		}
 
 		Collider& AC = *A.collider; // dont worry if nullptr, should only collide if both have colliders anyways
 		Collider& BC = *B.collider;
 
-		bool has_enter = AC.OnEnter || BC.OnEnter;
-		bool has_exit = AC.OnExit || BC.OnExit;
-		bool has_overlap = AC.OnOverlap || BC.OnOverlap;
+		bool has_enter		= AC.OnEnter || BC.OnEnter;
+		bool has_exit		= AC.OnExit || BC.OnExit;
+		bool has_overlap	= AC.OnOverlap || BC.OnOverlap;
 
 		if (has_enter || has_exit || has_overlap)
 		{
@@ -96,13 +93,13 @@ void NarrowSystem::CheckCollision(const typename BroadSystem::CollisionPair& pai
 
 			for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
 			{
-				a_result.contacts[i].hit = arbiter.contacts[i].position;
-				a_result.contacts[i].normal = arbiter.contacts[i].normal;
-				a_result.contacts[i].penetration = arbiter.contacts[i].penetration;
+				a_result.contacts[i].hit			= arbiter.contacts[i].position;
+				a_result.contacts[i].normal			= arbiter.contacts[i].normal;
+				a_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
 
-				b_result.contacts[i].hit = arbiter.contacts[i].position;
-				b_result.contacts[i].normal = -arbiter.contacts[i].normal; // flip normal for other
-				b_result.contacts[i].penetration = arbiter.contacts[i].penetration;
+				b_result.contacts[i].hit			= arbiter.contacts[i].position;
+				b_result.contacts[i].normal			= -arbiter.contacts[i].normal; // flip normal for other
+				b_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
 			}
 
 			if (has_enter || has_exit)
