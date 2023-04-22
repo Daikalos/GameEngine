@@ -3,11 +3,9 @@
 #include <Velox/ECS/IComponent.h>
 #include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/System/Rectangle.hpp>
-#include <Velox/System/Event.hpp>
 #include <Velox/System/Mat2f.hpp>
 #include <Velox/Config.hpp>
 
-#include "../CollisionResult.h"
 #include "../PhysicsBody.h"
 
 namespace vlx

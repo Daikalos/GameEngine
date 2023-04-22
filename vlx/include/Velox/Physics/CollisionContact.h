@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Velox/System/Vector2.hpp>
+
 namespace vlx
 {
 	struct CollisionContact

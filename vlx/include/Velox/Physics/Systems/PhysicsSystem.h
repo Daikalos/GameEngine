@@ -3,7 +3,6 @@
 #include <vector>
 #include <span>
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>

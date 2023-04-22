@@ -2,12 +2,10 @@
 
 #include <vector>
 #include <unordered_map>
-#include <string>
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
-#include <Velox/Graphics/Components/Transform.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/ECS/EntityAdmin.h>
+#include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Algorithms/LQuadTree.hpp>
 #include <Velox/Algorithms/QTElement.hpp>
 #include <Velox/Physics/Shapes/Shape.h>
@@ -18,6 +16,7 @@
 #include <Velox/Config.hpp>
 #include <Velox/VeloxTypes.hpp>
 
+#include "../PhysicsBody.h"
 #include "../CollisionObject.h"
 #include "../Collider.h"
 

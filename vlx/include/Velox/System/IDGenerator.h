@@ -1,11 +1,8 @@
 #pragma once
 
 #include <typeinfo>
-#include <atomic>
 
 #include <Velox/Config.hpp>
-
-#include "Concepts.h"
 
 namespace vlx::id
 {

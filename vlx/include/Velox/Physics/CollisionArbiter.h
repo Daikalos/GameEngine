@@ -1,13 +1,12 @@
 #pragma once
 
-#include <stdint.h>
 #include <array>
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Time.h>
 #include <Velox/VeloxTypes.hpp>
 
-#include "CollisionObject.h"
+#include "PhysicsBody.h"
 #include "CollisionContact.h"
 
 namespace vlx

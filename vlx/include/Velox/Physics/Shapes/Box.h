@@ -35,8 +35,8 @@ namespace vlx
 
 	public:
 		constexpr auto GetVertices() const noexcept -> const VectorArray&;
-		constexpr RectFloat GetBox() const noexcept;
 
+		constexpr RectFloat GetBox() const noexcept;
 		constexpr Vector2f GetSize() const noexcept;
 
 		constexpr float GetWidth() const noexcept;
@@ -87,11 +87,11 @@ namespace vlx
 	{
 		return m_vertices;
 	}
+
 	constexpr RectFloat Box::GetBox() const noexcept
 	{
 		return RectFloat({}, m_vertices[2] - m_vertices[0]);
 	}
-
 	constexpr Vector2f Box::GetSize() const noexcept
 	{
 		return { GetWidth(), GetHeight() };

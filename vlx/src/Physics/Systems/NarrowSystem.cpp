@@ -62,7 +62,7 @@ void NarrowSystem::CheckCollision(const typename BroadSystem::CollisionPair& pai
 	CollisionArbiter arbiter;
 	CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
 
-	if (arbiter.contacts_count)
+	if (arbiter.contacts_count) // successfully collided if not null
 	{
 		PhysicsBody* AB = A.body;
 		PhysicsBody* BB = B.body;
@@ -75,12 +75,12 @@ void NarrowSystem::CheckCollision(const typename BroadSystem::CollisionPair& pai
 			m_arbiters.emplace_back(arbiter);
 		}
 
-		Collider& AC = *A.collider; // dont worry if nullptr, should only collide if both have colliders anyways
+		Collider& AC = *A.collider; // dont worry if nullptr, should only ever collide if both have colliders anyways
 		Collider& BC = *B.collider;
 
-		bool has_enter		= AC.OnEnter || BC.OnEnter;
-		bool has_exit		= AC.OnExit || BC.OnExit;
-		bool has_overlap	= AC.OnOverlap || BC.OnOverlap;
+		bool has_enter		= AC.OnEnter	|| BC.OnEnter;
+		bool has_exit		= AC.OnExit		|| BC.OnExit;
+		bool has_overlap	= AC.OnOverlap	|| BC.OnOverlap;
 
 		if (has_enter || has_exit || has_overlap)
 		{

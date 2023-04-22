@@ -156,7 +156,7 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) :
 {
 	m_cleanup.OnStart += [this]()
 	{
-		m_quad_tree.Cleanup();
+		m_quad_tree.Cleanup(); // have to cleanup in case of erase
 	};
 
 	m_cleanup.SetPriority(1.0f);
@@ -211,8 +211,6 @@ void BroadSystem::CullDuplicates()
 			return x.first.entity_id == y.first.entity_id &&
 				   y.second.entity_id == x.second.entity_id;
 		});
-
-	//std::puts(std::to_string(last - first).c_str());
 
 	m_indices.erase(first, last);
 }
