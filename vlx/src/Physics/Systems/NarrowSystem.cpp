@@ -106,15 +106,12 @@ void NarrowSystem::Update(std::span<typename BroadSystem::CollisionPair> pairs, 
 		const auto it = m_collisions.find(pair);
 		if (it != m_collisions.end())
 		{
-			it->lhs_collider->OnExit(it->rhs_eid);
-			it->rhs_collider->OnExit(it->lhs_eid);
+			if (it->lhs_collider) it->lhs_collider->OnExit(it->rhs_eid);
+			if (it->rhs_collider) it->rhs_collider->OnExit(it->lhs_eid);
 
 			m_collisions.erase(it);
 		}
 	}
-
-	//if (!diff.empty())
-	//	std::puts("");
 }
 
 std::span<const CollisionArbiter> NarrowSystem::GetArbiters() const noexcept
