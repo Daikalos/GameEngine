@@ -76,7 +76,7 @@ namespace vlx
 		std::span<CollisionArbiter> GetArbiters() noexcept;
 
 	private:
-		void CallEvents(const CollisionArbiter& data, const CollisionObject& object);
+		void CheckCollision(const typename BroadSystem::CollisionPair& pair);
 
 	private:
 		EntityAdmin* m_entity_admin	{nullptr};
@@ -85,6 +85,7 @@ namespace vlx
 
 		std::vector<EntityPair> m_curr_collisions;
 		std::vector<EntityPair> m_prev_collisions;
+		std::vector<EntityPair> m_difference;
 
 		std::unordered_set<CollisionEventPair, CollisionEventPairHash> m_collisions;
 	};
