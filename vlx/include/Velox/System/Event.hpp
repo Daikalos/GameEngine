@@ -36,6 +36,8 @@ namespace vlx
 		auto operator=(const Event& other) -> Event&;
 		auto operator=(Event&& other) noexcept -> Event&;
 
+		explicit operator bool() const;
+
 		void operator()(Args... params) const;
 
 		auto operator+=(const HandlerType& handler) -> typename HandlerType::IDType;
@@ -124,6 +126,12 @@ namespace vlx
 		m_handlers = std::move(other.m_handlers);
 
 		return *this;
+	}
+
+	template<typename ...Args>
+	inline Event<Args...>::operator bool() const
+	{
+		return !IsEmpty();
 	}
 
 	template<typename... Args>

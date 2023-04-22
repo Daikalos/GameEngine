@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <string>
 
 #include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
@@ -28,10 +29,9 @@ namespace vlx
 		using GeneralSystem			= System<Collider, Transform>;
 
 		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
-		using CollisionIndex		= uint32;
 
 		using CollisionList			= std::vector<CollisionPair>;
-		using CollisionIndices		= std::vector<CollisionIndex>;
+		using CollisionIndices		= std::vector<uint32>;
 
 		using QuadTree				= LQuadTree<QTCollider::value_type>;
 
@@ -87,10 +87,10 @@ namespace vlx
 
 	public:
 		auto GetPairs() const noexcept -> std::span<const CollisionPair>;
-		auto GetIndices() const noexcept -> std::span<const CollisionIndex>;
+		auto GetIndices() const noexcept -> std::span<const uint32>;
 
 		auto GetPairs() noexcept -> std::span<CollisionPair>;
-		auto GetIndices() noexcept -> std::span<CollisionIndex>;
+		auto GetIndices() noexcept -> std::span<uint32>;
 
 	private:
 		void CullDuplicates();

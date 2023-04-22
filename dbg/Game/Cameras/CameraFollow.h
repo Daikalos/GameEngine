@@ -26,6 +26,11 @@ namespace vlx
 			m_offset = offset;
 		}
 
+		void EnableSmooth(const bool flag)
+		{
+			m_should_smooth = flag;
+		}
+
 	private:
 		void OnCreate(const std::vector<std::byte>& data) override
 		{
@@ -44,14 +49,31 @@ namespace vlx
 
 		bool PostUpdate(const Time& time) override
 		{
-			if (m_target.IsValid())
-				GetCamera().SetPosition(m_target->GetPosition() + m_offset);
+			if (!m_target.IsValid())
+				return true;
+
+			Vector2f target = m_target->GetPosition() + m_offset;
+
+			if (m_should_smooth)
+			{
+				Vector2f smooth = Vector2f::Lerp(GetCamera().GetPosition(), target, 
+					m_smooth_speed * time.GetDT());
+
+				GetCamera().SetPosition(smooth);
+			}
+			else
+			{
+				GetCamera().SetPosition(target);
+			}
 
 			return true;
 		}
 
 	private:
 		ComponentRef<GlobalTransform> m_target;
+		Vector2f m_current;
 		Vector2f m_offset;
+		float m_smooth_speed {5.0f};
+		bool m_should_smooth {true};
 	};
 }

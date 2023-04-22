@@ -25,6 +25,11 @@ namespace vlx
 		C& operator*();
 		const C& operator*() const;
 
+		bool operator==(const ComponentRef& rhs) const;
+		bool operator!=(const ComponentRef& rhs) const;
+
+		operator bool() const;
+
 	public:
 		NODISC C* Get();
 		NODISC const C* Get() const;
@@ -70,6 +75,24 @@ namespace vlx
 	inline const C& ComponentRef<C>::operator*() const
 	{
 		return *Get();
+	}
+
+	template<class C>
+	inline bool ComponentRef<C>::operator==(const ComponentRef& rhs) const
+	{
+		return m_entity_id == rhs.m_entity_id;
+	}
+
+	template<class C>
+	inline bool ComponentRef<C>::operator!=(const ComponentRef& rhs) const
+	{
+		return !(*this == rhs);
+	}
+
+	template<class C>
+	inline ComponentRef<C>::operator bool() const
+	{
+		return IsValid();
 	}
 
 	template<class C>

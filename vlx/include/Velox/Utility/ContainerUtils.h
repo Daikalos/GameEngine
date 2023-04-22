@@ -8,29 +8,6 @@
 
 namespace vlx::cu
 {
-	template<IsContainer T>
-	struct ContainerHash
-	{
-		NODISC constexpr std::size_t operator()(const T& container) const
-		{
-			std::size_t seed = container.size();
-
-			if (seed == 1)
-				return container.front();
-
-			for (auto x : container)
-			{
-				x = ((x >> 16) ^ x) * 0x45d9f3b;
-				x = ((x >> 16) ^ x) * 0x45d9f3b;
-				x = (x >> 16) ^ x;
-
-				seed ^= static_cast<std::size_t>(x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-			}
-
-			return seed;
-		}
-	};
-
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
 	NODISC static constexpr auto PackArray(Args&&... args)
 	{
@@ -222,4 +199,47 @@ namespace vlx::cu
 	{
 		return std::is_sorted(cntn.begin(), cntn.end(), comp);
 	}
+
+	template<typename T>
+	NODISC static constexpr void HashCombine(std::size_t& seed, const T& v)
+	{
+		seed ^= static_cast<std::size_t>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	}
+
+	template<IsContainer T>
+	struct ContainerHash
+	{
+		NODISC constexpr std::size_t operator()(const T& container) const
+		{
+			std::size_t seed = container.size();
+
+			if (seed == 1)
+				return container.front(); // just return first if only one
+
+			for (auto x : container)
+			{
+				x = ((x >> 16) ^ x) * 0x45d9f3b;
+				x = ((x >> 16) ^ x) * 0x45d9f3b;
+				x = (x >> 16) ^ x;
+
+				HashCombine(seed, x);
+			}
+
+			return seed;
+		}
+	};
+
+	template<std::integral T>
+	struct PairIntegerHash
+	{
+		NODISC constexpr std::size_t operator()(const std::pair<T, T>& pair) const
+		{
+			std::size_t seed = 0;
+
+			HashCombine(seed, pair.first);
+			HashCombine(seed, pair.second);
+
+			return seed;
+		}
+	};
 }

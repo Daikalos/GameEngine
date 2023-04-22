@@ -28,6 +28,7 @@ private:
 	vlx::Entity b0, b1;
 
 	vlx::Entity player;
+	bool can_jump {true};
 
 	//vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
 };

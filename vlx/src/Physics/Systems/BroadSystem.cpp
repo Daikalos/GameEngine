@@ -89,6 +89,9 @@ void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, 
 		if (s == collision.item.shape) // no collision against self
 			continue;
 
+		if (!c->enabled || !collision.item.collider->enabled)
+			continue;
+
 		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
 			continue;
 
@@ -117,6 +120,9 @@ void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point*
 	{
 		// no need to check against self
 
+		if (!c->enabled || !collision.item.collider->enabled)
+			continue;
+
 		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
 			continue;
 
@@ -128,7 +134,7 @@ void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point*
 			bool lhs_active = (lhs->IsAwake() && lhs->IsEnabled());
 			bool rhs_active = (rhs->IsAwake() && rhs->IsEnabled());
 
-			if (!lhs_active && !rhs_active)
+			if (!lhs_active && !rhs_active) // skip trying collision if both are either asleep or disabled
 				continue;
 		}
 
@@ -170,7 +176,7 @@ auto BroadSystem::GetPairs() const noexcept -> std::span<const CollisionPair>
 {
 	return m_pairs;
 }
-auto BroadSystem::GetIndices() const noexcept -> std::span<const CollisionIndex>
+auto BroadSystem::GetIndices() const noexcept -> std::span<const uint32>
 {
 	return m_indices;
 }
@@ -179,7 +185,7 @@ auto BroadSystem::GetPairs() noexcept -> std::span<CollisionPair>
 {
 	return m_pairs;
 }
-auto BroadSystem::GetIndices() noexcept -> std::span<CollisionIndex>
+auto BroadSystem::GetIndices() noexcept -> std::span<uint32>
 {
 	return m_indices;
 }
@@ -187,27 +193,26 @@ auto BroadSystem::GetIndices() noexcept -> std::span<CollisionIndex>
 void BroadSystem::CullDuplicates()
 {
 	std::ranges::sort(m_indices.begin(), m_indices.end(),
-		[this](const auto lhs, const auto rhs)
+		[this](const uint32 l, const uint32 r)
 		{
-			const auto& clhs = m_pairs[lhs], &crhs = m_pairs[rhs];
+			const auto& x = m_pairs[l];
+			const auto& y = m_pairs[r];
 
-			if (clhs.first.entity_id < crhs.first.entity_id)
-				return true;
-
-			if (clhs.first.entity_id == crhs.first.entity_id)
-				return clhs.second.entity_id < crhs.second.entity_id;
-
-			return false;
+			return (x.first.entity_id < y.first.entity_id) || 
+				(x.first.entity_id == y.first.entity_id && x.second.entity_id < y.second.entity_id);
 		});
 
 	const auto [first, last] = std::ranges::unique(m_indices.begin(), m_indices.end(),
-		[this](const auto lhs, const auto rhs)
+		[this](const uint32 l, const uint32 r)
 		{
-			const auto& clhs = m_pairs[lhs], &crhs = m_pairs[rhs];
+			const auto& x = m_pairs[l];
+			const auto& y = m_pairs[r];
 
-			return	clhs.first.entity_id == crhs.second.entity_id && 
-					clhs.second.entity_id == crhs.first.entity_id;
+			return x.first.entity_id == y.first.entity_id &&
+				   y.second.entity_id == x.second.entity_id;
 		});
+
+	//std::puts(std::to_string(last - first).c_str());
 
 	m_indices.erase(first, last);
 }

@@ -129,10 +129,30 @@ void StateTest::OnCreated()
 	player.GetComponent<PhysicsBody>().SetType(BodyType::Dynamic);
 	player.GetComponent<PhysicsBody>().SetGravityScale(1.5f);
 	player.GetComponent<PhysicsBody>().SetFriction(100000.0f);
+	player.GetComponent<PhysicsBody>().SetSleepingAllowed(false);
 	player.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	player.GetComponent<Sprite>().SetSize(size);
 	player.GetComponent<Sprite>().SetColor(sf::Color::Blue);
 	player.GetComponent<Transform>().SetOrigin(size / 2.0f);
+
+	player.GetComponent<Collider>().OnExit += [](EntityID eid)
+	{
+		//std::puts("exit");
+	};
+
+	player.GetComponent<Collider>().OnEnter += [this](const CollisionResult& result)
+	{
+		//std::puts("enter");
+		if (result.contacts[0].normal.Dot(Vector2f::Up) > 0.8f)
+		{
+			can_jump = true;
+		}
+	};
+
+	player.GetComponent<Collider>().OnOverlap += [](const CollisionResult& result)
+	{
+		//std::puts("overlap");
+	};
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(player, { 0, -64 });
 
@@ -159,8 +179,11 @@ bool StateTest::Update(Time& time)
 		player.GetComponent<Transform>().Move({ -50.0f * time.GetDT(), 0.0f });
 	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::D))
 		player.GetComponent<Transform>().Move({  50.0f * time.GetDT(), 0.0f });
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+	if (can_jump && GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+	{
 		player.GetComponent<PhysicsBody>().ApplyForceToCenter({ 0.0f, -4000.0f });
+		can_jump = false;
+	}
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
@@ -229,7 +252,7 @@ bool StateTest::Update(Time& time)
 
 	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 	//{
-	//	GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(e0); // TODO: tell children transforms that parent was removed
+	//	GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(player); // TODO: tell children transforms that parent was removed
 	//}
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFPS()));

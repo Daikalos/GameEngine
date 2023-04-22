@@ -15,17 +15,15 @@ namespace vlx
 	class Collider : public QTCollider
 	{
 	public:
-		Event<const CollisionResult&> OnEnter;		// called when collider enters another collider
-		Event<const CollisionResult&> OnExit;		// called when collider exits another collider
-		Event<const CollisionResult&> OnOverlap;	// called when collider overlaps another collider
+		Event<const CollisionResult&>	OnEnter;	// called when collider enters another collider
+		Event<EntityID>					OnExit;		// called when collider exits another collider
+		Event<const CollisionResult&>	OnOverlap;	// called when collider overlaps another collider
 
 	public:
 		CollisionLayer layer;
 		bool enabled {true};
 
 	private:
-		bool colliding	{false};
-		bool collided	{false};
 		bool dirty		{true}; // if should update the AABB in the quadtree
 
 		friend class PhysicsDirtySystem;

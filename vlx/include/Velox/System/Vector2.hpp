@@ -209,6 +209,11 @@ namespace vlx
 		static const Vector2<T> UnitY;
 		static const Vector2<T> Zero;
 		static const Vector2<T> One;
+
+		static const Vector2<T> Up;
+		static const Vector2<T> Down;
+		static const Vector2<T> Left;
+		static const Vector2<T> Right;
 	};
 
 	using Vector2f = Vector2<float>;
@@ -226,6 +231,18 @@ namespace vlx
 
 	template<Arithmetic T>
 	inline const Vector2<T> Vector2<T>::One(static_cast<T>(1), static_cast<T>(1));
+
+	template<Arithmetic T>
+	inline const Vector2<T> Vector2<T>::Up(static_cast<T>(0), static_cast<T>(1));
+
+	template<Arithmetic T>
+	inline const Vector2<T> Vector2<T>::Down(static_cast<T>(0), static_cast<T>(-1));
+
+	template<Arithmetic T>
+	inline const Vector2<T> Vector2<T>::Left(static_cast<T>(-1), static_cast<T>(0));
+
+	template<Arithmetic T>
+	inline const Vector2<T> Vector2<T>::Right(static_cast<T>(0), static_cast<T>(1));
 
 	template<Arithmetic T>
 	inline constexpr Vector2<T>::Vector2() = default;
