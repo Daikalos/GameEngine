@@ -776,7 +776,7 @@ namespace vlx
 		C new_component(std::forward<Args>(args)...);
 
 		if constexpr (std::derived_from<C, AlteredEvent<C>>)
-			old_component->Altered(*this, entity_id, &new_component);
+			old_component.Altered(*this, entity_id, new_component);
 
 		old_component = std::move(new_component);
 
@@ -797,7 +797,7 @@ namespace vlx
 		C new_component(std::forward<Args>(args)...);
 
 		if constexpr (std::derived_from<C, AlteredEvent<C>>)
-			old_component->Altered(*this, entity_id, &new_component);
+			old_component->Altered(*this, entity_id, new_component);
 
 		*old_component = std::move(new_component);
 

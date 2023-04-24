@@ -36,11 +36,9 @@ namespace vlx
 
 		VELOX_API NODISC bool IsDescendant(const EntityID descendant) const;
 
-		VELOX_API void CopiedTestImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
-
 	private:
 		VELOX_API void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
-		VELOX_API void ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data);
+		VELOX_API void AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data);
 		VELOX_API void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	public:

@@ -46,7 +46,7 @@ void Relation::CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity
 	m_children.clear(); // to prevent children confusing who their parent is
 }
 
-void Relation::ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data)
+void Relation::AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data)
 {
 	// When the relation is modified, we need to update the relation accordingly
 
