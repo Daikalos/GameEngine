@@ -123,4 +123,7 @@ namespace vlx
 
 		friend class EntityAdmin;
 	};
+
+	template<class C, template<class> class... Events>
+	struct EventSet : public Events<C>... {};
 }

@@ -12,7 +12,7 @@ namespace vlx
 {
 	/// Represents the relationship between entities
 	/// 
-	class Relation : public CopiedEvent<Relation>, public AlteredEvent<Relation>, public DestroyedEvent<Relation>
+	class Relation : public EventSet<Relation, CopiedEvent, AlteredEvent, DestroyedEvent>
 	{
 	public:
 		using Ref = ComponentRef<Relation>;

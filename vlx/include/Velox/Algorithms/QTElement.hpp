@@ -12,7 +12,7 @@ namespace vlx
 	/// to element and also erasing the inserted element when the associated entity is suddenly destroyed.
 	/// 
 	template<std::equality_comparable T = int>
-	class QTElement : public CopiedEvent<QTElement<T>>, public AlteredEvent<QTElement<T>>, public DestroyedEvent<QTElement<T>>
+	class QTElement : public EventSet<QTElement<T>, CopiedEvent, AlteredEvent, DestroyedEvent>
 	{
 	public:
 		using value_type = T;
