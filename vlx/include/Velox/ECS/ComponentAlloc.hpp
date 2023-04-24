@@ -3,8 +3,8 @@
 #include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
+#include "ComponentEvents.h"
 #include "Identifiers.hpp"
-#include "IComponent.h"
 
 namespace vlx
 {
@@ -15,7 +15,7 @@ namespace vlx
 	/// </summary>
 	struct IComponentAlloc
 	{
-		virtual ~IComponentAlloc() = default;
+		constexpr virtual ~IComponentAlloc() = default;
 
 		virtual void ConstructData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
 		virtual void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
@@ -53,7 +53,9 @@ namespace vlx
 	inline void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = new (data) C();
-		static_cast<IComponent*>(data_location)->Created(entity_admin, entity_id);
+
+		if constexpr (std::derived_from<C, CopiedEvent<C>>)
+			data_location->Copied(entity_admin, entity_id);
 	}
 
 	template<IsComponent C>
@@ -61,7 +63,9 @@ namespace vlx
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
 
-		static_cast<IComponent*>(data_location)->Destroyed(entity_admin, entity_id); // call associated event
+		if constexpr (std::derived_from<C, DestroyedEvent<C>>)
+			data_location->Destroyed(entity_admin, entity_id); // call associated event
+
 		data_location->~C(); // now destroy
 
 		entity_admin.EraseComponentRef<C>(entity_id); // make sure that all current references are erased
@@ -71,7 +75,9 @@ namespace vlx
 	inline void ComponentAlloc<C>::MoveData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
 		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
-		static_cast<IComponent*>(data_location)->Moved(entity_admin, entity_id); // call associated event
+
+		if constexpr (std::derived_from<C, MovedEvent<C>>)
+			data_location->Moved(entity_admin, entity_id); // call associated event
 
 		entity_admin.UpdateComponentRef<C>(entity_id, data_location); // update the current references
 	}
@@ -80,7 +86,9 @@ namespace vlx
 	inline void ComponentAlloc<C>::CopyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
 		C* data_location = new (destination) C(*reinterpret_cast<const C*>(source));
-		static_cast<IComponent*>(data_location)->Copied(entity_admin, entity_id);
+
+		if constexpr (std::derived_from<C, CopiedEvent<C>>)
+			data_location->Copied(entity_admin, entity_id);
 	}
 
 	template<IsComponent C>
@@ -101,7 +109,9 @@ namespace vlx
 	inline void ComponentAlloc<C>::Shutdown(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); 
-		static_cast<IComponent*>(data_location)->Shutdown(entity_admin, entity_id); // call associated event
+
+		if constexpr (std::derived_from<C, ShutdownEvent<C>>)
+			data_location->Shutdown(entity_admin, entity_id); // call associated event
 
 		data_location->~C(); // call destructor to clear possible leaks
 	}
@@ -112,7 +122,9 @@ namespace vlx
 		C* source_location	= std::launder(reinterpret_cast<C*>(source));			// Retrieve pointer to source location
 		C* dest_location	= new (destination) C(std::move(*source_location));		// move the data in src by constructing a object at dest with the values from src
 
-		static_cast<IComponent*>(dest_location)->Moved(entity_admin, entity_id);	// call associated event
+		if constexpr (std::derived_from<C, MovedEvent<C>>)
+			dest_location->Moved(entity_admin, entity_id);	// call associated event
+
 		source_location->~C();														// destroy data without calling the Destroyed event, Moved is used instead
 
 		entity_admin.UpdateComponentRef<C>(entity_id, dest_location); // update the current references with the new data

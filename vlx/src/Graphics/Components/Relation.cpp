@@ -35,7 +35,7 @@ bool Relation::IsDescendant(const EntityID descendant) const
 	 return false;
 }
 
-void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
+void Relation::CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
 {
 	if (HasParent())
 	{
@@ -46,24 +46,22 @@ void Relation::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
 	m_children.clear(); // to prevent children confusing who their parent is
 }
 
-void Relation::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data)
+void Relation::ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data)
 {
 	// When the relation is modified, we need to update the relation accordingly
 
-	Destroyed(entity_admin, entity_id); // detach everything first
+	DestroyedImpl(entity_admin, entity_id); // detach everything first
 
 	// then attach everything with the new values
 
-	Relation& new_relation = static_cast<Relation&>(new_data);
+	if (new_data.HasParent())
+		new_data.m_parent->m_children.push_back(entity_admin.GetComponentRef<Relation>(entity_id, this));
 
-	if (new_relation.HasParent())
-		new_relation.m_parent->m_children.push_back(entity_admin.GetComponentRef<Relation>(entity_id, this));
-
-	for (auto& child : new_relation.m_children)
+	for (auto& child : new_data.m_children)
 		child->m_parent = entity_admin.GetComponentRef<Relation>(entity_id, this);
 }
 
-void Relation::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
+void Relation::DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
 {
 	// When the relation is destroyed, we need to detach it accordingly
 

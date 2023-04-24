@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
-
 namespace vlx::gui
 {
 	enum class AnchorPoint
@@ -15,7 +13,7 @@ namespace vlx::gui
 		BotRight
 	};
 
-	struct Anchor : public IComponent
+	struct Anchor
 	{
 		AnchorPoint anchor { AnchorPoint::TopLeft }; // top left is default
 	};

@@ -12,7 +12,7 @@ namespace vlx
 {
 	/// Represents the relationship between entities
 	/// 
-	class Relation : public IComponent
+	class Relation : public CopiedEvent<Relation>, public AlteredEvent<Relation>, public DestroyedEvent<Relation>
 	{
 	public:
 		using Ref = ComponentRef<Relation>;
@@ -36,10 +36,12 @@ namespace vlx
 
 		VELOX_API NODISC bool IsDescendant(const EntityID descendant) const;
 
+		VELOX_API void CopiedTestImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+
 	private:
-		VELOX_API void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
-		VELOX_API void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
-		VELOX_API void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+		VELOX_API void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+		VELOX_API void ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data);
+		VELOX_API void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	public:
 		template<class C>
@@ -53,6 +55,10 @@ namespace vlx
 		Children	m_children;
 		
 		friend class RelationSystem;
+
+		friend class CopiedEvent<Relation>;
+		friend class AlteredEvent<Relation>;
+		friend class DestroyedEvent<Relation>;
 	};
 
 	template<class C>

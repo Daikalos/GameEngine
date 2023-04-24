@@ -28,23 +28,8 @@ namespace vlx
 	template<class>
 	class ComponentRef;
 
-	template<class>
-	class BaseRef;
-
 	template<class... Cs> requires IsComponents<Cs...>
 	class ComponentSet;
-
-	enum class RefFlag
-	{
-		None		= 0,
-		Component	= 1 << 0,
-		Base		= 1 << 1,
-		All			= Component | Base
-	};
-
-	inline RefFlag operator|(RefFlag lhs, RefFlag rhs)		{ return static_cast<RefFlag>(static_cast<int>(lhs) | static_cast<int>(rhs)); }
-	inline RefFlag operator&(RefFlag lhs, RefFlag rhs)		{ return static_cast<RefFlag>(static_cast<int>(rhs) & static_cast<int>(rhs)); }
-	inline RefFlag& operator|=(RefFlag& lhs, RefFlag rhs)	{ return lhs = (lhs | rhs); }
 
 	////////////////////////////////////////////////////////////
 	// 
@@ -69,17 +54,28 @@ namespace vlx
 			ColumnType	column		{0}; // where in the archetype is the components data located at
 		};
 
+		enum
+		{
+			CF_None			= 0,
+			CF_Component	= 1 << 0,
+			CF_Base			= 1 << 1,
+			CF_All			= CF_Component | CF_Base
+		};
+
 		struct DataRef
 		{
-			RefFlag flag {RefFlag::None};
-
-			std::weak_ptr<IComponent*> component_ptr;
-
-			struct BaseData
+			struct
 			{
 				std::weak_ptr<void*> ptr;
-				uint32 offset {0};
+			} component;
+
+			struct
+			{
+				std::weak_ptr<void*> ptr;
+				uint16 offset {0};
 			} base;
+
+			uint16 flag {0};
 		};
 
 		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
@@ -294,7 +290,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC BaseRef<B> GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
+		NODISC ComponentRef<B> GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
 
 		///	Tries to return a base reference. May fail if the entity does not exist or hold the specified component.
 		/// 
@@ -306,7 +302,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC std::optional<BaseRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
+		NODISC std::optional<ComponentRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
 
 		///	Checks if the entity holds the specified component.
 		/// 
@@ -432,7 +428,7 @@ namespace vlx
 
 	private:
 		VELOX_API void EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const;
-		VELOX_API void UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, IComponent* new_component) const;
+		VELOX_API void UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, void* new_component) const;
 
 		VELOX_API void ClearEmptyEntityArchetypes();
 		VELOX_API void ClearEmptyTypeArchetypes();
@@ -628,7 +624,8 @@ namespace vlx
 				C(std::forward<Args>(args)...);
 		}
 
-		add_component->Created(*this, entity_id);
+		if constexpr (std::derived_from<C, CreatedEvent<C>>)
+			add_component->Created(*this, entity_id);
 
 		new_archetype->entities.push_back(entity_id);
 		record.index = IDType(new_archetype->entities.size() - 1);
@@ -778,8 +775,8 @@ namespace vlx
 		C& old_component = GetComponent<C>(entity_id);
 		C new_component(std::forward<Args>(args)...);
 
-		static_cast<IComponent&>(old_component).Modified(
-			*this, entity_id, static_cast<IComponent&>(new_component));
+		if constexpr (std::derived_from<C, AlteredEvent<C>>)
+			old_component->Altered(*this, entity_id, &new_component);
 
 		old_component = std::move(new_component);
 
@@ -799,8 +796,8 @@ namespace vlx
 		C* old_component = opt_component.value();
 		C new_component(std::forward<Args>(args)...);
 
-		static_cast<IComponent&>(*old_component).Modified(
-			*this, entity_id, static_cast<IComponent&>(new_component));
+		if constexpr (std::derived_from<C, AlteredEvent<C>>)
+			old_component->Altered(*this, entity_id, &new_component);
 
 		*old_component = std::move(new_component);
 
@@ -816,21 +813,32 @@ namespace vlx
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = component_refs.find(component_id);
-		if (cit == component_refs.end() || ((cit->second.flag & RefFlag::Component) == RefFlag::Component && cit->second.component_ptr.expired())) // it does not yet exist or has expired
+		if (cit == component_refs.end()) // it does not yet exist
 		{
 			if (component == nullptr)
-				component = TryGetComponent<C>(entity_id).value_or(nullptr);
+				component = &GetComponent<C>(entity_id);
 
-			auto ptr = std::make_shared<IComponent*>(component);
+			auto ptr = std::make_shared<void*>(component);
 
-			auto& entry = component_refs[component_id];
-			entry.flag |= RefFlag::Component;
-			entry.component_ptr = ptr;
+			DataRef data {ptr, {}, CF_Component};
+			component_refs.try_emplace(component_id, data);
 
 			return ComponentRef<C>(entity_id, ptr);
 		}
 
-		return ComponentRef<C>(entity_id, cit->second.component_ptr.lock());
+		DataRef& ref = cit->second;
+		if ((ref.flag & CF_Component) == CF_Component && ref.component.ptr.expired())
+		{
+			if (component == nullptr)
+				component = &GetComponent<C>(entity_id);
+
+			auto ptr = std::make_shared<void*>(component);
+			ref.component.ptr = ptr;
+
+			return ComponentRef<C>(entity_id, ptr);
+		}
+
+		return ComponentRef<C>(entity_id, ref.component.ptr.lock());
 	}
 
 	template<IsComponent C>
@@ -843,31 +851,41 @@ namespace vlx
 	}
 
 	template<class B>
-	inline BaseRef<B> EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
+	inline ComponentRef<B> EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
 	{
 		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = component_refs.find(child_component_id);
-		if (cit == component_refs.end() || ((cit->second.flag & RefFlag::Base) == RefFlag::Base && cit->second.base.ptr.expired())) // it does not yet exist, create new one
+		if (cit == component_refs.end()) // it does not yet exist
 		{
 			if (base == nullptr)
-				base = TryGetBase<B>(entity_id, child_component_id, offset).value_or(nullptr);
+				base = &GetBase<B>(entity_id, child_component_id, offset);
 
-			auto ptr = std::make_shared<void*>(static_cast<void*>(base));
+			auto ptr = std::make_shared<void*>(base);
 
-			auto& entry = component_refs[child_component_id];
-			entry.flag |= RefFlag::Base;
-			entry.base.ptr = ptr;
-			entry.base.offset = offset;
+			DataRef data {{}, ptr, offset, CF_Base};
+			component_refs.try_emplace(child_component_id, data);
 
-			return BaseRef<B>(entity_id, ptr);
+			return ComponentRef<B>(entity_id, ptr);
 		}
 
-		return BaseRef<B>(entity_id, cit->second.base.ptr.lock());
+		DataRef& ref = cit->second;
+		if ((ref.flag & CF_Base) == CF_Base && ref.base.ptr.expired())
+		{
+			if (base == nullptr)
+				base = &GetBase<B>(entity_id, child_component_id, offset);
+
+			auto ptr = std::make_shared<void*>(base);
+			ref.base.ptr = ptr;
+
+			return ComponentRef<B>(entity_id, ptr);
+		}
+
+		return ComponentRef<B>(entity_id, ref.base.ptr.lock());
 	}
 
 	template<class B>
-	inline std::optional<BaseRef<B>> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
+	inline std::optional<ComponentRef<B>> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists and has component
 			return std::nullopt;
@@ -1175,6 +1193,6 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::UpdateComponentRef(const EntityID entity_id, C* new_component) const
 	{
-		UpdateComponentRef(entity_id, GetComponentID<C>(), static_cast<IComponent*>(new_component));
+		UpdateComponentRef(entity_id, GetComponentID<C>(), static_cast<void*>(new_component)); // TODO: CHECK OUT
 	}
 }

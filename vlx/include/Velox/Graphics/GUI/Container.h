@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <Velox/ECS/BaseRef.hpp>
+#include <Velox/ECS.hpp>
 #include <Velox/VeloxTypes.hpp>
 
 #include "GUIComponent.h"
@@ -13,7 +13,7 @@ namespace vlx::gui
 	{
 	private:
 		using SizeType			= int16;
-		using ChildType			= BaseRef<GUIComponent>;
+		using ChildType			= ComponentRef<GUIComponent>;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;

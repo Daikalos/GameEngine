@@ -122,14 +122,14 @@ void CollisionArbiter::ResolveVelocity()
 
 		if (AB.IsAwake() && AB.IsEnabled())
 		{
-			AB.m_velocity -= friction_impulse * am;
-			AB.m_angular_velocity -= ra.Cross(friction_impulse) * ai;
+			AB.m_velocity			-= friction_impulse * am;
+			AB.m_angular_velocity	-= ra.Cross(friction_impulse) * ai;
 		}
 
 		if (BB.IsAwake() && BB.IsEnabled())
 		{
-			BB.m_velocity += friction_impulse * bm;
-			BB.m_angular_velocity += rb.Cross(friction_impulse) * bi;
+			BB.m_velocity			+= friction_impulse * bm;
+			BB.m_angular_velocity	+= rb.Cross(friction_impulse) * bi;
 		}
 	}
 }

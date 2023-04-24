@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Velox/Algorithms/QTElement.hpp>
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Event.hpp>
 
 #include "CollisionResult.h"

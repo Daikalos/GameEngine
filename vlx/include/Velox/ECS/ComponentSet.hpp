@@ -7,7 +7,6 @@
 #include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
-#include "IComponent.h"
 #include "ComponentRef.hpp"
 #include "ComponentAlloc.hpp"
 
@@ -20,7 +19,7 @@ namespace vlx
 	{
 	private:
 		using ComponentTypes	= std::tuple<Cs...>;
-		using ComponentRefs		= std::array<std::shared_ptr<IComponent*>, sizeof...(Cs)>;
+		using ComponentRefs		= std::array<std::shared_ptr<void*>, sizeof...(Cs)>;
 
 		template<std::size_t N>
 		using ComponentType = std::tuple_element_t<N, ComponentTypes>;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Mat4f.hpp>
 #include <Velox/Utility/ArithmeticUtils.h>
@@ -10,7 +9,7 @@ namespace vlx
 {
 	///	Global transform of an object, containing the combined transforms of all subsequent parents and self.
 	///
-	class VELOX_API GlobalTransform : public IComponent
+	class VELOX_API GlobalTransform
 	{ 
 	public:
 		NODISC const Mat4f&		GetTransform() const noexcept;

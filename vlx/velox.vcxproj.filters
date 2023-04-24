@@ -100,7 +100,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\Object.h" />
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\System\Traits.h" />
-    <ClInclude Include="include\Velox\ECS\IComponent.h" />
+    <ClInclude Include="include\Velox\ECS\ComponentEvents.h" />
     <ClInclude Include="include\Velox\ECS\SystemAction.h" />
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
@@ -114,7 +114,6 @@
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RelationSystem.h" />
-    <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\World\ObjectTypes.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Window.hpp" />

@@ -1,12 +1,10 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
-
 namespace vlx
 {
 	/// Denotes common properties for rendering
 	///
-	struct Renderable : public IComponent
+	struct Renderable
 	{
 		bool IsActive	{true};
 		bool IsStatic	{false};

@@ -16,7 +16,7 @@ namespace vlx
 	{
 	public:
 		ComponentRef() = default;
-		ComponentRef(const EntityID entity_id, std::shared_ptr<IComponent*> component);
+		ComponentRef(const EntityID entity_id, std::shared_ptr<void*> component);
 
 	public:
 		C* operator->();
@@ -42,15 +42,15 @@ namespace vlx
 		void Reset();
 
 	private:
-		EntityID						m_entity_id	{NULL_ENTITY};
-		std::shared_ptr<IComponent*>	m_component {nullptr};
+		EntityID				m_entity_id	{NULL_ENTITY};
+		std::shared_ptr<void*>	m_component {nullptr};
 
 		template<class... Cs> requires IsComponents<Cs...>
 		friend class ComponentSet; // to enable access to m_component
 	};
 
 	template<class C>
-	inline ComponentRef<C>::ComponentRef(const EntityID entity_id, std::shared_ptr<IComponent*> component)
+	inline ComponentRef<C>::ComponentRef(const EntityID entity_id, std::shared_ptr<void*> component)
 		: m_entity_id(entity_id), m_component(component) { }
 
 	template<class C>

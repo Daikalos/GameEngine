@@ -50,7 +50,7 @@ namespace vlx
 			void QueryShape(EntityID entity_id, Shape* shape, typename Shape::Type type, Collider* c, PhysicsBody* pb);
 
 		private:
-			BroadSystem&		m_broad;
+			BroadSystem&	m_broad;
 
 			ShapeSystem		m_insert;
 			ShapeBodySystem	m_body_insert;

@@ -1,8 +1,9 @@
 #pragma once
 
+#include <array>
+
 #include <SFML/Graphics.hpp>
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/VeloxTypes.hpp>
@@ -19,7 +20,7 @@ namespace vlx
 	///	Custom sprite that is very similar to SFML's except that it has depth 
 	///	and no transform as to be suitable for spritebatch and the ECS design
 	/// 
-	class VELOX_API Sprite : public IComponent, public IBatchable
+	class VELOX_API Sprite : public IBatchable
 	{
 	private:
 		using VertexArray = std::array<sf::Vertex, QUAD_COUNT>;

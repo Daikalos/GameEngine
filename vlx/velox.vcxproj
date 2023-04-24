@@ -177,7 +177,6 @@
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
     <ClInclude Include="include\Velox\Algorithms\QTElement.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\Relation.h" />
-    <ClInclude Include="include\Velox\ECS\BaseRef.hpp" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
     <ClInclude Include="include\Velox\System.hpp" />
@@ -190,7 +189,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\Object.h" />
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
-    <ClInclude Include="include\Velox\ECS\IComponent.h" />
+    <ClInclude Include="include\Velox\ECS\ComponentEvents.h" />
     <ClInclude Include="include\Velox\Config.hpp" />
     <ClInclude Include="include\Velox\ECS.hpp" />
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

@@ -449,16 +449,16 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 	DataRef& ref = cit->second;
 	switch (ref.flag)
 	{
-	case RefFlag::Component:
+	case CF_Component:
 	{
-		if (ref.component_ptr.expired())
+		if (ref.component.ptr.expired())
 		{
 			eit->second.erase(component_id);
 		}
-		else *ref.component_ptr.lock() = nullptr;
+		else *ref.component.ptr.lock() = nullptr;
 	}
 	break;
-	case RefFlag::Base:
+	case CF_Base:
 	{
 		if (ref.base.ptr.expired())
 		{
@@ -467,15 +467,15 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 		else *ref.base.ptr.lock() = nullptr;
 	}
 	break;
-	case RefFlag::All:
+	case CF_All:
 	{
-		if (ref.component_ptr.expired() && ref.base.ptr.expired())
+		if (ref.component.ptr.expired() && ref.base.ptr.expired())
 		{
 			eit->second.erase(component_id);
 		}
 		else
 		{
-			*ref.component_ptr.lock() = nullptr;
+			*ref.component.ptr.lock() = nullptr;
 			*ref.base.ptr.lock() = nullptr;
 		}
 	}
@@ -484,47 +484,49 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 	}
 }
 
-void EntityAdmin::UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, IComponent* new_component) const
+void EntityAdmin::UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, void* new_component) const
 {
 	const auto eit = m_entity_component_ref_map.find(entity_id);
 	if (eit == m_entity_component_ref_map.end())
 		return;
 
-	const auto cit = eit->second.find(component_id);
-	if (cit == eit->second.end())
+	auto& component_map = eit->second;
+
+	const auto cit = component_map.find(component_id);
+	if (cit == component_map.end())
 		return;
 
 	DataRef& ref = cit->second;
 	switch (ref.flag)
 	{
-	case RefFlag::Component:
+	case CF_Component:
 	{
-		if (ref.component_ptr.expired())
+		if (ref.component.ptr.expired())
 		{
-			eit->second.erase(component_id);
+			component_map.erase(component_id);
 		}
-		else *ref.component_ptr.lock() = new_component;
+		else *ref.component.ptr.lock() = new_component;
 	}
 	break;
-	case RefFlag::Base:
+	case CF_Base:
 	{
 		if (ref.base.ptr.expired())
 		{
-			eit->second.erase(component_id);
+			component_map.erase(component_id);
 		}
-		else *ref.base.ptr.lock() = reinterpret_cast<void*>(new_component + ref.base.offset);
+		else *ref.base.ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base.offset);
 	}
 	break;
-	case RefFlag::All:
+	case CF_All:
 	{
-		if (ref.component_ptr.expired() && ref.base.ptr.expired())
+		if (ref.component.ptr.expired() && ref.base.ptr.expired())
 		{
-			eit->second.erase(component_id);
+			component_map.erase(component_id);
 		}
 		else
 		{
-			*ref.component_ptr.lock() = new_component;
-			*ref.base.ptr.lock() = reinterpret_cast<void*>(new_component + ref.base.offset);
+			*ref.component.ptr.lock() = new_component;
+			*ref.base.ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base.offset);
 		}
 	}
 	break;

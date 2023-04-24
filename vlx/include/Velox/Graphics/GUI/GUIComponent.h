@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Event.hpp>
 #include <Velox/VeloxTypes.hpp>
@@ -13,7 +12,7 @@ namespace vlx::gui
 	/// <summary>
 	///		Interface for GUI components to inherit from
 	/// </summary>
-	class VELOX_API GUIComponent : public IComponent
+	class VELOX_API GUIComponent
 	{
 	protected:
 		using SizeType		= uint16;

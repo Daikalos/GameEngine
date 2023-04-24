@@ -2,7 +2,6 @@
 
 #include <Velox/Algorithms/LQuadTree.hpp>
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Rectangle.hpp>
 
 #include <Velox/Config.hpp>
@@ -13,7 +12,7 @@ namespace vlx
 	/// to element and also erasing the inserted element when the associated entity is suddenly destroyed.
 	/// 
 	template<std::equality_comparable T = int>
-	class QTElement : public IComponent
+	class QTElement : public CopiedEvent<QTElement<T>>, public AlteredEvent<QTElement<T>>, public DestroyedEvent<QTElement<T>>
 	{
 	public:
 		using value_type = T;
@@ -61,13 +60,17 @@ namespace vlx
 		T& Get();
 
 	protected:
-		virtual void Copied(const EntityAdmin& entity_admin, const EntityID entity_id) override;
-		virtual void Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data) override;
-		virtual void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id) override;
+		virtual void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+		virtual void ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data);
+		virtual void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr};
 		int				m_index		{0};
+
+		friend class CopiedEvent<QTElement>;
+		friend class AlteredEvent<QTElement>; 
+		friend class DestroyedEvent<QTElement>;
 	};
 
 	template<std::equality_comparable T>
@@ -139,23 +142,22 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline void QTElement<T>::Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void QTElement<T>::CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		m_quad_tree = nullptr; // copied elements will need to reinserted
 	}
 
 	template<std::equality_comparable T>
-	inline void QTElement<T>::Modified(const EntityAdmin& entity_admin, const EntityID entity_id, IComponent& new_data)
+	inline void QTElement<T>::ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data)
 	{
-		QTElement new_element = static_cast<QTElement&>(new_data);
-		if (new_element.m_index != m_index) // erase current if new
+		if (new_data.m_index != m_index) // erase current if new
 		{
 			Erase();
 		}
 	}
 
 	template<std::equality_comparable T>
-	inline void QTElement<T>::Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void QTElement<T>::DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
 	{
 		Erase(); // erase when component is destroyed
 	}

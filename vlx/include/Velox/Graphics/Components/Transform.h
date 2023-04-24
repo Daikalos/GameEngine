@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Mat4f.hpp>
 #include <Velox/Config.hpp>
@@ -9,7 +8,7 @@ namespace vlx
 {
 	/// Local transform of an object.
 	///
-	class VELOX_API Transform : public IComponent
+	class VELOX_API Transform
 	{
 	public:
 		Transform();

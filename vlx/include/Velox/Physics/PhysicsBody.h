@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Utility/ArithmeticUtils.h>
 #include <Velox/Config.hpp>
@@ -17,7 +16,7 @@ namespace vlx
 		Dynamic		// no mass or inertia, can be affected by forces
 	};
 
-	class VELOX_API PhysicsBody : public IComponent
+	class VELOX_API PhysicsBody
 	{
 	private:
 		enum
@@ -128,7 +127,7 @@ namespace vlx
 		float			m_gravity_scale		{1.0f};
 		float			m_sleep_time		{0.0f};
 		
-		uint16_t		m_flags				{B_Enabled | B_Awake | B_AutoSleep};
+		uint16		m_flags					{B_Enabled | B_Awake | B_AutoSleep};
 
 		friend class PhysicsSystem;
 		friend class RenderSystem;

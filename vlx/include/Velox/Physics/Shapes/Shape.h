@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Velox/ECS/IComponent.h>
 #include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Mat2f.hpp>
@@ -10,7 +9,7 @@
 
 namespace vlx
 {
-	class VELOX_API Shape : public IComponent
+	class VELOX_API Shape
 	{
 	public:
 		enum Type : short
