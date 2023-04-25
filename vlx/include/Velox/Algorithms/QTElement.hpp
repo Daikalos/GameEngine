@@ -27,11 +27,11 @@ namespace vlx
 	public:
 		/// Attempts to insert an element into the given quad tree.
 		/// 
-		/// \param QuadTree: quad tree to insert element into.
-		/// \param Rect: Boundary encompassing element.
-		/// \param Args: Constructor arguments for element.
+		/// \param QuadTree: quad tree to insert element into
+		/// \param Rect: Boundary encompassing element
+		/// \param Args: Constructor arguments for element
 		/// 
-		/// \returns If it succeeded in inserting element to quadtree.
+		/// \returns If it succeeded in inserting element to quadtree
 		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
 		bool Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args);
@@ -47,9 +47,15 @@ namespace vlx
 
 		/// Attempts to erase the inserted element in the quad tree.
 		/// 
-		/// \returns If it succeeded in erasing the inserted element.
+		/// \returns If it succeeded in erasing the inserted element
 		/// 
 		bool Erase();
+
+		/// 
+		/// 
+		/// \returns
+		/// 
+		bool Contains(const RectFloat& aabb);
 
 		/// Retrieves inserted element in the quad tree, will throw if no element has been inserted.
 		/// 
@@ -129,16 +135,25 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
+	inline bool QTElement<T>::Contains(const RectFloat& aabb)
+	{
+		if (IsInserted())
+			return m_quad_tree->Get(m_index).rect.Contains(aabb);
+
+		return false;
+	}
+
+	template<std::equality_comparable T>
 	inline const T& QTElement<T>::Get() const
 	{
 		assert(IsInserted());
-		return m_quad_tree->Get(m_index);
+		return m_quad_tree->Get(m_index).item;
 	}
 	template<std::equality_comparable T>
 	inline T& QTElement<T>::Get()
 	{
 		assert(IsInserted());
-		return m_quad_tree->Get(m_index);
+		return m_quad_tree->Get(m_index).item;
 	}
 
 	template<std::equality_comparable T>

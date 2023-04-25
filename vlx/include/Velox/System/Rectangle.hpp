@@ -35,11 +35,15 @@ namespace vlx
 		constexpr Rect& operator+=(const Vector2<T>& rhs);
 		constexpr Rect& operator-=(const Vector2<T>& rhs);
 
+		constexpr Rect& operator*=(const float rhs);
+
 		NODISC constexpr Rect operator+(const Rect& rhs) const;
 		NODISC constexpr Rect operator-(const Rect& rhs) const;
 
 		NODISC constexpr Rect operator+(const Vector2<T>& rhs) const;
 		NODISC constexpr Rect operator-(const Vector2<T>& rhs) const;
+
+		NODISC constexpr Rect operator*(const float rhs) const;
 
 		NODISC constexpr bool operator==(const Rect& rhs) const;
 		NODISC constexpr bool operator!=(const Rect& rhs) const;
@@ -61,6 +65,9 @@ namespace vlx
 
 		NODISC constexpr bool Contains(const Vector2<T>& point) const;
 		NODISC constexpr bool Contains(const Rect& other) const;
+
+		NODISC constexpr Rect<T> Inflate(const Vector2f& m) const;
+		NODISC constexpr Rect<T> Inflate(const float multiplier) const;
 
 		union
 		{
@@ -235,6 +242,29 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
+	inline constexpr Rect<T> Rect<T>::Inflate(const Vector2f& m) const
+	{
+		Rect result(*this);
+
+		float prev_width = result.width;
+		float prev_height = result.height;
+
+		result.width *= m.x;
+		result.height *= m.y;
+
+		result.left -= (result.width - prev_width) / T(2);
+		result.top -= (result.height - prev_height) / T(2);
+
+		return result;
+	}
+
+	template<Arithmetic T>
+	inline constexpr Rect<T> Rect<T>::Inflate(const float multiplier) const
+	{
+		return Inflate({ multiplier, multiplier });
+	}
+
+	template<Arithmetic T>
 	inline constexpr Rect<T> Rect<T>::operator-() const
 	{
 		return Rect(-left, -top, -width, -height);
@@ -280,6 +310,16 @@ namespace vlx
 	{
 		return (*this += -rhs);
 	}
+
+	template<Arithmetic T>
+	inline constexpr Rect<T>& Rect<T>::operator*=(const float rhs)
+	{
+		width *= rhs;
+		height *= rhs;
+
+		return *this;
+	}
+
 	template<Arithmetic T>
 	inline constexpr Rect<T> Rect<T>::operator+(const Vector2<T>& rhs) const
 	{
@@ -289,5 +329,11 @@ namespace vlx
 	inline constexpr Rect<T> Rect<T>::operator-(const Vector2<T>& rhs) const
 	{
 		return Rect<T>(*this) += -rhs;
+	}
+
+	template<Arithmetic T>
+	inline constexpr Rect<T> Rect<T>::operator*(const float rhs) const
+	{
+		return Rect<T>(*this) *= rhs;
 	}
 }

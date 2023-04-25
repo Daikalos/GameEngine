@@ -66,30 +66,36 @@ BroadSystem::ShapeQTBehaviour<Point>::ShapeQTBehaviour(EntityAdmin& entity_admin
 template<class S>
 void BroadSystem::ShapeQTBehaviour<S>::InsertShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb)
 {
-	if (c->dirty)
+	if (c->enabled)
+	{
+		const RectFloat& shape_aabb = s->GetAABB();
+		if (!c->Contains(shape_aabb))
+		{
+			c->Erase();
+			c->Insert(m_broad.m_quad_tree, shape_aabb.Inflate(P_AABB_INFLATE), entity_id, type, s, c, pb);
+		}
+		else
+		{
+			c->Update(entity_id, type, s, c, pb); // attempt to update data if already inserted, needed for cases where pointers may be invalidated
+		}
+	}
+	else if (c->IsInserted())
 	{
 		c->Erase();
-		c->Insert(m_broad.m_quad_tree, s->GetAABB(), entity_id, type, s, c, pb);
-
-		c->dirty = false;
-	}
-	else
-	{
-		c->Update(entity_id, type, s, c, pb); // attempt to update data if already inserted, needed for cases where pointers may be invalidated
 	}
 }
 
 template<class S>
 void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb)
 {
+	if (!c->enabled)
+		return;
+
 	auto collisions = m_broad.m_quad_tree.Query(s->GetAABB());
 
 	for (const auto& collision : collisions)
 	{
 		if (s == collision.item.shape) // no collision against self
-			continue;
-
-		if (!c->enabled || !collision.item.collider->enabled)
 			continue;
 
 		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
@@ -119,9 +125,6 @@ void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point*
 	for (const auto& collision : collisions)
 	{
 		// no need to check against self
-
-		if (!c->enabled || !collision.item.collider->enabled)
-			continue;
 
 		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
 			continue;

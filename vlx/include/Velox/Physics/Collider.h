@@ -23,7 +23,7 @@ namespace vlx
 		bool enabled {true};
 
 	private:
-		bool dirty		{true}; // if should update the AABB in the quadtree
+		bool dirty {true}; // if should update the AABB in the quadtree
 
 		friend class PhysicsDirtySystem;
 		friend class BroadSystem;

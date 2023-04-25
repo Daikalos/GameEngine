@@ -20,10 +20,10 @@ void NarrowSystem::Update(std::span<typename BroadSystem::CollisionPair> pairs, 
 		return (lhs.first < rhs.first) || (lhs.first == rhs.first && lhs.second < rhs.second);
 	};
 
-	std::sort(
+	std::ranges::sort(
 		m_curr_collisions.begin(), m_curr_collisions.end(), cmp); // sort to quickly allow for finding the differences between previous and current
 
-	std::set_difference(
+	std::ranges::set_difference(
 		m_prev_collisions.begin(), m_prev_collisions.end(),
 		m_curr_collisions.begin(), m_curr_collisions.end(), std::inserter(m_difference, m_difference.begin()), cmp);
 
@@ -110,7 +110,8 @@ void NarrowSystem::CheckCollision(const typename BroadSystem::CollisionPair& pai
 					AC.OnEnter(a_result);
 					BC.OnEnter(b_result);
 
-					m_collisions.emplace(m_entity_admin->GetComponentRef(A.entity_id, A.collider),
+					m_collisions.emplace(
+						m_entity_admin->GetComponentRef(A.entity_id, A.collider),
 						m_entity_admin->GetComponentRef(B.entity_id, B.collider));
 				}
 

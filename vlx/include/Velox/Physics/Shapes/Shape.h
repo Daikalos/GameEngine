@@ -47,11 +47,11 @@ namespace vlx
 		void UpdateCenter(const Vector2f& center);
 
 	protected:
-		mutable Mat2f	m_orientation; // rotation matrix
-		RectFloat		m_aabb;
-		Vector2f		m_center;
-		sf::Angle		m_angle;
-		mutable bool	m_update {true};
+		mutable Mat2f	m_orientation;		// rotation matrix
+		RectFloat		m_aabb;				// aabb for queries
+		Vector2f		m_center;			// center of shape
+		sf::Angle		m_angle;			// cache orientation
+		mutable bool	m_update {true};	// whether to update orientation
 
 		friend class PhysicsDirtySystem;
 	};

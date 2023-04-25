@@ -13,4 +13,6 @@ namespace vlx
 	inline constexpr float P_PERCENT					= 0.4f;
 	inline constexpr float P_SLOP						= 0.05f;
 	inline constexpr float P_MAX_POS_CORRECTION			= 0.4f;
+
+	inline constexpr float P_AABB_INFLATE				= 1.05f;
 }

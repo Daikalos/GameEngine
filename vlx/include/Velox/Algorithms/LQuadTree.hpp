@@ -89,13 +89,13 @@ namespace vlx
 		/// 
 		/// \param Index: index to element.
 		/// 
-		NODISC T& Get(const int idx);
+		NODISC auto Get(const int idx) -> Element&;
 
 		/// Retrieves an element.
 		/// 
 		/// \param Index: index to element.
 		/// 
-		NODISC const T& Get(const int idx) const;
+		NODISC auto Get(const int idx) const -> const Element&;
 
 		/// Queries the tree for elements.
 		/// 
@@ -267,15 +267,15 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	T& LQuadTree<T>::Get(const int idx)
+	auto LQuadTree<T>::Get(const int idx) -> Element&
 	{
-		return m_elements[idx].item;
+		return m_elements[idx];
 	}
 
 	template<std::equality_comparable T>
-	const T& LQuadTree<T>::Get(const int idx) const
+	auto LQuadTree<T>::Get(const int idx) const -> const Element&
 	{
-		return m_elements[idx].item;
+		return m_elements[idx];
 	}
 
 	template<std::equality_comparable T>
@@ -521,7 +521,7 @@ namespace vlx
 				if (node.count == -1) // traverse branch
 				{
 					Vector2f center = node_reg.rect.Center();
-					Vector2f half_extends = { node_reg.rect.width / 2.0f, node_reg.rect.height / 2.0f };
+					Vector2f half_extends = node_reg.rect.Size() / 2.0f;
 
 					if (elt_reg.point.x >= center.x)
 					{

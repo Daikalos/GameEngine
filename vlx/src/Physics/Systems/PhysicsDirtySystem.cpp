@@ -32,6 +32,8 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 				s.UpdateAABB(s.ComputeAABB(gt));
 				// no need to update the orientation matrix
 				s.UpdateCenter(s.ComputeCenter(gt.GetPosition()));
+
+				c.dirty = false;
 			}
 		});
 
@@ -42,6 +44,8 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 				b.UpdateAABB(b.ComputeAABB(gt));
 				b.UpdateOrientation(gt.GetRotation().wrapUnsigned());
 				b.UpdateCenter(b.ComputeCenter(gt.GetPosition()));
+
+				c.dirty = false;
 			}
 		});
 
@@ -52,6 +56,9 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 				p.UpdateAABB(p.ComputeAABB(gt));
 				// no need to update the orientation matrix
 				p.UpdateCenter(p.ComputeCenter(gt.GetPosition()));
+
+
+				c.dirty = false;
 			}
 		});
 

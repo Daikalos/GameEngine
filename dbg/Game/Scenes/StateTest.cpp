@@ -182,10 +182,11 @@ bool StateTest::Update(Time& time)
 	if (can_jump && GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 	{
 		player.GetComponent<PhysicsBody>().ApplyForceToCenter({ 0.0f, -4000.0f });
+		player.GetComponent<PhysicsBody>().SetVelocity({});
 		can_jump = false;
 	}
 
-	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
+	if (GetWorld().GetControls().Get<MouseInput>().Held(sf::Mouse::Left))
 	{
 		float diameter = 8.0f + rnd::random(0.0f, 128.0f);
 		float radius = diameter / 2.0f;
