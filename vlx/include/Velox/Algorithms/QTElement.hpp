@@ -8,15 +8,15 @@
 
 namespace vlx
 {
-	///	Designed to add convenience for interacting with quadtree, such as keeping track of index 
+	///	Designed to add convenience for interacting with a quadtree, such as keeping track of index 
 	/// to element and also erasing the inserted element when the associated entity is suddenly destroyed.
 	/// 
 	template<std::equality_comparable T = int>
 	class QTElement : public EventSet<QTElement<T>, CopiedEvent, AlteredEvent, DestroyedEvent>
 	{
 	public:
-		using value_type = T;
-		using Element = typename LQuadTree<T>::Element;
+		using value_type	= T;
+		using Element		= typename LQuadTree<T>::Element;
 
 	public:
 		QTElement() = default;

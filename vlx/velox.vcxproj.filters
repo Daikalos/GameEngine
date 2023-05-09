@@ -156,6 +156,10 @@
     <ClInclude Include="include\Velox\Physics\Shapes\Point.h" />
     <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\Grid.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

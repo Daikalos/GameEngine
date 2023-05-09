@@ -116,7 +116,7 @@ namespace vlx
 	template<class C>
 	inline bool ComponentRef<C>::IsValid() const noexcept
 	{
-		return m_component != nullptr && *m_component != nullptr; // check that pointer and contents is valid
+		return m_component != nullptr && *m_component != nullptr; // check that pointer and its contents is valid
 	}
 
 	template<class C>

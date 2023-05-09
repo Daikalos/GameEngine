@@ -47,6 +47,9 @@ namespace vlx
 
 		constexpr void clear();
 
+	public:
+		void for_each(const std::function<reference>& func) const;
+
 	private:
 		std::vector<std::variant<T, size_type>> m_data;
 		size_type m_first_free {-1};
@@ -79,7 +82,7 @@ namespace vlx
 	template<class T>
 	inline constexpr bool FreeVector<T>::valid(const size_type n) const noexcept
 	{
-		return std::holds_alternative<T>(m_data.at(n));
+		return m_data.at(n).index() == 0;
 	}
 
 	template<class T>
@@ -106,6 +109,8 @@ namespace vlx
 	{
 		if (m_first_free != -1)
 		{
+			assert(!valid(m_first_free));
+
 			const auto index = m_first_free;
 			m_first_free = std::get<size_type>(m_data[m_first_free]);
 			m_data[index] = { std::in_place_index<0>, T(std::forward<Args>(args)...) };
@@ -144,5 +149,15 @@ namespace vlx
 	{
 		m_data.clear();
 		m_first_free = -1;
+	}
+
+	template<class T>
+	inline void FreeVector<T>::for_each(const std::function<reference>& func) const
+	{
+		for (const auto& elt : m_data)
+		{
+			if (elt.index() == 0)
+				func(std::get<T>(elt));
+		}
 	}
 }

@@ -152,6 +152,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Velox\Algorithms\Grid.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
+    <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
