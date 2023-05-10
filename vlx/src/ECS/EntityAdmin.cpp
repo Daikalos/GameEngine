@@ -353,6 +353,24 @@ void EntityAdmin::Shutdown()
 	m_shutdown = true;
 }
 
+void EntityAdmin::CallOnAddEvent(const ComponentTypeID component_id, EntityID eid, void* data) const
+{
+	if (auto it = m_events_add.find(component_id); it != m_events_add.end())
+		it->second(eid, data);
+}
+
+void EntityAdmin::CallOnMoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const
+{
+	if (auto it = m_events_move.find(component_id); it != m_events_move.end())
+		it->second(eid, data);
+}
+
+void EntityAdmin::CallOnRemoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const
+{
+	if (auto it = m_events_remove.find(component_id); it != m_events_remove.end())
+		it->second(eid, data);
+}
+
 EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 {
 	const auto eit = m_entity_archetype_map.find(entity_id);

@@ -6,9 +6,6 @@ Application::Application(const std::string_view name) : m_world(name) {}
 
 void Application::Run()
 {
-	EntityAdmin& entity_admin = m_world.GetEntityAdmin();
-	entity_admin.RegisterComponents<>(AllTypes{});
-
 	LoadTextures();
 	RegisterControls();
 	RegisterStates();

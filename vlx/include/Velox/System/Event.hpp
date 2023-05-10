@@ -1,8 +1,7 @@
 #pragma once
 
-#include <list>
-#include <mutex>
 #include <shared_mutex>
+#include <vector>
 #include <future>
 
 #include <Velox/Config.hpp>

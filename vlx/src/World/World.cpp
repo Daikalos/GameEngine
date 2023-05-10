@@ -7,6 +7,8 @@ World::World(const std::string_view name) :
 	m_camera(CameraBehavior::Context(m_window, m_controls)),
 	m_state_stack(*this)
 {
+	m_entity_admin.RegisterComponents(AllTypes{});
+
 	m_window.Initialize();
 
 	m_controls.Add<KeyboardInput>();

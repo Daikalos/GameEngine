@@ -162,6 +162,21 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) :
 		m_quad_tree.Cleanup(); // have to cleanup in case of erase
 	};
 
+	entity_admin.RegisterOnAddListener<PhysicsBody>([](EntityID eid, PhysicsBody& pb)
+		{
+			std::puts("Add");
+		});
+
+	entity_admin.RegisterOnMoveListener<PhysicsBody>([](EntityID eid, PhysicsBody& pb)
+		{
+			std::puts("Move");
+		});
+
+	entity_admin.RegisterOnRemoveListener<PhysicsBody>([](EntityID eid, PhysicsBody& pb)
+		{
+			std::puts("Remove");
+		});
+
 	m_cleanup.SetPriority(1.0f);
 }
 

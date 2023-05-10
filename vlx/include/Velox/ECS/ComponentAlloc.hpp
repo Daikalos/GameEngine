@@ -54,8 +54,12 @@ namespace vlx
 	{
 		C* data_location = new (data) C();
 
-		if constexpr (std::derived_from<C, CopiedEvent<C>>)
-			data_location->Copied(entity_admin, entity_id);
+		if constexpr (std::derived_from<C, CreatedEvent<C>>)
+			data_location->Created(entity_admin, entity_id);
+
+		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
+
+		entity_admin.CallOnAddEvent(component_id, entity_id, static_cast<void*>(data_location));
 	}
 
 	template<IsComponent C>
@@ -66,9 +70,12 @@ namespace vlx
 		if constexpr (std::derived_from<C, DestroyedEvent<C>>)
 			data_location->Destroyed(entity_admin, entity_id); // call associated event
 
-		data_location->~C(); // now destroy
+		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
 
-		entity_admin.EraseComponentRef<C>(entity_id); // make sure that all current references are erased
+		entity_admin.CallOnRemoveEvent(component_id, entity_id, static_cast<void*>(data_location));
+		entity_admin.EraseComponentRef(entity_id, component_id); // make sure that current references are reset
+
+		data_location->~C(); // now destroy
 	}
 
 	template<IsComponent C>
@@ -79,7 +86,10 @@ namespace vlx
 		if constexpr (std::derived_from<C, MovedEvent<C>>)
 			data_location->Moved(entity_admin, entity_id); // call associated event
 
-		entity_admin.UpdateComponentRef<C>(entity_id, data_location); // update the current references
+		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
+
+		entity_admin.CallOnMoveEvent(component_id, entity_id, static_cast<void*>(data_location));
+		entity_admin.UpdateComponentRef(entity_id, component_id, static_cast<void*>(data_location)); // update the current references
 	}
 
 	template<IsComponent C>
@@ -119,15 +129,18 @@ namespace vlx
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::MoveDestroyData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const
 	{
-		C* source_location	= std::launder(reinterpret_cast<C*>(source));			// Retrieve pointer to source location
-		C* dest_location	= new (destination) C(std::move(*source_location));		// move the data in src by constructing a object at dest with the values from src
+		C* source_location	= std::launder(reinterpret_cast<C*>(source));		// Retrieve pointer to source location
+		C* dest_location	= new (destination) C(std::move(*source_location));	// move the data in src by constructing a object at dest with the values from src
 
 		if constexpr (std::derived_from<C, MovedEvent<C>>)
 			dest_location->Moved(entity_admin, entity_id);	// call associated event
 
-		source_location->~C();														// destroy data without calling the Destroyed event, Moved is used instead
+		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
 
-		entity_admin.UpdateComponentRef<C>(entity_id, dest_location); // update the current references with the new data
+		entity_admin.CallOnMoveEvent(component_id, entity_id, static_cast<void*>(dest_location));
+		entity_admin.UpdateComponentRef(entity_id, component_id, static_cast<void*>(dest_location)); // update the current references with the new data
+
+		source_location->~C(); // destroy data
 	}
 
 	template<IsComponent C>

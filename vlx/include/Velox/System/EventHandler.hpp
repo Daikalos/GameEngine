@@ -36,8 +36,8 @@ namespace vlx
 
 	private:
 		FuncType		m_func;
-
 		IDType			m_id;
+
 		static AtomicID m_id_counter;
 	};
 

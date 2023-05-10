@@ -9,6 +9,7 @@
 #include <cassert>
 
 #include <Velox/System/Concepts.h>
+#include <Velox/System/Event.hpp>
 #include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
@@ -89,6 +90,7 @@ namespace vlx
 		using ComponentTypeIDBaseMap	= std::unordered_map<ComponentTypeID, ComponentPtr>;
 		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
 		using ArchetypeCache			= std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
+		using EventMap					= std::unordered_map<ComponentTypeID, Event<EntityID, void*>>;
 
 		template<IsComponent>
 		friend struct ComponentAlloc;
@@ -330,7 +332,7 @@ namespace vlx
 		/// \returns True if sorting was succesful, otherwise false
 		/// 
 		template<class... Cs, class Comp> requires IsComponents<Cs...>
-		bool SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
+		bool SortComponents(Comp&& comparison) requires SameTypeParamDecay<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>;
 
 		///	Sorts the components for a specific entity, will also sort the components for all other entities
 		///	that holds the same components as the specified entity. Will also sort all other components that 
@@ -341,7 +343,7 @@ namespace vlx
 		/// 
 		/// \returns True if sorting was succesful, otherwise false
 		/// 
-		template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
+		template<IsComponent C, class Comp> requires SameTypeParamDecay<Comp, C, 0, 1>
 		bool SortComponents(const EntityID entity_id, Comp&& comparison);
 
 		/// Searches for entities that contains the specified components
@@ -359,6 +361,24 @@ namespace vlx
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		void Reserve(const std::size_t component_count);
+
+		template<IsComponent C, typename Func>
+		auto RegisterOnAddListener(Func&& func);
+
+		template<IsComponent C, typename Func>
+		auto RegisterOnMoveListener(Func&& func);
+
+		template<IsComponent C, typename Func>
+		auto RegisterOnRemoveListener(Func&& func);
+
+		template<IsComponent C>
+		void DeregisterOnAddListener(const typename EventHandler<C*>::IDType id);
+
+		template<IsComponent C>
+		void DeregisterOnMoveListener(const typename EventHandler<C*>::IDType id);
+
+		template<IsComponent C>
+		void DeregisterOnRemoveListener(const typename EventHandler<C*>::IDType id);
 
 	public:
 		///	Returns a duplicated entity with the same properties as the specified one
@@ -427,6 +447,10 @@ namespace vlx
 		VELOX_API void Shutdown();
 
 	private:
+		VELOX_API void CallOnAddEvent(const ComponentTypeID component_id, EntityID eid, void* data) const;
+		VELOX_API void CallOnMoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const;
+		VELOX_API void CallOnRemoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const;
+
 		VELOX_API void EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const;
 		VELOX_API void UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, void* new_component) const;
 
@@ -451,6 +475,10 @@ namespace vlx
 		EntityArchetypeMap		m_entity_archetype_map;			// map entity to where its data is located at in the archetype
 		ComponentArchetypesMap	m_component_archetypes_map;		// map component to the archetypes it exists in and where all of the components data in the archetype is located at
 		ComponentTypeIDBaseMap	m_component_map;				// access to helper functions for modifying each unique component
+
+		EventMap				m_events_add;
+		EventMap				m_events_move;
+		EventMap				m_events_remove;
 		
 		mutable ArchetypeCache			m_archetype_cache;
 		mutable EntityComponentRefMap	m_entity_component_ref_map;
@@ -626,6 +654,8 @@ namespace vlx
 
 		if constexpr (std::derived_from<C, CreatedEvent<C>>)
 			add_component->Created(*this, entity_id);
+
+		CallOnAddEvent(add_component_id, entity_id, static_cast<void*>(add_component));
 
 		new_archetype->entities.push_back(entity_id);
 		record.index = IDType(new_archetype->entities.size() - 1);
@@ -942,7 +972,7 @@ namespace vlx
 	}
 
 	template<class... Cs, class Comp> requires IsComponents<Cs...>
-	inline bool EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParameter<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
+	inline bool EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParamDecay<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
 		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
 
@@ -958,7 +988,7 @@ namespace vlx
 		return SortComponents<C>(archetype, std::forward<Comp>(comparison));
 	}
 
-	template<IsComponent C, class Comp> requires SameTypeParameter<Comp, C, 0, 1>
+	template<IsComponent C, class Comp> requires SameTypeParamDecay<Comp, C, 0, 1>
 	inline bool EntityAdmin::SortComponents(const EntityID entity_id, Comp&& comparison)
 	{
 		const auto it = m_entity_archetype_map.find(entity_id);
@@ -986,6 +1016,67 @@ namespace vlx
 		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
 		Reserve(component_ids, archetype_id, component_count);
+	}
+
+	template<IsComponent C, typename Func>
+	inline auto EntityAdmin::RegisterOnAddListener(Func&& func)
+	{
+		assert(IsComponentRegistered<C>());
+
+		constexpr auto component_id = GetComponentID<C>();
+		return	(m_events_add[component_id] += [&func](EntityID entity_id, void* ptr) 
+				{
+					std::forward<Func>(func)(entity_id, *reinterpret_cast<C*>(ptr));
+				});
+	}
+
+	template<IsComponent C, typename Func>
+	inline auto EntityAdmin::RegisterOnMoveListener(Func&& func)
+	{
+		assert(IsComponentRegistered<C>());
+
+		constexpr auto component_id = GetComponentID<C>();
+		return	(m_events_move[component_id] += [&func](EntityID entity_id, void* ptr)
+				{ 
+					std::forward<Func>(func)(entity_id, *reinterpret_cast<C*>(ptr));
+				});
+	}
+
+	template<IsComponent C, typename Func>
+	inline auto EntityAdmin::RegisterOnRemoveListener(Func&& func)
+	{
+		assert(IsComponentRegistered<C>());
+
+		constexpr auto component_id = GetComponentID<C>();
+		return	(m_events_remove[component_id] += [&func](EntityID entity_id, void* ptr)
+				{
+					std::forward<Func>(func)(entity_id, *reinterpret_cast<C*>(ptr));
+				});
+	}
+
+	template<IsComponent C>
+	inline void EntityAdmin::DeregisterOnAddListener(const typename EventHandler<C*>::IDType id)
+	{
+		assert(IsComponentRegistered<C>());
+
+		constexpr auto component_id = GetComponentID<C>();
+		m_events_add[component_id] -= id;
+	}
+
+	template<IsComponent C>
+	inline void EntityAdmin::DeregisterOnMoveListener(const typename EventHandler<C*>::IDType id)
+	{
+		constexpr auto component_id = GetComponentID<C>();
+		m_events_move[component_id] -= id;
+	}
+
+	template<IsComponent C>
+	inline void EntityAdmin::DeregisterOnRemoveListener(const typename EventHandler<C*>::IDType id)
+	{
+		assert(IsComponentRegistered<C>());
+
+		constexpr auto component_id = GetComponentID<C>();
+		m_events_remove[component_id] -= id;
 	}
 
 	template<IsContainer T>
