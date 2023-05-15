@@ -2,151 +2,7 @@
 
 using namespace vlx;
 
-template<class S>
-BroadSystem::ShapeQTBehaviour<S>::ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) :
-	m_broad(broad_system),
-
-	m_insert(entity_admin, id),
-	m_body_insert(entity_admin, id),
-	m_query(entity_admin, id),
-	m_body_query(entity_admin, id)
-{
-	m_insert.Each(
-		[this](EntityID entity_id, S& s, Collider& c)
-		{
-			InsertShape(entity_id, &s, s.GetType(), &c, nullptr);
-		});
-
-	m_body_insert.Each(
-		[this](EntityID entity_id, S& s, Collider& c, PhysicsBody& pb)
-		{
-			InsertShape(entity_id, &s, s.GetType(), &c, &pb);
-		});
-
-	m_query.Each(
-		[this](EntityID entity_id, S& s, Collider& c)
-		{
-			QueryShape(entity_id, &s, s.GetType(), &c, nullptr);
-		});
-
-	m_body_query.Each(
-		[this](EntityID entity_id, S& s, Collider& c, PhysicsBody& pb)
-		{
-			QueryShape(entity_id, &s, s.GetType(), &c, &pb);
-		});
-
-	m_insert.Exclude<PhysicsBody>();
-	m_query.Exclude<PhysicsBody>();
-
-	m_insert.SetPriority(2.0f);
-	m_body_insert.SetPriority(2.0f);
-}
-
-BroadSystem::ShapeQTBehaviour<Point>::ShapeQTBehaviour(EntityAdmin& entity_admin, const LayerType id, BroadSystem& broad_system) :
-	m_broad(broad_system),
-
-	m_query(entity_admin, id),
-	m_body_query(entity_admin, id)
-{
-	m_query.Each(
-		[this](EntityID entity_id, Point& p, Collider& c)
-		{
-			QueryPoint(entity_id, &p, &c, nullptr);
-		});
-
-	m_body_query.Each(
-		[this](EntityID entity_id, Point& p, Collider& c, PhysicsBody& pb)
-		{
-			QueryPoint(entity_id, &p, &c, &pb);
-		});
-
-	m_query.Exclude<PhysicsBody>();
-}
-
-template<class S>
-void BroadSystem::ShapeQTBehaviour<S>::InsertShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb)
-{
-	if (c->enabled)
-	{
-		const RectFloat& shape_aabb = s->GetAABB();
-		if (!c->Contains(shape_aabb))
-		{
-			c->Erase();
-			c->Insert(m_broad.m_quad_tree, shape_aabb.Inflate(P_AABB_INFLATE), entity_id, type, s, c, pb);
-		}
-		else
-		{
-			c->Update(entity_id, type, s, c, pb); // attempt to update data if already inserted, needed for cases where pointers may be invalidated
-		}
-	}
-	else if (c->IsInserted())
-	{
-		c->Erase();
-	}
-}
-
-template<class S>
-void BroadSystem::ShapeQTBehaviour<S>::QueryShape(EntityID entity_id, Shape* s, typename Shape::Type type, Collider* c, PhysicsBody* pb)
-{
-	if (!c->enabled)
-		return;
-
-	auto collisions = m_broad.m_quad_tree.Query(s->GetAABB());
-
-	for (const auto& collision : collisions)
-	{
-		if (s == collision.item.shape) // no collision against self
-			continue;
-
-		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
-			continue;
-
-		if (pb != nullptr && collision.item.body != nullptr)
-		{
-			const auto& lhs = pb;
-			const auto& rhs = collision.item.body;
-
-			bool lhs_active = (lhs->IsAwake() && lhs->IsEnabled());
-			bool rhs_active = (rhs->IsAwake() && rhs->IsEnabled());
-
-			if (!lhs_active && !rhs_active) // dont bother colliding if both are either disabled or sleeping
-				continue;
-		}
-
-		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, type, s, c, pb), collision.item);
-		m_broad.m_indices.emplace_back(static_cast<uint32_t>(m_broad.m_pairs.size() - 1));
-	}
-}
-
-void BroadSystem::ShapeQTBehaviour<Point>::QueryPoint(EntityID entity_id, Point* p, Collider* c, PhysicsBody* pb)
-{
-	auto collisions = m_broad.m_quad_tree.Query(p->GetCenter());
-
-	for (const auto& collision : collisions)
-	{
-		// no need to check against self
-
-		if ((c->layer & collision.item.collider->layer) == 0) // only matching layer
-			continue;
-
-		if (pb != nullptr && collision.item.body != nullptr)
-		{
-			const auto& lhs = pb;
-			const auto& rhs = collision.item.body;
-
-			bool lhs_active = (lhs->IsAwake() && lhs->IsEnabled());
-			bool rhs_active = (rhs->IsAwake() && rhs->IsEnabled());
-
-			if (!lhs_active && !rhs_active) // skip trying collision if both are either asleep or disabled
-				continue;
-		}
-
-		m_broad.m_pairs.emplace_back(CollisionObject(entity_id, Shape::Point, p, c, pb), collision.item);
-		m_broad.m_indices.emplace_back(static_cast<uint32_t>(m_broad.m_pairs.size() - 1));
-	}
-}
-
-BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) : 
+BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 	m_entity_admin(&entity_admin), m_layer(id),
 
 	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }), 
@@ -162,22 +18,65 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, const LayerType id) :
 		m_quad_tree.Cleanup(); // have to cleanup in case of erase
 	};
 
-	entity_admin.RegisterOnAddListener<PhysicsBody>([](EntityID eid, PhysicsBody& pb)
+	m_add_coll_id = entity_admin.RegisterOnAddListener<Collider>([this](EntityID eid, Collider& c)
 		{
-			std::puts("Add");
+			int i = TryAddNewObject(eid);
+			m_bodies[i].collider = &c;
 		});
 
-	entity_admin.RegisterOnMoveListener<PhysicsBody>([](EntityID eid, PhysicsBody& pb)
+	m_add_body_id = entity_admin.RegisterOnAddListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
 		{
-			std::puts("Move");
+			int i = TryAddNewObject(eid);
+			m_bodies[i].body = &pb;
 		});
 
-	entity_admin.RegisterOnRemoveListener<PhysicsBody>([](EntityID eid, PhysicsBody& pb)
+	m_mov_coll_id = entity_admin.RegisterOnMoveListener<Collider>([this](EntityID eid, Collider& c)
 		{
-			std::puts("Remove");
+			const auto it = m_entity_body_map.find(eid);
+			if (it != m_entity_body_map.end())
+				m_bodies[it->second].collider = &c;
+		});
+
+	m_mov_body_id = entity_admin.RegisterOnMoveListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
+		{
+			const auto it = m_entity_body_map.find(eid);
+			if (it != m_entity_body_map.end())
+				m_bodies[it->second].body = &pb;
+		});
+
+	m_rmv_coll_id = entity_admin.RegisterOnRemoveListener<Collider>([this](EntityID eid, Collider& c)
+		{
+			const auto it = m_entity_body_map.find(eid);
+			if (it != m_entity_body_map.end())
+			{
+				m_bodies[it->second].collider = nullptr;
+				if (RemoveEmptyObject(it->second))
+					m_entity_body_map.erase(it);
+			}
+		});
+
+	m_rmv_body_id = entity_admin.RegisterOnRemoveListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
+		{
+			const auto it = m_entity_body_map.find(eid);
+			if (it != m_entity_body_map.end())
+			{
+				m_bodies[it->second].body = nullptr;
+				if (RemoveEmptyObject(it->second))
+					m_entity_body_map.erase(it);
+			}
 		});
 
 	m_cleanup.SetPriority(1.0f);
+}
+
+BroadSystem::~BroadSystem()
+{
+	m_entity_admin->DeregisterOnAddListener<Collider>(m_add_coll_id);
+	m_entity_admin->DeregisterOnAddListener<PhysicsBody>(m_add_body_id);
+	m_entity_admin->DeregisterOnMoveListener<Collider>(m_mov_coll_id);
+	m_entity_admin->DeregisterOnMoveListener<PhysicsBody>(m_mov_body_id);
+	m_entity_admin->DeregisterOnRemoveListener<Collider>(m_rmv_coll_id);
+	m_entity_admin->DeregisterOnRemoveListener<PhysicsBody>(m_rmv_body_id);
 }
 
 void BroadSystem::Update()
@@ -233,5 +132,31 @@ void BroadSystem::CullDuplicates()
 	m_indices.erase(first, last);
 }
 
-template class BroadSystem::ShapeQTBehaviour<Circle>;
-template class BroadSystem::ShapeQTBehaviour<Box>;
+int BroadSystem::TryAddNewObject(EntityID eid)
+{
+	const auto it = m_entity_body_map.find(eid);
+	if (it == m_entity_body_map.end())
+	{
+		CollisionObject obj;
+		obj.entity_id = eid;
+
+		const auto i = m_bodies.emplace(obj);
+		m_entity_body_map.emplace(eid, i);
+
+		return i;
+	}
+
+	return it->second;
+}
+
+bool BroadSystem::RemoveEmptyObject(uint32 index)
+{
+	CollisionObject& object = m_bodies[index];
+
+	if (object.body || object.collider || object.shape)
+		return false;
+
+	m_bodies.erase(index);
+
+	return true;
+}

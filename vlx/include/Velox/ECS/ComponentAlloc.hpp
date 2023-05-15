@@ -10,9 +10,8 @@ namespace vlx
 {
 	class EntityAdmin;
 
-	/// <summary>
 	/// ComponentAlloc is a helper class for altering data according to a specific type
-	/// </summary>
+	/// 
 	struct IComponentAlloc
 	{
 		constexpr virtual ~IComponentAlloc() = default;

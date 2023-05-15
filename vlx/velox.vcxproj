@@ -157,6 +157,7 @@
     <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
+    <ClInclude Include="include\Velox\Physics\Systems\BroadShapeHelper.h" />
     <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
@@ -264,10 +265,12 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
+    <ClCompile Include="src\Physics\Systems\BroadShapeHelper.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />

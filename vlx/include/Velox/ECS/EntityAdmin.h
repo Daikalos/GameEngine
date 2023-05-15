@@ -372,13 +372,13 @@ namespace vlx
 		auto RegisterOnRemoveListener(Func&& func);
 
 		template<IsComponent C>
-		void DeregisterOnAddListener(const typename EventHandler<C*>::IDType id);
+		void DeregisterOnAddListener(const typename EventHandler<>::IDType id);
 
 		template<IsComponent C>
-		void DeregisterOnMoveListener(const typename EventHandler<C*>::IDType id);
+		void DeregisterOnMoveListener(const typename EventHandler<>::IDType id);
 
 		template<IsComponent C>
-		void DeregisterOnRemoveListener(const typename EventHandler<C*>::IDType id);
+		void DeregisterOnRemoveListener(const typename EventHandler<>::IDType id);
 
 	public:
 		///	Returns a duplicated entity with the same properties as the specified one
@@ -1024,9 +1024,9 @@ namespace vlx
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		return	(m_events_add[component_id] += [&func](EntityID entity_id, void* ptr) 
+		return	(m_events_add[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
 				{
-					std::forward<Func>(func)(entity_id, *reinterpret_cast<C*>(ptr));
+					func(entity_id, *reinterpret_cast<C*>(ptr));
 				});
 	}
 
@@ -1036,9 +1036,9 @@ namespace vlx
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		return	(m_events_move[component_id] += [&func](EntityID entity_id, void* ptr)
+		return	(m_events_move[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
 				{ 
-					std::forward<Func>(func)(entity_id, *reinterpret_cast<C*>(ptr));
+					func(entity_id, *reinterpret_cast<C*>(ptr));
 				});
 	}
 
@@ -1048,35 +1048,35 @@ namespace vlx
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		return	(m_events_remove[component_id] += [&func](EntityID entity_id, void* ptr)
+		return	(m_events_remove[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
 				{
-					std::forward<Func>(func)(entity_id, *reinterpret_cast<C*>(ptr));
+					func(entity_id, *reinterpret_cast<C*>(ptr));
 				});
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnAddListener(const typename EventHandler<C*>::IDType id)
+	inline void EntityAdmin::DeregisterOnAddListener(const typename EventHandler<>::IDType id)
 	{
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		m_events_add[component_id] -= id;
+		m_events_add[component_id].RemoveID(id);
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnMoveListener(const typename EventHandler<C*>::IDType id)
+	inline void EntityAdmin::DeregisterOnMoveListener(const typename EventHandler<>::IDType id)
 	{
 		constexpr auto component_id = GetComponentID<C>();
-		m_events_move[component_id] -= id;
+		m_events_move[component_id].RemoveID(id);
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnRemoveListener(const typename EventHandler<C*>::IDType id)
+	inline void EntityAdmin::DeregisterOnRemoveListener(const typename EventHandler<>::IDType id)
 	{
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		m_events_remove[component_id] -= id;
+		m_events_remove[component_id].RemoveID(id);
 	}
 
 	template<IsContainer T>

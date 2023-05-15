@@ -1,9 +1,8 @@
 #pragma once
 
 #include <Velox/Algorithms/LQuadTree.hpp>
-
 #include <Velox/System/Rectangle.hpp>
-
+#include <Velox/ECS/ComponentEvents.h>
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -67,7 +66,7 @@ namespace vlx
 
 	protected:
 		virtual void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
-		virtual void ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data);
+		virtual void AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data);
 		virtual void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	protected:
@@ -157,13 +156,13 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline void QTElement<T>::CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void QTElement<T>::CopiedImpl(const EntityAdmin& entity_admin, EntityID entity_id)
 	{
 		m_quad_tree = nullptr; // copied elements will need to reinserted
 	}
 
 	template<std::equality_comparable T>
-	inline void QTElement<T>::ModifiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data)
+	inline void QTElement<T>::AlteredImpl(const EntityAdmin& entity_admin, EntityID entity_id, QTElement& new_data)
 	{
 		if (new_data.m_index != m_index) // erase current if new
 		{
@@ -172,7 +171,7 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline void QTElement<T>::DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void QTElement<T>::DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id)
 	{
 		Erase(); // erase when component is destroyed
 	}

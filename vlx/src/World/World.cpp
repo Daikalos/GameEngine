@@ -56,37 +56,6 @@ StateStack& World::GetStateStack() noexcept						{ return m_state_stack; }
 EntityAdmin& World::GetEntityAdmin() noexcept					{ return m_entity_admin; }
 const EntityAdmin& World::GetEntityAdmin() const noexcept		{ return m_entity_admin; }
 
-void World::RemoveSystem(const LayerType id)
-{
-	const auto it = std::ranges::find_if(m_systems.begin(), m_systems.end(),
-		[id](const auto& pair)
-		{
-			return pair.second->GetLayerID() == id;
-		});
-
-	if (it->second.get()->IsRequired()) // cant remove if required
-		return;
-
-	m_systems.erase(it);
-
-	m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
-		[&id](const auto& item)
-		{
-			return item->GetLayerID() == id;
-		}));
-}
-
-bool World::HasSystem(const LayerType id) const
-{
-	const auto it = std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
-		[&id](const auto& item)
-		{
-			return item->GetLayerID() == id;
-		});
-
-	return it != m_sorted_systems.end();
-}
-
 void World::Run()
 {
 	m_camera.SetSize(Vector2f(m_window.getSize()));
@@ -129,8 +98,8 @@ void World::PreUpdate()
 	m_state_stack.PreUpdate(m_time);
 	m_camera.PreUpdate(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system->PreUpdate();
+	for (const auto& pair : m_systems)
+		pair.second->PreUpdate();
 }
 
 void World::Update()
@@ -138,8 +107,8 @@ void World::Update()
 	m_state_stack.Update(m_time);
 	m_camera.Update(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system->Update();
+	for (const auto& pair : m_systems)
+		pair.second->Update();
 }
 
 void World::FixedUpdate()
@@ -147,8 +116,8 @@ void World::FixedUpdate()
 	m_state_stack.FixedUpdate(m_time);
 	m_camera.FixedUpdate(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system->FixedUpdate();
+	for (const auto& pair : m_systems)
+		pair.second->FixedUpdate();
 }
 
 void World::PostUpdate()
@@ -156,8 +125,8 @@ void World::PostUpdate()
 	m_state_stack.PostUpdate(m_time);
 	m_camera.PostUpdate(m_time);
 
-	for (const auto& system : m_sorted_systems)
-		system->PostUpdate();
+	for (const auto& pair : m_systems)
+		pair.second->PostUpdate();
 
 	if (m_state_stack.IsEmpty())
 		m_window.close();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <typeindex>
+#include <map>
 #include <unordered_map>
 
 #include <SFML/Graphics.hpp>
@@ -19,13 +19,15 @@
 
 namespace vlx
 {
-	///	Composite of all important systems and objects that the world runs on
+	///	Collection of all important systems and objects that the world depends on
 	/// 
 	class World : private NonCopyable
 	{
 	private:
-		using WorldSystems	= std::unordered_map<std::type_index, SystemAction::Ptr>;
-		using SortedSystems = std::vector<SystemAction*>;
+		using SystemIDType = size_t;
+
+		using WorldSystems = std::multimap<LayerType, SystemAction::Ptr>;
+		using SystemTable = std::unordered_map<SystemIDType, SystemAction*>;
 
 	public:
 		VELOX_API World(const std::string_view name);
@@ -72,10 +74,6 @@ namespace vlx
 		bool HasSystem() const;
 
 	public:
-		VELOX_API void RemoveSystem(const LayerType id);
-		VELOX_API bool HasSystem(const LayerType id) const;
-
-	public:
 		VELOX_API void Run();
 
 	private:
@@ -99,7 +97,7 @@ namespace vlx
 		FontHolder		m_fonts;
 
 		WorldSystems	m_systems;
-		SortedSystems	m_sorted_systems;
+		SystemTable		m_system_table;
 
 		StateStack		m_state_stack;
 	};
@@ -107,7 +105,8 @@ namespace vlx
 	template<std::derived_from<SystemAction> S>
 	inline const S& World::GetSystem() const
 	{
-		return *static_cast<S*>(m_systems.at(typeid(S)).get());
+		constexpr auto system_id = id::Type<S>::ID();
+		return *static_cast<S*>(m_system_table.at(system_id));
 	}
 
 	template<std::derived_from<SystemAction> S>
@@ -119,45 +118,52 @@ namespace vlx
 	template<std::derived_from<SystemAction> S, typename... Args>
 	inline std::optional<S*> World::AddSystem(Args&&... args) requires std::constructible_from<S, Args...>
 	{
-		if (HasSystem<S>()) // don't add if already exists
+		if (HasSystem<S>()) // don't add if it already exists
 			return std::nullopt;
 
-		auto system = std::make_unique<S>(std::forward<Args>(args)...);
-		auto system_ptr = system.get();
+		constexpr auto system_id = id::Type<S>::ID();
 
-		m_systems[typeid(S)] = std::move(system);
+		SystemAction::Ptr ptr = std::make_unique<S>(std::forward<Args>(args)...);
+		auto temp = ptr.get();
 
-		cu::InsertSorted(m_sorted_systems, system_ptr,
-			[](const SystemAction* lhs, const SystemAction* rhs)
-			{
-				return lhs->GetLayerID() < rhs->GetLayerID();
-			});
+		const auto [lit, inserted] = m_system_table.emplace(system_id, ptr.get());
+		assert(inserted);
 
-		return system_ptr;
+		m_systems.emplace(ptr->GetLayerID(), std::move(ptr));
+
+		return static_cast<S*>(lit->second);
 	}
 
 	template<std::derived_from<SystemAction> S>
 	inline void World::RemoveSystem()
 	{
-		const auto it = m_systems.find(typeid(S));
-		if (it == m_systems.end())
+		constexpr auto system_id = id::Type<S>::ID();
+
+		const auto lit = m_system_table.find(system_id);
+		if (lit == m_system_table.end() || lit->second->IsRequired()) // cant remove required system
 			return;
 
-		if (it->second.get()->IsRequired()) // cant remove required system
+		const auto [begin, end] = m_systems.equal_range(lit->second->GetLayerID());
+
+		if (begin == m_systems.end() || end == m_systems.end())
 			return;
 
-		m_sorted_systems.erase(std::ranges::find_if(m_sorted_systems.begin(), m_sorted_systems.end(),
-			[&it](const auto& item)
+		for (auto it = begin; it != end; ++it)
+		{
+			if (it->second.get() == lit->second)
 			{
-				return item == it->second.get();
-			}));
+				m_systems.erase(it);
+				break;
+			}
+		}
 
-		m_systems.erase(it);
+		m_system_table.erase(lit);
 	}
 
 	template<std::derived_from<SystemAction> S>
 	inline bool World::HasSystem() const
 	{
-		return m_systems.contains(typeid(S));
+		constexpr auto system_id = id::Type<S>::ID();
+		return m_system_table.contains(system_id);
 	}
 }

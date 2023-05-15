@@ -48,6 +48,8 @@
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
+    <ClCompile Include="src\Physics\Systems\BroadShapeHelper.cpp" />
+    <ClCompile Include="src\Physics\Collider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -160,6 +162,7 @@
     <ClInclude Include="include\Velox\Algorithms\Grid.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
+    <ClInclude Include="include\Velox\Physics\Systems\BroadShapeHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

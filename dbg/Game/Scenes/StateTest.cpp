@@ -114,7 +114,7 @@ void StateTest::OnCreated()
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
 
-
+	GetWorld().RemoveSystem<TransformSystem>();
 
 	vlx::Vector2f size(16.0f, 64.0f);
 

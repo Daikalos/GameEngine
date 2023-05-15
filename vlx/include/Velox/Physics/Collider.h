@@ -2,16 +2,17 @@
 
 #include <Velox/Algorithms/QTElement.hpp>
 #include <Velox/System/Event.hpp>
+#include <Velox/VeloxTypes.hpp>
+#include <Velox/Config.hpp>
 
 #include "CollisionResult.h"
 #include "CollisionLayer.h"
-#include "CollisionObject.h"
 
 namespace vlx
 {
-	using QTCollider = QTElement<CollisionObject>;
+	using QTCollider = QTElement<uint32>;
 
-	class Collider : public QTCollider
+	class VELOX_API Collider : public QTCollider
 	{
 	public:
 		Event<const CollisionResult&>	OnEnter;	// called when collider enters another collider
@@ -19,11 +20,15 @@ namespace vlx
 		Event<const CollisionResult&>	OnOverlap;	// called when collider overlaps another collider
 
 	public:
+		bool GetEnabled() const noexcept;
+		void SetEnabled(bool flag);
+
+	public:
 		CollisionLayer layer;
-		bool enabled {true};
 
 	private:
-		bool dirty {true}; // if should update the AABB in the quadtree
+		bool enabled	{true};
+		bool dirty		{true}; // if should update the AABB in the quadtree
 
 		friend class PhysicsDirtySystem;
 		friend class BroadSystem;

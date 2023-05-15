@@ -498,7 +498,6 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 		}
 	}
 	break;
-	default: break;
 	}
 }
 

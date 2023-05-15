@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <variant>
+#include <functional>
 
 #include <Velox/System/Concepts.h>
 #include <Velox/VeloxTypes.hpp>
