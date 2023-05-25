@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <type_traits>
 
 #include <Velox/Graphics/Components/Object.h>
 #include <Velox/Graphics/Components/Renderable.h>
@@ -28,14 +29,14 @@
 
 namespace vlx
 {
-	using AllTypes		= std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite, Circle, Box, Collider, Polygon, Point, PhysicsBody, gui::Container, gui::Button, gui::Label>;
-	using ObjectType	= std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite>;
+	using AllTypes		= std::type_identity<std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite, Circle, Box, Collider, Polygon, Point, PhysicsBody, gui::Container, gui::Button, gui::Label>>;
+	using ObjectType	= std::type_identity<std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite>>;
 
 	namespace gui
 	{
-		using ContainerType = std::tuple<Renderable, Transform, GlobalTransform, Relation, gui::Container>;
-		using ImageType		= std::tuple<Renderable, Transform, GlobalTransform, Relation, Sprite>;
-		using ButtonType	= std::tuple<Renderable, Transform, GlobalTransform, Relation, Sprite, gui::Button>;
-		using LabelType		= std::tuple<Renderable, Transform, GlobalTransform, Relation, gui::Label>;
+		using ContainerType = std::type_identity<std::tuple<Renderable, Transform, GlobalTransform, Relation, gui::Container>>;
+		using ImageType		= std::type_identity<std::tuple<Renderable, Transform, GlobalTransform, Relation, Sprite>>;
+		using ButtonType	= std::type_identity<std::tuple<Renderable, Transform, GlobalTransform, Relation, Sprite, gui::Button>>;
+		using LabelType		= std::type_identity<std::tuple<Renderable, Transform, GlobalTransform, Relation, gui::Label>>;
 	}
 }

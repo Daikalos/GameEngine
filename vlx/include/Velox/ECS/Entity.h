@@ -39,7 +39,7 @@ namespace vlx
 		void AddComponents();
 
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponents(std::tuple<Cs...>&& tuple);
+		void AddComponents(std::type_identity<std::tuple<Cs...>>);
 
 		template<IsComponent C>
 		bool RemoveComponent();
@@ -97,7 +97,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void Entity::AddComponents(UNUSED std::tuple<Cs...>&& tuple)
+	inline void Entity::AddComponents(std::type_identity<std::tuple<Cs...>>)
 	{
 		m_entity_admin->AddComponents<Cs...>(m_id);
 	}

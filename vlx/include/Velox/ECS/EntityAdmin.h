@@ -118,7 +118,7 @@ namespace vlx
 		///	Shortcut for registering multiple components.
 		///
 		template<class... Cs> requires IsComponents<Cs...>
-		void RegisterComponents(std::tuple<Cs...>&& tuple);
+		void RegisterComponents(std::type_identity<std::tuple<Cs...>>);
 
 		///	Adds a component to the specified entity.
 		/// 
@@ -143,7 +143,7 @@ namespace vlx
 		/// \param Tuple: To automatically deduce the template arguments.
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponents(EntityID entity_id, std::tuple<Cs...>&& tuple);
+		void AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>);
 
 		/// Removes a component from the specified entity. Will return true if it succeeded in doing such, otherwise false.
 		/// 
@@ -171,7 +171,7 @@ namespace vlx
 		/// \returns Whether if it was able to remove any component from the entity.
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		bool RemoveComponents(EntityID entity_id, std::tuple<Cs...>&& tuple);
+		bool RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>);
 
 		///	GetComponent is designed to be as fast as possible without checks to see if it exists, otherwise, will throw error. 
 		/// Therefore, take some caution when using this function. Use instead: TryGetComponent or GetComponentRef for better safety.
@@ -515,7 +515,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::RegisterComponents(UNUSED std::tuple<Cs...>&& tuple)
+	inline void EntityAdmin::RegisterComponents(std::type_identity<std::tuple<Cs...>>)
 	{
 		RegisterComponents<Cs...>();
 	}
@@ -678,7 +678,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::AddComponents(EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
+	inline void EntityAdmin::AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>)
 	{
 		AddComponents<Cs...>(entity_id);
 	}
@@ -699,7 +699,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline bool EntityAdmin::RemoveComponents(EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
+	inline bool EntityAdmin::RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>)
 	{
 		return RemoveComponents<Cs...>(entity_id);
 	}
