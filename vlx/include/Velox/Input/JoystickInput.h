@@ -73,7 +73,7 @@ namespace vlx
 	template<Enum Bind>
 	inline bool JoystickInput::Held(const SizeType id, const Bind name) const
 	{
-		const auto& binds = Get<Bind>();
+		const auto& binds = GetMap<Bind>();
 		return binds.GetEnabled() && Held(id, binds.At(name));
 	}
 	template<Enum Bind>

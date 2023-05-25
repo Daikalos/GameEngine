@@ -4,13 +4,13 @@ using namespace vlx;
 
 EntityAdmin::~EntityAdmin()
 {
-	for (const auto& archetype : m_archetypes)
+	for (const ArchetypePtr& archetype : m_archetypes)
 	{
 		for (std::size_t i = 0; i < archetype->type.size(); ++i)
 		{
-			const ComponentTypeID& component_id = archetype->type[i];
-			const IComponentAlloc* component	= m_component_map[component_id].get();
-			const std::size_t& component_size	= component->GetSize();
+			const auto component_id		= archetype->type[i];
+			const auto component		= m_component_map[component_id].get();
+			const auto component_size	= component->GetSize();
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 				component->Shutdown(*this, archetype->entities[j], &archetype->component_data[i][j * component_size]);
@@ -22,7 +22,7 @@ EntityID EntityAdmin::GetNewEntityID()
 {
 	if (!m_reusable_entity_ids.empty())
 	{
-		const EntityID entity_id = m_reusable_entity_ids.front();
+		EntityID entity_id = m_reusable_entity_ids.front();
 		m_reusable_entity_ids.pop();
 
 		return entity_id;
@@ -31,11 +31,11 @@ EntityID EntityAdmin::GetNewEntityID()
 	return m_entity_id_counter++;
 }
 
-bool EntityAdmin::IsEntityRegistered(const EntityID entity_id) const
+bool EntityAdmin::IsEntityRegistered(EntityID entity_id) const
 {
 	return m_entity_archetype_map.contains(entity_id);
 }
-bool EntityAdmin::HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const
+bool EntityAdmin::HasComponent(EntityID entity_id, ComponentTypeID component_id) const
 {
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -53,7 +53,7 @@ bool EntityAdmin::HasComponent(const EntityID entity_id, const ComponentTypeID c
 	return cit->second.contains(archetype->id);
 }
 
-auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
+auto EntityAdmin::RegisterEntity(EntityID entity_id) -> Record&
 {
 	assert(entity_id != NULL_ENTITY);
 
@@ -62,12 +62,13 @@ auto EntityAdmin::RegisterEntity(const EntityID entity_id) -> Record&
 
 	return it->second;
 }
-void EntityAdmin::RegisterSystem(const LayerType layer, ISystem* system)
+void EntityAdmin::RegisterSystem(LayerType layer, ISystem* system)
 {
-	m_systems[layer].push_back(system);
+	assert(system != nullptr);
+	m_systems[layer].emplace_back(system);
 }
 
-void EntityAdmin::RunSystems(const LayerType layer) const
+void EntityAdmin::RunSystems(LayerType layer) const
 {
 	const auto sit = m_systems.find(layer);
 	if (sit == m_systems.end())
@@ -77,7 +78,7 @@ void EntityAdmin::RunSystems(const LayerType layer) const
 		RunSystem(system);
 }
 
-void EntityAdmin::SortSystems(const LayerType layer)
+void EntityAdmin::SortSystems(LayerType layer)
 {
 	const auto it = m_systems.find(layer);
 	if (it == m_systems.end())
@@ -95,7 +96,7 @@ void EntityAdmin::RunSystem(const ISystem* system) const
 	if (!system->IsEnabled())
 		return;
 
-	system->Start();
+	system->OnStart();
 
 	const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
 
@@ -115,15 +116,17 @@ void EntityAdmin::RunSystem(const ISystem* system) const
 				system->Run(archetype);
 			});
 	}
+
+	system->OnEnd();
 }
 
-void EntityAdmin::RemoveSystem(const LayerType layer, ISystem* system)
+void EntityAdmin::RemoveSystem(LayerType layer, ISystem* system)
 {
 	if (!cu::Erase(m_systems[layer], system))
 		throw std::runtime_error("attempted removal of non-existing system");
 }
 
-bool EntityAdmin::RemoveEntity(const EntityID entity_id)
+bool EntityAdmin::RemoveEntity(EntityID entity_id)
 {
 	// TODO: prevent RemoveEntity being called on shutdown
 
@@ -142,7 +145,7 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 		return true;
 	}
 
-	const EntityID last_entity_id = archetype->entities.back();
+	EntityID last_entity_id = archetype->entities.back();
 
 	if (last_entity_id != entity_id)
 	{
@@ -184,7 +187,7 @@ bool EntityAdmin::RemoveEntity(const EntityID entity_id)
 	return true;
 }
 
-void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id)
+void EntityAdmin::AddComponent(EntityID entity_id, ComponentTypeID add_component_id)
 {
 	const auto component_ids = { add_component_id };
 	const auto archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
@@ -192,7 +195,7 @@ void EntityAdmin::AddComponent(const EntityID entity_id, const ComponentTypeID a
 	AddComponents(entity_id, component_ids, archetype_id);
 }
 
-bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id)
+bool EntityAdmin::RemoveComponent(EntityID entity_id, ComponentTypeID rmv_component_id)
 {
 	const auto component_ids = { rmv_component_id };
 	const auto archetype_id = cu::ContainerHash<ComponentIDs>()(component_ids);
@@ -200,7 +203,7 @@ bool EntityAdmin::RemoveComponent(const EntityID entity_id, const ComponentTypeI
 	return RemoveComponents(entity_id, component_ids, archetype_id);
 }
 
-void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id)
+void EntityAdmin::AddComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted(component_ids) && !component_ids.empty());
 
@@ -221,7 +224,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 			ComponentIDs new_archetype_id = old_archetype->type; // create copy
 
 			bool found = false;
-			for (const ComponentTypeID component_id : component_ids) // determine valid components
+			for (ComponentTypeID component_id : component_ids) // determine valid components
 			{
 				if (cu::InsertSorted(new_archetype_id, component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 					found = true;
@@ -243,7 +246,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 		if (!new_archetype) // exit if no archetype was found
 			return;
 
-		const EntityID last_entity_id = old_archetype->entities.back();
+		EntityID last_entity_id = old_archetype->entities.back();
 
 		if (last_entity_id != entity_id)
 		{
@@ -282,7 +285,7 @@ void EntityAdmin::AddComponents(const EntityID entity_id, const ComponentIDs& co
 	record.archetype = new_archetype;
 }
 
-bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id)
+bool EntityAdmin::RemoveComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted(component_ids) && !component_ids.empty());
 
@@ -303,7 +306,7 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 		ComponentIDs new_archetype_id = old_archetype->type; // create copy
 
 		bool found = false;
-		for (const ComponentTypeID component_id : component_ids) // erase while keeping the vector sorted
+		for (ComponentTypeID component_id : component_ids) // erase while keeping the vector sorted
 		{
 			if (cu::EraseSorted(new_archetype_id, component_id))
 				found = true;
@@ -322,7 +325,7 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 	if (!new_archetype) // exit if no archetype was found
 		return false;
 
-	const EntityID last_entity_id = old_archetype->entities.back();
+	EntityID last_entity_id = old_archetype->entities.back();
 
 	if (last_entity_id != entity_id)
 	{
@@ -343,6 +346,18 @@ bool EntityAdmin::RemoveComponents(const EntityID entity_id, const ComponentIDs&
 	return true;
 }
 
+void vlx::EntityAdmin::DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
+{
+}
+
+void vlx::EntityAdmin::DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
+{
+}
+
+void vlx::EntityAdmin::DeregisterOnRemoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
+{
+}
+
 bool EntityAdmin::HasShutdown() const
 {
 	return m_shutdown;
@@ -353,25 +368,25 @@ void EntityAdmin::Shutdown()
 	m_shutdown = true;
 }
 
-void EntityAdmin::CallOnAddEvent(const ComponentTypeID component_id, EntityID eid, void* data) const
+void EntityAdmin::CallOnAddEvent(ComponentTypeID component_id, EntityID eid, void* data) const
 {
 	if (auto it = m_events_add.find(component_id); it != m_events_add.end())
 		it->second(eid, data);
 }
 
-void EntityAdmin::CallOnMoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const
+void EntityAdmin::CallOnMoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const
 {
 	if (auto it = m_events_move.find(component_id); it != m_events_move.end())
 		it->second(eid, data);
 }
 
-void EntityAdmin::CallOnRemoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const
+void EntityAdmin::CallOnRemoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const
 {
 	if (auto it = m_events_remove.find(component_id); it != m_events_remove.end())
 		it->second(eid, data);
 }
 
-EntityID EntityAdmin::Duplicate(const EntityID entity_id)
+EntityID EntityAdmin::Duplicate(EntityID entity_id)
 {
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -383,7 +398,7 @@ EntityID EntityAdmin::Duplicate(const EntityID entity_id)
 	if (archetype == nullptr)
 		return NULL_ENTITY;
 
-	const EntityID new_entity_id = GetNewEntityID();
+	EntityID new_entity_id = GetNewEntityID();
 	Record& new_record = RegisterEntity(new_entity_id);
 
 	for (std::size_t i = 0; i < archetype->type.size(); ++i)
@@ -454,7 +469,7 @@ void EntityAdmin::Shrink(bool extensive)
 	}
 }
 
-void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const
+void EntityAdmin::EraseComponentRef(EntityID entity_id, ComponentTypeID component_id) const
 {
 	const auto eit = m_entity_component_ref_map.find(entity_id);
 	if (eit == m_entity_component_ref_map.end())
@@ -501,7 +516,7 @@ void EntityAdmin::EraseComponentRef(const EntityID entity_id, const ComponentTyp
 	}
 }
 
-void EntityAdmin::UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, void* new_component) const
+void EntityAdmin::UpdateComponentRef(EntityID entity_id, ComponentTypeID component_id, void* new_component) const
 {
 	const auto eit = m_entity_component_ref_map.find(entity_id);
 	if (eit == m_entity_component_ref_map.end())
@@ -555,11 +570,21 @@ void EntityAdmin::ClearEmptyEntityArchetypes()
 	const auto [first, last] = std::ranges::remove_if(m_archetypes.begin(), m_archetypes.end(),
 		[this](const ArchetypePtr& archetype)
 		{
+			if (archetype == nullptr)
+				return true;
+
 			if (archetype->entities.empty())
 			{
-				// TODO: Remove edges on neighbouring archetypes that references this
+				for (const auto& pair : archetype->edges)
+				{
+					const auto& edge = pair.second;
+
+					edge.add->edges.erase(archetype->id);
+					edge.remove->edges.erase(archetype->id);
+				}
 
 				m_archetype_map.erase(archetype->id);
+
 				return true;
 			}
 
@@ -573,13 +598,22 @@ void EntityAdmin::ClearEmptyTypeArchetypes()
 	const auto [first, last] = std::ranges::remove_if(m_archetypes.begin(), m_archetypes.end(),
 		[this](const ArchetypePtr& archetype)
 		{
+			if (archetype == nullptr)
+				return true;
+
 			if (archetype->type.empty())
 			{
-				// TODO: Remove edges on neighbouring archetypes that references this
+				for (const auto& pair : archetype->edges)
+				{
+					const auto& edge = pair.second;
+
+					edge.add->edges.erase(archetype->id);
+					edge.remove->edges.erase(archetype->id);
+				}
 
 				m_archetype_map.erase(archetype->id);
 
-				for (const EntityID entity_id : archetype->entities)
+				for (EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
 					m_reusable_entity_ids.push(entity_id);
@@ -596,17 +630,17 @@ void EntityAdmin::ClearEmptyTypeArchetypes()
 
 void EntityAdmin::ConstructSwap(
 	Archetype* new_archetype, Archetype* old_archetype,
-	const EntityID entity_id, const Record& record,
-	const EntityID last_entity_id, Record& last_record) const
+	EntityID entity_id, const Record& record,
+	EntityID last_entity_id, Record& last_record) const
 {
 	for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i)
 	{
-		const auto component_id = new_archetype->type[i];
-		const auto component = m_component_map.at(component_id).get();
-		const auto component_size = component->GetSize();
+		const auto component_id		= new_archetype->type[i];
+		const auto component		= m_component_map.at(component_id).get();
+		const auto component_size	= component->GetSize();
 
-		const auto current_size = new_archetype->entities.size() * component_size;
-		const auto new_size = current_size + component_size;
+		const auto current_size		= new_archetype->entities.size() * component_size;
+		const auto new_size			= current_size + component_size;
 
 		if (new_size > new_archetype->component_data_size[i])
 			MakeRoom(new_archetype, component, component_size, i);
@@ -635,7 +669,7 @@ void EntityAdmin::ConstructSwap(
 
 void EntityAdmin::Construct(
 	Archetype* new_archetype, Archetype* old_archetype, 
-	const EntityID entity_id, const Record& record) const
+	EntityID entity_id, const Record& record) const
 {
 	for (std::size_t i = 0, j = 0; i < new_archetype->type.size(); ++i)
 	{
@@ -668,8 +702,8 @@ void EntityAdmin::Construct(
 
 void EntityAdmin::DestructSwap(
 	Archetype* old_archetype, Archetype* new_archetype, 
-	const EntityID entity_id, const Record& record,
-	const EntityID last_entity_id, Record& last_record) const
+	EntityID entity_id, const Record& record,
+	EntityID last_entity_id, Record& last_record) const
 {
 	for (std::size_t i = 0, j = 0; i < old_archetype->type.size(); ++i) // we iterate over both archetypes
 	{
@@ -707,7 +741,7 @@ void EntityAdmin::DestructSwap(
 
 void EntityAdmin::Destruct(
 	Archetype* old_archetype, Archetype* new_archetype, 
-	const EntityID entity_id, const Record& record) const
+	EntityID entity_id, const Record& record) const
 {
 	for (std::size_t i = 0, j = 0; i < old_archetype->type.size(); ++i) // we iterate over both archetypes
 	{

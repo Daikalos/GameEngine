@@ -137,10 +137,7 @@ int BroadSystem::TryAddNewObject(EntityID eid)
 	const auto it = m_entity_body_map.find(eid);
 	if (it == m_entity_body_map.end())
 	{
-		CollisionObject obj;
-		obj.entity_id = eid;
-
-		const auto i = m_bodies.emplace(obj);
+		const auto i = m_bodies.emplace(eid);
 		m_entity_body_map.emplace(eid, i);
 
 		return i;

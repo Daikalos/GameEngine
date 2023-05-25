@@ -52,23 +52,19 @@ void JoystickInput::Update(const Time& time, const bool focus)
 		if (!m_available[i])
 			continue;
 
-		for (uint32_t j = 0, size = sf::Joystick::getButtonCount(i); j < size; ++j)
+		for (int j = 0, size = sf::Joystick::getButtonCount(i); j < size; ++j)
 		{
-			const uint32_t k = j + i * sf::Joystick::ButtonCount;
+			const int k = j + i * sf::Joystick::ButtonCount;
 
-			bool& prev_state = m_previous_state[k];
-			bool& curr_state = m_current_state[k];
-			float& held_time = m_held_time[k];
+			m_previous_state[k] = m_current_state[k];
+			m_current_state[k] = focus && sf::Joystick::isButtonPressed(i, j);
 
-			prev_state = curr_state;
-			curr_state = focus && sf::Joystick::isButtonPressed(i, j);
-
-			held_time = curr_state ? held_time + time.GetRealDT() : 0.0f;
+			m_held_time[k] = m_current_state[k] ? m_held_time[k] + time.GetRealDT() : 0.0f;
 		}
 
-		for (uint32_t j = 0; j < sf::Joystick::AxisCount; ++j)
+		for (int j = 0; j < sf::Joystick::AxisCount; ++j)
 		{
-			const uint32_t k = j + i * sf::Joystick::AxisCount;
+			const int k = j + i * sf::Joystick::AxisCount;
 
 			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(j);
 			m_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) * focus : 0.0f;

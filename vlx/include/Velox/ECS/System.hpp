@@ -10,6 +10,7 @@
 #include <Velox/System/IDGenerator.h>
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/Utility/ContainerUtils.h>
+#include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"
 #include "Archetype.hpp"
@@ -39,8 +40,11 @@ namespace vlx
 		virtual void SetEnabled(const bool flag);
 
 	protected:
-		virtual void Start() const = 0;
 		virtual void Run(const Archetype* const archetype) const = 0;
+
+	public:
+		Event<> OnStart;	// called before system starts being run for each archetype
+		Event<> OnEnd;		// called after system has run for each archetype
 
 	private:
 		float	m_priority		{0.0f};		// priority is for controlling the underlying order of calls inside a layer
@@ -65,28 +69,16 @@ namespace vlx
 			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
 
 	private:
-		struct ArchExclude
+		struct ArchExclData
 		{
-			ArchExclude(ArchetypeID id, bool excluded = false) : id(id), excluded(excluded) {};
+			ArchExclData(ArchetypeID id, bool excluded = false) : id(id), excluded(excluded) {};
+			bool operator==(const ArchExclData& ae) const { return id == ae.id; }
 
-			ArchetypeID id;
-			bool excluded;
-
-			constexpr bool operator==(const ArchExclude& ae) const
-			{
-				return id == ae.id;
-			}
+			ArchetypeID id	{NULL_ARCHETYPE};
+			bool excluded	{false};
 		};
 
-		struct ArchExcludeHash
-		{
-			constexpr std::size_t operator()(const ArchExclude& ae) const
-			{
-				return ae.id; // might as well just return id, as it will always be unique *I hope*
-			}
-		};
-
-		using ArchExclCache = std::unordered_set<ArchExclude, ArchExcludeHash>;
+		using ArchExclCache = std::unordered_set<ArchExclData, decltype([](const ArchExclData& data) { return data.id; })>;
 
 	public:
 		System(EntityAdmin& entity_admin);
@@ -115,8 +107,7 @@ namespace vlx
 		void Exclude();
 
 	protected:
-		virtual void Start() const override;
-		virtual void Run(const Archetype* const archetype) const override;
+		void Run(const Archetype* const archetype) const override;
 
 		template<std::size_t Index = 0, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 		void Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const;
@@ -125,10 +116,7 @@ namespace vlx
 		void Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const;
 
 	private:
-		bool IsArchetypeExcluded(const Archetype* archetype) const;
-
-	public:
-		Event<> OnStart; // called before system starts being run for each archetype
+		NODISC bool IsArchetypeExcluded(const Archetype* archetype) const;
 
 	protected:	
 		EntityAdmin*				m_entity_admin	{nullptr};
@@ -221,12 +209,6 @@ namespace vlx
 	inline void System<Cs1...>::Exclude()
 	{
 		m_exclusion = cu::Sort<ComponentIDs>({ ComponentTypeID(id::Type<Cs2>::ID())... });
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::Start() const
-	{
-		OnStart();
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

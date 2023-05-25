@@ -4,6 +4,7 @@
 
 #include <Velox/System/Time.h>
 #include <Velox/Utility/NonCopyable.h>
+#include <Velox/System/IDGenerator.h>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
@@ -15,6 +16,10 @@ namespace vlx
 	/// 
 	class ControlMap final : private NonCopyable
 	{
+	private:
+		using ControlsIDType = size_t;
+		using ControlsMap = std::unordered_map<ControlsIDType, InputHandler::Ptr>;
+
 	public:
 		///	\returns Retrieves the InputHandler
 		/// 
@@ -50,13 +55,14 @@ namespace vlx
 		VELOX_API void HandleEventAll(const sf::Event& event);
 
 	private:
-		InputHandler::ControlsMap m_controls;
+		ControlsMap m_controls;
 	};
 
 	template<std::derived_from<InputHandler> T>
 	inline const T& ControlMap::Get() const
 	{
-		return *static_cast<T*>(m_controls.at(typeid(T)).get());
+		constexpr auto controls_id = id::Type<T>::ID();
+		return *static_cast<T*>(m_controls.at(controls_id).get());
 	}
 
 	template<std::derived_from<InputHandler> T>
@@ -68,18 +74,21 @@ namespace vlx
 	template<std::derived_from<InputHandler> T, typename... Args>
 	inline void ControlMap::Add(Args&&... args) requires std::constructible_from<T, Args...>
 	{
-		m_controls[typeid(T)] = std::make_unique<T>(std::forward<Args>(args)...);
+		constexpr auto controls_id = id::Type<T>::ID();
+		m_controls[controls_id] = std::make_unique<T>(std::forward<Args>(args)...);
 	}
 
 	template<std::derived_from<InputHandler> T>
 	inline void ControlMap::Remove()
 	{
-		m_controls.erase(typeid(T));
+		constexpr auto controls_id = id::Type<T>::ID();
+		m_controls.erase(controls_id);
 	}
 
 	template<std::derived_from<InputHandler> T>
 	inline bool ControlMap::Exists() const
 	{
-		return m_controls.contains(typeid(T));
+		constexpr auto controls_id = id::Type<T>::ID();
+		return m_controls.contains(controls_id);
 	}
 }

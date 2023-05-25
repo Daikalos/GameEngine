@@ -20,16 +20,12 @@ void KeyboardInput::Update(const Time& time, const bool focus)
 	if (!m_enabled)
 		return;
 
-	for (uint32_t i = 0; i < sf::Keyboard::KeyCount; ++i)
+	for (int i = 0; i < sf::Keyboard::KeyCount; ++i)
 	{
-		bool& prev_state = m_previous_state[i];
-		bool& curr_state = m_current_state[i];
-		float& held_time = m_held_time[i];
+		m_previous_state[i] = m_current_state[i];
+		m_current_state[i] = focus && sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
 
-		prev_state = curr_state;
-		curr_state = focus && sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
-
-		held_time = curr_state ? (held_time + time.GetRealDT()) : 0.0f;
+		m_held_time[i] = m_current_state[i] ? (m_held_time[i] + time.GetRealDT()) : 0.0f;
 	}
 }
 

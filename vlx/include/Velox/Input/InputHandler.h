@@ -20,8 +20,7 @@ namespace vlx
 	class VELOX_API InputHandler : private NonCopyable
 	{
 	public:
-		using Ptr			= std::unique_ptr<InputHandler>;
-		using ControlsMap	= std::unordered_map<std::type_index, Ptr>;
+		using Ptr = std::unique_ptr<InputHandler>;
 
 	public:
 		InputHandler() = default;

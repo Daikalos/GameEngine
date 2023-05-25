@@ -128,14 +128,14 @@ namespace vlx
 		/// \returns Pointer to the added component if it was successful, otherwise nullptr.
 		///
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		C* AddComponent(const EntityID entity_id, Args&&... args);
+		C* AddComponent(EntityID entity_id, Args&&... args);
 
 		///	Optimized for quickly adding multiple components to an entity.
 		/// 
 		/// \param EntityID: ID of the entity to add the component to.
 		///
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponents(const EntityID entity_id);
+		void AddComponents(EntityID entity_id);
 
 		///	Optimized for quickly adding multiple components to an entity.
 		/// 
@@ -143,7 +143,7 @@ namespace vlx
 		/// \param Tuple: To automatically deduce the template arguments.
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
+		void AddComponents(EntityID entity_id, std::tuple<Cs...>&& tuple);
 
 		/// Removes a component from the specified entity. Will return true if it succeeded in doing such, otherwise false.
 		/// 
@@ -152,7 +152,7 @@ namespace vlx
 		/// \returns True if it succeeded in removing component, otherwise false
 		/// 
 		template<IsComponent C>
-		bool RemoveComponent(const EntityID entity_id);
+		bool RemoveComponent(EntityID entity_id);
 
 		/// Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
 		///	
@@ -161,7 +161,7 @@ namespace vlx
 		/// \returns Whether if it was able to remove any component from the entity.
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		bool RemoveComponents(const EntityID entity_id);
+		bool RemoveComponents(EntityID entity_id);
 
 		///	Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
 		///	
@@ -171,7 +171,7 @@ namespace vlx
 		/// \returns Whether if it was able to remove any component from the entity.
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		bool RemoveComponents(const EntityID entity_id, std::tuple<Cs...>&& tuple);
+		bool RemoveComponents(EntityID entity_id, std::tuple<Cs...>&& tuple);
 
 		///	GetComponent is designed to be as fast as possible without checks to see if it exists, otherwise, will throw error. 
 		/// Therefore, take some caution when using this function. Use instead: TryGetComponent or GetComponentRef for better safety.
@@ -181,7 +181,7 @@ namespace vlx
 		/// \returns Reference to component.
 		/// 
 		template<IsComponent C>
-		NODISC C& GetComponent(const EntityID entity_id) const;
+		NODISC C& GetComponent(EntityID entity_id) const;
 
 		/// Tries to get the component. May fail if the entity does not exist or hold the component.
 		/// 
@@ -190,7 +190,7 @@ namespace vlx
 		/// \returns Pointer to component, otherwise std::nullopt.
 		/// 
 		template<IsComponent C>
-		NODISC std::optional<C*> TryGetComponent(const EntityID entity_id) const;
+		NODISC std::optional<C*> TryGetComponent(EntityID entity_id) const;
 
 		/// Retrieves multiple components from an entity in one go.
 		/// 
@@ -199,12 +199,12 @@ namespace vlx
 		/// \returns Tuple containing pointers to component
 		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
-		NODISC std::tuple<Cs*...> GetComponents(const EntityID entity_id) const;
+		NODISC std::tuple<Cs*...> GetComponents(EntityID entity_id) const;
 
 		/// Defaults to GetComponent if GetComponents only specifies one type.
 		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
-		NODISC std::tuple_element_t<0, std::tuple<Cs...>>& GetComponents(const EntityID entity_id) const;
+		NODISC std::tuple_element_t<0, std::tuple<Cs...>>& GetComponents(EntityID entity_id) const;
 
 		///	Constructs a ComponentSet that contains a set of component references that ensures that they remain valid.
 		///
@@ -213,7 +213,7 @@ namespace vlx
 		/// \returns A ComponentSet constructed from the specified components.
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		NODISC ComponentSet<Cs...> GetComponentsRef(const EntityID entity_id) const;
+		NODISC ComponentSet<Cs...> GetComponentsRef(EntityID entity_id) const;
 
 		///	Allows for you to retrieve any base class without having to know the type of the child.
 		/// 
@@ -228,7 +228,7 @@ namespace vlx
 		/// \returns Reference to base.
 		/// 
 		template<class B>
-		NODISC B& GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		NODISC B& GetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
 		/// Tries to get the base. May fail if entity does not exist or hold the child component.
 		/// 
@@ -239,7 +239,7 @@ namespace vlx
 		/// \returns Pointer to base, otherwise std::nullopt.
 		/// 
 		template<class B>
-		NODISC std::optional<B*> TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		NODISC std::optional<B*> TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset = 0) const;
 
 		/// Modifies the existing component with a newly constructed one.
 		/// 
@@ -249,7 +249,7 @@ namespace vlx
 		/// \returns Reference to the component that was modified
 		/// 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		C& SetComponent(const EntityID entity_id, Args&&... args);
+		C& SetComponent(EntityID entity_id, Args&&... args);
 
 		/// Tries to modify the existing component with a newly constructed one. May fail if the entity does 
 		/// not exist or hold the component.
@@ -260,7 +260,7 @@ namespace vlx
 		/// \returns Pointer to the component that was modified, otherwise std::nullopt
 		/// 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		std::optional<C*> TrySetComponent(const EntityID entity_id, Args&&... args);
+		std::optional<C*> TrySetComponent(EntityID entity_id, Args&&... args);
 
 		///	Returns a reference for the component whose pointer will remain valid even when the archetype is modified.
 		/// 
@@ -270,7 +270,7 @@ namespace vlx
 		/// \returns A component reference
 		/// 
 		template<IsComponent C>
-		NODISC ComponentRef<C> GetComponentRef(const EntityID entity_id, C* component = nullptr) const;
+		NODISC ComponentRef<C> GetComponentRef(EntityID entity_id, C* component = nullptr) const;
 
 		///	Tries to return a component ref. May fail if the entity does not exist or hold the specified component.
 		/// 
@@ -280,7 +280,7 @@ namespace vlx
 		/// \returns A component reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<IsComponent C>
-		NODISC std::optional<ComponentRef<C>> TryGetComponentRef(const EntityID entity_id, C* component = nullptr) const;
+		NODISC std::optional<ComponentRef<C>> TryGetComponentRef(EntityID entity_id, C* component = nullptr) const;
 
 		///	Returns a reference for the base whose pointer will remain valid even when the archetype is modified. 
 		/// 
@@ -292,7 +292,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC ComponentRef<B> GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
+		NODISC ComponentRef<B> GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
 
 		///	Tries to return a base reference. May fail if the entity does not exist or hold the specified component.
 		/// 
@@ -304,7 +304,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC std::optional<ComponentRef<B>> TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
+		NODISC std::optional<ComponentRef<B>> TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
 
 		///	Checks if the entity holds the specified component.
 		/// 
@@ -313,7 +313,7 @@ namespace vlx
 		/// \returns True if the entity contains the component C, otherwise false.
 		/// 
 		template<IsComponent C>
-		NODISC bool HasComponent(const EntityID entity_id) const;
+		NODISC bool HasComponent(EntityID entity_id) const;
 
 		///	Checks if the component is registered
 		/// 
@@ -344,7 +344,7 @@ namespace vlx
 		/// \returns True if sorting was succesful, otherwise false
 		/// 
 		template<IsComponent C, class Comp> requires SameTypeParamDecay<Comp, C, 0, 1>
-		bool SortComponents(const EntityID entity_id, Comp&& comparison);
+		bool SortComponents(EntityID entity_id, Comp&& comparison);
 
 		/// Searches for entities that contains the specified components
 		/// 
@@ -363,13 +363,13 @@ namespace vlx
 		void Reserve(const std::size_t component_count);
 
 		template<IsComponent C, typename Func>
-		auto RegisterOnAddListener(Func&& func);
+		NODISC auto RegisterOnAddListener(Func&& func);
 
 		template<IsComponent C, typename Func>
-		auto RegisterOnMoveListener(Func&& func);
+		NODISC auto RegisterOnMoveListener(Func&& func);
 
 		template<IsComponent C, typename Func>
-		auto RegisterOnRemoveListener(Func&& func);
+		NODISC auto RegisterOnRemoveListener(Func&& func);
 
 		template<IsComponent C>
 		void DeregisterOnAddListener(const typename EventHandler<>::IDType id);
@@ -387,7 +387,7 @@ namespace vlx
 		/// 
 		/// \returns ID of the newly created entity containing the copied components
 		///
-		VELOX_API NODISC EntityID Duplicate(const EntityID entity_id);
+		VELOX_API NODISC EntityID Duplicate(EntityID entity_id);
 
 		///	Shrinks the ECS by removing all the empty archetypes.
 		/// 
@@ -415,53 +415,57 @@ namespace vlx
 		bool SortComponents(Archetype* archetype, Comp&& comp);
 
 		template<IsComponent C>
-		void EraseComponentRef(const EntityID entity_id) const;
+		void EraseComponentRef(EntityID entity_id) const;
 
 		template<IsComponent C>
-		void UpdateComponentRef(const EntityID entity_id, C* new_component) const;
+		void UpdateComponentRef(EntityID entity_id, C* new_component) const;
 
 	public:
 		VELOX_API NODISC EntityID GetNewEntityID();
 
-		VELOX_API NODISC bool IsEntityRegistered(const EntityID entity_id) const;
-		VELOX_API NODISC bool HasComponent(const EntityID entity_id, const ComponentTypeID component_id) const;
+		VELOX_API NODISC bool IsEntityRegistered(EntityID entity_id) const;
+		VELOX_API NODISC bool HasComponent(EntityID entity_id, ComponentTypeID component_id) const;
 
-		VELOX_API auto RegisterEntity(const EntityID entity_id) -> Record&;
-		VELOX_API void RegisterSystem(const LayerType layer, ISystem* system);
+		VELOX_API auto RegisterEntity(EntityID entity_id) -> Record&;
+		VELOX_API void RegisterSystem(LayerType layer, ISystem* system);
 
-		VELOX_API void RemoveSystem(const LayerType layer, ISystem* system);
-		VELOX_API bool RemoveEntity(const EntityID entity_id);
+		VELOX_API void RemoveSystem(LayerType layer, ISystem* system);
+		VELOX_API bool RemoveEntity(EntityID entity_id);
 
-		VELOX_API void RunSystems(const LayerType layer) const;
-		VELOX_API void SortSystems(const LayerType layer);
+		VELOX_API void RunSystems(LayerType layer) const;
+		VELOX_API void SortSystems(LayerType layer);
 
 		VELOX_API void RunSystem(const ISystem* system) const;
 
-		VELOX_API void AddComponent(const EntityID entity_id, const ComponentTypeID add_component_id);
-		VELOX_API bool RemoveComponent(const EntityID entity_id, const ComponentTypeID rmv_component_id);
+		VELOX_API void AddComponent(EntityID entity_id, ComponentTypeID add_component_id);
+		VELOX_API bool RemoveComponent(EntityID entity_id, ComponentTypeID rmv_component_id);
 
-		VELOX_API void AddComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
-		VELOX_API bool RemoveComponents(const EntityID entity_id, const ComponentIDs& component_ids, const ArchetypeID archetype_id);
+		VELOX_API void AddComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id);
+		VELOX_API bool RemoveComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id);
+
+		VELOX_API void DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
+		VELOX_API void DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
+		VELOX_API void DeregisterOnRemoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
 
 		VELOX_API NODISC bool HasShutdown() const;
 		VELOX_API void Shutdown();
 
 	private:
-		VELOX_API void CallOnAddEvent(const ComponentTypeID component_id, EntityID eid, void* data) const;
-		VELOX_API void CallOnMoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const;
-		VELOX_API void CallOnRemoveEvent(const ComponentTypeID component_id, EntityID eid, void* data) const;
+		VELOX_API void CallOnAddEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
+		VELOX_API void CallOnMoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
+		VELOX_API void CallOnRemoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
 
-		VELOX_API void EraseComponentRef(const EntityID entity_id, const ComponentTypeID component_id) const;
-		VELOX_API void UpdateComponentRef(const EntityID entity_id, const ComponentTypeID component_id, void* new_component) const;
+		VELOX_API void EraseComponentRef(EntityID entity_id, ComponentTypeID component_id) const;
+		VELOX_API void UpdateComponentRef(EntityID entity_id, ComponentTypeID component_id, void* new_component) const;
 
 		VELOX_API void ClearEmptyEntityArchetypes();
 		VELOX_API void ClearEmptyTypeArchetypes();
 
-		VELOX_API void ConstructSwap(Archetype* new_archetype, Archetype* old_archetype, const EntityID entity_id, const Record& record, const EntityID last_entity_id, Record& last_record) const;
-		VELOX_API void Construct(Archetype* new_archetype, Archetype* old_archetype, const EntityID entity_id, const Record& record) const;
+		VELOX_API void ConstructSwap(Archetype* new_archetype, Archetype* old_archetype, EntityID entity_id, const Record& record, EntityID last_entity_id, Record& last_record) const;
+		VELOX_API void Construct(Archetype* new_archetype, Archetype* old_archetype, EntityID entity_id, const Record& record) const;
 
-		VELOX_API void DestructSwap(Archetype* old_archetype, Archetype* new_archetype, const EntityID entity_id, const Record& record, const EntityID last_entity_id, Record& last_record) const;
-		VELOX_API void Destruct(Archetype* old_archetype, Archetype* new_archetype, const EntityID entity_id, const Record& record) const;
+		VELOX_API void DestructSwap(Archetype* old_archetype, Archetype* new_archetype, EntityID entity_id, const Record& record, EntityID last_entity_id, Record& last_record) const;
+		VELOX_API void Destruct(Archetype* old_archetype, Archetype* new_archetype, EntityID entity_id, const Record& record) const;
 
 		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i) const;
 
@@ -517,7 +521,7 @@ namespace vlx
 	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-	inline C* EntityAdmin::AddComponent(const EntityID entity_id, Args&&... args)
+	inline C* EntityAdmin::AddComponent(EntityID entity_id, Args&&... args)
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -555,7 +559,7 @@ namespace vlx
 			if (!new_archetype) // exit if no archetype was found
 				return nullptr;
 
-			const EntityID last_entity_id = old_archetype->entities.back();
+			EntityID last_entity_id = old_archetype->entities.back();
 			assert(last_entity_id != NULL_ENTITY);
 
 			if (last_entity_id != entity_id) // not same, we'll swap last to current for faster adding
@@ -665,7 +669,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::AddComponents(const EntityID entity_id)
+	inline void EntityAdmin::AddComponents(EntityID entity_id)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
@@ -674,19 +678,19 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::AddComponents(const EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
+	inline void EntityAdmin::AddComponents(EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
 	{
 		AddComponents<Cs...>(entity_id);
 	}
 
 	template<IsComponent C>
-	inline bool EntityAdmin::RemoveComponent(const EntityID entity_id)
+	inline bool EntityAdmin::RemoveComponent(EntityID entity_id)
 	{
 		return RemoveComponent(entity_id, GetComponentID<C>());
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id)
+	inline bool EntityAdmin::RemoveComponents(EntityID entity_id)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
@@ -695,13 +699,13 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline bool EntityAdmin::RemoveComponents(const EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
+	inline bool EntityAdmin::RemoveComponents(EntityID entity_id, UNUSED std::tuple<Cs...>&& tuple)
 	{
 		return RemoveComponents<Cs...>(entity_id);
 	}
 
 	template<IsComponent C>
-	inline C& EntityAdmin::GetComponent(const EntityID entity_id) const
+	inline C& EntityAdmin::GetComponent(EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -718,7 +722,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline std::optional<C*> EntityAdmin::TryGetComponent(const EntityID entity_id) const
+	inline std::optional<C*> EntityAdmin::TryGetComponent(EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -749,7 +753,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline B& EntityAdmin::GetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	inline B& EntityAdmin::GetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset) const
 	{
 		const auto& record = m_entity_archetype_map.at(entity_id);
 		const auto* archetype = record.archetype;
@@ -767,7 +771,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::optional<B*> EntityAdmin::TryGetBase(const EntityID entity_id, const ComponentTypeID child_component_id, const std::size_t offset) const
+	inline std::optional<B*> EntityAdmin::TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -800,7 +804,7 @@ namespace vlx
 	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-	inline C& EntityAdmin::SetComponent(const EntityID entity_id, Args&&... args)
+	inline C& EntityAdmin::SetComponent(EntityID entity_id, Args&&... args)
 	{
 		C& old_component = GetComponent<C>(entity_id);
 		C new_component(std::forward<Args>(args)...);
@@ -814,7 +818,7 @@ namespace vlx
 	}
 
 	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
-	inline std::optional<C*> EntityAdmin::TrySetComponent(const EntityID entity_id, Args&&... args)
+	inline std::optional<C*> EntityAdmin::TrySetComponent(EntityID entity_id, Args&&... args)
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 
@@ -835,7 +839,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline ComponentRef<C> EntityAdmin::GetComponentRef(const EntityID entity_id, C* component) const
+	inline ComponentRef<C> EntityAdmin::GetComponentRef(EntityID entity_id, C* component) const
 	{
 		assert(IsComponentRegistered<C>());
 
@@ -872,7 +876,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline std::optional<ComponentRef<C>> EntityAdmin::TryGetComponentRef(const EntityID entity_id, C* component) const
+	inline std::optional<ComponentRef<C>> EntityAdmin::TryGetComponentRef(EntityID entity_id, C* component) const
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent<C>(entity_id))
 			return std::nullopt;
@@ -881,7 +885,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline ComponentRef<B> EntityAdmin::GetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
+	inline ComponentRef<B> EntityAdmin::GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset, B* base) const
 	{
 		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
@@ -915,7 +919,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::optional<ComponentRef<B>> EntityAdmin::TryGetBaseRef(const EntityID entity_id, const ComponentTypeID child_component_id, const uint32 offset, B* base) const
+	inline std::optional<ComponentRef<B>> EntityAdmin::TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset, B* base) const
 	{
 		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists and has component
 			return std::nullopt;
@@ -924,7 +928,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline bool EntityAdmin::HasComponent(const EntityID entity_id) const
+	inline bool EntityAdmin::HasComponent(EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>()); // component should be registered
 		return HasComponent(entity_id, GetComponentID<C>());
@@ -937,7 +941,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
-	inline std::tuple<Cs*...> EntityAdmin::GetComponents(const EntityID entity_id) const
+	inline std::tuple<Cs*...> EntityAdmin::GetComponents(EntityID entity_id) const
 	{
 		using ComponentTypes = std::tuple<Cs...>;
 
@@ -960,13 +964,13 @@ namespace vlx
 	}
 
 	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
-	inline std::tuple_element_t<0, std::tuple<Cs...>>& EntityAdmin::GetComponents(const EntityID entity_id) const
+	inline std::tuple_element_t<0, std::tuple<Cs...>>& EntityAdmin::GetComponents(EntityID entity_id) const
 	{
 		return GetComponent<Cs...>(entity_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline ComponentSet<Cs...> EntityAdmin::GetComponentsRef(const EntityID entity_id) const
+	inline ComponentSet<Cs...> EntityAdmin::GetComponentsRef(EntityID entity_id) const
 	{
 		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id)...);
 	}
@@ -989,7 +993,7 @@ namespace vlx
 	}
 
 	template<IsComponent C, class Comp> requires SameTypeParamDecay<Comp, C, 0, 1>
-	inline bool EntityAdmin::SortComponents(const EntityID entity_id, Comp&& comparison)
+	inline bool EntityAdmin::SortComponents(EntityID entity_id, Comp&& comparison)
 	{
 		const auto it = m_entity_archetype_map.find(entity_id);
 		if (it == m_entity_archetype_map.end())
@@ -1203,13 +1207,14 @@ namespace vlx
 			return it->second;
 
 		std::vector<Archetype*> result;
+
 		for (const ArchetypePtr& archetype : m_archetypes)
 		{
 			if (std::ranges::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
 				result.push_back(archetype.get());
 		}
 
-		return m_archetype_cache.try_emplace(archetype_id, result).first->second;
+		return m_archetype_cache.emplace(archetype_id, result).first->second;
 	}
 
 	template<IsComponent C, class Comp>
@@ -1261,7 +1266,7 @@ namespace vlx
 		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
 		{
 			const std::size_t index = indices[i];
-			const EntityID entity_id = archetype->entities[index];
+			EntityID entity_id = archetype->entities[index];
 
 			auto it = m_entity_archetype_map.find(entity_id);
 			assert(it != m_entity_archetype_map.end()); // should never happen
@@ -1276,13 +1281,13 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::EraseComponentRef(const EntityID entity_id) const
+	inline void EntityAdmin::EraseComponentRef(EntityID entity_id) const
 	{
 		EraseComponentRef(entity_id, GetComponentID<C>());
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::UpdateComponentRef(const EntityID entity_id, C* new_component) const
+	inline void EntityAdmin::UpdateComponentRef(EntityID entity_id, C* new_component) const
 	{
 		UpdateComponentRef(entity_id, GetComponentID<C>(), static_cast<void*>(new_component)); // TODO: CHECK OUT
 	}

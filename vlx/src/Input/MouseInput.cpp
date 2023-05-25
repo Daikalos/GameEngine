@@ -33,14 +33,10 @@ void MouseInput::Update(const Time& time, const bool focus)
 
 	for (uint32_t i = 0; i < sf::Mouse::ButtonCount; ++i)
 	{
-		bool& prev_state = m_previous_state[i];
-		bool& curr_state = m_current_state[i];
-		float& held_time = m_held_time[i];
+		m_previous_state[i] = m_current_state[i];
+		m_current_state[i] = focus && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
 
-		prev_state = curr_state;
-		curr_state = focus && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
-
-		held_time = curr_state ? (held_time + time.GetRealDT()) : 0.0f;
+		m_held_time[i] = m_current_state[i] ? (m_held_time[i] + time.GetRealDT()) : 0.0f;
 	}
 }
 void MouseInput::HandleEvent(const sf::Event& event)

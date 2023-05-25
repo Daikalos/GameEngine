@@ -158,6 +158,7 @@
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\Physics\Systems\BroadShapeHelper.h" />
+    <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
     <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
