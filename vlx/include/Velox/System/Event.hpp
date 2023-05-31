@@ -158,7 +158,7 @@ namespace vlx
 	template<typename... Args>
 	inline auto Event<Args...>::operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::IDType
 	{
-		return Remove(handler_id);
+		return RemoveID(handler_id);
 	}
 
 	template<typename... Args>
@@ -167,6 +167,7 @@ namespace vlx
 		std::lock_guard lock(m_lock);
 
 		m_handlers.push_back(handler);
+
 		return handler.GetID();
 	}
 	template<typename... Args>

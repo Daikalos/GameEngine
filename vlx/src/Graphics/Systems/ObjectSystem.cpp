@@ -2,16 +2,13 @@
 
 using namespace vlx;
 
-ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemAction(entity_admin, id), m_object_system(entity_admin, id)
+ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, LayerType id)
+	: SystemAction(entity_admin, id), m_objects(entity_admin, id)
 {
-	m_object_system.All([this](std::span<const EntityID> entities, Object* objects)
+	m_objects.Each([this](EntityID entity_id, Object& object)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
-			{
-				if (!objects[i].IsAlive)
-					DeleteObjectDelayed(entities[i]);
-			}
+			if (!object.IsAlive)
+				RemoveEntity(entity_id);
 		});
 }
 
@@ -20,64 +17,82 @@ bool ObjectSystem::IsRequired() const noexcept
 	return true;
 }
 
-Entity ObjectSystem::CreateObject() const
+Entity ObjectSystem::CreateEntity() const
 {
 	return Entity(*m_entity_admin);
 }
 
-void ObjectSystem::DeleteObjectDelayed(const EntityID entity_id)
+void ObjectSystem::RemoveEntity(EntityID entity_id, ExecutionStage stage)
 {
-	m_commands.emplace(DeleteEntity(entity_id), DEL_ENTITY);
+	if (stage == S_Instant)
+	{
+		m_entity_admin->RemoveEntity(entity_id);
+		return;
+	}
+
+	m_command_table[stage].emplace(std::in_place_index<4>, entity_id);
 }
-void ObjectSystem::DeleteObjectInstant(const EntityID entity_id)
+
+void ObjectSystem::ExecuteManually()
 {
-	m_entity_admin->RemoveEntity(entity_id);
+	ExecuteCommands(S_Manual);
 }
 
 void ObjectSystem::PreUpdate()
 {
-
+	ExecuteCommands(S_PreUpdate);
 }
 
 void ObjectSystem::Update()
 {
 	Execute();
+	ExecuteCommands(S_Update);
 }
 
 void ObjectSystem::FixedUpdate()
 {
-
+	ExecuteCommands(S_FixedUpdate);
 }
 
 void ObjectSystem::PostUpdate()
 {
-	while (!m_commands.empty())
+	ExecuteCommands(S_PostUpdate);
+}
+
+void ObjectSystem::ExecuteCommands(ExecutionStage stage)
+{
+	auto& commands = m_command_table[stage];
+	while (!commands.empty())
 	{
-		const auto& pair = m_commands.front();
-		const CommandType command = pair.second;
-
-		switch (command)
-		{
-		case ADD_COMPONENT:
-		{
-			const auto& add_cmp = std::get<AddComponent>(pair.first);
-			m_entity_admin->AddComponent(add_cmp.entity_id, add_cmp.component_id);
-		}
-		break;
-		case DEL_ENTITY:
-		{
-			const auto& del_ent = std::get<DeleteEntity>(pair.first);
-			m_entity_admin->RemoveEntity(del_ent.entity_id);
-		}
-		break;
-		case DEL_COMPONENT:
-		{
-			const auto& del_cmp = std::get<DeleteComponent>(pair.first);
-			m_entity_admin->RemoveComponent(del_cmp.entity_id, del_cmp.component_id);
-		}
-		break;
-		}
-
-		m_commands.pop();
+		const auto& command = commands.front();
+		VisitCommand(command);
+		commands.pop();
 	}
+}
+
+void ObjectSystem::VisitCommand(const Command& command)
+{
+	std::visit(traits::Overload
+		{
+			[this](AddCompData data)
+			{
+				m_entity_admin->AddComponent(data.entity_id, data.component_id);
+			},
+			[this](AddCompsData data)
+			{
+				m_entity_admin->AddComponents(data.entity_id, data.component_ids, data.archetype_id);
+			},
+			[this](RmvCompData data)
+			{
+				m_entity_admin->RemoveComponent(data.entity_id, data.component_id);
+			},
+			[this](RmvCompsData data)
+			{
+				m_entity_admin->RemoveComponents(data.entity_id, data.component_ids, data.archetype_id);
+			},
+			[this](RmvEntityData data)
+			{
+				m_entity_admin->RemoveEntity(data.entity_id);
+			}
+		}, command);
 }

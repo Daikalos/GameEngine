@@ -14,7 +14,7 @@ void StateTest::OnCreated()
 
 	ObjectSystem& object_system = GetWorld().GetSystem<ObjectSystem>();
 
-	e0 = object_system.CreateObject();
+	e0 = object_system.CreateEntity();
 	e0.AddComponents(ObjectType{});
 
 	e0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::IdleCursor));
@@ -68,7 +68,7 @@ void StateTest::OnCreated()
 	int d = sizeof(GlobalTransform);
 	int e = sizeof(Relation);
 
-	b0 = object_system.CreateObject();
+	b0 = object_system.CreateEntity();
 	b0.AddComponents(gui::ButtonType{});
 
 	b0.GetComponent<Renderable>().IsGUI = true;
@@ -251,10 +251,10 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-	//{
-	//	GetWorld().GetSystem<ObjectSystem>().DeleteObjectInstant(player); // TODO: tell children transforms that parent was removed
-	//}
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+	{
+		GetWorld().GetSystem<ObjectSystem>().RemoveEntity(player); // TODO: tell children transforms that parent was removed
+	}
 
 	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFPS()));
 

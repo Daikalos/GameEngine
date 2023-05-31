@@ -1,6 +1,7 @@
 #pragma once
 
 #include <typeinfo>
+#include <string>
 
 #include <Velox/Config.hpp>
 
@@ -14,14 +15,13 @@ namespace vlx::id
 	// at compile-time using the full signature of a function. The signature is altered depending on the template and thus 
 	// generates a new id.
 
-	template<typename T, std::size_t N>
-	static inline constexpr std::size_t HashFunction(const T(&to_hash)[N])
+	static consteval size_t HashFunction(const std::string_view func_name)
 	{
-		std::size_t result = 0xcbf29ce484222325; // FNV offset basis
+		size_t result = 0xcbf29ce484222325; // FNV offset basis
 
-		for (std::size_t i = 0; i < N; ++i)
+		for (const char c : func_name)
 		{
-			result ^= to_hash[i];
+			result ^= static_cast<size_t>(c);
 			result *= 1099511628211; // FNV prime
 		}
 
@@ -30,9 +30,9 @@ namespace vlx::id
 
 	struct Generator
 	{
-		static inline std::size_t Next()
+		static size_t Next()
 		{
-			static std::size_t value{};
+			static size_t value{};
 			return value++;
 		}
 	};
@@ -41,15 +41,14 @@ namespace vlx::id
 	struct Type
 	{
 #if defined VELOX_PRETTY_FUNCTION
-		static inline constexpr std::size_t ID()
+		static consteval size_t ID()
 		{
-			constexpr auto value = HashFunction(VELOX_PRETTY_FUNCTION);
-			return value;
+			return HashFunction(VELOX_PRETTY_FUNCTION);
 		}
 #else
-		static inline std::size_t ID()
+		static size_t ID()
 		{
-			static const std::size_t value = Generator::Next();
+			static const size_t value = Generator::Next();
 			return value;
 		}
 #endif

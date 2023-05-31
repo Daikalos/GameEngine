@@ -2,6 +2,8 @@
 
 #include <type_traits>
 
+#include <Velox/VeloxTypes.hpp>
+
 #include "IDGenerator.h"
 
 namespace vlx::traits
@@ -34,6 +36,14 @@ namespace vlx::traits
         using arg_type = std::tuple_element_t<Index, std::tuple<Args...>>;
     };
 
+    template<typename... Ts>
+    struct Overload : Ts...
+    {
+        using Ts::operator() ...;
+    };
+
+    template<class... Ts> Overload(Ts...) -> Overload<Ts...>;
+
     template<typename T>
     struct Base {};
 
@@ -43,10 +53,10 @@ namespace vlx::traits
         constexpr operator bool() const { return true; }
     };
 
-    namespace hidden
+    namespace details
     {
-        template<std::size_t Index, typename T, typename Tuple>
-        static constexpr std::size_t IndexInTupleFn()
+        template<uint64 Index, typename T, typename Tuple>
+        static constexpr uint64 IndexInTupleFn()
         {
             static_assert(Index < std::tuple_size_v<Tuple>, "The element is not in the tuple");
             if constexpr (std::is_same_v<T, std::tuple_element_t<Index, Tuple>>)
@@ -65,7 +75,7 @@ namespace vlx::traits
     template<typename T, typename Tuple>
     struct IndexInTuple
     {
-        static constexpr size_t value = hidden::IndexInTupleFn<0, T, Tuple>();
+        static constexpr uint64 value = details::IndexInTupleFn<0, T, Tuple>();
     };
 
     /// Sorts a tuple given a comparator, e.g., DescendingID

@@ -1,8 +1,11 @@
 #pragma once
 
 #include <variant>
+#include <array>
+#include <queue>
 
 #include <Velox/ECS.hpp>
+#include <Velox/System/Traits.h>
 #include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
@@ -12,45 +15,65 @@ namespace vlx
 {
 	class ObjectSystem final : public SystemAction
 	{
-	private:
-		enum CommandType : uint8
+	public:
+		enum ExecutionStage : int8
 		{
-			ADD_COMPONENT,
-			DEL_ENTITY,
-			DEL_COMPONENT
+			S_Instant = -1,
+			S_PreUpdate,
+			S_Update,
+			S_FixedUpdate,
+			S_PostUpdate,
+			S_Manual,
+			S_Count
 		};
 
-		struct AddComponent
+	private:
+		struct AddCompData
 		{
 			EntityID		entity_id;
 			ComponentTypeID component_id;
 		};
 
-		struct DeleteEntity
+		struct AddCompsData
+		{
+			EntityID		entity_id;
+			ComponentIDs	component_ids;
+			ArchetypeID		archetype_id;
+		};
+
+		struct RmvCompData
+		{
+			EntityID		entity_id;
+			ComponentTypeID component_id;
+		};
+
+		struct RmvCompsData
+		{
+			EntityID		entity_id;
+			ComponentIDs	component_ids;
+			ArchetypeID		archetype_id;
+		};
+
+		struct RmvEntityData
 		{
 			EntityID entity_id;
 		};
 
-		struct DeleteComponent
-		{
-			EntityID		entity_id;
-			ComponentTypeID component_id;
-		};
-
 	private:
-		using Command = std::pair<std::variant<AddComponent, DeleteEntity, DeleteComponent>, CommandType>;
+		using Command = std::variant<AddCompData, AddCompsData, RmvCompData, RmvCompsData, RmvEntityData>;
+		using CommandTable = std::array<std::queue<Command>, S_Count>;
 
 	public:
-		ObjectSystem(EntityAdmin& entity_admin, const LayerType id);
+		ObjectSystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
 		bool IsRequired() const noexcept override;
 
 	public:
-		VELOX_API Entity CreateObject() const;
+		VELOX_API Entity CreateEntity() const;
+		VELOX_API void RemoveEntity(EntityID entity_id, ExecutionStage stage = S_PostUpdate);
 
-		VELOX_API void DeleteObjectDelayed(const EntityID entity_id);
-		VELOX_API void DeleteObjectInstant(const EntityID entity_id);
+		VELOX_API void ExecuteManually();
 
 	public:
 		VELOX_API void PreUpdate() override;
@@ -60,55 +83,89 @@ namespace vlx
 
 	public:
 		template<IsComponent C>
-		void DeleteComponentDelayed(const EntityID entity_id);
-		template<IsComponent C>
-		void DeleteComponentInstant(const EntityID entity_id);
+		void AddComponent(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
+		template<class... Cs> requires IsComponents<Cs...>
+		void AddComponents(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
+		template<class... Cs> requires IsComponents<Cs...>
+		void AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage = W_PostUpdate);
 
 		template<IsComponent C>
-		void AddComponentDelayed(const EntityID entity_id);
+		void RemoveComponent(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponentsDelayed(const EntityID entity_id);
-
-		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		C* AddComponentInstant(const EntityID entity_id, Args&&... args);
+		void RemoveComponents(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponentsInstant(const EntityID entity_id);
+		void RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage = W_PostUpdate);
 
 	private:
-		System<Object>		m_object_system;
-		std::queue<Command>	m_commands;
+		void ExecuteCommands(ExecutionStage when);
+		void VisitCommand(const Command& command);
+
+	private:
+		System<Object>	m_objects;
+		CommandTable	m_command_table;
 	};
 
 	template<IsComponent C>
-	inline void ObjectSystem::DeleteComponentDelayed(const EntityID entity_id)
+	inline void ObjectSystem::AddComponent(EntityID entity_id, ExecutionStage stage)
 	{
-		m_commands.emplace(DeleteComponent(entity_id, ComponentAlloc<C>::GetTypeID()), DEL_COMPONENT);
+		if (stage == S_Instant)
+		{
+			m_entity_admin->AddComponent<C>(entity_id);
+			return;
+		}
+
+		m_command_table[stage].emplace(std::in_place_index<0>, entity_id, m_entity_admin->GetComponentID<C>());
 	}
-	template<IsComponent C>
-	inline void ObjectSystem::DeleteComponentInstant(const EntityID entity_id)
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void ObjectSystem::AddComponents(EntityID entity_id, ExecutionStage stage)
 	{
-		m_entity_admin->RemoveComponent<C>(entity_id);
+		if (stage == S_Instant)
+		{
+			m_entity_admin->AddComponents<Cs...>(entity_id);
+			return;
+		}
+
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ m_entity_admin->GetComponentID<Cs>()... });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		m_command_table[stage].emplace(std::in_place_index<1>, entity_id,
+			ComponentIDs(component_ids.begin(), component_ids.end()), archetype_id);
+	}
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void ObjectSystem::AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage)
+	{
+		AddComponents<Cs...>(entity_id, stage);
 	}
 
 	template<IsComponent C>
-	inline void ObjectSystem::AddComponentDelayed(const EntityID entity_id)
+	inline void ObjectSystem::RemoveComponent(EntityID entity_id, ExecutionStage stage)
 	{
-		m_commands.emplace(AddComponent(entity_id, ComponentAlloc<C>::GetTypeID()), ADD_COMPONENT);
-	}
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void ObjectSystem::AddComponentsDelayed(const EntityID entity_id)
-	{
-		(AddComponentDelayed<Cs>(entity_id), ...);
-	}
+		if (stage == S_Instant)
+		{
+			m_entity_admin->RemoveComponent<C>(entity_id);
+			return;
+		}
 
-	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-	inline C* ObjectSystem::AddComponentInstant(const EntityID entity_id, Args&&... args)
-	{
-		return m_entity_admin->AddComponent(entity_id, std::forward<Args>(args)...);
+		m_command_table[stage].emplace(std::in_place_index<2>, entity_id, m_entity_admin->GetComponentID<C>());
 	}
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void ObjectSystem::AddComponentsInstant(const EntityID entity_id)
+	inline void ObjectSystem::RemoveComponents(EntityID entity_id, ExecutionStage stage)
 	{
-		m_entity_admin->AddComponents<Cs...>(entity_id);
+		if (stage == S_Instant)
+		{
+			m_entity_admin->RemoveComponents<Cs...>(entity_id);
+			return;
+		}
+
+		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ m_entity_admin->GetComponentID<Cs>()... });
+		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+
+		m_command_table[stage].emplace(std::in_place_index<3>, entity_id,
+			ComponentIDs(component_ids.begin(), component_ids.end()), archetype_id);
+	}
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void ObjectSystem::RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage)
+	{
+		RemoveComponents<Cs...>(entity_id, stage);
 	}
 }

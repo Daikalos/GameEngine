@@ -93,7 +93,7 @@ void BroadShapeHelper<S>::QueryShape(EntityID entity_id, Shape* s, typename Shap
 	{
 		const auto& obj = m_broad.m_bodies[elt.item];
 		
-		if (s == obj.shape) // no collision against self
+		if (entity_id == obj.entity_id) // no collision against self
 			continue;
 
 		if ((c->layer & obj.collider->layer) == 0) // only matching layer

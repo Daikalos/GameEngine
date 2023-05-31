@@ -127,7 +127,7 @@ namespace vlx
 		float			m_gravity_scale		{1.0f};
 		float			m_sleep_time		{0.0f};
 		
-		uint16		m_flags					{B_Enabled | B_Awake | B_AutoSleep};
+		uint16			m_flags				{B_Enabled | B_Awake | B_AutoSleep};
 
 		friend class PhysicsSystem;
 		friend class RenderSystem;

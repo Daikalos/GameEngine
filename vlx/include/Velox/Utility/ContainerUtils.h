@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include <Velox/System/Concepts.h>
+#include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx::cu
@@ -202,17 +203,17 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	NODISC static constexpr void HashCombine(std::size_t& seed, const T& v)
+	NODISC static constexpr void HashCombine(uint64& seed, const T& v)
 	{
-		seed ^= static_cast<std::size_t>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+		seed ^= static_cast<uint64>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 
 	template<IsContainer T>
 	struct ContainerHash
 	{
-		NODISC constexpr std::size_t operator()(const T& container) const
+		NODISC constexpr uint64 operator()(const T& container) const
 		{
-			std::size_t seed = container.size();
+			uint64 seed = container.size();
 
 			if (seed == 1)
 				return container.front(); // just return first if only one
@@ -233,9 +234,9 @@ namespace vlx::cu
 	template<std::integral T>
 	struct PairIntegerHash
 	{
-		NODISC constexpr std::size_t operator()(const std::pair<T, T>& pair) const
+		NODISC constexpr uint64 operator()(const std::pair<T, T>& pair) const
 		{
-			std::size_t seed = 0;
+			uint64 seed = 0;
 
 			HashCombine(seed, pair.first);
 			HashCombine(seed, pair.second);

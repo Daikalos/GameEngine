@@ -549,7 +549,7 @@ namespace vlx
 				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
 
 				old_archetype->edges[add_component_id].add = new_archetype;
-				new_archetype->edges[add_component_id].remove = old_archetype;
+				new_archetype->edges[add_component_id].rmv = old_archetype;
 
 				assert(new_archetype_id != old_archetype->type);
 				assert(new_archetype_id == new_archetype->type);
@@ -656,7 +656,7 @@ namespace vlx
 				C(std::forward<Args>(args)...);
 		}
 
-		if constexpr (std::derived_from<C, CreatedEvent<C>>)
+		if constexpr (HasEvent<C, CreatedEvent>)
 			add_component->Created(*this, entity_id);
 
 		CallOnAddEvent(add_component_id, entity_id, static_cast<void*>(add_component));
@@ -809,7 +809,7 @@ namespace vlx
 		C& old_component = GetComponent<C>(entity_id);
 		C new_component(std::forward<Args>(args)...);
 
-		if constexpr (std::derived_from<C, AlteredEvent<C>>)
+		if constexpr (HasEvent<C, AlteredEvent>)
 			old_component.Altered(*this, entity_id, new_component);
 
 		old_component = std::move(new_component);
@@ -830,7 +830,7 @@ namespace vlx
 		C* old_component = opt_component.value();
 		C new_component(std::forward<Args>(args)...);
 
-		if constexpr (std::derived_from<C, AlteredEvent<C>>)
+		if constexpr (HasEvent<C, AlteredEvent>)
 			old_component->Altered(*this, entity_id, new_component);
 
 		*old_component = std::move(new_component);
@@ -1168,15 +1168,12 @@ namespace vlx
 
 		m_archetype_map[archetype_id] = new_archetype.get();
 
-		//new_archetype->component_data.reserve(new_archetype->type.size()); // prevent any reallocations
-		//new_archetype->component_data_size.reserve(new_archetype->type.size());
-
-		for (std::size_t i = 0; i < new_archetype->type.size(); ++i) // add empty array for each component in type
+		for (uint64 i = 0; i < new_archetype->type.size(); ++i) // add empty array for each component in type
 		{
-			constexpr std::size_t DEFAULT_SIZE = 64; // default size in bytes to reduce number of reallocations
+			constexpr uint64 DEFAULT_BYTE_SIZE = 128; // default size in bytes to reduce number of reallocations
 
-			new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_SIZE));
-			new_archetype->component_data_size.push_back(DEFAULT_SIZE);
+			new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_BYTE_SIZE));
+			new_archetype->component_data_size.push_back(DEFAULT_BYTE_SIZE);
 
 			m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
 		}

@@ -19,7 +19,7 @@ namespace vlx
 	using EntityID			= IDType;
 	using ComponentTypeID	= uint64;
 	using ArchetypeID		= uint64;
-	using ComponentIDs		= SmallVector<ComponentTypeID, 16>;
+	using ComponentIDs		= std::vector<ComponentTypeID>;
 
 	template<class... Cs> requires IsComponents<Cs...>
 	using ArrComponentIDs	= std::array<ComponentTypeID, sizeof...(Cs)>;

@@ -178,7 +178,7 @@ namespace vlx
 			return -1;
 
 		const auto index = m_elements.emplace(rect, T(std::forward<Args>(args)...));
-		InsertHelper(rect.Center(), m_elements_ptr.emplace(index));
+		InsertHelper(rect.Center(), (int)m_elements_ptr.emplace(index));
 
 		return index;
 	}

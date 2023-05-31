@@ -126,4 +126,10 @@ namespace vlx
 
 	template<class C, template<class> class... Events>
 	struct EventSet : public Events<C>... {};
+
+	template<class C, template<class> class E>
+	concept HasEvent = requires(C c)
+	{
+		[]<typename T>(E<T>&){}(c);
+	};
 }
