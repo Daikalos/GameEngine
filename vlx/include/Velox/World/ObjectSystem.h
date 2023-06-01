@@ -9,7 +9,7 @@
 #include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
-#include <Velox/Graphics/Components/Object.h>
+#include "Object.h"
 
 namespace vlx
 {

@@ -20,7 +20,7 @@
     <ClCompile Include="src\Graphics\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransform.cpp" />
-    <ClCompile Include="src\Graphics\Systems\ObjectSystem.cpp" />
+    <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\Graphics\Systems\AnchorSystem.cpp" />
@@ -48,8 +48,9 @@
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
-    <ClCompile Include="src\Physics\Systems\BroadShapeHelper.cpp" />
+    <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
+    <ClCompile Include="src\Utility\FPSCounter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -98,8 +99,8 @@
     <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
-    <ClInclude Include="include\Velox\Graphics\Systems\ObjectSystem.h" />
-    <ClInclude Include="include\Velox\Graphics\Components\Object.h" />
+    <ClInclude Include="include\Velox\World\ObjectSystem.h" />
+    <ClInclude Include="include\Velox\World\Object.h" />
     <ClInclude Include="include\Velox\World\World.h" />
     <ClInclude Include="include\Velox\System\Traits.h" />
     <ClInclude Include="include\Velox\ECS\ComponentEvents.h" />
@@ -162,7 +163,7 @@
     <ClInclude Include="include\Velox\Algorithms\Grid.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
-    <ClInclude Include="include\Velox\Physics\Systems\BroadShapeHelper.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
   </ItemGroup>
   <ItemGroup>

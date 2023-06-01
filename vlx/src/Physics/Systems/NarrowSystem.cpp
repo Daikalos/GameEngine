@@ -8,12 +8,16 @@ NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id)
 
 }
 
-void NarrowSystem::Update(std::span<typename BroadSystem::CollisionPair> pairs, std::span<uint32> indices)
+void NarrowSystem::Update(BroadSystem& broad)
 {
 	m_arbiters.clear();
 
-	for (const auto i : indices)
-		CheckCollision(pairs[i]);
+	for (const auto& pair : broad.GetCollisions())
+	{
+		CheckCollision(
+			broad.GetBody(pair.first),
+			broad.GetBody(pair.second));
+	}
 
 	const auto cmp = [](const EntityPair& lhs, const EntityPair& rhs)
 	{
@@ -54,11 +58,8 @@ std::span<CollisionArbiter> NarrowSystem::GetArbiters() noexcept
 	return m_arbiters;
 }
 
-void NarrowSystem::CheckCollision(const typename BroadSystem::CollisionPair& pair)
+void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObject& B)
 {
-	const CollisionObject& A = pair.first;
-	const CollisionObject& B = pair.second;
-
 	CollisionArbiter arbiter;
 	CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
 

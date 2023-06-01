@@ -170,6 +170,8 @@ bool StateTest::HandleEvent(const sf::Event& event)
 
 bool StateTest::Update(Time& time)
 {
+	counter.Update(time);
+
 	if (m_entity_admin->IsEntityRegistered(e0))
 		et0->Move({ 5.0f * time.GetDT(), 0.0f });
 
@@ -251,12 +253,12 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-	{
-		GetWorld().GetSystem<ObjectSystem>().RemoveEntity(player); // TODO: tell children transforms that parent was removed
-	}
+	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
+	//{
+	//	GetWorld().GetSystem<ObjectSystem>().RemoveEntity(player); // TODO: tell children transforms that parent was removed
+	//}
 
-	GetWorld().GetWindow().setTitle(std::to_string(GetWorld().GetTime().GetFPS()));
+	GetWorld().GetWindow().setTitle(std::to_string((int)counter.GetFPS()));
 
 	m_entity_admin->RunSystems(100);
 

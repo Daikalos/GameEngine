@@ -3,12 +3,16 @@
 #include <tuple>
 #include <type_traits>
 
-#include <Velox/Graphics/Components/Object.h>
 #include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Relation.h>
 #include <Velox/Graphics/Components/Sprite.h>
+
+#include <Velox/Graphics/GUI/Container.h>
+#include <Velox/Graphics/GUI/Button.h>
+#include <Velox/Graphics/GUI/Label.h>
+#include <Velox/Graphics/GUI/TextBox.h>
 
 #include <Velox/Algorithms/QTElement.hpp>
 
@@ -19,10 +23,7 @@
 #include <Velox/Physics/PhysicsBody.h>
 #include <Velox/Physics/Collider.h>
 
-#include <Velox/Graphics/GUI/Container.h>
-#include <Velox/Graphics/GUI/Button.h>
-#include <Velox/Graphics/GUI/Label.h>
-#include <Velox/Graphics/GUI/TextBox.h>
+#include <Velox/World/Object.h>
 
 // TODO: maybe expand this to return constructed object with default parameters set, e.g., 
 // quickly return a button object with sprite, events, and default colors set

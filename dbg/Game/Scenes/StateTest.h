@@ -30,5 +30,7 @@ private:
 	vlx::Entity player;
 	bool can_jump {true};
 
+	vlx::FPSCounter counter;
+
 	//vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
 };

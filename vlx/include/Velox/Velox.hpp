@@ -10,4 +10,5 @@
 #include "Physics.hpp"
 
 #include "World/World.h"
+#include "World/ObjectSystem.h"
 #include "World/ObjectTypes.h"

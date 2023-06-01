@@ -34,14 +34,14 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 		{
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
-				m_bodies[it->second].collider = &c;
+				m_bodies[m_bodies_ptr[it->second].element].collider = &c;
 		});
 
 	m_mov_body_id = entity_admin.RegisterOnMoveListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
 		{
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
-				m_bodies[it->second].body = &pb;
+				m_bodies[m_bodies_ptr[it->second].element].body = &pb;
 		});
 
 	m_rmv_coll_id = entity_admin.RegisterOnRemoveListener<Collider>([this](EntityID eid, Collider& c)
@@ -49,7 +49,7 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
 			{
-				m_bodies[it->second].collider = nullptr;
+				m_bodies[m_bodies_ptr[it->second].element].collider = nullptr;
 				if (RemoveEmptyObject(it->second))
 					m_entity_body_map.erase(it);
 			}
@@ -60,7 +60,7 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
 			{
-				m_bodies[it->second].body = nullptr;
+				m_bodies[m_bodies_ptr[it->second].element].body = nullptr;
 				if (RemoveEmptyObject(it->second))
 					m_entity_body_map.erase(it);
 			}
@@ -82,54 +82,91 @@ BroadSystem::~BroadSystem()
 void BroadSystem::Update()
 {
 	m_pairs.clear();
-	m_indices.clear();
 
 	m_entity_admin->RunSystems(m_layer);
+
+	int i = m_first_body;
+	while (i != -1)
+	{
+		const auto& ptr = m_bodies_ptr[i];
+		const auto& lhs = m_bodies[ptr.element];
+
+		if (lhs.shape != nullptr && lhs.collider != nullptr && lhs.collider->GetEnabled())
+		{
+			std::vector<QuadTree::Element> query;
+
+			switch (lhs.type)
+			{
+			case Shape::Point:	query = m_quad_tree.Query(lhs.shape->GetCenter()); break;
+			default:			query = m_quad_tree.Query(lhs.shape->GetAABB()); break;
+			}
+
+			for (const auto& elt : query) // copy is ok
+			{
+				const auto& rhs = m_bodies[elt.item];
+				
+				if (ptr.element == elt.item) // skip same body
+					continue;
+
+				if (rhs.shape == nullptr || rhs.collider == nullptr || !rhs.collider->GetEnabled()) // safety checks
+					continue;
+
+				if ((lhs.collider->layer & rhs.collider->layer) == 0) // only matching layer
+					continue;
+
+				if (lhs.body != nullptr && rhs.body != nullptr)
+				{
+					bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
+					bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
+
+					if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
+						continue;
+				}
+
+				m_pairs.emplace_back(ptr.element, elt.item);
+			}
+		}
+
+		i = ptr.next;
+	}
 
 	CullDuplicates();
 }
 
-auto BroadSystem::GetPairs() const noexcept -> std::span<const CollisionPair>
+auto BroadSystem::GetCollisions() const noexcept -> std::span<const CollisionPair>
 {
 	return m_pairs;
 }
-auto BroadSystem::GetIndices() const noexcept -> std::span<const uint32>
+auto BroadSystem::GetCollisions() noexcept -> std::span<CollisionPair>
 {
-	return m_indices;
+	return m_pairs;
 }
 
-auto BroadSystem::GetPairs() noexcept -> std::span<CollisionPair>
+const CollisionObject& BroadSystem::GetBody(uint32 i) const noexcept
 {
-	return m_pairs;
+	return m_bodies[i];
 }
-auto BroadSystem::GetIndices() noexcept -> std::span<uint32>
+
+CollisionObject& BroadSystem::GetBody(uint32 i) noexcept
 {
-	return m_indices;
+	return m_bodies[i];
 }
 
 void BroadSystem::CullDuplicates()
 {
-	std::ranges::sort(m_indices.begin(), m_indices.end(),
-		[this](const uint32 l, const uint32 r)
+	std::ranges::sort(m_pairs.begin(), m_pairs.end(),
+		[this](const CollisionPair& x, const CollisionPair& y)
 		{
-			const auto& x = m_pairs[l];
-			const auto& y = m_pairs[r];
-
-			return (x.first.entity_id < y.first.entity_id) || 
-				(x.first.entity_id == y.first.entity_id && x.second.entity_id < y.second.entity_id);
+			return (x.first < y.first) || (x.first == y.first && x.second < y.second);
 		});
 
-	const auto [first, last] = std::ranges::unique(m_indices.begin(), m_indices.end(),
-		[this](const uint32 l, const uint32 r)
+	const auto [first, last] = std::ranges::unique(m_pairs.begin(), m_pairs.end(),
+		[this](const CollisionPair& x, const CollisionPair& y)
 		{
-			const auto& x = m_pairs[l];
-			const auto& y = m_pairs[r];
-
-			return x.first.entity_id == y.first.entity_id &&
-				   y.second.entity_id == x.second.entity_id;
+			return x.first == y.first && y.second == x.second;
 		});
 
-	m_indices.erase(first, last);
+	m_pairs.erase(first, last);
 }
 
 int BroadSystem::TryAddNewObject(EntityID eid)
@@ -138,22 +175,39 @@ int BroadSystem::TryAddNewObject(EntityID eid)
 	if (it == m_entity_body_map.end())
 	{
 		const auto i = m_bodies.emplace(eid);
-		m_entity_body_map.emplace(eid, i);
+		const auto j = m_bodies_ptr.emplace(i, m_first_body);
+
+		if (m_first_body != -1)
+		{
+			assert(m_bodies_ptr.valid(m_first_body));
+			m_bodies_ptr[m_first_body].prev = j;
+		}
+
+		m_first_body = j;
+
+		m_entity_body_map.emplace(eid, m_first_body);
 
 		return i;
 	}
 
-	return it->second;
+	return m_bodies_ptr[it->second].element;
 }
 
 bool BroadSystem::RemoveEmptyObject(uint32 index)
 {
-	CollisionObject& object = m_bodies[index];
+	const BodyPtr& ptr = m_bodies_ptr[index];
+	const CollisionObject& object = m_bodies[ptr.element];
 
 	if (object.body || object.collider || object.shape)
 		return false;
 
-	m_bodies.erase(index);
+	if (ptr.prev != -1) m_bodies_ptr[ptr.prev].next = ptr.next;
+	if (ptr.next != -1) m_bodies_ptr[ptr.next].prev = ptr.prev;
+
+	m_first_body = ptr.next;
+
+	m_bodies.erase(ptr.element);
+	m_bodies_ptr.erase(index);
 
 	return true;
 }

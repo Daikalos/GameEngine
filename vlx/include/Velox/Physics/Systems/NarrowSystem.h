@@ -69,14 +69,14 @@ namespace vlx
 		NarrowSystem(EntityAdmin& entity_admin, const LayerType id);
 
 	public:
-		void Update(std::span<typename BroadSystem::CollisionPair> pairs, std::span<uint32> indices);
+		void Update(BroadSystem& broad);
 
 	public:
 		std::span<const CollisionArbiter> GetArbiters() const noexcept;
 		std::span<CollisionArbiter> GetArbiters() noexcept;
 
 	private:
-		void CheckCollision(const typename BroadSystem::CollisionPair& pair);
+		void CheckCollision(const CollisionObject& lhs, const CollisionObject& rhs);
 
 	private:
 		EntityAdmin* m_entity_admin	{nullptr};

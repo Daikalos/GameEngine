@@ -21,21 +21,28 @@
 #include "../CollisionObject.h"
 #include "../Collider.h"
 
-#include "BroadShapeHelper.h"
+#include "ShapeInserter.h"
 
 namespace vlx
 {
 	class VELOX_API BroadSystem final 
 	{
+	private:
+		struct BodyPtr
+		{
+			int element {-1};	
+			int next	{-1};	
+			int prev	{-1};
+		};
+
 	public:
-		using GeneralSystem			= System<Collider, Transform>;
+		using GeneralSystem		= System<Collider, Transform>;
 
-		using CollisionPair			= std::pair<CollisionObject, CollisionObject>;
-		using CollisionList			= std::vector<CollisionPair>;
-		using CollisionIndices		= std::vector<uint32>;
+		using CollisionPair		= std::pair<uint32, uint32>;
+		using CollisionList		= std::vector<CollisionPair>;
 
-		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
-		using QuadTree				= LQuadTree<QTCollider::value_type>;
+		using EntityBodyMap		= std::unordered_map<EntityID, uint32>;
+		using QuadTree			= LQuadTree<QTCollider::value_type>;
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, LayerType id);
@@ -45,11 +52,11 @@ namespace vlx
 		void Update();
 
 	public:
-		auto GetPairs() const noexcept -> std::span<const CollisionPair>;
-		auto GetIndices() const noexcept -> std::span<const uint32>;
+		auto GetCollisions() const noexcept -> std::span<const CollisionPair>;
+		auto GetCollisions() noexcept -> std::span<CollisionPair>;
 
-		auto GetPairs() noexcept -> std::span<CollisionPair>;
-		auto GetIndices() noexcept -> std::span<uint32>;
+		const CollisionObject& GetBody(uint32 i) const noexcept;
+		CollisionObject& GetBody(uint32 i) noexcept;
 
 	private:
 		void CullDuplicates();
@@ -62,17 +69,18 @@ namespace vlx
 		LayerType					m_layer			{LYR_NONE};
 
 		QuadTree					m_quad_tree;
-		FreeVector<CollisionObject>	m_bodies;
-		EntityBodyMap				m_entity_body_map;
 		
-		CollisionList				m_pairs;
-		CollisionIndices			m_indices;
-
-		BroadShapeHelper<Circle>	m_circles;
-		BroadShapeHelper<Box>		m_boxes;
-		BroadShapeHelper<Point>		m_points;
+		ShapeInserter<Circle>		m_circles;
+		ShapeInserter<Box>			m_boxes;
+		ShapeInserter<Point>		m_points;
 
 		GeneralSystem				m_cleanup;
+
+		EntityBodyMap				m_entity_body_map;
+		FreeVector<CollisionObject>	m_bodies;
+		FreeVector<BodyPtr>			m_bodies_ptr;
+		CollisionList				m_pairs;
+		int							m_first_body	{-1};
 
 		int							m_add_coll_id	{-1};
 		int							m_add_body_id	{-1};
@@ -82,6 +90,6 @@ namespace vlx
 		int							m_rmv_coll_id	{-1};
 
 		template<class S>
-		friend class BroadShapeHelper;
+		friend class ShapeInserter;
 	};
 }

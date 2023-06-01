@@ -15,6 +15,7 @@
 #include <Velox/Scene/StateStack.h>
 
 #include "EngineBinds.h"
+#include "ObjectSystem.h"
 #include "ObjectTypes.h"
 
 namespace vlx

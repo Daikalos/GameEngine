@@ -7,3 +7,4 @@
 #include "Utility/Benchmark.h"
 #include "Utility/PolicySelect.h"
 #include "Utility/NonCopyable.h"
+#include "Utility/FPSCounter.h"

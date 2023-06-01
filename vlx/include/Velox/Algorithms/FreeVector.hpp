@@ -49,7 +49,7 @@ namespace vlx
 		constexpr void clear();
 
 	public:
-		void for_each(const std::function<reference>& func) const;
+		void for_each(const std::function<void(reference)>& func) const;
 
 	private:
 		std::vector<std::variant<T, size_type>> m_data;
@@ -153,7 +153,7 @@ namespace vlx
 	}
 
 	template<class T>
-	inline void FreeVector<T>::for_each(const std::function<reference>& func) const
+	inline void FreeVector<T>::for_each(const std::function<void(reference)>& func) const
 	{
 		for (const auto& elt : m_data)
 		{

@@ -157,7 +157,7 @@
     <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
-    <ClInclude Include="include\Velox\Physics\Systems\BroadShapeHelper.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
     <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
@@ -192,7 +192,7 @@
     <ClInclude Include="include\Velox\World\ObjectTypes.h" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />
-    <ClInclude Include="include\Velox\Graphics\Components\Object.h" />
+    <ClInclude Include="include\Velox\World\Object.h" />
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentEvents.h" />
@@ -239,7 +239,7 @@
     <ClInclude Include="include\Velox\Graphics\Systems\AnchorSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\GUISystem.h" />
     <ClInclude Include="include\Velox\ECS\SystemAction.h" />
-    <ClInclude Include="include\Velox\Graphics\Systems\ObjectSystem.h" />
+    <ClInclude Include="include\Velox\World\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
@@ -271,7 +271,7 @@
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
-    <ClCompile Include="src\Physics\Systems\BroadShapeHelper.cpp" />
+    <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
@@ -295,6 +295,7 @@
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\System\Mat4f.cpp" />
+    <ClCompile Include="src\Utility\FPSCounter.cpp" />
     <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\Container.cpp" />
     <ClCompile Include="src\Graphics\gui\Label.cpp" />
@@ -307,7 +308,7 @@
     <ClCompile Include="src\Input\MouseCursor.cpp" />
     <ClCompile Include="src\Input\MouseInput.cpp" />
     <ClCompile Include="src\Graphics\Systems\AnchorSystem.cpp" />
-    <ClCompile Include="src\Graphics\Systems\ObjectSystem.cpp" />
+    <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\RelationSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\TransformSystem.cpp" />
