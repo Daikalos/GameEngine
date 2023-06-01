@@ -52,8 +52,8 @@ namespace vlx
 		void Update();
 
 	public:
-		auto GetCollisions() const noexcept -> std::span<const CollisionPair>;
-		auto GetCollisions() noexcept -> std::span<CollisionPair>;
+		auto GetCollisions() const noexcept -> const CollisionList&;
+		auto GetCollisions() noexcept -> CollisionList&;
 
 		const CollisionObject& GetBody(uint32 i) const noexcept;
 		CollisionObject& GetBody(uint32 i) noexcept;
@@ -79,7 +79,7 @@ namespace vlx
 		EntityBodyMap				m_entity_body_map;
 		FreeVector<CollisionObject>	m_bodies;
 		FreeVector<BodyPtr>			m_bodies_ptr;
-		CollisionList				m_pairs;
+		CollisionList				m_collisions;
 		int							m_first_body	{-1};
 
 		int							m_add_coll_id	{-1};

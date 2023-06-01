@@ -81,7 +81,7 @@ BroadSystem::~BroadSystem()
 
 void BroadSystem::Update()
 {
-	m_pairs.clear();
+	m_collisions.clear();
 
 	m_entity_admin->RunSystems(m_layer);
 
@@ -123,7 +123,7 @@ void BroadSystem::Update()
 						continue;
 				}
 
-				m_pairs.emplace_back(ptr.element, elt.item);
+				m_collisions.emplace_back(ptr.element, elt.item);
 			}
 		}
 
@@ -133,13 +133,13 @@ void BroadSystem::Update()
 	CullDuplicates();
 }
 
-auto BroadSystem::GetCollisions() const noexcept -> std::span<const CollisionPair>
+auto BroadSystem::GetCollisions() const noexcept -> const CollisionList&
 {
-	return m_pairs;
+	return m_collisions;
 }
-auto BroadSystem::GetCollisions() noexcept -> std::span<CollisionPair>
+auto BroadSystem::GetCollisions() noexcept -> CollisionList&
 {
-	return m_pairs;
+	return m_collisions;
 }
 
 const CollisionObject& BroadSystem::GetBody(uint32 i) const noexcept
@@ -154,19 +154,19 @@ CollisionObject& BroadSystem::GetBody(uint32 i) noexcept
 
 void BroadSystem::CullDuplicates()
 {
-	std::ranges::sort(m_pairs.begin(), m_pairs.end(),
+	std::ranges::sort(m_collisions.begin(), m_collisions.end(),
 		[this](const CollisionPair& x, const CollisionPair& y)
 		{
 			return (x.first < y.first) || (x.first == y.first && x.second < y.second);
 		});
 
-	const auto [first, last] = std::ranges::unique(m_pairs.begin(), m_pairs.end(),
+	const auto [first, last] = std::ranges::unique(m_collisions.begin(), m_collisions.end(),
 		[this](const CollisionPair& x, const CollisionPair& y)
 		{
 			return x.first == y.first && y.second == x.second;
 		});
 
-	m_pairs.erase(first, last);
+	m_collisions.erase(first, last);
 }
 
 int BroadSystem::TryAddNewObject(EntityID eid)
