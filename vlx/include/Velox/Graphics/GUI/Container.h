@@ -24,14 +24,14 @@ namespace vlx::gui
 		Container() = default;
 
 	public:
-		VELOX_API NODISC constexpr bool IsEmpty() const noexcept;
-		VELOX_API NODISC constexpr bool IsSelectable() const noexcept override;
+		VELOX_API NODISC bool IsEmpty() const noexcept;
+		VELOX_API NODISC bool IsSelectable() const noexcept override;
 
 	public:
 		template<IsComponent C>
-		void Push(const EntityAdmin& entity_admin, const EntityID entity_id);
+		void Push(const EntityAdmin& entity_admin, EntityID entity_id);
 		template<IsComponent C>
-		void Erase(const EntityID entity_id);
+		void Erase(EntityID entity_id);
 
 		template<IsComponent C>
 		void Sort(const EntityAdmin& entity_admin, const SortFunc<C>& func);
@@ -50,15 +50,11 @@ namespace vlx::gui
 	};
 
 	template<IsComponent C>
-	inline void Container::Push(const EntityAdmin& entity_admin, const EntityID entity_id)
+	inline void Container::Push(const EntityAdmin& entity_admin, EntityID entity_id)
 	{
-		auto [child, success] = entity_admin.TryGetBaseRef<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
+		auto child = entity_admin.TryGetBaseRef<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
 
-		if (!success)
-			return;
-
-		child->ForceUpdate();
-		if (child->IsExpired()) // if not a valid entity
+		if (!child.has_value())
 			return;
 
 		const auto it = std::find(m_children.begin(), m_children.end(), 
@@ -77,7 +73,7 @@ namespace vlx::gui
 	}
 
 	template<IsComponent C>
-	inline void Container::Erase(const EntityID entity_id)
+	inline void Container::Erase(EntityID entity_id)
 	{
 		const auto it = std::find_if(m_children.begin(), m_children.end(),
 			[&entity_id](const ChildType& child)

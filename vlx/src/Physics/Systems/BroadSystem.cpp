@@ -18,33 +18,38 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 		m_quad_tree.Cleanup(); // have to cleanup in case of erase
 	};
 
-	m_add_coll_id = entity_admin.RegisterOnAddListener<Collider>([this](EntityID eid, Collider& c)
+	m_add_coll_id = entity_admin.RegisterOnAddListener<Collider>(
+		[this](EntityID eid, Collider& c)
 		{
 			int i = TryAddNewObject(eid);
 			m_bodies[i].collider = &c;
 		});
 
-	m_add_body_id = entity_admin.RegisterOnAddListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
+	m_add_body_id = entity_admin.RegisterOnAddListener<PhysicsBody>(
+		[this](EntityID eid, PhysicsBody& pb)
 		{
 			int i = TryAddNewObject(eid);
 			m_bodies[i].body = &pb;
 		});
 
-	m_mov_coll_id = entity_admin.RegisterOnMoveListener<Collider>([this](EntityID eid, Collider& c)
+	m_mov_coll_id = entity_admin.RegisterOnMoveListener<Collider>(
+		[this](EntityID eid, Collider& c)
 		{
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
 				m_bodies[m_bodies_ptr[it->second].element].collider = &c;
 		});
 
-	m_mov_body_id = entity_admin.RegisterOnMoveListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
+	m_mov_body_id = entity_admin.RegisterOnMoveListener<PhysicsBody>(
+		[this](EntityID eid, PhysicsBody& pb)
 		{
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
 				m_bodies[m_bodies_ptr[it->second].element].body = &pb;
 		});
 
-	m_rmv_coll_id = entity_admin.RegisterOnRemoveListener<Collider>([this](EntityID eid, Collider& c)
+	m_rmv_coll_id = entity_admin.RegisterOnRemoveListener<Collider>(
+		[this](EntityID eid, Collider& c)
 		{
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
@@ -55,7 +60,8 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 			}
 		});
 
-	m_rmv_body_id = entity_admin.RegisterOnRemoveListener<PhysicsBody>([this](EntityID eid, PhysicsBody& pb)
+	m_rmv_body_id = entity_admin.RegisterOnRemoveListener<PhysicsBody>(
+		[this](EntityID eid, PhysicsBody& pb)
 		{
 			const auto it = m_entity_body_map.find(eid);
 			if (it != m_entity_body_map.end())
@@ -85,49 +91,46 @@ void BroadSystem::Update()
 
 	m_entity_admin->RunSystems(m_layer);
 
-	int i = m_first_body;
-	while (i != -1)
+	for (int i = m_first_body; i != -1; i = m_bodies_ptr[i].next)
 	{
 		const auto& ptr = m_bodies_ptr[i];
 		const auto& lhs = m_bodies[ptr.element];
 
-		if (lhs.shape != nullptr && lhs.collider != nullptr && lhs.collider->GetEnabled())
+		if (lhs.shape == nullptr || lhs.collider == nullptr || !lhs.collider->GetEnabled())
+			continue;
+
+		std::vector<QuadTree::value_type> query;
+
+		switch (lhs.type)
 		{
-			std::vector<QuadTree::Element> query;
-
-			switch (lhs.type)
-			{
-			case Shape::Point:	query = m_quad_tree.Query(lhs.shape->GetCenter()); break;
-			default:			query = m_quad_tree.Query(lhs.shape->GetAABB()); break;
-			}
-
-			for (const auto& elt : query) // copy is ok
-			{
-				const auto& rhs = m_bodies[elt.item];
-				
-				if (ptr.element == elt.item) // skip same body
-					continue;
-
-				if (rhs.shape == nullptr || rhs.collider == nullptr || !rhs.collider->GetEnabled()) // safety checks
-					continue;
-
-				if ((lhs.collider->layer & rhs.collider->layer) == 0) // only matching layer
-					continue;
-
-				if (lhs.body != nullptr && rhs.body != nullptr)
-				{
-					bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
-					bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
-
-					if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
-						continue;
-				}
-
-				m_collisions.emplace_back(ptr.element, elt.item);
-			}
+		case Shape::Point:	query = m_quad_tree.Query(lhs.shape->GetCenter()); break;
+		default:			query = m_quad_tree.Query(lhs.shape->GetAABB()); break;
 		}
 
-		i = ptr.next;
+		for (QuadTree::value_type elt : query)
+		{
+			const auto& rhs = m_bodies[elt];
+				
+			if (ptr.element == elt) // skip same body
+				continue;
+
+			if (rhs.shape == nullptr || rhs.collider == nullptr || !rhs.collider->GetEnabled()) // safety checks
+				continue;
+
+			if ((lhs.collider->layer & rhs.collider->layer) == 0) // only matching layer
+				continue;
+
+			if (lhs.body != nullptr && rhs.body != nullptr)
+			{
+				bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
+				bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
+
+				if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
+					continue;
+			}
+
+			m_collisions.emplace_back(ptr.element, elt);
+		}
 	}
 
 	CullDuplicates();
@@ -183,9 +186,9 @@ int BroadSystem::TryAddNewObject(EntityID eid)
 			m_bodies_ptr[m_first_body].prev = j;
 		}
 
-		m_first_body = j;
+		m_entity_body_map.emplace(eid, j);
 
-		m_entity_body_map.emplace(eid, m_first_body);
+		m_first_body = j;
 
 		return i;
 	}

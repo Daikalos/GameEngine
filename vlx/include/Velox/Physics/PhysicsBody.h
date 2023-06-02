@@ -100,8 +100,6 @@ namespace vlx
 		sf::Angle last_rot;
 		sf::Angle rotation;
 
-		bool initialize {true};
-
 	private:
 		BodyType		m_type				{BodyType::Dynamic}; // type of body
 

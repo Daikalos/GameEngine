@@ -1,8 +1,10 @@
 #pragma once
 
 #include <queue>
+#include <variant>
 
 #include <Velox/ECS.hpp>
+#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
 #include <Velox/Graphics/Components/Relation.h>
@@ -11,8 +13,34 @@ namespace vlx
 {
 	class VELOX_API RelationSystem final : public SystemAction
 	{
+	public:
+		enum ExecutionStage : int8
+		{
+			S_Instant = -1,
+			S_PreUpdate,
+			S_Update,
+			S_FixedUpdate,
+			S_PostUpdate,
+			S_Manual,
+			S_Count
+		};
+
 	private:
-		using EntityPair = std::pair<EntityID, EntityID>;
+		struct AttachData
+		{
+			EntityID parent_id;
+			EntityID child_id;
+		};
+
+		struct DetachData
+		{
+			EntityID parent_id;
+			EntityID child_id;
+		};
+
+	private:
+		using Command = std::variant<AttachData, DetachData>;
+		using CommandTable = std::array<std::queue<Command>, S_Count>;
 
 	public:
 		using SystemAction::SystemAction;
@@ -21,14 +49,13 @@ namespace vlx
 		bool IsRequired() const noexcept override;
 
 	public:
-		void Attach(const EntityID parent_id, const EntityID child_id);
-		void Detach(const EntityID parent_id, const EntityID child_id);
+		void Attach(EntityID parent_id, EntityID child_id, ExecutionStage stage = S_PostUpdate);
+		void Detach(EntityID parent_id, EntityID child_id, ExecutionStage stage = S_PostUpdate);
 
-		void AttachInstant(const EntityID parent_id, const EntityID child_id);
-		void DetachInstant(const EntityID parent_id, const EntityID child_id);
+		void Attach(EntityID parent_id, Relation& parent, EntityID child_id, Relation& child);
+		EntityID Detach(EntityID parent_id, Relation& parent, EntityID child_id, Relation& child);
 
-		void AttachDelay(const EntityID parent_id, const EntityID child_id);
-		void DetachDelay(const EntityID parent_id, const EntityID child_id);
+		void ExecuteManually();
 
 	public:
 		void PreUpdate() override;
@@ -37,14 +64,13 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void AttachChild(const EntityID parent_id, const EntityID child_id);
-		void DetachChild(const EntityID parent_id, const EntityID child_id);
+		void AttachUnpack(EntityID parent_id, EntityID child_id);
+		void DetachUnpack(EntityID parent_id, EntityID child_id);
 
-		void AttachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child);
-		EntityID DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child);
+		void ExecuteCommands(ExecutionStage stage);
+		void VisitCommand(const Command& command);
 
 	private:
-		std::queue<EntityPair>	m_attachments;
-		std::queue<EntityPair>	m_detachments;
+		CommandTable m_commands_table;
 	};
 }

@@ -103,7 +103,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained within the bounding rectangle.
 		/// 
-		NODISC auto Query(const RectFloat& rect) const -> std::vector<Element>;
+		NODISC auto Query(const RectFloat& rect) const -> std::vector<value_type>;
 
 		/// Queries the tree for elements.
 		/// 
@@ -111,7 +111,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained at the point.
 		/// 
-		NODISC auto Query(const Vector2f& point) const-> std::vector<Element>;
+		NODISC auto Query(const Vector2f& point) const-> std::vector<value_type>;
 
 		/// Queries the tree for elements, while also omitting elements provided by iterators.
 		/// Content must be sorted before being passed.
@@ -121,7 +121,7 @@ namespace vlx
 		/// \returns List of entities contained at the point.
 		/// 
 		template<typename It>
-		NODISC auto Query(const RectFloat& rect, It begin, It end) const -> std::vector<Element>;
+		NODISC auto Query(const RectFloat& rect, It begin, It end) const -> std::vector<value_type>;
 
 		/// Queries the tree for elements, while also omitting element indicies provided by iterators.
 		/// Content must be sorted before being passed.
@@ -131,7 +131,7 @@ namespace vlx
 		/// \returns List of entities contained at the point.
 		/// 
 		template<typename It>
-		NODISC auto Query(const Vector2f& point, It begin, It end) const -> std::vector<Element>;
+		NODISC auto Query(const Vector2f& point, It begin, It end) const -> std::vector<value_type>;
 
 		/// Performs a cleanup of the tree; can only be called if erase has been used.
 		/// 
@@ -290,14 +290,14 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto LQuadTree<T>::Query(const RectFloat& rect) const -> std::vector<Element>
+	inline auto LQuadTree<T>::Query(const RectFloat& rect) const -> std::vector<value_type>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<Element> result{};
+		std::vector<value_type> result{};
 
-		SmallVector<int, 64> to_process;
-		to_process.push_back(0); // push root
+		SmallVector<int> to_process;
+		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{
@@ -316,7 +316,7 @@ namespace vlx
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect))
-						result.push_back(elt);
+						result.emplace_back(elt.item);
 
 					child = elt_ptr.next;
 				}
@@ -332,14 +332,14 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto LQuadTree<T>::Query(const Vector2f& point) const -> std::vector<Element>
+	inline auto LQuadTree<T>::Query(const Vector2f& point) const -> std::vector<value_type>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<Element> result{};
+		std::vector<value_type> result{};
 
 		SmallVector<int> to_process;
-		to_process.push_back(0); // push root
+		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{
@@ -358,7 +358,7 @@ namespace vlx
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Contains(point))
-						result.emplace_back(elt);
+						result.emplace_back(elt.item);
 
 					child = elt_ptr.next;
 				}
@@ -375,14 +375,14 @@ namespace vlx
 
 	template<std::equality_comparable T>
 	template<typename It>
-	NODISC auto LQuadTree<T>::Query(const RectFloat& rect, It begin, It end) const -> std::vector<Element>
+	NODISC auto LQuadTree<T>::Query(const RectFloat& rect, It begin, It end) const -> std::vector<value_type>
 	{
 		std::shared_lock lock(m_mutex);
 
 		std::vector<Element> result{};
 
-		SmallVector<int, 64> to_process;
-		to_process.push_back(0); // push root
+		SmallVector<int> to_process;
+		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{
@@ -401,7 +401,7 @@ namespace vlx
 					const auto& elt = m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect) && !std::binary_search(begin, end, elt_ptr.element))
-						result.push_back(elt);
+						result.emplace_back(elt.item);
 
 					child = elt_ptr.next;
 				}
@@ -409,7 +409,7 @@ namespace vlx
 			else // it's a branch
 			{
 				for (int i = 0; i < CHILD_COUNT; ++i)
-					to_process.push_back(node.first_child + i);
+					to_process.emplace_back(node.first_child + i);
 			}
 		}
 
@@ -418,14 +418,14 @@ namespace vlx
 
 	template<std::equality_comparable T>
 	template<typename It>
-	NODISC auto LQuadTree<T>::Query(const Vector2f& point, It begin, It end) const -> std::vector<Element>
+	NODISC auto LQuadTree<T>::Query(const Vector2f& point, It begin, It end) const -> std::vector<value_type>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<Element> result{};
+		std::vector<value_type> result{};
 
 		SmallVector<int> to_process;
-		to_process.push_back(0); // push root
+		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{
@@ -444,7 +444,7 @@ namespace vlx
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Contains(point) && !std::binary_search(begin, end, elt_ptr.element))
-						result.emplace_back(elt);
+						result.emplace_back(elt.item);
 
 					child = elt_ptr.next;
 				}
@@ -452,7 +452,7 @@ namespace vlx
 			else // branch
 			{
 				for (int i = 0; i < CHILD_COUNT; ++i)
-					to_process.push_back(node.first_child + i);
+					to_process.emplace_back(node.first_child + i);
 			}
 		}
 
@@ -467,7 +467,7 @@ namespace vlx
 		using RectReg = std::variant<RectFloat, bool>;
 
 		SmallVector<int> to_process;
-		to_process.push_back(0); // push root
+		to_process.emplace_back(0); // push root
 
 		std::vector<RectReg> process_rects;
 

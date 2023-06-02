@@ -64,8 +64,7 @@ void ObjectSystem::ExecuteCommands(ExecutionStage stage)
 	auto& commands = m_command_table[stage];
 	while (!commands.empty())
 	{
-		const auto& command = commands.front();
-		VisitCommand(command);
+		VisitCommand(commands.front());
 		commands.pop();
 	}
 }
@@ -74,23 +73,23 @@ void ObjectSystem::VisitCommand(const Command& command)
 {
 	std::visit(traits::Overload
 		{
-			[this](AddCompData data)
+			[this](const AddCompData& data)
 			{
 				m_entity_admin->AddComponent(data.entity_id, data.component_id);
 			},
-			[this](AddCompsData data)
+			[this](const AddCompsData& data)
 			{
 				m_entity_admin->AddComponents(data.entity_id, data.component_ids, data.archetype_id);
 			},
-			[this](RmvCompData data)
+			[this](const RmvCompData& data)
 			{
 				m_entity_admin->RemoveComponent(data.entity_id, data.component_id);
 			},
-			[this](RmvCompsData data)
+			[this](const RmvCompsData& data)
 			{
 				m_entity_admin->RemoveComponents(data.entity_id, data.component_ids, data.archetype_id);
 			},
-			[this](RmvEntityData data)
+			[this](const RmvEntityData& data)
 			{
 				m_entity_admin->RemoveEntity(data.entity_id);
 			}

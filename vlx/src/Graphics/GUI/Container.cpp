@@ -4,11 +4,11 @@
 
 using namespace vlx::gui;
 
-constexpr bool Container::IsEmpty() const noexcept
+bool Container::IsEmpty() const noexcept
 {
 	return m_children.empty();
 }
-constexpr bool Container::IsSelectable() const noexcept
+bool Container::IsSelectable() const noexcept
 {
 	return false;
 }

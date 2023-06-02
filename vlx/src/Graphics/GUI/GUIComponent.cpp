@@ -11,12 +11,11 @@ auto GUIComponent::GetSize() const noexcept -> const Vector2Type&
 {
 	return m_size;
 }
-constexpr bool GUIComponent::IsActive() const noexcept
+bool GUIComponent::IsActive() const noexcept
 {
 	return m_active;
 }
-
-constexpr bool GUIComponent::IsSelected() const noexcept
+bool GUIComponent::IsSelected() const noexcept
 {
 	return m_selected;
 }

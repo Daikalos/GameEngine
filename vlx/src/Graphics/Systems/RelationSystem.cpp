@@ -4,83 +4,33 @@ using namespace vlx;
 
 bool RelationSystem::IsRequired() const noexcept
 {
-	return false;
+	return true;
 }
 
-void RelationSystem::Attach(const EntityID parent_id, const EntityID child_id)
+void RelationSystem::Attach(EntityID parent_id, EntityID child_id, ExecutionStage stage)
 {
-	AttachDelay(parent_id, child_id);
-}
-
-void RelationSystem::Detach(const EntityID parent_id, const EntityID child_id)
-{
-	AttachDelay(parent_id, child_id);
-}
-
-void RelationSystem::AttachInstant(const EntityID parent_id, const EntityID child_id)
-{
-	AttachChild(parent_id, child_id);
-}
-void RelationSystem::DetachInstant(const EntityID parent_id, const EntityID child_id)
-{
-	DetachChild(parent_id, child_id);
-}
-
-void RelationSystem::AttachDelay(const EntityID parent_id, const EntityID child_id)
-{
-	m_attachments.emplace(parent_id, child_id);
-}
-void RelationSystem::DetachDelay(const EntityID parent_id, const EntityID child_id)
-{
-	m_detachments.emplace(parent_id, child_id);
-}
-
-void RelationSystem::PreUpdate()
-{
-
-}
-
-void RelationSystem::Update()
-{
-	while (!m_detachments.empty()) // detach all relations first
+	if (stage == S_Instant)
 	{
-		auto& pair = m_detachments.front();
-		DetachChild(pair.first, pair.second);
-		m_detachments.pop();
+		AttachUnpack(parent_id, child_id);
+		return;
 	}
 
-	while (!m_attachments.empty())
+	m_commands_table[stage].emplace(std::in_place_index<0>, parent_id, child_id);
+}
+void RelationSystem::Detach(EntityID parent_id, EntityID child_id, ExecutionStage stage)
+{
+	if (stage == S_Instant)
 	{
-		auto& pair = m_attachments.front();
-		AttachChild(pair.first, pair.second);
-		m_attachments.pop();
+		DetachUnpack(parent_id, child_id);
+		return;
 	}
+
+	m_commands_table[stage].emplace(std::in_place_index<1>, parent_id, child_id);
 }
 
-void RelationSystem::FixedUpdate()
+void RelationSystem::Attach(EntityID parent_id, Relation& parent, EntityID child_id, Relation& child)
 {
-
-}
-
-void RelationSystem::PostUpdate()
-{
-
-}
-
-void RelationSystem::AttachChild(const EntityID parent_id, const EntityID child_id)
-{
-	AttachChild(parent_id, m_entity_admin->GetComponent<Relation>(parent_id),
-		child_id, m_entity_admin->GetComponent<Relation>(child_id));
-}
-void RelationSystem::DetachChild(const EntityID parent_id, const EntityID child_id)
-{
-	DetachChild(parent_id, m_entity_admin->GetComponent<Relation>(parent_id),
-		child_id, m_entity_admin->GetComponent<Relation>(child_id));
-}
-
-void RelationSystem::AttachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child)
-{
-	if (child.HasParent() && child.GetParent().GetEntityID() == parent_id) // child is already correctly parented
+	if (child.HasParent() && child.GetParent() == parent_id) // child is already correctly parented
 		return;
 
 	if (parent_id == child_id) // cant attach to itself
@@ -89,19 +39,19 @@ void RelationSystem::AttachChild(const EntityID parent_id, Relation& parent, con
 	if (parent.IsDescendant(child_id))
 		throw std::runtime_error("The new parent cannot be a descendant of the child");
 
-	if (parent.HasParent() && parent.GetParent().GetEntityID() == child_id) // special case
+	if (parent.HasParent() && parent.GetParent() == child_id) // special case
 	{
-		DetachChild(parent.m_parent.GetEntityID(), *parent.m_parent, parent_id, parent);
+		Detach(parent.m_parent.GetEntityID(), *parent.m_parent, parent_id, parent);
 		return;
 	}
 
 	if (child.HasParent()) // if child already has an attached parent we need to detach it
-		DetachChild(child.m_parent.GetEntityID(), *child.m_parent, child_id, child);
+		Detach(child.m_parent.GetEntityID(), *child.m_parent, child_id, child);
 
 	child.m_parent = m_entity_admin->GetComponentRef<Relation>(parent_id, &parent);
 	parent.m_children.push_back(m_entity_admin->GetComponentRef<Relation>(child_id, &child));
 }
-EntityID RelationSystem::DetachChild(const EntityID parent_id, Relation& parent, const EntityID child_id, Relation& child)
+EntityID RelationSystem::Detach(EntityID parent_id, Relation& parent, EntityID child_id, Relation& child)
 {
 	auto found = std::find_if(parent.m_children.begin(), parent.m_children.end(),
 		[&child_id](const Relation::Ref& ptr)
@@ -118,4 +68,80 @@ EntityID RelationSystem::DetachChild(const EntityID parent_id, Relation& parent,
 	parent.m_children.pop_back();
 
 	return child_id;
+}
+
+void RelationSystem::ExecuteManually()
+{
+	ExecuteCommands(S_Manual);
+}
+
+void RelationSystem::PreUpdate()
+{
+	ExecuteCommands(S_PreUpdate);
+}
+
+void RelationSystem::Update()
+{
+	ExecuteCommands(S_Update);
+}
+
+void RelationSystem::FixedUpdate()
+{
+	ExecuteCommands(S_FixedUpdate);
+}
+
+void RelationSystem::PostUpdate()
+{
+	ExecuteCommands(S_PostUpdate);
+}
+
+void RelationSystem::AttachUnpack(EntityID parent_id, EntityID child_id)
+{
+	auto parent = m_entity_admin->TryGetComponent<Relation>(parent_id);
+	if (parent.has_value())
+	{
+		auto child = m_entity_admin->TryGetComponent<Relation>(child_id);
+		if (child.has_value())
+		{
+			Attach(parent_id, *parent.value(), child_id, *child.value());
+		}
+	}
+}
+
+void RelationSystem::DetachUnpack(EntityID parent_id, EntityID child_id)
+{
+	auto parent = m_entity_admin->TryGetComponent<Relation>(parent_id);
+	if (parent.has_value())
+	{
+		auto child = m_entity_admin->TryGetComponent<Relation>(child_id);
+		if (child.has_value())
+		{
+			Detach(parent_id, *parent.value(), child_id, *child.value());
+		}
+	}
+}
+
+void RelationSystem::ExecuteCommands(ExecutionStage stage)
+{
+	auto& commands = m_commands_table[stage];
+	while (!commands.empty())
+	{
+		VisitCommand(commands.front());
+		commands.pop();
+	}
+}
+
+void RelationSystem::VisitCommand(const Command& command)
+{
+	std::visit(traits::Overload
+		{
+			[this](const AttachData& data)
+			{
+				AttachUnpack(data.parent_id, data.child_id);
+			},
+			[this](const DetachData& data)
+			{
+				DetachUnpack(data.parent_id, data.child_id);
+			}
+		}, command);
 }

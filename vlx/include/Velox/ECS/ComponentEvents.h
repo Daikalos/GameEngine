@@ -17,7 +17,7 @@ namespace vlx
 	template<class C>
 	class CreatedEvent
 	{
-		void Created(const EntityAdmin& entity_admin, const EntityID entity_id)
+		void Created(const EntityAdmin& entity_admin, EntityID entity_id)
 		{
 			static_cast<C*>(this)->CreatedImpl(entity_admin, entity_id);
 		}
@@ -36,7 +36,7 @@ namespace vlx
 	template<class C>
 	class DestroyedEvent
 	{
-		void Destroyed(const EntityAdmin& entity_admin, const EntityID entity_id)
+		void Destroyed(const EntityAdmin& entity_admin, EntityID entity_id)
 		{
 			static_cast<C*>(this)->DestroyedImpl(entity_admin, entity_id);
 		}
@@ -55,7 +55,7 @@ namespace vlx
 	template<class C>
 	class CopiedEvent
 	{
-		void Copied(const EntityAdmin& entity_admin, const EntityID entity_id)
+		void Copied(const EntityAdmin& entity_admin, EntityID entity_id)
 		{
 			static_cast<C*>(this)->CopiedImpl(entity_admin, entity_id);
 		}
@@ -75,7 +75,7 @@ namespace vlx
 	template<class C>
 	class AlteredEvent
 	{
-		void Altered(const EntityAdmin& entity_admin, const EntityID entity_id, C& new_data)
+		void Altered(const EntityAdmin& entity_admin, EntityID entity_id, C& new_data)
 		{
 			static_cast<C*>(this)->AlteredImpl(entity_admin, entity_id, new_data);
 		}
@@ -94,7 +94,7 @@ namespace vlx
 	template<class C>
 	class MovedEvent
 	{
-		void Moved(const EntityAdmin& entity_admin, const EntityID entity_id)
+		void Moved(const EntityAdmin& entity_admin, EntityID entity_id)
 		{
 			static_cast<C*>(this)->MovedImpl(entity_admin, entity_id);
 		}
@@ -113,7 +113,7 @@ namespace vlx
 	template<class C>
 	class ShutdownEvent
 	{
-		void Shutdown(const EntityAdmin& entity_admin, const EntityID entity_id)
+		void Shutdown(const EntityAdmin& entity_admin, EntityID entity_id)
 		{
 			static_cast<C*>(this)->ShutdownImpl(entity_admin, entity_id);
 		}

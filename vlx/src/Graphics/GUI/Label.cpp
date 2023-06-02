@@ -2,7 +2,7 @@
 
 using namespace vlx::gui;
 
-constexpr bool Label::IsSelectable() const noexcept
+bool Label::IsSelectable() const noexcept
 {
     return false;
 }

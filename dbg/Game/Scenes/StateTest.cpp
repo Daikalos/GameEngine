@@ -26,7 +26,7 @@ void StateTest::OnCreated()
 	e1 = e0.Duplicate();
 	et1 = e1.GetComponentRef<Transform>();
 
-	GetWorld().GetSystem<RelationSystem>().AttachInstant(e0, e1);
+	GetWorld().GetSystem<RelationSystem>().Attach(e0, e1, RelationSystem::S_Instant);
 
 	Entity e4 = e1.Duplicate();
 
@@ -51,7 +51,7 @@ void StateTest::OnCreated()
 		//	rnd::random(-50.0f, 50.0f));
 
 		added.GetComponent<Transform>().SetPosition({ rnd::random() * 100, rnd::random() * 100 });
-		GetWorld().GetSystem<RelationSystem>().AttachInstant(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added);
+		GetWorld().GetSystem<RelationSystem>().Attach(m_entities.at(rnd::random<int>(0, m_entities.size() - 1)), added, RelationSystem::S_Instant);
 	}
 	
 	m_entity_admin->SortComponents<Relation>(m_entities.front(),
@@ -259,8 +259,6 @@ bool StateTest::Update(Time& time)
 	//}
 
 	GetWorld().GetWindow().setTitle(std::to_string((int)counter.GetFPS()));
-
-	m_entity_admin->RunSystems(100);
 
     return true;
 }

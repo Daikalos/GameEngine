@@ -17,7 +17,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 	m_post_solve(			entity_admin)
 
 {
-	m_integrate_velocity.Each([this](EntityID entity_id, PhysicsBody& body)
+	m_integrate_velocity.Each(
+		[this](EntityID entity_id, PhysicsBody& body)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -34,7 +35,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
 		});
 
-	m_integrate_position.Each([this](EntityID entity_id, PhysicsBody& body)
+	m_integrate_position.Each(
+		[this](EntityID entity_id, PhysicsBody& body)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -49,7 +51,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			body.m_torque = 0.0f;
 		});
 
-	m_sleep_bodies.Each([this](EntityID entity_id, PhysicsBody& body)
+	m_sleep_bodies.Each(
+		[this](EntityID entity_id, PhysicsBody& body)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -75,7 +78,8 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 				body.SetAwake(false);
 		});
 
-	m_pre_solve.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
+	m_pre_solve.Each(
+		[this](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
@@ -83,31 +87,18 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 			if (body.GetType() == BodyType::Static)
 				return;
 
-			body.last_pos = body.position;
-			body.last_rot = body.rotation;
-
-			body.position = transform.GetPosition(); // possible because a physics body is not allowed to have a parent
-			body.rotation = transform.GetRotation();
+			body.last_pos = body.position = transform.GetPosition(); // possible because a physics body is not allowed to have a parent
+			body.last_rot = body.rotation = transform.GetRotation();
 		});
 
-	m_post_solve.Each([this](EntityID entity_id, PhysicsBody& body, Transform& transform)
+	m_post_solve.Each(
+		[this](EntityID entity_id, PhysicsBody& body, Transform& transform)
 		{
 			if (!body.IsAwake() || !body.IsEnabled())
 				return;
 
 			if (body.GetType() == BodyType::Static)
 				return;
-
-			if (body.initialize) // temp, will look for replacing this later
-			{
-				body.position = transform.GetPosition();
-				body.rotation = transform.GetRotation();
-
-				body.last_pos = body.position;
-				body.last_rot = body.rotation;
-
-				body.initialize = false;
-			}
 
 			transform.SetPosition(body.position); // synchronize the transform
 			transform.SetRotation(body.rotation);

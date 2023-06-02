@@ -21,7 +21,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 
 	m_dirty_physics.Each([this](EntityID entity_id, Collider& c, Transform& t)
 		{
-			if (t.m_dirty) // TODO: fatten aabbs instead to reduce number of insert/erase
+			if (t.m_dirty)
 				c.dirty = true;
 		});
 

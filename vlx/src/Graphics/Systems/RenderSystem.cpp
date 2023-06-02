@@ -8,12 +8,14 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id, Time& 
 	m_render_sprites(entity_admin, id), 
 	m_render_bodies(entity_admin, id)
 {
-	m_render_sprites.Each([this](const EntityID eid, Renderable& r, Sprite& s, GlobalTransform& gt)
+	m_render_sprites.Each(
+		[this](const EntityID eid, Renderable& r, Sprite& s, GlobalTransform& gt)
 		{
 			BatchEntity(r, s, gt.GetTransform(), s.GetDepth());
 		});
 
-	m_render_bodies.Each([this, &time](const EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
+	m_render_bodies.Each(
+		[this, &time](const EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
 		{
 			if (pb.GetType() != BodyType::Dynamic || !pb.IsAwake() || !pb.IsEnabled()) // draw normally if not moved by physics
 			{

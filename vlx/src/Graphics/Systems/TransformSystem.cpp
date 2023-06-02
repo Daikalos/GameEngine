@@ -9,7 +9,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_update_global(entity_admin, id)
 {
 	m_dirty.Each(
-		[this](const EntityID entity, Transform& t, GlobalTransform& gt)
+		[this](EntityID, Transform& t, GlobalTransform& gt)
 		{
 			if (t.m_dirty) // if local is dirty, so is global transform
 			{
@@ -19,22 +19,14 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 		});
 
 	m_dirty_descendants.Each(
-		[this](const EntityID eid, Transform& t, GlobalTransform& gt, Relation& r)
+		[this](EntityID, Transform& t, GlobalTransform& gt, Relation& r)
 		{
 			if (gt.m_dirty)
-			{
 				DirtyDescendants(gt, r.GetChildren());
-
-				if (!r.HasParent()) // can already update to local if the entity does not have any parent anyways
-				{
-					UpdateToLocal(t, gt);
-					gt.m_dirty = false;
-				}
-			}
 		});
 
 	m_update_global.Each(
-		[this](const EntityID eid, Transform& t, GlobalTransform& gt, Relation& r)
+		[this](EntityID, Transform& t, GlobalTransform& gt, Relation& r)
 		{
 			if (gt.m_dirty)
 				UpdateTransforms(t, gt, r.GetParent());
@@ -43,8 +35,6 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_dirty.SetPriority(100000.0f);
 	m_dirty_descendants.SetPriority(90000.0f);
 	m_update_global.SetPriority(0.0f);
-
-	m_update_global.Exclude<PhysicsBody>();
 }
 
 bool TransformSystem::IsRequired() const noexcept
@@ -68,29 +58,27 @@ void TransformSystem::SetGlobalPosition(const EntityID entity, const Vector2f& p
 }
 void TransformSystem::SetGlobalScale(const EntityID entity, const Vector2f& scale)
 {
-	SetGlobalScale(m_entity_admin->GetComponent<Transform>(entity), 
-		m_entity_admin->GetComponent<Relation>(entity), scale);
+
 }
 void TransformSystem::SetGlobalRotation(const EntityID entity, const sf::Angle angle)
 {
-	SetGlobalRotation(m_entity_admin->GetComponent<Transform>(entity), 
-		m_entity_admin->GetComponent<Relation>(entity), angle);
+
 }
 
-void TransformSystem::SetGlobalPosition(Transform& global_transform, Relation& relation, const Vector2f& position)
+void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation, const Vector2f& position)
 {
 	if (relation.HasParent())
 	{
 		GlobalTransform& parent = *CheckCache(relation.GetParent().GetEntityID()).Get<GlobalTransform>();
-		global_transform.SetPosition(parent.GetInverseTransform() * position); // global_transform position to parent space to appear global
+		transform.SetPosition(parent.GetInverseTransform() * position); // global_transform position to parent space to appear global
 	}
-	else global_transform.SetPosition(position);
+	else transform.SetPosition(position);
 }
-void TransformSystem::SetGlobalScale(Transform& global_transform, Relation& relation, const Vector2f& scale)
+void TransformSystem::SetGlobalScale(Transform& transform, Relation& relation, const Vector2f& scale)
 {
 	// TODO: implement
 }
-void TransformSystem::SetGlobalRotation(Transform& global_transform, Relation& relation, const sf::Angle angle)
+void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation, const sf::Angle angle)
 {
 	// TODO: implement
 }
@@ -159,6 +147,7 @@ void TransformSystem::UpdateTransforms(Transform& transform, GlobalTransform& gl
 			global_transform.m_update_rotation	= true;
 		}
 	}
+	else UpdateToLocal(transform, global_transform);
 
 	global_transform.m_dirty = false;
 }
@@ -178,7 +167,7 @@ auto TransformSystem::CheckCache(EntityID entity_id) const -> CacheSet&
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())
 	{
-		return m_cache.try_emplace(entity_id, 
+		return m_cache.emplace(entity_id, 
 			m_entity_admin->GetComponentsRef<Transform, GlobalTransform>(entity_id)).first->second; // stupid intellisense error
 	}
 

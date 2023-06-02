@@ -1,6 +1,8 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Text.hpp>
+
+#include <Velox/Config.hpp>
 
 #include "GUIComponent.h"
 
@@ -14,7 +16,7 @@ namespace vlx::gui
 	{
 		using GUIComponent::GUIComponent; // inherit constructor
 
-		[[nodiscard]] constexpr bool IsSelectable() const noexcept override;
+		bool IsSelectable() const noexcept override;
 	};
 }
 
