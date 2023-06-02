@@ -3,7 +3,7 @@
 using namespace vlx;
 
 StateTest::StateTest(const StateID state_id, StateStack& state_stack, World& world)
-	: State(state_id, state_stack, world)//, sys(world.GetEntityAdmin(), 100)
+	: State(state_id, state_stack, world), ply(world.GetEntityAdmin()) //, sys(world.GetEntityAdmin(), 100)
 {
 
 }

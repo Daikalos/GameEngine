@@ -176,7 +176,7 @@ void SpriteBatch::CreateBatches() const
 		}
 
 		for (auto i = 0; i < TRIANGLE_COUNT; ++i)
-			m_vertices[(std::size_t)next * TRIANGLE_COUNT + i] = triangle.vertices[i];
+			m_vertices[(size_t)next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 
 	if (start != m_triangles.size()) // deal with leftover

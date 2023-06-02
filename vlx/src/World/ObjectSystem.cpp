@@ -3,13 +3,9 @@
 using namespace vlx;
 
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, LayerType id)
-	: SystemAction(entity_admin, id), m_objects(entity_admin, id)
+	: SystemAction(entity_admin, id)
 {
-	m_objects.Each([this](EntityID entity_id, Object& object)
-		{
-			if (!object.IsAlive)
-				RemoveEntity(entity_id);
-		});
+
 }
 
 bool ObjectSystem::IsRequired() const noexcept
@@ -45,7 +41,6 @@ void ObjectSystem::PreUpdate()
 
 void ObjectSystem::Update()
 {
-	Execute();
 	ExecuteCommands(S_Update);
 }
 

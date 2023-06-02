@@ -101,7 +101,6 @@ namespace vlx
 		void VisitCommand(const Command& command);
 
 	private:
-		System<Object>	m_objects;
 		CommandTable	m_command_table;
 	};
 

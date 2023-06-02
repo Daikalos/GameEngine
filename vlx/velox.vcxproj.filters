@@ -165,6 +165,7 @@
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
     <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
+    <ClInclude Include="include\Velox\World\DataBehaviour.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

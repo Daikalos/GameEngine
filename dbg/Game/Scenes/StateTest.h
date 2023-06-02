@@ -6,6 +6,34 @@
 
 #include "../Cameras/CameraFollow.h"
 
+struct PlayerData
+{
+	bool jump {true};
+};
+
+class PlayerBehaviour : public vlx::DataBehaviour<PlayerBehaviour, PlayerData>
+{
+public:
+	PlayerBehaviour(vlx::EntityAdmin& entity_admin) : DataBehaviour(entity_admin)
+	{
+
+	}
+
+public:
+	void Start(vlx::EntityID entity_id, PlayerData& data)
+	{
+
+	}
+	void Update(vlx::EntityID entity_id, PlayerData& data)
+	{
+		std::puts("test");
+	}
+	void Destroy(vlx::EntityID entity_id, PlayerData& data)
+	{
+
+	}
+};
+
 class StateTest : public vlx::State
 {
 public:
@@ -31,6 +59,8 @@ private:
 	bool can_jump {true};
 
 	vlx::FPSCounter counter;
+
+	PlayerBehaviour ply;
 
 	//vlx::System<vlx::Velocity, vlx::LocalTransform> sys;
 };

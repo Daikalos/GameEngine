@@ -86,6 +86,9 @@ namespace vlx
 		~System();
 
 	public:
+		const EntityAdmin* GetEntityAdmin() const noexcept;
+		EntityAdmin* GetEntityAdmin() noexcept;
+
 		ArchetypeID GetIDKey() const override;
 		const ComponentIDs& GetArchKey() const override;
 
@@ -100,9 +103,8 @@ namespace vlx
 		void Each(EachFunc&& func);
 
 	public:
-		/// <summary>
-		///		Exclude any entities that holds these components
-		/// </summary>
+		///	Exclude any entities that holds these components
+		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		void Exclude();
 
@@ -162,6 +164,17 @@ namespace vlx
 	{
 		if (m_registered && m_entity_admin != nullptr)
 			m_entity_admin->RemoveSystem(m_layer, this);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline const EntityAdmin* System<Cs...>::GetEntityAdmin() const noexcept
+	{
+		return m_entity_admin;
+	}
+	template<class... Cs> requires IsComponents<Cs...>
+	inline EntityAdmin* System<Cs...>::GetEntityAdmin() noexcept
+	{
+		return m_entity_admin;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

@@ -21,7 +21,7 @@ World::World(const std::string_view name) :
 
 	m_controls.Get<MouseInput>().GetMap<ebn::Button>().Set(ebn::Button::GUIButton, sf::Mouse::Left);
 
-	AddSystem<ObjectSystem>(		m_entity_admin,	LYR_OBJECTS);
+	AddSystem<ObjectSystem>(		m_entity_admin,	LYR_NONE);
 	AddSystem<RelationSystem>(		m_entity_admin,	LYR_NONE);
 	AddSystem<TransformSystem>(		m_entity_admin,	LYR_TRANSFORM);
 	AddSystem<CullingSystem>(		m_entity_admin, LYR_CULLING, m_camera);

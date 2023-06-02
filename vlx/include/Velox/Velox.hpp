@@ -12,3 +12,4 @@
 #include "World/World.h"
 #include "World/ObjectSystem.h"
 #include "World/ObjectTypes.h"
+#include "World/DataBehaviour.hpp"
