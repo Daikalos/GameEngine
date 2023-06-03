@@ -67,6 +67,11 @@ bool GUISystem::IsRequired() const noexcept
 	return false;
 }
 
+void GUISystem::Start()
+{
+
+}
+
 void GUISystem::PreUpdate()
 {
 

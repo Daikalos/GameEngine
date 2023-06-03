@@ -27,6 +27,7 @@ namespace vlx::gui
 		bool IsRequired() const noexcept override;
 
 	public:
+		void Start() override;
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;

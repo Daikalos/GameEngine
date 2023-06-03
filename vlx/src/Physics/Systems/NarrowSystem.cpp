@@ -108,7 +108,7 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 				const auto ait = m_collisions.find(pair);
 				if (ait == m_collisions.end()) // first time
 				{
-					AC.OnEnter(a_result);
+ 					AC.OnEnter(a_result);
 					BC.OnEnter(b_result);
 
 					m_collisions.emplace(
@@ -116,8 +116,7 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 						m_entity_admin->GetComponentRef(B.entity_id, B.collider));
 				}
 
-				if (has_exit) // only bother recording if tracking OnExit
-					m_curr_collisions.emplace_back(pair);
+				m_curr_collisions.emplace_back(pair);
 			}
 
 			if (has_overlap)

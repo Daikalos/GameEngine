@@ -70,6 +70,11 @@ bool PhysicsDirtySystem::IsRequired() const noexcept
 	return true;
 }
 
+void PhysicsDirtySystem::Start()
+{
+
+}
+
 void PhysicsDirtySystem::PreUpdate()
 {
 

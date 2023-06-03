@@ -58,6 +58,7 @@ namespace vlx
 		void ExecuteManually();
 
 	public:
+		void Start() override;
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;

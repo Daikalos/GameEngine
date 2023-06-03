@@ -62,10 +62,25 @@ auto EntityAdmin::RegisterEntity(EntityID entity_id) -> Record&
 
 	return it->second;
 }
-void EntityAdmin::RegisterSystem(LayerType layer, ISystem* system)
+bool EntityAdmin::RegisterSystem(LayerType layer, ISystem* system)
 {
-	assert(system != nullptr);
-	m_systems[layer].emplace_back(system);
+	if (system == nullptr)
+		return false;
+
+	auto& systems = m_systems[layer];
+
+	const auto it = std::find_if(systems.rbegin(), systems.rend(),
+		[&system](const ISystem* sys)
+		{
+			return system == sys;
+		});
+
+	if (it != systems.rend()) // already exists
+		return false;
+
+	systems.emplace_back(system);
+
+	return true;
 }
 
 void EntityAdmin::RunSystems(LayerType layer) const
@@ -120,10 +135,9 @@ void EntityAdmin::RunSystem(const ISystem* system) const
 	system->OnEnd();
 }
 
-void EntityAdmin::RemoveSystem(LayerType layer, ISystem* system)
+bool EntityAdmin::RemoveSystem(LayerType layer, ISystem* system)
 {
-	if (!cu::Erase(m_systems[layer], system))
-		throw std::runtime_error("attempted removal of non-existing system");
+	return cu::Erase(m_systems[layer], system);
 }
 
 bool EntityAdmin::RemoveEntity(EntityID entity_id)

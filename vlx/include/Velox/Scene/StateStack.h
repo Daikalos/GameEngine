@@ -52,6 +52,7 @@ namespace vlx
 	public:
 		void HandleEvent(const sf::Event& event);
 
+		void Start(Time& time);
 		void PreUpdate(Time& time);
 		void Update(Time& time);
 		void FixedUpdate(Time& time);
@@ -84,7 +85,7 @@ namespace vlx
 	{
 		m_factory[state_id] = [this, &state_id, &args...]()
 		{
-			return typename State::Ptr(new T(state_id, *this, *m_world, std::forward<Args>(args)...));
+			return typename State::Ptr(new T(*this, *m_world, state_id, std::forward<Args>(args)...));
 		};
 	}
 }

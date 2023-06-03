@@ -2,15 +2,15 @@
 
 using namespace vlx;
 
-SystemAction::SystemAction(EntityAdmin& entity_admin, const LayerType id)
-	: m_entity_admin(&entity_admin), m_id(id) {}
+SystemAction::SystemAction(EntityAdmin& entity_admin, LayerType layer)
+	: m_entity_admin(&entity_admin), m_layer(layer) {}
 
-LayerType SystemAction::GetLayerID() const noexcept
+LayerType SystemAction::GetLayer() const noexcept
 {
-	return m_id;
+	return m_layer;
 }
 
 void SystemAction::Execute() const
 {
-	m_entity_admin->RunSystems(GetLayerID());
+	m_entity_admin->RunSystems(m_layer);
 }

@@ -79,6 +79,11 @@ void RenderSystem::UpdateStaticGUIBatch()
 	m_update_static_gui_bash = true;
 }
 
+void RenderSystem::Start()
+{
+
+}
+
 void RenderSystem::PreUpdate()
 {
 	if (m_update_static_bash)

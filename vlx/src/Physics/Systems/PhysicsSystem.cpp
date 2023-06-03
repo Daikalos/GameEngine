@@ -125,6 +125,11 @@ void PhysicsSystem::SetIterations(int iterations)
 	m_iterations = iterations;
 }
 
+void PhysicsSystem::Start()
+{
+
+}
+
 void PhysicsSystem::PreUpdate()
 {
 

@@ -39,6 +39,7 @@ namespace vlx
 		void UpdateStaticGUIBatch();
 
 	public:
+		void Start() override;
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;

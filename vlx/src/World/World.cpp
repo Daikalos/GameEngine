@@ -61,7 +61,9 @@ void World::Run()
 	m_camera.SetSize(Vector2f(m_window.getSize()));
 	m_camera.SetPosition(m_camera.GetSize() / 2.0f);
 
-	float accumulator = FLT_EPSILON;
+	float accumulator = 0.0f;
+
+	Start(); // objects ready to be initialized
 
 	while (m_window.isOpen())
 	{
@@ -84,13 +86,20 @@ void World::Run()
 			FixedUpdate();
 		}
 
-		float alpha = accumulator / m_time.GetFixedDT();
-		m_time.SetAlpha(alpha);
+		m_time.SetAlpha(accumulator / m_time.GetFixedDT());
 
 		PostUpdate();
 
 		Draw();
 	}
+}
+
+void World::Start()
+{
+	m_state_stack.Start(m_time);
+
+	for (const auto& pair : m_systems)
+		pair.second->Start();
 }
 
 void World::PreUpdate()

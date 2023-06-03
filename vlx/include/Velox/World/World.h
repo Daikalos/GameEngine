@@ -78,6 +78,7 @@ namespace vlx
 		VELOX_API void Run();
 
 	private:
+		VELOX_API void Start();
 		VELOX_API void PreUpdate();
 		VELOX_API void Update();
 		VELOX_API void FixedUpdate();
@@ -125,12 +126,11 @@ namespace vlx
 		constexpr auto system_id = id::Type<S>::ID();
 
 		SystemAction::Ptr ptr = std::make_unique<S>(std::forward<Args>(args)...);
-		auto temp = ptr.get();
 
 		const auto [lit, inserted] = m_system_table.emplace(system_id, ptr.get());
 		assert(inserted);
 
-		m_systems.emplace(ptr->GetLayerID(), std::move(ptr));
+		m_systems.emplace(ptr->GetLayer(), std::move(ptr));
 
 		return static_cast<S*>(lit->second);
 	}
@@ -144,7 +144,7 @@ namespace vlx
 		if (lit == m_system_table.end() || lit->second->IsRequired()) // cant remove required system
 			return;
 
-		const auto [begin, end] = m_systems.equal_range(lit->second->GetLayerID());
+		const auto [begin, end] = m_systems.equal_range(lit->second->GetLayer());
 
 		if (begin == m_systems.end() || end == m_systems.end())
 			return;

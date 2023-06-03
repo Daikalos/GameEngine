@@ -7,7 +7,7 @@
 
 namespace vlx
 {
-	/// Interface for defining system's behaviour
+	/// Interface for grouping similar systems to define specific behaviour
 	/// 
 	class VELOX_API SystemAction
 	{
@@ -15,7 +15,7 @@ namespace vlx
 		using Ptr = std::unique_ptr<SystemAction>;
 
 	public:
-		SystemAction(EntityAdmin& entity_admin, const LayerType id);
+		SystemAction(EntityAdmin& entity_admin, LayerType id);
 		virtual ~SystemAction() = default;
 
 	public:
@@ -23,11 +23,12 @@ namespace vlx
 		///
 		NODISC virtual bool IsRequired() const noexcept = 0;
 
-		/// Returns the layer this system is located in
+		/// Returns the layer this system is commonly associated with
 		///
-		NODISC LayerType GetLayerID() const noexcept;
+		NODISC LayerType GetLayer() const noexcept;
 
 	public:
+		virtual void Start()		= 0;
 		virtual void PreUpdate()	= 0;
 		virtual void Update()		= 0;
 		virtual void FixedUpdate()	= 0;
@@ -40,6 +41,6 @@ namespace vlx
 		EntityAdmin* m_entity_admin {nullptr};
 
 	private:
-		LayerType m_id {LYR_NONE};
+		LayerType m_layer {LYR_NONE};
 	};
 }

@@ -34,24 +34,33 @@ void ObjectSystem::ExecuteManually()
 	ExecuteCommands(S_Manual);
 }
 
+void ObjectSystem::Start()
+{
+	m_entity_admin->RunSystems(LYR_OBJECTS_START);
+}
+
 void ObjectSystem::PreUpdate()
 {
 	ExecuteCommands(S_PreUpdate);
+	m_entity_admin->RunSystems(LYR_OBJECTS_PRE);
 }
 
 void ObjectSystem::Update()
 {
 	ExecuteCommands(S_Update);
+	m_entity_admin->RunSystems(LYR_OBJECTS_UPDATE);
 }
 
 void ObjectSystem::FixedUpdate()
 {
 	ExecuteCommands(S_FixedUpdate);
+	m_entity_admin->RunSystems(LYR_OBJECTS_FIXED);
 }
 
 void ObjectSystem::PostUpdate()
 {
 	ExecuteCommands(S_PostUpdate);
+	m_entity_admin->RunSystems(LYR_OBJECTS_POST);
 }
 
 void ObjectSystem::ExecuteCommands(ExecutionStage stage)

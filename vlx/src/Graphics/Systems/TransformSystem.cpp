@@ -83,6 +83,11 @@ void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation
 	// TODO: implement
 }
 
+void TransformSystem::Start()
+{
+
+}
+
 void TransformSystem::PreUpdate()
 {
 

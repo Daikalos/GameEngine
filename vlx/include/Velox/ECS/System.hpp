@@ -82,7 +82,7 @@ namespace vlx
 
 	public:
 		System(EntityAdmin& entity_admin);
-		System(EntityAdmin& entity_admin, const LayerType layer, bool add_to_layer = true);
+		System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer = true);
 		~System();
 
 	public:
@@ -98,6 +98,14 @@ namespace vlx
 		/// Forces this system to run alone, ignoring all others in the layer
 		/// 
 		void ForceRun();
+
+		/// Forces this system to be added to the entity admin at specified layer
+		/// 
+		bool ForceAdd(LayerType layer);
+
+		/// Forces this system to be removed from entity admin
+		/// 
+		bool ForceRemove();
 
 		void All(AllFunc&& func);
 		void Each(EachFunc&& func);
@@ -123,14 +131,14 @@ namespace vlx
 	protected:	
 		EntityAdmin*				m_entity_admin	{nullptr};
 		LayerType					m_layer			{LYR_NONE};	// controls the overall order of calls
+		bool						m_registered	{false};
+
 		AllFunc						m_all_func;
 		EachFunc					m_each_func;
 
 		ComponentIDs				m_exclusion;
 		mutable ArchExclCache		m_excluded_archetypes;
 		mutable ComponentIDs		m_arch_key;
-
-		bool						m_registered	{false};
 	};
 
 	inline auto ISystem::operator<=>(const ISystem& rhs) const	{ return GetPriority() <=> rhs.GetPriority(); }
@@ -144,18 +152,20 @@ namespace vlx
 	inline void ISystem::SetEnabled(const bool flag)			{ m_enabled = flag; }
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline System<Cs...>::System(EntityAdmin& entity_admin)
-		: m_entity_admin(&entity_admin), m_layer(LYR_NONE), m_registered(false)
+	inline System<Cs...>::System(EntityAdmin& entity_admin) : m_entity_admin(&entity_admin)
 	{
 
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline System<Cs...>::System(EntityAdmin& entity_admin, const LayerType layer, bool add_to_layer)
-		: m_entity_admin(&entity_admin), m_layer(layer), m_registered(add_to_layer)
+	inline System<Cs...>::System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer)
+		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
-		if (m_registered)
+		if (layer != LYR_NONE && add_to_layer)
+		{
 			m_entity_admin->RegisterSystem(m_layer, this);
+			m_registered = true;
+		}
 	}
 
 
@@ -203,6 +213,38 @@ namespace vlx
 	inline void System<Cs...>::ForceRun()
 	{
 		m_entity_admin->RunSystem(this);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool System<Cs...>::ForceAdd(LayerType layer)
+	{
+		if (!m_registered && layer != LYR_NONE)
+		{
+			m_entity_admin->RegisterSystem(layer, this);
+
+			m_layer = layer;
+			m_registered = true;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool System<Cs...>::ForceRemove()
+	{
+		if (m_registered && m_layer != LYR_NONE)
+		{
+			m_entity_admin->RemoveSystem(m_layer, this);
+
+			m_layer = LYR_NONE;
+			m_registered = false;
+
+			return true;
+		}
+
+		return false;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

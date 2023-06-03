@@ -427,9 +427,9 @@ namespace vlx
 		VELOX_API NODISC bool HasComponent(EntityID entity_id, ComponentTypeID component_id) const;
 
 		VELOX_API auto RegisterEntity(EntityID entity_id) -> Record&;
-		VELOX_API void RegisterSystem(LayerType layer, ISystem* system);
+		VELOX_API bool RegisterSystem(LayerType layer, ISystem* system);
 
-		VELOX_API void RemoveSystem(LayerType layer, ISystem* system);
+		VELOX_API bool RemoveSystem(LayerType layer, ISystem* system);
 		VELOX_API bool RemoveEntity(EntityID entity_id);
 
 		VELOX_API void RunSystems(LayerType layer) const;

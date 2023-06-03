@@ -2,8 +2,8 @@
 
 using namespace vlx;
 
-StateTest::StateTest(const StateID state_id, StateStack& state_stack, World& world)
-	: State(state_id, state_stack, world), ply(world.GetEntityAdmin()) //, sys(world.GetEntityAdmin(), 100)
+StateTest::StateTest(StateStack& state_stack, World& world, StateID id)
+	: State(state_stack, world, id), ply(world) //, sys(world.GetEntityAdmin(), 100)
 {
 
 }
@@ -119,7 +119,7 @@ void StateTest::OnCreated()
 	vlx::Vector2f size(16.0f, 64.0f);
 
 	player = e0.Duplicate();
-	player.AddComponents<PhysicsBody, Collider>();
+	player.AddComponents<PlayerData, PhysicsBody, Collider>();
 	player.AddComponent<Box>(size);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
@@ -134,25 +134,6 @@ void StateTest::OnCreated()
 	player.GetComponent<Sprite>().SetSize(size);
 	player.GetComponent<Sprite>().SetColor(sf::Color::Blue);
 	player.GetComponent<Transform>().SetOrigin(size / 2.0f);
-
-	player.GetComponent<Collider>().OnExit += [](EntityID eid)
-	{
-		//std::puts("exit");
-	};
-
-	player.GetComponent<Collider>().OnEnter += [this](const CollisionResult& result)
-	{
-		//std::puts("enter");
-		if (result.contacts[0].normal.Dot(Vector2f::Up) > 0.8f)
-		{
-			can_jump = true;
-		}
-	};
-
-	player.GetComponent<Collider>().OnOverlap += [](const CollisionResult& result)
-	{
-		//std::puts("overlap");
-	};
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(player, { 0, -64 });
 
@@ -176,17 +157,6 @@ bool StateTest::Update(Time& time)
 		et0->Move({ 5.0f * time.GetDT(), 0.0f });
 
 	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
-
-	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::A))
-		player.GetComponent<Transform>().Move({ -50.0f * time.GetDT(), 0.0f });
-	if (GetWorld().GetControls().Get<KeyboardInput>().Held(sf::Keyboard::D))
-		player.GetComponent<Transform>().Move({  50.0f * time.GetDT(), 0.0f });
-	if (can_jump && GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
-	{
-		player.GetComponent<PhysicsBody>().ApplyForceToCenter({ 0.0f, -4000.0f });
-		player.GetComponent<PhysicsBody>().SetVelocity({});
-		can_jump = false;
-	}
 
 	if (GetWorld().GetControls().Get<MouseInput>().Held(sf::Mouse::Left))
 	{

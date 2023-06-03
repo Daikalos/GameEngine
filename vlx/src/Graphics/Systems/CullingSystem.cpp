@@ -43,6 +43,11 @@ bool CullingSystem::IsRequired() const noexcept
 	return false;
 }
 
+void CullingSystem::Start()
+{
+
+}
+
 void CullingSystem::PreUpdate()
 {
 

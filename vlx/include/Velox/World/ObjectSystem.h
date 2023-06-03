@@ -76,6 +76,7 @@ namespace vlx
 		VELOX_API void ExecuteManually();
 
 	public:
+		VELOX_API void Start() override;
 		VELOX_API void PreUpdate() override;
 		VELOX_API void Update() override;
 		VELOX_API void FixedUpdate() override;

@@ -36,6 +36,11 @@ bool AnchorSystem::IsRequired() const noexcept
 	return false;
 }
 
+void AnchorSystem::Start()
+{
+
+}
+
 void AnchorSystem::PreUpdate()
 {
 

@@ -36,6 +36,17 @@ void StateStack::HandleEvent(const sf::Event& event)
 	ApplyPendingChanges();
 }
 
+void StateStack::Start(Time& time)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->Start(time))
+			break;
+	}
+
+	ApplyPendingChanges();
+}
+
 void StateStack::PreUpdate(Time& time)
 {
 	if (m_paused)

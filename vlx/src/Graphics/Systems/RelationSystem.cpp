@@ -75,6 +75,11 @@ void RelationSystem::ExecuteManually()
 	ExecuteCommands(S_Manual);
 }
 
+void RelationSystem::Start()
+{
+
+}
+
 void RelationSystem::PreUpdate()
 {
 	ExecuteCommands(S_PreUpdate);

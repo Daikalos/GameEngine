@@ -22,7 +22,7 @@ namespace vlx
 		using Func = std::function<Ptr()>;
 
 	public:
-		State(StateID state_id, StateStack& state_stack, World& world);
+		State(StateStack& state_stack, World& world, StateID id);
 		virtual ~State() = default;
 
 	public:
@@ -50,6 +50,7 @@ namespace vlx
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
 
+		virtual bool Start(Time& time)			{ return true; }
 		virtual bool PreUpdate(Time& time)		{ return true; }
 		virtual bool Update(Time& time) = 0;
 		virtual bool FixedUpdate(Time& time)	{ return true; }
@@ -58,8 +59,8 @@ namespace vlx
 		virtual void Draw() = 0;
 
 	private:
-		StateID		m_id			{-1};
 		StateStack* m_state_stack	{nullptr};
 		World*		m_world			{nullptr};
+		StateID		m_id			{-1};
 	};
 }

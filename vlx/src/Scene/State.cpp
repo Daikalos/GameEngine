@@ -2,8 +2,8 @@
 
 using namespace vlx;
 
-State::State(StateID state_id, StateStack& state_stack, World& world)
-	: m_id(state_id), m_state_stack(&state_stack), m_world(&world) {}
+State::State(StateStack& state_stack, World& world, StateID id)
+	: m_state_stack(&state_stack), m_world(&world), m_id(id) {}
 
 StateID State::GetID() const noexcept
 {

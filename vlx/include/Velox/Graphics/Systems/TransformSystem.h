@@ -35,6 +35,7 @@ namespace vlx
 		void SetGlobalRotation(	Transform& transform, Relation& relation, const sf::Angle angle);
 
 	public:
+		void Start() override;
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;
