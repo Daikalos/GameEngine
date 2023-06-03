@@ -25,7 +25,6 @@ namespace vlx
 		System<U> m_post_update;
 		int m_on_add_id {-1};
 		int m_on_rmv_id {-1};
-		bool m_start_ready {false};
 	};
 
 	template<class T, class U> requires std::is_standard_layout_v<U>

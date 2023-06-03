@@ -62,7 +62,7 @@ auto EntityAdmin::RegisterEntity(EntityID entity_id) -> Record&
 
 	return it->second;
 }
-bool EntityAdmin::RegisterSystem(LayerType layer, ISystem* system)
+bool EntityAdmin::RegisterSystem(LayerType layer, SystemBase* system)
 {
 	if (system == nullptr)
 		return false;
@@ -70,7 +70,7 @@ bool EntityAdmin::RegisterSystem(LayerType layer, ISystem* system)
 	auto& systems = m_systems[layer];
 
 	const auto it = std::find_if(systems.rbegin(), systems.rend(),
-		[&system](const ISystem* sys)
+		[&system](const SystemBase* sys)
 		{
 			return system == sys;
 		});
@@ -89,7 +89,7 @@ void EntityAdmin::RunSystems(LayerType layer) const
 	if (sit == m_systems.end())
 		return;
 
-	for (const ISystem* system : sit->second)
+	for (const SystemBase* system : sit->second)
 		RunSystem(system);
 }
 
@@ -100,13 +100,13 @@ void EntityAdmin::SortSystems(LayerType layer)
 		return;
 
 	std::ranges::stable_sort(it->second.begin(), it->second.end(),
-		[](const ISystem* lhs, const ISystem* rhs)
+		[](const SystemBase* lhs, const SystemBase* rhs)
 		{
 			return *lhs > *rhs;
 		});
 }
 
-void EntityAdmin::RunSystem(const ISystem* system) const
+void EntityAdmin::RunSystem(const SystemBase* system) const
 {
 	if (!system->IsEnabled())
 		return;
@@ -135,7 +135,7 @@ void EntityAdmin::RunSystem(const ISystem* system) const
 	system->OnEnd();
 }
 
-bool EntityAdmin::RemoveSystem(LayerType layer, ISystem* system)
+bool EntityAdmin::RemoveSystem(LayerType layer, SystemBase* system)
 {
 	return cu::Erase(m_systems[layer], system);
 }

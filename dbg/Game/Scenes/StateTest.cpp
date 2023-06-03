@@ -112,6 +112,8 @@ void StateTest::OnCreated()
 	entity.GetComponent<Transform>().SetOrigin({ au::Pow(2, 16) / 2, 8 });
 	entity.GetComponent<Transform>().SetRotation(sf::degrees(0.0f));
 
+	//constexpr int a = sizeof(std::function<void()>);
+
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
 
 	GetWorld().RemoveSystem<TransformSystem>();

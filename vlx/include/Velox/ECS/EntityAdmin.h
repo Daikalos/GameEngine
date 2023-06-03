@@ -82,7 +82,7 @@ namespace vlx
 		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
 		using ArchetypePtr				= std::unique_ptr<Archetype>;
 
-		using SystemsArrayMap			= std::unordered_map<LayerType, std::vector<ISystem*>>;
+		using SystemsArrayMap			= std::unordered_map<LayerType, std::vector<SystemBase*>>;
 		using ArchetypesArray			= std::vector<ArchetypePtr>;
 		using ArchetypeMap				= std::unordered_map<ArchetypeID, Archetype*>;
 		using EntityArchetypeMap		= std::unordered_map<EntityID, Record>;
@@ -427,15 +427,15 @@ namespace vlx
 		VELOX_API NODISC bool HasComponent(EntityID entity_id, ComponentTypeID component_id) const;
 
 		VELOX_API auto RegisterEntity(EntityID entity_id) -> Record&;
-		VELOX_API bool RegisterSystem(LayerType layer, ISystem* system);
+		VELOX_API bool RegisterSystem(LayerType layer, SystemBase* system);
 
-		VELOX_API bool RemoveSystem(LayerType layer, ISystem* system);
+		VELOX_API bool RemoveSystem(LayerType layer, SystemBase* system);
 		VELOX_API bool RemoveEntity(EntityID entity_id);
 
 		VELOX_API void RunSystems(LayerType layer) const;
 		VELOX_API void SortSystems(LayerType layer);
 
-		VELOX_API void RunSystem(const ISystem* system) const;
+		VELOX_API void RunSystem(const SystemBase* system) const;
 
 		VELOX_API void AddComponent(EntityID entity_id, ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(EntityID entity_id, ComponentTypeID rmv_component_id);

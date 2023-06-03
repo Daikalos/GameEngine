@@ -17,7 +17,7 @@ namespace vlx
 	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
-		using SpriteSystem = System<Renderable, Sprite, GlobalTransform>;
+		using SpriteSystem = SystemExclude<Renderable, Sprite, GlobalTransform>;
 		using BodySystem = System<Renderable, Sprite, PhysicsBody, Transform>;
 
 	public:

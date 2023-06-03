@@ -63,7 +63,6 @@ public:
 private:
 	vlx::KeyboardInput* m_keyboard {nullptr};
 	vlx::Time* m_time;
-	vlx::BtnFunc<
 };
 
 class StateTest : public vlx::State
