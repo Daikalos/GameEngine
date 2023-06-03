@@ -17,9 +17,9 @@ namespace vlx
 		void Update(const Time& time);
 
 	private:
-		float	m_buffer[BUFFER_SIZE];
-		float	m_average_fps	{0.0f};
-		int		m_current		{0};
-		bool	m_ready			{false};
+		float	m_buffer[BUFFER_SIZE]	{0.0f};
+		float	m_average_fps			{0.0f};
+		int		m_current				{0};
+		bool	m_ready					{false};
 	};
 }

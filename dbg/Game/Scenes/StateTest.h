@@ -30,10 +30,14 @@ public:
 		data.collider = GetEntityAdmin()->GetComponentRef<vlx::Collider>(entity_id);
 		data.transform = GetEntityAdmin()->GetComponentRef<vlx::Transform>(entity_id);
 
-		data.collider->OnEnter += [&data](const vlx::CollisionResult& result)
+		data.collider->OnOverlap += [&data](const vlx::CollisionResult& result)
 		{
- 			if (result.contacts[0].normal.Dot(vlx::Vector2f::Up) > 0.8f)
-				data.jump = true;
+			data.jump = result.contacts[0].normal.Dot(vlx::Vector2f::Up) > 0.8f;
+		};
+
+		data.collider->OnExit += [&data](vlx::EntityID entity_id)
+		{
+			data.jump = false;
 		};
 	}
 	void Update(vlx::EntityID entity_id, PlayerData& data)
@@ -59,6 +63,7 @@ public:
 private:
 	vlx::KeyboardInput* m_keyboard {nullptr};
 	vlx::Time* m_time;
+	vlx::BtnFunc<
 };
 
 class StateTest : public vlx::State

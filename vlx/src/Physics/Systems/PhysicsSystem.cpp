@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time)
+PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
 	: SystemAction(entity_admin, id), 
 
 	m_time(&time), 
@@ -27,7 +27,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time
 				return;
 
 			// velocity
-			body.m_velocity			+= m_time->GetFixedDT() * body.GetInvMass() * (body.GetGravityScale() * body.GetMass() * m_gravity + body.GetForce());
+			body.m_velocity			+= m_time->GetFixedDT() * body.GetInvMass() * (m_gravity * body.GetGravityScale() * body.GetMass() + body.GetForce());
 			body.m_angular_velocity += m_time->GetFixedDT() * body.GetInvInertia() * body.GetTorque();
 
 			// damping

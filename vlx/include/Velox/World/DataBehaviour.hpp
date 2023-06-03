@@ -43,16 +43,18 @@ namespace vlx
 					static_cast<T*>(this)->Start(entity_id, data);
 				});
 
-			m_start.OnEnd += [this]() { m_start_ready = true; };
+			m_start.OnEnd += [this]() 
+			{
+				if (m_on_add_id != -1)
+					return;
 
-			m_on_add_id = entity_admin.RegisterOnAddListener<U>(
-				[this](EntityID entity_id, U& data)
-				{
-					if (!m_start_ready)
-						return;
-
-					static_cast<T*>(this)->Start(entity_id, data);
-				});
+				// start listening for add events
+				m_on_add_id = GetEntityAdmin()->RegisterOnAddListener<U>(
+					[this](EntityID entity_id, U& data)
+					{
+						static_cast<T*>(this)->Start(entity_id, data);
+					});
+			};
 		}
 
 		if constexpr (requires(T t, U & u) { t.PreUpdate(EntityID(), u); })

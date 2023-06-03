@@ -23,7 +23,7 @@ namespace vlx
 	class VELOX_API PhysicsSystem final : public SystemAction
 	{
 	public:
-		PhysicsSystem(EntityAdmin& entity_admin, const LayerType id, Time& time);
+		PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time);
 
 	public:
 		bool IsRequired() const noexcept override;
