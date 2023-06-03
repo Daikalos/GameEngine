@@ -29,8 +29,8 @@
     <ClCompile Include="src\Graphics\Systems\RelationSystem.cpp" />
     <ClCompile Include="src\Graphics\GUI\Button.cpp" />
     <ClCompile Include="src\Graphics\Systems\GUISystem.cpp" />
-    <ClCompile Include="src\Scene\StateStack.cpp" />
-    <ClCompile Include="src\Scene\State.cpp" />
+    <ClCompile Include="src\World\StateStack.cpp" />
+    <ClCompile Include="src\World\State.cpp" />
     <ClCompile Include="src\ECS\SystemAction.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
@@ -71,8 +71,8 @@
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
     <ClInclude Include="include\Velox\Input\MouseCursor.h" />
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
-    <ClInclude Include="include\Velox\Scene\State.h" />
-    <ClInclude Include="include\Velox\Scene\StateStack.h" />
+    <ClInclude Include="include\Velox\World\State.h" />
+    <ClInclude Include="include\Velox\World\StateStack.h" />
     <ClInclude Include="include\Velox\Utility\ArithmeticUtils.h" />
     <ClInclude Include="include\Velox\Utility\Benchmark.h" />
     <ClInclude Include="include\Velox\System\Concepts.h" />
@@ -120,7 +120,7 @@
     <ClInclude Include="include\Velox\World\ObjectTypes.h" />
     <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
     <ClInclude Include="include\Velox\Window.hpp" />
-    <ClInclude Include="include\Velox\Scene\Identifiers.h" />
+    <ClInclude Include="include\Velox\World\Identifiers.h" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />

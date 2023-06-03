@@ -211,7 +211,7 @@
     <ClInclude Include="include\Velox\ECS\Identifiers.hpp" />
     <ClInclude Include="include\Velox\ECS\System.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Shape.h" />
-    <ClInclude Include="include\Velox\Scene\Identifiers.h" />
+    <ClInclude Include="include\Velox\World\Identifiers.h" />
     <ClInclude Include="include\Velox\Utility\PolicySelect.h" />
     <ClInclude Include="include\Velox\System\Rectangle.hpp" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
@@ -235,8 +235,8 @@
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
     <ClInclude Include="include\Velox\Input\MouseCursor.h" />
     <ClInclude Include="include\Velox\Input\MouseInput.h" />
-    <ClInclude Include="include\Velox\Scene\State.h" />
-    <ClInclude Include="include\Velox\Scene\StateStack.h" />
+    <ClInclude Include="include\Velox\World\State.h" />
+    <ClInclude Include="include\Velox\World\StateStack.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\AnchorSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\GUISystem.h" />
     <ClInclude Include="include\Velox\ECS\SystemAction.h" />
@@ -282,8 +282,8 @@
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
     <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
-    <ClCompile Include="src\Scene\State.cpp" />
-    <ClCompile Include="src\Scene\StateStack.cpp" />
+    <ClCompile Include="src\World\State.cpp" />
+    <ClCompile Include="src\World\StateStack.cpp" />
     <ClCompile Include="src\ECS\SystemAction.cpp" />
     <ClCompile Include="src\Graphics\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\GUISystem.cpp" />

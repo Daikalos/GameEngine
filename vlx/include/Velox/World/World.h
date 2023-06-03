@@ -12,11 +12,10 @@
 #include <Velox/Window.hpp>
 #include <Velox/Physics.hpp>
 
-#include <Velox/Scene/StateStack.h>
-
 #include "EngineBinds.h"
 #include "ObjectSystem.h"
 #include "ObjectTypes.h"
+#include "StateStack.h"
 
 namespace vlx
 {

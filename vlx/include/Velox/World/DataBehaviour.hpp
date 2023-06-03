@@ -4,6 +4,8 @@
 
 #include <Velox/ECS.hpp>
 
+#include "Object.h"
+
 namespace vlx
 {
 	template<class T, class U> requires std::is_standard_layout_v<U>
@@ -33,7 +35,7 @@ namespace vlx
 	{
 		entity_admin.RegisterComponent<U>();
 
-		if constexpr (requires(T t, U & u) { t.Start(EntityID(), u); })
+		if constexpr (requires(T t, U& u) { t.Start(EntityID(), u); })
 		{
 			m_start.ForceAdd(LYR_OBJECTS_START);
 			m_start.Each(
@@ -56,7 +58,7 @@ namespace vlx
 			};
 		}
 
-		if constexpr (requires(T t, U & u) { t.PreUpdate(EntityID(), u); })
+		if constexpr (requires(T t, U& u) { t.PreUpdate(EntityID(), u); })
 		{
 			m_pre_update.ForceAdd(LYR_OBJECTS_PRE);
 			m_pre_update.Each(
