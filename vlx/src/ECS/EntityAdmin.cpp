@@ -111,7 +111,7 @@ void EntityAdmin::RunSystem(const SystemBase* system) const
 	if (!system->IsEnabled())
 		return;
 
-	system->OnStart();
+	system->Start();
 
 	const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
 
@@ -132,7 +132,7 @@ void EntityAdmin::RunSystem(const SystemBase* system) const
 			});
 	}
 
-	system->OnEnd();
+	system->End();
 }
 
 bool EntityAdmin::RemoveSystem(LayerType layer, SystemBase* system)

@@ -155,8 +155,8 @@ namespace vlx
 		RectFloat m_root_rect;
 
 		int		m_free_node			{-1};
-		int		m_max_elements		{8}; // max elements before subdivision
-		int		m_max_depth			{8};  // max depth before no more leaves will be created
+		int		m_max_elements		{8};	// max elements before subdivision
+		int		m_max_depth			{8};	// max depth before no more leaves will be created
 
 		mutable std::shared_mutex m_mutex;
 	};

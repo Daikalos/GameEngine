@@ -24,13 +24,13 @@ namespace vlx
 		FreeVector() = default;
 
 	public:
-		NODISC constexpr auto operator[](const size_type n) -> reference;
-		NODISC constexpr auto operator[](const size_type n) const -> const_reference;
+		NODISC constexpr auto operator[](size_type n) -> reference;
+		NODISC constexpr auto operator[](size_type n) const -> const_reference;
 
-		NODISC constexpr auto at(const size_type n) -> reference;
-		NODISC constexpr auto at(const size_type n) const -> const_reference;
+		NODISC constexpr auto at(size_type n) -> reference;
+		NODISC constexpr auto at(size_type n) const -> const_reference;
 
-		NODISC constexpr bool valid(const size_type n) const noexcept;
+		NODISC constexpr bool valid(size_type n) const noexcept;
 
 		NODISC constexpr bool empty() const noexcept;
 		NODISC constexpr auto size() const noexcept -> size_type;
@@ -44,7 +44,7 @@ namespace vlx
 		constexpr auto insert(const T& element) -> size_type;
 		constexpr auto insert(T&& element) -> size_type;
 
-		constexpr void erase(const size_type n);
+		constexpr void erase(size_type n);
 
 		constexpr void clear();
 
@@ -57,31 +57,31 @@ namespace vlx
 	};
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::operator[](const size_type n) -> reference
+	inline constexpr auto FreeVector<T>::operator[](size_type n) -> reference
 	{
 		return std::get<T>(m_data[n]);
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::operator[](const size_type n) const -> const_reference
+	inline constexpr auto FreeVector<T>::operator[](size_type n) const -> const_reference
 	{
 		return std::get<T>(m_data[n]);
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::at(const size_type n) -> reference
+	inline constexpr auto FreeVector<T>::at(size_type n) -> reference
 	{
 		return std::get<T>(m_data.at(n));
 	}
 
 	template<class T>
-	inline constexpr auto FreeVector<T>::at(const size_type n) const -> const_reference
+	inline constexpr auto FreeVector<T>::at(size_type n) const -> const_reference
 	{
 		return std::get<T>(m_data.at(n));
 	}
 
 	template<class T>
-	inline constexpr bool FreeVector<T>::valid(const size_type n) const noexcept
+	inline constexpr bool FreeVector<T>::valid(size_type n) const noexcept
 	{
 		return m_data.at(n).index() == 0;
 	}
@@ -138,7 +138,7 @@ namespace vlx
 	}
 
 	template<class T>
-	inline constexpr void FreeVector<T>::erase(const size_type n)
+	inline constexpr void FreeVector<T>::erase(size_type n)
 	{
 		assert(n >= 0 && n < size());
 		m_data[n] = m_first_free;

@@ -36,13 +36,14 @@ namespace vlx
 		};
 
 	public:
-		using GeneralSystem		= System<Collider, Transform>;
+		using ColliderSystem		= System<Collider, Transform>;
+		using ColliderSystemEvent	= SystemEvent<Collider, Transform>;
 
-		using CollisionPair		= std::pair<uint32, uint32>;
-		using CollisionList		= std::vector<CollisionPair>;
+		using CollisionPair			= std::pair<uint32, uint32>;
+		using CollisionList			= std::vector<CollisionPair>;
 
-		using EntityBodyMap		= std::unordered_map<EntityID, uint32>;
-		using QuadTree			= LQuadTree<QTCollider::value_type>;
+		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
+		using QuadTree				= LQuadTree<QTCollider::value_type>;
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, LayerType id);
@@ -74,7 +75,7 @@ namespace vlx
 		ShapeInserter<Box>			m_boxes;
 		ShapeInserter<Point>		m_points;
 
-		GeneralSystem				m_cleanup;
+		ColliderSystemEvent			m_cleanup;
 
 		EntityBodyMap				m_entity_body_map;
 		FreeVector<CollisionObject>	m_bodies;

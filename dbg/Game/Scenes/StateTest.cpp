@@ -160,24 +160,27 @@ bool StateTest::Update(Time& time)
 
 	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
-	if (GetWorld().GetControls().Get<MouseInput>().Held(sf::Mouse::Left))
+	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
-		float diameter = 8.0f + rnd::random(0.0f, 128.0f);
-		float radius = diameter / 2.0f;
+		for (int i = 0; i < 10; ++i)
+		{
+			float diameter = 8.0f + rnd::random(0.0f, 128.0f);
+			float radius = diameter / 2.0f;
 
-		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponents<PhysicsBody, Collider>();
-		entity.AddComponent<Circle>(radius);
+			Entity& entity = m_entities.emplace_back(e0.Duplicate());
+			entity.AddComponents<PhysicsBody, Collider>();
+			entity.AddComponent<Circle>(radius);
 
-		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
-		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-		entity.GetComponent<Transform>().SetOrigin({ radius, radius });
-		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
-		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
-		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
+			entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
+			entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
+			entity.GetComponent<Transform>().SetOrigin({ radius, radius });
+			entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
+			entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
+			entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
-		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, 
-			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+			GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+				GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
+		}
 	}
 
 	//m_entities.back().GetComponent<Transform>().Move({ 25.0f * time.GetDT(), 0.0f });

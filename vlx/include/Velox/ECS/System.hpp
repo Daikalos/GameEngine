@@ -39,12 +39,12 @@ namespace vlx
 		virtual void SetRunParallel(bool flag);
 		virtual void SetEnabled(bool flag);
 
+	public:
+		virtual void Start() const;
+		virtual void End() const;
+
 	protected:
 		virtual void Run(const Archetype* const archetype) const = 0;
-
-	public:
-		Event<> OnStart;	// called before system starts being run for each archetype
-		Event<> OnEnd;		// called after system has run for each archetype
 
 	private:
 		float	m_priority		{0.0f};		// priority is for controlling the underlying order of calls inside a layer
@@ -123,8 +123,8 @@ namespace vlx
 			ArchExclData(ArchetypeID id, bool excluded = false) : id(id), excluded(excluded) {};
 			bool operator==(const ArchExclData& ae) const { return id == ae.id; }
 
-			ArchetypeID id{ NULL_ARCHETYPE };
-			bool excluded{ false };
+			ArchetypeID id	{NULL_ARCHETYPE};
+			bool excluded	{false};
 		};
 
 		using ArchExclCache = std::unordered_set<ArchExclData, decltype([](const ArchExclData& data) { return data.id; })>;
@@ -149,6 +149,23 @@ namespace vlx
 		mutable ArchExclCache	m_excluded_archetypes;
 	};
 
+	template<class... Cs> requires IsComponents<Cs...>
+	class SystemEvent final : public System<Cs...>
+	{
+	public:
+		using System<Cs...>::System;
+
+	public:
+		void Start() const override;
+		void End() const override;
+
+	public:
+		Event<> OnStart;	// called before system starts being run for each archetype
+		Event<> OnEnd;		// called after system has run for each archetype
+	};
+
+	// TODO: add way to include both functionality for events and exclusion
+
 	inline auto SystemBase::operator<=>(const SystemBase& rhs) const	{ return GetPriority() <=> rhs.GetPriority(); }
 
 	inline float SystemBase::GetPriority() const noexcept		{ return m_priority; }
@@ -158,6 +175,9 @@ namespace vlx
 	inline void SystemBase::SetPriority(float val)		{ m_priority = val; }
 	inline void SystemBase::SetRunParallel(bool flag)	{ m_run_parallel = flag; }
 	inline void SystemBase::SetEnabled(bool flag)		{ m_enabled = flag; }
+
+	inline void SystemBase::Start() const	{}
+	inline void SystemBase::End() const		{}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin) : m_entity_admin(&entity_admin)
@@ -358,6 +378,18 @@ namespace vlx
 		m_excluded_archetypes.emplace(archetype->id, excluded);
 
 		return excluded;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void SystemEvent<Cs...>::Start() const
+	{
+		OnStart();
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void SystemEvent<Cs...>::End() const
+	{
+		OnEnd();
 	}
 }
 

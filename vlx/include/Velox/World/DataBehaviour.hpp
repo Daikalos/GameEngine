@@ -20,13 +20,13 @@ namespace vlx
 		EntityAdmin* GetEntityAdmin() noexcept;
 
 	private:
-		System<Object, U> m_start;
-		System<Object, U> m_pre_update;
-		System<Object, U> m_update;
-		System<Object, U> m_fixed_update;
-		System<Object, U> m_post_update;
-		int m_on_add_id {-1};
-		int m_on_rmv_id {-1};
+		SystemEvent<Object, U>	m_start;
+		System<Object, U>		m_pre_update;
+		System<Object, U>		m_update;
+		System<Object, U>		m_fixed_update;
+		System<Object, U>		m_post_update;
+		int						m_on_add_id		{-1};
+		int						m_on_rmv_id		{-1};
 	};
 
 	template<class T, class U> requires std::is_standard_layout_v<U>
