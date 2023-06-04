@@ -111,11 +111,7 @@ namespace vlx
 		EntityAdmin*			m_entity_admin	{nullptr};
 		LayerType				m_layer			{LYR_NONE};	// controls the overall order of calls
 		bool					m_registered	{false};
-
-		AllFunc					m_all_func;
-		EachFunc				m_each_func;
-
-		mutable ComponentIDs	m_arch_key;
+		AllFunc					m_func;
 	};
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -173,7 +169,7 @@ namespace vlx
 	inline System<Cs...>::System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer)
 		: m_entity_admin(&entity_admin), m_layer(layer)
 	{
-		if (layer != LYR_NONE && add_to_layer)
+		if (m_layer != LYR_NONE && add_to_layer)
 		{
 			m_entity_admin->RegisterSystem(m_layer, this);
 			m_registered = true;
@@ -208,10 +204,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline const ComponentIDs& System<Cs...>::GetArchKey() const
 	{
-		if (m_arch_key.empty())
-			m_arch_key = { SystemIDs.begin(), SystemIDs.end() };
-
-		return m_arch_key;
+		static ComponentIDs	arch_key = { SystemIDs.begin(), SystemIDs.end() };
+		return arch_key;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -262,13 +256,19 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::All(AllFunc&& func)
 	{
-		m_all_func = std::move(func);
+		assert(!m_func);
+		m_func = std::move(func);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::Each(EachFunc&& func)
 	{
-		m_each_func = std::move(func);
+		assert(!m_func);
+		m_func = [func = std::forward<EachFunc>(func)](std::span<const EntityID> entities, Cs*... cs)
+		{
+			for (size_t i = 0; i < entities.size(); ++i)
+				func(entities[i], cs[i]...);
+		};
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -276,7 +276,7 @@ namespace vlx
 	{
 		assert(IsEnabled());
 
-		if (m_all_func || m_each_func) // check if func stores callable object
+		if (m_func) // check if func stores callable object
 		{
 			Run(archetype->type, 
 				archetype->entities,
@@ -285,13 +285,13 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
+	template<size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& c, Ts... cs) const
 	{
 		using ComponentType = std::tuple_element_t<Index, ComponentTypes>; // get type of component at index in system components
 		constexpr auto component_id = id::Type<ComponentType>::ID();
 
-		std::size_t i = 0;
+		size_t i = 0;
 		ComponentTypeID archetype_comp_id = component_ids[i];
 		while (archetype_comp_id != component_id && i < component_ids.size())	// iterate until matching component is found
 		{
@@ -307,13 +307,9 @@ namespace vlx
 	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
 	inline void System<Cs...>::Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const
 	{
-		if (m_all_func)
-			m_all_func(entities, ts...);
-
-		if (m_each_func)
+		if (m_func)
 		{
-			for (std::size_t i = 0; i < entities.size(); ++i)
-				m_each_func(entities[i], ts[i]...);
+			m_func(entities, ts...);
 		}
 	}
 
@@ -329,12 +325,13 @@ namespace vlx
 	{
 		assert(this->IsEnabled());
 
-		if (this->m_all_func || this->m_each_func) // check if func stores callable object
+		if (this->m_func) // check if func stores callable object
 		{
 			if (IsArchetypeExcluded(archetype)) // check that it is not excluded
 				return;
 
-			System<Cs...>::Run(archetype->type,
+			System<Cs...>::Run(
+				archetype->type,
 				archetype->entities,
 				archetype->component_data);
 		}

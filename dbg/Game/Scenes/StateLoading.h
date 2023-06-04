@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Scene/State.h>
+#include <Velox/World/State.h>
 
 #include <Velox/System/Time.h>
 

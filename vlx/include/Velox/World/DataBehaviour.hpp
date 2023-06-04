@@ -20,11 +20,11 @@ namespace vlx
 		EntityAdmin* GetEntityAdmin() noexcept;
 
 	private:
-		System<U> m_start;
-		System<U> m_pre_update;
-		System<U> m_update;
-		System<U> m_fixed_update;
-		System<U> m_post_update;
+		System<Object, U> m_start;
+		System<Object, U> m_pre_update;
+		System<Object, U> m_update;
+		System<Object, U> m_fixed_update;
+		System<Object, U> m_post_update;
 		int m_on_add_id {-1};
 		int m_on_rmv_id {-1};
 	};
@@ -39,7 +39,7 @@ namespace vlx
 		{
 			m_start.ForceAdd(LYR_OBJECTS_START);
 			m_start.Each(
-				[this](EntityID entity_id, U& data)
+				[this](EntityID entity_id, Object& obj, U& data)
 				{
 					static_cast<T*>(this)->Start(entity_id, data);
 				});
@@ -62,7 +62,7 @@ namespace vlx
 		{
 			m_pre_update.ForceAdd(LYR_OBJECTS_PRE);
 			m_pre_update.Each(
-				[this](EntityID entity_id, U& data)
+				[this](EntityID entity_id, Object& obj, U& data)
 				{
 					static_cast<T*>(this)->PreUpdate(entity_id, data);
 				});
@@ -72,7 +72,7 @@ namespace vlx
 		{
 			m_update.ForceAdd(LYR_OBJECTS_UPDATE);
 			m_update.Each(
-				[this](EntityID entity_id, U& data)
+				[this](EntityID entity_id, Object& obj, U& data)
 				{
 					static_cast<T*>(this)->Update(entity_id, data);
 				});
@@ -82,7 +82,7 @@ namespace vlx
 		{
 			m_fixed_update.ForceAdd(LYR_OBJECTS_FIXED);
 			m_fixed_update.Each(
-				[this](EntityID entity_id, U& data)
+				[this](EntityID entity_id, Object& obj, U& data)
 				{
 					static_cast<T*>(this)->FixedUpdate(entity_id, data);
 				});
@@ -92,7 +92,7 @@ namespace vlx
 		{
 			m_post_update.ForceAdd(LYR_OBJECTS_POST);
 			m_post_update.Each(
-				[this](EntityID entity_id, U& data)
+				[this](EntityID entity_id, Object& obj, U& data)
 				{
 					static_cast<T*>(this)->PostUpdate(entity_id, data);
 				});
