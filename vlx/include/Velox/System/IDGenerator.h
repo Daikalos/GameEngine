@@ -15,14 +15,16 @@ namespace vlx::id
 	// at compile-time using the full signature of a function. The signature is altered depending on the template and thus 
 	// generates a new id.
 
-	static consteval size_t HashFunction(const std::string_view func_name)
+	/// FNV-1a implementation
+	/// 
+	static consteval size_t HashFunction(const std::string_view signature)
 	{
 		size_t result = 0xcbf29ce484222325; // FNV offset basis
 
-		for (const char c : func_name)
+		for (const char c : signature)
 		{
 			result ^= static_cast<size_t>(c);
-			result *= 1099511628211; // FNV prime
+			result *= 0x100000001b3; // FNV prime
 		}
 
 		return result;

@@ -109,6 +109,17 @@ void Camera::HandleEvent(const sf::Event& event)
 	ApplyPendingChanges();
 }
 
+void Camera::Start(const Time& time)
+{
+	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+	{
+		if (!(*it)->Start(time))
+			break;
+	}
+
+	ApplyPendingChanges();
+}
+
 void Camera::PreUpdate(const Time& time)
 {
 	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)

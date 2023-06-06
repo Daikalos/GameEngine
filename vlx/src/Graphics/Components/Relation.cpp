@@ -21,7 +21,7 @@ auto Relation::GetChildren() const noexcept -> const Children&
 	return m_children;
 }
 
-bool Relation::IsDescendant(const EntityID descendant) const
+bool Relation::IsDescendant(EntityID descendant) const
 {
 	 for (const auto& ptr : m_children)
 	 {
@@ -35,7 +35,7 @@ bool Relation::IsDescendant(const EntityID descendant) const
 	 return false;
 }
 
-void Relation::CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
+void Relation::CopiedImpl(const EntityAdmin& entity_admin, EntityID entity_id)
 {
 	if (HasParent())
 	{
@@ -46,7 +46,7 @@ void Relation::CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity
 	m_children.clear(); // to prevent children confusing who their parent is
 }
 
-void Relation::AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data)
+void Relation::AlteredImpl(const EntityAdmin& entity_admin, EntityID entity_id, Relation& new_data)
 {
 	// When the relation is modified, we need to update the relation accordingly
 
@@ -61,7 +61,7 @@ void Relation::AlteredImpl(const EntityAdmin& entity_admin, const EntityID entit
 		child->m_parent = entity_admin.GetComponentRef<Relation>(entity_id, this);
 }
 
-void Relation::DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id)
+void Relation::DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id)
 {
 	// When the relation is destroyed, we need to detach it accordingly
 

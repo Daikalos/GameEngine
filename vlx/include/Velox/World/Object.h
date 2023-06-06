@@ -1,13 +1,17 @@
 #pragma once
 
+#include <string>
+
 namespace vlx
 {
-	///	Used for common properties in objects, essential for many systems. Maybe in the future 
-	/// this will be divided into different components to separate concerns.
+	///	Used for common properties in objects, essential for many systems. 
 	/// 
 	struct Object
 	{
-		bool IsAlive	{true};
-		bool IsActive	{true};
+		std::string tag;
+		bool activeHierarchy	{true};
+		bool activeSelf			{true};
 	};
+
+	constexpr int a = sizeof(Object);
 }

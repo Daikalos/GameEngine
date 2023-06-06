@@ -9,9 +9,8 @@ namespace vlx::gui
 {
 	class Container;
 
-	/// <summary>
-	///		Interface for GUI components to inherit from
-	/// </summary>
+	///	Interface for GUI components to inherit from
+	/// 
 	class VELOX_API GUIComponent
 	{
 	protected:

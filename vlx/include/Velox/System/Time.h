@@ -35,6 +35,8 @@ namespace vlx
 		void Update();
 
 	private:
+		sf::Clock	m_clock;
+
 		float		m_delta_time		{0.0f};						// total time it took for previous loop
 		float		m_fixed_delta_time	{DEFAULT_FIXED_DELTATIME};	// fixed delta time for physics etc. (Is set to 1/60 as default)
 		float		m_scaled_time		{DEFAULT_SCALED_TIME};		// scaled time (set to 1 as default)
@@ -42,7 +44,5 @@ namespace vlx
 
 		long double	m_total_time		{0.0};	// total time in seconds the applicaton has ran
 		long double	m_total_run_time	{0.0};	// total time the application has ran factoring in scaled time
-
-		sf::Clock	m_clock;
 	};
 }

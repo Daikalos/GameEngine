@@ -2,20 +2,20 @@
 
 using namespace vlx;
 
-RenderSystem::RenderSystem(EntityAdmin& entity_admin, const LayerType id, Time& time)
+RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
 	: SystemAction(entity_admin, id), 
 
 	m_render_sprites(entity_admin, id), 
 	m_render_bodies(entity_admin, id)
 {
 	m_render_sprites.Each(
-		[this](const EntityID eid, Renderable& r, Sprite& s, GlobalTransform& gt)
+		[this](EntityID eid, Renderable& r, Sprite& s, GlobalTransform& gt)
 		{
 			BatchEntity(r, s, gt.GetTransform(), s.GetDepth());
 		});
 
 	m_render_bodies.Each(
-		[this, &time](const EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
+		[this, &time](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
 		{
 			if (pb.GetType() != BodyType::Dynamic || !pb.IsAwake() || !pb.IsEnabled()) // draw normally if not moved by physics
 			{
@@ -47,7 +47,7 @@ bool RenderSystem::IsRequired() const noexcept
 	return true;
 }
 
-void RenderSystem::SetBatchMode(const BatchMode batch_mode)
+void RenderSystem::SetBatchMode(BatchMode batch_mode)
 {
 	m_static_batch.SetBatchMode(batch_mode);
 	m_dynamic_batch.SetBatchMode(batch_mode);
@@ -63,13 +63,13 @@ void RenderSystem::UpdateStaticBatch()
 	m_update_static_bash = true;
 }
 
-void RenderSystem::SetGUIBatchMode(const BatchMode batch_mode)
+void RenderSystem::SetGUIBatchMode(BatchMode batch_mode)
 {
 	m_static_gui_batch.SetBatchMode(batch_mode);
 	m_dynamic_gui_batch.SetBatchMode(batch_mode);
 }
 
-void RenderSystem::SetGUIBatchingEnabled(const bool flag)
+void RenderSystem::SetGUIBatchingEnabled(bool flag)
 {
 	m_gui_batching_enabled = flag;
 }
@@ -113,7 +113,7 @@ void RenderSystem::PostUpdate()
 	m_update_static_gui_bash = false;
 }
 
-void RenderSystem::BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, const float depth)
+void RenderSystem::BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth)
 {
 	if (!renderable.IsVisible)
 		return;

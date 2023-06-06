@@ -34,12 +34,12 @@ namespace vlx
 		VELOX_API NODISC auto GetParent() const noexcept -> const Parent&;
 		VELOX_API NODISC auto GetChildren() const noexcept -> const Children&;
 
-		VELOX_API NODISC bool IsDescendant(const EntityID descendant) const;
+		VELOX_API NODISC bool IsDescendant(EntityID descendant) const;
 
 	private:
-		VELOX_API void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
-		VELOX_API void AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, Relation& new_data);
-		VELOX_API void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+		VELOX_API void CopiedImpl(const EntityAdmin& entity_admin, EntityID entity_id);
+		VELOX_API void AlteredImpl(const EntityAdmin& entity_admin, EntityID entity_id, Relation& new_data);
+		VELOX_API void DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id);
 
 	public:
 		template<class C>

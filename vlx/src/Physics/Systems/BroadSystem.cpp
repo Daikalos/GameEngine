@@ -117,7 +117,7 @@ void BroadSystem::Update()
 			if (rhs.shape == nullptr || rhs.collider == nullptr || !rhs.collider->GetEnabled()) // safety checks
 				continue;
 
-			if (lhs.collider->layer.HasAny(rhs.collider->layer)) // only matching layer
+			if (!lhs.collider->layer.HasAny(rhs.collider->layer)) // only matching layer
 				continue;
 
 			if (lhs.body != nullptr && rhs.body != nullptr)

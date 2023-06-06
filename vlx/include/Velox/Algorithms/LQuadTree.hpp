@@ -295,8 +295,11 @@ namespace vlx
 		std::shared_lock lock(m_mutex);
 
 		std::vector<value_type> result{};
+		std::vector<int> to_process;
 
-		SmallVector<int> to_process;
+		result.reserve(m_max_elements);
+		to_process.reserve(m_max_depth);
+
 		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
@@ -337,8 +340,11 @@ namespace vlx
 		std::shared_lock lock(m_mutex);
 
 		std::vector<value_type> result{};
+		std::vector<int> to_process;
 
-		SmallVector<int> to_process;
+		result.reserve(m_max_elements);
+		to_process.reserve(m_max_depth);
+
 		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
@@ -380,8 +386,11 @@ namespace vlx
 		std::shared_lock lock(m_mutex);
 
 		std::vector<Element> result{};
+		std::vector<int> to_process;
 
-		SmallVector<int> to_process;
+		result.reserve(m_max_elements);
+		to_process.reserve(m_max_depth);
+
 		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
@@ -423,8 +432,11 @@ namespace vlx
 		std::shared_lock lock(m_mutex);
 
 		std::vector<value_type> result{};
+		std::vector<int> to_process;
 
-		SmallVector<int> to_process;
+		result.reserve(m_max_elements);
+		to_process.reserve(m_max_depth);
+
 		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
@@ -466,10 +478,13 @@ namespace vlx
 
 		using RectReg = std::variant<RectFloat, bool>;
 
-		SmallVector<int> to_process;
-		to_process.emplace_back(0); // push root
-
+		std::vector<int> to_process;
 		std::vector<RectReg> process_rects;
+
+		to_process.reserve(m_max_depth);
+		process_rects.reserve(m_max_depth);
+
+		to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{
@@ -601,6 +616,9 @@ namespace vlx
 
 		std::vector<ElementReg> elements;
 		std::vector<NodeReg> nodes;
+
+		elements.reserve(m_max_elements);
+		nodes.reserve(m_max_depth);
 
 		elements.emplace_back(elt_center, ptr_idx);
 		nodes.emplace_back(m_root_rect, 0, 1);

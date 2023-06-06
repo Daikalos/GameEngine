@@ -97,6 +97,7 @@ void World::Run()
 void World::Start()
 {
 	m_state_stack.Start(m_time);
+	m_camera.Start(m_time);
 
 	for (const auto& pair : m_systems)
 		pair.second->Start();

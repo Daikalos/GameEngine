@@ -74,6 +74,7 @@ namespace vlx
 	public:
 		void HandleEvent(const sf::Event& event);
 
+		void Start(const Time& time);
 		void PreUpdate(const Time& time);
 		void Update(const Time& time);
 		void FixedUpdate(const Time& time);

@@ -21,20 +21,20 @@ namespace vlx
 		using BodySystem = System<Renderable, Sprite, PhysicsBody, Transform>;
 
 	public:
-		RenderSystem(EntityAdmin& entity, const LayerType id, Time& time);
+		RenderSystem(EntityAdmin& entity, LayerType id, Time& time);
 
 	public:
 		bool IsRequired() const noexcept override;
 
 	public:
-		void SetBatchMode(const BatchMode batch_mode);
-		void SetBatchingEnabled(const bool flag);
+		void SetBatchMode(BatchMode batch_mode);
+		void SetBatchingEnabled(bool flag);
 
 		void UpdateStaticBatch();
 
 	public:
-		void SetGUIBatchMode(const BatchMode batch_mode);
-		void SetGUIBatchingEnabled(const bool flag);
+		void SetGUIBatchMode(BatchMode batch_mode);
+		void SetGUIBatchingEnabled(bool flag);
 
 		void UpdateStaticGUIBatch();
 
@@ -49,7 +49,7 @@ namespace vlx
 		void DrawGUI(Window& window) const;
 
 	private:
-		void BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, const float depth = 0.0f);
+		void BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth = 0.0f);
 
 	private:
 		SpriteSystem	m_render_sprites;

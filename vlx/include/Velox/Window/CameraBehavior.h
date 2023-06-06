@@ -58,6 +58,7 @@ namespace vlx
 
 		virtual bool HandleEvent(const sf::Event& event) = 0;
 
+		virtual bool Start(const Time& time)		{ return true; }
 		virtual bool PreUpdate(const Time& time)	{ return true; }
 		virtual bool Update(const Time& time) = 0;
 		virtual bool FixedUpdate(const Time& time)	{ return true; }
