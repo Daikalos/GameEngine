@@ -1178,19 +1178,6 @@ namespace vlx
 			m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
 		}
 
-#if defined(VELOX_DEBUG)
-		for (const auto& archetype : m_archetypes)
-		{
-			for (const auto& archetype1 : m_archetypes)
-			{
-				if (archetype.get() == archetype1.get())
-					continue;
-
-				assert(archetype->type != archetype1->type); // no duplicates
-			}
-		}
-#endif
-
 		m_archetype_cache.clear(); // unfortunately for now, we'll have to clear the cache whenever an archetype has been added
 
 		return m_archetypes.emplace_back(std::move(new_archetype)).get();
@@ -1232,16 +1219,16 @@ namespace vlx
 
 		C* components = reinterpret_cast<C*>(&archetype->component_data[a_record.column][0]);
 
-		std::vector<std::size_t> indices(archetype->entities.size());
+		std::vector<uint32> indices(archetype->entities.size());
 		std::iota(indices.begin(), indices.end(), 0);
 
-		std::ranges::stable_sort(indices.begin(), indices.end(),
-			[&comparison, &components](const std::size_t lhs, std::size_t rhs)
+		std::ranges::sort(indices.begin(), indices.end(),
+			[&comparison, &components](uint32 lhs, uint32 rhs)
 			{
 				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
 			});
 
-		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
+		for (size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
 		{
 			const auto component_id		= archetype->type[i];
 			const auto component		= m_component_map[component_id].get();
@@ -1249,7 +1236,7 @@ namespace vlx
 
 			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 
-			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
+			for (size_t j = 0; j < archetype->entities.size(); ++j)
 			{
 				component->MoveDestroyData(*this, archetype->entities[j],
 					&archetype->component_data[i][indices[j] * component_size],

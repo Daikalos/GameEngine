@@ -2,16 +2,29 @@
 
 #include <string>
 
+#include <Velox/Config.hpp>
+
 namespace vlx
 {
 	///	Used for common properties in objects, essential for many systems. 
 	/// 
-	struct Object
+	class VELOX_API Object
 	{
-		std::string tag;
-		bool activeHierarchy	{true};
-		bool activeSelf			{true};
-	};
+	public:
+		const std::string& GetTag() const noexcept;
 
-	constexpr int a = sizeof(Object);
+		bool GetActive() const noexcept;
+		bool GetActiveSelf() const noexcept;
+
+		void SetTag(const std::string& tag);
+		void SetTag(std::string&& tag);
+
+		void SetActive(bool flag);
+
+	private:
+		std::string	m_tag;
+		bool		m_activeHierarchy	{true};
+		bool		m_activeSelf		{true};
+		bool		m_dirty				{false};
+	};
 }

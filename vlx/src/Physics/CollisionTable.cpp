@@ -28,7 +28,7 @@ void CollisionTable::Collide(CollisionArbiter& arbiter,
 	table[st2 + int(st1) * Shape::Type::Count](arbiter, s1, s2);
 }
 
-void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1,  const Shape& s2)
+void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	const Circle& A = reinterpret_cast<const Circle&>(s1); // cast is assumed safe in this kind of context
 	const Circle& B = reinterpret_cast<const Circle&>(s2);
@@ -355,6 +355,9 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 }
 void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	const Box& A = reinterpret_cast<const Box&>(s1);
+	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
+
 
 }
 

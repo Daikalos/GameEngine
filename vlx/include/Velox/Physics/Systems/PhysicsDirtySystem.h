@@ -19,12 +19,13 @@ namespace vlx
 	public:
 		using DirtyGlobalSystem = System<Collider, GlobalTransform>;
 		using DirtyLocalSystem	= System<Collider, Transform>;
-		using CircleSystem		= System<Circle, Collider, GlobalTransform>;
-		using BoxSystem			= System<Box, Collider, GlobalTransform>;
-		using PointSystem		= System<Point, Collider, GlobalTransform>;
+		using CircleSystem		= System<Circle, Collider, Transform>;
+		using BoxSystem			= System<Box, Collider, Transform>;
+		using PointSystem		= System<Point, Collider, Transform>;
+		using PolySystem		= System<Polygon, Collider, Transform>;
 
 	public:
-		PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id);
+		PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
 		bool IsRequired() const noexcept override;
@@ -40,8 +41,9 @@ namespace vlx
 		DirtyGlobalSystem	m_dirty_transform;
 		DirtyLocalSystem	m_dirty_physics;
 
-		CircleSystem		m_circles_aabb;
-		BoxSystem			m_boxes_aabb;
-		PointSystem			m_points_aabb;
+		CircleSystem		m_circles;
+		BoxSystem			m_boxes;
+		PointSystem			m_points;
+		PolySystem			m_polygons;
 	};
 }

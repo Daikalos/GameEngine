@@ -145,7 +145,7 @@ void PhysicsSystem::FixedUpdate()
 	m_broad_system.Update();
 	m_narrow_system.Update(m_broad_system);
 
-	auto arbiters = m_narrow_system.GetArbiters();
+	auto& arbiters = m_narrow_system.GetArbiters();
 
 	m_pre_solve.ForceRun();
 

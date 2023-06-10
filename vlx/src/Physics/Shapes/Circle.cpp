@@ -8,12 +8,7 @@ void Circle::AdjustBody(PhysicsBody& body) const
     body.SetInertia(0.5f * body.GetMass() * m_radius_sqr);
 }
 
-Vector2f Circle::ComputeCenter(const Vector2f& position) const
+RectFloat Circle::ComputeAABB(const Transform& transform) const
 {
-    return position + Vector2f(m_radius, m_radius);
-}
-
-RectFloat Circle::ComputeAABB(const GlobalTransform& transform) const
-{
-    return RectFloat(transform.GetPosition(), Vector2f(m_radius * 2.0f, m_radius * 2.0f));
+    return RectFloat(transform.GetPosition() - transform.GetOrigin(), Vector2f(m_radius * 2.0f, m_radius * 2.0f));
 }

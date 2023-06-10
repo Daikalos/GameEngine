@@ -105,3 +105,4 @@ ShapeInserter<Point>::~ShapeInserter()
 
 template class ShapeInserter<Circle>;
 template class ShapeInserter<Box>;
+template class ShapeInserter<Polygon>;

@@ -22,8 +22,7 @@ namespace vlx
 		constexpr auto GetType() const noexcept -> Type override;
 
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
-		VELOX_API Vector2f ComputeCenter(const Vector2f& position) const override;
-		VELOX_API RectFloat ComputeAABB(const GlobalTransform& transform) const override;
+		VELOX_API RectFloat ComputeAABB(const Transform& transform) const override;
 
 	private:
 		float m_radius		{16.0f};

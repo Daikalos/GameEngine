@@ -2,15 +2,16 @@
 
 using namespace vlx;
 
-PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerType id)
+PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 	: SystemAction(entity_admin, id),
 
 	m_dirty_transform(	entity_admin, LYR_TRANSFORM), // hijack the transform layer muhahaha
 	m_dirty_physics(	entity_admin, id),
 
-	m_circles_aabb(		entity_admin, id),
-	m_boxes_aabb(		entity_admin, id),
-	m_points_aabb(		entity_admin, id)
+	m_circles(			entity_admin, id),
+	m_boxes(			entity_admin, id),
+	m_points(			entity_admin, id),
+	m_polygons(			entity_admin, id)
 
 {
 	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, GlobalTransform& gt)
@@ -25,38 +26,49 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, const LayerTyp
 				c.dirty = true;
 		});
 
-	m_circles_aabb.Each([this](EntityID entity_id, Circle& s, Collider& c, GlobalTransform& gt)
+	m_circles.Each([this](EntityID entity_id, Circle& s, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
-				s.UpdateAABB(s.ComputeAABB(gt));
+				s.UpdateAABB(s.ComputeAABB(t));
 				// no need to update the orientation matrix
-				s.UpdateCenter(s.ComputeCenter(gt.GetPosition()));
+				s.UpdateCenter(t.GetPosition());
 
 				c.dirty = false;
 			}
 		});
 
-	m_boxes_aabb.Each([this](EntityID entity_id, Box& b, Collider& c, GlobalTransform& gt)
+	m_boxes.Each([this](EntityID entity_id, Box& b, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
-				b.UpdateAABB(b.ComputeAABB(gt));
-				b.UpdateOrientation(gt.GetRotation().wrapUnsigned());
-				b.UpdateCenter(b.ComputeCenter(gt.GetPosition()));
+				b.UpdateAABB(b.ComputeAABB(t));
+				b.UpdateOrientation(t.GetRotation().wrapUnsigned());
+				b.UpdateCenter(t.GetPosition());
 
 				c.dirty = false;
 			}
 		});
 
-	m_points_aabb.Each([this](EntityID entity_id, Point& p, Collider& c, GlobalTransform& gt)
+	m_points.Each([this](EntityID entity_id, Point& p, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
-				p.UpdateAABB(p.ComputeAABB(gt));
+				p.UpdateAABB(p.ComputeAABB(t));
 				// no need to update the orientation matrix
-				p.UpdateCenter(p.ComputeCenter(gt.GetPosition()));
+				p.UpdateCenter(t.GetPosition());
 
+				c.dirty = false;
+			}
+		});
+
+	m_polygons.Each([this](EntityID entity_id, Polygon& p, Collider& c, Transform& t)
+		{
+			if (c.dirty)
+			{
+				p.UpdateAABB(p.ComputeAABB(t));
+				p.UpdateOrientation(t.GetRotation().wrapUnsigned());
+				p.UpdateCenter(t.GetPosition());
 
 				c.dirty = false;
 			}

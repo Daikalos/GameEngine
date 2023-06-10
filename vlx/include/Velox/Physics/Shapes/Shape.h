@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
+#include <Velox/Graphics/Components/Transform.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Mat2f.hpp>
 #include <Velox/Config.hpp>
@@ -38,8 +38,7 @@ namespace vlx
 
 	protected:
 		virtual void AdjustBody(PhysicsBody& body) const = 0;
-		virtual Vector2f ComputeCenter(const Vector2f& position) const = 0;
-		virtual RectFloat ComputeAABB(const GlobalTransform& transform) const = 0;
+		virtual RectFloat ComputeAABB(const Transform& transform) const = 0;
 
 	private:
 		void UpdateOrientation(sf::Angle angle);

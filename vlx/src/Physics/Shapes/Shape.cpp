@@ -16,7 +16,7 @@ const RectFloat& Shape::GetAABB() const
 {
 	return m_aabb;
 }
-const Vector2f& vlx::Shape::GetCenter() const
+const Vector2f& Shape::GetCenter() const
 {
 	return m_center;
 }

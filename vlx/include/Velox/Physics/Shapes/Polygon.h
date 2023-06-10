@@ -3,30 +3,37 @@
 #include <vector>
 
 #include <Velox/Config.hpp>
+#include <Velox/VeloxTypes.hpp>
 
 #include "Shape.h"
 
 namespace vlx
 {
-	class Polygon final : public Shape
+	class VELOX_API Polygon final : public Shape
 	{
 	public:
 		using VectorList = std::vector<Vector2f>;
 
 	public:
+		void Set(Vector2f* points, uint32 count);
+
+	public:
 		auto GetVertices() const -> const VectorList&;
 		auto GetNormals() const -> const VectorList&;
+
+		const RectFloat& GetBoundary() const noexcept;
+		Vector2f GetLocalCenter() const;
 
 	public:
 		constexpr auto GetType() const noexcept -> Type override;
 
-		VELOX_API void AdjustBody(PhysicsBody& body) const noexcept override;
-		VELOX_API Vector2f ComputeCenter(const Vector2f& position) const override;
-		VELOX_API RectFloat ComputeAABB(const GlobalTransform& transform) const override;
+		void AdjustBody(PhysicsBody& body) const noexcept override;
+		RectFloat ComputeAABB(const Transform& transform) const override;
 
 	private:
-		VectorList m_vertices;
-		VectorList m_normals;
+		VectorList	m_vertices;
+		VectorList	m_normals;
+		RectFloat	m_vertices_aabb;
 	};
 
 	constexpr auto Polygon::GetType() const noexcept -> Type

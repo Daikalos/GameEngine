@@ -10,6 +10,7 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 	m_circles(	entity_admin, id, *this),
 	m_boxes(	entity_admin, id, *this),
 	m_points(	entity_admin, id, *this),
+	m_polygons( entity_admin, id, *this),
 
 	m_cleanup(	entity_admin, id)
 {

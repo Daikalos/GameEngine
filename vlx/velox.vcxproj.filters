@@ -51,6 +51,7 @@
     <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Utility\FPSCounter.cpp" />
+    <ClCompile Include="src\World\Object.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

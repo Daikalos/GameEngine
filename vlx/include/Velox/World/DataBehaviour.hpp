@@ -64,7 +64,9 @@ namespace vlx
 			m_pre_update.Each(
 				[this](EntityID entity_id, Object& obj, U& data)
 				{
-					if (obj.)
+					if (!obj.GetActive())
+						return;
+
 					static_cast<T*>(this)->PreUpdate(entity_id, data);
 				});
 		}
@@ -75,6 +77,9 @@ namespace vlx
 			m_update.Each(
 				[this](EntityID entity_id, Object& obj, U& data)
 				{
+					if (!obj.GetActive())
+						return;
+
 					static_cast<T*>(this)->Update(entity_id, data);
 				});
 		}
@@ -85,6 +90,9 @@ namespace vlx
 			m_fixed_update.Each(
 				[this](EntityID entity_id, Object& obj, U& data)
 				{
+					if (!obj.GetActive())
+						return;
+
 					static_cast<T*>(this)->FixedUpdate(entity_id, data);
 				});
 		}
@@ -95,6 +103,9 @@ namespace vlx
 			m_post_update.Each(
 				[this](EntityID entity_id, Object& obj, U& data)
 				{
+					if (!obj.GetActive())
+						return;
+
 					static_cast<T*>(this)->PostUpdate(entity_id, data);
 				});
 		}

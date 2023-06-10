@@ -49,11 +49,12 @@ void NarrowSystem::Update(BroadSystem& broad)
 	m_difference.clear();
 }
 
-std::span<const CollisionArbiter> NarrowSystem::GetArbiters() const noexcept
+auto NarrowSystem::GetArbiters() const noexcept -> const CollisionArbiters&
 {
 	return m_arbiters;
 }
-std::span<CollisionArbiter> NarrowSystem::GetArbiters() noexcept
+
+auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
 {
 	return m_arbiters;
 }

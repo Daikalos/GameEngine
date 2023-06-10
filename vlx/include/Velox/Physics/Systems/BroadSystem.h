@@ -5,15 +5,19 @@
 
 #include <Velox/ECS/System.hpp>
 #include <Velox/ECS/EntityAdmin.h>
+
 #include <Velox/Graphics/Components/Transform.h>
+
 #include <Velox/Algorithms/LQuadTree.hpp>
 #include <Velox/Algorithms/QTElement.hpp>
 #include <Velox/Algorithms/FreeVector.hpp>
+
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Circle.h>
 #include <Velox/Physics/Shapes/Box.h>
 #include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/Shapes/Polygon.h>
+
 #include <Velox/Config.hpp>
 #include <Velox/VeloxTypes.hpp>
 
@@ -74,6 +78,7 @@ namespace vlx
 		ShapeInserter<Circle>		m_circles;
 		ShapeInserter<Box>			m_boxes;
 		ShapeInserter<Point>		m_points;
+		ShapeInserter<Polygon>		m_polygons;
 
 		ColliderSystemEvent			m_cleanup;
 

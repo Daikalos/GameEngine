@@ -30,6 +30,8 @@ namespace vlx
 		using CollisionSystem = System<Collider, Transform, GlobalTransform>;
 		using EntityPair = std::pair<EntityID, EntityID>;
 
+		using CollisionArbiters = std::vector<CollisionArbiter>;
+
 	private:
 		struct CollisionEventPair
 		{
@@ -72,8 +74,8 @@ namespace vlx
 		void Update(BroadSystem& broad);
 
 	public:
-		std::span<const CollisionArbiter> GetArbiters() const noexcept;
-		std::span<CollisionArbiter> GetArbiters() noexcept;
+		auto GetArbiters() const noexcept -> const CollisionArbiters&;
+		auto GetArbiters() noexcept -> CollisionArbiters&;
 
 	private:
 		void CheckCollision(const CollisionObject& lhs, const CollisionObject& rhs);
@@ -81,7 +83,7 @@ namespace vlx
 	private:
 		EntityAdmin* m_entity_admin	{nullptr};
 
-		std::vector<CollisionArbiter> m_arbiters;
+		CollisionArbiters		m_arbiters;
 
 		std::vector<EntityPair> m_curr_collisions;
 		std::vector<EntityPair> m_prev_collisions;
