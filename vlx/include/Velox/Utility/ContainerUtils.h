@@ -3,6 +3,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <span>
 
 #include <Velox/System/Concepts.h>
 #include <Velox/VeloxTypes.hpp>
@@ -104,22 +105,22 @@ namespace vlx::cu
 		return true;
 	}
 
-	template<IsContainer T, class Iter = typename T::const_iterator, typename U = typename T::value_type>
-	NODISC static constexpr Iter FindSorted(const T& container, const U& item)
+	template<typename Iter, typename T>
+	NODISC static constexpr auto FindSorted(Iter begin, Iter end, const T& item)
 	{
-		return std::lower_bound(container.begin(), container.end(), item);
+		return std::lower_bound(begin, end, item);
 	}
 
-	template<IsContainer T, class Comp, class Iter = typename T::const_iterator, typename U = typename T::value_type>
-	NODISC static constexpr Iter FindSorted(const T& container, const U& item, Comp&& comparison)
+	template<typename Iter, typename T, class Comp>
+	NODISC static constexpr auto FindSorted(Iter begin, Iter end, const T& item, Comp&& comparison)
 	{
-		return std::lower_bound(container.begin(), container.end(), item, std::forward<Comp>(comparison));
+		return std::lower_bound(begin, end, item, std::forward<Comp>(comparison));
 	}
 
-	template<IsContainer T>
-	static constexpr bool InsertSorted(T& container, typename T::const_reference item)
+	template<typename T>
+	static constexpr bool InsertSorted(std::vector<T>& container, const T& item)
 	{
-		const typename T::const_iterator it = FindSorted(container, item);
+		const auto it = FindSorted(container.begin(), container.end(), item);
 
 		if (it == container.cend() || *it != item)
 		{
@@ -130,10 +131,10 @@ namespace vlx::cu
 		return false;
 	}
 
-	template<IsContainer T, typename Comp>
-	static constexpr bool InsertSorted(T& container, typename T::const_reference item, Comp&& comparison)
+	template<typename T, typename Comp>
+	static constexpr bool InsertSorted(std::vector<T>& container, const T& item, Comp&& comparison)
 	{
-		const typename T::const_iterator it = FindSorted(container, item, std::forward<Comp>(comparison));
+		const auto it = FindSorted(container.begin(), container.end(), item, std::forward<Comp>(comparison));
 
 		if (it == container.cend() || *it != item)
 		{
@@ -144,10 +145,10 @@ namespace vlx::cu
 		return false;
 	}
 
-	template<IsContainer T>
-	static constexpr bool EraseSorted(T& container, typename T::const_reference item)
+	template<typename T>
+	static constexpr bool EraseSorted(std::vector<T>& container, const T& item)
 	{
-		const typename T::const_iterator it = FindSorted(container, item);
+		const auto it = FindSorted(container.begin(), container.end(), item);
 
 		if (it != container.cend() && *it == item)
 		{
@@ -158,46 +159,48 @@ namespace vlx::cu
 		return false;
 	}
 
-	template<IsContainer T>
-	static constexpr void Sort(T& cntn)
+	template<typename T>
+	static constexpr void Sort(std::span<const T> cntn)
 	{
 		std::sort(cntn.begin(), cntn.end());
 	}
 
-	template<IsContainer T>
+	template<typename T>
+	NODISC static constexpr T& Sort(T& cntn)
+	{
+		std::sort(std::begin(cntn), std::end(cntn));
+		return cntn;
+	}
+
+	template<typename T, typename Comp>
+	NODISC static constexpr T& Sort(T& cntn, Comp&& comp)
+	{
+		std::sort(std::begin(cntn), std::end(cntn), std::forward<Comp>(comp));
+		return cntn;
+	}
+
+	template<typename T>
 	NODISC static constexpr T Sort(T&& cntn)
 	{
-		std::sort(cntn.begin(), cntn.end());
+		std::sort(std::begin(cntn), std::end(cntn));
 		return cntn;
 	}
 
-	template<IsContainer T, typename Comp>
+	template<typename T, typename Comp>
 	NODISC static constexpr T Sort(T&& cntn, Comp&& comp)
 	{
-		std::sort(cntn.begin(), cntn.end(), comp);
+		std::sort(std::begin(cntn), std::end(cntn), std::forward<Comp>(comp));
 		return cntn;
 	}
 
-	template<IsContainer T>
-	NODISC static constexpr bool IsSorted(T&& cntn)
+	template<typename T>
+	NODISC static constexpr bool IsSorted(std::span<const T> cntn)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end());
 	}
 
-	template<IsContainer T>
-	NODISC static constexpr bool IsSorted(const T& cntn)
-	{
-		return std::is_sorted(cntn.begin(), cntn.end());
-	}
-
-	template<IsContainer T, typename Comp>
-	NODISC static constexpr bool IsSorted(T&& cntn, Comp&& comp)
-	{
-		return std::is_sorted(cntn.begin(), cntn.end(), comp);
-	}
-
-	template<IsContainer T, typename Comp>
-	NODISC static constexpr bool IsSorted(const T& cntn, Comp&& comp)
+	template<typename T, typename Comp>
+	NODISC static constexpr bool IsSorted(std::span<const T> cntn, Comp&& comp)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end(), comp);
 	}
@@ -208,10 +211,10 @@ namespace vlx::cu
 		seed ^= static_cast<uint64>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 
-	template<IsContainer T>
+	template<typename T>
 	struct ContainerHash
 	{
-		NODISC constexpr uint64 operator()(const T& container) const
+		NODISC constexpr uint64 operator()(std::span<const T> container) const
 		{
 			uint64 seed = container.size();
 

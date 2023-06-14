@@ -17,7 +17,7 @@ namespace vlx
 	class ControlMap final : private NonCopyable
 	{
 	private:
-		using ControlsIDType = size_t;
+		using ControlsIDType = std::size_t;
 		using ControlsMap = std::unordered_map<ControlsIDType, InputHandler::Ptr>;
 
 	public:

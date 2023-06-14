@@ -47,7 +47,7 @@ namespace vlx
 		using CollisionList			= std::vector<CollisionPair>;
 
 		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
-		using QuadTree				= LQuadTree<QTCollider::value_type>;
+		using QuadTreeType			= LQuadTree<QTCollider::value_type>;
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, LayerType id);
@@ -73,7 +73,7 @@ namespace vlx
 		EntityAdmin*				m_entity_admin	{nullptr};
 		LayerType					m_layer			{LYR_NONE};
 
-		QuadTree					m_quad_tree;
+		QuadTreeType				m_quad_tree;
 		
 		ShapeInserter<Circle>		m_circles;
 		ShapeInserter<Box>			m_boxes;

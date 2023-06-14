@@ -2,16 +2,6 @@
 
 using namespace vlx;
 
-const Mat2f& Shape::GetOrientation() const
-{
-	if (m_update)
-	{
-		m_orientation.Set(m_angle);
-		m_update = false;
-	}
-
-	return m_orientation;
-}
 const RectFloat& Shape::GetAABB() const
 {
 	return m_aabb;
@@ -19,15 +9,6 @@ const RectFloat& Shape::GetAABB() const
 const Vector2f& Shape::GetCenter() const
 {
 	return m_center;
-}
-
-void Shape::UpdateOrientation(sf::Angle angle)
-{
-	if (m_angle != angle)
-	{
-		m_angle = angle;
-		m_update = true;
-	}
 }
 
 void Shape::UpdateAABB(const RectFloat& aabb)
@@ -38,4 +19,24 @@ void Shape::UpdateAABB(const RectFloat& aabb)
 void Shape::UpdateCenter(const Vector2f& center)
 {
 	m_center = center;
+}
+
+const Mat2f& ShapeRotatable::GetOrientation() const
+{
+	if (m_update)
+	{
+		m_orientation.Set(m_angle);
+		m_update = false;
+	}
+
+	return m_orientation;
+}
+
+void ShapeRotatable::UpdateOrientation(sf::Angle angle)
+{
+	if (m_angle != angle)
+	{
+		m_angle = angle;
+		m_update = true;
+	}
 }

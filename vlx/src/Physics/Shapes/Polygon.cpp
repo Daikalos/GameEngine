@@ -2,9 +2,16 @@
 
 using namespace vlx;
 
-void Polygon::Set(Vector2f* points, uint32 count)
+Polygon::Polygon() = default;
+
+Polygon::Polygon(std::span<const Vector2f> points)
 {
-	assert(count > 2);
+	Set(points);
+}
+
+void Polygon::Set(std::span<const Vector2f> points)
+{
+	assert(points.size() > 2);
 
 	// gift-wrapping algorithm
 
@@ -20,20 +27,20 @@ void Polygon::Set(Vector2f* points, uint32 count)
 	};
 
 	int hull = 0;
-	for (uint32 i = 1; i < count; ++i)
+	for (uint32 i = 1; i < points.size(); ++i)
 		if (ComparePoints(points[i], points[hull]))
 			hull = i;
 
-	std::vector<int> indices(count);
+	std::vector<int> indices(points.size());
 	uint32 results = 0;
 	uint32 next = 0;
 
 	do
 	{
-		indices[results] = hull;
+		indices[results++] = hull;
 
 		next = 0;
-		for (uint32 i = 1; i < count; ++i)
+		for (uint32 i = 1; i < points.size(); ++i)
 		{
 			if (next == hull)
 			{
@@ -41,8 +48,8 @@ void Polygon::Set(Vector2f* points, uint32 count)
 				continue;
 			}
 
-			Vector2f d1 = Vector2f::Direction(points[indices[results]], points[next]);
-			Vector2f d2 = Vector2f::Direction(points[indices[results]], points[i]);
+			Vector2f d1 = Vector2f::Direction(points[hull], points[next]);
+			Vector2f d2 = Vector2f::Direction(points[hull], points[i]);
 
 			float c = d1.Cross(d2);
 
@@ -52,7 +59,6 @@ void Polygon::Set(Vector2f* points, uint32 count)
 				next = i;
 		}
 
-		++results;
 		hull = next;
 
 	} while (next != indices[0]);

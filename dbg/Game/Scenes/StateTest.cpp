@@ -185,7 +185,6 @@ bool StateTest::Update(Time& time)
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponents<PhysicsBody, Collider>();
-		vlx::Polygon* poly = entity.AddComponent<vlx::Polygon>();
 
 		std::vector<Vector2f> vertices;
 		vertices.resize(rnd::random(12, 24));
@@ -197,7 +196,7 @@ bool StateTest::Update(Time& time)
 				rnd::random(-100.0f, 100.0f));
 		}
 
-		poly->Set(vertices.data(), vertices.size());
+		vlx::Polygon* poly = entity.AddComponent<vlx::Polygon>(vertices);
 
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
@@ -218,7 +217,7 @@ bool StateTest::Update(Time& time)
 		{
 			Entity& entity = m_entities.emplace_back(e0.Duplicate());
 			entity.AddComponents<PhysicsBody, Collider>();
-			entity.AddComponent<Point>(2, 2);
+			entity.AddComponent<Point>();
 
 			entity.GetComponent<PhysicsBody>().SetMass(0.1f);
 			entity.GetComponent<PhysicsBody>().SetFixedRotation(true);

@@ -395,22 +395,7 @@ namespace vlx
 		/// 
 		VELOX_API void Shrink(bool extensive = false);
 
-	public:
-		template<IsContainer T>
-		NODISC std::vector<EntityID> GetEntitiesWith(const T& component_ids, const ArchetypeID archetype_id, bool restricted = false) const;
-
-		template<IsContainer T>
-		void Reserve(const T& component_ids, const ArchetypeID archetype_id, const std::size_t component_count);
-
 	private:
-		template<IsContainer T>
-		NODISC Archetype* GetArchetype(const T& component_ids, const ArchetypeID archetype_id);
-		template<IsContainer T>
-		Archetype* CreateArchetype(const T& component_ids, const ArchetypeID archetype_id);
-
-		template<IsContainer T>
-		NODISC std::span<const Archetype* const> GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const;
-
 		template<IsComponent C, class Comp>
 		bool SortComponents(Archetype* archetype, Comp&& comp);
 
@@ -419,6 +404,11 @@ namespace vlx
 
 		template<IsComponent C>
 		void UpdateComponentRef(EntityID entity_id, C* new_component) const;
+
+	public:
+		VELOX_API NODISC std::vector<EntityID> GetEntitiesWith(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id, bool restricted = false) const;
+
+		VELOX_API void Reserve(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id, const std::size_t component_count);
 
 	public:
 		VELOX_API NODISC EntityID GetNewEntityID();
@@ -451,6 +441,12 @@ namespace vlx
 		VELOX_API void Shutdown();
 
 	private:
+		VELOX_API NODISC Archetype* GetArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
+
+		VELOX_API NODISC const std::vector<Archetype*>& GetArchetypes(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id) const;
+
+		VELOX_API Archetype* CreateArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
+
 		VELOX_API void CallOnAddEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
 		VELOX_API void CallOnMoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
 		VELOX_API void CallOnRemoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
@@ -543,10 +539,10 @@ namespace vlx
 			if (ait == old_archetype->edges.end())
 			{
 				ComponentIDs new_archetype_id = old_archetype->type; // create copy
-				if (!cu::InsertSorted(new_archetype_id, add_component_id)) // insert while keeping the vector sorted
+				if (!cu::InsertSorted<ComponentTypeID>(new_archetype_id, add_component_id)) // insert while keeping the vector sorted
 					return nullptr;
 
-				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id));
+				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentTypeID>()(new_archetype_id));
 
 				old_archetype->edges[add_component_id].add = new_archetype;
 				new_archetype->edges[add_component_id].rmv = old_archetype;
@@ -641,7 +637,7 @@ namespace vlx
 		else // if the entity has no archetype, first component
 		{
 			ComponentIDs new_archetype_id(1, add_component_id);	// construct archetype with the component id
-			new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentIDs>()(new_archetype_id)); // construct or get archetype using the id
+			new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentTypeID>()(new_archetype_id)); // construct or get archetype using the id
 
 			const auto component		= m_component_map[add_component_id].get();
 			const auto component_size	= component->GetSize();
@@ -672,7 +668,7 @@ namespace vlx
 	inline void EntityAdmin::AddComponents(EntityID entity_id)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		AddComponents(entity_id, { component_ids.begin(), component_ids.end() }, archetype_id);
 	}
@@ -1017,7 +1013,7 @@ namespace vlx
 	inline void EntityAdmin::Reserve(const std::size_t component_count)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		Reserve(component_ids, archetype_id, component_count);
 	}
@@ -1083,124 +1079,6 @@ namespace vlx
 		m_events_remove[component_id].RemoveID(id);
 	}
 
-	template<IsContainer T>
-	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(const T& component_ids, const ArchetypeID archetype_id, bool restricted) const
-	{
-		assert(cu::IsSorted(component_ids));
-
-		std::vector<EntityID> entities;
-
-		if (!restricted)
-		{
-			for (const Archetype* archetype : GetArchetypes(component_ids, archetype_id))
-			{
-				entities.insert(entities.end(),
-					archetype->entities.begin(),
-					archetype->entities.end());
-			}
-		}
-		else
-		{
-			const auto it = m_archetype_map.find(archetype_id);
-			if (it == m_archetype_map.end())
-				return entities;
-
-			entities.insert(entities.end(), 
-				it->second->entities.begin(), 
-				it->second->entities.end());
-		}
-
-		return entities;
-	}
-
-	template<IsContainer T>
-	inline void EntityAdmin::Reserve(const T& component_ids, const ArchetypeID archetype_id, const std::size_t component_count)
-	{
-		assert(cu::IsSorted(component_ids));
-
-		Archetype* archetype = GetArchetype(component_ids, archetype_id);
-		for (std::size_t i = 0; i < archetype->type.size(); ++i)
-		{
-			const auto component		= m_component_map[archetype->type[i]].get();
-			const auto component_size	= component->GetSize();
-
-			const auto current_size	= archetype->component_data_size[i];
-			const auto new_size		= component_count * component_size;
-
-			if (new_size > current_size) // only reserve if larger than current size
-			{
-				auto new_data = std::make_unique<ByteArray>(new_size);
-
-				for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-				{
-					component->MoveDestroyData(*this, archetype->entities[j],
-						&archetype->component_data[i][j * component_size],
-						&new_data[j * component_size]);
-				}
-
-				archetype->component_data_size[i]	= new_size;
-				archetype->component_data[i]		= std::move(new_data);
-			}
-		}
-	}
-
-	template<IsContainer T>
-	inline Archetype* EntityAdmin::GetArchetype(const T& component_ids, const ArchetypeID archetype_id)
-	{
-		assert(cu::IsSorted(component_ids));
-
-		const auto it = m_archetype_map.find(archetype_id);
-		if (it != m_archetype_map.end())
-			return it->second;
-
-		return CreateArchetype(component_ids, archetype_id); // archetype does not exist, create new one
-	}
-
-	template<IsContainer T>
-	inline Archetype* EntityAdmin::CreateArchetype(const T& component_ids, const ArchetypeID archetype_id)
-	{
-		assert(cu::IsSorted(component_ids));
-
-		auto new_archetype = std::make_unique<Archetype>();
-
-		new_archetype->id	= archetype_id;
-		new_archetype->type = { component_ids.begin(), component_ids.end() };
-
-		m_archetype_map[archetype_id] = new_archetype.get();
-
-		for (uint64 i = 0; i < new_archetype->type.size(); ++i) // add empty array for each component in type
-		{
-			constexpr uint64 DEFAULT_BYTE_SIZE = 128; // default size in bytes to reduce number of reallocations
-
-			new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_BYTE_SIZE));
-			new_archetype->component_data_size.push_back(DEFAULT_BYTE_SIZE);
-
-			m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
-		}
-
-		m_archetype_cache.clear(); // unfortunately for now, we'll have to clear the cache whenever an archetype has been added
-
-		return m_archetypes.emplace_back(std::move(new_archetype)).get();
-	}
-
-	template<IsContainer T>
-	inline std::span<const Archetype* const> EntityAdmin::GetArchetypes(const T& component_ids, const ArchetypeID archetype_id) const
-	{
-		const auto it = m_archetype_cache.find(archetype_id);
-		if (it != m_archetype_cache.end())
-			return it->second;
-
-		std::vector<Archetype*> result;
-
-		for (const ArchetypePtr& archetype : m_archetypes)
-		{
-			if (std::ranges::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
-				result.push_back(archetype.get());
-		}
-
-		return m_archetype_cache.emplace(archetype_id, result).first->second;
-	}
-
 	template<IsComponent C, class Comp>
 	inline bool EntityAdmin::SortComponents(Archetype* archetype, Comp&& comparison)
 	{
@@ -1228,7 +1106,7 @@ namespace vlx
 				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);
 			});
 
-		for (size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
+		for (std::size_t i = 0; i < archetype->type.size(); ++i) // sort the components, all need to be sorted
 		{
 			const auto component_id		= archetype->type[i];
 			const auto component		= m_component_map[component_id].get();
@@ -1236,7 +1114,7 @@ namespace vlx
 
 			ComponentData new_data = std::make_unique<ByteArray>(archetype->component_data_size[i]);
 
-			for (size_t j = 0; j < archetype->entities.size(); ++j)
+			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 			{
 				component->MoveDestroyData(*this, archetype->entities[j],
 					&archetype->component_data[i][indices[j] * component_size],

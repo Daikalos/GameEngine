@@ -17,13 +17,13 @@ namespace vlx::id
 
 	/// FNV-1a implementation
 	/// 
-	static consteval size_t HashFunction(const std::string_view signature)
+	static consteval std::size_t HashFunction(const std::string_view signature)
 	{
-		size_t result = 0xcbf29ce484222325; // FNV offset basis
+		std::size_t result = 0xcbf29ce484222325; // FNV offset basis
 
 		for (const char c : signature)
 		{
-			result ^= static_cast<size_t>(c);
+			result ^= static_cast<std::size_t>(c);
 			result *= 0x100000001b3; // FNV prime
 		}
 
@@ -32,9 +32,9 @@ namespace vlx::id
 
 	struct Generator
 	{
-		static size_t Next()
+		static std::size_t Next()
 		{
-			static size_t value{};
+			static std::size_t value{};
 			return value++;
 		}
 	};
@@ -43,14 +43,14 @@ namespace vlx::id
 	struct Type
 	{
 #if defined VELOX_PRETTY_FUNCTION
-		static consteval size_t ID()
+		static consteval std::size_t ID()
 		{
 			return HashFunction(VELOX_PRETTY_FUNCTION);
 		}
 #else
-		static size_t ID()
+		static std::size_t ID()
 		{
-			static const size_t value = Generator::Next();
+			static const std::size_t value = Generator::Next();
 			return value;
 		}
 #endif

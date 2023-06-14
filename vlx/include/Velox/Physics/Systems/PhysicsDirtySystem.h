@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
@@ -17,7 +16,6 @@ namespace vlx
 	class VELOX_API PhysicsDirtySystem final : public SystemAction
 	{
 	public:
-		using DirtyGlobalSystem = System<Collider, GlobalTransform>;
 		using DirtyLocalSystem	= System<Collider, Transform>;
 		using CircleSystem		= System<Circle, Collider, Transform>;
 		using BoxSystem			= System<Box, Collider, Transform>;
@@ -38,7 +36,7 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		DirtyGlobalSystem	m_dirty_transform;
+		DirtyLocalSystem	m_dirty_transform;
 		DirtyLocalSystem	m_dirty_physics;
 
 		CircleSystem		m_circles;

@@ -24,14 +24,13 @@ namespace vlx
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	private:
-		static constexpr int8 TRIANGLE_COUNT = 3;
-
-	private:
 		using SizeType = uint32;
+
+		static constexpr SizeType TRIANGLE_COUNT = 3;
 
 		struct VELOX_API Triangle
 		{
-			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d);
+			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, float d);
 
 			sf::Vertex			vertices[TRIANGLE_COUNT];
 
@@ -48,8 +47,8 @@ namespace vlx
 		};
 
 	public:
-		void SetBatchMode(const BatchMode batch_mode);
-		void Reserve(const std::size_t size);
+		void SetBatchMode(BatchMode batch_mode);
+		void Reserve(std::size_t size);
 		void Shrink();
 
 		void AddTriangle(
@@ -59,21 +58,21 @@ namespace vlx
 			const sf::Vertex& v2, 
 			const sf::Texture* texture, 
 			const sf::Shader* shader, 
-			const float depth = 0.0f);
+			float depth = 0.0f);
 
 		void Batch(
 			const IBatchable& batchable, 
 			const Mat4f& transform,
-			const float depth = 0.0f);
+			float depth = 0.0f);
 
 		void Batch(
 			const Mat4f& transform,
 			const sf::Vertex* vertices, 
-			const std::size_t count, 
-			const sf::PrimitiveType type, 
+			std::size_t count, 
+			sf::PrimitiveType type, 
 			const sf::Texture* texture, 
 			const sf::Shader* shader, 
-			const float depth = 0.0f);
+			float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 

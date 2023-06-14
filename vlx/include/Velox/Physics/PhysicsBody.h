@@ -9,7 +9,7 @@
 
 namespace vlx
 {
-	enum class BodyType : uint8
+	enum class BodyType : uint16
 	{
 		Static,		// no mass or inertia, cannot be affected by forces or velocity, can be manually moved
 		Kinematic,	// no mass or inertia, can be affected by velocity determined by user
@@ -102,6 +102,7 @@ namespace vlx
 
 	private:
 		BodyType		m_type				{BodyType::Dynamic}; // type of body
+		uint16			m_flags				{B_Enabled | B_Awake | B_AutoSleep};
 
 		Vector2f		m_velocity;							// velocity of body
 		float			m_angular_velocity	{0.0f};			// angular velocity of body
@@ -125,8 +126,6 @@ namespace vlx
 		float			m_gravity_scale		{1.0f};
 		float			m_sleep_time		{0.0f};
 		
-		uint16			m_flags				{B_Enabled | B_Awake | B_AutoSleep};
-
 		friend class PhysicsSystem;
 		friend class RenderSystem;
 		friend class CollisionArbiter;

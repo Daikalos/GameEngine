@@ -29,7 +29,6 @@ namespace vlx
 		constexpr virtual ~Shape() = default; // i dont think this is needed
 
 	public:
-		const Mat2f& GetOrientation() const;
 		const RectFloat& GetAABB() const;
 		const Vector2f& GetCenter() const;
 
@@ -41,14 +40,26 @@ namespace vlx
 		virtual RectFloat ComputeAABB(const Transform& transform) const = 0;
 
 	private:
-		void UpdateOrientation(sf::Angle angle);
 		void UpdateAABB(const RectFloat& aabb);
 		void UpdateCenter(const Vector2f& center);
 
 	protected:
+		RectFloat	m_aabb;		// aabb for queries
+		Vector2f	m_center;	// center of shape
+
+		friend class PhysicsDirtySystem;
+	};
+
+	class VELOX_API ShapeRotatable : public Shape
+	{
+	public:
+		const Mat2f& GetOrientation() const;
+
+	private:
+		void UpdateOrientation(sf::Angle angle);
+
+	private:
 		mutable Mat2f	m_orientation;		// rotation matrix
-		RectFloat		m_aabb;				// aabb for queries
-		Vector2f		m_center;			// center of shape
 		sf::Angle		m_angle;			// cache orientation
 		mutable bool	m_update {true};	// whether to update orientation
 

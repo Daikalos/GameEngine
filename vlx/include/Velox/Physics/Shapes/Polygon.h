@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <span>
 
 #include <Velox/Config.hpp>
 #include <Velox/VeloxTypes.hpp>
@@ -9,13 +10,17 @@
 
 namespace vlx
 {
-	class VELOX_API Polygon final : public Shape
+	class VELOX_API Polygon final : public ShapeRotatable
 	{
 	public:
 		using VectorList = std::vector<Vector2f>;
 
 	public:
-		void Set(Vector2f* points, uint32 count);
+		Polygon();
+		Polygon(std::span<const Vector2f> points);
+
+	public:
+		void Set(std::span<const Vector2f> points);
 
 	public:
 		auto GetVertices() const -> const VectorList&;

@@ -66,7 +66,7 @@ namespace vlx
 			cu::Sort<ArrComponentIDs<Cs...>>({ id::Type<Cs>::ID()... }); // another stupid intellisense error
 
 		static constexpr ArchetypeID SystemID =
-			cu::ContainerHash<ArrComponentIDs<Cs...>>()(SystemIDs);
+			cu::ContainerHash<ComponentTypeID>()(SystemIDs);
 
 	public:
 		System(EntityAdmin& entity_admin);
@@ -286,7 +286,7 @@ namespace vlx
 		assert(!m_func);
 		m_func = [func = std::forward<EachFunc>(func)](std::span<const EntityID> entities, Cs*... cs)
 		{
-			for (size_t i = 0; i < entities.size(); ++i)
+			for (std::size_t i = 0; i < entities.size(); ++i)
 				func(entities[i], cs[i]...);
 		};
 	}
@@ -305,13 +305,13 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	template<size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
+	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
 	inline void System<Cs...>::Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& c, Ts... cs) const
 	{
 		using ComponentType = std::tuple_element_t<Index, ComponentTypes>; // get type of component at index in system components
 		constexpr auto component_id = id::Type<ComponentType>::ID();
 
-		size_t i = 0;
+		std::size_t i = 0;
 		ComponentTypeID archetype_comp_id = component_ids[i];
 		while (archetype_comp_id != component_id && i < component_ids.size())	// iterate until matching component is found
 		{
@@ -367,7 +367,7 @@ namespace vlx
 		bool excluded = false;
 		for (const ComponentTypeID component_id : m_exclusion)
 		{
-			const auto it = cu::FindSorted(archetype->type, component_id);
+			const auto it = cu::FindSorted(archetype->type.begin(), archetype->type.end(), component_id);
 			if (it != archetype->type.end() && *it == component_id) // if contains excluded component
 			{
 				excluded = true;

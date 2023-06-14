@@ -2,16 +2,16 @@
 
 using namespace vlx;
 
-SpriteBatch::Triangle::Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, const float d)
+SpriteBatch::Triangle::Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, float d)
 	: vertices{ std::move(v0), std::move(v1), std::move(v2) }, texture(t), shader(s), depth(d) { }
 
-void SpriteBatch::SetBatchMode(const BatchMode batch_mode)
+void SpriteBatch::SetBatchMode(BatchMode batch_mode)
 {
 	m_batch_mode = batch_mode;
 	m_update_required = true;
 }
 
-void SpriteBatch::Reserve(const std::size_t size)
+void SpriteBatch::Reserve(std::size_t size)
 {
 	m_triangles.reserve(size);
 	m_indices.reserve(size);
@@ -24,14 +24,9 @@ void SpriteBatch::Shrink()
 	m_vertices.clear();
 }
 
-void SpriteBatch::AddTriangle(
-	const Mat4f& transform,
-	const sf::Vertex& v0, 
-	const sf::Vertex& v1, 
-	const sf::Vertex& v2, 
-	const sf::Texture* texture, 
-	const sf::Shader* shader, 
-	const float depth)
+void SpriteBatch::AddTriangle(const Mat4f& transform,
+	const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2, 
+	const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	m_triangles.emplace_back(
 		sf::Vertex(transform * v0.position, v0.color, v0.texCoords),
@@ -43,19 +38,14 @@ void SpriteBatch::AddTriangle(
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const IBatchable& batchable, const Mat4f& transform, const float depth)
+void SpriteBatch::Batch(const IBatchable& batchable, const Mat4f& transform, float depth)
 {
 	batchable.Batch(*this, transform, depth);
 }
 
-void SpriteBatch::Batch(
-	const Mat4f& transform,
-	const sf::Vertex* vertices, 
-	const std::size_t count,
-	const sf::PrimitiveType type, 
-	const sf::Texture* texture, 
-	const sf::Shader* shader, 
-	float depth)
+void SpriteBatch::Batch(const Mat4f& transform,
+	const sf::Vertex* vertices, std::size_t count, sf::PrimitiveType type, 
+	const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	switch (type)
 	{
@@ -175,8 +165,8 @@ void SpriteBatch::CreateBatches() const
 			start = next;
 		}
 
-		for (auto i = 0; i < TRIANGLE_COUNT; ++i)
-			m_vertices[(size_t)next * TRIANGLE_COUNT + i] = triangle.vertices[i];
+		for (SizeType i = 0; i < TRIANGLE_COUNT; ++i)
+			m_vertices[(std::size_t)next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 
 	if (start != m_triangles.size()) // deal with leftover

@@ -14,9 +14,9 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 	m_polygons(			entity_admin, id)
 
 {
-	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, GlobalTransform& gt)
+	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, Transform& t)
 		{
-			if (gt.m_dirty)
+			if (t.m_dirty)
 				c.dirty = true;
 		});
 
@@ -74,7 +74,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
-	m_dirty_transform.SetPriority(99999.0f);
+	m_dirty_transform.SetPriority(10000.0f);
 }
 
 bool PhysicsDirtySystem::IsRequired() const noexcept

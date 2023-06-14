@@ -100,7 +100,7 @@ void BroadSystem::Update()
 		if (lhs.shape == nullptr || lhs.collider == nullptr || !lhs.collider->GetEnabled())
 			continue;
 
-		std::vector<QuadTree::value_type> query;
+		std::vector<QuadTreeType::value_type> query;
 
 		switch (lhs.type)
 		{
@@ -108,7 +108,7 @@ void BroadSystem::Update()
 		default:			query = m_quad_tree.Query(lhs.shape->GetAABB()); break;
 		}
 
-		for (QuadTree::value_type elt : query)
+		for (QuadTreeType::value_type elt : query)
 		{
 			const auto& rhs = m_bodies[elt];
 				

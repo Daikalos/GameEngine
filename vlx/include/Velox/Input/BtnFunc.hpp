@@ -78,7 +78,7 @@ namespace vlx
 	template<typename Func>
 	inline void BtnFunc<T, ButtonType>::Add(ButtonType button, ButtonEvent event, Func&& func, float priority)
 	{
-		cu::InsertSorted(m_funcs, BoundFunc(std::forward<Func>(func), button, event, priority),
+		cu::InsertSorted<BoundFunc>(m_funcs, BoundFunc(std::forward<Func>(func), button, event, priority),
 			[](const BoundFunc& lhs, const BoundFunc& rhs)
 			{
 				return lhs.priority > rhs.priority;

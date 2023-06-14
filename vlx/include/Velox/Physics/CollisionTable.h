@@ -5,6 +5,8 @@
 #include <span>
 #include <tuple>
 
+#include <Velox/VeloxTypes.hpp>
+
 #include "Shapes/Shape.h"
 #include "Shapes/Circle.h"
 #include "Shapes/Box.h"
@@ -74,12 +76,12 @@ namespace vlx
 		static Vector2f GetSupport(VectorSpan vertices, const Vector2f& dir);
 
 		static std::tuple<float, uint32_t> FindAxisLeastPenetration(
-			const Shape& s1, VectorSpan v1, VectorSpan n1,
-			const Shape& s2, VectorSpan v2, VectorSpan n2);
+			const ShapeRotatable& s1, VectorSpan v1, VectorSpan n1,
+			const ShapeRotatable& s2, VectorSpan v2, VectorSpan n2);
 
 		static auto FindIncidentFace(
-			const Shape& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
-			const Shape& ref, const Vector2f& ref_normal) -> Face;
+			const ShapeRotatable& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
+			const ShapeRotatable& ref, const Vector2f& ref_normal) -> Face;
 
 		static int Clip(Face& face, const Vector2f& n, float c);
 

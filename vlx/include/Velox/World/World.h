@@ -24,7 +24,7 @@ namespace vlx
 	class World : private NonCopyable
 	{
 	private:
-		using SystemIDType = size_t;
+		using SystemIDType = std::size_t;
 
 		using WorldSystems = std::multimap<LayerType, SystemAction::Ptr>;
 		using SystemTable = std::unordered_map<SystemIDType, SystemAction*>;

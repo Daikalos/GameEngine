@@ -93,7 +93,7 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 			CollisionResult a_result(B.entity_id); // store other entity
 			CollisionResult b_result(A.entity_id);
 
-			for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
+			for (uint8 i = 0; i < arbiter.contacts_count; ++i)
 			{
 				a_result.contacts[i].hit			= arbiter.contacts[i].position;
 				a_result.contacts[i].normal			= arbiter.contacts[i].normal;
