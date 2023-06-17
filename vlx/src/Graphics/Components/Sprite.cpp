@@ -6,24 +6,24 @@ using namespace vlx;
 
 static constexpr std::size_t VERTEX_COUNT = 4;
 
-Sprite::Sprite(const sf::Texture& texture, const float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, float depth) : m_depth(depth)
 {
 	SetTexture(texture, true);
 }
 
-Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, const float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, float depth) : m_depth(depth)
 {
 	SetSize(size);
 	SetTexture(texture, true);
 }
 
-Sprite::Sprite(const sf::Texture& texture, const RectFloat& visible_rect, const float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, const RectFloat& visible_rect, float depth) : m_depth(depth)
 {
 	SetTextureRect(visible_rect);
 	SetTexture(texture);
 }
 
-Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat& visible_rect, const float depth) : m_depth(depth)
+Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat& visible_rect, float depth) : m_depth(depth)
 {
 	SetTextureRect(visible_rect);
 	SetSize(size);
@@ -32,7 +32,7 @@ Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat
 
 void Sprite::Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
 {
-	sprite_batch.Batch(transform, m_vertices.data(), m_vertices.size(), GetPrimitive(), m_texture, m_shader, m_depth);
+	sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
 }
 
 const sf::Texture* Sprite::GetTexture() const noexcept
@@ -93,13 +93,13 @@ void Sprite::SetColor(const sf::Color& color)
 		vertex.color.b = color.b;
 	}
 }
-void Sprite::SetOpacity(const float opacity)
+void Sprite::SetOpacity(float opacity)
 {
-	const auto alpha = sf::Uint8(opacity * UINT8_MAX);
+	const sf::Uint8 alpha = static_cast<sf::Uint8>(opacity * UINT8_MAX);
 	for (sf::Vertex& vertex : m_vertices)
 		vertex.color.a = alpha;
 }
-void Sprite::SetDepth(const float val)
+void Sprite::SetDepth(float val)
 {
 	m_depth = val;
 }
@@ -113,10 +113,10 @@ void Sprite::UpdatePositions(const Vector2f& size)
 }
 void Sprite::UpdateTexCoords(const RectFloat& texture_rect)
 {
-	const float left	= texture_rect.left;
-	const float right	= left + texture_rect.width;
-	const float top		= texture_rect.top;
-	const float bottom	= top + texture_rect.height;
+	float left		= texture_rect.left;
+	float right		= left + texture_rect.width;
+	float top		= texture_rect.top;
+	float bottom	= top + texture_rect.height;
 
 	m_vertices[0].texCoords = Vector2f(left,	top);
 	m_vertices[1].texCoords = Vector2f(left,	bottom);

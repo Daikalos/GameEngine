@@ -356,7 +356,95 @@ void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, con
 	const Box& A = reinterpret_cast<const Box&>(s1);
 	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
 
+	auto [penetration_a, face_a] = FindAxisLeastPenetration(
+		A, A.GetVertices(), Box::NORMALS,
+		B, B.GetVertices(), B.GetNormals());
 
+	if (penetration_a >= 0.0f)
+		return;
+
+	auto [penetration_b, face_b] = FindAxisLeastPenetration(
+		B, B.GetVertices(), B.GetNormals(),
+		A, A.GetVertices(), Box::NORMALS);
+
+	if (penetration_b >= 0.0f)
+		return;
+
+	const ShapeRotatable* ref_shape = nullptr;
+	VectorSpan ref_vertices;
+	VectorSpan ref_normals;
+
+	const ShapeRotatable* inc_shape = nullptr;
+	VectorSpan inc_vertices;
+	VectorSpan inc_normals;
+
+	uint32 ref_idx = 0;
+	bool flip = false;
+
+	if (BiasGreaterThan(penetration_a, penetration_b))
+	{
+		ref_shape = &A;
+		ref_vertices = A.GetVertices();
+		ref_normals = Box::NORMALS;
+
+		inc_shape = &B;
+		inc_vertices = B.GetVertices();
+		inc_normals = B.GetNormals();
+
+		ref_idx = face_a;
+		flip = false;
+	}
+	else
+	{
+		ref_shape = &B;
+		ref_vertices = B.GetVertices();
+		ref_normals = B.GetNormals();
+
+		inc_shape = &A;
+		inc_vertices = A.GetVertices();
+		inc_normals = Box::NORMALS;
+
+		ref_idx = face_b;
+		flip = true;
+	}
+
+	Face incident_face = FindIncidentFace(
+		*inc_shape, inc_vertices, inc_normals,
+		*ref_shape, ref_normals[ref_idx]);
+
+	Vector2f v1 = ref_shape->GetCenter() + ref_shape->GetOrientation() * ref_vertices[ref_idx];
+	ref_idx = ((ref_idx + 1) == (uint32)ref_vertices.size()) ? 0 : ref_idx + 1;
+	Vector2f v2 = ref_shape->GetCenter() + ref_shape->GetOrientation() * ref_vertices[ref_idx];
+
+	Vector2f side_normal = Vector2f::Direction(v1, v2).Normalize();
+
+	float neg_side = -side_normal.Dot(v1);
+	float pos_side =  side_normal.Dot(v2);
+
+	if (Clip(incident_face, -side_normal, neg_side) < 2)
+		return;
+
+	if (Clip(incident_face,  side_normal, pos_side) < 2)
+		return;
+
+	Vector2f face_normal = side_normal.Orthogonal();
+	float front = face_normal.Dot(v1);
+
+	uint32 cp = 0;
+	for (int i = 0; i < 2; ++i)
+	{
+		float penetration = front - face_normal.Dot(incident_face[i]);
+		if (penetration > 0.0f)
+		{
+			CollisionContact& contact = arbiter.contacts[cp++];
+
+			contact.penetration = penetration;
+			contact.normal		= flip ? -face_normal : face_normal;
+			contact.position	= incident_face[i];
+		}
+	}
+
+	arbiter.contacts_count = cp;
 }
 
 void CollisionTable::PointToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
@@ -428,15 +516,13 @@ void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 		flip = true;
 	}
 
-	Vector2f ref_pos = ref_poly->GetCenter();
-
 	Face incident_face = FindIncidentFace(
 		*inc_poly, inc_poly->GetVertices(), inc_poly->GetNormals(),
 		*ref_poly, ref_poly->GetNormals()[ref_idx]);
 
-	Vector2f v1 = ref_pos + ref_poly->GetOrientation() * ref_poly->GetVertices()[ref_idx];
+	Vector2f v1 = ref_poly->GetCenter() + ref_poly->GetOrientation() * ref_poly->GetVertices()[ref_idx];
 	ref_idx = ((ref_idx + 1) == (uint32)ref_poly->GetVertices().size()) ? 0 : ref_idx + 1;
-	Vector2f v2 = ref_pos + ref_poly->GetOrientation() * ref_poly->GetVertices()[ref_idx];
+	Vector2f v2 = ref_poly->GetCenter() + ref_poly->GetOrientation() * ref_poly->GetVertices()[ref_idx];
 
 	Vector2f side_normal = Vector2f::Direction(v1, v2).Normalize();
 

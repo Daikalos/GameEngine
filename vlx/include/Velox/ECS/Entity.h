@@ -3,6 +3,8 @@
 #include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
+#include <Velox/Utility/NonCopyable.h>
+
 #include "EntityAdmin.h"
 #include "Identifiers.hpp"
 #include "ComponentRef.hpp"
@@ -11,12 +13,14 @@ namespace vlx
 {
 	/// Essentially just a wrapper around an entity id
 	/// 
-	class Entity
+	class Entity : private NonCopyable
 	{
 	public:
-		VELOX_API constexpr Entity() = default;
-		VELOX_API explicit Entity(EntityAdmin& entity_admin, const EntityID entity_id);
+		VELOX_API Entity() = default;
+
 		VELOX_API explicit Entity(EntityAdmin& entity_admin);
+		VELOX_API explicit Entity(EntityAdmin& entity_admin, EntityID entity_id);
+
 		VELOX_API Entity(Entity&& entity) noexcept;
 
 		VELOX_API virtual ~Entity();
@@ -24,8 +28,8 @@ namespace vlx
 		VELOX_API Entity& operator=(Entity&& rhs) noexcept;
 
 	public:
-		VELOX_API constexpr operator EntityID() const noexcept; // allow implicit conversion
-		VELOX_API NODISC constexpr EntityID GetID() const noexcept;
+		VELOX_API operator EntityID() const noexcept; // allow implicit conversion
+		VELOX_API NODISC EntityID GetID() const noexcept;
 
 	public:
 		VELOX_API NODISC Entity Duplicate() const;
@@ -74,15 +78,6 @@ namespace vlx
 		EntityID		m_id			{NULL_ENTITY}; // entity is just an id
 		EntityAdmin*	m_entity_admin	{nullptr};
 	};
-
-	constexpr Entity::operator EntityID() const noexcept
-	{
-		return m_id;
-	}
-	constexpr EntityID Entity::GetID() const noexcept
-	{
-		return m_id;
-	}
 
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 	inline auto Entity::AddComponent(Args&&... args)

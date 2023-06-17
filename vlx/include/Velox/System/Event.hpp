@@ -43,7 +43,7 @@ namespace vlx
 		auto operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
 
 		auto operator-=(const HandlerType& handler) -> typename HandlerType::IDType;
-		auto operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::IDType;
+		auto operator-=(typename HandlerType::IDType handler_id) -> typename HandlerType::IDType;
 
 	public:
 		NODISC constexpr std::size_t Count() const noexcept;
@@ -56,7 +56,7 @@ namespace vlx
 		auto Add(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
 
 		bool Remove(const HandlerType& handler);
-		bool RemoveID(const typename HandlerType::IDType handler_id);
+		bool RemoveID(typename HandlerType::IDType handler_id);
 
 		void Call(Args... params) const;
 		std::future<void> CallAsync(Args... params) const;
@@ -156,7 +156,7 @@ namespace vlx
 		return Remove(handler);
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::operator-=(const typename HandlerType::IDType handler_id) -> typename HandlerType::IDType
+	inline auto Event<Args...>::operator-=(typename HandlerType::IDType handler_id) -> typename HandlerType::IDType
 	{
 		return RemoveID(handler_id);
 	}
@@ -191,7 +191,7 @@ namespace vlx
 		return true;
 	}
 	template<typename... Args>
-	inline bool Event<Args...>::RemoveID(const typename HandlerType::IDType handler_id)
+	inline bool Event<Args...>::RemoveID(typename HandlerType::IDType handler_id)
 	{
 		std::lock_guard lock(m_lock);
 

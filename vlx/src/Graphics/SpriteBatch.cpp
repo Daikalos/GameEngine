@@ -44,21 +44,21 @@ void SpriteBatch::Batch(const IBatchable& batchable, const Mat4f& transform, flo
 }
 
 void SpriteBatch::Batch(const Mat4f& transform,
-	const sf::Vertex* vertices, std::size_t count, sf::PrimitiveType type, 
+	VertexSpan vertices, sf::PrimitiveType type,
 	const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	switch (type)
 	{
 	case sf::Triangles:
-		for (std::size_t i = 2; i < count; i += TRIANGLE_COUNT)
+		for (std::size_t i = 2; i < vertices.size(); i += TRIANGLE_COUNT)
 			AddTriangle(transform, vertices[i - 2], vertices[i - 1], vertices[i], texture, shader, depth);
 		break;
 	case sf::TriangleStrip:
-		for (std::size_t i = 2; i < count; ++i)
+		for (std::size_t i = 2; i < vertices.size(); ++i)
 			AddTriangle(transform, vertices[i - 2], vertices[i - 1], vertices[i], texture, shader, depth);
 		break;
 	case sf::TriangleFan:
-		for (std::size_t i = 2; i < count; ++i)
+		for (std::size_t i = 2; i < vertices.size(); ++i)
 			AddTriangle(transform, vertices[0], vertices[i - 1], vertices[i], texture, shader, depth);
 		break;
 	default:

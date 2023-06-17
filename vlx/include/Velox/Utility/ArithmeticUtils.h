@@ -19,20 +19,23 @@ namespace vlx::au
 	template<std::floating_point T = float>
 	inline constexpr T PI = T(M_PI);
 
+	template<std::floating_point T = float>
+	inline constexpr T PI_2 = T(M_PI);
+
 	template<std::floating_point T>
-	NODISC static constexpr T ToRadians(const T degrees) // unlikely to use integrals with radians or degrees
+	NODISC static constexpr T ToRadians(T degrees) // unlikely to use integrals with radians or degrees
 	{
 		return degrees * (PI<T> / T(180.0));
 	}
 
 	template<std::floating_point T>
-	NODISC static constexpr T ToDegrees(const T radians)
+	NODISC static constexpr T ToDegrees(T radians)
 	{
 		return radians * (T(180.0) / PI<T>);
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr T Pow(const T base, const int32 exponent)
+	NODISC static constexpr T Pow(T base, const int32 exponent)
 	{
 		if (exponent < 0)
 			return Pow(1 / base, -exponent);
@@ -47,31 +50,31 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr T Sqr(const T base)
+	NODISC static constexpr T Sqr(T base)
 	{
 		return Pow(base, 2);
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr auto SqrtSqr(const T v0, const T v1)
+	NODISC static constexpr auto SqrtSqr(T v0, T v1)
 	{
 		return std::sqrt(Sqr(v0) + Sqr(v1));
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr int Sign(const T val)
+	NODISC static constexpr int Sign(T val)
 	{
 		return (val < T()) ? -1 : 1;
 	}
 
 	template<std::floating_point T>
-	NODISC static constexpr auto Equal(const T a, const T b, const float epsilon = FLT_EPSILON)
+	NODISC static constexpr auto Equal(T a, T b, float epsilon = FLT_EPSILON)
 	{
 		return std::abs(a - b) <= epsilon;
 	}
 
 	template<std::integral T>
-	NODISC static constexpr auto Wrap(const T val, const T min, const T max)
+	NODISC static constexpr auto Wrap(T val, T min, T max)
 	{
 		if (val > min && val < max)
 			return val;
@@ -85,7 +88,7 @@ namespace vlx::au
 	}
 
 	template<std::floating_point T>
-	NODISC static constexpr auto Wrap(T val, const T min, const T max)
+	NODISC static constexpr auto Wrap(T val, T min, T max)
 	{
 		if (val > min && val < max)
 			return val;
@@ -99,14 +102,14 @@ namespace vlx::au
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr auto MapToRange(const T val, const T minIn, const T maxIn, const T minOut, const T maxOut)
+	NODISC static constexpr auto MapToRange(T val, T minIn, T maxIn, T minOut, T maxOut)
 	{
 		double x = (val - minIn) / (maxIn - minIn);
 		return minOut + (maxOut - minOut) * x;
 	}
 
 	template<Arithmetic T>
-	NODISC static constexpr auto SetPrecision(const T val, const int places)
+	NODISC static constexpr auto SetPrecision(T val, const int places)
 	{
 		double n = Pow(10.0, places);
 		return std::round(val * n) / n;
@@ -118,18 +121,18 @@ namespace vlx::au
 		return std::abs(x);
 	}
 
-	NODISC static float ShortestAngle(const sf::Angle a, const sf::Angle b)
+	NODISC static float ShortestAngle(sf::Angle a, sf::Angle b)
 	{
-		return std::fmod(((std::fmod(b.asDegrees() - a.asDegrees(), 360.0f)) + 540.0f), 360.0f) - 180.0f;
+		return 180.0f - std::abs(std::fmodf(std::abs(b.asDegrees() - a.asDegrees()), 360.0f) - 180.0f);
 	}
 
 	template<std::floating_point T>
-	NODISC static constexpr auto Lerp(const T a, const T b, const float f)
+	NODISC static constexpr auto Lerp(T a, T b, float f)
 	{
 		return (a * (1.0f - f)) + (b * f);
 	}
 
-	NODISC static sf::Angle Lerp(const sf::Angle a, const sf::Angle b, const float f)
+	NODISC static sf::Angle Lerp(sf::Angle a, sf::Angle b, float f)
 	{
 		return a + sf::degrees(ShortestAngle(a, b) * f);
 	}

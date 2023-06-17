@@ -1,9 +1,11 @@
 #pragma once
 
-#include <Velox/Graphics/Components/Renderable.h>
-#include <Velox/Graphics/Components/Sprite.h>
 #include <Velox/Graphics/Components/GlobalTransform.h>
 #include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/Renderable.h>
+#include <Velox/Graphics/Components/Sprite.h>
+#include <Velox/Graphics/Components/Mesh.h>
+
 #include <Velox/Physics/PhysicsBody.h>
 #include <Velox/Graphics/SpriteBatch.h>
 #include <Velox/System/Time.h>
@@ -17,8 +19,11 @@ namespace vlx
 	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
-		using SpriteSystem = SystemExclude<Renderable, Sprite, GlobalTransform>;
-		using BodySystem = System<Renderable, Sprite, PhysicsBody, Transform>;
+		using SpriteSystem	= SystemExclude<Renderable, Sprite, GlobalTransform>;
+		using MeshSystem	= SystemExclude<Renderable, Mesh, GlobalTransform>;
+
+		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, Transform>;
+		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, Transform>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, LayerType id, Time& time);
@@ -50,21 +55,25 @@ namespace vlx
 
 	private:
 		void BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth = 0.0f);
+		void BatchBody(const Time& time, const Renderable& renderable, const IBatchable& batchable, const PhysicsBody& body, const Transform& t, float depth = 0.0f);
 
 	private:
-		SpriteSystem	m_render_sprites;
-		BodySystem		m_render_bodies;
+		SpriteSystem		m_sprites;
+		MeshSystem			m_meshes;
 
-		SpriteBatch		m_static_batch;
-		SpriteBatch		m_dynamic_batch;
+		SpriteBodySystem	m_sprites_bodies;
+		MeshBodySystem		m_meshes_bodies;
 
-		SpriteBatch		m_static_gui_batch;
-		SpriteBatch		m_dynamic_gui_batch;
+		SpriteBatch			m_static_batch;
+		SpriteBatch			m_dynamic_batch;
 
-		bool			m_batching_enabled			{true};
-		bool			m_update_static_bash		{true};
+		SpriteBatch			m_static_gui_batch;
+		SpriteBatch			m_dynamic_gui_batch;
 
-		bool			m_gui_batching_enabled		{true};
-		bool			m_update_static_gui_bash	{true};
+		bool				m_batching_enabled			{true};
+		bool				m_update_static_batch		{true};
+
+		bool				m_gui_batching_enabled		{true};
+		bool				m_update_static_gui_batch	{true};
 	};
 }

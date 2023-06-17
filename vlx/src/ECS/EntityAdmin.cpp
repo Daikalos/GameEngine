@@ -4,21 +4,10 @@ using namespace vlx;
 
 EntityAdmin::~EntityAdmin()
 {
-	for (const ArchetypePtr& archetype : m_archetypes)
-	{
-		for (std::size_t i = 0; i < archetype->type.size(); ++i)
-		{
-			const auto component_id		= archetype->type[i];
-			const auto component		= m_component_map[component_id].get();
-			const auto component_size	= component->GetSize();
-
-			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
-				component->Shutdown(*this, archetype->entities[j], &archetype->component_data[i][j * component_size]);
-		}
-	}
+	Destroy();
 }
 
-std::vector<EntityID> EntityAdmin::GetEntitiesWith(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id, bool restricted) const
+std::vector<EntityID> EntityAdmin::GetEntitiesWith(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, bool restricted) const
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
@@ -47,7 +36,7 @@ std::vector<EntityID> EntityAdmin::GetEntitiesWith(std::span<const ComponentType
 	return entities;
 }
 
-void EntityAdmin::Reserve(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id, const std::size_t component_count)
+void EntityAdmin::Reserve(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, std::size_t component_count)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
@@ -62,7 +51,7 @@ void EntityAdmin::Reserve(std::span<const ComponentTypeID> component_ids, const 
 
 		if (new_size > current_size) // only reserve if larger than current size
 		{
-			auto new_data = std::make_unique<ByteArray>(new_size);
+			auto new_data = std::make_unique_for_overwrite<ByteArray>(new_size);
 
 			for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 			{
@@ -79,15 +68,29 @@ void EntityAdmin::Reserve(std::span<const ComponentTypeID> component_ids, const 
 
 EntityID EntityAdmin::GetNewEntityID()
 {
-	if (!m_reusable_entity_ids.empty())
+	const auto GenerateID = [this]()
 	{
-		EntityID entity_id = m_reusable_entity_ids.front();
-		m_reusable_entity_ids.pop();
+		if (!m_reusable_entity_ids.empty())
+		{
+			EntityID entity_id = m_reusable_entity_ids.front();
+			m_reusable_entity_ids.pop();
 
-		return entity_id;
-	}
+			return entity_id;
+		}
 
-	return m_entity_id_counter++;
+		return m_entity_id_counter++;
+	};
+
+	const EntityID entity_id = GenerateID();
+
+	m_generation_count_map[entity_id]++; // increment generation count
+
+	return entity_id;
+}
+
+std::size_t EntityAdmin::GetGenerationCount(EntityID entity_id) const
+{
+	return m_generation_count_map.at(entity_id);
 }
 
 bool EntityAdmin::IsEntityRegistered(EntityID entity_id) const
@@ -276,7 +279,7 @@ bool EntityAdmin::RemoveComponent(EntityID entity_id, ComponentTypeID rmv_compon
 	return RemoveComponents(entity_id, component_ids, archetype_id);
 }
 
-void EntityAdmin::AddComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id)
+void EntityAdmin::AddComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
 
@@ -357,7 +360,7 @@ void EntityAdmin::AddComponents(EntityID entity_id, const ComponentIDs& componen
 	record.archetype = new_archetype;
 }
 
-bool EntityAdmin::RemoveComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id)
+bool EntityAdmin::RemoveComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
 
@@ -447,9 +450,10 @@ bool EntityAdmin::HasShutdown() const
 void EntityAdmin::Shutdown()
 {
 	m_shutdown = true;
+	Destroy(); // invalidate the ecs and destroy all data
 }
 
-Archetype* EntityAdmin::GetArchetype(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id)
+Archetype* EntityAdmin::GetArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
@@ -492,7 +496,7 @@ Archetype* EntityAdmin::CreateArchetype(std::span<const ComponentTypeID> compone
 	{
 		constexpr uint64 DEFAULT_BYTE_SIZE = 128; // default size in bytes to reduce number of reallocations
 
-		new_archetype->component_data.push_back(std::make_unique<ByteArray>(DEFAULT_BYTE_SIZE));
+		new_archetype->component_data.push_back(std::make_unique_for_overwrite<ByteArray>(DEFAULT_BYTE_SIZE));
 		new_archetype->component_data_size.push_back(DEFAULT_BYTE_SIZE);
 
 		m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
@@ -588,7 +592,7 @@ void EntityAdmin::Shrink(bool extensive)
 				{
 					archetype->component_data_size[j] = current_size;
 
-					auto new_data = std::make_unique<ByteArray>(archetype->component_data_size[j]);
+					auto new_data = std::make_unique_for_overwrite<ByteArray>(archetype->component_data_size[j]);
 
 					for (std::size_t k = 0; k < archetype->entities.size(); ++k)
 					{
@@ -617,34 +621,34 @@ void EntityAdmin::EraseComponentRef(EntityID entity_id, ComponentTypeID componen
 	DataRef& ref = cit->second;
 	switch (ref.flag)
 	{
-	case CF_Component:
+	case DataRef::R_Component:
 	{
-		if (ref.component.ptr.expired())
+		if (ref.component_ptr.expired())
 		{
 			eit->second.erase(component_id);
 		}
-		else *ref.component.ptr.lock() = nullptr;
+		else *ref.component_ptr.lock() = nullptr;
 	}
 	break;
-	case CF_Base:
+	case DataRef::R_Base:
 	{
-		if (ref.base.ptr.expired())
+		if (ref.base_ptr.expired())
 		{
 			eit->second.erase(component_id);
 		}
-		else *ref.base.ptr.lock() = nullptr;
+		else *ref.base_ptr.lock() = nullptr;
 	}
 	break;
-	case CF_All:
+	case DataRef::R_All:
 	{
-		if (ref.component.ptr.expired() && ref.base.ptr.expired())
+		if (ref.component_ptr.expired() && ref.base_ptr.expired())
 		{
 			eit->second.erase(component_id);
 		}
 		else
 		{
-			*ref.component.ptr.lock() = nullptr;
-			*ref.base.ptr.lock() = nullptr;
+			*ref.component_ptr.lock() = nullptr;
+			*ref.base_ptr.lock() = nullptr;
 		}
 	}
 	break;
@@ -666,34 +670,34 @@ void EntityAdmin::UpdateComponentRef(EntityID entity_id, ComponentTypeID compone
 	DataRef& ref = cit->second;
 	switch (ref.flag)
 	{
-	case CF_Component:
+	case DataRef::R_Component:
 	{
-		if (ref.component.ptr.expired())
+		if (ref.component_ptr.expired())
 		{
 			component_map.erase(component_id);
 		}
-		else *ref.component.ptr.lock() = new_component;
+		else *ref.component_ptr.lock() = new_component;
 	}
 	break;
-	case CF_Base:
+	case DataRef::R_Base:
 	{
-		if (ref.base.ptr.expired())
+		if (ref.base_ptr.expired())
 		{
 			component_map.erase(component_id);
 		}
-		else *ref.base.ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base.offset);
+		else *ref.base_ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base_offset);
 	}
 	break;
-	case CF_All:
+	case DataRef::R_All:
 	{
-		if (ref.component.ptr.expired() && ref.base.ptr.expired())
+		if (ref.component_ptr.expired() && ref.base_ptr.expired())
 		{
 			component_map.erase(component_id);
 		}
 		else
 		{
-			*ref.component.ptr.lock() = new_component;
-			*ref.base.ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base.offset);
+			*ref.component_ptr.lock() = new_component;
+			*ref.base_ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base_offset);
 		}
 	}
 	break;
@@ -912,7 +916,7 @@ void EntityAdmin::Destruct(
 	}
 }
 
-void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i) const
+void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, std::size_t data_size, std::size_t i) const
 {
 	std::size_t new_size = 2 * archetype->component_data_size[i] + data_size;
 	auto new_data = std::make_unique<ByteArray>(new_size);
@@ -926,4 +930,66 @@ void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* componen
 
 	archetype->component_data[i] = std::move(new_data);
 	archetype->component_data_size[i] = new_size;
+}
+
+void EntityAdmin::Destroy()
+{
+	if (!m_destroyed)
+	{
+		for (const ArchetypePtr& archetype : m_archetypes)
+		{
+			for (std::size_t i = 0; i < archetype->type.size(); ++i)
+			{
+				const auto component_id = archetype->type[i];
+				const auto component = m_component_map[component_id].get();
+				const auto component_size = component->GetSize();
+
+				for (std::size_t j = 0; j < archetype->entities.size(); ++j)
+					component->Shutdown(*this, archetype->entities[j], &archetype->component_data[i][j * component_size]);
+			}
+		}
+
+		if (m_shutdown) // additional cleanup if shutdown
+		{
+			m_entity_archetype_map.clear(); // deregister all entities
+			m_archetypes.clear();
+			m_archetype_cache.clear();
+			m_systems.clear();
+
+			for (auto& [entity_id, component_map] : m_entity_component_ref_map) // clear all references
+			{
+				for (auto& [component_id, ref] : component_map)
+				{
+					switch (ref.flag)
+					{
+					case DataRef::R_Component:
+					{
+						if (!ref.component_ptr.expired())
+							*ref.component_ptr.lock() = nullptr;
+					}
+					break;
+					case DataRef::R_Base:
+					{
+						if (!ref.base_ptr.expired())
+							*ref.base_ptr.lock() = nullptr;
+					}
+					break;
+					case DataRef::R_All:
+					{
+						if (!ref.component_ptr.expired() && !ref.base_ptr.expired())
+						{
+							*ref.component_ptr.lock() = nullptr;
+							*ref.base_ptr.lock() = nullptr;
+						}
+					}
+					break;
+					}
+				}
+			}
+
+			m_entity_component_ref_map.clear();
+		}
+
+		m_destroyed = true;
+	}
 }

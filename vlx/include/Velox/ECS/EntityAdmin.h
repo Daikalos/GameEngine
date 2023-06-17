@@ -55,28 +55,20 @@ namespace vlx
 			ColumnType	column		{0}; // where in the archetype is the components data located at
 		};
 
-		enum
-		{
-			CF_None			= 0,
-			CF_Component	= 1 << 0,
-			CF_Base			= 1 << 1,
-			CF_All			= CF_Component | CF_Base
-		};
-
 		struct DataRef
 		{
-			struct
+			enum
 			{
-				std::weak_ptr<void*> ptr;
-			} component;
+				R_None		= 0,
+				R_Component	= 1 << 0,
+				R_Base		= 1 << 1,
+				R_All		= R_Component | R_Base
+			};
 
-			struct
-			{
-				std::weak_ptr<void*> ptr;
-				uint16 offset {0};
-			} base;
-
-			uint16 flag {0};
+			std::weak_ptr<void*>	component_ptr;
+			std::weak_ptr<void*>	base_ptr;
+			uint16					base_offset		{0};
+			uint16					flag			{0};
 		};
 
 		using ComponentPtr				= std::unique_ptr<IComponentAlloc>;
@@ -91,6 +83,7 @@ namespace vlx
 		using ComponentArchetypesMap	= std::unordered_map<ComponentTypeID, std::unordered_map<ArchetypeID, ArchetypeRecord>>;
 		using ArchetypeCache			= std::unordered_map<ArchetypeID, std::vector<Archetype*>>;
 		using EventMap					= std::unordered_map<ComponentTypeID, Event<EntityID, void*>>;
+		using GenerationCountMap		= std::unordered_map<EntityID, std::size_t>;
 
 		template<IsComponent>
 		friend struct ComponentAlloc;
@@ -228,7 +221,7 @@ namespace vlx
 		/// \returns Reference to base.
 		/// 
 		template<class B>
-		NODISC B& GetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		NODISC B& GetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0) const;
 
 		/// Tries to get the base. May fail if entity does not exist or hold the child component.
 		/// 
@@ -239,7 +232,7 @@ namespace vlx
 		/// \returns Pointer to base, otherwise std::nullopt.
 		/// 
 		template<class B>
-		NODISC std::optional<B*> TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset = 0) const;
+		NODISC std::optional<B*> TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0) const;
 
 		/// Modifies the existing component with a newly constructed one.
 		/// 
@@ -292,7 +285,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC ComponentRef<B> GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
+		NODISC ComponentRef<B> GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0, B* base = nullptr) const;
 
 		///	Tries to return a base reference. May fail if the entity does not exist or hold the specified component.
 		/// 
@@ -304,7 +297,7 @@ namespace vlx
 		/// \returns A base reference if succesful, will return std::nullopt otherwise.
 		/// 
 		template<class B>
-		NODISC std::optional<ComponentRef<B>> TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset = 0, B* base = nullptr) const;
+		NODISC std::optional<ComponentRef<B>> TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0, B* base = nullptr) const;
 
 		///	Checks if the entity holds the specified component.
 		/// 
@@ -360,7 +353,7 @@ namespace vlx
 		/// \param ComponentCount: Number of components to reserve for in the archetypes
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
-		void Reserve(const std::size_t component_count);
+		void Reserve(std::size_t component_count);
 
 		template<IsComponent C, typename Func>
 		NODISC auto RegisterOnAddListener(Func&& func);
@@ -395,23 +388,14 @@ namespace vlx
 		/// 
 		VELOX_API void Shrink(bool extensive = false);
 
-	private:
-		template<IsComponent C, class Comp>
-		bool SortComponents(Archetype* archetype, Comp&& comp);
-
-		template<IsComponent C>
-		void EraseComponentRef(EntityID entity_id) const;
-
-		template<IsComponent C>
-		void UpdateComponentRef(EntityID entity_id, C* new_component) const;
-
 	public:
-		VELOX_API NODISC std::vector<EntityID> GetEntitiesWith(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id, bool restricted = false) const;
+		VELOX_API NODISC std::vector<EntityID> GetEntitiesWith(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, bool restricted = false) const;
 
-		VELOX_API void Reserve(std::span<const ComponentTypeID> component_ids, const ArchetypeID archetype_id, const std::size_t component_count);
+		VELOX_API void Reserve(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, std::size_t component_count);
 
 	public:
 		VELOX_API NODISC EntityID GetNewEntityID();
+		VELOX_API NODISC std::size_t GetGenerationCount(EntityID entity_id) const;
 
 		VELOX_API NODISC bool IsEntityRegistered(EntityID entity_id) const;
 		VELOX_API NODISC bool HasComponent(EntityID entity_id, ComponentTypeID component_id) const;
@@ -430,8 +414,8 @@ namespace vlx
 		VELOX_API void AddComponent(EntityID entity_id, ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(EntityID entity_id, ComponentTypeID rmv_component_id);
 
-		VELOX_API void AddComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id);
-		VELOX_API bool RemoveComponents(EntityID entity_id, const ComponentIDs& component_ids, ArchetypeID archetype_id);
+		VELOX_API void AddComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
+		VELOX_API bool RemoveComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
 
 		VELOX_API void DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
 		VELOX_API void DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
@@ -439,6 +423,16 @@ namespace vlx
 
 		VELOX_API NODISC bool HasShutdown() const;
 		VELOX_API void Shutdown();
+
+	private:
+		template<IsComponent C, class Comp>
+		bool SortComponents(Archetype* archetype, Comp&& comp);
+
+		template<IsComponent C>
+		void EraseComponentRef(EntityID entity_id) const;
+
+		template<IsComponent C>
+		void UpdateComponentRef(EntityID entity_id, C* new_component) const;
 
 	private:
 		VELOX_API NODISC Archetype* GetArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
@@ -463,7 +457,9 @@ namespace vlx
 		VELOX_API void DestructSwap(Archetype* old_archetype, Archetype* new_archetype, EntityID entity_id, const Record& record, EntityID last_entity_id, Record& last_record) const;
 		VELOX_API void Destruct(Archetype* old_archetype, Archetype* new_archetype, EntityID entity_id, const Record& record) const;
 
-		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, const std::size_t data_size, const std::size_t i) const;
+		VELOX_API void MakeRoom(Archetype* archetype, const IComponentAlloc* component, std::size_t data_size, std::size_t i) const;
+
+		VELOX_API void Destroy();
 
 	private:
 		EntityID				m_entity_id_counter {1};	// current id counter for entities
@@ -475,6 +471,7 @@ namespace vlx
 		EntityArchetypeMap		m_entity_archetype_map;			// map entity to where its data is located at in the archetype
 		ComponentArchetypesMap	m_component_archetypes_map;		// map component to the archetypes it exists in and where all of the components data in the archetype is located at
 		ComponentTypeIDBaseMap	m_component_map;				// access to helper functions for modifying each unique component
+		GenerationCountMap		m_generation_count_map;			// tracks how many times a particular entity id has been generated
 
 		EventMap				m_events_add;
 		EventMap				m_events_move;
@@ -483,7 +480,8 @@ namespace vlx
 		mutable ArchetypeCache			m_archetype_cache;
 		mutable EntityComponentRefMap	m_entity_component_ref_map;
 
-		bool m_shutdown {false};
+		bool m_shutdown		{false};
+		bool m_destroyed	{false};
 	};
 }
 
@@ -670,7 +668,7 @@ namespace vlx
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
 
-		AddComponents(entity_id, { component_ids.begin(), component_ids.end() }, archetype_id);
+		AddComponents(entity_id, component_ids, archetype_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -691,7 +689,7 @@ namespace vlx
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
-		return RemoveComponents(entity_id, { component_ids.begin(), component_ids.end() }, archetype_id);
+		return RemoveComponents(entity_id, component_ids, archetype_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -749,7 +747,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline B& EntityAdmin::GetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset) const
+	inline B& EntityAdmin::GetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset) const
 	{
 		const auto& record = m_entity_archetype_map.at(entity_id);
 		const auto* archetype = record.archetype;
@@ -767,7 +765,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::optional<B*> EntityAdmin::TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, const std::size_t offset) const
+	inline std::optional<B*> EntityAdmin::TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -850,25 +848,25 @@ namespace vlx
 
 			auto ptr = std::make_shared<void*>(component);
 
-			DataRef data {ptr, {}, CF_Component};
+			DataRef data {ptr, {}, {}, DataRef::R_Component};
 			component_refs.try_emplace(component_id, data);
 
 			return ComponentRef<C>(entity_id, ptr);
 		}
 
 		DataRef& ref = cit->second;
-		if ((ref.flag & CF_Component) == CF_Component && ref.component.ptr.expired())
+		if ((ref.flag & DataRef::R_Component) == DataRef::R_Component && ref.component_ptr.expired())
 		{
 			if (component == nullptr)
 				component = &GetComponent<C>(entity_id);
 
 			auto ptr = std::make_shared<void*>(component);
-			ref.component.ptr = ptr;
+			ref.component_ptr = ptr;
 
 			return ComponentRef<C>(entity_id, ptr);
 		}
 
-		return ComponentRef<C>(entity_id, ref.component.ptr.lock());
+		return ComponentRef<C>(entity_id, ref.component_ptr.lock());
 	}
 
 	template<IsComponent C>
@@ -881,7 +879,7 @@ namespace vlx
 	}
 
 	template<class B>
-	inline ComponentRef<B> EntityAdmin::GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset, B* base) const
+	inline ComponentRef<B> EntityAdmin::GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset, B* base) const
 	{
 		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
@@ -893,34 +891,39 @@ namespace vlx
 
 			auto ptr = std::make_shared<void*>(base);
 
-			DataRef data {{}, ptr, offset, CF_Base};
+			DataRef data {{}, ptr, offset, DataRef::R_Base};
 			component_refs.try_emplace(child_component_id, data);
 
 			return ComponentRef<B>(entity_id, ptr);
 		}
 
 		DataRef& ref = cit->second;
-		if ((ref.flag & CF_Base) == CF_Base && ref.base.ptr.expired())
+		if ((ref.flag & DataRef::R_Base) == DataRef::R_Base && ref.base_ptr.expired())
 		{
 			if (base == nullptr)
 				base = &GetBase<B>(entity_id, child_component_id, offset);
 
 			auto ptr = std::make_shared<void*>(base);
-			ref.base.ptr = ptr;
+			ref.base_ptr = ptr;
 
 			return ComponentRef<B>(entity_id, ptr);
 		}
 
-		return ComponentRef<B>(entity_id, ref.base.ptr.lock());
+		return ComponentRef<B>(entity_id, ref.base_ptr.lock());
 	}
 
 	template<class B>
-	inline std::optional<ComponentRef<B>> EntityAdmin::TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, const uint32 offset, B* base) const
+	inline std::optional<ComponentRef<B>> EntityAdmin::TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset, B* base) const
 	{
-		if (!IsEntityRegistered(entity_id) || !HasComponent(entity_id, child_component_id)) // check if entity exists and has component
+		if (!IsEntityRegistered(entity_id))
 			return std::nullopt;
 
-		return GetBaseRef<B>(entity_id, child_component_id, offset, base);
+		std::optional<B*> opt_base = TryGetBase<B>(entity_id, child_component_id, offset);
+
+		if (!opt_base.has_value())
+			return std::nullopt;
+			
+		return GetBaseRef<B>(entity_id, child_component_id, offset, opt_base.value());
 	}
 
 	template<IsComponent C>
@@ -1010,7 +1013,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void EntityAdmin::Reserve(const std::size_t component_count)
+	inline void EntityAdmin::Reserve(std::size_t component_count)
 	{
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
@@ -1127,7 +1130,7 @@ namespace vlx
 		decltype(archetype->entities) new_entities;
 		for (std::size_t i = 0; i < archetype->entities.size(); ++i) // now swap the entities
 		{
-			const std::size_t index = indices[i];
+			std::size_t index = indices[i];
 			EntityID entity_id = archetype->entities[index];
 
 			auto it = m_entity_archetype_map.find(entity_id);

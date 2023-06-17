@@ -1,7 +1,9 @@
 #pragma once
 
 #include <numeric>
-#include <unordered_set>
+#include <vector>
+#include <array>
+#include <span>
 
 #include <SFML/Graphics.hpp>
 
@@ -25,6 +27,7 @@ namespace vlx
 	{
 	private:
 		using SizeType = uint32;
+		using VertexSpan = std::span<const sf::Vertex>;
 
 		static constexpr SizeType TRIANGLE_COUNT = 3;
 
@@ -32,7 +35,7 @@ namespace vlx
 		{
 			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, float d);
 
-			sf::Vertex			vertices[TRIANGLE_COUNT];
+			std::array<sf::Vertex, TRIANGLE_COUNT> vertices;
 
 			const sf::Texture*	texture	{nullptr};
 			const sf::Shader*	shader	{nullptr};
@@ -67,8 +70,7 @@ namespace vlx
 
 		void Batch(
 			const Mat4f& transform,
-			const sf::Vertex* vertices, 
-			std::size_t count, 
+			VertexSpan vertices,
 			sf::PrimitiveType type, 
 			const sf::Texture* texture, 
 			const sf::Shader* shader, 

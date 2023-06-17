@@ -30,6 +30,9 @@ namespace vlx::id
 		return result;
 	}
 
+	/// Typical implementation of generating unique ids, does not work however across boundaries 
+	/// (counter will reset to zero in different boundaries, and can therefore collide)
+	/// 
 	struct Generator
 	{
 		static std::size_t Next()

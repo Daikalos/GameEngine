@@ -63,13 +63,21 @@ void Polygon::Set(std::span<const Vector2f> points)
 
 	} while (next != indices[0]);
 
+	assert(results != 0);
+
 	m_vertices.resize(results);
 	m_normals.resize(results);
 
 	for (uint32 i = 0; i < results; ++i)
 		m_vertices[i] = points[indices[i]];
 
+	m_vertices_aabb = py::ComputeAABB(m_vertices);
+	m_vertices_centroid = py::ComputeCentroid(m_vertices, m_vertices_aabb.Center());
+
 	for (uint32 i = 0; i < results; ++i)
+		m_vertices[i] -= m_vertices_centroid; // shift to origin
+
+	for (uint32 i = 0; i < results; ++i) // finally, compute normals
 	{
 		uint32 j = (i + 1) < results ? (i + 1) : 0;
 		Vector2f face = Vector2f::Direction(m_vertices[i], m_vertices[j]);
@@ -78,23 +86,6 @@ void Polygon::Set(std::span<const Vector2f> points)
 
 		m_normals[i] = face.Orthogonal().Normalize();
 	}
-
-	float left{0}, top{0}, right{0}, bot{0};
-	for (uint32 i = 0; i < m_vertices.size(); ++i) // build aabb from vertices
-	{
-		Vector2f pos = m_vertices[i];
-
-		if (pos.x < left)
-			left = pos.x;
-		if (pos.y < top)
-			top = pos.y;
-		if (pos.x > right)
-			right = pos.x;
-		if (pos.y > bot)
-			bot = pos.y;
-	}
-
-	m_vertices_aabb = RectFloat(left, top, right - left, bot - top);
 }
 
 auto Polygon::GetVertices() const -> const VectorList&
@@ -114,7 +105,7 @@ const RectFloat& Polygon::GetBoundary() const noexcept
 
 Vector2f Polygon::GetLocalCenter() const
 {
-	return m_vertices_aabb.Center();
+	return m_vertices_centroid;
 }
 
 void Polygon::AdjustBody(PhysicsBody& body) const noexcept

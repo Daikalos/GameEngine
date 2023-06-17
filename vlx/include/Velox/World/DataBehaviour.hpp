@@ -8,6 +8,8 @@
 
 namespace vlx
 {
+	/// Allows for the user to easily add behaviour for data
+	/// 
 	template<class T, class U> requires std::is_standard_layout_v<U>
 	class DataBehaviour
 	{

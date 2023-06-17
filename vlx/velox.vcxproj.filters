@@ -52,6 +52,7 @@
     <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Utility\FPSCounter.cpp" />
     <ClCompile Include="src\World\Object.cpp" />
+    <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -167,6 +168,8 @@
     <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
     <ClInclude Include="include\Velox\World\DataBehaviour.hpp" />
+    <ClInclude Include="include\Velox\Graphics\Components\Mesh.h" />
+    <ClInclude Include="include\Velox\Utility\PolygonUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

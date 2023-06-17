@@ -159,7 +159,7 @@ bool StateTest::Update(Time& time)
 	if (m_entity_admin->IsEntityRegistered(e0))
 		et0->Move({ 5.0f * time.GetDT(), 0.0f });
 
-	et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
+	if (et1) et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
 	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
 	{
@@ -185,6 +185,7 @@ bool StateTest::Update(Time& time)
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponents<PhysicsBody, Collider>();
+		entity.RemoveComponent<Sprite>();
 
 		std::vector<Vector2f> vertices;
 		vertices.resize(rnd::random(12, 24));
@@ -197,13 +198,15 @@ bool StateTest::Update(Time& time)
 		}
 
 		vlx::Polygon* poly = entity.AddComponent<vlx::Polygon>(vertices);
+		Mesh* mesh = entity.AddComponent<Mesh>();
+
+		mesh->Assign(entity.GetComponent<vlx::Polygon>().GetVertices());
 
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-		entity.GetComponent<Transform>().SetOrigin(poly->GetBoundary().Size() / 2.0f);
-		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
-		entity.GetComponent<Sprite>().SetSize(poly->GetBoundary().Size());
-		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
+		entity.GetComponent<Transform>().SetOrigin(poly->GetLocalCenter());
+		mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+		mesh->SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));

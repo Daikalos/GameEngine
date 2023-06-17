@@ -2,7 +2,10 @@
 
 #include <array>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
@@ -27,10 +30,10 @@ namespace vlx
 
 	public:
 		Sprite() = default;
-		Sprite(const sf::Texture& texture, const float depth = 0.0f);
-		Sprite(const sf::Texture& texture, const Vector2f& size, const float depth = 0.0f);
-		Sprite(const sf::Texture& texture, const RectFloat& visible_rect, const float depth = 0.0f);
-		Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat& visible_rect, const float depth = 0.0f);
+		Sprite(const sf::Texture& texture, float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const Vector2f& size, float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const RectFloat& visible_rect, float depth = 0.0f);
+		Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat& visible_rect, float depth = 0.0f);
 
 		NODISC const sf::Texture*			GetTexture() const noexcept;
 		NODISC const sf::Shader*			GetShader() const noexcept;
@@ -45,8 +48,8 @@ namespace vlx
 		void SetTextureRect(const RectFloat& rect);
 		void SetSize(const Vector2f& size);
 		void SetColor(const sf::Color& color);
-		void SetDepth(const float value);
-		void SetOpacity(const float opacity);
+		void SetDepth(float value);
+		void SetOpacity(float opacity);
 
 	public:
 		void Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const override;
@@ -56,10 +59,10 @@ namespace vlx
 		void UpdateTexCoords(const RectFloat& texture_rect);
 
 	private:
-		const sf::Texture*	m_texture		{nullptr};
-		const sf::Shader*	m_shader		{nullptr};
+		const sf::Texture*	m_texture	{nullptr};
+		const sf::Shader*	m_shader	{nullptr};
 		VertexArray			m_vertices;
-		float				m_depth			{0.0f};
+		float				m_depth		{0.0f};
 	};
 
 	constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept

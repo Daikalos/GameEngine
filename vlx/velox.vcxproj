@@ -156,9 +156,11 @@
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
+    <ClInclude Include="include\Velox\Graphics\Components\Mesh.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
+    <ClInclude Include="include\Velox\Utility\PolygonUtils.h" />
     <ClInclude Include="include\Velox\VeloxTypes.hpp" />
     <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
     <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
@@ -267,6 +269,7 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
     <ClCompile Include="src\World\Object.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Physics\CollisionArbiter.cpp" />

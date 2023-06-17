@@ -8,6 +8,7 @@
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Relation.h>
 #include <Velox/Graphics/Components/Sprite.h>
+#include <Velox/Graphics/Components/Mesh.h>
 
 #include <Velox/Graphics/GUI/Container.h>
 #include <Velox/Graphics/GUI/Button.h>
@@ -30,8 +31,12 @@
 
 namespace vlx
 {
-	using AllTypes		= std::type_identity<std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite, Circle, Box, Collider, Polygon, Point, PhysicsBody, gui::Container, gui::Button, gui::Label>>;
-	using ObjectType	= std::type_identity<std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite>>;
+	using AllTypes = std::type_identity<std::tuple<
+		Object, Renderable, Transform, GlobalTransform, Relation, 
+		Sprite, Mesh, Circle, Box, Collider, Polygon, Point, PhysicsBody, 
+		gui::Container, gui::Button, gui::Label>>;
+
+	using ObjectType = std::type_identity<std::tuple<Object, Renderable, Transform, GlobalTransform, Relation, Sprite>>;
 
 	namespace gui
 	{

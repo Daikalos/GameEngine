@@ -93,7 +93,7 @@ namespace vlx
 		constexpr SmallVector() = default;
 		~SmallVector() = default;
 
-		constexpr explicit SmallVector(const size_type size, const_reference value = value_type(), const allocator_type& alloc = allocator_type());
+		constexpr explicit SmallVector(size_type size, const_reference value = value_type(), const allocator_type& alloc = allocator_type());
 		template<class Iter> requires std::contiguous_iterator<Iter>
 		constexpr SmallVector(Iter first, Iter last, const allocator_type& alloc = allocator_type());
 		constexpr SmallVector(const SmallVector& other, const allocator_type& alloc = allocator_type());
@@ -109,11 +109,11 @@ namespace vlx
 	public:
 		NODISC constexpr auto get_allocator() const noexcept -> allocator_type;
 
-		NODISC constexpr auto operator[](const size_type pos) -> reference;
-		NODISC constexpr auto operator[](const size_type pos) const -> const_reference;
+		NODISC constexpr auto operator[](size_type pos) -> reference;
+		NODISC constexpr auto operator[](size_type pos) const -> const_reference;
 
-		NODISC constexpr auto at(const size_type pos) -> reference;
-		NODISC constexpr auto at(const size_type pos) const -> const_reference;
+		NODISC constexpr auto at(size_type pos) -> reference;
+		NODISC constexpr auto at(size_type pos) const -> const_reference;
 
 		NODISC constexpr auto front() -> reference;
 		NODISC constexpr auto front() const -> const_reference;
@@ -144,7 +144,7 @@ namespace vlx
 		constexpr auto insert(const const_iterator it, const_reference value) -> iterator;
 
 		constexpr void fill(const_reference value);
-		constexpr void resize(const size_type size, T value = T());
+		constexpr void resize(size_type size, T value = T());
 
 		constexpr void clear();
 
@@ -176,7 +176,7 @@ namespace vlx
 	};
 
 	template<class T, std::size_t N, class Alloc>
-	inline constexpr SmallVector<T, N, Alloc>::SmallVector(const size_type size, const_reference value, const allocator_type& alloc)
+	inline constexpr SmallVector<T, N, Alloc>::SmallVector(size_type size, const_reference value, const allocator_type& alloc)
 	{
 		if (size == N)
 		{
@@ -199,7 +199,7 @@ namespace vlx
 	template<class Iter> requires std::contiguous_iterator<Iter>
 	inline constexpr SmallVector<T, N, Alloc>::SmallVector(Iter first, Iter last, const allocator_type& alloc)
 	{
-		const size_type size = last - first;
+		size_type size = last - first;
 
 		if (size <= N)
 		{
@@ -295,25 +295,25 @@ namespace vlx
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline constexpr auto SmallVector<T, N, Alloc>::operator[](const size_type pos) -> reference
+	inline constexpr auto SmallVector<T, N, Alloc>::operator[](size_type pos) -> reference
 	{
 		return (m_size <= N) ? m_stack[pos] : m_heap[pos];
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline constexpr auto SmallVector<T, N, Alloc>::operator[](const size_type pos) const -> const_reference
+	inline constexpr auto SmallVector<T, N, Alloc>::operator[](size_type pos) const -> const_reference
 	{
 		return (m_size <= N) ? m_stack[pos] : m_heap[pos];
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline constexpr auto SmallVector<T, N, Alloc>::at(const size_type pos) -> reference
+	inline constexpr auto SmallVector<T, N, Alloc>::at(size_type pos) -> reference
 	{
 		return (m_size <= N) ? m_stack.at(pos) : m_heap.at(pos);
 	}
 
 	template<class T, std::size_t N, class Alloc>
-	inline constexpr auto SmallVector<T, N, Alloc>::at(const size_type pos) const -> const_reference
+	inline constexpr auto SmallVector<T, N, Alloc>::at(size_type pos) const -> const_reference
 	{
 		return (m_size <= N) ? m_stack.at(pos) : m_heap.at(pos);
 	}
@@ -499,7 +499,7 @@ namespace vlx
 			std::fill(m_heap.begin(), m_heap.end(), value);
 	}
 	template<class T, std::size_t N, class Alloc>
-	inline constexpr void SmallVector<T, N, Alloc>::resize(const size_type size, T value)
+	inline constexpr void SmallVector<T, N, Alloc>::resize(size_type size, T value)
 	{
 		if (size <= N)
 		{

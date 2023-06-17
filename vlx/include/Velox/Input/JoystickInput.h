@@ -68,6 +68,8 @@ namespace vlx
 		bool	m_available			[sf::Joystick::Count] = {false}; // array of bools indicating currently available joysticks
 
 		std::unordered_map<std::type_index, IBinds::Ptr> m_binds;
+
+		// TODO: reduce size, currently around 1.9MB, replace held time variable
 	};
 
 	template<Enum Bind>

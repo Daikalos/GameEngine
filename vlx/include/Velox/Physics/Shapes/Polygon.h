@@ -3,6 +3,8 @@
 #include <vector>
 #include <span>
 
+#include <Velox/Utility/PolygonUtils.h>
+
 #include <Velox/Config.hpp>
 #include <Velox/VeloxTypes.hpp>
 
@@ -39,6 +41,7 @@ namespace vlx
 		VectorList	m_vertices;
 		VectorList	m_normals;
 		RectFloat	m_vertices_aabb;
+		Vector2f	m_vertices_centroid;
 	};
 
 	constexpr auto Polygon::GetType() const noexcept -> Type

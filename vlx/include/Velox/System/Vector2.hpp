@@ -33,8 +33,8 @@ namespace vlx
 		constexpr Vector2& operator+=(const Vector2& rhs);
 		constexpr Vector2& operator-=(const Vector2& rhs);
 
-		constexpr Vector2& operator*=(const T rhs);
-		constexpr Vector2& operator/=(const T rhs);
+		constexpr Vector2& operator*=(T rhs);
+		constexpr Vector2& operator/=(T rhs);
 
 		constexpr Vector2& operator*=(const Vector2& rhs);
 		constexpr Vector2& operator/=(const Vector2& rhs);
@@ -42,8 +42,8 @@ namespace vlx
 		NODISC constexpr Vector2 operator+(const Vector2& rhs) const;
 		NODISC constexpr Vector2 operator-(const Vector2& rhs) const;
 
-		NODISC constexpr Vector2 operator*(const T rhs) const;
-		NODISC constexpr Vector2 operator/(const T rhs) const;
+		NODISC constexpr Vector2 operator*(T rhs) const;
+		NODISC constexpr Vector2 operator/(T rhs) const;
 
 		NODISC constexpr Vector2 operator*(const Vector2& rhs) const;
 		NODISC constexpr Vector2 operator/(const Vector2& rhs) const;
@@ -52,8 +52,8 @@ namespace vlx
 		NODISC constexpr bool operator!=(const Vector2& rhs) const;
 
 	public:
-		NODISC static constexpr auto Cross(const Vector2& lhs, const T scalar);
-		NODISC static constexpr auto Cross(const T scalar, const Vector2& lhs);
+		NODISC static constexpr auto Cross(const Vector2& lhs, T scalar);
+		NODISC static constexpr auto Cross(T scalar, const Vector2& lhs);
 
 		/// \returns Directional vector pointing between from and to.
 		/// 
@@ -65,7 +65,7 @@ namespace vlx
 		/// 
 		/// \returns Interpolated vector that ranges between lhs and rhs given by alpha value.
 		///
-		NODISC static constexpr Vector2 Lerp(const Vector2& lhs, const Vector2& rhs, const float alpha);
+		NODISC static constexpr Vector2 Lerp(const Vector2& lhs, const Vector2& rhs, float alpha);
 
 		/// Rotates point around center.
 		/// 
@@ -75,7 +75,7 @@ namespace vlx
 		/// 
 		/// \returns Rotated vector.
 		///
-		NODISC static constexpr Vector2 RotatePoint(const Vector2& point, const Vector2& center, const sf::Angle angle);
+		NODISC static constexpr Vector2 RotatePoint(const Vector2& point, const Vector2& center, sf::Angle angle);
 
 	public:
 		///	Length of the vector; only works if the vector is of floating point type.
@@ -92,7 +92,7 @@ namespace vlx
 		/// 
 		/// \returns Normalized vector.
 		/// 
-		NODISC constexpr Vector2<T> Normalize(const T radius = 1.0f) const requires FloatingPoint<T>;
+		NODISC constexpr Vector2<T> Normalize(T radius = 1.0f) const requires FloatingPoint<T>;
 
 		/// Computes a normalized vector; only works if the vector is of floating point type.
 		/// 
@@ -101,7 +101,7 @@ namespace vlx
 		/// 
 		/// \returns Normalized vector.
 		/// 
-		NODISC constexpr Vector2<T> Normalize(const T length, const T radius) const requires FloatingPoint<T>;
+		NODISC constexpr Vector2<T> Normalize(T length, T radius) const requires FloatingPoint<T>;
 
 		/// Signed angle starting from +X or (1,0) vector; only works if the vector is of floating point type.
 		/// 
@@ -156,7 +156,7 @@ namespace vlx
 		/// 
 		/// \returns Clamped vector if above length, otherwise returns an exact copy.
 		/// 
-		NODISC constexpr Vector2 Limit(const T max_length) const requires FloatingPoint<T>;
+		NODISC constexpr Vector2 Limit(T max_length) const requires FloatingPoint<T>;
 
 		/// Limits the length of the vector to a certain length; only works if the vector is of floating point type.
 		/// 
@@ -165,7 +165,7 @@ namespace vlx
 		/// 
 		/// \returns Clamped vector if above length, otherwise returns an exact copy.
 		/// 
-		NODISC constexpr Vector2 Limit(const T length, const T max_length) const requires FloatingPoint<T>;
+		NODISC constexpr Vector2 Limit(T length, T max_length) const requires FloatingPoint<T>;
 
 		/// Clamps vector x and y coordinates by the corresponding coordinates in min and max.
 		/// 
@@ -177,7 +177,7 @@ namespace vlx
 		/// 
 		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
 		/// 
-		NODISC constexpr Vector2 Clamp(const T max_length, const T min_length) const;
+		NODISC constexpr Vector2 Clamp(T max_length, T min_length) const;
 
 		/// Clamps vector length by max length and min length.
 		/// 
@@ -185,7 +185,7 @@ namespace vlx
 		/// 
 		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
 		/// 
-		NODISC constexpr Vector2 Clamp(const T length, const T max_length, const T min_length) const;
+		NODISC constexpr Vector2 Clamp(T length, T max_length, T min_length) const;
 
 		/// \returns Vector containing the absolute values of this coordinates.
 		///
@@ -290,7 +290,7 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator*=(const T rhs)
+	inline constexpr Vector2<T>& Vector2<T>::operator*=(T rhs)
 	{
 		x *= rhs;
 		y *= rhs;
@@ -298,7 +298,7 @@ namespace vlx
 		return *this;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator/=(const T rhs)
+	inline constexpr Vector2<T>& Vector2<T>::operator/=(T rhs)
 	{
 		x /= rhs;
 		y /= rhs;
@@ -335,12 +335,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator*(const T rhs) const
+	inline constexpr Vector2<T> Vector2<T>::operator*(T rhs) const
 	{
 		return Vector2(*this) *= rhs;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator/(const T rhs) const
+	inline constexpr Vector2<T> Vector2<T>::operator/(T rhs) const
 	{
 		return Vector2(*this) /= rhs;
 	}
@@ -368,12 +368,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr auto Vector2<T>::Cross(const Vector2<T>& lhs, const T scalar)
+	inline constexpr auto Vector2<T>::Cross(const Vector2<T>& lhs, T scalar)
 	{
 		return Vector2<T>(scalar * lhs.y, -scalar * lhs.x);
 	}
 	template<Arithmetic T>
-	inline constexpr auto Vector2<T>::Cross(const T scalar, const Vector2<T>& lhs)
+	inline constexpr auto Vector2<T>::Cross(T scalar, const Vector2<T>& lhs)
 	{
 		return Vector2<T>(-scalar * lhs.y, scalar * lhs.x);
 	}
@@ -384,21 +384,21 @@ namespace vlx
 		return Vector2<T>(to.x - from.x, to.y - from.y);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Lerp(const Vector2<T>& lhs, const Vector2<T>& rhs, const float alpha)
+	inline constexpr Vector2<T> Vector2<T>::Lerp(const Vector2<T>& lhs, const Vector2<T>& rhs, float alpha)
 	{
 		return Vector2<T>(
 			au::Lerp(lhs.x, rhs.x, alpha),
 			au::Lerp(lhs.y, rhs.y, alpha));
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::RotatePoint(const Vector2<T>& point, const Vector2<T>& center, const sf::Angle angle)
+	inline constexpr Vector2<T> Vector2<T>::RotatePoint(const Vector2<T>& point, const Vector2<T>& center, sf::Angle angle)
 	{
 		const Vector2<T> dir = Direction(center, point);
 
-		const float rad = angle.asRadians();
+		float rad = angle.asRadians();
 
-		const float s = std::sin(rad);
-		const float c = std::cos(rad);
+		float s = std::sin(rad);
+		float c = std::cos(rad);
 
 		return Vector2<T>(
 			(dir.x * c - dir.y * s) + center.x,
@@ -418,12 +418,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Normalize(const T radius) const requires FloatingPoint<T>
+	inline constexpr Vector2<T> Vector2<T>::Normalize(T radius) const requires FloatingPoint<T>
 	{
 		return Normalize(v.length(), radius);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Normalize(const T length, const T radius) const requires FloatingPoint<T>
+	inline constexpr Vector2<T> Vector2<T>::Normalize(T length, T radius) const requires FloatingPoint<T>
 	{
 		if (length < FLT_EPSILON || std::abs(length - radius) < FLT_EPSILON)
 			return *this;
@@ -480,12 +480,12 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Limit(const T max_length) const requires FloatingPoint<T>
+	inline constexpr Vector2<T> Vector2<T>::Limit(T max_length) const requires FloatingPoint<T>
 	{
 		return Limit(v.length(), max_length);
 	}
 	template<Arithmetic T> 
-	inline constexpr Vector2<T> Vector2<T>::Limit(const T length, const T max_length) const requires FloatingPoint<T>
+	inline constexpr Vector2<T> Vector2<T>::Limit(T length, T max_length) const requires FloatingPoint<T>
 	{
 		if (length > max_length)
 			return Normalize(length, max_length);
@@ -501,12 +501,12 @@ namespace vlx
 			std::clamp(y, min.y, max.y));
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(const T max_length, const T min_length) const
+	inline constexpr Vector2<T> Vector2<T>::Clamp(T max_length, T min_length) const
 	{
 		return Clamp(v.length(), max_length, min_length);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(const T length, const T max_length, const T min_length) const
+	inline constexpr Vector2<T> Vector2<T>::Clamp(T length, T max_length, T min_length) const
 	{
 		if (length > max_length)
 			return Normalize(length, max_length);
@@ -528,7 +528,7 @@ namespace vlx
 	}
 
 	template <Arithmetic T>
-	inline static constexpr Vector2<T> operator *(const T lhs, const Vector2<T>& rhs)
+	inline static constexpr Vector2<T> operator *(T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs * rhs.x, lhs * rhs.y };
 	}
@@ -540,7 +540,7 @@ namespace vlx
 	}
 
 	template <Arithmetic T>
-	inline static constexpr Vector2<T> operator /(const T lhs, const Vector2<T>& rhs)
+	inline static constexpr Vector2<T> operator /(T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs / rhs.x, lhs / rhs.y };
 	}

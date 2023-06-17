@@ -26,7 +26,7 @@ namespace vlx
 		};
 
 	public:
-		constexpr virtual ~Shape() = default; // i dont think this is needed
+		constexpr virtual ~Shape() = default; // may not be needed
 
 	public:
 		const RectFloat& GetAABB() const;
