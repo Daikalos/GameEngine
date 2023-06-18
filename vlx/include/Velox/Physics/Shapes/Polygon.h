@@ -29,7 +29,6 @@ namespace vlx
 		auto GetNormals() const -> const VectorList&;
 
 		const RectFloat& GetBoundary() const noexcept;
-		Vector2f GetLocalCenter() const;
 
 	public:
 		constexpr auto GetType() const noexcept -> Type override;
@@ -41,7 +40,6 @@ namespace vlx
 		VectorList	m_vertices;
 		VectorList	m_normals;
 		RectFloat	m_vertices_aabb;
-		Vector2f	m_vertices_centroid;
 	};
 
 	constexpr auto Polygon::GetType() const noexcept -> Type

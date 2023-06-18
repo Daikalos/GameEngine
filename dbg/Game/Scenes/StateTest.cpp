@@ -188,7 +188,7 @@ bool StateTest::Update(Time& time)
 		entity.RemoveComponent<Sprite>();
 
 		std::vector<Vector2f> vertices;
-		vertices.resize(rnd::random(12, 24));
+		vertices.resize(rnd::random(3, 24));
 
 		for (int i = 0; i < vertices.size(); ++i)
 		{

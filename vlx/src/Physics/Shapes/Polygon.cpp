@@ -69,10 +69,10 @@ void Polygon::Set(std::span<const Vector2f> points)
 	for (uint32 i = 0; i < results; ++i)
 		m_vertices[i] = points[indices[i]];
 
-	m_vertices_centroid = py::ComputeCentroid(m_vertices);
+	Vector2f centroid = py::ComputeCentroid(m_vertices);
 
 	for (uint32 i = 0; i < results; ++i)
-		m_vertices[i] -= m_vertices_centroid; // shift to origin
+		m_vertices[i] -= centroid; // shift to centroid
 
 	m_vertices_aabb = py::ComputeAABB(m_vertices);
 
@@ -101,11 +101,6 @@ auto Polygon::GetNormals() const -> const VectorList&
 const RectFloat& Polygon::GetBoundary() const noexcept
 {
 	return m_vertices_aabb;
-}
-
-Vector2f Polygon::GetLocalCenter() const
-{
-	return m_vertices_centroid;
 }
 
 void Polygon::AdjustBody(PhysicsBody& body) const noexcept
