@@ -91,11 +91,7 @@ std::size_t Mesh::GetSize() const noexcept
 void Mesh::Reserve(std::size_t capacity)
 {
     m_vertices.reserve(capacity);
-}
-
-void Mesh::Resize(std::size_t size)
-{
-    m_vertices.resize(size);
+    m_indices.reserve(capacity);
 }
 
 void Mesh::Assign(VertexSpan vertices)
@@ -103,12 +99,40 @@ void Mesh::Assign(VertexSpan vertices)
     if (vertices.size() < 3)
         return;
 
+    m_vertices.clear();
+    m_indices.clear();
+
     for (std::size_t i = 2; i < vertices.size(); i += TRIANGLE_COUNT)
     {
         m_vertices.emplace_back(vertices[i - 2]);
         m_vertices.emplace_back(vertices[i - 1]);
         m_vertices.emplace_back(vertices[i]);
+
+        m_indices.emplace_back(i - 2);
+        m_indices.emplace_back(i - 1);
+        m_indices.emplace_back(i);
     }
+}
+
+void Mesh::Assign(VertexSpan vertices, IndicesSpan indices)
+{
+    if (vertices.size() < TRIANGLE_COUNT || indices.size() < TRIANGLE_COUNT)
+        return;
+
+    m_vertices.assign(vertices.begin(), vertices.end());
+    m_indices.assign(indices.begin(), indices.end());
+}
+
+void Mesh::Assign(std::span<const Vector2f> vertices, IndicesSpan indices)
+{
+    if (vertices.size() < TRIANGLE_COUNT || indices.size() < TRIANGLE_COUNT)
+        return;
+
+    m_vertices.clear();
+    for (std::size_t i = 0; i < vertices.size(); ++i)
+        m_vertices.emplace_back(vertices[i]);
+
+    m_indices.assign(indices.begin(), indices.end());
 }
 
 void Mesh::Assign(std::span<const Vector2f> polygon)
@@ -116,9 +140,14 @@ void Mesh::Assign(std::span<const Vector2f> polygon)
     if (polygon.size() < 3)
         return;
 
-    for (std::size_t i = 2; i < polygon.size(); i += TRIANGLE_COUNT)
-    {
+    auto indices = py::Triangulate(polygon);
 
+    if (indices.has_value())
+    {
+        for (std::size_t i = 0; i < polygon.size(); ++i)
+            m_vertices.emplace_back(polygon[i]);
+
+        m_indices = std::move(indices.value());
     }
 }
 
@@ -148,16 +177,19 @@ void Mesh::Push(const sf::Vertex& v0, const sf::Vertex& v1, const sf::Vertex& v2
     m_vertices.emplace_back(v2);
 }
 
-void Mesh::Remove(std::size_t i)
+bool Mesh::Remove(std::size_t i)
 {
-    std::size_t tri = (i / TRIANGLE_COUNT);
+    std::size_t tri = i * TRIANGLE_COUNT;
 
-    m_vertices.erase(m_vertices.begin() + i);
-    m_vertices.erase(m_vertices.begin() + i);
-    m_vertices.erase(m_vertices.begin() + i);
+    if (tri >= (m_vertices.size() / 3))
+        return false;
+
+    m_vertices.erase(m_vertices.begin() + tri, m_vertices.begin() + (tri + TRIANGLE_COUNT));
+
+    return true;
 }
 
 void Mesh::Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
 {
-    sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
+    sprite_batch.Batch(transform, m_vertices, m_indices, m_texture, m_shader, m_depth);
 }

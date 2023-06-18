@@ -73,6 +73,9 @@ void World::Run()
 
 		ProcessEvents();
 
+		if (m_shutdown)
+			break;
+
 		PreUpdate();
 
 		Update();
@@ -151,6 +154,9 @@ void World::ProcessEvents()
 		{
 			// TODO: perform necessary cleanup
 			m_entity_admin.Shutdown();
+			m_shutdown = true;
+
+			return;
 		}
 
 		m_controls.HandleEventAll(event);

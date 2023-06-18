@@ -197,15 +197,17 @@ bool StateTest::Update(Time& time)
 				rnd::random(-100.0f, 100.0f));
 		}
 
-		vlx::Polygon* poly = entity.AddComponent<vlx::Polygon>(vertices);
+		entity.AddComponent<vlx::Polygon>(vertices);
 		Mesh* mesh = entity.AddComponent<Mesh>();
 
-		mesh->Assign(entity.GetComponent<vlx::Polygon>().GetVertices());
+		vlx::Polygon* poly = &entity.GetComponent<vlx::Polygon>(); // have to get component since it changed location in memory
+
+		mesh->Assign(poly->GetVertices());
 
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
 		entity.GetComponent<Transform>().SetOrigin(poly->GetLocalCenter());
-		mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+		mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::White));
 		mesh->SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,

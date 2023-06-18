@@ -74,31 +74,67 @@ namespace vlx::au
 	}
 
 	template<std::integral T>
-	NODISC static constexpr auto Wrap(T val, T min, T max)
+	NODISC static constexpr auto Wrap(T val, T max, T min = 0)
 	{
-		if (val > min && val < max)
-			return val;
-
-		const auto range_size = max - min;
+		const auto range = max - min;
 
 		if (val < min)
-			return max - ((min - val) % range_size);
+			return max - ((min - val) % range);
 
-		return min + ((val - min) % range_size);
+		if (val >= max)
+			return min + ((val - min) % range);
+
+		return val;
 	}
 
 	template<std::floating_point T>
-	NODISC static constexpr auto Wrap(T val, T min, T max)
+	NODISC static constexpr auto Wrap(T val, T max, T min = 0)
 	{
-		if (val > min && val < max)
-			return val;
+		const auto range = max - min;
 
-		const auto range_size = max - min;
+		if (val < min)
+			return max - std::fmod(min - val, range);
 
+		if (val >= max)
+			return min + std::fmod(val - min, range);
+
+		return val;
+	}
+
+	template<std::integral T>
+	NODISC static constexpr auto WrapLower(T val, T max, T min = 0)
+	{
+		if (val < min)
+			return max - ((min - val) % (max - min));
+
+		return val;
+	}
+
+	template<std::integral T>
+	NODISC static constexpr auto WrapUpper(T val, T max, T min = 0)
+	{
+		if (val >= max)
+			return min + ((val - min) % (max - min));
+
+		return val;
+	}
+
+	template<std::floating_point T>
+	NODISC static constexpr auto WrapLower(T val, T max, T min = 0)
+	{
 		if (val < min)
 			return max - std::fmod(min - val, max - min);
 
-		return min + std::fmod(val - min, max - min);
+		return val;
+	}
+
+	template<std::floating_point T>
+	NODISC static constexpr auto WrapUpper(T val, T max, T min = 0)
+	{
+		if (val > max)
+			return min + std::fmod(val - min, max - min);
+
+		return val;
 	}
 
 	template<Arithmetic T>
@@ -121,9 +157,14 @@ namespace vlx::au
 		return std::abs(x);
 	}
 
-	NODISC static float ShortestAngle(sf::Angle a, sf::Angle b)
+	NODISC static float ShortestAngleDegrees(sf::Angle a, sf::Angle b)
 	{
 		return 180.0f - std::abs(std::fmodf(std::abs(b.asDegrees() - a.asDegrees()), 360.0f) - 180.0f);
+	}
+
+	NODISC static float ShortestAngleRadians(sf::Angle a, sf::Angle b)
+	{
+		return PI<> - std::abs(std::fmodf(std::abs(b.asRadians() - a.asRadians()), PI<> * 2) - PI<>);
 	}
 
 	template<std::floating_point T>
@@ -134,6 +175,6 @@ namespace vlx::au
 
 	NODISC static sf::Angle Lerp(sf::Angle a, sf::Angle b, float f)
 	{
-		return a + sf::degrees(ShortestAngle(a, b) * f);
+		return a + sf::degrees(ShortestAngleDegrees(a, b) * f);
 	}
 }

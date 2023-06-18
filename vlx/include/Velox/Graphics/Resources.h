@@ -10,6 +10,7 @@ namespace vlx
 			IdleCursor,
 			Circle,
 			Square,
+			White,
 
 			Count
 		};

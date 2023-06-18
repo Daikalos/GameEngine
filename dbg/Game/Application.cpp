@@ -20,10 +20,12 @@ void Application::LoadTextures()
 	auto load = texture_holder.LoadAsync(Texture::ID::IdleCursor, TEXTURE_FOLDER + "cursor.png");
 	auto load2 = texture_holder.LoadAsync(Texture::ID::Square, TEXTURE_FOLDER + "square.png");
 	auto load3 = texture_holder.LoadAsync(Texture::ID::Circle, TEXTURE_FOLDER + "circle.png");
+	auto load4 = texture_holder.LoadAsync(Texture::ID::White, TEXTURE_FOLDER + "white.png");
 
 	load.wait();
 	load2.wait();
 	load3.wait();
+	load4.wait();
 
 	m_world.GetControls().Get<MouseCursor>().SetTexture(texture_holder.Get(Texture::ID::IdleCursor));
 }

@@ -101,6 +101,8 @@ namespace vlx
 		SystemTable		m_system_table;
 
 		StateStack		m_state_stack;
+
+		bool			m_shutdown {false};
 	};
 
 	template<std::derived_from<SystemAction> S>

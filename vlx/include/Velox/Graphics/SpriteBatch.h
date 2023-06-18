@@ -33,7 +33,13 @@ namespace vlx
 
 		struct VELOX_API Triangle
 		{
-			Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, float d);
+			Triangle(
+				sf::Vertex&& v0, 
+				sf::Vertex&& v1, 
+				sf::Vertex&& v2, 
+				const sf::Texture* t, 
+				const sf::Shader* s, 
+				float d);
 
 			std::array<sf::Vertex, TRIANGLE_COUNT> vertices;
 
@@ -74,6 +80,14 @@ namespace vlx
 			sf::PrimitiveType type, 
 			const sf::Texture* texture, 
 			const sf::Shader* shader, 
+			float depth = 0.0f);
+
+		void Batch(
+			const Mat4f& transform,
+			VertexSpan vertices,
+			std::span<const uint32> indices,
+			const sf::Texture* texture,
+			const sf::Shader* shader,
 			float depth = 0.0f);
 
 		void draw(sf::RenderTarget& target, const sf::RenderStates& states) const override;

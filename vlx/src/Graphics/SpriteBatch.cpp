@@ -2,8 +2,13 @@
 
 using namespace vlx;
 
-SpriteBatch::Triangle::Triangle(sf::Vertex&& v0, sf::Vertex&& v1, sf::Vertex&& v2, const sf::Texture* t, const sf::Shader* s, float d)
-	: vertices{ std::move(v0), std::move(v1), std::move(v2) }, texture(t), shader(s), depth(d) { }
+SpriteBatch::Triangle::Triangle(
+	sf::Vertex&& v0, 
+	sf::Vertex&& v1, 
+	sf::Vertex&& v2, 
+	const sf::Texture* t, 
+	const sf::Shader* s, 
+	float d) : vertices{ std::move(v0), std::move(v1), std::move(v2) }, texture(t), shader(s), depth(d) { }
 
 void SpriteBatch::SetBatchMode(BatchMode batch_mode)
 {
@@ -64,6 +69,12 @@ void SpriteBatch::Batch(const Mat4f& transform,
 	default:
 		throw std::runtime_error("this primitive is not supported");
 	}
+}
+
+void SpriteBatch::Batch(const Mat4f& transform, VertexSpan vertices, std::span<const uint32> indices, const sf::Texture* texture, const sf::Shader* shader, float depth)
+{
+	for (uint64 i = 2; i < indices.size(); i += TRIANGLE_COUNT)
+		AddTriangle(transform, vertices[indices[i - 2]], vertices[indices[i - 1]], vertices[indices[i]], texture, shader, depth);
 }
 
 void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states) const
