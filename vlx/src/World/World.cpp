@@ -74,7 +74,7 @@ void World::Run()
 		ProcessEvents();
 
 		if (m_shutdown)
-			break;
+			continue;
 
 		PreUpdate();
 
@@ -150,6 +150,11 @@ void World::ProcessEvents()
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{
+		m_controls.HandleEventAll(event);
+		m_window.HandleEvent(event);
+		m_camera.HandleEvent(event);
+		m_state_stack.HandleEvent(event);
+
 		if (event.type == sf::Event::Closed)
 		{
 			// TODO: perform necessary cleanup
@@ -158,11 +163,6 @@ void World::ProcessEvents()
 
 			return;
 		}
-
-		m_controls.HandleEventAll(event);
-		m_window.HandleEvent(event);
-		m_camera.HandleEvent(event);
-		m_state_stack.HandleEvent(event);
 	}
 }
 

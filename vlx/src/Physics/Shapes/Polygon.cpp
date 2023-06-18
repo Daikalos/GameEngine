@@ -53,9 +53,7 @@ void Polygon::Set(std::span<const Vector2f> points)
 
 			float c = d1.Cross(d2);
 
-			if (c < 0.0f)
-				next = i;
-			else if (c == 0.0f && d2.LengthSq() > d1.LengthSq())
+			if (c < 0.0f || (c == 0.0f && d2.LengthSq() > d1.LengthSq()))
 				next = i;
 		}
 
@@ -71,21 +69,23 @@ void Polygon::Set(std::span<const Vector2f> points)
 	for (uint32 i = 0; i < results; ++i)
 		m_vertices[i] = points[indices[i]];
 
-	m_vertices_aabb = py::ComputeAABB(m_vertices);
-	m_vertices_centroid = py::ComputeCentroid(m_vertices, m_vertices_aabb.Center());
+	m_vertices_centroid = py::ComputeCentroid(m_vertices);
 
 	for (uint32 i = 0; i < results; ++i)
 		m_vertices[i] -= m_vertices_centroid; // shift to origin
 
-	for (uint32 i = 0; i < results; ++i) // finally, compute normals
+	m_vertices_aabb = py::ComputeAABB(m_vertices);
+
+	for (uint32 i = 0; i < results - 1; ++i) // finally, compute normals
 	{
-		uint32 j = (i + 1) < results ? (i + 1) : 0;
-		Vector2f face = Vector2f::Direction(m_vertices[i], m_vertices[j]);
+		Vector2f face = Vector2f::Direction(m_vertices[i], m_vertices[i + 1]);
 
 		assert(face.LengthSq() > FLT_EPSILON * FLT_EPSILON);
 
 		m_normals[i] = face.Orthogonal().Normalize();
 	}
+
+	m_normals[results - 1] = Vector2f::Direction(m_vertices[results - 1], m_vertices[0]).Orthogonal().Normalize();
 }
 
 auto Polygon::GetVertices() const -> const VectorList&

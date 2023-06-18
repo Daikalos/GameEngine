@@ -79,6 +79,11 @@ namespace vlx::py
 		}
 	}
 
+	static std::vector<Vector2f> GiftWrapVertices(std::span<const Vector2f> vertices)
+	{
+
+	}
+
 	static bool IsSimplePolygon(std::span<const Vector2f> vertices)
 	{
 		return false;
