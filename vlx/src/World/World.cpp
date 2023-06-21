@@ -30,6 +30,7 @@ World::World(const std::string_view name) :
 	AddSystem<RenderSystem>(		m_entity_admin, LYR_RENDERING, m_time);
 	AddSystem<PhysicsDirtySystem>(	m_entity_admin, LYR_DIRTY_PHYSICS);
 	AddSystem<PhysicsSystem>(		m_entity_admin,	LYR_PHYSICS, m_time);
+	AddSystem<AnimationSystem>(		m_entity_admin, LYR_ANIMATION, m_time);
 }
 
 const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
@@ -171,13 +172,15 @@ void World::Draw()
 	m_window.clear(sf::Color(53, 81, 92));
 	m_window.setView(m_camera);
 
-	GetSystem<RenderSystem>().Draw(m_window);
+	for (const auto& pair : m_systems)
+		pair.second->Draw(m_window);
 
 	m_state_stack.Draw();
 
 	m_window.setView(m_window.getDefaultView()); // draw hud ontop of everything else
 
-	GetSystem<RenderSystem>().DrawGUI(m_window);
+	for (const auto& pair : m_systems)
+		pair.second->DrawGUI(m_window);
 
 	m_window.display();
 }

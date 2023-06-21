@@ -24,14 +24,7 @@ namespace vlx::gui
 		GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera, const ControlMap& controls);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void Start() override;
-		void PreUpdate() override;
 		void Update() override;
-		void FixedUpdate() override;
-		void PostUpdate() override;
 
 	private:
 		System<Renderable, GlobalTransform, Button>	m_button_system;

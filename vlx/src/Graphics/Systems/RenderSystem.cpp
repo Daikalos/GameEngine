@@ -3,7 +3,7 @@
 using namespace vlx;
 
 RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
-	: SystemAction(entity_admin, id), 
+	: SystemAction(entity_admin, id, true), 
 
 	m_sprites(entity_admin, id), 
 	m_meshes(entity_admin, id),
@@ -39,11 +39,6 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
 	m_meshes.Exclude<PhysicsBody>();
 }
 
-bool RenderSystem::IsRequired() const noexcept
-{
-	return true;
-}
-
 void RenderSystem::SetBatchMode(BatchMode batch_mode)
 {
 	m_static_batch.SetBatchMode(batch_mode);
@@ -76,11 +71,6 @@ void RenderSystem::UpdateStaticGUIBatch()
 	m_update_static_gui_batch = true;
 }
 
-void RenderSystem::Start()
-{
-
-}
-
 void RenderSystem::PreUpdate()
 {
 	if (m_update_static_batch)
@@ -94,22 +84,29 @@ void RenderSystem::PreUpdate()
 
 void RenderSystem::Update()
 {
-	m_sprites.ForceRun();
-	m_meshes.ForceRun();
-}
-
-void RenderSystem::FixedUpdate()
-{
-
+	Execute(m_sprites);
+	Execute(m_meshes);
 }
 
 void RenderSystem::PostUpdate()
 {
-	m_sprites_bodies.ForceRun();
-	m_meshes_bodies.ForceRun();
+	Execute(m_sprites_bodies);
+	Execute(m_meshes_bodies);
 
 	m_update_static_batch = false;
 	m_update_static_gui_batch = false;
+}
+
+void RenderSystem::Draw(Window& window) const
+{
+	window.draw(m_static_batch);
+	window.draw(m_dynamic_batch);
+}
+
+void RenderSystem::DrawGUI(Window& window) const
+{
+	window.draw(m_static_gui_batch);
+	window.draw(m_dynamic_gui_batch);
 }
 
 void RenderSystem::BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth)
@@ -163,16 +160,4 @@ void RenderSystem::BatchBody(const Time& time, const Renderable& renderable, con
 
 		BatchEntity(renderable, batchable, transform, depth);
 	}
-}
-
-void RenderSystem::Draw(Window& window) const
-{
-	window.draw(m_static_batch);
-	window.draw(m_dynamic_batch);
-}
-
-void RenderSystem::DrawGUI(Window& window) const
-{
-	window.draw(m_static_gui_batch);
-	window.draw(m_dynamic_gui_batch);
 }

@@ -29,9 +29,6 @@ namespace vlx
 		RenderSystem(EntityAdmin& entity, LayerType id, Time& time);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
 		void SetBatchMode(BatchMode batch_mode);
 		void SetBatchingEnabled(bool flag);
 
@@ -44,14 +41,12 @@ namespace vlx
 		void UpdateStaticGUIBatch();
 
 	public:
-		void Start() override;
 		void PreUpdate() override;
 		void Update() override;
-		void FixedUpdate() override;
 		void PostUpdate() override;
 
-		void Draw(Window& window) const;
-		void DrawGUI(Window& window) const;
+		void Draw(Window& window) const override;
+		void DrawGUI(Window& window) const override;
 
 	private:
 		void BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth = 0.0f);

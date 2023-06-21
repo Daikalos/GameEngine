@@ -26,14 +26,7 @@ namespace vlx
 		PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void Start() override;
-		void PreUpdate() override;
-		void Update() override;
 		void FixedUpdate() override;
-		void PostUpdate() override;
 
 	private:
 		DirtyLocalSystem	m_dirty_transform;

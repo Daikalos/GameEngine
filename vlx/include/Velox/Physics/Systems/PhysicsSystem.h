@@ -26,14 +26,7 @@ namespace vlx
 		PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void Start() override;
-		void PreUpdate() override;
-		void Update() override;
 		void FixedUpdate() override;
-		void PostUpdate() override;
 
 	public:
 		const Vector2f& GetGravity() const;

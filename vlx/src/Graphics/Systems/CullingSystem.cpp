@@ -17,10 +17,10 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 				camera_size.x + LENIENCY,
 				camera_size.y + LENIENCY
 			};
-
 			const RectFloat gui_camera_rect =
 			{
 				-LENIENCY,
+
 				-LENIENCY,
 				camera.GetSize().x + LENIENCY,
 				camera.GetSize().y + LENIENCY
@@ -38,32 +38,7 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 		});
 }
 
-bool CullingSystem::IsRequired() const noexcept
-{
-	return false;
-}
-
-void CullingSystem::Start()
-{
-
-}
-
-void CullingSystem::PreUpdate()
-{
-
-}
-
-void CullingSystem::Update()
-{
-	Execute();
-}
-
-void CullingSystem::FixedUpdate()
-{
-
-}
-
 void CullingSystem::PostUpdate()
 {
-
+	Execute();
 }

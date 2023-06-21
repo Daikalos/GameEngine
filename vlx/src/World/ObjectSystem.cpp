@@ -3,14 +3,9 @@
 using namespace vlx;
 
 ObjectSystem::ObjectSystem(EntityAdmin& entity_admin, LayerType id)
-	: SystemAction(entity_admin, id)
+	: SystemAction(entity_admin, id, true)
 {
 
-}
-
-bool ObjectSystem::IsRequired() const noexcept
-{
-	return true;
 }
 
 Entity ObjectSystem::CreateEntity() const

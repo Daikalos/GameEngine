@@ -2,7 +2,7 @@
 
 using namespace vlx::gui;
 
-GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera, const ControlMap& controls)
+GUISystem::GUISystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera, const ControlMap& controls)
 	: SystemAction(entity_admin, id),
 	m_button_system(entity_admin, id),
 	m_label_system(entity_admin, id)
@@ -62,32 +62,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, const LayerType id, const Camera
 		});
 }
 
-bool GUISystem::IsRequired() const noexcept
-{
-	return false;
-}
-
-void GUISystem::Start()
-{
-
-}
-
-void GUISystem::PreUpdate()
-{
-
-}
-
 void GUISystem::Update()
 {
 	Execute();
-}
-
-void GUISystem::FixedUpdate()
-{
-
-}
-
-void GUISystem::PostUpdate()
-{
-
 }

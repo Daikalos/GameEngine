@@ -22,13 +22,6 @@ namespace vlx
 		CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void Start() override;
-		void PreUpdate() override;
-		void Update() override;
-		void FixedUpdate() override;
 		void PostUpdate() override;
 
 	private:

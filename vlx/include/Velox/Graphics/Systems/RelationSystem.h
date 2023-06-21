@@ -46,9 +46,6 @@ namespace vlx
 		using SystemAction::SystemAction;
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
 		void Attach(EntityID parent_id, EntityID child_id, ExecutionStage stage = S_PostUpdate);
 		void Detach(EntityID parent_id, EntityID child_id, ExecutionStage stage = S_PostUpdate);
 
@@ -58,7 +55,6 @@ namespace vlx
 		void ExecuteManually();
 
 	public:
-		void Start() override;
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;

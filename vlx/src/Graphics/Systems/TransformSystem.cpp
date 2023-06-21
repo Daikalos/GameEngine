@@ -2,8 +2,9 @@
 
 using namespace vlx;
 
-TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
-	: SystemAction(entity_admin, id), 
+TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
+	: SystemAction(entity_admin, id, true), 
+
 	m_dirty(entity_admin, id),
 	m_dirty_descendants(entity_admin, id),
 	m_update_global(entity_admin, id)
@@ -35,11 +36,6 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, const LayerType id)
 	m_dirty.SetPriority(900.0f);
 	m_dirty_descendants.SetPriority(800.0f);
 	m_update_global.SetPriority(0.0f);
-}
-
-bool TransformSystem::IsRequired() const noexcept
-{
-	return true;
 }
 
 void TransformSystem::SetGlobalPosition(const EntityID entity, const Vector2f& position) 

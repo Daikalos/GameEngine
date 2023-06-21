@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window)
+AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, LayerType id, const Window& window)
 	: SystemAction(entity_admin, id), m_system(entity_admin, id)
 {
 	m_system.All([this, &window](std::span<const EntityID> entities, Transform* transforms, gui::Anchor* anchors)
@@ -31,32 +31,7 @@ AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const 
 		});
 }
 
-bool AnchorSystem::IsRequired() const noexcept
-{
-	return false;
-}
-
-void AnchorSystem::Start()
-{
-
-}
-
-void AnchorSystem::PreUpdate()
-{
-
-}
-
 void AnchorSystem::Update()
 {
 	Execute();
-}
-
-void AnchorSystem::FixedUpdate()
-{
-
-}
-
-void AnchorSystem::PostUpdate()
-{
-
 }

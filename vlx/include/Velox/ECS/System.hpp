@@ -164,8 +164,6 @@ namespace vlx
 		Event<> OnEnd;		// called after system has run for each archetype
 	};
 
-	// TODO: add way to include both functionality for events and exclusion
-
 	inline auto SystemBase::operator<=>(const SystemBase& rhs) const	{ return GetPriority() <=> rhs.GetPriority(); }
 
 	inline float SystemBase::GetPriority() const noexcept		{ return m_priority; }

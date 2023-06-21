@@ -20,10 +20,7 @@ namespace vlx
 		using CacheSet = ComponentSet<Transform, GlobalTransform>;
 
 	public:
-		TransformSystem(EntityAdmin& entity_admin, const LayerType id);
-
-	public:
-		bool IsRequired() const noexcept override;
+		TransformSystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
 		void SetGlobalPosition(	EntityID entity, const Vector2f& position);
@@ -36,6 +33,7 @@ namespace vlx
 
 	public:
 		void Start() override;
+
 		void PreUpdate() override;
 		void Update() override;
 		void FixedUpdate() override;

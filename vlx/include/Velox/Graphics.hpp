@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Graphics/Animation.h"
 #include "Graphics/ResourceHolder.hpp"
 #include "Graphics/Resources.h"
 #include "Graphics/SpriteAtlas.h"
@@ -17,6 +16,7 @@
 #include "Graphics/Components/Transform.h"
 #include "Graphics/Components/Relation.h"
 #include "Graphics/Components/Sprite.h"
+#include "Graphics/Components/Animation.h"
 
 #include "Graphics/Systems/AnchorSystem.h"
 #include "Graphics/Systems/CullingSystem.h"
@@ -24,3 +24,4 @@
 #include "Graphics/Systems/RelationSystem.h"
 #include "Graphics/Systems/RenderSystem.h"
 #include "Graphics/Systems/TransformSystem.h"
+#include "Graphics/Systems/AnimationSystem.h"

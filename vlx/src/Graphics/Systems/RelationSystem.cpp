@@ -2,11 +2,6 @@
 
 using namespace vlx;
 
-bool RelationSystem::IsRequired() const noexcept
-{
-	return true;
-}
-
 void RelationSystem::Attach(EntityID parent_id, EntityID child_id, ExecutionStage stage)
 {
 	if (stage == S_Instant)
@@ -36,8 +31,10 @@ void RelationSystem::Attach(EntityID parent_id, Relation& parent, EntityID child
 	if (parent_id == child_id) // cant attach to itself
 		return;
 
+#if _DEBUG
 	if (parent.IsDescendant(child_id))
 		throw std::runtime_error("The new parent cannot be a descendant of the child");
+#endif
 
 	if (parent.HasParent() && parent.GetParent() == child_id) // special case
 	{
@@ -73,11 +70,6 @@ EntityID RelationSystem::Detach(EntityID parent_id, Relation& parent, EntityID c
 void RelationSystem::ExecuteManually()
 {
 	ExecuteCommands(S_Manual);
-}
-
-void RelationSystem::Start()
-{
-
 }
 
 void RelationSystem::PreUpdate()

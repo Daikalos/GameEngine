@@ -3,7 +3,7 @@
 using namespace vlx;
 
 PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
-	: SystemAction(entity_admin, id), 
+	: SystemAction(entity_admin, id, true), 
 
 	m_time(&time), 
 
@@ -105,11 +105,6 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 		});
 }
 
-bool PhysicsSystem::IsRequired() const noexcept
-{
-	return true;
-}
-
 const Vector2f& PhysicsSystem::GetGravity() const
 {
 	return m_gravity;
@@ -123,21 +118,6 @@ void PhysicsSystem::SetGravity(const Vector2f& gravity)
 void PhysicsSystem::SetIterations(int iterations)
 {
 	m_iterations = iterations;
-}
-
-void PhysicsSystem::Start()
-{
-
-}
-
-void PhysicsSystem::PreUpdate()
-{
-
-}
-
-void PhysicsSystem::Update()
-{
-
 }
 
 void PhysicsSystem::FixedUpdate()
@@ -166,9 +146,4 @@ void PhysicsSystem::FixedUpdate()
 	m_post_solve.ForceRun();
 
 	m_sleep_bodies.ForceRun();
-}
-
-void PhysicsSystem::PostUpdate()
-{
-
 }

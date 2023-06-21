@@ -3,7 +3,7 @@
 using namespace vlx;
 
 PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
-	: SystemAction(entity_admin, id),
+	: SystemAction(entity_admin, id, true),
 
 	m_dirty_transform(	entity_admin, LYR_TRANSFORM), // hijack the transform layer muhahaha
 	m_dirty_physics(	entity_admin, id),
@@ -77,32 +77,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 	m_dirty_transform.SetPriority(10000.0f);
 }
 
-bool PhysicsDirtySystem::IsRequired() const noexcept
-{
-	return true;
-}
-
-void PhysicsDirtySystem::Start()
-{
-
-}
-
-void PhysicsDirtySystem::PreUpdate()
-{
-
-}
-
-void PhysicsDirtySystem::Update()
-{
-	
-}
-
 void PhysicsDirtySystem::FixedUpdate()
 {
 	Execute();
-}
-
-void PhysicsDirtySystem::PostUpdate()
-{
-
 }

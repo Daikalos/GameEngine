@@ -67,9 +67,6 @@ namespace vlx
 		ObjectSystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
 		VELOX_API Entity CreateEntity() const;
 		VELOX_API void RemoveEntity(EntityID entity_id, ExecutionStage stage = S_PostUpdate);
 
@@ -102,7 +99,7 @@ namespace vlx
 		void VisitCommand(const Command& command);
 
 	private:
-		CommandTable	m_command_table;
+		CommandTable m_command_table;
 	};
 
 	template<IsComponent C>

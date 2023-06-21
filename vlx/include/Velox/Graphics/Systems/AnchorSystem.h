@@ -16,17 +16,10 @@ namespace vlx
 		using System = System<Transform, gui::Anchor>;
 
 	public:
-		AnchorSystem(EntityAdmin& entity_admin, const LayerType id, const Window& window);
+		AnchorSystem(EntityAdmin& entity_admin, LayerType id, const Window& window);
 
 	public:
-		bool IsRequired() const noexcept override;
-
-	public:
-		void Start() override;
-		void PreUpdate() override;
 		void Update() override;
-		void FixedUpdate() override;
-		void PostUpdate() override;
 
 	private:
 		System m_system;
