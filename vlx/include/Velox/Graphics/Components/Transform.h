@@ -24,7 +24,7 @@ namespace vlx
 		NODISC const Vector2f&	GetOrigin() const;
 		NODISC const Vector2f&	GetPosition() const;
 		NODISC const Vector2f&	GetScale() const;
-		NODISC const sf::Angle&	GetRotation() const;
+		NODISC sf::Angle		GetRotation() const;
 
 		void SetOrigin(const Vector2f& origin);
 		void SetPosition(const Vector2f& position);
@@ -36,7 +36,7 @@ namespace vlx
 		void Rotate(const sf::Angle angle);
 
 	private:
-		mutable Mat4f	m_transform;
+		mutable Mat4f	m_transform;			// TODO: maybe remove inverse, or create new component that caches the transforms, dunno what way is best
 		mutable Mat4f	m_inverse_transform;
 
 		Vector2f		m_origin;

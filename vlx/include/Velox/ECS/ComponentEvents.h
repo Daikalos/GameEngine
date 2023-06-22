@@ -69,7 +69,7 @@ namespace vlx
 	///	Called right before this component's data is modified.
 	/// 
 	/// \param EntityAdmin: The owning admin
-	/// \param EntityID: The entity on which this component was copied
+	/// \param EntityID: The entity on which this component was altered
 	/// \param NewData: The new data that will modify the current data
 	/// 
 	template<class C>

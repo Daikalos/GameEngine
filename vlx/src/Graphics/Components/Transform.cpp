@@ -49,7 +49,7 @@ const Vector2f& Transform::GetScale() const
 {
 	return m_scale;
 }
-const sf::Angle& Transform::GetRotation() const
+sf::Angle Transform::GetRotation() const
 {
 	return m_rotation;
 }
