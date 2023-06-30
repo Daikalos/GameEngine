@@ -24,19 +24,19 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
 		});
 
 	m_sprites_bodies.Each(
-		[this, &time](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t, TransformMatrix& tm)
+		[this, &time](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, PhysicsBodyTransform& pbt, Transform& t, TransformMatrix& tm)
 		{
-			BatchBody(time, r, s, pb, t, tm, s.GetDepth());
+			BatchBody(time, r, s, pb, pbt, t, tm, s.GetDepth());
 		});
 
 	m_meshes_bodies.Each(
-		[this, &time](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, Transform& t, TransformMatrix& tm)
+		[this, &time](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, PhysicsBodyTransform& pbt, Transform& t, TransformMatrix& tm)
 		{
-			BatchBody(time, r, m, pb, t, tm, m.GetDepth());
+			BatchBody(time, r, m, pb, pbt, t, tm, m.GetDepth());
 		});
 
-	m_sprites.Exclude<PhysicsBody>();
-	m_meshes.Exclude<PhysicsBody>();
+	m_sprites.Exclude<PhysicsBody, PhysicsBodyTransform>();
+	m_meshes.Exclude<PhysicsBody, PhysicsBodyTransform>();
 }
 
 void RenderSystem::SetBatchMode(BatchMode batch_mode)
@@ -111,7 +111,7 @@ void RenderSystem::DrawGUI(Window& window) const
 
 void RenderSystem::BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth)
 {
-	if (!renderable.IsVisible)
+	if (!renderable.IsVisible || renderable.IsCulled)
 		return;
 
 	if (!renderable.IsGUI)
@@ -144,23 +144,24 @@ void RenderSystem::BatchBody(
 	const Time& time, 
 	const Renderable& renderable, 
 	const IBatchable& batchable, 
-	const PhysicsBody& body, 
+	const PhysicsBody& pb,
+	const PhysicsBodyTransform& pbt,
 	const Transform& t, 
 	const TransformMatrix& tm, 
 	float depth)
 {
-	if (body.GetType() != BodyType::Dynamic || !body.IsAwake() || !body.IsEnabled()) // draw normally if not moved by physics
+	if (pb.GetType() != BodyType::Dynamic || !pb.IsAwake() || !pb.IsEnabled()) // draw normally if not moved by physics
 	{
 		BatchEntity(renderable, batchable, tm.matrix, depth);
 	}
-	else if (body.position == body.last_pos && body.rotation == body.last_rot) // draw normally if havent moved at all
+	else if (t.GetPosition() == pbt.GetLastPosition() && t.GetRotation() == pbt.GetLastRotation()) // draw normally if havent moved at all
 	{
 		BatchEntity(renderable, batchable, tm.matrix, depth);
 	}
 	else
 	{
-		Vector2f lerp_pos = Vector2f::Lerp(body.last_pos, body.position, time.GetAlpha());
-		sf::Angle lerp_rot = au::Lerp(body.last_rot, body.rotation, time.GetAlpha());
+		Vector2f lerp_pos = Vector2f::Lerp(pbt.GetLastPosition(), t.GetPosition(), time.GetAlpha());
+		sf::Angle lerp_rot = au::Lerp(pbt.GetLastRotation(), t.GetRotation(), time.GetAlpha());
 
 		Mat4f transform;
 		transform.Build(lerp_pos, t.GetOrigin(), t.GetScale(), lerp_rot);

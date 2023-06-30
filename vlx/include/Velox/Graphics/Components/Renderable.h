@@ -10,5 +10,11 @@ namespace vlx
 		bool IsStatic	{false};
 		bool IsGUI		{false};
 		bool IsVisible	{true};
+
+	private:
+		bool IsCulled {true};
+
+		friend class CullingSystem;
+		friend class RenderSystem;
 	};
 }

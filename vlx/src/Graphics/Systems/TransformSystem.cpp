@@ -79,6 +79,8 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
+	// TODO: sync inverse matrix
+
 	m_dirty.SetPriority(900.0f);
 	m_dirty_descendants.SetPriority(800.0f);
 	m_update_global.SetPriority(0.0f);
@@ -123,7 +125,7 @@ void TransformSystem::SetGlobalScale(Transform& transform, Relation& relation, c
 {
 	// TODO: implement
 }
-void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation, const sf::Angle angle)
+void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation, sf::Angle angle)
 {
 	// TODO: implement
 }

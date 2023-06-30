@@ -94,13 +94,6 @@ namespace vlx
 		constexpr void SetEnabled(const bool flag);
 
 	private:
-		Vector2f last_pos;
-		Vector2f position;
-
-		sf::Angle last_rot;
-		sf::Angle rotation;
-
-	private:
 		BodyType		m_type				{BodyType::Dynamic}; // type of body
 		uint16			m_flags				{B_Enabled | B_Awake | B_AutoSleep};
 
@@ -125,9 +118,8 @@ namespace vlx
 
 		float			m_gravity_scale		{1.0f};
 		float			m_sleep_time		{0.0f};
-		
+
 		friend class PhysicsSystem;
-		friend class RenderSystem;
 		friend class CollisionArbiter;
 	};
 

@@ -383,13 +383,13 @@ namespace vlx
 		NODISC auto RegisterOnRemoveListener(Func&& func);
 
 		template<IsComponent C>
-		void DeregisterOnAddListener(const typename EventHandler<>::IDType id);
+		void DeregisterOnAddListener(typename EventHandler<>::IDType id);
 
 		template<IsComponent C>
-		void DeregisterOnMoveListener(const typename EventHandler<>::IDType id);
+		void DeregisterOnMoveListener(typename EventHandler<>::IDType id);
 
 		template<IsComponent C>
-		void DeregisterOnRemoveListener(const typename EventHandler<>::IDType id);
+		void DeregisterOnRemoveListener(typename EventHandler<>::IDType id);
 
 	public:
 		///	Returns a duplicated entity with the same properties as the specified one
@@ -1088,28 +1088,28 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnAddListener(const typename EventHandler<>::IDType id)
+	inline void EntityAdmin::DeregisterOnAddListener(typename EventHandler<>::IDType id)
+	{
+		constexpr auto component_id = GetComponentID<C>();
+		DeregisterOnAddListener(component_id, id);
+	}
+
+	template<IsComponent C>
+	inline void EntityAdmin::DeregisterOnMoveListener(typename EventHandler<>::IDType id)
 	{
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		m_events_add[component_id].RemoveID(id);
+		DeregisterOnMoveListener(component_id, id);
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnMoveListener(const typename EventHandler<>::IDType id)
-	{
-		constexpr auto component_id = GetComponentID<C>();
-		m_events_move[component_id].RemoveID(id);
-	}
-
-	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnRemoveListener(const typename EventHandler<>::IDType id)
+	inline void EntityAdmin::DeregisterOnRemoveListener(typename EventHandler<>::IDType id)
 	{
 		assert(IsComponentRegistered<C>());
 
 		constexpr auto component_id = GetComponentID<C>();
-		m_events_remove[component_id].RemoveID(id);
+		DeregisterOnRemoveListener(component_id, id);
 	}
 
 	template<IsComponent C, class Comp>

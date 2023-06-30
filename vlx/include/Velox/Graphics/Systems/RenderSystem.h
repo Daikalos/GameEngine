@@ -1,19 +1,21 @@
 #pragma once
 
+#include <Velox/ECS.hpp>
+#include <Velox/Window.hpp>
+
 #include <Velox/Graphics/Components/GlobalTransformMatrix.h>
 #include <Velox/Graphics/Components/TransformMatrix.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/Sprite.h>
 #include <Velox/Graphics/Components/Mesh.h>
+#include <Velox/Graphics/SpriteBatch.h>
 
 #include <Velox/Physics/PhysicsBody.h>
-#include <Velox/Graphics/SpriteBatch.h>
-#include <Velox/System/Time.h>
+#include <Velox/Physics/PhysicsBodyTransform.h>
 
-#include <Velox/ECS.hpp>
+#include <Velox/System/Time.h>
 #include <Velox/Config.hpp>
-#include <Velox/Window.hpp>
 
 namespace vlx
 {
@@ -23,8 +25,8 @@ namespace vlx
 		using SpriteSystem	= SystemExclude<Renderable, Sprite, GlobalTransformMatrix>;
 		using MeshSystem	= SystemExclude<Renderable, Mesh, GlobalTransformMatrix>;
 
-		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, Transform, TransformMatrix>;
-		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, Transform, TransformMatrix>;
+		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, PhysicsBodyTransform, Transform, TransformMatrix>;
+		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, PhysicsBodyTransform, Transform, TransformMatrix>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, LayerType id, Time& time);
@@ -60,7 +62,8 @@ namespace vlx
 			const Time& time, 
 			const Renderable& renderable, 
 			const IBatchable& batchable, 
-			const PhysicsBody& body, 
+			const PhysicsBody& pb,
+			const PhysicsBodyTransform& pbt,
 			const Transform& t, 
 			const TransformMatrix& tm, 
 			float depth = 0.0f);

@@ -13,6 +13,7 @@
 #include "../Collider.h"
 #include "../CollisionObject.h"
 #include "../CollisionArbiter.h"
+#include "../PhysicsBodyTransform.h"
 #include "../PhysicsCommon.hpp"
 
 #include "BroadSystem.h"
@@ -43,9 +44,9 @@ namespace vlx
 		NarrowSystem	m_narrow_system;
 
 		System<PhysicsBody>				m_integrate_velocity;
-		System<PhysicsBody>				m_integrate_position;
+		System<PhysicsBody, Transform>	m_integrate_position;
 		System<PhysicsBody>				m_sleep_bodies;
-		System<PhysicsBody, Transform>	m_pre_solve;
-		System<PhysicsBody, Transform>	m_post_solve;
+
+		System<PhysicsBodyTransform, Transform> m_pre_solve;
 	};
 }

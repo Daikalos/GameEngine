@@ -167,7 +167,8 @@
     <ClInclude Include="include\Velox\Graphics\Components\TransformMatrix.h" />
     <ClInclude Include="include\Velox\Graphics\Components\TransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\AnimationSystem.h" />
-    <ClInclude Include="include\Velox\Physics\PhysicsBodyMove.h" />
+    <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsBodyTransform.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
@@ -285,6 +286,7 @@
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
+    <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
     <ClCompile Include="src\World\Object.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Physics\CollisionArbiter.cpp" />

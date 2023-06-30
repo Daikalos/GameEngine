@@ -101,8 +101,7 @@ void StateTest::OnCreated()
 	//int sdadsa = test.size();
 
 	Entity& entity = m_entities.emplace_back(e0.Duplicate());
-	entity.AddComponent<PhysicsBody>();
-	entity.AddComponent<Collider>();
+	entity.AddComponents(PhysicsType{});
 	entity.AddComponent<Box>(au::Pow(2, 16), 16);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
@@ -121,7 +120,8 @@ void StateTest::OnCreated()
 	vlx::Vector2f size(16.0f, 64.0f);
 
 	player = e0.Duplicate();
-	player.AddComponents<PlayerData, PhysicsBody, Collider>();
+	player.AddComponents(PhysicsType{});
+	player.AddComponents<PlayerData>();
 	player.AddComponent<Box>(size);
 	GetWorld().GetSystem<RelationSystem>().Detach(player.GetComponent<Relation>().GetParent(), player, RelationSystem::S_Instant);
 
@@ -184,7 +184,7 @@ bool StateTest::Update(Time& time)
 		}
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponents<PhysicsBody, Collider>();
+		entity.AddComponents(PhysicsType{});
 		entity.RemoveComponent<Sprite>();
 
 		std::vector<Vector2f> vertices;
@@ -221,7 +221,7 @@ bool StateTest::Update(Time& time)
 		for (int i = 0; i < 50; ++i)
 		{
 			Entity& entity = m_entities.emplace_back(e0.Duplicate());
-			entity.AddComponents<PhysicsBody, Collider>();
+			entity.AddComponents(PhysicsType{});
 			entity.AddComponent<Point>();
 
 			entity.GetComponent<PhysicsBody>().SetMass(0.1f);
@@ -243,7 +243,7 @@ bool StateTest::Update(Time& time)
 			8.0f + rnd::random(0.0f, 128.0f));
 
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponents<PhysicsBody, Collider>();
+		entity.AddComponents(PhysicsType{});
 		entity.AddComponent<Box>(size);
 
 		//entity.GetComponent<Circle>().radius = 32.0f;

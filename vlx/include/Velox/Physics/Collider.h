@@ -1,12 +1,13 @@
 #pragma once
 
 #include <Velox/Algorithms/QTElement.hpp>
-#include <Velox/System/Event.hpp>
 #include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
-#include "CollisionResult.h"
 #include "CollisionLayer.h"
+
+#include <Velox/System/Event.hpp>
+#include "CollisionResult.h"
 
 namespace vlx
 {

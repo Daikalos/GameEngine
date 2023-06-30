@@ -39,6 +39,14 @@ namespace vlx
 			int prev	{-1};
 		};
 
+		struct EventID
+		{
+			ComponentTypeID ComponentID {NULL_COMPONENT};
+			int ID						{-1};
+		};
+
+		static constexpr int OBJ_SIZE = 3;
+
 	public:
 		using ColliderSystem		= System<Collider, Transform>;
 		using ColliderSystemEvent	= SystemEvent<Collider, Transform>;
@@ -64,14 +72,20 @@ namespace vlx
 		CollisionObject& GetBody(uint32 i) noexcept;
 
 	private:
+		void GatherPossibleCollisions();
+
 		void CullDuplicates();
 
 		int TryAddNewObject(EntityID eid);
-		bool RemoveEmptyObject(uint32 index);
+		bool TryRemoveEmptyObject(uint32 index);
+
+		void RegisterEvents();
+		void DeregisterEvents();
 
 	private:
 		EntityAdmin*				m_entity_admin	{nullptr};
 		LayerType					m_layer			{LYR_NONE};
+		int							m_first_body	{-1};
 
 		QuadTreeType				m_quad_tree;
 		
@@ -80,22 +94,19 @@ namespace vlx
 		ShapeInserter<Point>		m_points;
 		ShapeInserter<Polygon>		m_polygons;
 
-		ColliderSystemEvent			m_cleanup;
-
-		EntityBodyMap				m_entity_body_map;
-		FreeVector<CollisionObject>	m_bodies;
+		EntityBodyMap				m_entity_body_map;	// TODO: maybe move this data to physics system
+		FreeVector<CollisionObject>	m_bodies;	
 		FreeVector<BodyPtr>			m_bodies_ptr;
-		CollisionList				m_collisions;
-		int							m_first_body	{-1};
 
-		int							m_add_coll_id	{-1};
-		int							m_add_body_id	{-1};
-		int							m_mov_body_id	{-1};
-		int							m_mov_coll_id	{-1};
-		int							m_rmv_body_id	{-1};
-		int							m_rmv_coll_id	{-1};
+		CollisionList				m_collisions;
+
+		std::array<EventID, OBJ_SIZE> m_add_ids;
+		std::array<EventID, OBJ_SIZE> m_mov_ids;
+		std::array<EventID, OBJ_SIZE> m_rmv_ids;
 
 		template<class S>
 		friend class ShapeInserter;
 	};
+
+	constexpr int a = sizeof(BroadSystem);
 }

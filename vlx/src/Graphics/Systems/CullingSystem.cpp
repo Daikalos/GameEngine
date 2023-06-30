@@ -32,7 +32,7 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 				Sprite&	sprite				= sprites[i];
 
 				const RectFloat rect = gtm.matrix.TransformRect(RectFloat({ 0, 0 }, sprite.GetSize()));
-				renderable.IsVisible = renderable.IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect);
+				renderable.IsCulled = !(renderable.IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect));
 			}
 		});
 }

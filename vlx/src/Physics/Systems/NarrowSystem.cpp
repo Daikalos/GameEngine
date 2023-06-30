@@ -71,8 +71,10 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 
 		if (AB && BB && (AB->GetType() == BodyType::Dynamic || BB->GetType() == BodyType::Dynamic)) // only resolve if both entities has a physics body and either is dynamic
 		{
-			arbiter.A = AB;
-			arbiter.B = BB;
+			arbiter.APB = AB;
+			arbiter.BPB = BB;
+			arbiter.AT = A.transform;
+			arbiter.BT = B.transform;
 
 			m_arbiters.emplace_back(arbiter);
 		}

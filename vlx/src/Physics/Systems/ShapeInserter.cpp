@@ -13,6 +13,8 @@ ShapeInserter<S>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSy
 			InsertShape(entity_id, &s, &c);
 		});
 
+	m_insert.SetPriority(2.0f);
+
 	m_on_add_id = entity_admin.RegisterOnAddListener<S>([this](EntityID eid, S& s)
 		{
 			int i = m_broad.TryAddNewObject(eid);
@@ -22,23 +24,18 @@ ShapeInserter<S>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSy
 
 	m_on_move_id = entity_admin.RegisterOnMoveListener<S>([this](EntityID eid, S& s)
 		{
-			const auto it = m_broad.m_entity_body_map.find(eid);
-			if (it != m_broad.m_entity_body_map.end())
+			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
 				m_broad.m_bodies[m_broad.m_bodies_ptr[it->second].element].shape = &s;
 		});
 
 	m_on_remove_id = entity_admin.RegisterOnRemoveListener<S>([this](EntityID eid, S& s)
 		{
-			const auto it = m_broad.m_entity_body_map.find(eid);
-			if (it != m_broad.m_entity_body_map.end())
+			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
 			{
 				m_broad.m_bodies[m_broad.m_bodies_ptr[it->second].element].shape = nullptr;
-				if (m_broad.RemoveEmptyObject(it->second))
-					m_broad.m_entity_body_map.erase(it);
+				m_broad.TryRemoveEmptyObject(it->second);
 			}
 		});
-
-	m_insert.SetPriority(2.0f);
 }
 
 template<class S>
@@ -79,19 +76,16 @@ ShapeInserter<Point>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, Bro
 
 	m_on_move_id = entity_admin.RegisterOnMoveListener<Point>([this](EntityID eid, Point& p)
 		{
-			const auto it = m_broad.m_entity_body_map.find(eid);
-			if (it != m_broad.m_entity_body_map.end())
+			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
 				m_broad.m_bodies[it->second].shape = &p;
 		});
 
 	m_on_remove_id = entity_admin.RegisterOnRemoveListener<Point>([this](EntityID eid, Point& p)
 		{
-			const auto it = m_broad.m_entity_body_map.find(eid);
-			if (it != m_broad.m_entity_body_map.end())
+			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
 			{
 				m_broad.m_bodies[it->second].shape = nullptr;
-				if (m_broad.RemoveEmptyObject(it->second))
-					m_broad.m_entity_body_map.erase(it);
+				m_broad.TryRemoveEmptyObject(it->second);
 			}
 		});
 }

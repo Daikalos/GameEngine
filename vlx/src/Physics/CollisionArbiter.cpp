@@ -4,8 +4,8 @@ using namespace vlx;
 
 void CollisionArbiter::Initialize(const Time& time, const Vector2f& gravity)
 {
-	PhysicsBody& AB = *A;
-	PhysicsBody& BB = *B;
+	PhysicsBody& AB = *APB;
+	PhysicsBody& BB = *BPB;
 
 	restitution = std::min(AB.GetRestitution(), BB.GetRestitution());
 	friction = std::sqrt(AB.GetFriction() * BB.GetFriction());
@@ -21,8 +21,8 @@ void CollisionArbiter::Initialize(const Time& time, const Vector2f& gravity)
 	{
 		CollisionContact& contact = contacts[i];
 
-		Vector2f ra = contact.position - AB.position;
-		Vector2f rb = contact.position - BB.position;
+		Vector2f ra = contact.position - AT->GetPosition();
+		Vector2f rb = contact.position - BT->GetPosition();
 
 		{
 			float rna = ra.Cross(contact.normal);
@@ -57,8 +57,8 @@ void CollisionArbiter::Initialize(const Time& time, const Vector2f& gravity)
 
 void CollisionArbiter::ResolveVelocity()
 {
-	PhysicsBody& AB = *A;
-	PhysicsBody& BB = *B;
+	PhysicsBody& AB = *APB;
+	PhysicsBody& BB = *BPB;
 
 	float am = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvMass() : 0.0f;
 	float bm = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvMass() : 0.0f;
@@ -70,8 +70,8 @@ void CollisionArbiter::ResolveVelocity()
 	{
 		CollisionContact& contact = contacts[i];
 
-		Vector2f ra = contact.position - AB.position;
-		Vector2f rb = contact.position - BB.position;
+		Vector2f ra = contact.position - AT->GetPosition();
+		Vector2f rb = contact.position - BT->GetPosition();
 
 		Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), rb) -
 					  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), ra);
@@ -136,8 +136,8 @@ void CollisionArbiter::ResolveVelocity()
 
 void CollisionArbiter::ResolvePosition()
 {
-	PhysicsBody& AB = *A;
-	PhysicsBody& BB = *B;
+	PhysicsBody& AB = *APB;
+	PhysicsBody& BB = *BPB;
 
 	float am = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvMass() : 0.0f;
 	float bm = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvMass() : 0.0f;
@@ -149,8 +149,8 @@ void CollisionArbiter::ResolvePosition()
 	{
 		CollisionContact& contact = contacts[i];
 
-		Vector2f ra = contact.position - AB.position;
-		Vector2f rb = contact.position - BB.position;
+		Vector2f ra = contact.position - AT->GetPosition();
+		Vector2f rb = contact.position - BT->GetPosition();
 
 		//Vector2f correction = (std::max(contact.penetration - P_SLOP, 0.0f) /
 		//	(am + bm)) * contact.normal * P_PERCENT;
@@ -167,13 +167,13 @@ void CollisionArbiter::ResolvePosition()
 
 		if (AB.IsAwake() && AB.IsEnabled())
 		{
-			AB.position -= p * am;
+			AT->Move(-p * am);
 			//AB.rotation -= sf::radians(ai * ra.Cross(p));
 		}
 
 		if (BB.IsAwake() && BB.IsEnabled())
 		{
-			BB.position += p * bm;
+			BT->Move(p * bm);
 			//BB.rotation += sf::radians(bi * rb.Cross(p));
 		}
 	}

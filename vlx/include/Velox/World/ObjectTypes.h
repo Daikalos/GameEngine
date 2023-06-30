@@ -29,6 +29,7 @@
 #include <Velox/Physics/Shapes/Polygon.h>
 #include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/PhysicsBody.h>
+#include <Velox/Physics/PhysicsBodyTransform.h>
 #include <Velox/Physics/Collider.h>
 
 #include <Velox/World/Object.h>
@@ -41,14 +42,17 @@ namespace vlx
 	using AllTypes = std::type_identity<std::tuple<
 		Object, Renderable, Relation, Sprite, Mesh,
 		Transform, TransformMatrix, TransformMatrixInverse, 
-		GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
-		Circle, Box, Collider, Polygon, Point, PhysicsBody, 
+		GlobalTransformTranslation, GlobalTransformRotation, GlobalTransformScale,
+		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
+		Circle, Box, Collider, Polygon, Point, PhysicsBody, PhysicsBodyTransform,
 		gui::Container, gui::Button, gui::Label>>;
 
 	using ObjectType = std::type_identity<std::tuple<
 		Object, Renderable, Sprite, Relation,
 		Transform, TransformMatrix, TransformMatrixInverse, 
 		GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse>>;
+
+	using PhysicsType = std::type_identity<std::tuple<Collider, PhysicsBody, PhysicsBodyTransform>>;
 
 	namespace gui
 	{

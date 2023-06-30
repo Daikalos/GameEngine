@@ -13,8 +13,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 	m_integrate_velocity(	entity_admin),
 	m_integrate_position(	entity_admin),
 	m_sleep_bodies(			entity_admin),
-	m_pre_solve(			entity_admin),
-	m_post_solve(			entity_admin)
+	m_pre_solve(			entity_admin)
 
 {
 	m_integrate_velocity.Each(
@@ -36,19 +35,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 		});
 
 	m_integrate_position.Each(
-		[this](EntityID entity_id, PhysicsBody& body)
+		[this](EntityID entity_id, PhysicsBody& pb, Transform& t)
 		{
-			if (!body.IsAwake() || !body.IsEnabled())
+			if (!pb.IsAwake() || !pb.IsEnabled())
 				return;
 
-			if (body.GetType() == BodyType::Static)
+			if (pb.GetType() == BodyType::Static)
 				return;
 
-			body.position += body.GetVelocity() * m_time->GetFixedDT();
-			body.rotation += sf::radians(body.GetAngularVelocity() * m_time->GetFixedDT());
+			t.Move(pb.GetVelocity() * m_time->GetFixedDT());
+			t.Rotate(sf::radians(pb.GetAngularVelocity() * m_time->GetFixedDT()));
 
-			body.m_force = Vector2f::Zero;
-			body.m_torque = 0.0f;
+			pb.m_force = Vector2f::Zero;
+			pb.m_torque = 0.0f;
 		});
 
 	m_sleep_bodies.Each(
@@ -79,29 +78,10 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 		});
 
 	m_pre_solve.Each(
-		[this](EntityID entity_id, PhysicsBody& body, Transform& transform)
+		[this](EntityID entity_id, PhysicsBodyTransform& pbt, Transform& transform)
 		{
-			if (!body.IsAwake() || !body.IsEnabled())
-				return;
-
-			if (body.GetType() == BodyType::Static)
-				return;
-
-			body.last_pos = body.position = transform.GetPosition(); // possible because a physics body is not allowed to have a parent
-			body.last_rot = body.rotation = transform.GetRotation();
-		});
-
-	m_post_solve.Each(
-		[this](EntityID entity_id, PhysicsBody& body, Transform& transform)
-		{
-			if (!body.IsAwake() || !body.IsEnabled())
-				return;
-
-			if (body.GetType() == BodyType::Static)
-				return;
-
-			transform.SetPosition(body.position); // synchronize the transform
-			transform.SetRotation(body.rotation);
+			pbt.m_last_pos = transform.GetPosition(); // possible because a physics body is not allowed to have a parent
+			pbt.m_last_rot = transform.GetRotation();
 		});
 }
 
@@ -142,8 +122,6 @@ void PhysicsSystem::FixedUpdate()
 
 	for (auto& arb : arbiters)
 		arb.ResolvePosition();
-
-	m_post_solve.ForceRun();
 
 	m_sleep_bodies.ForceRun();
 }

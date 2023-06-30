@@ -57,6 +57,7 @@
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransformTranslation.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransformRotation.cpp" />
+    <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -177,12 +178,13 @@
     <ClInclude Include="include\Velox\Graphics\Systems\AnimationSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Components\TransformMatrix.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformDirty.h" />
-    <ClInclude Include="include\Velox\Physics\PhysicsBodyMove.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsBodyTransform.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Components\TransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformTranslation.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformRotation.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
+    <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">
