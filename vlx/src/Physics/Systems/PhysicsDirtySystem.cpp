@@ -14,19 +14,19 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 	m_polygons(			entity_admin, id)
 
 {
-	m_dirty_transform.Each([this](EntityID entity_id, Collider& c, Transform& t)
+	m_dirty_transform.Each([](EntityID entity_id, Collider& c, Transform& t)
 		{
 			if (t.m_dirty)
 				c.dirty = true;
 		});
 
-	m_dirty_physics.Each([this](EntityID entity_id, Collider& c, Transform& t)
+	m_dirty_physics.Each([](EntityID entity_id, Collider& c, Transform& t)
 		{
 			if (t.m_dirty)
 				c.dirty = true;
 		});
 
-	m_circles.Each([this](EntityID entity_id, Circle& s, Collider& c, Transform& t)
+	m_circles.Each([](EntityID entity_id, Circle& s, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
@@ -38,11 +38,11 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
-	m_boxes.Each([this](EntityID entity_id, Box& b, Collider& c, Transform& t)
+	m_boxes.Each([](EntityID entity_id, Box& b, Collider& c, Transform& t, TransformMatrix& tm)
 		{
 			if (c.dirty)
 			{
-				b.UpdateAABB(b.ComputeAABB(t));
+				b.UpdateAABB(b.ComputeAABB(tm.matrix));
 				b.UpdateOrientation(t.GetRotation().wrapUnsigned());
 				b.UpdateCenter(t.GetPosition());
 
@@ -50,23 +50,22 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
-	m_points.Each([this](EntityID entity_id, Point& p, Collider& c, Transform& t)
+	m_points.Each([](EntityID entity_id, Point& p, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
-				p.UpdateAABB(p.ComputeAABB(t));
-				// no need to update the orientation matrix
+				// no need to update the aabb or orientation matrix
 				p.UpdateCenter(t.GetPosition());
 
 				c.dirty = false;
 			}
 		});
 
-	m_polygons.Each([this](EntityID entity_id, Polygon& p, Collider& c, Transform& t)
+	m_polygons.Each([](EntityID entity_id, Polygon& p, Collider& c, Transform& t, TransformMatrix& tm)
 		{
 			if (c.dirty)
 			{
-				p.UpdateAABB(p.ComputeAABB(t));
+				p.UpdateAABB(p.ComputeAABB(tm.matrix));
 				p.UpdateOrientation(t.GetRotation().wrapUnsigned());
 				p.UpdateCenter(t.GetPosition());
 

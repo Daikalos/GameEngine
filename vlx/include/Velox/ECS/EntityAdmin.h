@@ -208,6 +208,16 @@ namespace vlx
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC ComponentSet<Cs...> GetComponentsRef(EntityID entity_id) const;
 
+		///	Constructs a ComponentSet that contains a set of component references that ensures that they remain valid.
+		///
+		/// \param EntityID: ID of the entity to retrieve the components from.
+		/// \param Tuple: To automatically deduce the template arguments.
+		/// 
+		/// \returns A ComponentSet constructed from the specified components.
+		/// 
+		template<class... Cs> requires IsComponents<Cs...>
+		NODISC ComponentSet<Cs...> GetComponentsRef(EntityID entity_id, std::type_identity<std::tuple<Cs...>>) const;
+
 		///	Allows for you to retrieve any base class without having to know the type of the child.
 		/// 
 		/// [Incredibly risky, requires base to be first in inheritance, other base classes cannot be automatically 
@@ -354,6 +364,14 @@ namespace vlx
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		void Reserve(std::size_t component_count);
+
+		///	Increases the capacity of the archetype containing an exact match of the specified components.
+		/// 
+		/// \param ComponentCount: Number of components to reserve for in the archetypes
+		/// \param Tuple: To automatically deduce the template arguments.
+		/// 
+		template<class... Cs> requires IsComponents<Cs...>
+		void Reserve(std::size_t component_count, std::type_identity<std::tuple<Cs...>>);
 
 		template<IsComponent C, typename Func>
 		NODISC auto RegisterOnAddListener(Func&& func);
@@ -974,6 +992,12 @@ namespace vlx
 		return ComponentSet<Cs...>(GetComponentRef<Cs>(entity_id)...);
 	}
 
+	template<class ...Cs> requires IsComponents<Cs...>
+	inline ComponentSet<Cs...> EntityAdmin::GetComponentsRef(EntityID entity_id, std::type_identity<std::tuple<Cs...>>) const
+	{
+		return GetComponentsRef<Cs...>(entity_id);
+	}
+
 	template<class... Cs, class Comp> requires IsComponents<Cs...>
 	inline bool EntityAdmin::SortComponents(Comp&& comparison) requires SameTypeParamDecay<Comp, std::tuple_element_t<0, std::tuple<Cs...>>, 0, 1>
 	{
@@ -1019,6 +1043,12 @@ namespace vlx
 		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		Reserve(component_ids, archetype_id, component_count);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline void EntityAdmin::Reserve(std::size_t component_count, std::type_identity<std::tuple<Cs...>>)
+	{
+		Reserve<Cs...>(component_count);
 	}
 
 	template<IsComponent C, typename Func>

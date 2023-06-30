@@ -12,27 +12,27 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, Time& time)
 	m_meshes_bodies(entity_admin, id)
 {
 	m_sprites.Each(
-		[this](EntityID eid, Renderable& r, Sprite& s, GlobalTransform& gt)
+		[this](EntityID eid, Renderable& r, Sprite& s, GlobalTransformMatrix& gtm)
 		{
-			BatchEntity(r, s, gt.GetTransform(), s.GetDepth());
+			BatchEntity(r, s, gtm.matrix, s.GetDepth());
 		});
 
 	m_meshes.Each(
-		[this](EntityID eid, Renderable& r, Mesh& m, GlobalTransform& gt)
+		[this](EntityID eid, Renderable& r, Mesh& m, GlobalTransformMatrix& gtm)
 		{
-			BatchEntity(r, m, gt.GetTransform(), m.GetDepth());
+			BatchEntity(r, m, gtm.matrix, m.GetDepth());
 		});
 
 	m_sprites_bodies.Each(
-		[this, &time](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t)
+		[this, &time](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, Transform& t, TransformMatrix& tm)
 		{
-			BatchBody(time, r, s, pb, t, s.GetDepth());
+			BatchBody(time, r, s, pb, t, tm, s.GetDepth());
 		});
 
 	m_meshes_bodies.Each(
-		[this, &time](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, Transform& t)
+		[this, &time](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, Transform& t, TransformMatrix& tm)
 		{
-			BatchBody(time, r, m, pb, t, m.GetDepth());
+			BatchBody(time, r, m, pb, t, tm, m.GetDepth());
 		});
 
 	m_sprites.Exclude<PhysicsBody>();
@@ -140,15 +140,22 @@ void RenderSystem::BatchEntity(const Renderable& renderable, const IBatchable& b
 	}
 }
 
-void RenderSystem::BatchBody(const Time& time, const Renderable& renderable, const IBatchable& batchable, const PhysicsBody& body, const Transform& t, float depth)
+void RenderSystem::BatchBody(
+	const Time& time, 
+	const Renderable& renderable, 
+	const IBatchable& batchable, 
+	const PhysicsBody& body, 
+	const Transform& t, 
+	const TransformMatrix& tm, 
+	float depth)
 {
 	if (body.GetType() != BodyType::Dynamic || !body.IsAwake() || !body.IsEnabled()) // draw normally if not moved by physics
 	{
-		BatchEntity(renderable, batchable, t.GetTransform(), depth);
+		BatchEntity(renderable, batchable, tm.matrix, depth);
 	}
 	else if (body.position == body.last_pos && body.rotation == body.last_rot) // draw normally if havent moved at all
 	{
-		BatchEntity(renderable, batchable, t.GetTransform(), depth);
+		BatchEntity(renderable, batchable, tm.matrix, depth);
 	}
 	else
 	{

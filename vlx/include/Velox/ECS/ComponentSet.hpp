@@ -24,10 +24,21 @@ namespace vlx
 		using ComponentType = std::tuple_element_t<N, ComponentTypes>;
 
 	public:
+		ComponentSet() = delete;
 		ComponentSet(ComponentRef<Cs>&&... refs);
 
-		constexpr bool operator==(const ComponentSet& other) const;
-		constexpr bool operator!=(const ComponentSet& other) const;
+		bool operator==(const ComponentSet& other) const;
+		bool operator!=(const ComponentSet& other) const;
+
+	public:
+		NODISC bool IsAnyValid() const;
+		NODISC bool IsAllValid() const;
+
+		template<std::size_t N>
+		NODISC bool IsValid() const;
+
+		template<IsComponent C> requires Contains<C, Cs...>
+		NODISC bool IsValid() const;
 
 	public:
 		template<std::size_t N>
@@ -51,15 +62,53 @@ namespace vlx
 		: m_components{ std::forward<ComponentRef<Cs>>(refs).m_component... } { }
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline constexpr bool ComponentSet<Cs...>::operator==(const ComponentSet& other) const
+	inline bool ComponentSet<Cs...>::operator==(const ComponentSet& other) const
 	{
 		return m_components == other.m_components;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline constexpr bool ComponentSet<Cs...>::operator!=(const ComponentSet& other) const
+	inline bool ComponentSet<Cs...>::operator!=(const ComponentSet& other) const
 	{
 		return !(*this == other);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool ComponentSet<Cs...>::IsAnyValid() const
+	{
+		for (std::size_t i = 0; i < sizeof...(Cs); ++i)
+		{
+			if (m_components[i] != nullptr)
+				return true;
+		}
+
+		return false;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool ComponentSet<Cs...>::IsAllValid() const
+	{
+		for (std::size_t i = 0; i < sizeof...(Cs); ++i)
+		{
+			if (m_components[i] == nullptr)
+				return false;
+		}
+
+		return true;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<std::size_t N>
+	inline bool ComponentSet<Cs...>::IsValid() const
+	{
+		return Get<N>() != nullptr;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<IsComponent C> requires Contains<C, Cs...>
+	inline bool ComponentSet<Cs...>::IsValid() const
+	{
+		return Get<C>() != nullptr;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

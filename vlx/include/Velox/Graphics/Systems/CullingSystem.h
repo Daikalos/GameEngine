@@ -5,7 +5,7 @@
 #include <Velox/Window/Camera.h>
 
 #include <Velox/Graphics/Components/Renderable.h>
-#include <Velox/Graphics/Components/GlobalTransform.h>
+#include <Velox/Graphics/Components/GlobalTransformMatrix.h>
 #include <Velox/Graphics/Components/Sprite.h>
 
 namespace vlx
@@ -13,7 +13,7 @@ namespace vlx
 	class VELOX_API CullingSystem final : public SystemAction
 	{
 	public:
-		using System = System<Renderable, GlobalTransform, Sprite>;
+		using System = System<Renderable, GlobalTransformMatrix, Sprite>;
 
 	private:
 		static constexpr int LENIENCY = 128;

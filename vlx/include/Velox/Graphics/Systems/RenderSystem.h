@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
+#include <Velox/Graphics/Components/GlobalTransformMatrix.h>
+#include <Velox/Graphics/Components/TransformMatrix.h>
 #include <Velox/Graphics/Components/Transform.h>
 #include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/Sprite.h>
@@ -19,11 +20,11 @@ namespace vlx
 	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
-		using SpriteSystem	= SystemExclude<Renderable, Sprite, GlobalTransform>;
-		using MeshSystem	= SystemExclude<Renderable, Mesh, GlobalTransform>;
+		using SpriteSystem	= SystemExclude<Renderable, Sprite, GlobalTransformMatrix>;
+		using MeshSystem	= SystemExclude<Renderable, Mesh, GlobalTransformMatrix>;
 
-		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, Transform>;
-		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, Transform>;
+		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, Transform, TransformMatrix>;
+		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, Transform, TransformMatrix>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, LayerType id, Time& time);
@@ -49,8 +50,20 @@ namespace vlx
 		void DrawGUI(Window& window) const override;
 
 	private:
-		void BatchEntity(const Renderable& renderable, const IBatchable& batchable, const Mat4f& transform, float depth = 0.0f);
-		void BatchBody(const Time& time, const Renderable& renderable, const IBatchable& batchable, const PhysicsBody& body, const Transform& t, float depth = 0.0f);
+		void BatchEntity(
+			const Renderable& renderable, 
+			const IBatchable& batchable, 
+			const Mat4f& transform, 
+			float depth = 0.0f);
+
+		void BatchBody(
+			const Time& time, 
+			const Renderable& renderable, 
+			const IBatchable& batchable, 
+			const PhysicsBody& body, 
+			const Transform& t, 
+			const TransformMatrix& tm, 
+			float depth = 0.0f);
 
 	private:
 		SpriteSystem		m_sprites;

@@ -4,10 +4,11 @@ using namespace vlx::gui;
 
 GUISystem::GUISystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera, const ControlMap& controls)
 	: SystemAction(entity_admin, id),
+
 	m_button_system(entity_admin, id),
 	m_label_system(entity_admin, id)
 {
-	m_button_system.All([&camera, &controls](std::span<const EntityID> entities, Renderable* renderables, GlobalTransform* transforms, Button* buttons)
+	m_button_system.All([&camera, &controls](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformTranslation* gtts, Button* buttons)
 		{
 			const MouseInput& mouse_input = controls.Get<MouseInput>();
 			const MouseCursor& mouse_cursor = controls.Get<MouseCursor>();
@@ -20,11 +21,11 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, LayerType id, const Camera& came
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Renderable& renderable		= renderables[i];
-				GlobalTransform& transform	= transforms[i];
-				Button& button				= buttons[i];
+				Renderable& renderable			= renderables[i];
+				GlobalTransformTranslation& gtt	= gtts[i];
+				Button& button					= buttons[i];
 
-				const auto& position	= Vector2i(transform.GetPosition());
+				const auto& position	= Vector2i(gtt.GetPosition());
 				const auto& size		= Vector2i(button.GetSize());
 
 				if (button.IsActive())
@@ -53,7 +54,7 @@ GUISystem::GUISystem(EntityAdmin& entity_admin, LayerType id, const Camera& came
 			}
 		});
 
-	m_label_system.All([](std::span<const EntityID> entities, Renderable* renderables, GlobalTransform* transforms, Label* labels)
+	m_label_system.All([](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformTranslation* gtts, Label* labels)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{

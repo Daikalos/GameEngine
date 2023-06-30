@@ -3,6 +3,7 @@
 #include <array>
 
 #include <Velox/Utility/ArithmeticUtils.h>
+#include <Velox/System/Mat4f.hpp>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
@@ -52,9 +53,10 @@ namespace vlx
 
 	public:
 		constexpr auto GetType() const noexcept -> Type override;
-
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
-		VELOX_API RectFloat ComputeAABB(const Transform& transform) const override;
+
+	public:
+		VELOX_API RectFloat ComputeAABB(const Mat4f& matrix) const;
 
 	private:
 		VectorArray m_vertices;

@@ -40,7 +40,7 @@ void StateTest::OnCreated()
 
 	int h = sizeof(Renderable);
 
-	m_entity_admin->Reserve<Object, Renderable, Transform, GlobalTransform, Relation, Sprite>(m_entities.capacity());
+	m_entity_admin->Reserve(m_entities.capacity(), ObjectType{});
 	for (int i = 0; i < m_entities.capacity(); ++i)
 	{
 		Entity& added = m_entities.emplace_back(e1.Duplicate());
@@ -63,10 +63,10 @@ void StateTest::OnCreated()
 			return false;
 		});
 
-	int a = sizeof(Sprite);
-	int c = sizeof(Transform);
-	int d = sizeof(GlobalTransform);
-	int e = sizeof(Relation);
+	constexpr int a = sizeof(Sprite);
+	constexpr int c = sizeof(Transform);
+	constexpr int d = sizeof(GlobalTransformMatrix);
+	constexpr int e = sizeof(Relation);
 
 	b0 = object_system.CreateEntity();
 	b0.AddComponents(gui::ButtonType{});

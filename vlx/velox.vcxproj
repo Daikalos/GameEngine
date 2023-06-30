@@ -158,8 +158,16 @@
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
     <ClInclude Include="include\Velox\Algorithms\SAP.hpp" />
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformDirty.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrixInverse.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformRotation.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformTranslation.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Mesh.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\TransformMatrix.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\TransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\AnimationSystem.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsBodyMove.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
@@ -207,7 +215,7 @@
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\Sprite.h" />
-    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransform.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrix.h" />
     <ClInclude Include="include\Velox\Physics\CollisionLayer.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
@@ -272,6 +280,8 @@
     <ClInclude Include="include\Velox\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\Components\GlobalTransformRotation.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransformTranslation.cpp" />
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
@@ -300,7 +310,7 @@
     <ClCompile Include="src\Graphics\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
     <ClCompile Include="src\Graphics\Components\Sprite.cpp" />
-    <ClCompile Include="src\Graphics\Components\GlobalTransform.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransformScale.cpp" />
     <ClCompile Include="src\ECS\Entity.cpp" />
     <ClCompile Include="src\ECS\EntityAdmin.cpp" />
     <ClCompile Include="src\System\Mat2f.cpp" />

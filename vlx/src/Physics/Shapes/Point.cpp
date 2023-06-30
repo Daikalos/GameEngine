@@ -6,8 +6,3 @@ void Point::AdjustBody(PhysicsBody& body) const
 {
 
 }
-
-RectFloat Point::ComputeAABB(const Transform& transform) const
-{
-    return RectFloat();
-}

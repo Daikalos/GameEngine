@@ -105,7 +105,7 @@ bool EntityAdmin::HasComponent(EntityID entity_id, ComponentTypeID component_id)
 
 	const Archetype* archetype = eit->second.archetype;
 
-	if (!archetype)
+	if (archetype == nullptr)
 		return false;
 
 	const auto cit = m_component_archetypes_map.find(component_id);

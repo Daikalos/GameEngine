@@ -19,7 +19,7 @@
     <ClCompile Include="src\Graphics\Components\Sprite.cpp" />
     <ClCompile Include="src\Graphics\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\TransformSystem.cpp" />
-    <ClCompile Include="src\Graphics\Components\GlobalTransform.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransformScale.cpp" />
     <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
     <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
@@ -55,6 +55,8 @@
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransformTranslation.cpp" />
+    <ClCompile Include="src\Graphics\Components\GlobalTransformRotation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -99,7 +101,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
     <ClInclude Include="include\Velox\System\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Input\BtnFunc.hpp" />
-    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransform.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrix.h" />
     <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
@@ -173,6 +175,14 @@
     <ClInclude Include="include\Velox\Graphics\Components\Mesh.h" />
     <ClInclude Include="include\Velox\Utility\PolygonUtils.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\AnimationSystem.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\TransformMatrix.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformDirty.h" />
+    <ClInclude Include="include\Velox\Physics\PhysicsBodyMove.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrixInverse.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\TransformMatrixInverse.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformTranslation.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformRotation.h" />
+    <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -3,6 +3,8 @@
 #include <vector>
 #include <span>
 
+#include <Velox/System/Mat4f.hpp>
+
 #include <Velox/Utility/PolygonUtils.h>
 
 #include <Velox/Config.hpp>
@@ -32,9 +34,10 @@ namespace vlx
 
 	public:
 		constexpr auto GetType() const noexcept -> Type override;
-
 		void AdjustBody(PhysicsBody& body) const noexcept override;
-		RectFloat ComputeAABB(const Transform& transform) const override;
+
+	public:
+		RectFloat ComputeAABB(const Mat4f& matrix) const;
 
 	private:
 		VectorList	m_vertices;

@@ -2,6 +2,8 @@
 
 #include "Shape.h"
 
+#include <Velox/Graphics/Components/Transform.h>
+
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -20,9 +22,10 @@ namespace vlx
 
 	public:
 		constexpr auto GetType() const noexcept -> Type override;
-
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
-		VELOX_API RectFloat ComputeAABB(const Transform& transform) const override;
+
+	public:
+		VELOX_API RectFloat ComputeAABB(const Transform& transform) const;
 
 	private:
 		float m_radius		{16.0f};

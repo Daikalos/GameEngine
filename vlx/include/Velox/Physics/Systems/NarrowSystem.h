@@ -3,9 +3,6 @@
 #include <vector>
 #include <unordered_set>
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
-#include <Velox/Graphics/Components/Transform.h>
-
 #include <Velox/ECS.hpp>
 
 #include <Velox/Physics/Shapes/Shape.h>
@@ -29,7 +26,6 @@ namespace vlx
 	class VELOX_API NarrowSystem final
 	{
 	private:
-		using CollisionSystem = System<Collider, Transform, GlobalTransform>;
 		using EntityPair = std::pair<EntityID, EntityID>;
 
 		using CollisionArbiters = std::vector<CollisionArbiter>;

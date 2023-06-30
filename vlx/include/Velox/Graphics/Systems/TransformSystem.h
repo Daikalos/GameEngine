@@ -1,12 +1,21 @@
 #pragma once
 
 #include <queue>
+#include <tuple>
+#include <optional>
 
 #include <Velox/ECS.hpp>
 #include <Velox/Config.hpp>
 
-#include <Velox/Graphics/Components/GlobalTransform.h>
+#include <Velox/Graphics/Components/GlobalTransformTranslation.h>
+#include <Velox/Graphics/Components/GlobalTransformRotation.h>
+#include <Velox/Graphics/Components/GlobalTransformScale.h>
+#include <Velox/Graphics/Components/GlobalTransformDirty.h>
+#include <Velox/Graphics/Components/GlobalTransformMatrix.h>
+#include <Velox/Graphics/Components/GlobalTransformMatrixInverse.h>
 #include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/TransformMatrix.h>
+#include <Velox/Graphics/Components/TransformMatrixInverse.h>
 #include <Velox/Graphics/Components/Relation.h>
 
 #include <Velox/Physics/PhysicsBody.h>
@@ -17,7 +26,16 @@ namespace vlx
 	{
 	private:
 		using EntityPair = std::pair<EntityID, EntityID>;
-		using CacheSet = ComponentSet<Transform, GlobalTransform>;
+
+		using CacheTuple = std::type_identity<std::tuple<
+			TransformMatrix,
+			GlobalTransformDirty, 
+			GlobalTransformMatrix>>;
+
+		using CacheSet = ComponentSet<
+			TransformMatrix, 
+			GlobalTransformDirty, 
+			GlobalTransformMatrix>;
 
 	public:
 		TransformSystem(EntityAdmin& entity_admin, LayerType id);
@@ -40,17 +58,56 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void DirtyDescendants(GlobalTransform& global_transform, const Relation::Children& children) const;
-		void UpdateTransforms(Transform& transform, GlobalTransform& global_transform, const Relation::Parent& parent) const;
+		void DirtyDescendants(
+			GlobalTransformDirty& gtd, 
+			const Relation::Children& children) const;
 
-		void UpdateToLocal(Transform& transform, GlobalTransform& global_transform) const;
+		void UpdateTransforms(
+			TransformMatrix& tm, 
+			GlobalTransformDirty& gtd, 
+			GlobalTransformMatrix& gtm, 
+			const Relation::Parent& parent) const;
 
-		auto CheckCache(EntityID entity_id) const -> CacheSet&;
+		void UpdateToLocal(
+			TransformMatrix& tm, 
+			GlobalTransformDirty& gtd,
+			GlobalTransformMatrix& gtm) const;
+
+		auto CheckCache(EntityID entity_id) const -> std::optional<CacheSet*>;
 
 	private:
-		System<Transform, GlobalTransform>				m_dirty;
-		System<Transform, GlobalTransform, Relation>	m_dirty_descendants;
-		System<Transform, GlobalTransform, Relation>	m_update_global;
+		System<
+			Transform, 
+			TransformMatrix>				m_sync;
+
+		System<
+			Transform, 
+			GlobalTransformDirty>			m_dirty;
+			
+		System<
+			GlobalTransformDirty, 
+			Relation>						m_dirty_descendants;
+
+		System<
+			TransformMatrix,
+			GlobalTransformDirty,
+			GlobalTransformMatrix, 
+			Relation>						m_update_global;
+
+		System<
+			GlobalTransformDirty,
+			GlobalTransformMatrix,
+			GlobalTransformTranslation>		m_update_pos;
+
+		System<
+			GlobalTransformDirty,
+			GlobalTransformMatrix,
+			GlobalTransformRotation>		m_update_rot;
+
+		System<
+			GlobalTransformDirty,
+			GlobalTransformMatrix,
+			GlobalTransformScale>			m_update_scl;
 
 		std::queue<EntityPair>	m_attachments;
 		std::queue<EntityPair>	m_detachments;

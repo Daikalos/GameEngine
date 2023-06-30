@@ -326,9 +326,7 @@ namespace vlx
 	inline void System<Cs...>::Run(const ComponentIDs& component_ids, std::span<const EntityID> entities, T& t, Ts... ts) const
 	{
 		if (m_func)
-		{
 			m_func(entities, ts...);
-		}
 	}
 
 	template<class... Cs1> requires IsComponents<Cs1...>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/TransformMatrix.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/Physics/Shapes/Shape.h>
@@ -18,9 +19,9 @@ namespace vlx
 	public:
 		using DirtyLocalSystem	= System<Collider, Transform>;
 		using CircleSystem		= System<Circle, Collider, Transform>;
-		using BoxSystem			= System<Box, Collider, Transform>;
+		using BoxSystem			= System<Box, Collider, Transform, TransformMatrix>;
 		using PointSystem		= System<Point, Collider, Transform>;
-		using PolySystem		= System<Polygon, Collider, Transform>;
+		using PolySystem		= System<Polygon, Collider, Transform, TransformMatrix>;
 
 	public:
 		PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id);

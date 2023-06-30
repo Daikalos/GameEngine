@@ -2,6 +2,11 @@
 
 using namespace vlx;
 
+sf::Angle Mat4f::GetRotation() const
+{
+	return sf::radians(std::atan2f(Get(1, 0), Get(1, 1)));
+}
+
 Mat4f& Mat4f::Rotate(sf::Angle angle)
 {
 	m_transform.rotate(angle);

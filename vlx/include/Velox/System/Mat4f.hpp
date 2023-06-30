@@ -1,11 +1,13 @@
 #pragma once
 
 #include <SFML/Graphics/Transform.hpp>
+#include <SFML/System/Angle.hpp>
 
 #include <Velox/Config.hpp>
 
 #include "Rectangle.hpp"
 #include "Vector2.hpp"
+#include "Mat2f.hpp"
 
 namespace vlx
 {
@@ -41,6 +43,18 @@ namespace vlx
 		/// 
 		constexpr float Get(int x, int y) const;
 
+		/// Retrieves the translation of the matrix.
+		/// 
+		constexpr Vector2f GetTranslation() const;
+
+		/// Retrieves the rotation of the matrix.
+		/// 
+		VELOX_API sf::Angle GetRotation() const;
+
+		/// Retrieves the scale of the matrix.
+		/// 
+		constexpr Vector2f GetScale() const;
+
 		/// Computes from this and returns an inversed matrix.
 		/// 
 		constexpr Mat4f GetInverse() const;
@@ -51,7 +65,7 @@ namespace vlx
 
 		/// Returns a copy of this without the translation.
 		/// 
-		constexpr Mat4f GetRotationMatrix() const;
+		constexpr Mat2f GetRotationMatrix() const;
 
 		/// Transforms the point into local space of this matrix.
 		/// 
@@ -243,6 +257,18 @@ namespace vlx
 		return m_matrix[x + y * 4];
 	}
 
+	constexpr Vector2f Mat4f::GetTranslation() const
+	{
+		return Vector2f(Get(0, 3), Get(1, 3));
+	}
+
+	constexpr Vector2f Mat4f::GetScale() const
+	{
+		return Vector2f(
+			au::Sign(Get(0, 0)) * au::SqrtSqr(Get(0, 0), Get(1, 0)),
+			au::Sign(Get(1, 1)) * au::SqrtSqr(Get(0, 1), Get(1, 1)));
+	}
+
 	constexpr Mat4f Mat4f::GetInverse() const 
 	{
 		return static_cast<Mat4f>(m_transform.getInverse());
@@ -254,11 +280,10 @@ namespace vlx
 					 m_matrix[12],	m_matrix[13],	m_matrix[15]);
 	}
 
-	constexpr Mat4f Mat4f::GetRotationMatrix() const
+	constexpr Mat2f Mat4f::GetRotationMatrix() const
 	{
-		return Mat4f(m_matrix[0],	m_matrix[4],	0.0f,
-					 m_matrix[1],	m_matrix[5],	0.0f,
-					 0.0f,			0.0f,			1.0f);
+		return Mat2f(m_matrix[0],	m_matrix[4],
+					 m_matrix[1],	m_matrix[5]);
 	}
 
 	constexpr Vector2f Mat4f::TransformPoint(const Vector2f& point) const 

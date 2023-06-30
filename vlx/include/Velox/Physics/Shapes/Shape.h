@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/Graphics/Components/TransformMatrix.h>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Mat2f.hpp>
 #include <Velox/Config.hpp>
@@ -37,7 +37,6 @@ namespace vlx
 
 	protected:
 		virtual void AdjustBody(PhysicsBody& body) const = 0;
-		virtual RectFloat ComputeAABB(const Transform& transform) const = 0;
 
 	private:
 		void UpdateAABB(const RectFloat& aabb);
@@ -61,7 +60,7 @@ namespace vlx
 	private:
 		mutable Mat2f	m_orientation;		// rotation matrix
 		sf::Angle		m_angle;			// cache orientation
-		mutable bool	m_update {true};	// whether to update orientation
+		mutable bool	m_update {true};
 
 		friend class PhysicsDirtySystem;
 	};

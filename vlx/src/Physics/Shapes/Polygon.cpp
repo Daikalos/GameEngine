@@ -108,7 +108,7 @@ void Polygon::AdjustBody(PhysicsBody& body) const noexcept
 
 }
 
-RectFloat Polygon::ComputeAABB(const Transform& transform) const
+RectFloat Polygon::ComputeAABB(const Mat4f& matrix) const
 {
-	return transform.GetTransform().TransformRect(GetBoundary());
+	return matrix.TransformRect(GetBoundary());
 }

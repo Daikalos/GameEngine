@@ -16,7 +16,7 @@ namespace vlx
 	public:
 		void SetTarget(EntityAdmin& entity_admin, EntityID entity_id)
 		{
-			auto ref = entity_admin.TryGetComponentRef<GlobalTransform>(entity_id);
+			auto ref = entity_admin.TryGetComponentRef<GlobalTransformTranslation>(entity_id);
 			if (ref.has_value())
 				m_target = std::move(ref.value());
 		}
@@ -70,7 +70,7 @@ namespace vlx
 		}
 
 	private:
-		ComponentRef<GlobalTransform> m_target;
+		ComponentRef<GlobalTransformTranslation> m_target;
 		Vector2f m_current;
 		Vector2f m_offset;
 		float m_smooth_speed {5.0f};
