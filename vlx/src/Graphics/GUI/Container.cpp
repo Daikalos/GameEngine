@@ -26,16 +26,16 @@ void Container::SelectAt(int index)
 	if (index < 0 || index >= m_children.size())
 	{
 		if (HasSelection())
-			m_children[m_selected_child]->Deselect();
+			m_children[m_selected_child].ptr->Deselect();
 
 		m_selected_child = -1;
 	}
-	else if (index != m_selected_child && m_children[index]->IsSelectable())
+	else if (index != m_selected_child && m_children[index].ptr->IsSelectable())
 	{
 		if (HasSelection())
-			m_children[m_selected_child]->Deselect();
+			m_children[m_selected_child].ptr->Deselect();
 
-		m_children[index]->Select();
+		m_children[index].ptr->Select();
 		m_selected_child = index;
 	}
 }
@@ -48,7 +48,7 @@ void Container::SelectNext()
 	int next = m_selected_child;
 
 	do next = (next + 1) % m_children.size();
-	while (!m_children[next]->IsSelectable());
+	while (!m_children[next].ptr->IsSelectable());
 
 	SelectAt(next);
 }
@@ -60,7 +60,7 @@ void Container::SelectPrev()
 	int prev = m_selected_child;
 
 	do prev = ((prev - 1) + (int)m_children.size()) % m_children.size();
-	while (!m_children[prev]->IsSelectable());
+	while (!m_children[prev].ptr->IsSelectable());
 
 	SelectAt(prev);
 }

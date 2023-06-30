@@ -35,9 +35,8 @@ namespace vlx
 		{
 			using ColliderRef = ComponentRef<Collider>;
 
-			CollisionEventPair(ColliderRef&& lcoll, ColliderRef&& rcoll) :
-				lhs_collider(lcoll), rhs_collider(rcoll), 
-				lhs_eid(lcoll.GetEntityID()), rhs_eid(rcoll.GetEntityID()) {}
+			CollisionEventPair(ColliderRef&& lcoll, EntityID leid, ColliderRef&& rcoll, EntityID reid) :
+				lhs_collider(lcoll), rhs_collider(rcoll), lhs_eid(leid), rhs_eid(reid) {}
 
 			CollisionEventPair(EntityID leid, EntityID reid) :
 				lhs_eid(leid), rhs_eid(reid) {}

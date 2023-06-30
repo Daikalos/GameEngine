@@ -869,7 +869,7 @@ namespace vlx
 			DataRef data {ptr, {}, {}, DataRef::R_Component};
 			component_refs.try_emplace(component_id, data);
 
-			return ComponentRef<C>(entity_id, ptr);
+			return ComponentRef<C>(ptr);
 		}
 
 		DataRef& ref = cit->second;
@@ -881,10 +881,10 @@ namespace vlx
 			auto ptr = std::make_shared<void*>(component);
 			ref.component_ptr = ptr;
 
-			return ComponentRef<C>(entity_id, ptr);
+			return ComponentRef<C>(ptr);
 		}
 
-		return ComponentRef<C>(entity_id, ref.component_ptr.lock());
+		return ComponentRef<C>(ref.component_ptr.lock());
 	}
 
 	template<IsComponent C>
@@ -912,7 +912,7 @@ namespace vlx
 			DataRef data {{}, ptr, offset, DataRef::R_Base};
 			component_refs.try_emplace(child_component_id, data);
 
-			return ComponentRef<B>(entity_id, ptr);
+			return ComponentRef<B>(ptr);
 		}
 
 		DataRef& ref = cit->second;
@@ -924,10 +924,10 @@ namespace vlx
 			auto ptr = std::make_shared<void*>(base);
 			ref.base_ptr = ptr;
 
-			return ComponentRef<B>(entity_id, ptr);
+			return ComponentRef<B>(ptr);
 		}
 
-		return ComponentRef<B>(entity_id, ref.base_ptr.lock());
+		return ComponentRef<B>(ref.base_ptr.lock());
 	}
 
 	template<class B>

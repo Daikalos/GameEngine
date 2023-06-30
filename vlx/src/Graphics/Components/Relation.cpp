@@ -4,7 +4,7 @@ using namespace vlx;
 
 bool Relation::HasParent() const noexcept
 {
-	return m_parent.IsValid();
+	return m_parent.ptr.IsValid() && m_parent.entity_id != NULL_ENTITY;
 }
 
 bool Relation::HasChildren() const noexcept
@@ -23,12 +23,12 @@ auto Relation::GetChildren() const noexcept -> const Children&
 
 bool Relation::IsDescendant(EntityID descendant) const
 {
-	 for (const auto& ptr : m_children)
+	 for (const auto& ref : m_children)
 	 {
-		 if (ptr.GetEntityID() == descendant)
+		 if (ref.entity_id == descendant)
 			 return true;
 
-		 if (ptr->IsDescendant(descendant))
+		 if (ref.ptr->IsDescendant(descendant))
 			 return true;
 	 }
 
@@ -39,8 +39,8 @@ void Relation::CopiedImpl(const EntityAdmin& entity_admin, EntityID entity_id)
 {
 	if (HasParent())
 	{
-		Relation& parent = *m_parent;
-		parent.m_children.emplace_back(entity_admin.GetComponentRef<Relation>(entity_id, this));
+		Relation& parent = *m_parent.ptr;
+		parent.m_children.emplace_back(entity_admin.GetComponentRef<Relation>(entity_id, this), entity_id);
 	}
 
 	m_children.clear(); // to prevent children confusing who their parent is
@@ -55,10 +55,13 @@ void Relation::AlteredImpl(const EntityAdmin& entity_admin, EntityID entity_id, 
 	// then attach everything with the new values
 
 	if (new_data.HasParent())
-		new_data.m_parent->m_children.push_back(entity_admin.GetComponentRef<Relation>(entity_id, this));
+		new_data.m_parent.ptr->m_children.emplace_back(entity_admin.GetComponentRef<Relation>(entity_id, this), entity_id);
 
 	for (auto& child : new_data.m_children)
-		child->m_parent = entity_admin.GetComponentRef<Relation>(entity_id, this);
+	{
+		child.ptr->m_parent.ptr = entity_admin.GetComponentRef<Relation>(entity_id, this);
+		child.ptr->m_parent.entity_id = entity_id;
+	}
 }
 
 void Relation::DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id)
@@ -67,14 +70,16 @@ void Relation::DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id
 
 	if (HasParent())
 	{
-		Relation& parent_relation = *m_parent;
-		cu::SwapPop(parent_relation.m_children,
+		cu::Erase(m_parent.ptr->m_children, 
 			[&entity_id](const Ref& ref)
 			{
-				return ref.GetEntityID() == entity_id;
+				return ref.entity_id == entity_id;
 			});
 	}
 
 	for (auto& child : m_children)
-		child->m_parent.Reset();
+	{
+		child.ptr->m_parent.ptr.Reset();
+		child.ptr->m_parent.entity_id = NULL_ENTITY;
+	}
 }

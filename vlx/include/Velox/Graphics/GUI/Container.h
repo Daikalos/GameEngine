@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/EntityAdmin.h>
+#include <Velox/ECS/ComponentRef.hpp>
 #include <Velox/VeloxTypes.hpp>
 
 #include "GUIComponent.h"
@@ -12,15 +13,19 @@ namespace vlx::gui
 	class Container : public GUIComponent
 	{
 	private:
-		using SizeType			= int16;
-		using ChildType			= ComponentRef<GUIComponent>;
+		struct ChildRef
+		{
+			ComponentRef<GUIComponent> ptr;
+			EntityID entity_id {NULL_ENTITY};
+		};
+
+		using SizeType	= int16;
 
 		template<class C>
 		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
 		using GUIComponent::GUIComponent;
-
 		Container() = default;
 
 	public:
@@ -45,7 +50,7 @@ namespace vlx::gui
 		VELOX_API void SelectPrev();
 
 	private:
-		std::vector<ChildType>	m_children;
+		std::vector<ChildRef>	m_children;
 		SizeType				m_selected_child {-1};
 	};
 
@@ -58,14 +63,14 @@ namespace vlx::gui
 			return;
 
 		const auto it = std::find(m_children.begin(), m_children.end(), 
-			[&entity_id](const ChildType& child)
+			[&entity_id](const ChildRef& child)
 			{
-				return child.GetEntityID() == entity_id;
+				return child.entity_id == entity_id;
 			});
 
 		if (it == m_children.end()) // prevent duplicates
 		{
-			m_children.emplace_back(child);
+			m_children.emplace_back(child, entity_id);
 
 			if (!HasSelection() && child->Get()->IsSelectable())
 				SelectAt(m_children.size() - 1);
@@ -76,9 +81,9 @@ namespace vlx::gui
 	inline void Container::Erase(EntityID entity_id)
 	{
 		const auto it = std::find_if(m_children.begin(), m_children.end(),
-			[&entity_id](const ChildType& child)
+			[&entity_id](const ChildRef& child)
 			{
-				return child.GetEntityID() == entity_id;
+				return child.entity_id == entity_id;
 			});
 
 		if (it == m_children.end())
@@ -96,14 +101,14 @@ namespace vlx::gui
 	inline void Container::Sort(const EntityAdmin& entity_admin, const SortFunc<C>& func)
 	{
 		std::sort(m_children.begin(), m_children.end(),
-			[&entity_admin](const ChildType& lhs, const ChildType& rhs)
+			[&entity_admin](const ChildRef& lhs, const ChildRef& rhs)
 			{
-				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.GetEntityID());
+				const auto [lhs_comp, lhs_success] = entity_admin.TryGetComponent<C>(lhs.entity_id);
 
 				if (!lhs_success)
 					return false;
 
-				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs.GetEntityID());
+				const auto [rhs_comp, rhs_success] = entity_admin.TryGetComponent<C>(rhs.entity_id);
 
 				if (!rhs_success)
 					return false;

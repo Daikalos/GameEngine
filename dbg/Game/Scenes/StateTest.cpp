@@ -58,7 +58,7 @@ void StateTest::OnCreated()
 		[](const Relation& lhs, const Relation& rhs)
 		{
 			if (lhs.HasParent() && rhs.HasParent())
-				return lhs.GetParent().GetEntityID() > rhs.GetParent().GetEntityID();
+				return lhs.GetParent().entity_id > rhs.GetParent().entity_id;
 
 			return false;
 		});
@@ -123,7 +123,7 @@ void StateTest::OnCreated()
 	player.AddComponents(PhysicsType{});
 	player.AddComponents<PlayerData>();
 	player.AddComponent<Box>(size);
-	GetWorld().GetSystem<RelationSystem>().Detach(player.GetComponent<Relation>().GetParent(), player, RelationSystem::S_Instant);
+	GetWorld().GetSystem<RelationSystem>().Detach(player.GetComponent<Relation>().GetParent().entity_id, player, RelationSystem::S_Instant);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
 	player.GetComponent<PhysicsBody>().SetMass(1.0f);

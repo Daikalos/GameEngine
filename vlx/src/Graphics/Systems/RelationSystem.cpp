@@ -25,7 +25,7 @@ void RelationSystem::Detach(EntityID parent_id, EntityID child_id, ExecutionStag
 
 void RelationSystem::Attach(EntityID parent_id, Relation& parent, EntityID child_id, Relation& child)
 {
-	if (child.HasParent() && child.GetParent() == parent_id) // child is already correctly parented
+	if (child.HasParent() && child.GetParent().entity_id == parent_id) // child is already correctly parented
 		return;
 
 	if (parent_id == child_id) // cant attach to itself
@@ -36,30 +36,34 @@ void RelationSystem::Attach(EntityID parent_id, Relation& parent, EntityID child
 		throw std::runtime_error("The new parent cannot be a descendant of the child");
 #endif
 
-	if (parent.HasParent() && parent.GetParent() == child_id) // special case
+	if (parent.HasParent() && parent.GetParent().entity_id == child_id) // special case
 	{
-		Detach(parent.m_parent.GetEntityID(), *parent.m_parent, parent_id, parent);
+		Detach(parent.m_parent.entity_id, *parent.m_parent.ptr, parent_id, parent);
 		return;
 	}
 
 	if (child.HasParent()) // if child already has an attached parent we need to detach it
-		Detach(child.m_parent.GetEntityID(), *child.m_parent, child_id, child);
+		Detach(child.m_parent.entity_id, *child.m_parent.ptr, child_id, child);
 
-	child.m_parent = m_entity_admin->GetComponentRef<Relation>(parent_id, &parent);
-	parent.m_children.push_back(m_entity_admin->GetComponentRef<Relation>(child_id, &child));
+	child.m_parent.ptr = m_entity_admin->GetComponentRef<Relation>(parent_id, &parent);
+	child.m_parent.entity_id = parent_id;
+
+	parent.m_children.emplace_back(m_entity_admin->GetComponentRef<Relation>(child_id, &child), child_id);
 }
+
 EntityID RelationSystem::Detach(EntityID parent_id, Relation& parent, EntityID child_id, Relation& child)
 {
 	auto found = std::find_if(parent.m_children.begin(), parent.m_children.end(),
 		[&child_id](const Relation::Ref& ptr)
 		{
-			return ptr.GetEntityID() == child_id;
+			return ptr.entity_id == child_id;
 		});
 
 	if (found == parent.m_children.end())
 		return NULL_ENTITY;
 
-	child.m_parent.Reset();
+	child.m_parent.ptr.Reset();
+	child.m_parent.entity_id = NULL_ENTITY;
 
 	*found = parent.m_children.back();
 	parent.m_children.pop_back();

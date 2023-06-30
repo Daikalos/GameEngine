@@ -115,8 +115,8 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 					BC.OnEnter(b_result);
 
 					m_collisions.emplace(
-						m_entity_admin->GetComponentRef(A.entity_id, A.collider),
-						m_entity_admin->GetComponentRef(B.entity_id, B.collider));
+						m_entity_admin->GetComponentRef(A.entity_id, A.collider), A.entity_id,
+						m_entity_admin->GetComponentRef(B.entity_id, B.collider), B.entity_id);
 				}
 
 				m_curr_collisions.emplace_back(pair);

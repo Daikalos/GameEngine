@@ -116,7 +116,7 @@ void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation
 {
 	if (relation.HasParent())
 	{
-		GlobalTransformMatrix& pgtm = m_entity_admin->GetComponent<GlobalTransformMatrix>(relation.GetParent().GetEntityID());
+		GlobalTransformMatrix& pgtm = m_entity_admin->GetComponent<GlobalTransformMatrix>(relation.GetParent().entity_id);
 		transform.SetPosition(pgtm.matrix.GetInverse() * position); // global_transform position to parent space to appear global
 	}
 	else transform.SetPosition(position);
@@ -164,7 +164,7 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation
 			gtd.m_dirty = true; // all of the children needs their transform to be updated
 			for (const auto& child : children)
 			{
-				auto opt = CheckCache(child.GetEntityID());
+				auto opt = CheckCache(child.entity_id);
 
 				if (!opt.has_value())
 					continue;
@@ -172,7 +172,7 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation
 				GlobalTransformDirty* child_dirty = opt.value()->Get<GlobalTransformDirty>(); // why intellisense, oh why
 
 				if (child_dirty != nullptr && !child_dirty->m_dirty)
-					recursive_ref(*child_dirty, child->GetChildren(), recursive_ref);
+					recursive_ref(*child_dirty, child.ptr->GetChildren(), recursive_ref);
 			}
 		};
 
@@ -183,13 +183,13 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation
 }
 void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, const Relation::Parent& parent) const
 {
-	if (!parent.IsValid())
+	if (!parent.ptr.IsValid())
 	{
 		UpdateToLocal(tm, gtd, gtm);
 		return;
 	}
 
-	auto opt = CheckCache(parent.GetEntityID());
+	auto opt = CheckCache(parent.entity_id);
 	if (!opt.has_value())
 	{
 		UpdateToLocal(tm, gtd, gtm);
@@ -209,7 +209,7 @@ void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty
 	}
 
 	if (pgtd->m_dirty) // only update if not up-to-date
-		UpdateTransforms(*ptm, *pgtd, *pgtm, parent->GetParent());
+		UpdateTransforms(*ptm, *pgtd, *pgtm, parent.ptr->GetParent());
 
 	const Mat4f matrix = pgtm->matrix * tm.matrix;
 	if (matrix != gtm.matrix)
