@@ -40,7 +40,7 @@ void Transform::SetOrigin(const Vector2f& origin)
 	{
 		m_origin = origin;
 
-		m_update = true;
+		m_update_pos = true;
 		m_dirty = true;
 	}
 }
@@ -50,7 +50,7 @@ void Transform::SetPosition(const Vector2f& position)
 	{
 		m_position = position;
 
-		m_update = true;
+		m_update_pos = true;
 		m_dirty = true;
 	}
 }
@@ -60,7 +60,7 @@ void Transform::SetScale(const Vector2f& scale)
 	{
 		m_scale = scale;
 
-		m_update = true;
+		m_update_rot = true;
 		m_dirty = true;
 	}
 }
@@ -71,7 +71,7 @@ void Transform::SetRotation(sf::Angle angle)
 	{
 		m_rotation = rotation;
 
-		m_update = true;
+		m_update_rot = true;
 		m_dirty = true;
 	}
 }

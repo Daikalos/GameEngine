@@ -18,10 +18,16 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 		{
 			// TODO: consider implementing TransformChanging that tracks changes to the component instead of doing it brute-force as it is now
 
-			if (t.m_update)
+			if (t.m_update_pos)
 			{
-				tm.matrix.Build(t.GetPosition(), t.GetOrigin(), t.GetScale(), t.GetRotation());
-				t.m_update = false;
+				tm.matrix.Rebuild(t.GetPosition(), t.GetOrigin());
+				t.m_update_pos = false;
+			}
+
+			if (t.m_update_rot)
+			{
+				tm.matrix.Rebuild(t.GetScale(), t.GetRotation());
+				t.m_update_rot = false;
 			}
 		});
 

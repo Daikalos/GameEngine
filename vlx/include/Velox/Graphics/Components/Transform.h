@@ -39,7 +39,8 @@ namespace vlx
 		Vector2f	m_scale;
 		sf::Angle	m_rotation;
 
-		bool		m_update			{true};
+		bool		m_update_pos		{true};
+		bool		m_update_rot		{true};
 		bool		m_dirty				{true};
 
 		friend class TransformSystem;

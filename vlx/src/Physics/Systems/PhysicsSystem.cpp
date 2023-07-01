@@ -17,21 +17,21 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 
 {
 	m_integrate_velocity.Each(
-		[this](EntityID entity_id, PhysicsBody& body)
+		[this](EntityID entity_id, PhysicsBody& pb)
 		{
-			if (!body.IsAwake() || !body.IsEnabled())
+			if (!pb.IsAwake() || !pb.IsEnabled())
 				return;
 
-			if (body.GetType() != BodyType::Dynamic)
+			if (pb.GetType() != BodyType::Dynamic)
 				return;
 
 			// velocity
-			body.m_velocity			+= m_time->GetFixedDT() * body.GetInvMass() * (m_gravity * body.GetGravityScale() * body.GetMass() + body.GetForce());
-			body.m_angular_velocity += m_time->GetFixedDT() * body.GetInvInertia() * body.GetTorque();
+			pb.m_velocity			+= m_time->GetFixedDT() * pb.GetInvMass() * (m_gravity * pb.GetGravityScale() * pb.GetMass() + pb.GetForce());
+			pb.m_angular_velocity	+= m_time->GetFixedDT() * pb.GetInvInertia() * pb.GetTorque();
 
 			// damping
-			body.m_velocity			*= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetLinearDamping()));
-			body.m_angular_velocity *= (1.0f / (1.0f + m_time->GetFixedDT() * body.GetAngularDamping()));
+			pb.m_velocity			*= (1.0f / (1.0f + m_time->GetFixedDT() * pb.GetLinearDamping()));
+			pb.m_angular_velocity	*= (1.0f / (1.0f + m_time->GetFixedDT() * pb.GetAngularDamping()));
 		});
 
 	m_integrate_position.Each(

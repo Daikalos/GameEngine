@@ -75,3 +75,19 @@ Mat4f& Mat4f::Build(const Vector2f& position, sf::Angle rot)
 
 	return *this;
 }
+
+Mat4f& Mat4f::Rebuild(const Vector2f& scale, sf::Angle rot)
+{
+	const float angle	= -rot.asRadians();
+	const float cos		= std::cos(angle);
+	const float sin		= std::sin(angle);
+	const float sxc		= scale.x * cos;
+	const float syc		= scale.y * cos;
+	const float sxs		= scale.x * sin;
+	const float sys		= scale.y * sin;
+
+	m_matrix[0] =  sxc;	m_matrix[4] = sys;
+	m_matrix[1] = -sxs; m_matrix[5] = syc;
+	
+	return *this;
+}

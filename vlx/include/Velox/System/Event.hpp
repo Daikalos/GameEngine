@@ -59,6 +59,7 @@ namespace vlx
 		bool RemoveID(typename HandlerType::IDType handler_id);
 
 		void Call(Args... params) const;
+		void CallMain(Args... params) const;
 		std::future<void> CallAsync(Args... params) const;
 
 	private:
@@ -216,9 +217,16 @@ namespace vlx
 		CallImpl(handlers_copy, params...);
 	}
 	template<typename... Args>
+	inline void Event<Args...>::CallMain(Args... params) const
+	{
+		std::shared_lock lock(m_lock);
+		CallImpl(m_handlers, params...); // if called in main thread
+	}
+
+	template<typename... Args>
 	inline void Event<Args...>::CallImpl(const HandlerList& handlers, Args... params) const
 	{
-		for (const auto& handler : m_handlers)
+		for (const auto& handler : handlers)
 			handler(params...);
 	}
 	template<typename... Args>
@@ -227,7 +235,7 @@ namespace vlx
 		return std::async(std::launch::async,
 			[this](Args... async_params)
 			{
-				call(async_params...);
+				Call(async_params...);
 			}, params...);
 	}
 

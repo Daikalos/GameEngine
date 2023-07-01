@@ -125,15 +125,6 @@ namespace vlx
 		/// 
 		constexpr Mat4f& Scale(const Vector2f& factors, const Vector2f& center);
 
-		/// Builds a transform from the arguments.
-		/// 
-		/// \param Position: translation of matrix
-		/// 
-		/// \returns Reference to *this
-		/// 
-		constexpr Mat4f& Build(
-			const Vector2f& position);
-
 		/// Combine this matrix with a rotation.
 		/// 
 		/// \param Angle: rotation angle
@@ -186,9 +177,21 @@ namespace vlx
 		/// 
 		/// \returns Reference to *this
 		/// 
-		VELOX_API Mat4f& Build(
-			const Vector2f& position,
-			sf::Angle rot);
+		VELOX_API Mat4f& Build(const Vector2f& position, sf::Angle rot);
+
+		/// Builds a transform from the arguments.
+		/// 
+		/// \param Position: translation of matrix
+		/// 
+		/// \returns Reference to *this
+		/// 
+		constexpr Mat4f& Build(const Vector2f& position);
+
+		constexpr Mat4f& Rebuild(const Vector2f& position);
+
+		constexpr Mat4f& Rebuild(const Vector2f& position, const Vector2f& origin);
+
+		VELOX_API Mat4f& Rebuild(const Vector2f& scale, sf::Angle rot);
 
 	public:
 		static const Mat4f Identity;
@@ -197,7 +200,7 @@ namespace vlx
 		union
 		{
 			sf::Transform m_transform{};
-			float m_matrix[16];
+			float m_matrix[4 * 4];
 		};
 	};
 
@@ -328,6 +331,22 @@ namespace vlx
 		m_transform = Mat4f( 1.f, 0.f, tx,
 							 0.f, 1.f, ty,
 							 0.f, 0.f, 1.f);
+
+		return *this;
+	}
+
+	constexpr Mat4f& Mat4f::Rebuild(const Vector2f& position)
+	{
+		m_matrix[12] = position.x;
+		m_matrix[13] = position.y;
+
+		return *this;
+	}
+
+	constexpr Mat4f& Mat4f::Rebuild(const Vector2f& position, const Vector2f& origin)
+	{
+		m_matrix[12] = position.x - origin.x * m_matrix[0] - origin.y * m_matrix[4];
+		m_matrix[13] = position.y - origin.x * m_matrix[1] - origin.y * m_matrix[5];
 
 		return *this;
 	}

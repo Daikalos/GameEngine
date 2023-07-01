@@ -161,7 +161,7 @@ bool StateTest::Update(Time& time)
 
 	if (et1) et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
-	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Left))
+	if (GetWorld().GetControls().Get<MouseInput>().Held(sf::Mouse::Left))
 	{
 		for (int i = 0; i < 10; ++i)
 		{
