@@ -97,6 +97,7 @@ namespace vlx::py
 	static WindingOrder ComputePolygonWindingOrder(std::span<const Vector2f> vertices)
 	{
 		uint32 count = vertices.size();
+
 		if (count < 3)
 			return WO_None;
 

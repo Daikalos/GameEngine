@@ -71,7 +71,7 @@ void SpriteBatch::Batch(const Mat4f& transform,
 	}
 }
 
-void SpriteBatch::Batch(const Mat4f& transform, VertexSpan vertices, std::span<const uint32> indices, const sf::Texture* texture, const sf::Shader* shader, float depth)
+void SpriteBatch::Batch(const Mat4f& transform, VertexSpan vertices, IndicesSpan indices, const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	for (uint64 i = 2; i < indices.size(); i += TRIANGLE_COUNT)
 		AddTriangle(transform, vertices[indices[i - 2]], vertices[indices[i - 1]], vertices[indices[i]], texture, shader, depth);

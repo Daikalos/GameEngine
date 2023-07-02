@@ -25,7 +25,7 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		System			m_system;
+		System			m_cull;
 		const Camera*	m_camera {nullptr};
 	};
 }

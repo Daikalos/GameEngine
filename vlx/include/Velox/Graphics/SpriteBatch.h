@@ -27,7 +27,9 @@ namespace vlx
 	{
 	private:
 		using SizeType = uint32;
+
 		using VertexSpan = std::span<const sf::Vertex>;
+		using IndicesSpan = std::span<const uint32>;
 
 		static constexpr SizeType TRIANGLE_COUNT = 3;
 
@@ -85,7 +87,7 @@ namespace vlx
 		void Batch(
 			const Mat4f& transform,
 			VertexSpan vertices,
-			std::span<const uint32> indices,
+			IndicesSpan indices,
 			const sf::Texture* texture,
 			const sf::Shader* shader,
 			float depth = 0.0f);

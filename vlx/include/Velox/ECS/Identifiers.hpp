@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <span>
 
 #include <Velox/Algorithms/SmallVector.hpp>
 #include <Velox/System/Concepts.h>
@@ -23,6 +24,8 @@ namespace vlx
 
 	template<class... Cs> requires IsComponents<Cs...>
 	using ArrComponentIDs	= std::array<ComponentTypeID, sizeof...(Cs)>;
+
+	using ComponentIDSpan	= std::span<const ComponentTypeID>;
 
 	inline constexpr EntityID			NULL_ENTITY		= NULL;
 	inline constexpr ComponentTypeID	NULL_COMPONENT	= NULL;

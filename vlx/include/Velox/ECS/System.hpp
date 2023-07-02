@@ -3,13 +3,16 @@
 #include <span>
 #include <functional>
 #include <unordered_set>
+#include <algorithm>
 #include <cassert>
 
-#include <Velox/Config.hpp>
 #include <Velox/System/Event.hpp>
 #include <Velox/System/IDGenerator.h>
+#include <Velox/System/Concepts.h>
+
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/Utility/ContainerUtils.h>
+
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"
@@ -54,6 +57,8 @@ namespace vlx
 		friend class EntityAdmin;
 	};
 
+	/// Common system that adds behaviour to components
+	/// 
 	template<class... Cs> requires IsComponents<Cs...>
 	class System : public SystemBase
 	{
@@ -71,32 +76,45 @@ namespace vlx
 	public:
 		System(EntityAdmin& entity_admin);
 		System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer = true);
+
 		~System();
 
 	public:
 		const EntityAdmin* GetEntityAdmin() const noexcept;
 		EntityAdmin* GetEntityAdmin() noexcept;
 
-		ArchetypeID GetIDKey() const override;
-		const ComponentIDs& GetArchKey() const override;
+		virtual ArchetypeID GetIDKey() const override;
+		virtual const ComponentIDs& GetArchKey() const override;
 
-		void SetPriority(const float val) override;
+		/// Determines the priority of the system in the layer.
+		/// 
+		/// /param Value: priority value, high value means that the system will likely be called first
+		/// 
+		virtual void SetPriority(float val) override;
 
 	public:
-		/// Forces this system to run alone, ignoring all others in the layer
+		/// Set function to be called for all the entities when system is run.
+		/// 
+		template<typename Func>
+		void All(Func&& func);
+
+		/// Set function to be called for each entity when system is run.
+		/// 
+		template<typename Func>
+		void Each(Func&& func);
+
+	public:
+		/// Forces this system to run alone, ignoring all others in the layer.
 		/// 
 		void ForceRun();
 
-		/// Forces this system to be added to the entity admin at specified layer
+		/// Forces this system to be added to the entity admin at specified layer.
 		/// 
 		bool ForceAdd(LayerType layer);
 
-		/// Forces this system to be removed from entity admin
+		/// Forces this system to be removed from entity admin.
 		/// 
 		bool ForceRemove();
-
-		void All(AllFunc&& func);
-		void Each(EachFunc&& func);
 
 	protected:
 		virtual void Run(const Archetype* const archetype) const override;
@@ -115,7 +133,7 @@ namespace vlx
 	};
 
 	template<class... Cs> requires IsComponents<Cs...>
-	class SystemExclude final : public System<Cs...>
+	class SystemExclude final : public virtual System<Cs...>
 	{
 	private:
 		struct ArchExclData
@@ -135,14 +153,14 @@ namespace vlx
 	public:
 		///	Exclude any entities that holds these components
 		/// 
-		template<class... Cs> requires IsComponents<Cs...>
+		template<class... Cs2> requires IsComponents<Cs2...> && (!Contains<Cs2, Cs...> && ...)
 		void Exclude();
 
 	protected:
 		void Run(const Archetype* const archetype) const override;
 
 	private:
-		bool IsArchetypeExcluded(const Archetype* archetype) const;
+		bool IsArchetypeExcluded(const Archetype* const archetype) const;
 
 	protected:
 		ComponentIDs			m_exclusion;
@@ -150,7 +168,26 @@ namespace vlx
 	};
 
 	template<class... Cs> requires IsComponents<Cs...>
-	class SystemEvent final : public System<Cs...>
+	class SystemRequire final : public virtual System<Cs...>
+	{
+	public:
+		using System<Cs...>::System;
+
+	public:
+		const ComponentIDs& GetArchKey() const override;
+
+	public:
+		///	Require that the entities also holds these components, but don't care about updating them
+		/// 
+		template<class... Cs2> requires IsComponents<Cs2...> && (!Contains<Cs2, Cs...> && ...)
+		void Require();
+
+	private:
+		ComponentIDs m_require;
+	};
+
+	template<class... Cs> requires IsComponents<Cs...>
+	class SystemEvent final : public virtual System<Cs...>
 	{
 	public:
 		using System<Cs...>::System;
@@ -178,10 +215,8 @@ namespace vlx
 	inline void SystemBase::End() const		{}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline System<Cs...>::System(EntityAdmin& entity_admin) : m_entity_admin(&entity_admin)
-	{
-
-	}
+	inline System<Cs...>::System(EntityAdmin& entity_admin) 
+		: m_entity_admin(&entity_admin) {}
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer)
@@ -227,7 +262,7 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::SetPriority(const float val)
+	inline void System<Cs...>::SetPriority(float val)
 	{
 		SystemBase::SetPriority(val);
 		m_entity_admin->SortSystems(m_layer);
@@ -272,14 +307,16 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::All(AllFunc&& func)
+	template<typename Func>
+	inline void System<Cs...>::All(Func&& func)
 	{
 		assert(!m_func);
-		m_func = std::move(func);
+		m_func = std::forward<Func>(func);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::Each(EachFunc&& func)
+	template<typename Func>
+	inline void System<Cs...>::Each(Func&& func)
 	{
 		assert(!m_func);
 		m_func = [func = std::forward<EachFunc>(func)](std::span<const EntityID> entities, Cs*... cs)
@@ -329,14 +366,19 @@ namespace vlx
 			m_func(entities, ts...);
 	}
 
+	// EXCLUDE
+
 	template<class... Cs1> requires IsComponents<Cs1...>
-	template<class... Cs2> requires IsComponents<Cs2...>
+	template<class... Cs2> requires IsComponents<Cs2...> && (!Contains<Cs2, Cs1...> && ...)
 	inline void SystemExclude<Cs1...>::Exclude()
 	{
-		m_exclusion = cu::Sort<ComponentIDs>({ ComponentTypeID(id::Type<Cs2>::ID())... });
+		constexpr ArrComponentIDs<Cs2...> component_ids 
+			= cu::Sort<ArrComponentIDs<Cs2...>>({ id::Type<Cs2>::ID()... });
+
+		m_exclusion = { component_ids.begin(), component_ids.end() };
 	}
 
-	template<class ...Cs> requires IsComponents<Cs...>
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void SystemExclude<Cs...>::Run(const Archetype* const archetype) const
 	{
 		assert(this->IsEnabled());
@@ -354,7 +396,7 @@ namespace vlx
 	}
 
 	template<class ...Cs> requires IsComponents<Cs...>
-	inline bool SystemExclude<Cs...>::IsArchetypeExcluded(const Archetype* archetype) const
+	inline bool SystemExclude<Cs...>::IsArchetypeExcluded(const Archetype* const archetype) const
 	{
 		const auto ait = m_excluded_archetypes.find(archetype->id);
 		if (ait != m_excluded_archetypes.end())
@@ -375,6 +417,27 @@ namespace vlx
 
 		return excluded;
 	}
+
+	// REQUIRE
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline const ComponentIDs& SystemRequire<Cs...>::GetArchKey() const
+	{
+		return m_require;
+	}
+
+	template<class... Cs1> requires IsComponents<Cs1...>
+	template<class... Cs2> requires IsComponents<Cs2...> && (!Contains<Cs2, Cs1...> && ...)
+	inline void SystemRequire<Cs1...>::Require()
+	{
+		constexpr ArrComponentIDs<Cs2...> component_ids
+			= cu::Sort<ArrComponentIDs<Cs2...>>({ id::Type<Cs2>::ID()... });
+
+		std::ranges::merge(component_ids.begin(), component_ids.end(), 
+			System<Cs1...>::SystemIDs.begin(), System<Cs1...>::SystemIDs.end(), m_require.begin());
+	}
+
+	// EVENT
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void SystemEvent<Cs...>::Start() const

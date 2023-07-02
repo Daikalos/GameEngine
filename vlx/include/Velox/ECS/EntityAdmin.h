@@ -349,6 +349,14 @@ namespace vlx
 		template<IsComponent C, class Comp> requires SameTypeParamDecay<Comp, C, 0, 1>
 		bool SortComponents(EntityID entity_id, Comp&& comparison);
 
+		///	Returns a duplicated entity with the same properties as the specified one
+		/// 
+		/// \param EntityID: entity id of the one to copy the components from
+		/// 
+		/// \returns ID of the newly created entity containing the copied components
+		///
+		VELOX_API NODISC EntityID Duplicate(EntityID entity_id);
+
 		/// Searches for entities that contains the specified components
 		/// 
 		/// \param Restricted: Returns all entities that exactly match the provided components
@@ -357,6 +365,12 @@ namespace vlx
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
+
+		///	Shrinks the ECS by removing all the extra archetypes.
+		/// 
+		/// \param Extensive: Perform a complete shrink of the ECS by removing all the extra data space
+		/// 
+		VELOX_API void Shrink(bool extensive = false);
 
 		///	Increases the capacity of the archetype containing an exact match of the specified components.
 		/// 
@@ -373,43 +387,72 @@ namespace vlx
 		template<class... Cs> requires IsComponents<Cs...>
 		void Reserve(std::size_t component_count, std::type_identity<std::tuple<Cs...>>);
 
+		/// Searches for entities that contains the specified components
+		/// 
+		/// \param ComponentIDSpan: The IDs of the components to search the entity for
+		/// \param ArchetypeID: Combined hash of the component IDs
+		/// \param Restricted: Returns all entities that exactly match the provided components
+		/// 
+		/// \returns Entities that contains the components
+		/// 
+		VELOX_API NODISC std::vector<EntityID> GetEntitiesWith(ComponentIDSpan component_ids, ArchetypeID archetype_id, bool restricted = false) const;
+
+		///	Increases the capacity of the archetype containing an exact match of the specified components.
+		/// 
+		/// \param ComponentIDSpan: The IDs of the components to search the entity for
+		/// \param ArchetypeID: Combined hash of the component IDs
+		/// \param ComponentCount: Number of components to reserve for in the archetypes
+		/// \param Tuple: To automatically deduce the template arguments.
+		/// 
+		VELOX_API void Reserve(ComponentIDSpan component_ids, ArchetypeID archetype_id, std::size_t component_count);
+
+		///	Register listener for when a specific component is added to an entity.
+		/// 
+		/// \param Func: Function that is called when said event occurs
+		/// 
+		/// \returns ID for the event, so that it may also be deregistered
+		/// 
 		template<IsComponent C, typename Func>
 		NODISC auto RegisterOnAddListener(Func&& func);
 
+		///	Register listener for when a specific component is moved in memory for an entity.
+		/// 
+		/// \param Func: Function that is called when said event occurs
+		/// 
+		/// \returns ID for the event, so that it may also be deregistered
+		/// 
 		template<IsComponent C, typename Func>
 		NODISC auto RegisterOnMoveListener(Func&& func);
 
+		///	Register listener for when a specific component is removed from an entity.
+		/// 
+		/// \param Func: Function that is called when said event occurs
+		/// 
+		/// \returns ID for the event, so that it may also be deregistered
+		/// 
 		template<IsComponent C, typename Func>
 		NODISC auto RegisterOnRemoveListener(Func&& func);
 
+		///	Deregister on add listener
+		/// 
+		/// \param IDType: ID of the event to be removed
+		/// 
 		template<IsComponent C>
 		void DeregisterOnAddListener(typename EventHandler<>::IDType id);
 
+		///	Deregister on move listener
+		/// 
+		/// \param IDType: ID of the event to be removed
+		/// 
 		template<IsComponent C>
 		void DeregisterOnMoveListener(typename EventHandler<>::IDType id);
 
+		///	Deregister on remove listener
+		/// 
+		/// \param IDType: ID of the event to be removed
+		/// 
 		template<IsComponent C>
 		void DeregisterOnRemoveListener(typename EventHandler<>::IDType id);
-
-	public:
-		///	Returns a duplicated entity with the same properties as the specified one
-		/// 
-		/// \param EntityID: entity id of the one to copy the components from
-		/// 
-		/// \returns ID of the newly created entity containing the copied components
-		///
-		VELOX_API NODISC EntityID Duplicate(EntityID entity_id);
-
-		///	Shrinks the ECS by removing all the empty archetypes.
-		/// 
-		/// \param Extensive: Perform a complete shrink of the ECS by removing all the extra data space.
-		/// 
-		VELOX_API void Shrink(bool extensive = false);
-
-	public:
-		VELOX_API NODISC std::vector<EntityID> GetEntitiesWith(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, bool restricted = false) const;
-
-		VELOX_API void Reserve(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, std::size_t component_count);
 
 	public:
 		VELOX_API NODISC EntityID GetNewEntityID();
@@ -432,8 +475,8 @@ namespace vlx
 		VELOX_API void AddComponent(EntityID entity_id, ComponentTypeID add_component_id);
 		VELOX_API bool RemoveComponent(EntityID entity_id, ComponentTypeID rmv_component_id);
 
-		VELOX_API void AddComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
-		VELOX_API bool RemoveComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
+		VELOX_API void AddComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id);
+		VELOX_API bool RemoveComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id);
 
 		VELOX_API void DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
 		VELOX_API void DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
@@ -453,11 +496,11 @@ namespace vlx
 		void UpdateComponentRef(EntityID entity_id, C* new_component) const;
 
 	private:
-		VELOX_API NODISC Archetype* GetArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
+		VELOX_API NODISC Archetype* GetArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id);
 
-		VELOX_API NODISC const std::vector<Archetype*>& GetArchetypes(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id) const;
+		VELOX_API NODISC const std::vector<Archetype*>& GetArchetypes(ComponentIDSpan component_ids, ArchetypeID archetype_id) const;
 
-		VELOX_API Archetype* CreateArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id);
+		VELOX_API Archetype* CreateArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id);
 
 		VELOX_API void CallOnAddEvent(ComponentTypeID component_id, EntityID eid, void* data) const;
 		VELOX_API void CallOnMoveEvent(ComponentTypeID component_id, EntityID eid, void* data) const;

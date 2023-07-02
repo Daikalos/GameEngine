@@ -7,7 +7,7 @@ EntityAdmin::~EntityAdmin()
 	Destroy();
 }
 
-std::vector<EntityID> EntityAdmin::GetEntitiesWith(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, bool restricted) const
+std::vector<EntityID> EntityAdmin::GetEntitiesWith(ComponentIDSpan component_ids, ArchetypeID archetype_id, bool restricted) const
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
@@ -36,18 +36,18 @@ std::vector<EntityID> EntityAdmin::GetEntitiesWith(std::span<const ComponentType
 	return entities;
 }
 
-void EntityAdmin::Reserve(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id, std::size_t component_count)
+void EntityAdmin::Reserve(ComponentIDSpan component_ids, ArchetypeID archetype_id, std::size_t component_count)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
 	Archetype* archetype = GetArchetype(component_ids, archetype_id);
 	for (std::size_t i = 0; i < archetype->type.size(); ++i)
 	{
-		const auto component = m_component_map[archetype->type[i]].get();
-		const auto component_size = component->GetSize();
+		const auto component		= m_component_map[archetype->type[i]].get();
+		const auto component_size	= component->GetSize();
 
-		const auto current_size = archetype->component_data_size[i];
-		const auto new_size = component_count * component_size;
+		const auto current_size		= archetype->component_data_size[i];
+		const auto new_size			= component_count * component_size;
 
 		if (new_size > current_size) // only reserve if larger than current size
 		{
@@ -279,7 +279,7 @@ bool EntityAdmin::RemoveComponent(EntityID entity_id, ComponentTypeID rmv_compon
 	return RemoveComponents(entity_id, component_ids, archetype_id);
 }
 
-void EntityAdmin::AddComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
+void EntityAdmin::AddComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
 
@@ -360,7 +360,7 @@ void EntityAdmin::AddComponents(EntityID entity_id, std::span<const ComponentTyp
 	record.archetype = new_archetype;
 }
 
-bool EntityAdmin::RemoveComponents(EntityID entity_id, std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
+bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
 
@@ -423,22 +423,19 @@ bool EntityAdmin::RemoveComponents(EntityID entity_id, std::span<const Component
 
 void EntityAdmin::DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
 {
-	const auto it = m_events_add.find(component_id);
-	if (it != m_events_add.end())
+	if (auto it = m_events_add.find(component_id); it != m_events_add.end())
 		it->second -= id;
 }
 
 void EntityAdmin::DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
 {
-	const auto it = m_events_move.find(component_id);
-	if (it != m_events_move.end())
+	if (auto it = m_events_move.find(component_id); it != m_events_move.end())
 		it->second -= id;
 }
 
 void EntityAdmin::DeregisterOnRemoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
 {
-	const auto it = m_events_remove.find(component_id);
-	if (it != m_events_remove.end())
+	if (auto it = m_events_remove.find(component_id); it != m_events_remove.end())
 		it->second -= id;
 }
 
@@ -453,7 +450,7 @@ void EntityAdmin::Shutdown()
 	Destroy(); // invalidate the ecs and destroy all data
 }
 
-Archetype* EntityAdmin::GetArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
+Archetype* EntityAdmin::GetArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
@@ -464,7 +461,7 @@ Archetype* EntityAdmin::GetArchetype(std::span<const ComponentTypeID> component_
 	return CreateArchetype(component_ids, archetype_id); // archetype does not exist, create new one
 }
 
-const std::vector<Archetype*>& EntityAdmin::GetArchetypes(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id) const
+const std::vector<Archetype*>& EntityAdmin::GetArchetypes(ComponentIDSpan component_ids, ArchetypeID archetype_id) const
 {
 	const auto it = m_archetype_cache.find(archetype_id);
 	if (it != m_archetype_cache.end())
@@ -481,7 +478,7 @@ const std::vector<Archetype*>& EntityAdmin::GetArchetypes(std::span<const Compon
 	return m_archetype_cache.emplace(archetype_id, result).first->second;
 }
 
-Archetype* EntityAdmin::CreateArchetype(std::span<const ComponentTypeID> component_ids, ArchetypeID archetype_id)
+Archetype* EntityAdmin::CreateArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
@@ -496,8 +493,8 @@ Archetype* EntityAdmin::CreateArchetype(std::span<const ComponentTypeID> compone
 	{
 		constexpr uint64 DEFAULT_BYTE_SIZE = 128; // default size in bytes to reduce number of reallocations
 
-		new_archetype->component_data.push_back(std::make_unique_for_overwrite<ByteArray>(DEFAULT_BYTE_SIZE));
-		new_archetype->component_data_size.push_back(DEFAULT_BYTE_SIZE);
+		new_archetype->component_data.emplace_back(std::make_unique_for_overwrite<ByteArray>(DEFAULT_BYTE_SIZE));
+		new_archetype->component_data_size.emplace_back(DEFAULT_BYTE_SIZE);
 
 		m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
 	}

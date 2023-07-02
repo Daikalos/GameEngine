@@ -112,6 +112,7 @@ void StateTest::OnCreated()
 	entity.GetComponent<Transform>().SetRotation(sf::degrees(0.0f));
 
 	constexpr int abc = sizeof(PlayerBehaviour);
+	constexpr int abc123 = sizeof(System<Object>);
 
 	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
 
