@@ -18,16 +18,16 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 		{
 			// TODO: consider implementing TransformChanging that tracks changes to the component instead of doing it brute-force as it is now
 
-			if (t.m_update_pos)
-			{
-				tm.matrix.Rebuild(t.GetPosition(), t.GetOrigin());
-				t.m_update_pos = false;
-			}
-
 			if (t.m_update_rot)
 			{
 				tm.matrix.Rebuild(t.GetScale(), t.GetRotation());
 				t.m_update_rot = false;
+			}
+
+			if (t.m_update_pos)
+			{
+				tm.matrix.Rebuild(t.GetPosition(), t.GetOrigin());
+				t.m_update_pos = false;
 			}
 		});
 
@@ -221,22 +221,27 @@ void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty
 	if (matrix != gtm.matrix)
 	{
 		gtm.matrix = matrix;
-		gtd.m_dirty = false;
 
 		gtd.m_update_position = true;
 		gtd.m_update_rotation = true;
 		gtd.m_update_scale = true;
 	}
+
+	gtd.m_dirty = false;
 }
 
 void TransformSystem::UpdateToLocal(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm) const
 {
-	gtm.matrix = tm.matrix;
-	gtd.m_dirty = false;
+	if (tm.matrix != gtm.matrix) // no need to update if already equal
+	{
+		gtm.matrix = tm.matrix;
 
-	gtd.m_update_position = true;
-	gtd.m_update_rotation = true;
-	gtd.m_update_scale = true;
+		gtd.m_update_position = true;
+		gtd.m_update_rotation = true;
+		gtd.m_update_scale = true;
+	}
+
+	gtd.m_dirty = false;
 
 	//global_transform.m_position	= transform.m_position - transform.m_origin;
 	//global_transform.m_scale		= transform.m_scale;
