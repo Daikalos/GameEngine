@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_SOCKETSELECTOR_HPP
-#define SFML_SOCKETSELECTOR_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -165,9 +164,6 @@ private:
 } // namespace sf
 
 
-#endif // SFML_SOCKETSELECTOR_HPP
-
-
 ////////////////////////////////////////////////////////////
 /// \class sf::SocketSelector
 /// \ingroup network
@@ -223,7 +219,7 @@ private:
 ///         {
 ///             // The listener is ready: there is a pending connection
 ///             auto client = std::make_unique<sf::TcpSocket>();
-///             if (listener.accept(*client) == sf::Socket::Done)
+///             if (listener.accept(*client) == sf::Socket::Status::Done)
 ///             {
 ///                 // Add the new client to the selector so that we will
 ///                 // be notified when he sends something
@@ -247,7 +243,7 @@ private:
 ///                 {
 ///                     // The client has sent some data, we can receive it
 ///                     sf::Packet packet;
-///                     if (client.receive(packet) == sf::Socket::Done)
+///                     if (client.receive(packet) == sf::Socket::Status::Done)
 ///                     {
 ///                         ...
 ///                     }

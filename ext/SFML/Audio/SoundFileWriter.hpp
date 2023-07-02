@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_SOUNDFILEWRITER_HPP
-#define SFML_SOUNDFILEWRITER_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -31,7 +30,6 @@
 #include <SFML/Audio/Export.hpp>
 
 #include <filesystem>
-#include <string>
 
 
 namespace sf
@@ -47,9 +45,7 @@ public:
     /// \brief Virtual destructor
     ///
     ////////////////////////////////////////////////////////////
-    virtual ~SoundFileWriter()
-    {
-    }
+    virtual ~SoundFileWriter() = default;
 
     ////////////////////////////////////////////////////////////
     /// \brief Open a sound file for writing
@@ -72,13 +68,10 @@ public:
     /// \param count   Number of samples to write
     ///
     ////////////////////////////////////////////////////////////
-    virtual void write(const Int16* samples, Uint64 count) = 0;
+    virtual void write(const std::int16_t* samples, std::uint64_t count) = 0;
 };
 
 } // namespace sf
-
-
-#endif // SFML_SOUNDFILEWRITER_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -115,7 +108,7 @@ public:
 ///         // return true on success
 ///     }
 ///
-///     void write(const sf::Int16* samples, sf::Uint64 count) override
+///     void write(const std::int16_t* samples, std::uint64_t count) override
 ///     {
 ///         // write 'count' samples stored at address 'samples',
 ///         // convert them (for example to normalized float) if the format requires it

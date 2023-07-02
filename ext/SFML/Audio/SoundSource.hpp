@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_SOUNDSOURCE_HPP
-#define SFML_SOUNDSOURCE_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -31,11 +30,13 @@
 #include <SFML/Audio/Export.hpp>
 
 #include <SFML/Audio/AlResource.hpp>
+
 #include <SFML/System/Vector3.hpp>
 
 
 namespace sf
 {
+// NOLINTBEGIN(readability-make-member-function-const)
 ////////////////////////////////////////////////////////////
 /// \brief Base class defining a sound's properties
 ///
@@ -292,10 +293,8 @@ protected:
     unsigned int m_source; //!< OpenAL source identifier
 };
 
+// NOLINTEND(readability-make-member-function-const)
 } // namespace sf
-
-
-#endif // SFML_SOUNDSOURCE_HPP
 
 
 ////////////////////////////////////////////////////////////

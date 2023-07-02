@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_TCPSOCKET_HPP
-#define SFML_TCPSOCKET_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -31,9 +30,12 @@
 #include <SFML/Network/Export.hpp>
 
 #include <SFML/Network/Socket.hpp>
+
 #include <SFML/System/Time.hpp>
 
 #include <optional>
+
+#include <cstddef>
 
 
 namespace sf
@@ -179,7 +181,7 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Send a formatted packet of data to the remote peer
     ///
-    /// In non-blocking mode, if this function returns sf::Socket::Partial,
+    /// In non-blocking mode, if this function returns sf::Socket::Status::Partial,
     /// you \em must retry sending the same unmodified packet before sending
     /// anything else in order to guarantee the packet arrives at the remote
     /// peer uncorrupted.
@@ -219,24 +221,19 @@ private:
     ////////////////////////////////////////////////////////////
     struct PendingPacket
     {
-        PendingPacket();
-
-        Uint32            Size;         //!< Data of packet size
-        std::size_t       SizeReceived; //!< Number of size bytes received so far
-        std::vector<char> Data;         //!< Data of the packet
+        std::uint32_t          Size{};         //!< Data of packet size
+        std::size_t            SizeReceived{}; //!< Number of size bytes received so far
+        std::vector<std::byte> Data;           //!< Data of the packet
     };
 
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    PendingPacket     m_pendingPacket;     //!< Temporary data of the packet currently being received
-    std::vector<char> m_blockToSendBuffer; //!< Buffer used to prepare data being sent from the socket
+    PendingPacket          m_pendingPacket;     //!< Temporary data of the packet currently being received
+    std::vector<std::byte> m_blockToSendBuffer; //!< Buffer used to prepare data being sent from the socket
 };
 
 } // namespace sf
-
-
-#endif // SFML_TCPSOCKET_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -252,7 +249,7 @@ private:
 /// and without errors (no data corrupted, lost or duplicated).
 ///
 /// When a socket is connected to a remote host, you can
-/// retrieve informations about this host with the
+/// retrieve information about this host with the
 /// getRemoteAddress and getRemotePort functions. You can
 /// also get the local port to which the socket is bound
 /// (which is automatically chosen when the socket is connected),

@@ -54,15 +54,15 @@ void SpriteBatch::Batch(const Mat4f& transform,
 {
 	switch (type)
 	{
-	case sf::Triangles:
+	case sf::PrimitiveType::Triangles:
 		for (std::size_t i = 2; i < vertices.size(); i += TRIANGLE_COUNT)
 			AddTriangle(transform, vertices[i - 2], vertices[i - 1], vertices[i], texture, shader, depth);
 		break;
-	case sf::TriangleStrip:
+	case sf::PrimitiveType::TriangleStrip:
 		for (std::size_t i = 2; i < vertices.size(); ++i)
 			AddTriangle(transform, vertices[i - 2], vertices[i - 1], vertices[i], texture, shader, depth);
 		break;
-	case sf::TriangleFan:
+	case sf::PrimitiveType::TriangleFan:
 		for (std::size_t i = 2; i < vertices.size(); ++i)
 			AddTriangle(transform, vertices[0], vertices[i - 1], vertices[i], texture, shader, depth);
 		break;
@@ -93,7 +93,7 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 		states_copy.texture = m_batches[i].texture;
 		states_copy.shader = m_batches[i].shader;
 
-		target.draw(&m_vertices[start], m_batches[i].count, sf::Triangles, states_copy);
+		target.draw(&m_vertices[start], m_batches[i].count, sf::PrimitiveType::Triangles, states_copy);
 
 		start += m_batches[i].count;
 	}

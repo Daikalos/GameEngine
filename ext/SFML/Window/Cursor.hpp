@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_CURSOR_HPP
-#define SFML_CURSOR_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -33,6 +32,8 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <memory>
+
+#include <cstdint>
 
 namespace sf
 {
@@ -109,7 +110,6 @@ public:
         NotAllowed       //!< Action not allowed cursor
     };
 
-public:
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
@@ -143,6 +143,18 @@ public:
     Cursor& operator=(const Cursor&) = delete;
 
     ////////////////////////////////////////////////////////////
+    /// \brief Move constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    Cursor(Cursor&&) noexcept;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Move assignment
+    ///
+    ////////////////////////////////////////////////////////////
+    Cursor& operator=(Cursor&&) noexcept;
+
+    ////////////////////////////////////////////////////////////
     /// \brief Create a cursor with the provided image
     ///
     /// \a pixels must be an array of \a width by \a height pixels
@@ -172,7 +184,7 @@ public:
     ///         false otherwise
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool loadFromPixels(const Uint8* pixels, Vector2u size, Vector2u hotspot);
+    [[nodiscard]] bool loadFromPixels(const std::uint8_t* pixels, Vector2u size, Vector2u hotspot);
 
     ////////////////////////////////////////////////////////////
     /// \brief Create a native system cursor
@@ -204,7 +216,6 @@ private:
     ////////////////////////////////////////////////////////////
     const priv::CursorImpl& getImpl() const;
 
-private:
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
@@ -212,9 +223,6 @@ private:
 };
 
 } // namespace sf
-
-
-#endif // SFML_CURSOR_HPP
 
 
 ////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,23 +22,21 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_OUTPUTSOUNDFILE_HPP
-#define SFML_OUTPUTSOUNDFILE_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/Audio/Export.hpp>
 
+#include <SFML/Audio/SoundFileWriter.hpp>
+
 #include <filesystem>
 #include <memory>
-#include <string>
 
 
 namespace sf
 {
-class SoundFileWriter;
-
 ////////////////////////////////////////////////////////////
 /// \brief Provide write access to sound files
 ///
@@ -51,26 +49,6 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     OutputSoundFile();
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Destructor
-    ///
-    /// Closes the file if it was still open.
-    ///
-    ////////////////////////////////////////////////////////////
-    ~OutputSoundFile();
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Deleted copy constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    OutputSoundFile(const OutputSoundFile&) = delete;
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Deleted copy assignment
-    ///
-    ////////////////////////////////////////////////////////////
-    OutputSoundFile& operator=(const OutputSoundFile&) = delete;
 
     ////////////////////////////////////////////////////////////
     /// \brief Open the sound file from the disk for writing
@@ -93,7 +71,7 @@ public:
     /// \param count       Number of samples to write
     ///
     ////////////////////////////////////////////////////////////
-    void write(const Int16* samples, Uint64 count);
+    void write(const std::int16_t* samples, std::uint64_t count);
 
     ////////////////////////////////////////////////////////////
     /// \brief Close the current file
@@ -109,9 +87,6 @@ private:
 };
 
 } // namespace sf
-
-
-#endif // SFML_OUTPUTSOUNDFILE_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -133,7 +108,7 @@ private:
 /// while (...)
 /// {
 ///     // Read or generate audio samples from your custom source
-///     std::vector<sf::Int16> samples = ...;
+///     std::vector<std::int16_t> samples = ...;
 ///
 ///     // Write them to the file
 ///     file.write(samples.data(), samples.size());

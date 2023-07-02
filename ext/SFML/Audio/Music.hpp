@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_MUSIC_HPP
-#define SFML_MUSIC_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -34,7 +33,6 @@
 #include <SFML/Audio/SoundStream.hpp>
 
 #include <filesystem>
-#include <string>
 #include <vector>
 
 
@@ -57,37 +55,12 @@ public:
     template <typename T>
     struct Span
     {
-        ////////////////////////////////////////////////////////////
-        /// \brief Default constructor
-        ///
-        ////////////////////////////////////////////////////////////
-        Span()
-        {
-        }
-
-        ////////////////////////////////////////////////////////////
-        /// \brief Initialization constructor
-        ///
-        /// \param off Initial Offset
-        /// \param len Initial Length
-        ///
-        ////////////////////////////////////////////////////////////
-        Span(T off, T len) : offset(off), length(len)
-        {
-        }
-
-        T offset; //!< The beginning offset of the time range
-        T length; //!< The length of the time range
+        T offset{}; //!< The beginning offset of the time range
+        T length{}; //!< The length of the time range
     };
 
     // Define the relevant Span types
     using TimeSpan = Span<Time>;
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    Music();
 
     ////////////////////////////////////////////////////////////
     /// \brief Destructor
@@ -239,7 +212,7 @@ protected:
     /// \return The seek position after looping (or -1 if there's no loop)
     ///
     ////////////////////////////////////////////////////////////
-    Int64 onLoop() override;
+    std::int64_t onLoop() override;
 
 private:
     ////////////////////////////////////////////////////////////
@@ -256,7 +229,7 @@ private:
     /// \return The number of samples elapsed at the given time
     ///
     ////////////////////////////////////////////////////////////
-    Uint64 timeToSamples(Time position) const;
+    std::uint64_t timeToSamples(Time position) const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Helper to convert a sample position to an sf::Time
@@ -266,21 +239,18 @@ private:
     /// \return The Time position of the given sample
     ///
     ////////////////////////////////////////////////////////////
-    Time samplesToTime(Uint64 samples) const;
+    Time samplesToTime(std::uint64_t samples) const;
 
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    InputSoundFile       m_file;     //!< The streamed music file
-    std::vector<Int16>   m_samples;  //!< Temporary buffer of samples
-    std::recursive_mutex m_mutex;    //!< Mutex protecting the data
-    Span<Uint64>         m_loopSpan; //!< Loop Range Specifier
+    InputSoundFile            m_file;     //!< The streamed music file
+    std::vector<std::int16_t> m_samples;  //!< Temporary buffer of samples
+    std::recursive_mutex      m_mutex;    //!< Mutex protecting the data
+    Span<std::uint64_t>       m_loopSpan; //!< Loop Range Specifier
 };
 
 } // namespace sf
-
-
-#endif // SFML_MUSIC_HPP
 
 
 ////////////////////////////////////////////////////////////

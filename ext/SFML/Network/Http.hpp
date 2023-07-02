@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_HTTP_HPP
-#define SFML_HTTP_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -32,6 +31,7 @@
 
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpSocket.hpp>
+
 #include <SFML/System/Time.hpp>
 
 #include <map>
@@ -59,7 +59,7 @@ public:
         /// \brief Enumerate the available HTTP methods for a request
         ///
         ////////////////////////////////////////////////////////////
-        enum Method
+        enum class Method
         {
             Get,   //!< Request in get mode, standard method to retrieve a page
             Post,  //!< Request in post mode, usually to send data to a page
@@ -79,7 +79,7 @@ public:
         /// \param body   Content of the request's body
         ///
         ////////////////////////////////////////////////////////////
-        Request(const std::string& uri = "/", Method method = Get, const std::string& body = "");
+        Request(const std::string& uri = "/", Method method = Method::Get, const std::string& body = "");
 
         ////////////////////////////////////////////////////////////
         /// \brief Set the value of a field
@@ -100,8 +100,8 @@ public:
         /// \brief Set the request method
         ///
         /// See the Method enumeration for a complete list of all
-        /// the availale methods.
-        /// The method is Http::Request::Get by default.
+        /// the available methods.
+        /// The method is Http::Request::Method::Get by default.
         ///
         /// \param method Method to use for the request
         ///
@@ -196,7 +196,7 @@ public:
         /// \brief Enumerate all the valid status codes for a response
         ///
         ////////////////////////////////////////////////////////////
-        enum Status
+        enum class Status
         {
             // 2xx: success
             Ok        = 200, //!< Most common code returned when operation was successful
@@ -231,14 +231,6 @@ public:
             InvalidResponse  = 1000, //!< Response is not a valid HTTP one
             ConnectionFailed = 1001  //!< Connection with server failed
         };
-
-        ////////////////////////////////////////////////////////////
-        /// \brief Default constructor
-        ///
-        /// Constructs an empty response.
-        ///
-        ////////////////////////////////////////////////////////////
-        Response();
 
         ////////////////////////////////////////////////////////////
         /// \brief Get the value of a field
@@ -335,11 +327,11 @@ public:
         ////////////////////////////////////////////////////////////
         // Member data
         ////////////////////////////////////////////////////////////
-        FieldTable   m_fields;       //!< Fields of the header
-        Status       m_status;       //!< Status code
-        unsigned int m_majorVersion; //!< Major HTTP version
-        unsigned int m_minorVersion; //!< Minor HTTP version
-        std::string  m_body;         //!< Body of the response
+        FieldTable   m_fields;                           //!< Fields of the header
+        Status       m_status{Status::ConnectionFailed}; //!< Status code
+        unsigned int m_majorVersion{};                   //!< Major HTTP version
+        unsigned int m_minorVersion{};                   //!< Minor HTTP version
+        std::string  m_body;                             //!< Body of the response
     };
 
     ////////////////////////////////////////////////////////////
@@ -420,13 +412,10 @@ private:
     TcpSocket                m_connection; //!< Connection to the host
     std::optional<IpAddress> m_host;       //!< Web host address
     std::string              m_hostName;   //!< Web host name
-    unsigned short           m_port;       //!< Port used for connection with host
+    unsigned short           m_port{};     //!< Port used for connection with host
 };
 
 } // namespace sf
-
-
-#endif // SFML_HTTP_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -477,7 +466,7 @@ private:
 ///
 /// // Check the status code and display the result
 /// sf::Http::Response::Status status = response.getStatus();
-/// if (status == sf::Http::Response::Ok)
+/// if (status == sf::Http::Response::Status::Ok)
 /// {
 ///     std::cout << response.getBody() << std::endl;
 /// }

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_FTP_HPP
-#define SFML_FTP_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -31,6 +30,7 @@
 #include <SFML/Network/Export.hpp>
 
 #include <SFML/Network/TcpSocket.hpp>
+
 #include <SFML/System/Time.hpp>
 
 #include <filesystem>
@@ -53,9 +53,9 @@ public:
     /// \brief Enumeration of transfer modes
     ///
     ////////////////////////////////////////////////////////////
-    enum TransferMode
+    enum class TransferMode
     {
-        Binary, //!< Binary mode (file is transfered as a sequence of bytes)
+        Binary, //!< Binary mode (file is transferred as a sequence of bytes)
         Ascii,  //!< Text mode using ASCII encoding
         Ebcdic  //!< Text mode using EBCDIC encoding
     };
@@ -71,7 +71,7 @@ public:
         /// \brief Status codes possibly returned by a FTP response
         ///
         ////////////////////////////////////////////////////////////
-        enum Status
+        enum class Status
         {
             // 1xx: the requested action is being initiated,
             // expect another reply before proceeding with a new command
@@ -143,7 +143,7 @@ public:
         /// \param message Response message
         ///
         ////////////////////////////////////////////////////////////
-        explicit Response(Status code = InvalidResponse, const std::string& message = "");
+        explicit Response(Status code = Status::InvalidResponse, std::string message = "");
 
         ////////////////////////////////////////////////////////////
         /// \brief Check if the status code means a success
@@ -479,7 +479,7 @@ public:
     ////////////////////////////////////////////////////////////
     [[nodiscard]] Response download(const std::filesystem::path& remoteFile,
                                     const std::filesystem::path& localPath,
-                                    TransferMode                 mode = Binary);
+                                    TransferMode                 mode = TransferMode::Binary);
 
     ////////////////////////////////////////////////////////////
     /// \brief Upload a file to the server
@@ -504,7 +504,7 @@ public:
     ////////////////////////////////////////////////////////////
     [[nodiscard]] Response upload(const std::string& localFile,
                                   const std::string& remotePath,
-                                  TransferMode       mode   = Binary,
+                                  TransferMode       mode   = TransferMode::Binary,
                                   bool               append = false);
 
     ////////////////////////////////////////////////////////////
@@ -538,7 +538,7 @@ private:
     Response getResponse();
 
     ////////////////////////////////////////////////////////////
-    /// \brief Utility class for exchanging datas with the server
+    /// \brief Utility class for exchanging data with the server
     ///        on the data channel
     ///
     ////////////////////////////////////////////////////////////
@@ -554,9 +554,6 @@ private:
 };
 
 } // namespace sf
-
-
-#endif // SFML_FTP_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -616,7 +613,7 @@ private:
 ///     std::cout << "Created new directory" << std::endl;
 ///
 /// // Upload a file to this new directory
-/// response = ftp.upload("local-path/file.txt", "files", sf::Ftp::Ascii);
+/// response = ftp.upload("local-path/file.txt", "files", sf::Ftp::TransferMode::Ascii);
 /// if (response.isOk())
 ///     std::cout << "File uploaded" << std::endl;
 ///

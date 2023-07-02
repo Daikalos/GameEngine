@@ -67,6 +67,6 @@ namespace vlx
 
 	constexpr sf::PrimitiveType Sprite::GetPrimitive() const noexcept
 	{
-		return sf::TriangleStrip; // all common sprites use triangle strip
+		return sf::PrimitiveType::TriangleStrip; // all common sprites use triangle strip
 	}
 }

@@ -33,8 +33,8 @@ void StateTest::OnCreated()
 	e2 = e1.Duplicate();
 	e2.AddComponent<gui::Label>(105, 105);
 
-	gui::Label& label = e2.GetComponent<gui::Label>();
-	label.setString("potato");
+	//gui::Label& label = e2.GetComponent<gui::Label>();
+	//label.setString("potato");
 
 	m_entities.reserve(1);
 

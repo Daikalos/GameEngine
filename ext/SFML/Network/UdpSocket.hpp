@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_UDPSOCKET_HPP
-#define SFML_UDPSOCKET_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -35,6 +34,8 @@
 
 #include <optional>
 #include <vector>
+
+#include <cstddef>
 
 
 namespace sf
@@ -51,10 +52,8 @@ public:
     ////////////////////////////////////////////////////////////
     // Constants
     ////////////////////////////////////////////////////////////
-    enum
-    {
-        MaxDatagramSize = 65507 //!< The maximum number of bytes that can be sent in a single UDP datagram
-    };
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static constexpr std::size_t MaxDatagramSize{65507}; //!< The maximum number of bytes that can be sent in a single UDP datagram
 
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
@@ -199,13 +198,10 @@ private:
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    std::vector<char> m_buffer; //!< Temporary buffer holding the received data in Receive(Packet)
+    std::vector<std::byte> m_buffer{MaxDatagramSize}; //!< Temporary buffer holding the received data in Receive(Packet)
 };
 
 } // namespace sf
-
-
-#endif // SFML_UDPSOCKET_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -217,7 +213,7 @@ private:
 /// it can send to and receive from any host at any time.
 ///
 /// It is a datagram protocol: bounded blocks of data (datagrams)
-/// are transfered over the network rather than a continuous
+/// are transferred over the network rather than a continuous
 /// stream of data (TCP). Therefore, one call to send will always
 /// match one call to receive (if the datagram is not lost),
 /// with the same data that was sent.
@@ -270,7 +266,7 @@ private:
 /// std::size_t received = 0;
 /// std::optional<sf::IpAddress> sender;
 /// unsigned short port;
-/// if (socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Done)
+/// if (socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done)
 ///     std::cout << sender->toString() << " said: " << buffer << std::endl;
 ///
 /// // ----- The server -----
@@ -284,7 +280,7 @@ private:
 /// std::size_t received = 0;
 /// std::optional<sf::IpAddress> sender;
 /// unsigned short port;
-/// if (socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Done)
+/// if (socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done)
 ///     std::cout << sender->toString() << " said: " << buffer << std::endl;
 ///
 /// // Send an answer

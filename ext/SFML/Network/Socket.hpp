@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2022 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_SOCKET_HPP
-#define SFML_SOCKET_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -50,7 +49,7 @@ public:
     /// \brief Status codes that may be returned by socket functions
     ///
     ////////////////////////////////////////////////////////////
-    enum Status
+    enum class Status
     {
         Done,         //!< The socket has sent / received the data
         NotReady,     //!< The socket is not ready to send / receive data yet
@@ -63,12 +62,9 @@ public:
     /// \brief Some special values used by sockets
     ///
     ////////////////////////////////////////////////////////////
-    enum
-    {
-        AnyPort = 0 //!< Special value that tells the system to pick any available port
-    };
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static constexpr unsigned short AnyPort{0}; //!< Special value that tells the system to pick any available port
 
-public:
     ////////////////////////////////////////////////////////////
     /// \brief Destructor
     ///
@@ -121,7 +117,7 @@ protected:
     /// \brief Types of protocols that the socket can use
     ///
     ////////////////////////////////////////////////////////////
-    enum Type
+    enum class Type
     {
         Tcp, //!< TCP protocol
         Udp  //!< UDP protocol
@@ -182,15 +178,12 @@ private:
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    Type         m_type;       //!< Type of the socket (TCP or UDP)
-    SocketHandle m_socket;     //!< Socket descriptor
-    bool         m_isBlocking; //!< Current blocking mode of the socket
+    Type         m_type;             //!< Type of the socket (TCP or UDP)
+    SocketHandle m_socket;           //!< Socket descriptor
+    bool         m_isBlocking{true}; //!< Current blocking mode of the socket
 };
 
 } // namespace sf
-
-
-#endif // SFML_SOCKET_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -214,7 +207,7 @@ private:
 /// In non-blocking mode, all the socket functions will
 /// return immediately. If the socket is not ready to complete
 /// the requested operation, the function simply returns
-/// the proper status code (Socket::NotReady).
+/// the proper status code (Socket::Status::NotReady).
 ///
 /// The default mode, which is blocking, is the one that is
 /// generally used, in combination with threads or selectors.
