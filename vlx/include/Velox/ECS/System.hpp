@@ -310,7 +310,7 @@ namespace vlx
 	template<typename Func>
 	inline void System<Cs...>::All(Func&& func)
 	{
-		assert(!m_func);
+		assert(!m_func && "Function is already set");
 		m_func = std::forward<Func>(func);
 	}
 
@@ -318,8 +318,8 @@ namespace vlx
 	template<typename Func>
 	inline void System<Cs...>::Each(Func&& func)
 	{
-		assert(!m_func);
-		m_func = [func = std::forward<EachFunc>(func)](std::span<const EntityID> entities, Cs*... cs)
+		assert(!m_func && "Function is already set");
+		m_func = [func = std::forward<Func>(func)](std::span<const EntityID> entities, Cs*... cs)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 				func(entities[i], cs[i]...);
@@ -329,7 +329,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::Run(const Archetype* const archetype) const
 	{
-		assert(IsEnabled());
+		assert(IsEnabled() && "System is disabled and cannot be run (EntityAdmin checks for this beforehand)");
 
 		if (m_func) // check if func stores callable object
 		{
@@ -353,7 +353,7 @@ namespace vlx
 			archetype_comp_id = component_ids[++i];
 		}
 
-		assert(i != component_ids.size());
+		assert(i != component_ids.size() && "System was ran against an invalid archetype");
 
 		Run<Index + 1>(component_ids, entities, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final Run
 	}
@@ -381,7 +381,7 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void SystemExclude<Cs...>::Run(const Archetype* const archetype) const
 	{
-		assert(this->IsEnabled());
+		assert(this->IsEnabled() && "System is disabled and cannot be run (EntityAdmin checks for this beforehand)");
 
 		if (this->m_func) // check if func stores callable object
 		{

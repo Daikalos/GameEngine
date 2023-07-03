@@ -560,7 +560,7 @@ namespace vlx
 	inline void EntityAdmin::RegisterComponent()
 	{
 		auto insert = m_component_map.try_emplace(GetComponentID<C>(), std::make_unique<ComponentAlloc<C>>());
-		assert(insert.second);
+		assert(insert.second && "Component is already registered");
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -578,7 +578,7 @@ namespace vlx
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 	inline C* EntityAdmin::AddComponent(EntityID entity_id, Args&&... args)
 	{
-		assert(IsComponentRegistered<C>()); // component should be registered
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -606,8 +606,8 @@ namespace vlx
 				old_archetype->edges[add_component_id].add = new_archetype;
 				new_archetype->edges[add_component_id].rmv = old_archetype;
 
-				assert(new_archetype_id != old_archetype->type);
-				assert(new_archetype_id == new_archetype->type);
+				assert(new_archetype_id != old_archetype->type && "New archetype should not be equal to previous");
+				assert(new_archetype_id == new_archetype->type && "New archetype type should remain unchanged");
 			}
 			else new_archetype = ait->second.add;
 
@@ -615,7 +615,7 @@ namespace vlx
 				return nullptr;
 
 			EntityID last_entity_id = old_archetype->entities.back();
-			assert(last_entity_id != NULL_ENTITY);
+			assert(last_entity_id != NULL_ENTITY && "There should never exist a null entity");
 
 			if (last_entity_id != entity_id) // not same, we'll swap last to current for faster adding
 			{
@@ -635,7 +635,7 @@ namespace vlx
 
 					if (component_id == add_component_id)
 					{
-						assert(add_component == nullptr); // should never happen twice
+						assert(add_component == nullptr && "Component should ever only be constructed once");
 
 						add_component = new(&new_archetype->component_data[i][current_size])
 							C(std::forward<Args>(args)...);
@@ -673,7 +673,7 @@ namespace vlx
 
 					if (component_id == add_component_id)
 					{
-						assert(add_component == nullptr); // should never happen twice
+						assert(add_component == nullptr && "Component should ever only be constructed once");
 
 						add_component = new(&new_archetype->component_data[i][current_size])
 							C(std::forward<Args>(args)...);
@@ -689,7 +689,7 @@ namespace vlx
 				}
 			}
 
-			assert(add_component != nullptr); // a new component should have been added
+			assert(add_component != nullptr && "Component should have been constructed");
 
 			old_archetype->entities.pop_back(); // by only removing the last entity, it means that when the next component is added, it will overwrite the previous
 		}
@@ -711,7 +711,7 @@ namespace vlx
 				C(std::forward<Args>(args)...);
 		}
 
-		if constexpr (HasEvent<C, CreatedEvent>)
+		if constexpr (HasEvent<C, CreatedEvent>) // call associated event
 			add_component->Created(*this, entity_id);
 
 		CallOnAddEvent(add_component_id, entity_id, static_cast<void*>(add_component));
@@ -762,7 +762,7 @@ namespace vlx
 	template<IsComponent C>
 	inline C& EntityAdmin::GetComponent(EntityID entity_id) const
 	{
-		assert(IsComponentRegistered<C>()); // component should be registered
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
@@ -779,7 +779,7 @@ namespace vlx
 	template<IsComponent C>
 	inline std::optional<C*> EntityAdmin::TryGetComponent(EntityID entity_id) const
 	{
-		assert(IsComponentRegistered<C>()); // component should be registered
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -861,6 +861,8 @@ namespace vlx
 	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 	inline C& EntityAdmin::SetComponent(EntityID entity_id, Args&&... args)
 	{
+		assert(IsComponentRegistered<C>() && "Component is not registered");
+
 		C& old_component = GetComponent<C>(entity_id);
 		C new_component(std::forward<Args>(args)...);
 
@@ -875,7 +877,7 @@ namespace vlx
 	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
 	inline std::optional<C*> EntityAdmin::TrySetComponent(EntityID entity_id, Args&&... args)
 	{
-		assert(IsComponentRegistered<C>()); // component should be registered
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		const auto opt_component = TryGetComponent<C>(entity_id);
 
@@ -896,38 +898,45 @@ namespace vlx
 	template<IsComponent C>
 	inline ComponentRef<C> EntityAdmin::GetComponentRef(EntityID entity_id, C* component) const
 	{
-		assert(IsComponentRegistered<C>());
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
-		const auto cit = component_refs.find(component_id);
-		if (cit == component_refs.end()) // it does not yet exist
+		auto& references = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
+
+		const auto cit = references.find(component_id);
+		if (cit == references.end()) // it does not yet exist
 		{
 			if (component == nullptr)
 				component = &GetComponent<C>(entity_id);
 
-			auto ptr = std::make_shared<void*>(component);
+			std::shared_ptr<void*> ptr 
+				= std::make_shared<void*>(component);
 
-			DataRef data {ptr, {}, {}, DataRef::R_Component};
-			component_refs.try_emplace(component_id, data);
+			DataRef data{};
+			data.component_ptr = ptr;
+			data.flag = DataRef::R_Component;
+
+			references.emplace(component_id, data);
 
 			return ComponentRef<C>(ptr);
 		}
 
-		DataRef& ref = cit->second;
-		if ((ref.flag & DataRef::R_Component) == DataRef::R_Component && ref.component_ptr.expired())
+		DataRef& data = cit->second;
+		if ((data.flag & DataRef::R_Component) == DataRef::R_Component && data.component_ptr.expired())
 		{
 			if (component == nullptr)
 				component = &GetComponent<C>(entity_id);
 
-			auto ptr = std::make_shared<void*>(component);
-			ref.component_ptr = ptr;
+			std::shared_ptr<void*> ptr
+				= std::make_shared<void*>(component);
+
+			data.component_ptr = ptr;
 
 			return ComponentRef<C>(ptr);
 		}
 
-		return ComponentRef<C>(ref.component_ptr.lock());
+		return ComponentRef<C>(data.component_ptr.lock());
 	}
 
 	template<IsComponent C>
@@ -950,27 +959,34 @@ namespace vlx
 			if (base == nullptr)
 				base = &GetBase<B>(entity_id, child_component_id, offset);
 
-			auto ptr = std::make_shared<void*>(base);
+			std::shared_ptr<void*> ptr 
+				= std::make_shared<void*>(base);
 
-			DataRef data {{}, ptr, offset, DataRef::R_Base};
-			component_refs.try_emplace(child_component_id, data);
+			DataRef data;
+			data.base_ptr = ptr;
+			data.base_offset = offset;
+			data.flag = DataRef::R_Base;
+
+			component_refs.emplace(child_component_id, data);
 
 			return ComponentRef<B>(ptr);
 		}
 
-		DataRef& ref = cit->second;
-		if ((ref.flag & DataRef::R_Base) == DataRef::R_Base && ref.base_ptr.expired())
+		DataRef& data = cit->second;
+		if ((data.flag & DataRef::R_Base) == DataRef::R_Base && data.base_ptr.expired())
 		{
 			if (base == nullptr)
 				base = &GetBase<B>(entity_id, child_component_id, offset);
 
-			auto ptr = std::make_shared<void*>(base);
-			ref.base_ptr = ptr;
+			std::shared_ptr<void*> ptr 
+				= std::make_shared<void*>(base);
+
+			data.base_ptr = ptr;
 
 			return ComponentRef<B>(ptr);
 		}
 
-		return ComponentRef<B>(ref.base_ptr.lock());
+		return ComponentRef<B>(data.base_ptr.lock());
 	}
 
 	template<class B>
@@ -990,7 +1006,7 @@ namespace vlx
 	template<IsComponent C>
 	inline bool EntityAdmin::HasComponent(EntityID entity_id) const
 	{
-		assert(IsComponentRegistered<C>()); // component should be registered
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 		return HasComponent(entity_id, GetComponentID<C>());
 	}
 
@@ -1133,6 +1149,8 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::DeregisterOnAddListener(typename EventHandler<>::IDType id)
 	{
+		assert(IsComponentRegistered<C>() && "Component is not registered");
+
 		constexpr auto component_id = GetComponentID<C>();
 		DeregisterOnAddListener(component_id, id);
 	}
@@ -1140,7 +1158,7 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::DeregisterOnMoveListener(typename EventHandler<>::IDType id)
 	{
-		assert(IsComponentRegistered<C>());
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		constexpr auto component_id = GetComponentID<C>();
 		DeregisterOnMoveListener(component_id, id);
@@ -1149,7 +1167,7 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::DeregisterOnRemoveListener(typename EventHandler<>::IDType id)
 	{
-		assert(IsComponentRegistered<C>());
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		constexpr auto component_id = GetComponentID<C>();
 		DeregisterOnRemoveListener(component_id, id);

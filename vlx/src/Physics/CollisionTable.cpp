@@ -141,7 +141,80 @@ void CollisionTable::CircleToPoint(CollisionArbiter& arbiter, const Shape& s1, c
 }
 void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	const Circle& A = reinterpret_cast<const Circle&>(s1);
+	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
 
+	const Vector2f a_center = A.GetCenter();
+	const Vector2f b_center = B.GetCenter();
+
+	const Vector2f center = B.GetOrientation().GetTranspose() * (a_center - b_center); // transform circle to polygon model space
+
+	float separation = -FLT_MAX;
+	uint32 face = 0;
+
+	for (uint32 i = 0; i < B.GetVertices().size(); ++i)
+	{
+		const Vector2f dir = Vector2f::Direction(B.GetVertices()[i], center);
+		const float s = B.GetNormals()[i].Dot(dir);
+
+		if (s > A.GetRadius())
+			return;
+
+		if (s > separation)
+		{
+			separation = s;
+			face = i;
+		}
+	}
+
+	if (separation < FLT_EPSILON)
+	{
+		arbiter.contacts_count			= 1;
+		arbiter.contacts[0].normal		= -(B.GetOrientation() * B.GetNormals()[face]).Normalize();
+		arbiter.contacts[0].position	= arbiter.contacts[0].normal * A.GetRadius() + center;
+		arbiter.contacts[0].penetration = A.GetRadius();
+		return;
+	}
+
+	const Vector2f v1 = B.GetVertices()[face];
+	const uint32 face2 = (face + 1) == B.GetVertices().size() ? 0 : face + 1;
+	const Vector2f v2 = B.GetVertices()[face2];
+
+	const Vector2f dir1 = Vector2f::Direction(v1, center);
+	const Vector2f dir2 = Vector2f::Direction(v2, center);
+
+	const float dot1 = dir1.Dot(Vector2f::Direction(v1, v2));
+	const float dot2 = dir2.Dot(Vector2f::Direction(v2, v1));
+
+	arbiter.contacts[0].penetration = A.GetRadius() - separation;
+
+	if (dot1 <= 0.0f)
+	{
+		if (dir1.LengthSq() > A.GetRadiusSqr())
+			return;
+
+		arbiter.contacts_count			= 1;
+		arbiter.contacts[0].normal		= -(B.GetOrientation() * dir1).Normalize();
+		arbiter.contacts[0].position	= B.GetOrientation() * v1 + b_center;
+	}
+	else if (dot2 <= 0.0f)
+	{
+		if (dir2.LengthSq() > A.GetRadiusSqr())
+			return;
+
+		arbiter.contacts_count			= 1;
+		arbiter.contacts[0].normal		= -(B.GetOrientation() * dir2).Normalize();
+		arbiter.contacts[0].position	= B.GetOrientation() * v2 + b_center;
+	}
+	else
+	{
+		if (dir1.Dot(B.GetNormals()[face]) > A.GetRadius())
+			return;
+
+		arbiter.contacts_count			= 1;
+		arbiter.contacts[0].normal		= -(B.GetOrientation() * B.GetNormals()[face]).Normalize();
+		arbiter.contacts[0].position	= arbiter.contacts[0].normal * A.GetRadius() + a_center;
+	}
 }
 
 void CollisionTable::BoxToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
@@ -468,10 +541,15 @@ void CollisionTable::PointToConvex(CollisionArbiter&, const Shape&, const Shape&
 
 void CollisionTable::ConvexToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
-
+	CircleToConvex(arbiter, s2, s1);
+	arbiter.contacts[0].normal *= -1;
 }
 void CollisionTable::ConvexToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	BoxToConvex(arbiter, s2, s1);
+
+	for (std::size_t i = 0; i < arbiter.contacts_count; ++i)
+		arbiter.contacts[i].normal *= -1;
 
 }
 void CollisionTable::ConvexToPoint(CollisionArbiter&, const Shape& s1, const Shape& s2)

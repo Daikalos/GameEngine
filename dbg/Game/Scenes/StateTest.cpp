@@ -162,28 +162,51 @@ bool StateTest::Update(Time& time)
 
 	if (et1) et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
-	if (GetWorld().GetControls().Get<MouseInput>().Held(sf::Mouse::Left))
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num1))
 	{
-		for (int i = 0; i < 10; ++i)
-		{
-			//float diameter = 8.0f + rnd::random(0.0f, 128.0f);
-			//float radius = diameter / 2.0f;
+		float diameter = 8.0f + rnd::random(0.0f, 128.0f);
+		float radius = diameter / 2.0f;
 
-			//Entity& entity = m_entities.emplace_back(e0.Duplicate());
-			//entity.AddComponents<PhysicsBody, Collider>();
-			//entity.AddComponent<Circle>(radius);
+		Entity& entity = m_entities.emplace_back(e0.Duplicate());
+		entity.AddComponents(PhysicsType{});
+		entity.AddComponent<Circle>(radius);
 
-			//entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
-			//entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-			//entity.GetComponent<Transform>().SetOrigin({ radius, radius });
-			//entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
-			//entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
-			//entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
+		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
+		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
+		entity.GetComponent<Transform>().SetOrigin({ radius, radius });
+		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Circle));
+		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
+		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
-			//GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-			//	GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 80, 0.0f));
-		}
+		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+	}
 
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num2))
+	{
+		vlx::Vector2f size(
+			8.0f + rnd::random(0.0f, 64.0f),
+			8.0f + rnd::random(0.0f, 128.0f));
+
+		Entity& entity = m_entities.emplace_back(e0.Duplicate());
+		entity.AddComponents(PhysicsType{});
+		entity.AddComponent<Box>(size);
+
+		//entity.GetComponent<Circle>().radius = 32.0f;
+		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
+		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
+		entity.GetComponent<Transform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
+		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
+		entity.GetComponent<Sprite>().SetSize(size);
+		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
+		entity.GetComponent<Transform>().SetOrigin(size / 2.0f);
+
+		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+	}
+
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num3))
+	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponents(PhysicsType{});
 		entity.RemoveComponent<Sprite>();
@@ -215,9 +238,7 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	//m_entities.back().GetComponent<Transform>().Move({ 25.0f * time.GetDT(), 0.0f });
-
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::R))
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num4))
 	{
 		for (int i = 0; i < 50; ++i)
 		{
@@ -235,29 +256,6 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
 				GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
 		}
-	}
-
-	if (GetWorld().GetControls().Get<MouseInput>().Pressed(sf::Mouse::Right))
-	{
-		vlx::Vector2f size(
-			8.0f + rnd::random(0.0f, 64.0f), 
-			8.0f + rnd::random(0.0f, 128.0f));
-
-		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponents(PhysicsType{});
-		entity.AddComponent<Box>(size);
-
-		//entity.GetComponent<Circle>().radius = 32.0f;
-		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
-		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-		entity.GetComponent<Transform>().SetRotation(sf::radians(rnd::random(0.0f, 3.14f)));
-		entity.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-		entity.GetComponent<Sprite>().SetSize(size);
-		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
-		entity.GetComponent<Transform>().SetOrigin(size / 2.0f);
-
-		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
 	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
