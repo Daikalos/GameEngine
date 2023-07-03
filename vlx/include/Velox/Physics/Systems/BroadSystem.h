@@ -24,6 +24,7 @@
 #include "../PhysicsBody.h"
 #include "../CollisionObject.h"
 #include "../Collider.h"
+#include "../ColliderEvents.h"
 
 #include "ShapeInserter.h"
 
@@ -39,13 +40,7 @@ namespace vlx
 			int prev	{-1};
 		};
 
-		struct EventID
-		{
-			ComponentTypeID ComponentID {NULL_COMPONENT};
-			int ID						{-1};
-		};
-
-		static constexpr int OBJ_SIZE = 3;
+		static constexpr int OBJ_SIZE = 6;
 
 	public:
 		using ColliderSystem		= System<Collider, Transform>;
@@ -100,13 +95,12 @@ namespace vlx
 
 		CollisionList				m_collisions;
 
-		std::array<EventID, OBJ_SIZE> m_add_ids;
-		std::array<EventID, OBJ_SIZE> m_mov_ids;
-		std::array<EventID, OBJ_SIZE> m_rmv_ids;
+		std::array<int, OBJ_SIZE> m_add_ids;
+		std::array<int, OBJ_SIZE> m_mov_ids;
+		std::array<int, OBJ_SIZE> m_rmv_ids;
+		std::array<ComponentTypeID, OBJ_SIZE> m_comp_ids;
 
 		template<class S>
 		friend class ShapeInserter;
 	};
-
-	constexpr int a = sizeof(BroadSystem);
 }

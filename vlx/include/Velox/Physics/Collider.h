@@ -16,11 +16,6 @@ namespace vlx
 	class VELOX_API Collider : public QTCollider
 	{
 	public:
-		Event<const CollisionResult&>	OnEnter;	// called when collider enters another collider
-		Event<EntityID>					OnExit;		// called when collider exits another collider
-		Event<const CollisionResult&>	OnOverlap;	// called when collider overlaps another collider
-
-	public:
 		bool GetEnabled() const noexcept;
 		void SetEnabled(bool flag);
 

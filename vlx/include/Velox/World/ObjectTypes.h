@@ -31,6 +31,7 @@
 #include <Velox/Physics/PhysicsBody.h>
 #include <Velox/Physics/PhysicsBodyTransform.h>
 #include <Velox/Physics/Collider.h>
+#include <Velox/Physics/ColliderEvents.h>
 
 #include <Velox/World/Object.h>
 
@@ -45,6 +46,7 @@ namespace vlx
 		GlobalTransformTranslation, GlobalTransformRotation, GlobalTransformScale,
 		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
 		Circle, Box, Collider, Polygon, Point, PhysicsBody, PhysicsBodyTransform,
+		ColliderEnter, ColliderExit, ColliderOverlap,
 		gui::Container, gui::Button, gui::Label>>;
 
 	using ObjectType = std::type_identity<std::tuple<

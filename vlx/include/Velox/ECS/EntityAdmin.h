@@ -902,13 +902,23 @@ namespace vlx
 
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
+		const auto CheckComponentPtr = [this, entity_id, &component]<IsComponent C>()
+		{
+			if (component == nullptr)
+			{
+				std::optional<C*> opt = TryGetComponent<C>(entity_id);
+
+				if (opt.has_value())
+					component = opt.value();
+			}
+		};
+
 		auto& references = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
 		const auto cit = references.find(component_id);
 		if (cit == references.end()) // it does not yet exist
 		{
-			if (component == nullptr)
-				component = &GetComponent<C>(entity_id);
+			CheckComponentPtr.operator()<C>();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(component);
@@ -925,8 +935,7 @@ namespace vlx
 		DataRef& data = cit->second;
 		if ((data.flag & DataRef::R_Component) == DataRef::R_Component && data.component_ptr.expired())
 		{
-			if (component == nullptr)
-				component = &GetComponent<C>(entity_id);
+			CheckComponentPtr.operator()<C>();
 
 			std::shared_ptr<void*> ptr
 				= std::make_shared<void*>(component);
@@ -953,11 +962,21 @@ namespace vlx
 	{
 		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
+		const auto CheckBasePtr = [this, entity_id, child_component_id, offset, &base]<class B>()
+		{
+			if (base == nullptr)
+			{
+				std::optional<B*> opt = TryGetBase<B>(entity_id, child_component_id, offset);
+
+				if (opt.has_value())
+					base = opt.value();
+			}
+		};
+
 		const auto cit = component_refs.find(child_component_id);
 		if (cit == component_refs.end()) // it does not yet exist
 		{
-			if (base == nullptr)
-				base = &GetBase<B>(entity_id, child_component_id, offset);
+			CheckBasePtr.operator()<B>();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(base);
@@ -975,8 +994,7 @@ namespace vlx
 		DataRef& data = cit->second;
 		if ((data.flag & DataRef::R_Base) == DataRef::R_Base && data.base_ptr.expired())
 		{
-			if (base == nullptr)
-				base = &GetBase<B>(entity_id, child_component_id, offset);
+			CheckBasePtr.operator()<B>();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(base);
@@ -1113,7 +1131,7 @@ namespace vlx
 	template<IsComponent C, typename Func>
 	inline auto EntityAdmin::RegisterOnAddListener(Func&& func)
 	{
-		assert(IsComponentRegistered<C>());
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		constexpr auto component_id = GetComponentID<C>();
 		return	(m_events_add[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
@@ -1125,7 +1143,7 @@ namespace vlx
 	template<IsComponent C, typename Func>
 	inline auto EntityAdmin::RegisterOnMoveListener(Func&& func)
 	{
-		assert(IsComponentRegistered<C>());
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		constexpr auto component_id = GetComponentID<C>();
 		return	(m_events_move[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
@@ -1137,7 +1155,7 @@ namespace vlx
 	template<IsComponent C, typename Func>
 	inline auto EntityAdmin::RegisterOnRemoveListener(Func&& func)
 	{
-		assert(IsComponentRegistered<C>());
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		constexpr auto component_id = GetComponentID<C>();
 		return	(m_events_remove[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
@@ -1176,6 +1194,8 @@ namespace vlx
 	template<IsComponent C, class Comp>
 	inline bool EntityAdmin::SortComponents(Archetype* archetype, Comp&& comparison)
 	{
+		assert(IsComponentRegistered<C>() && "Component is not registered");
+
 		if (archetype == nullptr)
 			return false;
 
@@ -1239,12 +1259,14 @@ namespace vlx
 	template<IsComponent C>
 	inline void EntityAdmin::EraseComponentRef(EntityID entity_id) const
 	{
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 		EraseComponentRef(entity_id, GetComponentID<C>());
 	}
 
 	template<IsComponent C>
 	inline void EntityAdmin::UpdateComponentRef(EntityID entity_id, C* new_component) const
 	{
+		assert(IsComponentRegistered<C>() && "Component is not registered");
 		UpdateComponentRef(entity_id, GetComponentID<C>(), static_cast<void*>(new_component)); // TODO: CHECK OUT
 	}
 }

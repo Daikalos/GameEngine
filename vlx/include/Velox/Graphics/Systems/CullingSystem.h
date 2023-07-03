@@ -7,13 +7,15 @@
 #include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/GlobalTransformMatrix.h>
 #include <Velox/Graphics/Components/Sprite.h>
+#include <Velox/Graphics/Components/Mesh.h>
 
 namespace vlx
 {
 	class VELOX_API CullingSystem final : public SystemAction
 	{
 	public:
-		using System = System<Renderable, GlobalTransformMatrix, Sprite>;
+		using SpriteSystem = System<Renderable, GlobalTransformMatrix, Sprite>;
+		using MeshSystem = System<Renderable, GlobalTransformMatrix, Mesh>;
 
 	private:
 		static constexpr int LENIENCY = 128;
@@ -25,7 +27,8 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		System			m_cull;
+		SpriteSystem	m_cull_sprites;
+
 		const Camera*	m_camera {nullptr};
 	};
 }

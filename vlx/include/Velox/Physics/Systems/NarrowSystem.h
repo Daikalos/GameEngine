@@ -33,10 +33,10 @@ namespace vlx
 	private:
 		struct CollisionEventPair
 		{
-			using ColliderRef = ComponentRef<Collider>;
+			using ExitRef = ComponentRef<ColliderExit>;
 
-			CollisionEventPair(ColliderRef&& lcoll, EntityID leid, ColliderRef&& rcoll, EntityID reid) :
-				lhs_collider(lcoll), rhs_collider(rcoll), lhs_eid(leid), rhs_eid(reid) {}
+			CollisionEventPair(ExitRef&& lexit, ExitRef&& rexit, EntityID leid, EntityID reid) :
+				lhs_exit(lexit), rhs_exit(rexit), lhs_eid(leid), rhs_eid(reid) {}
 
 			CollisionEventPair(EntityID leid, EntityID reid) :
 				lhs_eid(leid), rhs_eid(reid) {}
@@ -44,8 +44,8 @@ namespace vlx
 			CollisionEventPair(const EntityPair& pair) :
 				lhs_eid(pair.first), rhs_eid(pair.second) {}
 
-			ColliderRef	lhs_collider;
-			ColliderRef	rhs_collider;
+			ExitRef	lhs_exit;
+			ExitRef	rhs_exit;
 
 			EntityID lhs_eid {NULL_ENTITY};
 			EntityID rhs_eid {NULL_ENTITY};

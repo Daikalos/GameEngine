@@ -3,10 +3,7 @@
 using namespace vlx;
 
 NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id) 
-	: m_entity_admin(&entity_admin)
-{
-
-}
+	: m_entity_admin(&entity_admin) {}
 
 void NarrowSystem::Update(BroadSystem& broad)
 {
@@ -36,8 +33,8 @@ void NarrowSystem::Update(BroadSystem& broad)
 		const auto it = m_collisions.find(pair);
 		if (it != m_collisions.end())
 		{
-			if (it->lhs_collider) it->lhs_collider->OnExit(it->rhs_eid);
-			if (it->rhs_collider) it->rhs_collider->OnExit(it->lhs_eid);
+			if (it->lhs_exit) it->lhs_exit->OnExit(it->rhs_eid);
+			if (it->rhs_exit) it->rhs_exit->OnExit(it->lhs_eid);
 
 			m_collisions.erase(it);
 		}
@@ -82,9 +79,9 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 		Collider& AC = *A.collider; // dont worry if nullptr, should only ever collide if both have colliders anyways
 		Collider& BC = *B.collider;
 
-		bool has_enter		= AC.OnEnter	|| BC.OnEnter;
-		bool has_exit		= AC.OnExit		|| BC.OnExit;
-		bool has_overlap	= AC.OnOverlap	|| BC.OnOverlap;
+		bool has_enter		= (A.enter	 && A.enter->OnEnter)	  || (B.enter	&& B.enter->OnEnter);
+		bool has_exit		= (A.exit	 && A.exit->OnExit)		  || (B.exit	&& B.exit->OnExit);
+		bool has_overlap	= (A.overlap && A.overlap->OnOverlap);
 
 		if (has_enter || has_exit || has_overlap)
 		{
@@ -108,22 +105,21 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 
 			if (has_enter || has_exit)
 			{
-				const auto ait = m_collisions.find(pair);
-				if (ait == m_collisions.end()) // first time
+				if (auto ait = m_collisions.find(pair); ait == m_collisions.end()) // first time
 				{
- 					AC.OnEnter(a_result);
-					BC.OnEnter(b_result);
+ 					if (A.enter) A.enter->OnEnter(a_result);
+					if (B.enter) B.enter->OnEnter(b_result);
 
 					m_collisions.emplace(
-						m_entity_admin->GetComponentRef(A.entity_id, A.collider), A.entity_id,
-						m_entity_admin->GetComponentRef(B.entity_id, B.collider), B.entity_id);
+						m_entity_admin->GetComponentRef(A.entity_id, A.exit),
+						m_entity_admin->GetComponentRef(B.entity_id, B.exit), A.entity_id, B.entity_id);
 				}
 
 				m_curr_collisions.emplace_back(pair);
 			}
 
 			if (has_overlap)
-				AC.OnOverlap(a_result); // only needs to call first
+				A.overlap->OnOverlap(a_result); // only needs to call first
 		}
 	}
 }

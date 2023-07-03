@@ -7,10 +7,24 @@
 
 namespace vlx
 {
-	struct ColliderEvents
+	/// Called when collider enters another collider
+	/// 
+	struct ColliderEnter
 	{
-		Event<const CollisionResult&>	OnEnter;	// called when collider enters another collider
-		Event<EntityID>					OnExit;		// called when collider exits another collider
-		Event<const CollisionResult&>	OnOverlap;	// called when collider overlaps another collider
+		Event<const CollisionResult&> OnEnter;
+	};
+
+	/// Called when collider exits another collider
+	/// 
+	struct ColliderExit
+	{
+		Event<EntityID>	OnExit;
+	};
+
+	/// Called when collider overlaps another collider
+	/// 
+	struct ColliderOverlap
+	{
+		Event<const CollisionResult&> OnOverlap;
 	};
 }

@@ -59,7 +59,10 @@ void BroadSystem::GatherPossibleCollisions()
 		const auto& ptr = m_bodies_ptr[i];
 		const auto& lhs = m_bodies[ptr.element];
 
-		if (lhs.shape == nullptr || lhs.collider == nullptr || !lhs.collider->GetEnabled())
+		if (lhs.shape == nullptr || lhs.collider == nullptr)
+			continue;
+
+		if (!lhs.collider->GetEnabled())
 			continue;
 
 		std::vector<QuadTreeType::value_type> query;
@@ -70,8 +73,9 @@ void BroadSystem::GatherPossibleCollisions()
 		default:			query = m_quad_tree.Query(lhs.shape->GetAABB()); break;
 		}
 
-		for (QuadTreeType::value_type elt : query)
+		for (std::size_t i = 0; i < query.size(); ++i)
 		{
+			const auto elt = query[i];
 			const auto& rhs = m_bodies[elt];
 
 			if (ptr.element == elt) // skip same body
@@ -83,7 +87,7 @@ void BroadSystem::GatherPossibleCollisions()
 			if (!rhs.collider->GetEnabled() || !lhs.collider->layer.HasAny(rhs.collider->layer)) // enabled and matching layer
 				continue;
 
-			if (lhs.body != nullptr && rhs.body != nullptr)
+			if (lhs.body != nullptr && rhs.body != nullptr) // if both are physics body, do an early check to see if valid
 			{
 				bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
 				bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
@@ -160,49 +164,91 @@ bool BroadSystem::TryRemoveEmptyObject(uint32 index)
 
 void BroadSystem::RegisterEvents()
 {
-	m_add_ids[0].ID = m_entity_admin->RegisterOnAddListener<Collider>(
+	m_add_ids[0] = m_entity_admin->RegisterOnAddListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
 			int i = TryAddNewObject(eid);
 			m_bodies[i].collider = &c;
 		});
 
-	m_add_ids[1].ID = m_entity_admin->RegisterOnAddListener<PhysicsBody>(
+	m_add_ids[1] = m_entity_admin->RegisterOnAddListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
 			int i = TryAddNewObject(eid);
 			m_bodies[i].body = &pb;
 		});
 
-	m_add_ids[2].ID = m_entity_admin->RegisterOnAddListener<Transform>(
+	m_add_ids[2] = m_entity_admin->RegisterOnAddListener<Transform>(
 		[this](EntityID eid, Transform& t)
 		{
 			int i = TryAddNewObject(eid);
 			m_bodies[i].transform = &t;
 		});
 
-	m_mov_ids[0].ID = m_entity_admin->RegisterOnMoveListener<Collider>(
+	m_add_ids[3] = m_entity_admin->RegisterOnAddListener<ColliderEnter>(
+		[this](EntityID eid, ColliderEnter& e)
+		{
+			int i = TryAddNewObject(eid);
+			m_bodies[i].enter = &e;
+		});
+
+	m_add_ids[4] = m_entity_admin->RegisterOnAddListener<ColliderExit>(
+		[this](EntityID eid, ColliderExit& e)
+		{
+			int i = TryAddNewObject(eid);
+			m_bodies[i].exit = &e;
+		});
+
+	m_add_ids[5] = m_entity_admin->RegisterOnAddListener<ColliderOverlap>(
+		[this](EntityID eid, ColliderOverlap& o)
+		{
+			int i = TryAddNewObject(eid);
+			m_bodies[i].overlap = &o;
+		});
+
+	m_mov_ids[0] = m_entity_admin->RegisterOnMoveListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
 			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
 				m_bodies[m_bodies_ptr[it->second].element].collider = &c;
 		});
 
-	m_mov_ids[1].ID = m_entity_admin->RegisterOnMoveListener<PhysicsBody>(
+	m_mov_ids[1] = m_entity_admin->RegisterOnMoveListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
 			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
 				m_bodies[m_bodies_ptr[it->second].element].body = &pb;
 		});
 
-	m_mov_ids[2].ID = m_entity_admin->RegisterOnMoveListener<Transform>(
+	m_mov_ids[2] = m_entity_admin->RegisterOnMoveListener<Transform>(
 		[this](EntityID eid, Transform& t)
 		{
 			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
 				m_bodies[m_bodies_ptr[it->second].element].transform = &t;
 		});
 
-	m_rmv_ids[0].ID = m_entity_admin->RegisterOnRemoveListener<Collider>(
+	m_mov_ids[3] = m_entity_admin->RegisterOnMoveListener<ColliderEnter>(
+		[this](EntityID eid, ColliderEnter& e)
+		{
+			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+				m_bodies[m_bodies_ptr[it->second].element].enter = &e;
+		});
+
+	m_mov_ids[4] = m_entity_admin->RegisterOnMoveListener<ColliderExit>(
+		[this](EntityID eid, ColliderExit& e)
+		{
+			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+				m_bodies[m_bodies_ptr[it->second].element].exit = &e;
+		});
+
+	m_mov_ids[5] = m_entity_admin->RegisterOnMoveListener<ColliderOverlap>(
+		[this](EntityID eid, ColliderOverlap& o)
+		{
+			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+				m_bodies[m_bodies_ptr[it->second].element].overlap = &o;
+		});
+
+	m_rmv_ids[0] = m_entity_admin->RegisterOnRemoveListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
 			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
@@ -212,7 +258,7 @@ void BroadSystem::RegisterEvents()
 			}
 		});
 
-	m_rmv_ids[1].ID = m_entity_admin->RegisterOnRemoveListener<PhysicsBody>(
+	m_rmv_ids[1] = m_entity_admin->RegisterOnRemoveListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
 			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
@@ -222,7 +268,7 @@ void BroadSystem::RegisterEvents()
 			}
 		});
 
-	m_rmv_ids[2].ID = m_entity_admin->RegisterOnRemoveListener<Transform>(
+	m_rmv_ids[2] = m_entity_admin->RegisterOnRemoveListener<Transform>(
 		[this](EntityID eid, Transform& t)
 		{
 			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
@@ -232,25 +278,50 @@ void BroadSystem::RegisterEvents()
 			}
 		});
 
-	m_add_ids[0].ComponentID = m_entity_admin->GetComponentID<Collider>();
-	m_add_ids[1].ComponentID = m_entity_admin->GetComponentID<PhysicsBody>();
-	m_add_ids[2].ComponentID = m_entity_admin->GetComponentID<Transform>();
+	m_rmv_ids[3] = m_entity_admin->RegisterOnRemoveListener<ColliderEnter>(
+		[this](EntityID eid, ColliderEnter& e)
+		{
+			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+			{
+				m_bodies[m_bodies_ptr[it->second].element].enter = nullptr;
+				TryRemoveEmptyObject(it->second);
+			}
+		});
 
-	m_mov_ids[0].ComponentID = m_entity_admin->GetComponentID<Collider>();
-	m_mov_ids[1].ComponentID = m_entity_admin->GetComponentID<PhysicsBody>();
-	m_mov_ids[2].ComponentID = m_entity_admin->GetComponentID<Transform>();
+	m_rmv_ids[4] = m_entity_admin->RegisterOnRemoveListener<ColliderExit>(
+		[this](EntityID eid, ColliderExit& e)
+		{
+			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+			{
+				m_bodies[m_bodies_ptr[it->second].element].exit = nullptr;
+				TryRemoveEmptyObject(it->second);
+			}
+		});
 
-	m_rmv_ids[0].ComponentID = m_entity_admin->GetComponentID<Collider>();
-	m_rmv_ids[1].ComponentID = m_entity_admin->GetComponentID<PhysicsBody>();
-	m_rmv_ids[2].ComponentID = m_entity_admin->GetComponentID<Transform>();
+	m_rmv_ids[5] = m_entity_admin->RegisterOnRemoveListener<ColliderOverlap>(
+		[this](EntityID eid, ColliderOverlap& o)
+		{
+			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+			{
+				m_bodies[m_bodies_ptr[it->second].element].overlap = nullptr;
+				TryRemoveEmptyObject(it->second);
+			}
+		});
+
+	m_comp_ids[0] = m_entity_admin->GetComponentID<Collider>();
+	m_comp_ids[1] = m_entity_admin->GetComponentID<PhysicsBody>();
+	m_comp_ids[2] = m_entity_admin->GetComponentID<Transform>();
+	m_comp_ids[3] = m_entity_admin->GetComponentID<ColliderEnter>();
+	m_comp_ids[4] = m_entity_admin->GetComponentID<ColliderExit>();
+	m_comp_ids[5] = m_entity_admin->GetComponentID<ColliderOverlap>();
 }
 
 void BroadSystem::DeregisterEvents()
 {
-	for (std::size_t i = 0; i < 3; ++i)
+	for (std::size_t i = 0; i < OBJ_SIZE; ++i)
 	{
-		m_entity_admin->DeregisterOnAddListener(m_add_ids[i].ComponentID, m_add_ids[i].ID);
-		m_entity_admin->DeregisterOnMoveListener(m_mov_ids[i].ComponentID, m_mov_ids[i].ID);
-		m_entity_admin->DeregisterOnRemoveListener(m_rmv_ids[i].ComponentID, m_rmv_ids[i].ID);
+		m_entity_admin->DeregisterOnAddListener(m_comp_ids[i], m_add_ids[i]);
+		m_entity_admin->DeregisterOnMoveListener(m_comp_ids[i], m_mov_ids[i]);
+		m_entity_admin->DeregisterOnRemoveListener(m_comp_ids[i], m_rmv_ids[i]);
 	}
 }

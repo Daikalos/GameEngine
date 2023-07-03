@@ -8,9 +8,10 @@
 
 struct PlayerData
 {
-	vlx::ComponentRef<vlx::PhysicsBody> body;
-	vlx::ComponentRef<vlx::Collider>	collider;
-	vlx::ComponentRef<vlx::Transform>	transform;
+	vlx::ComponentRef<vlx::PhysicsBody>		body;
+	vlx::ComponentRef<vlx::ColliderOverlap>	overlap;
+	vlx::ComponentRef<vlx::ColliderExit>	exit;
+	vlx::ComponentRef<vlx::Transform>		transform;
 	bool jump {true};
 };
 
@@ -27,15 +28,16 @@ public:
 	void Start(vlx::EntityID entity_id, PlayerData& data)
 	{
 		data.body = GetEntityAdmin()->GetComponentRef<vlx::PhysicsBody>(entity_id);
-		data.collider = GetEntityAdmin()->GetComponentRef<vlx::Collider>(entity_id);
+		data.overlap = GetEntityAdmin()->GetComponentRef<vlx::ColliderOverlap>(entity_id);
+		data.exit = GetEntityAdmin()->GetComponentRef<vlx::ColliderExit>(entity_id);
 		data.transform = GetEntityAdmin()->GetComponentRef<vlx::Transform>(entity_id);
 
-		data.collider->OnOverlap += [&data](const vlx::CollisionResult& result)
+		data.overlap->OnOverlap += [&data](const vlx::CollisionResult& result)
 		{
 			data.jump = result.contacts[0].normal.Dot(vlx::Vector2f::Up) > 0.8f;
 		};
 
-		data.collider->OnExit += [&data](vlx::EntityID entity_id)
+		data.exit->OnExit += [&data](vlx::EntityID entity_id)
 		{
 			data.jump = false;
 		};

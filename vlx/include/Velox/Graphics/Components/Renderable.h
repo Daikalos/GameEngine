@@ -12,7 +12,7 @@ namespace vlx
 		bool IsVisible	{true};
 
 	private:
-		bool IsCulled {true};
+		bool IsCulled {false};
 
 		friend class CullingSystem;
 		friend class RenderSystem;

@@ -109,7 +109,7 @@ namespace vlx
 		if (IsInserted())
 		{
 			bool result = m_quad_tree->Update(m_index, std::forward<Args>(args)...); 
-			assert(result); // make sure it succeeded
+			assert(result && "Since it has been inserted, it has to be able to be updated"); // make sure it succeeded
 
 			return true;
 		}
@@ -123,7 +123,7 @@ namespace vlx
 		if (IsInserted())
 		{
 			bool result = m_quad_tree->Erase(m_index);
-			assert(result); // make sure it succeeded
+			assert(result && "Since it has been inserted, it has to be able to be removed"); // make sure it succeeded
 
 			m_quad_tree = nullptr;
 			m_index = 0;

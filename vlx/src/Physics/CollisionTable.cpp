@@ -537,6 +537,7 @@ void CollisionTable::PointToPoint(CollisionArbiter& arbiter, const Shape&, const
 }
 void CollisionTable::PointToConvex(CollisionArbiter&, const Shape&, const Shape&)
 {
+
 }
 
 void CollisionTable::ConvexToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
@@ -554,6 +555,7 @@ void CollisionTable::ConvexToBox(CollisionArbiter& arbiter, const Shape& s1, con
 }
 void CollisionTable::ConvexToPoint(CollisionArbiter&, const Shape& s1, const Shape& s2)
 {
+
 }
 void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -748,7 +750,7 @@ auto CollisionTable::FindIncidentFace(
 	Vector2f pos = inc.GetCenter();
 
 	face[0] = pos + inc.GetOrientation() * inc_vertices[face_index];
-	face_index = ((face_index + 1) >= (uint32)inc_normals.size()) ? 0 : face_index + 1;
+	face_index = (face_index + 1) == (uint32)inc_normals.size() ? 0 : face_index + 1;
 	face[1] = pos + inc.GetOrientation() * inc_vertices[face_index];
 
 	return face;
