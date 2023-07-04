@@ -88,7 +88,66 @@ namespace vlx::py
 
 	std::vector<Vector2f> GiftWrapVertices(std::span<const Vector2f> vertices)
 	{
-		return std::vector<Vector2f>();
+		std::vector<Vector2f> result;
+
+		if (vertices.size() < 2)
+			return result;
+
+		const auto ComparePoints = [](const Vector2f& p1, const Vector2f& p2)
+		{
+			if (p1.x > p2.x)
+				return true;
+
+			if (p1.x == p2.x)
+				return p1.y < p2.y;
+
+			return false;
+		};
+
+		std::vector<uint32> indices(vertices.size());
+
+		uint32 hull = 0;
+		for (uint32 i = 1; i < vertices.size(); ++i)
+			if (ComparePoints(vertices[i], vertices[hull]))
+				hull = i;
+
+		uint32 count = 0;
+		uint32 next = 0;
+
+		do
+		{
+			indices[count++] = hull;
+
+			next = 0;
+			for (uint32 i = 1; i < vertices.size(); ++i)
+			{
+				if (next == hull)
+				{
+					next = i;
+					continue;
+				}
+
+				Vector2f d1 = Vector2f::Direction(vertices[hull], vertices[next]);
+				Vector2f d2 = Vector2f::Direction(vertices[hull], vertices[i]);
+
+				float c = d1.Cross(d2);
+
+				if (c < 0.0f || (c == 0.0f && d2.LengthSq() > d1.LengthSq()))
+					next = i;
+			}
+
+			hull = next;
+
+		} while (next != indices[0]);
+
+		if (count < 2)
+			return result;
+
+		result.resize(count);
+		for (uint32 i = 0; i < count; ++i)
+			result[i] = vertices[indices[i]];
+
+		return result;
 	}
 
 	bool IsSimplePolygon(std::span<const Vector2f> vertices)
