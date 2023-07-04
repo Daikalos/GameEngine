@@ -50,6 +50,7 @@ namespace vlx
 		using CollisionList			= std::vector<CollisionPair>;
 
 		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
+		using BodyList				= std::vector<CollisionObject>;
 		using QuadTreeType			= LQuadTree<QTCollider::value_type>;
 
 	public:
@@ -80,7 +81,6 @@ namespace vlx
 	private:
 		EntityAdmin*				m_entity_admin	{nullptr};
 		LayerType					m_layer			{LYR_NONE};
-		int							m_first_body	{-1};
 
 		QuadTreeType				m_quad_tree;
 		
@@ -89,9 +89,8 @@ namespace vlx
 		ShapeInserter<Point>		m_points;
 		ShapeInserter<Polygon>		m_polygons;
 
-		EntityBodyMap				m_entity_body_map;	// TODO: maybe move this data to physics system
-		FreeVector<CollisionObject>	m_bodies;	
-		FreeVector<BodyPtr>			m_bodies_ptr;
+		EntityBodyMap				m_entity_body_map;
+		BodyList					m_bodies;			// TODO: maybe move this data to physics system
 
 		CollisionList				m_collisions;
 

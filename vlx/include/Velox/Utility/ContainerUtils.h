@@ -105,6 +105,18 @@ namespace vlx::cu
 		return true;
 	}
 
+	template<typename T>
+	static constexpr bool SwapPopAt(std::vector<T>& vector, std::size_t i)
+	{
+		if (vector.empty() || i >= vector.size())
+			return false;
+
+		vector[i] = std::move(vector.back());
+		vector.pop_back();
+
+		return true;
+	}
+
 	template<typename Iter, typename T>
 	NODISC static constexpr auto FindSorted(Iter begin, Iter end, const T& item)
 	{

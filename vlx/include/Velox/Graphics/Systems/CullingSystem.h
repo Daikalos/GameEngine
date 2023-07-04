@@ -28,6 +28,7 @@ namespace vlx
 
 	private:
 		SpriteSystem	m_cull_sprites;
+		MeshSystem		m_cull_meshes;
 
 		const Camera*	m_camera {nullptr};
 	};

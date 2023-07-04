@@ -25,14 +25,14 @@ ShapeInserter<S>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSy
 	m_on_move_id = entity_admin.RegisterOnMoveListener<S>([this](EntityID eid, S& s)
 		{
 			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
-				m_broad.m_bodies[m_broad.m_bodies_ptr[it->second].element].shape = &s;
+				m_broad.m_bodies[it->second].shape = &s;
 		});
 
 	m_on_remove_id = entity_admin.RegisterOnRemoveListener<S>([this](EntityID eid, S& s)
 		{
 			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
 			{
-				m_broad.m_bodies[m_broad.m_bodies_ptr[it->second].element].shape = nullptr;
+				m_broad.m_bodies[it->second].shape = nullptr;
 				m_broad.TryRemoveEmptyObject(it->second);
 			}
 		});

@@ -366,6 +366,16 @@ namespace vlx
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
+		/// Searches for entities that contains the specified components
+		/// 
+		/// \param Restricted: Returns all entities that exactly match the provided components
+		/// \param Tuple: To automatically deduce the template arguments.
+		/// 
+		/// \returns Entities that contains the components
+		/// 
+		template<class... Cs> requires IsComponents<Cs...>
+		NODISC std::vector<EntityID> GetEntitiesWith(std::type_identity<std::tuple<Cs...>>, bool restricted = false) const;
+
 		///	Shrinks the ECS by removing all the extra archetypes.
 		/// 
 		/// \param Extensive: Perform a complete shrink of the ECS by removing all the extra data space
@@ -1107,10 +1117,16 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+		constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		constexpr auto archetype_id		= cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		return GetEntitiesWith(component_ids, archetype_id, restricted);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(std::type_identity<std::tuple<Cs...>>, bool restricted) const
+	{
+		return GetEntitiesWith<Cs...>(restricted);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

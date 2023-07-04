@@ -259,6 +259,14 @@ bool StateTest::Update(Time& time)
 		}
 	}
 
+	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Backspace))
+	{
+		std::vector<EntityID> ents = m_entity_admin->GetEntitiesWith<Collider>();
+
+		if (ents.size() > 2)
+			m_entity_admin->RemoveEntity(ents[rnd::random(2LLU, ents.size() - 1)]);
+	}
+
 	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
 	//{
 	//	GetWorld().GetSystem<ObjectSystem>().RemoveEntity(player); // TODO: tell children transforms that parent was removed
