@@ -40,6 +40,9 @@ void EntityAdmin::Reserve(ComponentIDSpan component_ids, ArchetypeID archetype_i
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
 
+	if (m_component_lock)
+		throw std::runtime_error("Components memory is currently locked from modifications");
+
 	Archetype* archetype = GetArchetype(component_ids, archetype_id);
 	for (std::size_t i = 0; i < archetype->type.size(); ++i)
 	{
@@ -117,7 +120,7 @@ bool EntityAdmin::HasComponent(EntityID entity_id, ComponentTypeID component_id)
 
 auto EntityAdmin::RegisterEntity(EntityID entity_id) -> Record&
 {
-	assert(entity_id != NULL_ENTITY);
+	assert(entity_id != NULL_ENTITY && "Cannot register a null entity id");
 
 	auto [it, success] = m_entity_archetype_map.try_emplace(entity_id, Record());
 	assert(success);
@@ -126,6 +129,11 @@ auto EntityAdmin::RegisterEntity(EntityID entity_id) -> Record&
 }
 bool EntityAdmin::RegisterSystem(LayerType layer, SystemBase* system)
 {
+	assert(layer != LYR_NONE && "System cannot be added to null layer");
+
+	if (m_system_lock)
+		throw std::runtime_error("Systems are currently locked from modifications");
+
 	if (system == nullptr)
 		return false;
 
@@ -151,8 +159,12 @@ void EntityAdmin::RunSystems(LayerType layer) const
 	if (sit == m_systems.end())
 		return;
 
+	m_system_lock = true;
+
 	for (const SystemBase* system : sit->second)
 		RunSystem(system);
+
+	m_system_lock = false;
 }
 
 void EntityAdmin::SortSystems(LayerType layer)
@@ -160,6 +172,9 @@ void EntityAdmin::SortSystems(LayerType layer)
 	const auto it = m_systems.find(layer);
 	if (it == m_systems.end())
 		return;
+
+	if (m_system_lock)
+		throw std::runtime_error("Systems are currently locked from modifications");
 
 	std::ranges::stable_sort(it->second.begin(), it->second.end(),
 		[](const SystemBase* lhs, const SystemBase* rhs)
@@ -176,6 +191,8 @@ void EntityAdmin::RunSystem(const SystemBase* system) const
 	system->Start();
 
 	const auto& archetypes = GetArchetypes(system->GetArchKey(), system->GetIDKey());
+
+	m_component_lock = true;
 
 	if (system->IsRunningParallel())
 	{
@@ -194,17 +211,23 @@ void EntityAdmin::RunSystem(const SystemBase* system) const
 			});
 	}
 
+	m_component_lock = false;
+
 	system->End();
 }
 
 bool EntityAdmin::RemoveSystem(LayerType layer, SystemBase* system)
 {
+	if (m_system_lock)
+		throw std::runtime_error("Systems are currently locked from modifications");
+
 	return cu::Erase(m_systems[layer], system);
 }
 
 bool EntityAdmin::RemoveEntity(EntityID entity_id)
 {
-	// TODO: prevent RemoveEntity being called on shutdown
+	if (m_component_lock)
+		throw std::runtime_error("Components memory is currently locked from modifications");
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end()) // entity does not exist
@@ -282,6 +305,9 @@ bool EntityAdmin::RemoveComponent(EntityID entity_id, ComponentTypeID rmv_compon
 void EntityAdmin::AddComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
+
+	if (m_component_lock)
+		throw std::runtime_error("Components memory is currently locked from modifications");
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -363,6 +389,9 @@ void EntityAdmin::AddComponents(EntityID entity_id, ComponentIDSpan component_id
 bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
+
+	if (m_component_lock)
+		throw std::runtime_error("Components memory is currently locked from modifications");
 
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
@@ -524,6 +553,9 @@ void EntityAdmin::CallOnRemoveEvent(ComponentTypeID component_id, EntityID eid, 
 
 EntityID EntityAdmin::Duplicate(EntityID entity_id)
 {
+	if (m_component_lock)
+		throw std::runtime_error("Components memory is currently locked from modifications");
+
 	const auto eit = m_entity_archetype_map.find(entity_id);
 	if (eit == m_entity_archetype_map.end())
 		return NULL_ENTITY;
@@ -564,6 +596,9 @@ EntityID EntityAdmin::Duplicate(EntityID entity_id)
 
 void EntityAdmin::Shrink(bool extensive)
 {
+	if (m_component_lock)
+		throw std::runtime_error("Components memory is currently locked from modifications");
+
 	ClearEmptyEntityArchetypes();
 	ClearEmptyTypeArchetypes();
 
@@ -931,6 +966,8 @@ void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* componen
 
 void EntityAdmin::Destroy()
 {
+	assert(!m_component_lock && "Destroy should not be called while iterating components ???");
+
 	if (!m_destroyed)
 	{
 		for (const ArchetypePtr& archetype : m_archetypes)

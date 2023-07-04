@@ -551,8 +551,13 @@ namespace vlx
 		mutable ArchetypeCache			m_archetype_cache;
 		mutable EntityComponentRefMap	m_entity_component_ref_map;
 
-		bool m_shutdown		{false};
-		bool m_destroyed	{false};
+		bool m_shutdown			{false};
+		bool m_destroyed		{false};
+
+		mutable bool m_system_lock		{false}; // safety check for when systems cannot be altered
+		mutable bool m_component_lock	{false}; // safety check for when components memory cannot be altered (don't allow add, remove, sort, reserve, etc.)
+
+		// TODO: maybe make entity admin thread-safe
 	};
 }
 
@@ -589,6 +594,9 @@ namespace vlx
 	inline C* EntityAdmin::AddComponent(EntityID entity_id, Args&&... args)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
+		
+		if (m_component_lock)
+			throw std::runtime_error("Components memory is currently locked from modifications");
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
@@ -1211,6 +1219,9 @@ namespace vlx
 	inline bool EntityAdmin::SortComponents(Archetype* archetype, Comp&& comparison)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
+
+		if (m_component_lock)
+			throw std::runtime_error("Components memory is currently locked from modifications");
 
 		if (archetype == nullptr)
 			return false;

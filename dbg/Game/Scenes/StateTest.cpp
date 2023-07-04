@@ -263,8 +263,8 @@ bool StateTest::Update(Time& time)
 	{
 		std::vector<EntityID> ents = m_entity_admin->GetEntitiesWith<Collider>();
 
-		if (ents.size() > 2)
-			m_entity_admin->RemoveEntity(ents[rnd::random(2LLU, ents.size() - 1)]);
+		if (ents.size() > 3)
+			m_entity_admin->RemoveEntity(ents[rnd::random(3LLU, ents.size() - 1)]);
 	}
 
 	//if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Space))
