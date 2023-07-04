@@ -6,6 +6,8 @@
 #include <memory>
 #include <numeric>
 
+#include <SFML/Graphics/Vertex.hpp>
+
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
 
@@ -22,9 +24,32 @@ namespace vlx::py
 		WO_CounterClockwise
 	};
 
-	static RectFloat ComputeAABB(std::span<const Vector2f> vertices)
+	static RectFloat ComputeAABB(std::span<const sf::Vertex> vertices)
 	{
 		float left{FLT_MAX}, top{FLT_MAX}, right{-FLT_MAX}, bot{-FLT_MAX};
+		for (uint32 i = 0; i < vertices.size(); ++i) // build aabb from vertices
+		{
+			Vector2f pos = vertices[i].position;
+
+			if (pos.x < left)
+				left = pos.x;
+			if (pos.x > right)
+				right = pos.x;
+
+			if (pos.y < top)
+				top = pos.y;
+			if (pos.y > bot)
+				bot = pos.y;
+		}
+
+		assert(left != FLT_MAX && top != FLT_MAX && right != -FLT_MAX && bot != -FLT_MAX);
+
+		return RectFloat(left, top, right - left, bot - top);
+	}
+
+	static RectFloat ComputeAABB(std::span<const Vector2f> vertices)
+	{
+		float left{ FLT_MAX }, top{ FLT_MAX }, right{ -FLT_MAX }, bot{ -FLT_MAX };
 		for (uint32 i = 0; i < vertices.size(); ++i) // build aabb from vertices
 		{
 			Vector2f pos = vertices[i];

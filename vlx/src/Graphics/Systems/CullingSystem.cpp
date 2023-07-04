@@ -62,8 +62,8 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, cons
 				GlobalTransformMatrix& gtm	= gtms[i];
 				Mesh& mesh					= meshes[i];
 
-				//const RectFloat rect = gtm.matrix.TransformRect(RectFloat({ 0, 0 }, sprite.GetSize()));
-				//renderable.IsCulled = !(renderable.IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect));
+				const RectFloat rect = gtm.matrix.TransformRect(py::ComputeAABB(mesh.GetVertices())); // TODO: maybe replace in future
+				renderable.IsCulled = !(renderable.IsGUI ? gui_camera_rect.Overlaps(rect) : camera_rect.Overlaps(rect));
 			}
 		});
 }
