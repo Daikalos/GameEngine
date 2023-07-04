@@ -27,10 +27,10 @@ public:
 public:
 	void Start(vlx::EntityID entity_id, PlayerData& data)
 	{
-		data.body = GetEntityAdmin()->GetComponentRef<vlx::PhysicsBody>(entity_id);
-		data.overlap = GetEntityAdmin()->GetComponentRef<vlx::ColliderOverlap>(entity_id);
-		data.exit = GetEntityAdmin()->GetComponentRef<vlx::ColliderExit>(entity_id);
-		data.transform = GetEntityAdmin()->GetComponentRef<vlx::Transform>(entity_id);
+		data.body		= GetEntityAdmin()->GetComponentRef<vlx::PhysicsBody>(entity_id);
+		data.overlap	= GetEntityAdmin()->GetComponentRef<vlx::ColliderOverlap>(entity_id);
+		data.exit		= GetEntityAdmin()->GetComponentRef<vlx::ColliderExit>(entity_id);
+		data.transform	= GetEntityAdmin()->GetComponentRef<vlx::Transform>(entity_id);
 
 		data.overlap->OnOverlap += [&data](const vlx::CollisionResult& result)
 		{

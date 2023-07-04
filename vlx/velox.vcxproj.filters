@@ -58,6 +58,8 @@
     <ClCompile Include="src\Graphics\Components\GlobalTransformTranslation.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransformRotation.cpp" />
     <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
+    <ClCompile Include="src\Utility\PolygonUtils.cpp" />
+    <ClCompile Include="src\Utility\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />

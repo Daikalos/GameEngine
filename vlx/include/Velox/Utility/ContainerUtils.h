@@ -12,7 +12,7 @@
 namespace vlx::cu
 {
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
-	NODISC static constexpr auto PackArray(Args&&... args)
+	NODISC inline auto PackArray(Args&&... args)
 	{
 		std::vector<std::byte> data;
 		data.resize((sizeof(Args) + ... + 0));
@@ -33,7 +33,7 @@ namespace vlx::cu
 	}
 
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
-	NODISC static constexpr void UnpackArray(const std::vector<std::byte>& data, Args&... args)
+	NODISC inline void UnpackArray(const std::vector<std::byte>& data, Args&... args)
 	{
 		if (data.size() != (sizeof(Args) + ... + 0))
 			throw std::runtime_error("not the same size");
@@ -52,7 +52,7 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	static constexpr bool Erase(std::vector<T>& vector, const T& compare)
+	inline bool Erase(std::vector<T>& vector, const T& compare)
 	{
 		auto it = std::find(vector.begin(), vector.end(), compare);
 
@@ -65,7 +65,7 @@ namespace vlx::cu
 	}
 
 	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	static constexpr bool Erase(std::vector<T>& vector, Pred&& pred)
+	inline bool Erase(std::vector<T>& vector, Pred&& pred)
 	{
 		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 
@@ -78,7 +78,7 @@ namespace vlx::cu
 	}
 
 	template<typename T> 
-	static constexpr bool SwapPop(std::vector<T>& vector, const T& item)
+	inline bool SwapPop(std::vector<T>& vector, const T& item)
 	{
 		auto it = std::find(vector.begin(), vector.end(), item);
 
@@ -92,7 +92,7 @@ namespace vlx::cu
 	}
 
 	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	static constexpr bool SwapPop(std::vector<T>& vector, Pred&& pred)
+	inline bool SwapPop(std::vector<T>& vector, Pred&& pred)
 	{
 		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 
@@ -106,7 +106,7 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	static constexpr bool SwapPopAt(std::vector<T>& vector, std::size_t i)
+	inline bool SwapPopAt(std::vector<T>& vector, std::size_t i)
 	{
 		if (vector.empty() || i >= vector.size())
 			return false;
@@ -118,19 +118,19 @@ namespace vlx::cu
 	}
 
 	template<typename Iter, typename T>
-	NODISC static constexpr auto FindSorted(Iter begin, Iter end, const T& item)
+	NODISC inline constexpr auto FindSorted(Iter begin, Iter end, const T& item)
 	{
 		return std::lower_bound(begin, end, item);
 	}
 
 	template<typename Iter, typename T, class Comp>
-	NODISC static constexpr auto FindSorted(Iter begin, Iter end, const T& item, Comp&& comparison)
+	NODISC inline constexpr auto FindSorted(Iter begin, Iter end, const T& item, Comp&& comparison)
 	{
 		return std::lower_bound(begin, end, item, std::forward<Comp>(comparison));
 	}
 
 	template<typename T>
-	static constexpr bool InsertSorted(std::vector<T>& container, const T& item)
+	inline bool InsertSorted(std::vector<T>& container, const T& item)
 	{
 		const auto it = FindSorted(container.begin(), container.end(), item);
 
@@ -144,7 +144,7 @@ namespace vlx::cu
 	}
 
 	template<typename T, typename Comp>
-	static constexpr bool InsertSorted(std::vector<T>& container, const T& item, Comp&& comparison)
+	inline bool InsertSorted(std::vector<T>& container, const T& item, Comp&& comparison)
 	{
 		const auto it = FindSorted(container.begin(), container.end(), item, std::forward<Comp>(comparison));
 
@@ -158,7 +158,7 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	static constexpr bool EraseSorted(std::vector<T>& container, const T& item)
+	inline bool EraseSorted(std::vector<T>& container, const T& item)
 	{
 		const auto it = FindSorted(container.begin(), container.end(), item);
 
@@ -172,53 +172,53 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	static constexpr void Sort(std::span<const T> cntn)
+	inline constexpr void Sort(std::span<const T> cntn)
 	{
 		std::sort(cntn.begin(), cntn.end());
 	}
 
 	template<typename T>
-	NODISC static constexpr T& Sort(T& cntn)
+	NODISC inline constexpr T& Sort(T& cntn)
 	{
 		std::sort(std::begin(cntn), std::end(cntn));
 		return cntn;
 	}
 
 	template<typename T, typename Comp>
-	NODISC static constexpr T& Sort(T& cntn, Comp&& comp)
+	NODISC inline constexpr T& Sort(T& cntn, Comp&& comp)
 	{
 		std::sort(std::begin(cntn), std::end(cntn), std::forward<Comp>(comp));
 		return cntn;
 	}
 
 	template<typename T>
-	NODISC static constexpr T Sort(T&& cntn)
+	NODISC inline constexpr T Sort(T&& cntn)
 	{
 		std::sort(std::begin(cntn), std::end(cntn));
 		return cntn;
 	}
 
 	template<typename T, typename Comp>
-	NODISC static constexpr T Sort(T&& cntn, Comp&& comp)
+	NODISC inline constexpr T Sort(T&& cntn, Comp&& comp)
 	{
 		std::sort(std::begin(cntn), std::end(cntn), std::forward<Comp>(comp));
 		return cntn;
 	}
 
 	template<typename T>
-	NODISC static constexpr bool IsSorted(std::span<const T> cntn)
+	NODISC inline constexpr bool IsSorted(std::span<const T> cntn)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end());
 	}
 
 	template<typename T, typename Comp>
-	NODISC static constexpr bool IsSorted(std::span<const T> cntn, Comp&& comp)
+	NODISC inline constexpr bool IsSorted(std::span<const T> cntn, Comp&& comp)
 	{
 		return std::is_sorted(cntn.begin(), cntn.end(), comp);
 	}
 
 	template<typename T>
-	NODISC static constexpr void HashCombine(uint64& seed, const T& v)
+	NODISC inline constexpr void HashCombine(uint64& seed, const T& v)
 	{
 		seed ^= static_cast<uint64>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}

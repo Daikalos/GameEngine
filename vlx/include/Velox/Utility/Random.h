@@ -33,7 +33,7 @@ namespace vlx::rnd
 		return uid(dre);
 	}
 
-	///	Creates a list of values up to size that are then shuffled and finally returned
+	///	Creates a numerically increasing list of values up to size that are then shuffled and finally returned
 	/// 
 	template<Arithmetic T>
 	NODISC static auto array(T size)

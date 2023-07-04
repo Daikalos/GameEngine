@@ -287,6 +287,8 @@
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
     <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
+    <ClCompile Include="src\Utility\PolygonUtils.cpp" />
+    <ClCompile Include="src\Utility\StringUtils.cpp" />
     <ClCompile Include="src\World\Object.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
