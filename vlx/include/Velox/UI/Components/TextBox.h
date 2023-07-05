@@ -2,7 +2,7 @@
 
 #include "GUIComponent.h"
 
-namespace vlx::gui
+namespace vlx::ui
 {
 	class TextBox : public GUIComponent
 	{
@@ -16,4 +16,9 @@ namespace vlx::gui
 
 
 	};
+
+	constexpr bool TextBox::IsSelectable() const noexcept
+	{
+		return true;
+	}
 }

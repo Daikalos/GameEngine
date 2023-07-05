@@ -8,6 +8,7 @@
 #include <Velox/ECS.hpp>
 #include <Velox/Input.hpp>
 #include <Velox/Graphics.hpp>
+#include <Velox/UI.hpp>
 #include <Velox/Config.hpp>
 #include <Velox/Window.hpp>
 #include <Velox/Physics.hpp>

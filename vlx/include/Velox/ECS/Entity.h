@@ -63,8 +63,6 @@ namespace vlx
 
 		template<IsComponent C>
 		NODISC auto GetComponentRef() const;
-		template<IsComponent C>
-		NODISC auto TryGetComponentRef() const;
 
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC auto GetComponents() const;
@@ -137,11 +135,6 @@ namespace vlx
 	inline auto Entity::GetComponentRef() const
 	{
 		return m_entity_admin->GetComponentRef<C>(m_id);
-	}
-	template<IsComponent C>
-	inline auto Entity::TryGetComponentRef() const
-	{
-		return m_entity_admin->TryGetComponentRef<C>(m_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

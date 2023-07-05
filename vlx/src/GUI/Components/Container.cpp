@@ -1,8 +1,7 @@
-#include <Velox/Graphics/GUI/Container.h>
+#include <Velox/UI/Components/Container.h>
+#include <Velox/UI/Components/GUIComponent.h>
 
-#include <Velox/Graphics/GUI/GUIComponent.h>
-
-using namespace vlx::gui;
+using namespace vlx::ui;
 
 bool Container::IsEmpty() const noexcept
 {

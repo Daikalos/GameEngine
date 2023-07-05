@@ -18,31 +18,7 @@ AnimationSystem::AnimationSystem(EntityAdmin& entity_admin, LayerType layer, con
         });
 }
 
-void AnimationSystem::Start()
-{
-}
-
-void AnimationSystem::PreUpdate()
-{
-}
-
 void AnimationSystem::Update()
 {
     Execute();
-}
-
-void AnimationSystem::FixedUpdate()
-{
-}
-
-void AnimationSystem::PostUpdate()
-{
-}
-
-void vlx::AnimationSystem::Draw(Window& window) const
-{
-}
-
-void vlx::AnimationSystem::DrawGUI(Window& window) const
-{
 }

@@ -275,16 +275,6 @@ namespace vlx
 		template<IsComponent C>
 		NODISC ComponentRef<C> GetComponentRef(EntityID entity_id, C* component = nullptr) const;
 
-		///	Tries to return a component ref. May fail if the entity does not exist or hold the specified component.
-		/// 
-		///	\param EntityID: ID of the entity to retrieve the component from.
-		/// \param Component: Pointer to component, leave nullptr to automatically retrieve.
-		/// 
-		/// \returns A component reference if succesful, will return std::nullopt otherwise.
-		/// 
-		template<IsComponent C>
-		NODISC std::optional<ComponentRef<C>> TryGetComponentRef(EntityID entity_id, C* component = nullptr) const;
-
 		///	Returns a reference for the base whose pointer will remain valid even when the archetype is modified. 
 		/// 
 		///	\param EntityID: ID of the entity to retrieve the base from.
@@ -296,18 +286,6 @@ namespace vlx
 		/// 
 		template<class B>
 		NODISC ComponentRef<B> GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0, B* base = nullptr) const;
-
-		///	Tries to return a base reference. May fail if the entity does not exist or hold the specified component.
-		/// 
-		///	\param EntityID: ID of the entity to retrieve the base from.
-		/// \param ChildComponentID: ID of the child component to upcast to base.
-		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
-		/// \param Base: Pointer to base, leave nullptr to automatically retrieve.
-		/// 
-		/// \returns A base reference if succesful, will return std::nullopt otherwise.
-		/// 
-		template<class B>
-		NODISC std::optional<ComponentRef<B>> TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0, B* base = nullptr) const;
 
 		///	Checks if the entity holds the specified component.
 		/// 
@@ -324,6 +302,29 @@ namespace vlx
 		/// 
 		template<IsComponent C>
 		NODISC bool IsComponentRegistered() const;
+
+		///	Checks if all the components is registered
+		/// 
+		///	\returns True if all the components has been registered in the ECS, otherwise false.
+		/// 
+		template<class... Cs> requires IsComponents<Cs...>
+		NODISC bool IsComponentsRegistered() const;
+
+		///	Checks if the component is registered
+		/// 
+		/// \param ComponentID: ID of the component
+		/// 
+		///	\returns True if the component has been registered in the ECS, otherwise false.
+		/// 
+		VELOX_API NODISC bool IsComponentRegistered(ComponentTypeID component_id) const;
+
+		///	Checks if all the components is registered
+		/// 
+		/// \param ComponentIDSpan: The IDs of the components to check for
+		/// 
+		///	\returns True if all the components has been registered in the ECS, otherwise false.
+		/// 
+		VELOX_API NODISC bool IsComponentsRegistered(ComponentIDSpan component_ids) const;
 
 	public:
 		///	Sorts the components for all entities that exactly contains the specified components. The components 
@@ -744,6 +745,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::AddComponents(EntityID entity_id)
 	{
+		assert(IsComponentsRegistered<Cs...>() && "Components is not registered");
+
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
 
@@ -765,6 +768,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline bool EntityAdmin::RemoveComponents(EntityID entity_id)
 	{
+		assert(IsComponentsRegistered<Cs...>() && "Components is not registered");
+
 		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
 		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
@@ -966,15 +971,6 @@ namespace vlx
 		return ComponentRef<C>(data.component_ptr.lock());
 	}
 
-	template<IsComponent C>
-	inline std::optional<ComponentRef<C>> EntityAdmin::TryGetComponentRef(EntityID entity_id, C* component) const
-	{
-		if (!IsEntityRegistered(entity_id) || !HasComponent<C>(entity_id))
-			return std::nullopt;
-
-		return GetComponentRef<C>(entity_id, component);
-	}
-
 	template<class B>
 	inline ComponentRef<B> EntityAdmin::GetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset, B* base) const
 	{
@@ -1025,20 +1021,6 @@ namespace vlx
 		return ComponentRef<B>(data.base_ptr.lock());
 	}
 
-	template<class B>
-	inline std::optional<ComponentRef<B>> EntityAdmin::TryGetBaseRef(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset, B* base) const
-	{
-		if (!IsEntityRegistered(entity_id))
-			return std::nullopt;
-
-		std::optional<B*> opt_base = TryGetBase<B>(entity_id, child_component_id, offset);
-
-		if (!opt_base.has_value())
-			return std::nullopt;
-			
-		return GetBaseRef<B>(entity_id, child_component_id, offset, opt_base.value());
-	}
-
 	template<IsComponent C>
 	inline bool EntityAdmin::HasComponent(EntityID entity_id) const
 	{
@@ -1050,6 +1032,12 @@ namespace vlx
 	inline bool EntityAdmin::IsComponentRegistered() const
 	{
 		return m_component_map.contains(GetComponentID<C>());
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool EntityAdmin::IsComponentsRegistered() const
+	{
+		return (IsComponentRegistered<Cs>() && ...);
 	}
 
 	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)

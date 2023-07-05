@@ -1,13 +1,16 @@
-#include <Velox/Graphics/GUI/GUIComponent.h>
+#include <Velox/UI/Components/GUIComponent.h>
 
-using namespace vlx::gui;
+using namespace vlx::ui;
 
-GUIComponent::GUIComponent(const Vector2Type& size) : GUIComponent(size.x, size.y) { }
-GUIComponent::GUIComponent(const SizeType width, const SizeType height) : m_size(width, height) { }
+GUIComponent::GUIComponent(uint16 width, uint16 height)
+	: m_size(width, height) { }
+
+GUIComponent::GUIComponent(const Vector2<uint16>& size)
+	: GUIComponent(size.x, size.y) { }
 
 GUIComponent::~GUIComponent() = default;
 
-auto GUIComponent::GetSize() const noexcept -> const Vector2Type&
+auto GUIComponent::GetSize() const noexcept -> const Vector2<uint16>&
 {
 	return m_size;
 }
@@ -20,7 +23,7 @@ bool GUIComponent::IsSelected() const noexcept
 	return m_selected;
 }
 
-void GUIComponent::SetSize(const Vector2Type& size)
+void GUIComponent::SetSize(const Vector2<uint16>& size)
 {
 	m_size = size;
 }

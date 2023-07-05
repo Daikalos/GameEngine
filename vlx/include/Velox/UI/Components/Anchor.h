@@ -1,6 +1,6 @@
 #pragma once
 
-namespace vlx::gui
+namespace vlx::ui
 {
 	enum class AnchorPoint
 	{

@@ -5,12 +5,6 @@
 #include "Graphics/SpriteAtlas.h"
 #include "Graphics/SpriteBatch.h"
 
-#include "Graphics/GUI/GUIComponent.h"
-#include "Graphics/GUI/Anchor.h"
-#include "Graphics/GUI/Button.h"
-#include "Graphics/GUI/Label.h"
-#include "Graphics/GUI/Container.h"
-
 #include "Graphics/Components/IBatchable.h"
 #include "Graphics/Components/GlobalTransformDirty.h"
 #include "Graphics/Components/GlobalTransformMatrix.h"
@@ -25,9 +19,7 @@
 #include "Graphics/Components/Sprite.h"
 #include "Graphics/Components/Animation.h"
 
-#include "Graphics/Systems/AnchorSystem.h"
 #include "Graphics/Systems/CullingSystem.h"
-#include "Graphics/Systems/GUISystem.h"
 #include "Graphics/Systems/RelationSystem.h"
 #include "Graphics/Systems/RenderSystem.h"
 #include "Graphics/Systems/TransformSystem.h"

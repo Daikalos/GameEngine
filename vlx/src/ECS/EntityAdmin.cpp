@@ -7,6 +7,25 @@ EntityAdmin::~EntityAdmin()
 	Destroy();
 }
 
+bool EntityAdmin::IsComponentRegistered(ComponentTypeID component_id) const
+{
+	return m_component_map.contains(component_id);
+}
+
+bool EntityAdmin::IsComponentsRegistered(ComponentIDSpan component_ids) const
+{
+	if (component_ids.empty())
+		return false;
+
+	for (ComponentTypeID id : component_ids)
+	{
+		if (!IsComponentRegistered(id))
+			return false;
+	}
+
+	return true;
+}
+
 std::vector<EntityID> EntityAdmin::GetEntitiesWith(ComponentIDSpan component_ids, ArchetypeID archetype_id, bool restricted) const
 {
 	assert(cu::IsSorted<ComponentTypeID>(component_ids));
@@ -304,7 +323,8 @@ bool EntityAdmin::RemoveComponent(EntityID entity_id, ComponentTypeID rmv_compon
 
 void EntityAdmin::AddComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id)
 {
-	assert(cu::IsSorted<ComponentTypeID>(component_ids) && !component_ids.empty());
+	assert(cu::IsSorted<ComponentTypeID>(component_ids));
+	assert(!component_ids.empty());
 
 	if (m_component_lock)
 		throw std::runtime_error("Components memory is currently locked from modifications");

@@ -31,7 +31,7 @@ void StateTest::OnCreated()
 	Entity e4 = e1.Duplicate();
 
 	e2 = e1.Duplicate();
-	e2.AddComponent<gui::Label>(105, 105);
+	e2.AddComponent<ui::Label>(105, 105);
 
 	//gui::Label& label = e2.GetComponent<gui::Label>();
 	//label.setString("potato");
@@ -69,17 +69,27 @@ void StateTest::OnCreated()
 	constexpr int e = sizeof(Relation);
 
 	b0 = object_system.CreateEntity();
-	b0.AddComponents(gui::ButtonType{});
+	b0.AddComponents(ui::ButtonType{});
+	b0.AddComponents<
+		ui::ButtonPress,
+		ui::ButtonClick,
+		ui::ButtonRelease,
+		ui::ButtonEnter,
+		ui::ButtonExit>();
 
 	b0.GetComponent<Renderable>().IsGUI = true;
-	b0.GetComponent<gui::Button>().SetSize({ 128, 128 });
+	b0.GetComponent<ui::Button>().SetSize({ 128, 128 });
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
 	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-	b0.GetComponent<gui::Button>().OnPress		+= []() { std::puts("Pressed"); };
-	b0.GetComponent<gui::Button>().OnRelease	+= []() { std::puts("Relased"); };
-	b0.GetComponent<gui::Button>().OnEnter		+= []() { std::puts("Entered"); };
-	b0.GetComponent<gui::Button>().OnExit		+= []() { std::puts("Exited"); };
+	b0.GetComponent<ui::ButtonClick>().OnClick		+= []() { std::puts("Clicked"); };
+	b0.GetComponent<ui::ButtonPress>().OnPress		+= []() { std::puts("Pressed"); };
+	b0.GetComponent<ui::ButtonRelease>().OnRelease	+= []() { std::puts("Relased"); };
+	b0.GetComponent<ui::ButtonEnter>().OnEnter		+= []() { std::puts("Entered"); };
+	b0.GetComponent<ui::ButtonExit>().OnExit		+= []() { std::puts("Exited"); };
+
+	ui::Button& btn = b0.GetComponent<ui::Button>();
+	btn.Activate();
 
 	m_entity_admin->Shrink(true);
 

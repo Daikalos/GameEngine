@@ -2,10 +2,12 @@
 
 #include <Velox/ECS.hpp>
 
-#include <Velox/Graphics/GUI/Anchor.h>
+#include <Velox/Window/Window.h>
+
 #include <Velox/Graphics/Components/Transform.h>
 
-#include <Velox/Window/Window.h>
+#include <Velox/UI/Components/Anchor.h>
+
 #include <Velox/Config.hpp>
 
 namespace vlx
@@ -13,7 +15,7 @@ namespace vlx
 	class VELOX_API AnchorSystem final : public SystemAction
 	{
 	private:
-		using System = System<Transform, gui::Anchor>;
+		using System = System<Transform, ui::Anchor>;
 
 	public:
 		AnchorSystem(EntityAdmin& entity_admin, LayerType id, const Window& window);

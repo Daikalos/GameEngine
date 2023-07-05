@@ -17,10 +17,10 @@
 #include <Velox/Graphics/Components/Sprite.h>
 #include <Velox/Graphics/Components/Mesh.h>
 
-#include <Velox/Graphics/GUI/Container.h>
-#include <Velox/Graphics/GUI/Button.h>
-#include <Velox/Graphics/GUI/Label.h>
-#include <Velox/Graphics/GUI/TextBox.h>
+#include <Velox/UI/Components/Container.h>
+#include <Velox/UI/Components/Button.h>
+#include <Velox/UI/Components/Label.h>
+#include <Velox/UI/Components/TextBox.h>
 
 #include <Velox/Algorithms/QTElement.hpp>
 
@@ -47,7 +47,8 @@ namespace vlx
 		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
 		Circle, Box, Collider, Polygon, Point, PhysicsBody, PhysicsBodyTransform,
 		ColliderEnter, ColliderExit, ColliderOverlap,
-		gui::Container, gui::Button, gui::Label>>;
+		ui::Container, ui::Button, ui::Label,
+		ui::ButtonClick, ui::ButtonPress, ui::ButtonRelease, ui::ButtonEnter, ui::ButtonExit>>;
 
 	using ObjectType = std::type_identity<std::tuple<
 		Object, Renderable, Sprite, Relation,
@@ -56,11 +57,22 @@ namespace vlx
 
 	using PhysicsType = std::type_identity<std::tuple<Collider, PhysicsBody, PhysicsBodyTransform>>;
 
-	namespace gui
+	namespace ui
 	{
-		using ContainerType = std::type_identity<std::tuple<Renderable, Transform, GlobalTransformTranslation, Relation, gui::Container>>;
-		using ImageType		= std::type_identity<std::tuple<Renderable, Transform, GlobalTransformTranslation, Relation, Sprite>>;
-		using ButtonType	= std::type_identity<std::tuple<Renderable, Transform, GlobalTransformTranslation, Relation, Sprite, gui::Button>>;
-		using LabelType		= std::type_identity<std::tuple<Renderable, Transform, GlobalTransformTranslation, Relation, gui::Label>>;
+		using ContainerType		= std::type_identity<std::tuple<
+			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
+			Renderable, Relation, ui::Container>>;
+
+		using ImageType			= std::type_identity<std::tuple<
+			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
+			Renderable, Relation, Sprite>>;
+
+		using ButtonType		= std::type_identity<std::tuple<
+			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
+			Renderable, Relation, Sprite, ui::Button>>;
+
+		using LabelType			= std::type_identity<std::tuple<
+			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
+			Renderable, Relation, ui::Label>>;
 	}
 }

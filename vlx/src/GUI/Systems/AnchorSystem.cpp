@@ -1,29 +1,29 @@
-#include <Velox/Graphics/Systems/AnchorSystem.h>
+#include <Velox/UI/Systems/AnchorSystem.h>
 
 using namespace vlx;
 
 AnchorSystem::AnchorSystem(EntityAdmin& entity_admin, LayerType id, const Window& window)
 	: SystemAction(entity_admin, id), m_system(entity_admin, id)
 {
-	m_system.All([this, &window](std::span<const EntityID> entities, Transform* transforms, gui::Anchor* anchors)
+	m_system.All([this, &window](std::span<const EntityID> entities, Transform* transforms, ui::Anchor* anchors)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
 				switch (anchors[i].anchor)
 				{
-				case gui::AnchorPoint::TopLeft:
+				case ui::AnchorPoint::TopLeft:
 
 					break;
-				case gui::AnchorPoint::TopRight:
+				case ui::AnchorPoint::TopRight:
 
 					break;
-				case gui::AnchorPoint::BotLeft:
+				case ui::AnchorPoint::BotLeft:
 
 					break;
-				case gui::AnchorPoint::BotRight:
+				case ui::AnchorPoint::BotRight:
 
 					break;
-				case gui::AnchorPoint::Middle:
+				case ui::AnchorPoint::Middle:
 
 					break;
 				}

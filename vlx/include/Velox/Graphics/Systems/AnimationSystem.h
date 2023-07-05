@@ -17,15 +17,7 @@ namespace vlx
 		AnimationSystem(EntityAdmin& entity_admin, LayerType layer, const Time& time);
 		
 	public:
-		void Start() override;
-
-		void PreUpdate() override;
 		void Update() override;
-		void FixedUpdate() override;
-		void PostUpdate() override;
-
-		void Draw(Window& window) const override;
-		void DrawGUI(Window& window) const override;
 
 	private:
 		System<Renderable, Sprite, Animation> m_animation;

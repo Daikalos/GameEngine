@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\Graphics\gui\Label.cpp" />
+    <ClCompile Include="src\GUI\Components\Label.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
@@ -22,17 +22,17 @@
     <ClCompile Include="src\Graphics\Components\GlobalTransformScale.cpp" />
     <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
-    <ClCompile Include="src\Graphics\GUI\GUIComponent.cpp" />
-    <ClCompile Include="src\Graphics\Systems\AnchorSystem.cpp" />
-    <ClCompile Include="src\Graphics\GUI\Container.cpp" />
+    <ClCompile Include="src\GUI\Components\GUIComponent.cpp" />
+    <ClCompile Include="src\GUI\Systems\AnchorSystem.cpp" />
+    <ClCompile Include="src\GUI\Components\Container.cpp" />
     <ClCompile Include="src\Graphics\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\Systems\RelationSystem.cpp" />
-    <ClCompile Include="src\Graphics\GUI\Button.cpp" />
-    <ClCompile Include="src\Graphics\Systems\GUISystem.cpp" />
+    <ClCompile Include="src\GUI\Components\Button.cpp" />
+    <ClCompile Include="src\GUI\Systems\ButtonSystem.cpp" />
     <ClCompile Include="src\World\StateStack.cpp" />
     <ClCompile Include="src\World\State.cpp" />
     <ClCompile Include="src\ECS\SystemAction.cpp" />
-    <ClCompile Include="src\Graphics\GUI\TextBox.cpp" />
+    <ClCompile Include="src\GUI\Components\TextBox.cpp" />
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\Graphics\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
@@ -71,8 +71,8 @@
     <ClInclude Include="include\Velox\Graphics\Components\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\GUIComponent.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Label.h" />
+    <ClInclude Include="include\Velox\UI\Components\GUIComponent.h" />
+    <ClInclude Include="include\Velox\UI\Components\Label.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\ControlMap.h" />
     <ClInclude Include="include\Velox\Input\InputHandler.h" />
@@ -116,18 +116,18 @@
     <ClInclude Include="include\Velox\ECS\SystemAction.h" />
     <ClInclude Include="include\Velox\ECS\ComponentRef.hpp" />
     <ClInclude Include="include\Velox\ECS\ComponentSet.hpp" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Anchor.h" />
+    <ClInclude Include="include\Velox\UI\Components\Anchor.h" />
     <ClInclude Include="include\Velox\System\IDGenerator.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Button.h" />
-    <ClInclude Include="include\Velox\Graphics\Systems\AnchorSystem.h" />
-    <ClInclude Include="include\Velox\Graphics\Systems\GUISystem.h" />
+    <ClInclude Include="include\Velox\UI\Components\Button.h" />
+    <ClInclude Include="include\Velox\UI\Systems\AnchorSystem.h" />
+    <ClInclude Include="include\Velox\UI\Systems\ButtonSystem.h" />
     <ClInclude Include="include\Velox\System\EventHandler.hpp" />
     <ClInclude Include="include\Velox\System\Event.hpp" />
     <ClInclude Include="include\Velox\Graphics.hpp" />
-    <ClInclude Include="include\Velox\Graphics\GUI\Container.h" />
+    <ClInclude Include="include\Velox\UI\Components\Container.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\World\ObjectTypes.h" />
-    <ClInclude Include="include\Velox\Graphics\GUI\TextBox.h" />
+    <ClInclude Include="include\Velox\UI\Components\TextBox.h" />
     <ClInclude Include="include\Velox\Window.hpp" />
     <ClInclude Include="include\Velox\World\Identifiers.h" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
@@ -187,6 +187,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformRotation.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
     <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
+    <ClInclude Include="include\Velox\UI.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

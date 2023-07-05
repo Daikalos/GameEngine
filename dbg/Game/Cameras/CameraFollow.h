@@ -16,9 +16,7 @@ namespace vlx
 	public:
 		void SetTarget(EntityAdmin& entity_admin, EntityID entity_id)
 		{
-			auto ref = entity_admin.TryGetComponentRef<GlobalTransformTranslation>(entity_id);
-			if (ref.has_value())
-				m_target = std::move(ref.value());
+			m_target = entity_admin.GetComponentRef<GlobalTransformTranslation>(entity_id);
 		}
 
 		void SetOffset(const Vector2f& offset)

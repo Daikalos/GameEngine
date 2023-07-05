@@ -5,7 +5,7 @@
 #include <Velox/VeloxTypes.hpp>
 #include <Velox/Config.hpp>
 
-namespace vlx::gui
+namespace vlx::ui
 {
 	class Container;
 
@@ -14,18 +14,17 @@ namespace vlx::gui
 	class VELOX_API GUIComponent
 	{
 	protected:
-		using SizeType		= uint16;
-		using Vector2Type	= Vector2<SizeType>;
+		using Vector2Type = Vector2<uint16>;
 
 	public:
 		GUIComponent() = default;
-		GUIComponent(const Vector2Type& size);
-		GUIComponent(const SizeType width, const SizeType height);
+		GUIComponent(uint16 width, uint16 height);
+		GUIComponent(const Vector2<uint16>& size);
 
 		virtual ~GUIComponent() = 0;
 
 	public:
-		NODISC auto GetSize() const noexcept -> const Vector2Type&;
+		NODISC const Vector2<uint16>& GetSize() const noexcept;
 		NODISC bool IsActive() const noexcept;
 		NODISC bool IsSelected() const noexcept;
 
@@ -48,11 +47,11 @@ namespace vlx::gui
 		vlx::Event<> Deselected;
 
 	protected:
-		Vector2Type m_size;
-		bool		m_selected		{false};
-		bool		m_active		{false};
+		Vector2<uint16> m_size;
+		bool			m_selected	{false};
+		bool			m_active	{true};
 
-		Container*	m_container		{nullptr}; // current container associated with
+		Container*		m_container	{nullptr}; // current container associated with
 
 		friend class Container;
 	};

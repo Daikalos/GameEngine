@@ -8,7 +8,7 @@
 
 #include "GUIComponent.h"
 
-namespace vlx::gui
+namespace vlx::ui
 {
 	class Container : public GUIComponent
 	{
@@ -57,10 +57,7 @@ namespace vlx::gui
 	template<IsComponent C>
 	inline void Container::Push(const EntityAdmin& entity_admin, EntityID entity_id)
 	{
-		auto child = entity_admin.TryGetBaseRef<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
-
-		if (!child.has_value())
-			return;
+		auto child_ref = entity_admin.GetBaseRef<GUIComponent>(entity_id, entity_admin.GetComponentID<C>());
 
 		const auto it = std::find(m_children.begin(), m_children.end(), 
 			[&entity_id](const ChildRef& child)
@@ -70,9 +67,9 @@ namespace vlx::gui
 
 		if (it == m_children.end()) // prevent duplicates
 		{
-			m_children.emplace_back(child, entity_id);
+			m_children.emplace_back(child_ref, entity_id);
 
-			if (!HasSelection() && child->Get()->IsSelectable())
+			if (!HasSelection() && child_ref->Get()->IsSelectable())
 				SelectAt(m_children.size() - 1);
 		}
 	}
