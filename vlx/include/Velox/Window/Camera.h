@@ -8,7 +8,7 @@
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Utility/ContainerUtils.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "CameraBehavior.h"

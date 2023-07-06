@@ -2,12 +2,8 @@
 
 namespace vlx::ui
 {
-	class TextBox
+	class Activatable
 	{
-	public:
-
-	private:
-
 
 	};
 }

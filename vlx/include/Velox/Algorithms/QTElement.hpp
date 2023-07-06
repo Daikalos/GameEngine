@@ -65,12 +65,12 @@ namespace vlx
 		T& Get();
 
 	protected:
-		virtual void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
-		virtual void AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data);
-		virtual void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+		void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+		void AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data);
+		void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
 
 	protected:
-		LQuadTree<T>*	m_quad_tree {nullptr};
+		LQuadTree<T>*	m_quad_tree {nullptr}; // this assumes that the quad tree will live longer than this component
 		int				m_index		{0};
 
 		friend class CopiedEvent<QTElement>;

@@ -3,7 +3,7 @@
 #include <concepts>
 #include <filesystem>
 
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 #include "Traits.h"
 

@@ -10,7 +10,7 @@
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include <Velox/Utility/PolygonUtils.h>

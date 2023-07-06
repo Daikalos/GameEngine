@@ -7,7 +7,7 @@
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 #include <Velox/System/Time.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "../Collider.h"

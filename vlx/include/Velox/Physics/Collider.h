@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Velox/Algorithms/QTElement.hpp>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "CollisionLayer.h"
@@ -11,9 +11,9 @@
 
 namespace vlx
 {
-	using QTCollider = QTElement<uint32>;
+	using QTCollider = QTElement<uint32>; 
 
-	class VELOX_API Collider : public QTCollider
+	class VELOX_API Collider : public QTCollider // TODO: remove as parent
 	{
 	public:
 		bool GetEnabled() const noexcept;

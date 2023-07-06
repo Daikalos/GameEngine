@@ -6,7 +6,7 @@
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Time.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 #include "PhysicsBody.h"
 #include "CollisionContact.h"

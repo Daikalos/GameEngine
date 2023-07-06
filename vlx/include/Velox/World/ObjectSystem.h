@@ -6,7 +6,7 @@
 
 #include <Velox/ECS.hpp>
 #include <Velox/System/Traits.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "Object.h"

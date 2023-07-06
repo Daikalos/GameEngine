@@ -3,21 +3,13 @@
 #include <Velox/System/Event.hpp>
 #include <Velox/Config.hpp>
 
-#include "GUIComponent.h"
-
 namespace vlx::ui
 {
 	///	The button contains events for certain behaviours, e.g., press, release, and hover. They are usually 
 	/// called when the GUI component is given the respective inputs, but can be manually called if the user desires to.
 	/// 
-	class VELOX_API Button final : public GUIComponent
+	class VELOX_API Button
 	{
-	public:
-		using GUIComponent::GUIComponent; // inherit constructor
-
-	public:
-		NODISC constexpr bool IsSelectable() const noexcept override;
-
 	public:
 		void Click();
 		void Press();
@@ -37,11 +29,6 @@ namespace vlx::ui
 
 		friend class ButtonSystem;
 	};
-
-	constexpr bool Button::IsSelectable() const noexcept
-	{
-		return true;
-	}
 
 	struct VELOX_API ButtonClick
 	{

@@ -6,7 +6,7 @@
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/System/Time.h>
 #include <Velox/Input.hpp>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "Window.h"

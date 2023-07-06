@@ -10,7 +10,7 @@
 
 #include <Velox/System/Concepts.h>
 #include <Velox/System/Event.hpp>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"

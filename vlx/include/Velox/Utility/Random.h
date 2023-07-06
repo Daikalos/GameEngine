@@ -8,7 +8,7 @@
 #include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 namespace vlx::rnd
 {

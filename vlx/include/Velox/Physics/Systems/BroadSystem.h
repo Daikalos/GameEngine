@@ -19,7 +19,7 @@
 #include <Velox/Physics/Shapes/Polygon.h>
 
 #include <Velox/Config.hpp>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 #include "../PhysicsBody.h"
 #include "../CollisionObject.h"
@@ -33,13 +33,6 @@ namespace vlx
 	class VELOX_API BroadSystem final 
 	{
 	private:
-		struct BodyPtr
-		{
-			int element {-1};	
-			int next	{-1};	
-			int prev	{-1};
-		};
-
 		static constexpr int OBJ_SIZE = 6;
 
 	public:
@@ -51,6 +44,7 @@ namespace vlx
 
 		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
 		using BodyList				= std::vector<CollisionObject>;
+
 		using QuadTreeType			= LQuadTree<QTCollider::value_type>;
 
 	public:

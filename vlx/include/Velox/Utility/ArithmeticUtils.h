@@ -9,7 +9,7 @@
 #include <chrono>
 
 #include <Velox/System/Concepts.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 ///	General utility class for arithmetic numbers

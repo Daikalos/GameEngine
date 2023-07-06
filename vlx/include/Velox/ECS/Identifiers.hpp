@@ -6,7 +6,7 @@
 
 #include <Velox/Algorithms/SmallVector.hpp>
 #include <Velox/System/Concepts.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 namespace vlx
 {

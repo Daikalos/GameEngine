@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\GUI\Components\Label.cpp" />
+    <ClCompile Include="src\UI\Components\Label.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Input\ControlMap.cpp" />
@@ -22,17 +22,16 @@
     <ClCompile Include="src\Graphics\Components\GlobalTransformScale.cpp" />
     <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
-    <ClCompile Include="src\GUI\Components\GUIComponent.cpp" />
-    <ClCompile Include="src\GUI\Systems\AnchorSystem.cpp" />
-    <ClCompile Include="src\GUI\Components\Container.cpp" />
+    <ClCompile Include="src\UI\Systems\AnchorSystem.cpp" />
+    <ClCompile Include="src\UI\Components\Container.cpp" />
     <ClCompile Include="src\Graphics\Components\Relation.cpp" />
     <ClCompile Include="src\Graphics\Systems\RelationSystem.cpp" />
-    <ClCompile Include="src\GUI\Components\Button.cpp" />
-    <ClCompile Include="src\GUI\Systems\ButtonSystem.cpp" />
+    <ClCompile Include="src\UI\Components\Button.cpp" />
+    <ClCompile Include="src\UI\Systems\ButtonSystem.cpp" />
     <ClCompile Include="src\World\StateStack.cpp" />
     <ClCompile Include="src\World\State.cpp" />
     <ClCompile Include="src\ECS\SystemAction.cpp" />
-    <ClCompile Include="src\GUI\Components\TextBox.cpp" />
+    <ClCompile Include="src\UI\Components\TextBox.cpp" />
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\Graphics\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
@@ -60,6 +59,7 @@
     <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
     <ClCompile Include="src\Utility\PolygonUtils.cpp" />
     <ClCompile Include="src\Utility\StringUtils.cpp" />
+    <ClCompile Include="src\UI\Components\UIRenderable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -71,7 +71,6 @@
     <ClInclude Include="include\Velox\Graphics\Components\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
-    <ClInclude Include="include\Velox\UI\Components\GUIComponent.h" />
     <ClInclude Include="include\Velox\UI\Components\Label.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\ControlMap.h" />
@@ -166,7 +165,7 @@
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
     <ClInclude Include="include\Velox\System\Mat2f.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Point.h" />
-    <ClInclude Include="include\Velox\VeloxTypes.hpp" />
+    <ClInclude Include="include\Velox\Types.hpp" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\Algorithms\QuadTree.hpp" />
     <ClInclude Include="include\Velox\Algorithms\Grid.hpp" />
@@ -188,6 +187,9 @@
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
     <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
     <ClInclude Include="include\Velox\UI.hpp" />
+    <ClInclude Include="include\Velox\UI\Components\Selectable.h" />
+    <ClInclude Include="include\Velox\UI\Components\Activatable.h" />
+    <ClInclude Include="include\Velox\UI\Components\UIRenderable.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

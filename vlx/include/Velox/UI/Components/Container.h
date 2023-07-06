@@ -4,13 +4,11 @@
 
 #include <Velox/ECS/EntityAdmin.h>
 #include <Velox/ECS/ComponentRef.hpp>
-#include <Velox/VeloxTypes.hpp>
-
-#include "GUIComponent.h"
+#include <Velox/Types.hpp>
 
 namespace vlx::ui
 {
-	class Container : public GUIComponent
+	class Container
 	{
 	private:
 		struct ChildRef
@@ -25,12 +23,10 @@ namespace vlx::ui
 		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
-		using GUIComponent::GUIComponent;
 		Container() = default;
 
 	public:
 		VELOX_API NODISC bool IsEmpty() const noexcept;
-		VELOX_API NODISC bool IsSelectable() const noexcept override;
 
 	public:
 		template<IsComponent C>

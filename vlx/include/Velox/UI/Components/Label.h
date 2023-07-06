@@ -1,26 +1,55 @@
 #pragma once
 
-#include <SFML/Graphics/Text.hpp>
+#include <string>
+#include <vector>
 
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
-
-#include "GUIComponent.h"
 
 namespace vlx::ui
 {
-	///	For now, just standard SFML implementation of Text, will probably be reimplemented with a similiar
-	///	structure to sf::Text with the exception of some inherited classes such as sf::Transformable
+	///	Thanks to SFML for a similar implementation, sf::Text was not used because of 
+	/// the redundant data which would conflict with the ECS
 	/// 
-	struct VELOX_API Label : public GUIComponent
+	class VELOX_API Label
 	{
-		using GUIComponent::GUIComponent; // inherit constructor
+	private:
+		using VertexArray = std::vector<sf::Vertex>;
 
-		constexpr bool IsSelectable() const noexcept override;
+	public:
+		enum Style
+		{
+			Regular			= 0,
+			Bold			= 1 << 0,
+			Italic			= 1 << 1,
+			Underlined		= 1 << 2,
+			StrikeThrough	= 1 << 3
+		};
+
+	public:
+
+
+	private:
+		std::string		m_text;
+		const sf::Font*	m_font					{nullptr};
+		uint32			m_character_size		{30};
+		float			m_letter_spacing_factor {1.0f};
+		float			m_line_spacing_factor	{1.0f};
+		uint8			m_style					{Regular};
+		sf::Color		m_fill_color			{sf::Color::White};
+		sf::Color		m_outline_color			{sf::Color::Black};
+		float			m_outline_thickness		{0.0f};
+
+		mutable VertexArray		m_vertices;
+		mutable VertexArray		m_outline;
+
+
 	};
 
-	constexpr bool Label::IsSelectable() const noexcept
-	{
-		return false;
-	}
+	constexpr int a = sizeof(Label);
 }
 

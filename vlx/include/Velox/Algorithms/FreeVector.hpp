@@ -5,7 +5,7 @@
 #include <functional>
 
 #include <Velox/System/Concepts.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 namespace vlx
 {

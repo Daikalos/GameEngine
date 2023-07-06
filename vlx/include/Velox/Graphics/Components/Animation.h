@@ -3,7 +3,7 @@
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Utility/ArithmeticUtils.h>
 
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx

@@ -3,7 +3,7 @@
 #include <functional>
 #include <atomic>
 
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 namespace vlx
 {

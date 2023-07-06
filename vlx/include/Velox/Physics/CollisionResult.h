@@ -4,7 +4,7 @@
 
 #include <Velox/ECS/Identifiers.hpp>
 #include <Velox/System/Vector2.hpp>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 namespace vlx
 {

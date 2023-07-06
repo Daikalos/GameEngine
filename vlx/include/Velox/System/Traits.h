@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 #include "IDGenerator.h"
 

@@ -1,15 +1,10 @@
 #include <Velox/UI/Components/Container.h>
-#include <Velox/UI/Components/GUIComponent.h>
 
 using namespace vlx::ui;
 
 bool Container::IsEmpty() const noexcept
 {
 	return m_children.empty();
-}
-bool Container::IsSelectable() const noexcept
-{
-	return false;
 }
 
 bool Container::HasSelection() const noexcept

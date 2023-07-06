@@ -6,7 +6,7 @@
 #include <span>
 
 #include <Velox/System/Concepts.h>
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx::cu

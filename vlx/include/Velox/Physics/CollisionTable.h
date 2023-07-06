@@ -5,7 +5,7 @@
 #include <span>
 #include <tuple>
 
-#include <Velox/VeloxTypes.hpp>
+#include <Velox/Types.hpp>
 
 #include "Shapes/Shape.h"
 #include "Shapes/Circle.h"
