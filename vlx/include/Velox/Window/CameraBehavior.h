@@ -36,14 +36,14 @@ namespace vlx
 		};
 
 	public:
-		CameraBehavior(ID id, Camera& camera, Context context);
+		CameraBehavior(ID id, Camera& camera, const Context& context);
 		virtual ~CameraBehavior() = default;
 
 		NODISC auto GetID() const noexcept -> ID;
 
 	protected:
 		NODISC Camera& GetCamera() const;
-		NODISC const Context& GetContext() const;
+		NODISC auto GetContext() const -> const Context&;
 
 	public:
 		virtual void OnCreate(const std::vector<std::byte>& data) {}
@@ -67,6 +67,6 @@ namespace vlx
 	private:
 		ID		m_id;
 		Camera* m_camera;
-		Context	m_context;
+		Context m_context;
 	};
 }

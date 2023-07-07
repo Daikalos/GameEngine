@@ -95,6 +95,7 @@ namespace vlx
 			case BT_Pressed:	return input.Pressed(callback.button);
 			case BT_Released:	return input.Released(callback.button);
 			case BT_Held:		return input.Held(callback.button);
+			default:			return false;
 			}
 		};
 

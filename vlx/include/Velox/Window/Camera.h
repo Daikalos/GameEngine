@@ -97,6 +97,7 @@ namespace vlx
 		void ApplyPendingChanges();
 
 		template<std::derived_from<CameraBehavior> T, typename... Args>
+			requires std::constructible_from<T, typename Camera::BehaviorID, Camera&, const typename Camera::BehaviorContext&, Args...> // looks stupid but works
 		void RegisterBehavior(BehaviorID behavior_id, Args&&... args);
 
 	private:
@@ -118,11 +119,12 @@ namespace vlx
 	};
 
 	template<std::derived_from<CameraBehavior> T, typename... Args>
+		requires std::constructible_from<T, typename Camera::BehaviorID, Camera&, const typename Camera::BehaviorContext&, Args...>
 	inline void Camera::RegisterBehavior(BehaviorID behavior_id, Args&&... args)
 	{
-		m_factory[behavior_id] = [this, behavior_id, &args...]()
+		m_factory[behavior_id] = [this, behavior_id, ... args = std::forward<Args>(args)]()
 		{
-			return BehaviorPtr(new T(behavior_id, *this, m_context, std::forward<Args>(args)...));
+			return std::make_unique<T>(behavior_id, *this, m_context, args...);
 		};
 	}
 

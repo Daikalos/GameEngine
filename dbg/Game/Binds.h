@@ -2,10 +2,8 @@
 
 #include <stdint.h>
 
-////////////////////////////////////////////////////////////
-// Contains a set of unique binds used to set the binds
-// in the InputHandler, e.g., Attack is LMB
-////////////////////////////////////////////////////////////
+#include <Velox/Input.hpp>
+
 namespace bn
 {
 	enum class Button : uint32_t
@@ -68,3 +66,6 @@ namespace bn
 
 	};
 }
+
+using GameKeyboard = vlx::KeyboardBindable<bn::Key>;
+using GameMouse = vlx::MouseBindable<bn::Button>;

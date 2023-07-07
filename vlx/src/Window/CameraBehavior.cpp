@@ -5,7 +5,7 @@ using namespace vlx;
 CameraBehavior::Context::Context(const Window& window, const InputHolder& inputs)
 	: window(&window), inputs(&inputs) {}
 
-CameraBehavior::CameraBehavior(ID id, Camera& camera, Context context) 
+CameraBehavior::CameraBehavior(ID id, Camera& camera, const Context& context) 
 	: m_id(id), m_camera(&camera), m_context(context) {}
 
 auto CameraBehavior::GetID() const noexcept -> CameraBehavior::ID
@@ -17,7 +17,7 @@ Camera& CameraBehavior::GetCamera() const
 { 
 	return *m_camera; 
 }
-const CameraBehavior::Context& CameraBehavior::GetContext() const 
+auto CameraBehavior::GetContext() const -> const CameraBehavior::Context&
 { 
 	return m_context; 
 }

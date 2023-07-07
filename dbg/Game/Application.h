@@ -34,6 +34,9 @@ namespace vlx
 
 	private:
 		World m_world;
+
+		GameKeyboard	m_keyboard;
+		GameMouse		m_mouse;
 	};
 }
 

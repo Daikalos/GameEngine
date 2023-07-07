@@ -179,7 +179,7 @@ auto Camera::CreateBehavior(BehaviorID behavior_id) -> BehaviorPtr
 
 void Camera::ApplyPendingChanges()
 {
-	const auto pop = [this]()
+	const auto PopBehavior = [this]()
 	{
 		m_stack.back()->OnDestroy();
 		m_stack.pop_back();
@@ -197,7 +197,7 @@ void Camera::ApplyPendingChanges()
 			m_stack.back()->OnCreate(change.data);
 			break;
 		case Action::Pop:
-			pop();
+			PopBehavior();
 			break;
 		case Action::Erase:
 			{
@@ -215,7 +215,7 @@ void Camera::ApplyPendingChanges()
 					(*it)->OnDestroy();
 					m_stack.erase(it);
 				}
-				else pop(); // if this is the last
+				else PopBehavior(); // if this is the last
 			}
 			break;
 		case Action::Clear:

@@ -3,7 +3,11 @@
 using namespace vlx;
 
 Application::Application(std::string name) 
-	: m_world(std::move(name)) { }
+	: 
+	m_world(std::move(name)), 
+
+	m_keyboard(m_world.GetInputs().Keyboard()), 
+	m_mouse(m_world.GetInputs().Mouse()) { }
 
 void Application::Run()
 {
@@ -48,7 +52,7 @@ void Application::RegisterStates()
 
 	state_stack.Push(0);
 
-	camera.RegisterBehavior<CameraDrag>(0);
+	camera.RegisterBehavior<CameraDrag>(0, m_mouse);
 	camera.RegisterBehavior<CameraZoom>(1);
 	camera.RegisterBehavior<CameraFollow>(2);
 
@@ -58,12 +62,6 @@ void Application::RegisterStates()
 
 void Application::RegisterControls()
 {
-	//auto& controls = m_world.GetControls();
-
-	//controls.Get<KeyboardInput>().AddMap<bn::Key>();
-	//controls.Get<MouseInput>().AddMap<bn::Button>();
-	//controls.Get<JoystickInput>().AddMap<bn::XboxButton>();
-
-	//controls.Get<KeyboardInput>().GetMap<bn::Key>().Set(bn::Key::Left, sf::Keyboard::A);
-	//controls.Get<MouseInput>().GetMap<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
+	m_keyboard.Set(bn::Key::Left, sf::Keyboard::A);
+	m_mouse.Set(bn::Button::Drag, sf::Mouse::Middle);
 }
