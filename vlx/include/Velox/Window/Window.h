@@ -10,9 +10,8 @@
 
 namespace vlx
 {
-	/// <summary>
-	///		Settings for type of borders
-	/// </summary>
+	///	Settings for type of borders
+	///
 	enum class WindowBorder
 	{
 		Windowed,
@@ -20,18 +19,29 @@ namespace vlx
 		BorderlessWindowed // TODO: FIX BORDERLESS WINDOWED ON LOWER RESOLUTION, ALSO LOOK FOR SOLUTION ON FULLSCREEN AT MAX RESOLUTION
 	};
 
-	/// <summary>
-	///		Expanded to allow for toggle fullscreen, change resolution, and other settings
-	/// </summary>
+	///	Expanded to allow for toggle fullscreen, change resolution, and other settings
+	/// 
 	class VELOX_API Window final : public sf::RenderWindow, NonCopyable
 	{
 	public:
 		Window(
-			std::string_view name,
+			std::string name,
 			const sf::VideoMode& mode, 
 			const WindowBorder& window_border, 
 			const sf::ContextSettings& settings, 
 			bool vertical_sync, int frame_rate);
+
+		Window(
+			std::string name);
+
+		Window(
+			std::string name, 
+			const sf::VideoMode& mode);
+
+		Window(
+			std::string name, 
+			const sf::VideoMode& mode,
+			const WindowBorder& window_border);
 
 	public:
 		
@@ -66,8 +76,6 @@ namespace vlx
 		sf::ContextSettings m_settings;									// settings
 		Vector2f			m_ratio_cmp;								// current ratio in percentage when compared to default desktop mode
 		bool				m_vertical_sync	{false};					// vertical sync
-		int					m_frame_rate	{144};						// maximum frame rate
-
-		mutable std::vector<sf::VideoMode> m_cached_modes;
+		int					m_frame_rate	{300};						// maximum frame rate
 	};
 }

@@ -21,8 +21,8 @@ namespace vlx
 	public:
 		NODISC const Vector2i& GetPosition() const noexcept;
 		NODISC const Vector2f& GetDelta() const noexcept;
-		NODISC const float GetSensitivity() const noexcept;
-		NODISC const bool GetIsLocked() const noexcept;
+		NODISC float GetSensitivity() const noexcept;
+		NODISC bool GetIsLocked() const noexcept;
 
 		///	Determines the texture of the cursor when window is in focus.
 		/// 
@@ -35,22 +35,22 @@ namespace vlx
 		/// 
 		/// \param Sensitivity: value of sensitivity
 		/// 
-		void SetSensitivity(const float sensitivity) noexcept;
+		void SetSensitivity(float sensitivity) noexcept;
 
 		/// Show or hide cursor.
 		/// 
 		/// \param Flag: true to show, and false to hide
 		/// 
-		void SetVisibility(const bool flag) noexcept;
+		void SetVisibility(bool flag) noexcept;
 
 		///	Locks the cursor to the middle of the window
 		/// 
 		/// \param Flag: true to lock, and false to unlock (move freely)
 		/// 
-		void SetIsLocked(const bool flag) noexcept;
+		void SetIsLocked(bool flag) noexcept;
 
 	public:
-		void Update(const Time& time, const bool focus) override;
+		void Update(const Time& time, bool focus) override;
 		void HandleEvent(const sf::Event& event) override;
 
 	private:

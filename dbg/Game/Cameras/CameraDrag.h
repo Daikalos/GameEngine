@@ -2,7 +2,7 @@
 
 #include <Velox/Window/CameraBehavior.h>
 #include <Velox/Window/Camera.h>
-#include <Velox/Input/BtnFunc.hpp>
+#include <Velox/Input/ButtonEvent.hpp>
 
 #include "../Binds.h"
 
@@ -13,8 +13,8 @@ namespace vlx
 	public:
 		using CameraBehavior::CameraBehavior;
 
-		CameraDrag(const ID id, Camera& camera, Context context) 
-			: CameraBehavior(id, camera, context), m_func(context.controls->Get<MouseInput>())
+		CameraDrag(ID id, Camera& camera, Context context) 
+			: CameraBehavior(id, camera, context), m_func(context.inputs->Mouse())
 		{
 
 		}
@@ -23,11 +23,11 @@ namespace vlx
 		void OnCreate(const std::vector<std::byte>& data) override
 		{
 			m_window = GetContext().window;
-			m_mouse_input = &GetContext().controls->Get<MouseInput>();
-			m_mouse_cursor = &GetContext().controls->Get<MouseCursor>();
+			m_mouse_input = &GetContext().inputs->Mouse();
+			m_mouse_cursor = &GetContext().inputs->Cursor();
 
-			m_func.Add(bn::Button::Drag, BE_Pressed, &CameraDrag::Select, this, 1.0f);
-			m_func.Add(bn::Button::Drag, BE_Held, &CameraDrag::Drag, this);
+			m_func.Add(sf::Mouse::Middle, BT_Pressed, &CameraDrag::Select, this, 1.0f);
+			m_func.Add(sf::Mouse::Middle, BT_Held, &CameraDrag::Drag, this);
 		}
 
 		bool HandleEvent(const sf::Event& event) override 
@@ -84,6 +84,6 @@ namespace vlx
 
 		Vector2f m_drag_pos;
 
-		BtnFunc<MouseInput, bn::Button>	m_func;
+		ButtonEvent<MouseInput> m_func;
 	};
 }

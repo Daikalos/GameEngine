@@ -68,18 +68,13 @@ namespace vlx // concepts is the best thing ever
 
 	// UNIQUE
 
-	template<class Resource>
-	concept IsLoadable = requires(Resource resource)
-	{
-		{ resource.loadFromFile(std::filesystem::path()) } -> std::same_as<bool>;
-	};
 
-	template<class Input, typename Bind>
-	concept IsButtonInput = requires(Input input)
+	template<class I>
+	concept HasButtonInput = requires(I input)
 	{
-		{ input.Pressed(Bind()) } -> std::same_as<bool>;
-		{ input.Released(Bind()) } -> std::same_as<bool>;
-		{ input.Held(Bind()) } -> std::same_as<bool>;
+		{ input.Pressed(I::ButtonType()) } -> std::same_as<bool>;
+		{ input.Released(I::ButtonType()) } -> std::same_as<bool>;
+		{ input.Held(I::ButtonType()) } -> std::same_as<bool>;
 	};
 
 	template<class C>

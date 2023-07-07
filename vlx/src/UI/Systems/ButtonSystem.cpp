@@ -2,8 +2,11 @@
 
 using namespace vlx::ui;
 
-ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera, const ControlMap& controls)
-	: SystemAction(entity_admin, id),
+ButtonSystem::ButtonSystem(
+	EntityAdmin& entity_admin, LayerType id, 
+	const Camera& camera, const EngineMouse& mouse, const MouseCursor& cursor) : 
+	
+	SystemAction(entity_admin, id),
 
 	m_buttons(entity_admin, id),
 
@@ -15,15 +18,12 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id, const Camera
 
 {
 	m_buttons.All(
-		[&camera, &controls](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformTranslation* gtts, Button* buttons)
+		[&camera, &mouse, &cursor](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformTranslation* gtts, Button* buttons)
 		{
-			const MouseInput& mouse_input = controls.Get<MouseInput>();
-			const MouseCursor& mouse_cursor = controls.Get<MouseCursor>();
+			const bool pressed	= mouse.Pressed(ebn::Button::GUIButton);
+			const bool released = mouse.Released(ebn::Button::GUIButton);
 
-			const bool pressed	= mouse_input.Pressed(ebn::Button::GUIButton);
-			const bool released = mouse_input.Released(ebn::Button::GUIButton);
-
-			const Vector2i mouse_pos = mouse_cursor.GetPosition();
+			const Vector2i mouse_pos = cursor.GetPosition();
 			const Vector2i global_mouse_pos = camera.GetMouseWorldPosition(mouse_pos);
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
@@ -38,32 +38,32 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id, const Camera
 				button.m_call_entered	= false;
 				button.m_call_exited	= false;
 
-				if (button.IsActive())
-				{
-					const Vector2i position	= Vector2i(gtt.GetPosition());
-					const Vector2i size		= Vector2i(button.GetSize());
+				//if (button.IsActive())
+				//{
+				//	const Vector2i position	= Vector2i(gtt.GetPosition());
+				//	const Vector2i size		= Vector2i(button.GetSize());
 
-					const RectInt rectangle(position, size);
-					const bool within_bounds = rectangle.Contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
+				//	const RectInt rectangle(position, size);
+				//	const bool within_bounds = rectangle.Contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
 
-					if (within_bounds)
-					{
-						button.Enter();
+				//	if (within_bounds)
+				//	{
+				//		button.Enter();
 
-						if (pressed)
-							button.Press();
+				//		if (pressed)
+				//			button.Press();
 
-						if (released) // if released within bounds, click will occur
-							button.Click();
-					}
-					else
-					{
-						button.Exit();
-					}
-				}
+				//		if (released) // if released within bounds, click will occur
+				//			button.Click();
+				//	}
+				//	else
+				//	{
+				//		button.Exit();
+				//	}
+				//}
 
-				if (released)
-					button.Release();
+				//if (released)
+				//	button.Release();
 			}
 		});
 

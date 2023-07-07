@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 
+#include <Velox/Input/KeyboardBindable.hpp>
+#include <Velox/Input/MouseBindable.hpp>
+
 namespace vlx
 {
 	namespace ebn
@@ -66,4 +69,7 @@ namespace vlx
 
 		};
 	}
+
+	using EngineKeyboard	= KeyboardBindable<ebn::Key>;
+	using EngineMouse		= MouseBindable<ebn::Button>;
 }

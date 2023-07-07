@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/SystemAction.h>
+#include <Velox/ECS/System.hpp>
+
 #include <Velox/Window.hpp>
 
 #include <Velox/Graphics/Components/GlobalTransformMatrix.h>

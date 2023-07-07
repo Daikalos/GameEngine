@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Velox/ECS/Identifiers.hpp>
+#include <Velox/ECS/System.hpp>
 
 #include <Velox/System/Rectangle.hpp>
 
@@ -22,7 +23,9 @@ namespace vlx::ui
 	class VELOX_API ButtonSystem final : public SystemAction
 	{
 	public:
-		ButtonSystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera, const ControlMap& controls);
+		ButtonSystem(
+			EntityAdmin& entity_admin, LayerType id, 
+			const Camera& camera, const EngineMouse& mouse, const MouseCursor& cursor);
 
 	public:
 		void Update() override;

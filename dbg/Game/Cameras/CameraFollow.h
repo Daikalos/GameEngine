@@ -2,7 +2,6 @@
 
 #include <Velox/Window/CameraBehavior.h>
 #include <Velox/Window/Camera.h>
-#include <Velox/Input/BtnFunc.hpp>
 
 #include "../Binds.h"
 

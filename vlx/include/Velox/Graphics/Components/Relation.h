@@ -32,13 +32,13 @@ namespace vlx
 		using SortFunc = std::function<bool(const C&, const C&)>;
 
 	public:
-		VELOX_API NODISC bool HasParent() const noexcept;
-		VELOX_API NODISC bool HasChildren() const noexcept;
+		NODISC VELOX_API bool HasParent() const noexcept;
+		NODISC VELOX_API bool HasChildren() const noexcept;
 
-		VELOX_API NODISC auto GetParent() const noexcept -> const Parent&;
-		VELOX_API NODISC auto GetChildren() const noexcept -> const Children&;
+		NODISC VELOX_API auto GetParent() const noexcept -> const Parent&;
+		NODISC VELOX_API auto GetChildren() const noexcept -> const Children&;
 
-		VELOX_API NODISC bool IsDescendant(EntityID descendant) const;
+		NODISC VELOX_API bool IsDescendant(EntityID descendant) const;
 
 	private:
 		VELOX_API void CopiedImpl(const EntityAdmin& entity_admin, EntityID entity_id);

@@ -2,12 +2,12 @@
 
 using namespace vlx;
 
-void InputHandler::SetEnabled(const bool flag) noexcept
+void InputHandler::SetEnabled(bool flag) noexcept
 {
 	m_enabled = flag;
 }
 
-void InputHandler::SetHeldThreshold(const float value) noexcept
+void InputHandler::SetHeldThreshold(float value) noexcept
 {
 	m_held_threshold = value;
 }

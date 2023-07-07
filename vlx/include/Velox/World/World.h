@@ -1,17 +1,18 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include <unordered_map>
 
 #include <SFML/Graphics.hpp>
 
-#include <Velox/ECS.hpp>
 #include <Velox/Input.hpp>
-#include <Velox/Graphics.hpp>
-#include <Velox/UI.hpp>
-#include <Velox/Config.hpp>
 #include <Velox/Window.hpp>
+#include <Velox/Graphics.hpp>
+#include <Velox/ECS.hpp>
+#include <Velox/UI.hpp>
 #include <Velox/Physics.hpp>
+#include <Velox/Config.hpp>
 
 #include "EngineBinds.h"
 #include "ObjectSystem.h"
@@ -31,32 +32,32 @@ namespace vlx
 		using SystemTable = std::unordered_map<SystemIDType, SystemAction*>;
 
 	public:
-		VELOX_API World(const std::string_view name);
+		VELOX_API World(std::string name);
 
 	public:
-		VELOX_API NODISC const ControlMap& GetControls() const noexcept;
-		VELOX_API NODISC ControlMap& GetControls() noexcept;
+		NODISC VELOX_API const InputHolder& GetInputs() const noexcept;
+		NODISC VELOX_API InputHolder& GetInputs() noexcept;
 
-		VELOX_API NODISC const Window& GetWindow() const noexcept;
-		VELOX_API NODISC Window& GetWindow() noexcept;
+		NODISC VELOX_API const Window& GetWindow() const noexcept;
+		NODISC VELOX_API Window& GetWindow() noexcept;
 
-		VELOX_API NODISC const Camera& GetCamera() const noexcept;
-		VELOX_API NODISC Camera& GetCamera() noexcept;
+		NODISC VELOX_API const Camera& GetCamera() const noexcept;
+		NODISC VELOX_API Camera& GetCamera() noexcept;
 
-		VELOX_API NODISC const TextureHolder& GetTextureHolder() const noexcept;
-		VELOX_API NODISC TextureHolder& GetTextureHolder() noexcept;
+		NODISC VELOX_API const TextureHolder& GetTextureHolder() const noexcept;
+		NODISC VELOX_API TextureHolder& GetTextureHolder() noexcept;
 
-		VELOX_API NODISC const FontHolder& GetFontHolder() const noexcept;
-		VELOX_API NODISC FontHolder& GetFontHolder() noexcept;
+		NODISC VELOX_API const FontHolder& GetFontHolder() const noexcept;
+		NODISC VELOX_API FontHolder& GetFontHolder() noexcept;
 
-		VELOX_API NODISC const Time& GetTime() const noexcept;
-		VELOX_API NODISC Time& GetTime() noexcept;
+		NODISC VELOX_API const Time& GetTime() const noexcept;
+		NODISC VELOX_API Time& GetTime() noexcept;
 
-		VELOX_API NODISC const StateStack& GetStateStack() const noexcept;
-		VELOX_API NODISC StateStack& GetStateStack() noexcept;
+		NODISC VELOX_API const StateStack& GetStateStack() const noexcept;
+		NODISC VELOX_API StateStack& GetStateStack() noexcept;
 
-		VELOX_API NODISC const EntityAdmin& GetEntityAdmin() const noexcept;
-		VELOX_API NODISC EntityAdmin& GetEntityAdmin() noexcept;
+		NODISC VELOX_API const EntityAdmin& GetEntityAdmin() const noexcept;
+		NODISC VELOX_API EntityAdmin& GetEntityAdmin() noexcept;
 
 	public:
 		template<std::derived_from<SystemAction> S>
@@ -88,15 +89,19 @@ namespace vlx
 		VELOX_API void Draw();
 
 	private:
-		EntityAdmin		m_entity_admin;
-
 		Time			m_time;
-		ControlMap		m_controls;
 		Window			m_window;
-		Camera			m_camera;
+
+		InputHolder		m_inputs;
+		EngineKeyboard	m_keyboard;
+		EngineMouse		m_mouse;
 
 		TextureHolder	m_textures;
 		FontHolder		m_fonts;
+
+		Camera			m_camera;
+
+		EntityAdmin		m_entity_admin;
 
 		WorldSystems	m_systems;
 		SystemTable		m_system_table;

@@ -1,4 +1,5 @@
 #include <Velox/Graphics/Systems/TransformSystem.h>
+#include <Velox/ECS/EntityAdmin.h>
 
 using namespace vlx;
 
@@ -175,7 +176,7 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation
 				if (!opt.has_value())
 					continue;
 
-				GlobalTransformDirty* child_dirty = opt.value()->Get<GlobalTransformDirty>(); // why intellisense, oh why
+				GlobalTransformDirty* child_dirty = opt.value()->Get<GlobalTransformDirty>();
 
 				if (child_dirty != nullptr && !child_dirty->m_dirty)
 					recursive_ref(*child_dirty, child.ptr->GetChildren(), recursive_ref);
@@ -253,7 +254,7 @@ auto TransformSystem::CheckCache(EntityID entity_id) const -> std::optional<Cach
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())
 	{
-		CacheSet set = m_entity_admin->GetComponentsRef(entity_id, CacheTuple{}); // stupid intellisense error
+		CacheSet set = m_entity_admin->GetComponentsRef(entity_id, CacheTuple{});
 		const auto [eit, success] = m_cache.emplace(entity_id, set);
 
 		return &eit->second;

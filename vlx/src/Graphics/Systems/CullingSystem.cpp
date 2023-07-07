@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-CullingSystem::CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera)
+CullingSystem::CullingSystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera)
 	: SystemAction(entity_admin, id), m_cull_sprites(entity_admin, id), m_cull_meshes(entity_admin, id), m_camera(&camera)
 {
 	m_cull_sprites.All([this, &camera](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites)

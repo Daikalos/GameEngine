@@ -3,118 +3,190 @@
 #include <future>
 #include <memory>
 #include <unordered_map>
-#include <string_view>
 #include <thread>
-
-#include <SFML/Graphics.hpp>
+#include <shared_mutex>
 
 #include <Velox/System/Concepts.h>
 #include <Velox/Utility/NonCopyable.h>
 
+#include <Velox/Config.hpp>
+
 #include "Resources.h"
+#include "ResourceLoader.hpp"
 
 namespace vlx
 {
+	namespace res
+	{
+		enum class LoadStrategy
+		{
+			New,
+			Reuse,
+			Reload
+		};
+	}
+
 	/// Holds resources, for example, fonts, textures, sounds.
 	///
-	template <IsLoadable Resource, Enum Identifier>
+	template <class R, typename I>
 	class ResourceHolder : private NonCopyable
 	{
 	public:
-		using ResourcePtr = typename std::unique_ptr<Resource>;
+		using ResourcePtr		= typename std::unique_ptr<R>;
+
+		using ReturnType		= R&;
+		using ConstReturnType	= const R&;
 
 	public:
-		void Load(const Identifier& id, const std::string_view path);
-		template <class Parameter>
-		void Load(const Identifier& id, const std::string_view path, const Parameter& second_param);
+		auto operator[](const I& id) -> ReturnType;
+		auto operator[](const I& id) const -> ConstReturnType;
 
-		std::future<void> LoadAsync(const Identifier& id, const std::string& path);
+		auto Get(const I& id) -> ReturnType;
+		auto Get(const I& id) const -> ConstReturnType;
 
-		Resource& Get(const Identifier& id);
-		const Resource& Get(const Identifier& id) const;
+	public:
+		auto Acquire(const I& id, const ResourceLoader<R>& loader, res::LoadStrategy strat = res::LoadStrategy::New) -> ReturnType;
+
+		auto AcquireAsync(const I& id, const ResourceLoader<R>& loader, res::LoadStrategy strat = res::LoadStrategy::New) -> std::future<ReturnType>;
+
+		void Release(const I& id);
+
+		bool Contains(const I& id);
 
 	private:
-		Resource Load(const std::string_view path);
-		template<class Parameter>
-		Resource Load(const std::string_view path, const Parameter& second_param);
+		auto Load(const I& id, const ResourceLoader<R>& loader) -> ReturnType;
+		auto Insert(const I& id, ResourcePtr& resource) -> ReturnType;
 
 	private:
-		std::unordered_map<Identifier, ResourcePtr> m_resources;
-		std::mutex m_mutex;
+		std::unordered_map<I, ResourcePtr> m_resources;
+		std::shared_mutex m_mutex;
 	};
 
-	template<IsLoadable Resource, Enum Identifier>
-	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path)
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::operator[](const I& id) -> ReturnType
 	{
-		Resource resource{};
-
-		if (!resource.loadFromFile(path))
-			throw std::runtime_error("resource does not exist at " + std::string(path));
-
-		return resource;
+		return Get();
 	}
 
-	template<IsLoadable Resource, Enum Identifier>
-	template<class Parameter>
-	inline Resource ResourceHolder<Resource, Identifier>::Load(const std::string_view path, const Parameter& second_param)
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::operator[](const I& id) const -> ConstReturnType
 	{
-		Resource resource{};
-
-		if (!resource.loadFromFile(path, second_param))
-			throw std::runtime_error("resource does not exist at " + std::string(path));
-
-		return resource;
+		return Get();
 	}
 
-	template<IsLoadable Resource, Enum Identifier>
-	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path)
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::Get(const I& id) -> ReturnType
 	{
-		ResourcePtr resource = std::make_unique<Resource>(Load(path));
-		auto inserted = m_resources.try_emplace(id, std::move(resource));
-		assert(inserted.second);
-	}
+		std::shared_lock lock(m_mutex);
 
-	template<IsLoadable Resource, Enum Identifier>
-	template<typename Parameter>
-	inline void ResourceHolder<Resource, Identifier>::Load(const Identifier& id, const std::string_view path, const Parameter& second_param)
-	{
-		ResourcePtr resource = std::make_unique<Resource>(Load(path, second_param));
-		auto inserted = m_resources.try_emplace(id, std::move(resource));
-		assert(inserted.second);
-	}
-
-	template<IsLoadable Resource, Enum Identifier>
-	inline std::future<void> ResourceHolder<Resource, Identifier>::LoadAsync(const Identifier& id, const std::string& path)
-	{
-		return std::async(std::launch::async, 
-			[this, id, path]() // create local copy of path because it will later be destroyed
-			{
-				ResourcePtr resource = std::make_unique<Resource>(Load(path));
-
-				std::lock_guard lock(m_mutex); // guard race condition for m_resources
-
-				auto inserted = m_resources.try_emplace(id, std::move(resource));
-				assert(inserted.second);
-			});
-	}
-
-	template<IsLoadable Resource, Enum Identifier>
-	inline Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id)
-	{
 		const auto it = m_resources.find(id);
-
 		if (it == m_resources.end())
-			throw std::runtime_error("value could not be found");
+			throw std::runtime_error("Resource does not exist");
 
 		return *it->second;
 	}
 
-	template<IsLoadable Resource, Enum Identifier>
-	inline const Resource& ResourceHolder<Resource, Identifier>::Get(const Identifier& id) const
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::Get(const I& id) const -> ConstReturnType
 	{
-		return const_cast<ResourceHolder<Resource, Identifier>&>(*this).Get(id);
+		return const_cast<ResourceHolder<R, I>&>(*this).Get(id);
 	}
 
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::Acquire(const I& id, const ResourceLoader<R>& loader, res::LoadStrategy strat) -> ReturnType
+	{
+		std::lock_guard lock(m_mutex);
+
+		const auto it = m_resources.find(id);
+		if (it == m_resources.end())
+			return Load(id, loader);
+
+		switch (strat)
+		{
+		case res::LoadStrategy::New:
+			throw std::runtime_error("Failed to load, aleady exists in container");
+		case res::LoadStrategy::Reload:
+			Release(id);
+			return Load(id, loader);
+		default: // reuse as default
+			return *it->second;
+		}
+	}
+
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::AcquireAsync(const I& id, const ResourceLoader<R>& loader, res::LoadStrategy strat) -> std::future<ReturnType>
+	{
+		return std::async(std::launch::async, 
+			[this, id, loader, strat]() -> ReturnType // capture all parameters by value
+			{
+				ResourcePtr resource = loader(); // we load it first for async benefits
+
+				if (!resource)
+					throw std::runtime_error("Failed to load resource");
+
+				std::lock_guard lock(m_mutex); // guard race condition for resources
+
+				const auto it = m_resources.find(id);
+				if (it == m_resources.end())
+					return Insert(id, resource);
+
+				switch (strat)
+				{
+				case res::LoadStrategy::New:
+					throw std::runtime_error("Failed to load, aleady exists in container");
+				case res::LoadStrategy::Reload:
+					Release(id);
+					return Insert(id, resource);
+				default: // reuse as default
+					return *it->second;
+				}
+			});
+	}
+
+	template<class R, typename I>
+	inline void ResourceHolder<R, I>::Release(const I& id)
+	{
+		std::lock_guard lock(m_mutex);
+
+		const auto it = m_resources.find(id);
+		if (it == m_resources.end())
+			throw std::runtime_error("Resource does not exist");
+
+		m_resources.erase(it);
+	}
+
+	template<class R, typename I>
+	inline bool ResourceHolder<R, I>::Contains(const I& id)
+	{
+		std::shared_lock lock(m_mutex);
+		return m_resources.contains(id);
+	}
+
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::Load(const I& id, const ResourceLoader<R>& loader) -> ReturnType
+	{
+		ResourcePtr resource = loader();
+		if (!resource)
+			throw std::runtime_error("Failed to load resource \"" + loader.GetInfo() + "\"");
+
+		return Insert(id, resource);
+	}
+
+	template<class R, typename I>
+	inline auto ResourceHolder<R, I>::Insert(const I& id, ResourcePtr& resource) -> ReturnType
+	{
+		return *m_resources.emplace(id, std::move(resource)).first->second;
+	}
+}
+
+namespace sf
+{
+	class Texture;
+	class Font;
+}
+
+namespace vlx
+{
 	using TextureHolder = ResourceHolder<sf::Texture, Texture::ID>;
 	using FontHolder = ResourceHolder<sf::Font, Font::ID>;
 }

@@ -18,7 +18,7 @@ namespace vlx
 		using const_reference	= const T&;
 		using pointer			= T*;
 		using const_pointer		= const T*;
-		using size_type			= int64;
+		using size_type			= std::size_t;
 
 	public:
 		FreeVector() = default;
@@ -48,12 +48,18 @@ namespace vlx
 
 		constexpr void clear();
 
+		constexpr void reserve(size_type capacity);
+
+		constexpr void resize(size_type size);
+
 	public:
-		void for_each(const std::function<void(reference)>& func) const;
+		template<typename Func>
+		void for_each(Func&& func) const;
 
 	private:
-		std::vector<std::variant<T, size_type>> m_data;
-		size_type m_first_free {-1};
+		std::vector<std::variant<T, int64>> m_data;
+		int64		m_first_free {-1};
+		size_type	m_count		 {0};
 	};
 
 	template<class T>
@@ -89,13 +95,13 @@ namespace vlx
 	template<class T>
 	inline constexpr bool FreeVector<T>::empty() const noexcept
 	{
-		return m_data.empty();
+		return m_count == 0;
 	}
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::size() const noexcept -> size_type
 	{
-		return static_cast<size_type>(m_data.size());
+		return m_count;
 	}
 
 	template<class T>
@@ -113,16 +119,21 @@ namespace vlx
 			assert(!valid(m_first_free));
 
 			const auto index = m_first_free;
-			m_first_free = std::get<size_type>(m_data[m_first_free]);
-			m_data[index] = { std::in_place_index<0>, T(std::forward<Args>(args)...) };
+
+			m_first_free	= std::get<int64>(m_data[m_first_free]);
+			m_data[index]	= { std::in_place_index<0>, T(std::forward<Args>(args)...) };
 
 			return index;
 		}
 		else
 		{
+			//assert(m_data.size() == m_count); // should be the same if no more available space
+
 			m_data.emplace_back(std::in_place_index<0>, std::forward<Args>(args)...);
-			return static_cast<size_type>(m_data.size() - 1);
+			return m_data.size() - 1;
 		}
+
+		++m_count;
 	}
 
 	template<class T>
@@ -140,9 +151,12 @@ namespace vlx
 	template<class T>
 	inline constexpr void FreeVector<T>::erase(size_type n)
 	{
-		assert(n >= 0 && n < size());
+		assert(n >= 0 && n < m_data.size());
+
 		m_data[n] = m_first_free;
 		m_first_free = n;
+
+		--m_count;
 	}
 
 	template<class T>
@@ -150,15 +164,42 @@ namespace vlx
 	{
 		m_data.clear();
 		m_first_free = -1;
+		m_count = 0;
 	}
 
 	template<class T>
-	inline void FreeVector<T>::for_each(const std::function<void(reference)>& func) const
+	inline constexpr void FreeVector<T>::reserve(size_type capacity)
 	{
-		for (const auto& elt : m_data)
+		m_data.reserve(capacity);
+	}
+
+	template<class T>
+	inline constexpr void FreeVector<T>::resize(size_type size)
+	{
+		if (size >= m_count)
 		{
-			if (elt.index() == 0)
-				func(std::get<T>(elt));
+			std::size_t diff = size - m_count;
+			for (std::size_t i = 0; i < diff; ++i)
+				emplace(T());
 		}
+		else
+		{
+			assert(false);
+			// TODO: implement ???
+		}
+
+		m_count = size;
+	}
+
+	template<class T>
+	template<typename Func>
+	inline void FreeVector<T>::for_each(Func&& func) const
+	{
+		std::for_each(m_data.begin(), m_data.end(),
+			[func = std::forward<Func>(func)](const auto& elt)
+			{
+				if (elt.index() == 0)
+					func(std::get<T>(elt));
+			});
 	}
 }

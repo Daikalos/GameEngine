@@ -11,15 +11,15 @@ bool MouseInput::ScrollDown() const noexcept
 	return m_enabled && m_scroll_delta < -m_scroll_threshold;
 }
 
-bool MouseInput::Held(const sf::Mouse::Button button) const
+bool MouseInput::Held(ButtonType button) const
 {
 	return m_enabled && m_current_state[button] && m_held_time[button] >= m_held_threshold;
 }
-bool MouseInput::Pressed(const sf::Mouse::Button button) const
+bool MouseInput::Pressed(ButtonType button) const
 {
 	return m_enabled && m_current_state[button] && !m_previous_state[button];
 }
-bool MouseInput::Released(const sf::Mouse::Button button) const
+bool MouseInput::Released(ButtonType button) const
 {
 	return m_enabled && !m_current_state[button] && m_previous_state[button];
 }
@@ -31,11 +31,14 @@ void MouseInput::Update(const Time& time, const bool focus)
 
 	m_scroll_delta = 0.0f;
 
-	for (uint32_t i = 0; i < sf::Mouse::ButtonCount; ++i)
+	for (uint32 i = 0; i < sf::Mouse::ButtonCount; ++i)
 	{
 		m_previous_state[i] = m_current_state[i];
-		m_current_state[i] = focus && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
+		m_current_state[i]	= focus && sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
+	}
 
+	for (uint32 i = 0; i < sf::Mouse::ButtonCount; ++i)
+	{
 		m_held_time[i] = m_current_state[i] ? (m_held_time[i] + time.GetRealDT()) : 0.0f;
 	}
 }

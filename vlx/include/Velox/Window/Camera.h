@@ -7,6 +7,7 @@
 #include <type_traits>
 
 #include <Velox/System/Vector2.hpp>
+#include <Velox/System/Mat4f.hpp>
 #include <Velox/Utility/ContainerUtils.h>
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
@@ -15,18 +16,23 @@
 
 namespace vlx
 {
-	/// Expanded camera containing a variety of functionalities, most notably is the ability to 
-	/// contain a multitude of behaviours. Is treated as a unique entity rather than being part 
-	/// of the ECS design.
+	/// Expanded camera containing a variety of functionalities, most notably is the ability to contain 
+	/// a multitude of behaviours. Treated as a unique entity rather than being part of the ECS design.
 	/// 
 	class VELOX_API Camera final : public sf::View, private NonCopyable
 	{
 	private:
-		using Stack = typename std::vector<CameraBehavior::Ptr>;
-		using Factory = typename std::unordered_map<CameraBehavior::ID, CameraBehavior::Func>;
+		using BehaviorID		= typename CameraBehavior::ID;
+		using BehaviorPtr		= typename CameraBehavior::Ptr;
+		using BehaviorFunc		= typename CameraBehavior::Func;
+		using BehaviorContext	= typename CameraBehavior::Context;
 
-		enum class Action : uint8
+		using Stack = typename std::vector<BehaviorPtr>;
+		using Factory = typename std::unordered_map<BehaviorID, BehaviorFunc>;
+
+		enum class Action : int8
 		{
+			None = -1,
 			Push,
 			Pop,
 			Erase,
@@ -35,7 +41,7 @@ namespace vlx
 
 		struct PendingChange
 		{
-			VELOX_API explicit PendingChange(const Action& action, const CameraBehavior::ID camera_id = 0);
+			VELOX_API explicit PendingChange(Action action, BehaviorID behavior_id = 0);
 
 			template<typename... Args>
 			void InsertData(Args&&... args)
@@ -43,16 +49,18 @@ namespace vlx
 				data = cu::PackArray(std::forward<Args>(args)...);
 			}
 
-			const Action				action;
-			const CameraBehavior::ID	camera_id;
+			Action		action		{Action::None};
+			BehaviorID	behavior_id	{0};
 
 			std::vector<std::byte> data;
 		};
 
-	public:
-		explicit Camera(CameraBehavior::Context context);
+		using PendingList = std::vector<PendingChange>;
 
-		NODISC const sf::Transform& GetViewMatrix() const;
+	public:
+		explicit Camera(const BehaviorContext& context);
+
+		NODISC const Mat4f& GetViewMatrix() const;
 		NODISC Vector2f ViewToWorld(const Vector2f& position) const;
 		NODISC Vector2f GetMouseWorldPosition(const Vector2f& relative_pos) const;
 		NODISC Vector2i GetMouseWorldPosition(const Vector2i& relative_pos) const;
@@ -64,8 +72,8 @@ namespace vlx
 
 		NODISC Vector2f GetOrigin() const;
 
-		NODISC const CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id) const;
-		NODISC CameraBehavior* GetBehavior(const CameraBehavior::ID camera_id);
+		NODISC CameraBehavior* GetBehavior(BehaviorID behavior_id);
+		NODISC const CameraBehavior* GetBehavior(BehaviorID behavior_id) const;
 
 		void SetPosition(const Vector2f& position);
 		void SetScale(const Vector2f& scale);
@@ -81,47 +89,47 @@ namespace vlx
 		void PostUpdate(const Time& time);
 
 		template<typename... Args>
-		void Push(const CameraBehavior::ID camera_id, Args&&... args);
+		void Push(BehaviorID behavior_id, Args&&... args);
 		void Pop();
-		void Erase(const CameraBehavior::ID camera_id);
+		void Erase(BehaviorID behavior_id);
 		void Clear();
 
 		void ApplyPendingChanges();
 
 		template<std::derived_from<CameraBehavior> T, typename... Args>
-		void RegisterBehavior(const CameraBehavior::ID camera_id, Args&&... args);
+		void RegisterBehavior(BehaviorID behavior_id, Args&&... args);
 
 	private:
-		CameraBehavior::Ptr CreateBehavior(const CameraBehavior::ID camera_id);
+		auto CreateBehavior(BehaviorID behavior_id) -> BehaviorPtr;
 
 	private:
-		CameraBehavior::Context		m_context;
+		BehaviorContext	m_context;
 
-		Vector2f					m_position;
-		Vector2f					m_scale;	 
-		Vector2f					m_size;
+		Vector2f		m_position;
+		Vector2f		m_scale;	 
+		Vector2f		m_size;
 
-		mutable sf::Transform		m_transform;
-		mutable bool				m_update_transform{true};
+		mutable Mat4f	m_transform;
+		mutable bool	m_update_transform{true};
 
-		Stack						m_stack;		// stack of camera behaviours
-		Factory						m_factory;		// stores funcs for creating camera behaviours
-		std::vector<PendingChange>	m_pending_list;
+		Stack			m_stack;		// stack of camera behaviours
+		Factory			m_factory;		// stores funcs for creating camera behaviours
+		PendingList		m_pending_list;
 	};
 
 	template<std::derived_from<CameraBehavior> T, typename... Args>
-	inline void Camera::RegisterBehavior(const CameraBehavior::ID camera_id, Args&&... args)
+	inline void Camera::RegisterBehavior(BehaviorID behavior_id, Args&&... args)
 	{
-		m_factory[camera_id] = [this, camera_id, &args...]()
+		m_factory[behavior_id] = [this, behavior_id, &args...]()
 		{
-			return CameraBehavior::Ptr(new T(camera_id, *this, m_context, std::forward<Args>(args)...));
+			return BehaviorPtr(new T(behavior_id, *this, m_context, std::forward<Args>(args)...));
 		};
 	}
 
 	template<typename... Args>
-	inline void Camera::Push(const CameraBehavior::ID camera_id, Args&&... args)
+	inline void Camera::Push(BehaviorID behavior_id, Args&&... args)
 	{
-		const auto& pending = m_pending_list.emplace_back(Action::Push, camera_id);
+		const auto& pending = m_pending_list.emplace_back(Action::Push, behavior_id);
 
 		if constexpr (Exists<Args...>)
 			pending.InsertData(std::forward<Args>(args)...);

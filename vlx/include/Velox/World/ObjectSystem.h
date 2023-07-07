@@ -81,18 +81,18 @@ namespace vlx
 
 	public:
 		template<IsComponent C>
-		void AddComponent(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
+		void AddComponent(EntityID entity_id, ExecutionStage stage = S_PostUpdate);
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponents(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
+		void AddComponents(EntityID entity_id, ExecutionStage stage = S_PostUpdate);
 		template<class... Cs> requires IsComponents<Cs...>
-		void AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage = W_PostUpdate);
+		void AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage = S_PostUpdate);
 
 		template<IsComponent C>
-		void RemoveComponent(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
+		void RemoveComponent(EntityID entity_id, ExecutionStage stage = S_PostUpdate);
 		template<class... Cs> requires IsComponents<Cs...>
-		void RemoveComponents(EntityID entity_id, ExecutionStage stage = W_PostUpdate);
+		void RemoveComponents(EntityID entity_id, ExecutionStage stage = S_PostUpdate);
 		template<class... Cs> requires IsComponents<Cs...>
-		void RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage = W_PostUpdate);
+		void RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>, ExecutionStage stage = S_PostUpdate);
 
 	private:
 		void ExecuteCommands(ExecutionStage when);

@@ -2,26 +2,20 @@
 
 using namespace vlx;
 
-Camera::PendingChange::PendingChange(const Action& action, const CameraBehavior::ID camera_id)
-	: action(action), camera_id(camera_id) 
-{
+Camera::PendingChange::PendingChange(Action action, BehaviorID behavior_id)
+	: action(action), behavior_id(behavior_id) { }
 
-}
+Camera::Camera(const BehaviorContext& context)
+	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0) { }
 
-Camera::Camera(CameraBehavior::Context context) 
-	: m_context(context), m_position(0, 0), m_scale(1, 1), m_size(0, 0) 
-{
-
-}
-
-const sf::Transform& Camera::GetViewMatrix() const
+const Mat4f& Camera::GetViewMatrix() const
 {
 	if (m_update_transform)
 	{
-		m_transform = sf::Transform()
-			.translate(m_position)
-			.scale(1.0f / m_scale)
-			.translate(m_size / -2.0f);
+		m_transform = Mat4f()
+			.Translate(m_position)
+			.Scale(1.0f / m_scale)
+			.Translate(m_size / -2.0f);
 
 		m_update_transform = false;
 	}
@@ -63,17 +57,17 @@ Vector2f Camera::GetOrigin() const
 	return GetPosition() + (GetSize() / 2.0f);
 }
 
-const CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id) const
+CameraBehavior* Camera::GetBehavior(BehaviorID behavior_id)
 {
-	return const_cast<Camera&>(static_cast<const Camera&>(*this)).GetBehavior(camera_id);
-}
-CameraBehavior* Camera::GetBehavior(const CameraBehavior::ID camera_id)
-{
-	for (const CameraBehavior::Ptr& behavior : m_stack)
-		if (behavior->GetID() == camera_id)
+	for (const BehaviorPtr& behavior : m_stack)
+		if (behavior->GetID() == behavior_id)
 			return behavior.get();
 
 	return nullptr;
+}
+const CameraBehavior* Camera::GetBehavior(BehaviorID behavior_id) const
+{
+	return const_cast<Camera&>(*this).GetBehavior(behavior_id);
 }
 
 void Camera::SetPosition(const Vector2f& position)
@@ -100,85 +94,87 @@ void Camera::SetSize(const Vector2f& size)
 
 void Camera::HandleEvent(const sf::Event& event)
 {
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->HandleEvent(event))
-			break;
-	}
+	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+		[&event](const BehaviorPtr& ptr)
+		{
+			return ptr->HandleEvent(event);
+		});
 
 	ApplyPendingChanges();
 }
 
 void Camera::Start(const Time& time)
 {
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->Start(time))
-			break;
-	}
+	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+		[&time](const BehaviorPtr& ptr)
+		{
+			return ptr->Start(time);
+		});
 
 	ApplyPendingChanges();
 }
 
 void Camera::PreUpdate(const Time& time)
 {
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->PreUpdate(time))
-			break;
-	}
+	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+		[&time](const BehaviorPtr& ptr)
+		{
+			return ptr->PreUpdate(time);
+		});
 
 	ApplyPendingChanges();
 }
 void Camera::Update(const Time& time)
 {
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->Update(time))
-			break;
-	}
+	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+		[&time](const BehaviorPtr& ptr)
+		{
+			return ptr->Update(time);
+		});
 
 	ApplyPendingChanges();
 }
 void Camera::FixedUpdate(const Time& time)
 {
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->FixedUpdate(time))
-			break;
-	}
+	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+		[&time](const BehaviorPtr& ptr)
+		{
+			return ptr->FixedUpdate(time);
+		});
 
 	ApplyPendingChanges();
 }
 void Camera::PostUpdate(const Time& time)
 {
-	for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
-	{
-		if (!(*it)->PostUpdate(time))
-			break;
-	}
+	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+		[&time](const BehaviorPtr& ptr)
+		{
+			return ptr->PostUpdate(time);
+		});
 
 	ApplyPendingChanges();
 }
 
 void Camera::Pop()
 {
-	m_pending_list.push_back(PendingChange(Action::Pop));
+	m_pending_list.emplace_back(PendingChange(Action::Pop));
 }
-void Camera::Erase(const CameraBehavior::ID camera_id)
+void Camera::Erase(BehaviorID behavior_id)
 {
-	m_pending_list.push_back(PendingChange(Action::Erase, camera_id));
+	m_pending_list.emplace_back(PendingChange(Action::Erase, behavior_id));
 }
 void Camera::Clear()
 {
-	m_pending_list.push_back(PendingChange(Action::Clear));
+	m_pending_list.emplace_back(PendingChange(Action::Clear));
 }
 
-CameraBehavior::Ptr Camera::CreateBehavior(const CameraBehavior::ID camera_id)
+auto Camera::CreateBehavior(BehaviorID behavior_id) -> BehaviorPtr
 {
-	auto found = m_factory.find(camera_id);
-	assert(found != m_factory.end());
-	return found->second();
+	const auto it = m_factory.find(behavior_id);
+	if (it == m_factory.end())
+		throw std::runtime_error("Behaviour could not be found");
+
+	return it->second();
 }
 
 void Camera::ApplyPendingChanges()
@@ -197,7 +193,7 @@ void Camera::ApplyPendingChanges()
 		switch (change.action)
 		{
 		case Action::Push:
-			m_stack.push_back(CreateBehavior(change.camera_id));
+			m_stack.push_back(CreateBehavior(change.behavior_id));
 			m_stack.back()->OnCreate(change.data);
 			break;
 		case Action::Pop:
@@ -205,8 +201,11 @@ void Camera::ApplyPendingChanges()
 			break;
 		case Action::Erase:
 			{
-				auto it = std::find_if(m_stack.begin(), m_stack.end(), [&change](const CameraBehavior::Ptr& ptr)
-					{ return ptr->GetID() == change.camera_id; });
+				auto it = std::find_if(m_stack.begin(), m_stack.end(), 
+					[&change](const BehaviorPtr& ptr)
+					{ 
+						return ptr->GetID() == change.behavior_id;
+					});
 
 				if (it == m_stack.end())
 					break;
@@ -216,18 +215,19 @@ void Camera::ApplyPendingChanges()
 					(*it)->OnDestroy();
 					m_stack.erase(it);
 				}
-				else // if this is the last
-					pop();
+				else pop(); // if this is the last
 			}
 			break;
 		case Action::Clear:
 			{
-				for (CameraBehavior::Ptr& behaviour : m_stack)
+				for (BehaviorPtr& behaviour : m_stack)
 					behaviour->OnDestroy();
 
 				m_stack.clear();
 			}
 			break;
+		default:
+			throw std::runtime_error("Invalid action");
 		}
 	}
 

@@ -47,7 +47,7 @@ namespace vlx
 		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
 		Circle, Box, Collider, Polygon, Point, PhysicsBody, PhysicsBodyTransform,
 		ColliderEnter, ColliderExit, ColliderOverlap,
-		ui::Container, ui::Button, ui::Label,
+		ui::Button, ui::Label,
 		ui::ButtonClick, ui::ButtonPress, ui::ButtonRelease, ui::ButtonEnter, ui::ButtonExit>>;
 
 	using ObjectType = std::type_identity<std::tuple<
@@ -61,7 +61,7 @@ namespace vlx
 	{
 		using ContainerType		= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
-			Renderable, Relation, ui::Container>>;
+			Renderable, Relation>>;
 
 		using ImageType			= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 

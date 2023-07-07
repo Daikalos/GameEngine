@@ -23,7 +23,7 @@ namespace vlx
 	class Application final
 	{
 	public:
-		Application(const std::string_view name);
+		Application(std::string name);
 
 		void Run();
 

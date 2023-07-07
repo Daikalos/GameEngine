@@ -4,7 +4,9 @@
 #include <tuple>
 #include <optional>
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/SystemAction.h>
+#include <Velox/ECS/System.hpp>
+
 #include <Velox/Config.hpp>
 
 #include <Velox/Graphics/Components/GlobalTransformTranslation.h>

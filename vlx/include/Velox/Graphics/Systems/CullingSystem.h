@@ -2,6 +2,8 @@
 
 #include <Velox/ECS/Identifiers.hpp>
 #include <Velox/ECS/SystemAction.h>
+#include <Velox/ECS/System.hpp>
+
 #include <Velox/Window/Camera.h>
 
 #include <Velox/Graphics/Components/Renderable.h>
@@ -21,7 +23,7 @@ namespace vlx
 		static constexpr int LENIENCY = 128;
 
 	public:
-		CullingSystem(EntityAdmin& entity_admin, const LayerType id, const Camera& camera);
+		CullingSystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera);
 
 	public:
 		void PostUpdate() override;

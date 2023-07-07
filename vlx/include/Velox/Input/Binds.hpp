@@ -8,95 +8,84 @@
 
 namespace vlx
 {
-	class IBinds
+	template<typename Bind, typename Reg>
+	class Binds
 	{
 	public:
-		using Ptr = std::unique_ptr<IBinds>;
+		NODISC Reg& operator[](const Bind& name);
+		NODISC const Reg& operator[](const Bind& name) const;
 
-	public:
-		virtual ~IBinds() = default;
+		NODISC Reg& At(const Bind& name);
+		NODISC const Reg& At(const Bind& name) const;
 
-		virtual bool GetEnabled() const noexcept = 0;
-		virtual void SetEnabled(const bool flag) noexcept = 0;
-	};
+		///	Set the bind name to match to button
+		/// 
+		void Set(const Bind& name, const Reg& button);
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	class Binds final : public IBinds
-	{
-	public:
-		NODISC Reg& operator[](const Bind name);
-		NODISC const Reg& operator[](const Bind name) const;
-
-		NODISC Reg& At(const Bind name);
-		NODISC const Reg& At(const Bind name) const;
-
-		/// <summary>
-		///		Set the bind name to match to button
-		/// </summary>
-		void Set(const Bind name, const Reg button);
-
-		/// <summary>
-		///		Remove the existing bind
-		/// </summary>
-		void Remove(const Bind name);
+		///	Remove the existing bind
+		/// 
+		void Remove(const Bind& name);
 
 	public:
 		NODISC bool GetEnabled() const noexcept;
-		void SetEnabled(const bool flag) noexcept;
+		void SetEnabled(bool flag) noexcept;
 
 	protected:
 		std::unordered_map<Bind, Reg> m_binds;
-		bool m_enabled	{true}; // enabled as default
+		bool m_enabled {true};
 	};
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline Reg& Binds<Bind, Reg>::operator[](const Bind name)
+	template<typename Bind, typename Reg>
+	inline Reg& Binds<Bind, Reg>::operator[](const Bind& name)
 	{
-		return m_binds[name];
+		return At(name);
 	}
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline const Reg& Binds<Bind, Reg>::operator[](const Bind name) const
+	template<typename Bind, typename Reg>
+	inline const Reg& Binds<Bind, Reg>::operator[](const Bind& name) const
 	{
-		return m_binds[name];
+		return At(name);
 	}
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline Reg& Binds<Bind, Reg>::At(Bind name)
+	template<typename Bind, typename Reg>
+	inline Reg& Binds<Bind, Reg>::At(const Bind& name)
 	{
 		return const_cast<Reg&>(std::as_const(*this).At(name));;
 	}
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline const Reg& Binds<Bind, Reg>::At(Bind name) const
+	template<typename Bind, typename Reg>
+	inline const Reg& Binds<Bind, Reg>::At(const Bind& name) const
 	{
-		auto it = m_binds.find(name);
-
+		const auto it = m_binds.find(name);
 		if (it == m_binds.end())
-			throw std::runtime_error("value could not be found");
+			throw std::runtime_error("Bind could not be found");
 
 		return it->second;
 	}
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline void Binds<Bind, Reg>::Set(Bind name, Reg button)
+	template<typename Bind, typename Reg>
+	inline void Binds<Bind, Reg>::Set(const Bind& name, const Reg& button)
 	{
 		m_binds[name] = button;
 	}
 
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline void Binds<Bind, Reg>::Remove(Bind name)
+	template<typename Bind, typename Reg>
+	inline void Binds<Bind, Reg>::Remove(const Bind& name)
 	{
-		m_binds.erase(name);
+		const auto it = m_binds.find(name);
+		if (it == m_binds.end())
+			throw std::runtime_error("Bind could not be found");
+
+		m_binds.erase(it);
 	}
 
-	template<ArithEnum Bind, ArithEnum Reg>
+	template<typename Bind, typename Reg>
 	inline bool Binds<Bind, Reg>::GetEnabled() const noexcept
 	{
 		return m_enabled;
 	}
-	template<ArithEnum Bind, ArithEnum Reg>
-	inline void Binds<Bind, Reg>::SetEnabled(const bool flag) noexcept
+	template<typename Bind, typename Reg>
+	inline void Binds<Bind, Reg>::SetEnabled(bool flag) noexcept
 	{
 		m_enabled = flag;
 	}

@@ -2,39 +2,48 @@
 
 using namespace vlx;
 
-World::World(const std::string_view name) : 
-	m_window(name, sf::VideoMode().getDesktopMode(), WindowBorder::Windowed, sf::ContextSettings(), false, 300),
-	m_camera(CameraBehavior::Context(m_window, m_controls)),
+World::World(std::string name) : 
+
+	m_time(),
+	m_window(std::move(name), sf::VideoMode().getDesktopMode()),
+
+	m_inputs(m_window),
+	m_keyboard(m_inputs.Keyboard()),
+	m_mouse(m_inputs.Mouse()),
+
+	m_textures(),
+	m_fonts(),
+
+	m_camera(CameraBehavior::Context(m_window, m_inputs)),
+
+	m_entity_admin(),
+
+	m_systems(), 
+	m_system_table(),
+
 	m_state_stack(*this)
+
 {
 	m_entity_admin.RegisterComponents(AllTypes{});
 
 	m_window.Initialize();
 
-	m_controls.Add<KeyboardInput>();
-	m_controls.Add<MouseInput>();
-	m_controls.Add<JoystickInput>();
-	m_controls.Add<MouseCursor>(m_window);
-
-	m_controls.Get<KeyboardInput>().AddMap<ebn::Key>();
-	m_controls.Get<MouseInput>().AddMap<ebn::Button>();
-
-	m_controls.Get<MouseInput>().GetMap<ebn::Button>().Set(ebn::Button::GUIButton, sf::Mouse::Left);
+	m_mouse.Set(ebn::Button::GUIButton, sf::Mouse::Left);
 
 	AddSystem<ObjectSystem>(		m_entity_admin,	LYR_NONE);
 	AddSystem<RelationSystem>(		m_entity_admin,	LYR_NONE);
 	AddSystem<TransformSystem>(		m_entity_admin,	LYR_TRANSFORM);
 	AddSystem<CullingSystem>(		m_entity_admin, LYR_CULLING, m_camera);
 	AddSystem<AnchorSystem>(		m_entity_admin,	LYR_ANCHOR, m_window);
-	AddSystem<ui::ButtonSystem>(	m_entity_admin,	LYR_GUI, m_camera, m_controls);
+	AddSystem<ui::ButtonSystem>(	m_entity_admin,	LYR_GUI, m_camera, m_mouse, m_inputs.Cursor());
 	AddSystem<RenderSystem>(		m_entity_admin, LYR_RENDERING, m_time);
 	AddSystem<PhysicsDirtySystem>(	m_entity_admin, LYR_DIRTY_PHYSICS);
 	AddSystem<PhysicsSystem>(		m_entity_admin,	LYR_PHYSICS, m_time);
 	AddSystem<AnimationSystem>(		m_entity_admin, LYR_ANIMATION, m_time);
 }
 
-const ControlMap& World::GetControls() const noexcept			{ return m_controls; }
-ControlMap& World::GetControls() noexcept						{ return m_controls; }
+const InputHolder& World::GetInputs() const noexcept			{ return m_inputs; }
+InputHolder& World::GetInputs() noexcept						{ return m_inputs; }
 
 const Window& World::GetWindow() const noexcept					{ return m_window; }
 Window& World::GetWindow() noexcept								{ return m_window; }
@@ -70,7 +79,7 @@ void World::Run()
 	{
 		m_time.Update();
 
-		m_controls.UpdateAll(m_time, m_window.hasFocus());
+		m_inputs.Update(m_time, m_window.hasFocus());
 
 		ProcessEvents();
 
@@ -151,7 +160,7 @@ void World::ProcessEvents()
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{
-		m_controls.HandleEventAll(event);
+		m_inputs.HandleEvent(event);
 		m_window.HandleEvent(event);
 		m_camera.HandleEvent(event);
 		m_state_stack.HandleEvent(event);

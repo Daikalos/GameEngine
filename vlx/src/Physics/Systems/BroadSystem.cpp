@@ -58,7 +58,7 @@ void BroadSystem::GatherPossibleCollisions()
 	{
 		const auto& lhs = m_bodies[i];
 
-		if (lhs.shape == nullptr || lhs.collider == nullptr)
+		if (lhs.shape == nullptr || lhs.collider == nullptr || lhs.transform == nullptr) // safety checks
 			continue;
 
 		if (!lhs.collider->GetEnabled())
@@ -80,7 +80,7 @@ void BroadSystem::GatherPossibleCollisions()
 			if (i == elt) // skip same body
 				continue;
 
-			if (rhs.shape == nullptr || rhs.collider == nullptr || rhs.transform == nullptr) // safety checks
+			if (rhs.shape == nullptr || rhs.collider == nullptr || rhs.transform == nullptr)
 				continue;
 
 			if (!rhs.collider->GetEnabled() || !lhs.collider->layer.HasAny(rhs.collider->layer)) // enabled and matching layer
@@ -103,13 +103,13 @@ void BroadSystem::GatherPossibleCollisions()
 void BroadSystem::CullDuplicates()
 {
 	std::ranges::sort(m_collisions.begin(), m_collisions.end(),
-		[this](const CollisionPair& x, const CollisionPair& y)
+		[](const CollisionPair& x, const CollisionPair& y)
 		{
 			return (x.first < y.first) || (x.first == y.first && x.second < y.second);
 		});
 
 	const auto [first, last] = std::ranges::unique(m_collisions.begin(), m_collisions.end(),
-		[this](const CollisionPair& x, const CollisionPair& y)
+		[](const CollisionPair& x, const CollisionPair& y)
 		{
 			return x.first == y.first && y.second == x.second;
 		});

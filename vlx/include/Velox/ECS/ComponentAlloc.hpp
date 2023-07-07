@@ -4,29 +4,11 @@
 #include <Velox/Config.hpp>
 
 #include "ComponentEvents.h"
-#include "Identifiers.hpp"
+#include "IComponentAlloc.hpp"
+#include "EntityAdmin.h"
 
 namespace vlx
 {
-	class EntityAdmin;
-
-	/// ComponentAlloc is a helper class for altering data according to a specific type
-	/// 
-	struct IComponentAlloc
-	{
-		constexpr virtual ~IComponentAlloc() = default;
-
-		virtual void ConstructData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
-		virtual void DestroyData(		const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
-		virtual void MoveData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
-		virtual void MoveDestroyData(	const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
-		virtual void CopyData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr source, DataPtr destination) const = 0;
-		virtual void SwapData(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr d0, DataPtr d1) const = 0;
-		virtual void Shutdown(			const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const = 0;
-
-		virtual constexpr std::size_t GetSize() const noexcept = 0;
-	};
-
 	template<IsComponent C>
 	struct ComponentAlloc final : public IComponentAlloc
 	{
@@ -42,12 +24,7 @@ namespace vlx
 
 		NODISC static constexpr ComponentTypeID GetTypeID() noexcept;
 	};
-}
 
-#include "EntityAdmin.h" // include here to use declarations
-
-namespace vlx
-{
 	template<IsComponent C>
 	inline void ComponentAlloc<C>::ConstructData(const EntityAdmin& entity_admin, const EntityID entity_id, DataPtr data) const
 	{

@@ -351,5 +351,5 @@ namespace vlx
 		return *this;
 	}
 
-	inline constexpr Mat4f Mat4f::Identity;
+	inline constexpr Mat4f Mat4f::Identity{};
 }

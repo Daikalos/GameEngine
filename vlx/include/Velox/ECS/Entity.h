@@ -29,10 +29,10 @@ namespace vlx
 
 	public:
 		VELOX_API operator EntityID() const noexcept; // allow implicit conversion
-		VELOX_API NODISC EntityID GetID() const noexcept;
+		NODISC VELOX_API EntityID GetID() const noexcept;
 
 	public:
-		VELOX_API NODISC Entity Duplicate() const;
+		NODISC VELOX_API Entity Duplicate() const;
 		VELOX_API void Destroy();
 
 	public:

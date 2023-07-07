@@ -21,7 +21,7 @@ void StateTest::OnCreated()
 	e0.GetComponent<Sprite>().SetOpacity(1.0f);
 
 	et0 = e0.GetComponentRef<Transform>();
-	et0->SetPosition({ 0.0f, 0.0f });
+	et0->SetPosition({ 0.0f, -100.0f });
 
 	e1 = e0.Duplicate();
 	et1 = e1.GetComponentRef<Transform>();
@@ -31,7 +31,7 @@ void StateTest::OnCreated()
 	Entity e4 = e1.Duplicate();
 
 	e2 = e1.Duplicate();
-	e2.AddComponent<ui::Label>(105, 105);
+	//e2.AddComponent<ui::Label>(105, 105);
 
 	//gui::Label& label = e2.GetComponent<gui::Label>();
 	//label.setString("potato");
@@ -78,7 +78,7 @@ void StateTest::OnCreated()
 		ui::ButtonExit>();
 
 	b0.GetComponent<Renderable>().IsGUI = true;
-	b0.GetComponent<ui::Button>().SetSize({ 128, 128 });
+	//b0.GetComponent<ui::Button>().SetSize({ 128, 128 });
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
 	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
@@ -89,7 +89,7 @@ void StateTest::OnCreated()
 	b0.GetComponent<ui::ButtonExit>().OnExit		+= []() { std::puts("Exited"); };
 
 	ui::Button& btn = b0.GetComponent<ui::Button>();
-	btn.Activate();
+	//btn.Activate();
 
 	m_entity_admin->Shrink(true);
 
@@ -169,11 +169,14 @@ bool StateTest::Update(Time& time)
 	counter.Update(time);
 
 	if (m_entity_admin->IsEntityRegistered(e0))
-		et0->Move({ 5.0f * time.GetDT(), 0.0f });
+	{
+		et0->Move({ 5.0f * std::cos(time.GetDT()) * time.GetDT(), 0.0f });
+		et0->Rotate(sf::degrees(50.0f * time.GetDT()));
+	}
 
 	if (et1) et1->SetPosition({ 0.0f, 5.0f * time.GetDT() });
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num1))
+	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num1))
 	{
 		float diameter = 8.0f + rnd::random(0.0f, 128.0f);
 		float radius = diameter / 2.0f;
@@ -193,7 +196,7 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num2))
+	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num2))
 	{
 		vlx::Vector2f size(
 			8.0f + rnd::random(0.0f, 64.0f),
@@ -216,7 +219,7 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num3))
+	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num3))
 	{
 		Entity& entity = m_entities.emplace_back(e0.Duplicate());
 		entity.AddComponents(PhysicsType{});
@@ -249,7 +252,7 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Num4))
+	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num4))
 	{
 		for (int i = 0; i < 50; ++i)
 		{
@@ -269,7 +272,7 @@ bool StateTest::Update(Time& time)
 		}
 	}
 
-	if (GetWorld().GetControls().Get<KeyboardInput>().Pressed(sf::Keyboard::Backspace))
+	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Backspace))
 	{
 		std::vector<EntityID> ents = m_entity_admin->GetEntitiesWith<Collider>();
 

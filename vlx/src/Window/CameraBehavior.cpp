@@ -2,13 +2,13 @@
 
 using namespace vlx;
 
-CameraBehavior::Context::Context(const Window& window, const ControlMap& controls)
-	: window(&window), controls(&controls) {}
+CameraBehavior::Context::Context(const Window& window, const InputHolder& inputs)
+	: window(&window), inputs(&inputs) {}
 
-CameraBehavior::CameraBehavior(const ID id, Camera& camera, Context context) 
+CameraBehavior::CameraBehavior(ID id, Camera& camera, Context context) 
 	: m_id(id), m_camera(&camera), m_context(context) {}
 
-const CameraBehavior::ID& CameraBehavior::GetID() const noexcept
+auto CameraBehavior::GetID() const noexcept -> CameraBehavior::ID
 {
 	return m_id; 
 }

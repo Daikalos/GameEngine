@@ -29,17 +29,17 @@ namespace vlx
 
 		struct VELOX_API Context // holds vital objects
 		{
-			Context(const Window& window, const ControlMap& controls);
+			Context(const Window& window, const InputHolder& inputs);
 
 			const Window*		window;
-			const ControlMap*	controls;
+			const InputHolder*	inputs;
 		};
 
 	public:
-		CameraBehavior(const ID id, Camera& camera, Context context);
+		CameraBehavior(ID id, Camera& camera, Context context);
 		virtual ~CameraBehavior() = default;
 
-		NODISC const ID& GetID() const noexcept;
+		NODISC auto GetID() const noexcept -> ID;
 
 	protected:
 		NODISC Camera& GetCamera() const;
@@ -65,8 +65,8 @@ namespace vlx
 		virtual bool PostUpdate(const Time& time)	{ return true; }
 
 	private:
-		ID				m_id;
-		Camera* const	m_camera;
-		Context			m_context;
+		ID		m_id;
+		Camera* m_camera;
+		Context	m_context;
 	};
 }

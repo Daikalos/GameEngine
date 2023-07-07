@@ -19,7 +19,7 @@ class PlayerBehaviour : public vlx::DataBehaviour<PlayerBehaviour, PlayerData>
 {
 public:
 	PlayerBehaviour(vlx::World& world) 
-		: DataBehaviour(world.GetEntityAdmin()), m_keyboard(&world.GetControls().Get<vlx::KeyboardInput>()), m_time(&world.GetTime())
+		: DataBehaviour(world.GetEntityAdmin()), m_keyboard(&world.GetInputs().Keyboard()), m_time(&world.GetTime())
 	{
 
 	}

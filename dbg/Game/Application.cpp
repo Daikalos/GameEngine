@@ -2,7 +2,8 @@
 
 using namespace vlx;
 
-Application::Application(const std::string_view name) : m_world(name) {}
+Application::Application(std::string name) 
+	: m_world(std::move(name)) { }
 
 void Application::Run()
 {
@@ -17,17 +18,24 @@ void Application::LoadTextures()
 {
 	auto& texture_holder = m_world.GetTextureHolder();
 
-	auto load = texture_holder.LoadAsync(Texture::ID::IdleCursor, TEXTURE_FOLDER + "cursor.png");
-	auto load2 = texture_holder.LoadAsync(Texture::ID::Square, TEXTURE_FOLDER + "square.png");
-	auto load3 = texture_holder.LoadAsync(Texture::ID::Circle, TEXTURE_FOLDER + "circle.png");
-	auto load4 = texture_holder.LoadAsync(Texture::ID::White, TEXTURE_FOLDER + "white.png");
+	auto load = texture_holder.AcquireAsync(Texture::ID::IdleCursor, 
+		FromFile<sf::Texture>(TEXTURE_FOLDER + "cursor.png"));
+
+	auto load2 = texture_holder.AcquireAsync(Texture::ID::Square, 
+		FromFile<sf::Texture>(TEXTURE_FOLDER + "square.png"));
+
+	auto load3 = texture_holder.AcquireAsync(Texture::ID::Circle, 
+		FromFile<sf::Texture>(TEXTURE_FOLDER + "circle.png"));
+
+	auto load4 = texture_holder.AcquireAsync(Texture::ID::White, 
+		FromFile<sf::Texture>(TEXTURE_FOLDER + "white.png"));
 
 	load.wait();
 	load2.wait();
 	load3.wait();
 	load4.wait();
 
-	m_world.GetControls().Get<MouseCursor>().SetTexture(texture_holder.Get(Texture::ID::IdleCursor));
+	m_world.GetInputs().Cursor().SetTexture(texture_holder.Get(Texture::ID::IdleCursor));
 }
 
 void Application::RegisterStates()
@@ -50,12 +58,12 @@ void Application::RegisterStates()
 
 void Application::RegisterControls()
 {
-	auto& controls = m_world.GetControls();
+	//auto& controls = m_world.GetControls();
 
-	controls.Get<KeyboardInput>().AddMap<bn::Key>();
-	controls.Get<MouseInput>().AddMap<bn::Button>();
-	controls.Get<JoystickInput>().AddMap<bn::XboxButton>();
+	//controls.Get<KeyboardInput>().AddMap<bn::Key>();
+	//controls.Get<MouseInput>().AddMap<bn::Button>();
+	//controls.Get<JoystickInput>().AddMap<bn::XboxButton>();
 
-	controls.Get<KeyboardInput>().GetMap<bn::Key>().Set(bn::Key::Left, sf::Keyboard::A);
-	controls.Get<MouseInput>().GetMap<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
+	//controls.Get<KeyboardInput>().GetMap<bn::Key>().Set(bn::Key::Left, sf::Keyboard::A);
+	//controls.Get<MouseInput>().GetMap<bn::Button>().Set(bn::Button::Drag, sf::Mouse::Middle);
 }

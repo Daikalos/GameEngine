@@ -117,26 +117,28 @@ namespace vlx::cu
 		return true;
 	}
 
-	template<typename Iter, typename T>
-	NODISC inline constexpr auto FindSorted(Iter begin, Iter end, const T& item)
+	template<typename T>
+	inline auto InsertSorted(std::vector<T>& v, const T& item)
 	{
-		return std::lower_bound(begin, end, item);
+		return v.insert(std::upper_bound(v.begin(), v.end(), item), item);
 	}
 
-	template<typename Iter, typename T, class Comp>
-	NODISC inline constexpr auto FindSorted(Iter begin, Iter end, const T& item, Comp&& comparison)
+	template<typename T, typename Comp>
+	inline auto InsertSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		return std::lower_bound(begin, end, item, std::forward<Comp>(comparison));
+		return v.insert(std::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison)), item);
 	}
 
 	template<typename T>
-	inline bool InsertSorted(std::vector<T>& container, const T& item)
+	inline bool EraseSorted(std::vector<T>& v, const T& item)
 	{
-		const auto it = FindSorted(container.begin(), container.end(), item);
+		const auto lb = std::lower_bound(v.begin(), v.end(), item);
 
-		if (it == container.cend() || *it != item)
+		if (lb != v.cend() && *lb == item)
 		{
-			container.insert(it, item);
+			const auto ub = std::upper_bound(lb, v.end(), item);
+			v.erase(lb, ub);
+
 			return true;
 		}
 
@@ -144,13 +146,15 @@ namespace vlx::cu
 	}
 
 	template<typename T, typename Comp>
-	inline bool InsertSorted(std::vector<T>& container, const T& item, Comp&& comparison)
+	inline bool EraseSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		const auto it = FindSorted(container.begin(), container.end(), item, std::forward<Comp>(comparison));
+		const auto lb = std::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
 
-		if (it == container.cend() || *it != item)
+		if (lb != v.cend() && *lb == item)
 		{
-			container.insert(it, item);
+			const auto ub = std::upper_bound(lb, v.end(), item, std::forward<Comp>(comparison));
+			v.erase(lb, ub);
+
 			return true;
 		}
 
@@ -158,13 +162,27 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	inline bool EraseSorted(std::vector<T>& container, const T& item)
+	inline bool InsertUniqueSorted(std::vector<T>& v, const T& item)
 	{
-		const auto it = FindSorted(container.begin(), container.end(), item);
+		const auto it = std::upper_bound(v.begin(), v.end(), item);
 
-		if (it != container.cend() && *it == item)
+		if (it == v.cend() || *it != item)
 		{
-			container.erase(it);
+			v.insert(it, item);
+			return true;
+		}
+
+		return false;
+	}
+
+	template<typename T, typename Comp>
+	inline bool InsertUniqueSorted(std::vector<T>& v, const T& item, Comp&& comparison)
+	{
+		const auto it = std::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+
+		if (it == v.cend() || *it != item)
+		{
+			v.insert(it, item);
 			return true;
 		}
 
@@ -172,49 +190,77 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	inline constexpr void Sort(std::span<const T> cntn)
+	inline bool EraseUniqueSorted(std::vector<T>& v, const T& item)
 	{
-		std::sort(cntn.begin(), cntn.end());
-	}
+		const auto it = std::lower_bound(v.begin(), v.end(), item);
 
-	template<typename T>
-	NODISC inline constexpr T& Sort(T& cntn)
-	{
-		std::sort(std::begin(cntn), std::end(cntn));
-		return cntn;
-	}
+		if (it != v.cend() && *it == item)
+		{
+			v.erase(it);
+			return true;
+		}
 
-	template<typename T, typename Comp>
-	NODISC inline constexpr T& Sort(T& cntn, Comp&& comp)
-	{
-		std::sort(std::begin(cntn), std::end(cntn), std::forward<Comp>(comp));
-		return cntn;
-	}
-
-	template<typename T>
-	NODISC inline constexpr T Sort(T&& cntn)
-	{
-		std::sort(std::begin(cntn), std::end(cntn));
-		return cntn;
+		return false;
 	}
 
 	template<typename T, typename Comp>
-	NODISC inline constexpr T Sort(T&& cntn, Comp&& comp)
+	inline bool EraseUniqueSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		std::sort(std::begin(cntn), std::end(cntn), std::forward<Comp>(comp));
-		return cntn;
+		const auto it = std::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+
+		if (it != v.cend() && *it == item)
+		{
+			v.erase(it);
+			return true;
+		}
+
+		return false;
 	}
 
 	template<typename T>
-	NODISC inline constexpr bool IsSorted(std::span<const T> cntn)
+	inline constexpr void Sort(std::span<const T> items)
 	{
-		return std::is_sorted(cntn.begin(), cntn.end());
+		std::sort(items.begin(), items.end());
+	}
+
+	template<typename T>
+	NODISC inline constexpr T& Sort(T& items)
+	{
+		std::sort(std::begin(items), std::end(items));
+		return items;
 	}
 
 	template<typename T, typename Comp>
-	NODISC inline constexpr bool IsSorted(std::span<const T> cntn, Comp&& comp)
+	NODISC inline constexpr T& Sort(T& items, Comp&& comp)
 	{
-		return std::is_sorted(cntn.begin(), cntn.end(), comp);
+		std::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
+		return items;
+	}
+
+	template<typename T>
+	NODISC inline constexpr T Sort(T&& items)
+	{
+		std::sort(std::begin(items), std::end(items));
+		return items;
+	}
+
+	template<typename T, typename Comp>
+	NODISC inline constexpr T Sort(T&& items, Comp&& comp)
+	{
+		std::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
+		return items;
+	}
+
+	template<typename T>
+	NODISC inline constexpr bool IsSorted(std::span<const T> items)
+	{
+		return std::is_sorted(items.begin(), items.end());
+	}
+
+	template<typename T, typename Comp>
+	NODISC inline constexpr bool IsSorted(std::span<const T> items, Comp&& comp)
+	{
+		return std::is_sorted(items.begin(), items.end(), comp);
 	}
 
 	template<typename T>
@@ -226,14 +272,14 @@ namespace vlx::cu
 	template<typename T>
 	struct ContainerHash
 	{
-		NODISC constexpr uint64 operator()(std::span<const T> container) const
+		NODISC constexpr uint64 operator()(std::span<const T> items) const
 		{
-			uint64 seed = container.size();
+			uint64 seed = items.size();
 
 			if (seed == 1)
-				return container.front(); // just return first if only one
+				return items.front(); // just return first if only one
 
-			for (auto x : container)
+			for (auto x : items)
 			{
 				x = ((x >> 16) ^ x) * 0x45d9f3b;
 				x = ((x >> 16) ^ x) * 0x45d9f3b;

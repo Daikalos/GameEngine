@@ -14,14 +14,10 @@
 
 namespace vlx
 {
-	///	Main class for Keyboard, Mouse, and Joystick that have been expanded 
-	/// for extended usage, for example, binds.
+	///	Base class for Keyboard, Mouse, and Joystick 
 	/// 
 	class VELOX_API InputHandler : private NonCopyable
 	{
-	public:
-		using Ptr = std::unique_ptr<InputHandler>;
-
 	public:
 		InputHandler() = default;
 		virtual ~InputHandler() = default;
@@ -29,16 +25,16 @@ namespace vlx
 	public:
 		/// Enable or disable the InputHandler, will cause all input to return false or 0.0f.
 		/// 
-		void SetEnabled(const bool flag) noexcept;
+		void SetEnabled(bool flag) noexcept;
 
 		///	Determine the threshold before the button/key is considered held
 		/// 
-		void SetHeldThreshold(const float value) noexcept;
+		void SetHeldThreshold(float value) noexcept;
 
 	public:
 		///	Always put Update before HandleEvent for input work correctly
 		/// 
-		virtual void Update(const Time& time, const bool focus = true) = 0;
+		virtual void Update(const Time& time, bool focus = true) = 0;
 		virtual void HandleEvent(const sf::Event& event) = 0;
 
 	protected:

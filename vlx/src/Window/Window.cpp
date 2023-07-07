@@ -2,34 +2,38 @@
 
 using namespace vlx;
 
-Window::Window(std::string_view name, const sf::VideoMode& mode, const WindowBorder& border, 
-	const sf::ContextSettings& settings, bool vertical_sync, int frame_rate) :
-	m_name(name.data()), m_mode(mode), m_border(border), m_settings(settings), 
-	m_vertical_sync(vertical_sync), m_frame_rate(frame_rate) {}
+Window::Window(
+	std::string name, 
+	const sf::VideoMode& mode, 
+	const WindowBorder& border, 
+	const sf::ContextSettings& settings, 
+	bool vertical_sync, 
+	int frame_rate) :
+
+	m_name			(std::move(name)),
+	m_mode			(mode), 
+	m_border		(border), 
+	m_settings		(settings), 
+	m_vertical_sync	(vertical_sync), 
+	m_frame_rate	(frame_rate) { }
+
+Window::Window(std::string name)
+	: m_name(std::move(name)) { }
+
+Window::Window(std::string name, const sf::VideoMode& mode)
+	: m_name(std::move(name)), m_mode(mode) { }
+
+Window::Window(std::string name, const sf::VideoMode& mode, const WindowBorder& border)
+	: m_name(std::move(name)), m_mode(mode), m_border(border) { }
 
 const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 {
-	if (update || m_cached_modes.empty())
-	{
-		const sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-		float desktop_ratio = desktop.size.x / (float)desktop.size.y;
+	static std::vector<sf::VideoMode> m_modes;
 
-		std::vector<sf::VideoMode> fullscreen_modes = sf::VideoMode::getFullscreenModes();
+	if (update || m_modes.empty())
+		m_modes = sf::VideoMode::getFullscreenModes();
 
-		std::vector<sf::VideoMode> valid_modes;
-		valid_modes.reserve(fullscreen_modes.size());
-
-		for (const sf::VideoMode& mode : fullscreen_modes)
-		{
-			float ratio = mode.size.x / (float)mode.size.y;
-			if (std::fabsf(desktop_ratio - ratio) <= FLT_EPSILON)
-				valid_modes.push_back(mode);
-		}
-
-		m_cached_modes = std::move(valid_modes);
-	}
-
-	return m_cached_modes;
+	return m_modes;
 }
 
 Vector2i Window::GetOrigin() const noexcept
@@ -95,7 +99,7 @@ void Window::SetVerticalSync(bool flag)
 
 void Window::SetResolution(int index)
 {
-	std::vector<sf::VideoMode> modes = GetValidModes();
+	const auto& modes = GetValidModes();
 
 	if (index >= modes.size())
 		throw std::runtime_error("index is out of range");

@@ -18,7 +18,7 @@ Animation::Animation(uint32 width, uint32 height)
 
 bool Animation::Update(float dt)
 {
-	uint32 prev = m_index;
+	uint32 prev = static_cast<uint32>(m_index);
 
 	m_index += au::Wrap(m_speed * dt, static_cast<float>(m_size.x * m_size.y), 0.0f);
 

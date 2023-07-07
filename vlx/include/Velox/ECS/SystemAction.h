@@ -3,7 +3,6 @@
 #include <memory>
 #include <span>
 
-#include <Velox/ECS/EntityAdmin.h>
 #include <Velox/ECS/Identifiers.hpp>
 
 #include <Velox/Config.hpp>
@@ -12,6 +11,7 @@ namespace vlx
 {
 	class Window;
 	class SystemBase;
+	class EntityAdmin;
 
 	/// Interface for grouping similar systems to define specific behaviour
 	/// 

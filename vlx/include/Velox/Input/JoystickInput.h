@@ -1,11 +1,12 @@
 #pragma once
 
-#include <vector>
+#include <array>
 #include <unordered_map>
 
 #include <SFML/Window/Joystick.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <Velox/Algorithms/FreeVector.hpp>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
@@ -15,103 +16,56 @@ namespace vlx
 {
 	///	Handles all of the joystick input, has support for up to 8 joysticks.
 	/// 
-	class JoystickInput final : public InputHandler
+	class VELOX_API JoystickInput final : public InputHandler
 	{
-	private:
-		using SizeType = uint16;
-
-		template<Enum Bind>
-		using JoystickBinds = Binds<Bind, SizeType>;
-
 	public:
-		VELOX_API JoystickInput();
-
-	public:
-		VELOX_API NODISC bool Held(const SizeType id, const SizeType button) const;
-		VELOX_API NODISC bool Pressed(const SizeType id, const SizeType button) const;
-		VELOX_API NODISC bool Released(const SizeType id, const SizeType button) const;
-
-		VELOX_API NODISC float Axis(const SizeType id, const SizeType axis) const;
-
-	public:
-		template<Enum Bind>
-		NODISC bool Held(const SizeType id, const Bind name) const;
-		template<Enum Bind>
-		NODISC bool Pressed(const SizeType id, const Bind name) const;
-		template<Enum Bind>
-		NODISC bool Released(const SizeType id, const Bind name) const;
-
-		template<Enum Bind>
-		NODISC float Axis(const SizeType id, const Bind name) const;
-
-		template<Enum Bind>
-		NODISC JoystickBinds<Bind>& GetMap();
-		template<Enum Bind>
-		NODISC const JoystickBinds<Bind>& GetMap() const;
-
-		///	Add the bind for later input, must be done before any operations are performed using the bind
-		/// 
-		template<Enum Bind>
-		void AddMap();
-
-	public:
-		VELOX_API void Update(const Time& time, const bool focus) override;
-		VELOX_API void HandleEvent(const sf::Event& event) override;
+		using ButtonType = uint32;
 
 	private:
-		bool	m_current_state		[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};
-		bool	m_previous_state	[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {false};
-		float	m_held_time			[sf::Joystick::Count * sf::Joystick::ButtonCount]	= {0.0f};
+		struct Joystick
+		{
+			Joystick(uint32 id) : id(id), button_count(sf::Joystick::getButtonCount(id))
+			{
+				for (uint32 i = 0; i < sf::Joystick::AxisCount; ++i)
+					has_axis[i] = sf::Joystick::hasAxis(id, static_cast<sf::Joystick::Axis>(i));
+			}
 
-		float	m_axis				[sf::Joystick::Count * sf::Joystick::AxisCount]		= {0.0f};
+			uint32	id				{0};
+			uint32	button_count	{0};
 
-		bool	m_available			[sf::Joystick::Count] = {false}; // array of bools indicating currently available joysticks
+			bool	current_state	[sf::Joystick::ButtonCount] = {false};
+			bool	previous_state	[sf::Joystick::ButtonCount]	= {false};
+			float	held_time		[sf::Joystick::ButtonCount] = {0.0f};
 
-		std::unordered_map<std::type_index, IBinds::Ptr> m_binds;
+			float	axis			[sf::Joystick::AxisCount]	= {0.0f};
+			bool	has_axis		[sf::Joystick::AxisCount]	= {false};
+		};
 
-		// TODO: reduce size, currently around 1.9MB, replace held time variable
+		using Joysticks = std::array<std::unique_ptr<Joystick>, sf::Joystick::Count>;
+
+	public:
+		JoystickInput();
+
+	public:
+		NODISC bool Held(uint32 id, ButtonType button) const;
+		NODISC bool Pressed(uint32 id, ButtonType button) const;
+		NODISC bool Released(uint32 id, ButtonType button) const;
+		NODISC float Axis(uint32 id, sf::Joystick::Axis axis) const;
+
+		std::vector<uint32> GetAvailable() const;
+
+		void ConnectAll();
+		void DisconnectAll();
+
+	public:
+		void Update(const Time& time, const bool focus) override;
+		void HandleEvent(const sf::Event& event) override;
+
+	private:
+		void Connect(uint32 id);
+		void Disconnect(uint32 id);
+
+	private:
+		Joysticks m_joysticks;
 	};
-
-	template<Enum Bind>
-	inline bool JoystickInput::Held(const SizeType id, const Bind name) const
-	{
-		const auto& binds = GetMap<Bind>();
-		return binds.GetEnabled() && Held(id, binds.At(name));
-	}
-	template<Enum Bind>
-	inline bool JoystickInput::Pressed(const SizeType id, const Bind name) const
-	{
-		const auto& binds = GetMap<Bind>();
-		return binds.GetEnabled() && Pressed(id, binds.At(name));
-	}
-	template<Enum Bind>
-	inline bool JoystickInput::Released(const SizeType id, const Bind name) const
-	{
-		const auto& binds = GetMap<Bind>();
-		return binds.GetEnabled() && Released(id, binds.At(name));
-	}
-
-	template<Enum Bind>
-	inline float JoystickInput::Axis(const SizeType id, const Bind name) const
-	{
-		const auto& binds = GetMap<Bind>();
-		return binds.GetEnabled() && Axis(id, binds.At(name));
-	}
-
-	template<Enum Bind>
-	inline JoystickInput::JoystickBinds<Bind>& JoystickInput::GetMap()
-	{
-		return *static_cast<JoystickBinds<Bind>*>(m_binds.at(typeid(Bind)).get()); // is assumed to exist, error otherwise
-	}
-	template<Enum Bind>
-	inline const JoystickInput::JoystickBinds<Bind>& JoystickInput::GetMap() const
-	{
-		return const_cast<JoystickInput*>(this)->GetMap<Bind>();
-	}
-
-	template<Enum Bind>
-	inline void JoystickInput::AddMap()
-	{
-		m_binds[typeid(Bind)] = std::make_unique<JoystickBinds<Bind>>();
-	}
 }

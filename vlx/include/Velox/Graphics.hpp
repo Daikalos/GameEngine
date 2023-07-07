@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Graphics/ResourceHolder.hpp"
+#include "Graphics/ResourceLoader.hpp"
+#include "Graphics/SFMLLoaders.hpp"
 #include "Graphics/Resources.h"
+
 #include "Graphics/SpriteAtlas.h"
 #include "Graphics/SpriteBatch.h"
 

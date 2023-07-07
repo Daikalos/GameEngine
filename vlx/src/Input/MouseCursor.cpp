@@ -24,11 +24,11 @@ const Vector2f& MouseCursor::GetDelta() const noexcept
 { 
 	return m_delta; 
 }
-const float MouseCursor::GetSensitivity() const noexcept
+float MouseCursor::GetSensitivity() const noexcept
 {
 	return m_sensitivity;
 }
-const bool MouseCursor::GetIsLocked() const noexcept
+bool MouseCursor::GetIsLocked() const noexcept
 {
 	return m_locked;
 }
@@ -47,20 +47,20 @@ void MouseCursor::SetTexture(const sf::Texture& texture)
 		m_texture = &texture;
 	}
 }
-void MouseCursor::SetSensitivity(const float val) noexcept
+void MouseCursor::SetSensitivity(float val) noexcept
 {
 	m_sensitivity = val;
 }
-void MouseCursor::SetVisibility(const bool flag) noexcept
+void MouseCursor::SetVisibility(bool flag) noexcept
 {
 	m_window->setMouseCursorVisible(flag);
 }
-void MouseCursor::SetIsLocked(const bool flag) noexcept
+void MouseCursor::SetIsLocked(bool flag) noexcept
 {
 	m_locked = flag;
 }
 
-void MouseCursor::Update(const Time& time, const bool focus)
+void MouseCursor::Update(const Time& time, bool focus)
 {
 	if (m_enabled && focus)
 	{

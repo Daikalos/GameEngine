@@ -1,4 +1,5 @@
 #include <Velox/ECS/SystemAction.h>
+#include <Velox/ECS/EntityAdmin.h>
 
 using namespace vlx;
 

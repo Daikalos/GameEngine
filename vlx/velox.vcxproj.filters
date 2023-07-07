@@ -6,7 +6,7 @@
     <ClCompile Include="src\UI\Components\Label.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
-    <ClCompile Include="src\Input\ControlMap.cpp" />
+    <ClCompile Include="src\Input\InputHolder.cpp" />
     <ClCompile Include="src\Input\JoystickInput.cpp" />
     <ClCompile Include="src\Input\KeyboardInput.cpp" />
     <ClCompile Include="src\Input\MouseCursor.cpp" />
@@ -60,6 +60,7 @@
     <ClCompile Include="src\Utility\PolygonUtils.cpp" />
     <ClCompile Include="src\Utility\StringUtils.cpp" />
     <ClCompile Include="src\UI\Components\UIRenderable.cpp" />
+    <ClCompile Include="src\ECS\SystemBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -73,7 +74,7 @@
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
     <ClInclude Include="include\Velox\UI\Components\Label.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
-    <ClInclude Include="include\Velox\Input\ControlMap.h" />
+    <ClInclude Include="include\Velox\Input\InputHolder.h" />
     <ClInclude Include="include\Velox\Input\InputHandler.h" />
     <ClInclude Include="include\Velox\Input\JoystickInput.h" />
     <ClInclude Include="include\Velox\Input\KeyboardInput.h" />
@@ -102,7 +103,7 @@
     <ClInclude Include="include\Velox\Graphics\Resources.h" />
     <ClInclude Include="include\Velox\Graphics\SpriteAtlas.h" />
     <ClInclude Include="include\Velox\System\WeakEvent.hpp" />
-    <ClInclude Include="include\Velox\Input\BtnFunc.hpp" />
+    <ClInclude Include="include\Velox\Input\ButtonEvent.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrix.h" />
     <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
@@ -187,9 +188,14 @@
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
     <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
     <ClInclude Include="include\Velox\UI.hpp" />
-    <ClInclude Include="include\Velox\UI\Components\Selectable.h" />
-    <ClInclude Include="include\Velox\UI\Components\Activatable.h" />
     <ClInclude Include="include\Velox\UI\Components\UIRenderable.h" />
+    <ClInclude Include="include\Velox\Graphics\ResourceLoader.hpp" />
+    <ClInclude Include="include\Velox\Graphics\SFMLLoaders.hpp" />
+    <ClInclude Include="include\Velox\ECS\SystemBase.h" />
+    <ClInclude Include="include\Velox\ECS\IComponentAlloc.hpp" />
+    <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
+    <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
+    <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

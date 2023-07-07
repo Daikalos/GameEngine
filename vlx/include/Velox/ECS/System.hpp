@@ -18,45 +18,11 @@
 #include "Identifiers.hpp"
 #include "Archetype.hpp"
 
+#include "SystemBase.h"
+#include "EntityAdmin.h"
+
 namespace vlx
 {
-	class EntityAdmin;
-
-	class SystemBase : private NonCopyable
-	{
-	public:
-		virtual ~SystemBase() = default;
-
-	public:
-		auto operator<=>(const SystemBase& rhs) const;
-
-	public:
-		virtual ArchetypeID GetIDKey() const = 0;
-		virtual const ComponentIDs& GetArchKey() const = 0;
-
-		float GetPriority() const noexcept;
-		bool IsRunningParallel() const noexcept;
-		bool IsEnabled() const noexcept;
-
-		virtual void SetPriority(float val);
-		virtual void SetRunParallel(bool flag);
-		virtual void SetEnabled(bool flag);
-
-	public:
-		virtual void Start() const;
-		virtual void End() const;
-
-	protected:
-		virtual void Run(const Archetype* const archetype) const = 0;
-
-	private:
-		float	m_priority		{0.0f};		// priority is for controlling the underlying order of calls inside a layer
-		bool	m_run_parallel	{false};	// determines if whether to parallelize archetypes when being run
-		bool	m_enabled		{true};		// enables or disables system being run
-
-		friend class EntityAdmin;
-	};
-
 	/// Common system that adds behaviour to components
 	/// 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -201,19 +167,6 @@ namespace vlx
 		Event<> OnEnd;		// called after system has run for each archetype
 	};
 
-	inline auto SystemBase::operator<=>(const SystemBase& rhs) const	{ return GetPriority() <=> rhs.GetPriority(); }
-
-	inline float SystemBase::GetPriority() const noexcept		{ return m_priority; }
-	inline bool SystemBase::IsRunningParallel() const noexcept	{ return m_run_parallel; }
-	inline bool SystemBase::IsEnabled() const noexcept			{ return m_enabled; }
-
-	inline void SystemBase::SetPriority(float val)		{ m_priority = val; }
-	inline void SystemBase::SetRunParallel(bool flag)	{ m_run_parallel = flag; }
-	inline void SystemBase::SetEnabled(bool flag)		{ m_enabled = flag; }
-
-	inline void SystemBase::Start() const	{}
-	inline void SystemBase::End() const		{}
-
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::System(EntityAdmin& entity_admin) 
 		: m_entity_admin(&entity_admin) {}
@@ -228,7 +181,6 @@ namespace vlx
 			m_registered = true;
 		}
 	}
-
 
 	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::~System()
@@ -405,7 +357,7 @@ namespace vlx
 		bool excluded = false;
 		for (const ComponentTypeID component_id : m_exclusion)
 		{
-			const auto it = cu::FindSorted(archetype->type.begin(), archetype->type.end(), component_id);
+			const auto it = std::upper_bound(archetype->type.begin(), archetype->type.end(), component_id);
 			if (it != archetype->type.end() && *it == component_id) // if contains excluded component
 			{
 				excluded = true;
@@ -435,6 +387,8 @@ namespace vlx
 
 		std::ranges::merge(component_ids.begin(), component_ids.end(), 
 			System<Cs1...>::SystemIDs.begin(), System<Cs1...>::SystemIDs.end(), m_require.begin());
+
+		// TODO: check if it works
 	}
 
 	// EVENT

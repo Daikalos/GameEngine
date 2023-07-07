@@ -4,70 +4,92 @@ using namespace vlx;
 
 JoystickInput::JoystickInput()
 {
-	for (int i = 0; i < sf::Joystick::Count; ++i) // add already available joysticks
-		if (sf::Joystick::isConnected(i))
-			m_available[i] = true;
+	ConnectAll();
 }
 
-bool JoystickInput::Held(const SizeType id, const SizeType button) const
+bool JoystickInput::Held(uint32 id, ButtonType button) const
 {
-	if (!m_enabled || !m_available[id])
+	const auto& joystick = m_joysticks[id];
+
+	if (!m_enabled || !joystick)
 		return false;
 
-	const int index = button + id * sf::Joystick::ButtonCount;
-	return m_current_state[index] && m_held_time[index] >= m_held_threshold;;
+	return joystick->current_state[button] && joystick->held_time[button] >= m_held_threshold;
 }
-bool JoystickInput::Pressed(const SizeType id, const SizeType button) const
+bool JoystickInput::Pressed(uint32 id, ButtonType button) const
 {
-	if (!m_enabled || !m_available[id])
+	const auto& joystick = m_joysticks[id];
+
+	if (!m_enabled || !joystick)
 		return false;
 
-	const int index = button + id * sf::Joystick::ButtonCount;
-	return m_current_state[index] && !m_previous_state[index];
+	return joystick->current_state[button] && !joystick->previous_state[button];
 }
-bool JoystickInput::Released(const SizeType id, const SizeType button) const
+bool JoystickInput::Released(uint32 id, ButtonType button) const
 {
-	if (!m_enabled || !m_available[id])
+	const auto& joystick = m_joysticks[id];
+
+	if (!m_enabled || !joystick)
 		return false;
 
-	const int index = button + id * sf::Joystick::ButtonCount;
-	return m_current_state[index] && !m_previous_state[index];
+	return !joystick->current_state[button] && joystick->previous_state[button];
 }
 
-float JoystickInput::Axis(const SizeType id, const SizeType axis) const
+float JoystickInput::Axis(uint32 id, sf::Joystick::Axis axis) const
 {
-	if (!m_enabled || !m_available[id])
-		return 0.0f;
+	const auto& joystick = m_joysticks[id];
 
-	return m_axis[axis + id * sf::Joystick::AxisCount];
+	if (!m_enabled || !joystick)
+		return false;
+
+	return joystick->axis[axis];
 }
 
-void JoystickInput::Update(const Time& time, const bool focus)
+std::vector<uint32> vlx::JoystickInput::GetAvailable() const
+{
+	return std::vector<uint32>();
+}
+
+void JoystickInput::ConnectAll()
+{
+	for (uint32 i = 0; i < sf::Joystick::Count; ++i) // add already available joysticks
+	{
+		if (sf::Joystick::isConnected(i) && !m_joysticks[i])
+			Connect(i);
+	}
+}
+
+void JoystickInput::DisconnectAll()
+{
+	for (auto& joystick : m_joysticks)
+		joystick.release();
+}
+
+void JoystickInput::Update(const Time& time, bool focus)
 {
 	if (!m_enabled)
 		return;
 
-	for (int i = 0; i < sf::Joystick::Count; ++i)
+	for (auto& joystick : m_joysticks)
 	{
-		if (!m_available[i])
+		if (!joystick)
 			continue;
 
-		for (int j = 0, size = sf::Joystick::getButtonCount(i); j < size; ++j)
+		for (uint32 i = 0; i < joystick->button_count; ++i)
 		{
-			const int k = j + i * sf::Joystick::ButtonCount;
-
-			m_previous_state[k] = m_current_state[k];
-			m_current_state[k] = focus && sf::Joystick::isButtonPressed(i, j);
-
-			m_held_time[k] = m_current_state[k] ? m_held_time[k] + time.GetRealDT() : 0.0f;
+			joystick->previous_state[i]	= joystick->current_state[i];
+			joystick->current_state[i]	= focus && sf::Joystick::isButtonPressed(joystick->id, i);
 		}
 
-		for (int j = 0; j < sf::Joystick::AxisCount; ++j)
+		for (uint32 i = 0; i < joystick->button_count; ++i)
 		{
-			const int k = j + i * sf::Joystick::AxisCount;
+			joystick->held_time[i] = joystick->current_state[i] ? joystick->held_time[i] + time.GetRealDT() : 0.0f;
+		}
 
-			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(j);
-			m_axis[k] = sf::Joystick::hasAxis(i, axis) ? sf::Joystick::getAxisPosition(i, axis) * focus : 0.0f;
+		for (uint32 i = 0; i < sf::Joystick::AxisCount; ++i)
+		{
+			sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(i);
+			joystick->axis[i] = joystick->has_axis[i] ? sf::Joystick::getAxisPosition(i, axis) * focus : 0.0f;
 		}
 	}
 }
@@ -77,10 +99,20 @@ void JoystickInput::HandleEvent(const sf::Event& event)
 	switch (event.type)
 	{
 	case sf::Event::JoystickConnected:
-		m_available[event.joystickConnect.joystickId] = true;
+		Connect(event.joystickConnect.joystickId);
 		break;
 	case sf::Event::JoystickDisconnected:
-		m_available[event.joystickConnect.joystickId] = false;
+		Disconnect(event.joystickConnect.joystickId);
 		break;
 	}
+}
+
+void JoystickInput::Connect(uint32 id)
+{
+	m_joysticks[id] = std::make_unique<Joystick>(id);
+}
+
+void JoystickInput::Disconnect(uint32 id)
+{
+	m_joysticks[id].release();
 }

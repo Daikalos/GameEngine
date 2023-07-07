@@ -14,7 +14,7 @@ namespace vlx
 		void OnCreate(const std::vector<std::byte>& data) override
 		{
 			m_window = GetContext().window;
-			m_mouse_input = &GetContext().controls->Get<MouseInput>();
+			m_mouse_input = &GetContext().inputs->Mouse();
 
 			m_target_scale = GetCamera().GetScale();
 		}

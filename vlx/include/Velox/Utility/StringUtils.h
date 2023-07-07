@@ -7,5 +7,5 @@
 
 namespace vlx::su
 {
-	VELOX_API NODISC std::string RemoveTrailingZeroes(std::string_view str);
+	NODISC VELOX_API std::string RemoveTrailingZeroes(std::string_view str);
 }

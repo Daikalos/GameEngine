@@ -307,16 +307,16 @@ bool EntityAdmin::RemoveEntity(EntityID entity_id)
 
 void EntityAdmin::AddComponent(EntityID entity_id, ComponentTypeID add_component_id)
 {
-	const auto component_ids = { add_component_id };
-	const auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
+	static const auto component_ids	= { add_component_id };
+	static const auto archetype_id	= cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 	AddComponents(entity_id, component_ids, archetype_id);
 }
 
 bool EntityAdmin::RemoveComponent(EntityID entity_id, ComponentTypeID rmv_component_id)
 {
-	const auto component_ids = { rmv_component_id };
-	const auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
+	static const auto component_ids	= { rmv_component_id };
+	static const auto archetype_id	= cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 	return RemoveComponents(entity_id, component_ids, archetype_id);
 }
@@ -347,7 +347,7 @@ void EntityAdmin::AddComponents(EntityID entity_id, ComponentIDSpan component_id
 			bool found = false;
 			for (ComponentTypeID component_id : component_ids) // determine valid components
 			{
-				if (cu::InsertSorted<ComponentTypeID>(new_archetype_id, component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
+				if (cu::InsertUniqueSorted<ComponentTypeID>(new_archetype_id, component_id)) // insert while keeping the vector sorted (this should ensure that the archetype is always sorted)
 					found = true;
 			}
 
@@ -432,7 +432,7 @@ bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component
 		bool found = false;
 		for (ComponentTypeID component_id : component_ids) // erase while keeping the vector sorted
 		{
-			if (cu::EraseSorted<ComponentTypeID>(new_archetype_id, component_id))
+			if (cu::EraseUniqueSorted<ComponentTypeID>(new_archetype_id, component_id))
 				found = true;
 		}
 

@@ -10,27 +10,26 @@
 
 #include <Velox/System/Concepts.h>
 #include <Velox/System/Event.hpp>
+#include <Velox/System/IDGenerator.h>
+#include <Velox/Utility/NonCopyable.h>
+#include <Velox/Utility/ContainerUtils.h>
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "Identifiers.hpp"
+#include "ComponentRef.hpp"
+#include "ComponentSet.hpp"
 #include "Archetype.hpp"
-#include "System.hpp"
+#include "SystemBase.h"
+#include "ComponentEvents.h"
+#include "IComponentAlloc.hpp"
 
 namespace vlx
 {
 	// forward declarations
 
-	struct IComponentAlloc;
-
 	template<IsComponent>
 	struct ComponentAlloc;
-
-	template<class>
-	class ComponentRef;
-
-	template<class... Cs> requires IsComponents<Cs...>
-	class ComponentSet;
 
 	////////////////////////////////////////////////////////////
 	// 
@@ -39,7 +38,7 @@ namespace vlx
 	// 
 	////////////////////////////////////////////////////////////
 
-	///	Data-oriented ECS design. Components are stored in contiguous memory inside of archetypes to maximize cache locality.
+	///	Data-oriented ECS design. Components are stored in contiguous memory inside of archetypes to improve cache locality.
 	/// 
 	class EntityAdmin final : private NonCopyable
 	{
@@ -316,7 +315,7 @@ namespace vlx
 		/// 
 		///	\returns True if the component has been registered in the ECS, otherwise false.
 		/// 
-		VELOX_API NODISC bool IsComponentRegistered(ComponentTypeID component_id) const;
+		NODISC VELOX_API bool IsComponentRegistered(ComponentTypeID component_id) const;
 
 		///	Checks if all the components is registered
 		/// 
@@ -324,7 +323,7 @@ namespace vlx
 		/// 
 		///	\returns True if all the components has been registered in the ECS, otherwise false.
 		/// 
-		VELOX_API NODISC bool IsComponentsRegistered(ComponentIDSpan component_ids) const;
+		NODISC VELOX_API bool IsComponentsRegistered(ComponentIDSpan component_ids) const;
 
 	public:
 		///	Sorts the components for all entities that exactly contains the specified components. The components 
@@ -356,7 +355,7 @@ namespace vlx
 		/// 
 		/// \returns ID of the newly created entity containing the copied components
 		///
-		VELOX_API NODISC EntityID Duplicate(EntityID entity_id);
+		NODISC VELOX_API EntityID Duplicate(EntityID entity_id);
 
 		/// Searches for entities that contains the specified components
 		/// 
@@ -406,7 +405,7 @@ namespace vlx
 		/// 
 		/// \returns Entities that contains the components
 		/// 
-		VELOX_API NODISC std::vector<EntityID> GetEntitiesWith(ComponentIDSpan component_ids, ArchetypeID archetype_id, bool restricted = false) const;
+		NODISC VELOX_API std::vector<EntityID> GetEntitiesWith(ComponentIDSpan component_ids, ArchetypeID archetype_id, bool restricted = false) const;
 
 		///	Increases the capacity of the archetype containing an exact match of the specified components.
 		/// 
@@ -466,11 +465,11 @@ namespace vlx
 		void DeregisterOnRemoveListener(typename EventHandler<>::IDType id);
 
 	public:
-		VELOX_API NODISC EntityID GetNewEntityID();
-		VELOX_API NODISC std::size_t GetGenerationCount(EntityID entity_id) const;
+		NODISC VELOX_API EntityID GetNewEntityID();
+		NODISC VELOX_API std::size_t GetGenerationCount(EntityID entity_id) const;
 
-		VELOX_API NODISC bool IsEntityRegistered(EntityID entity_id) const;
-		VELOX_API NODISC bool HasComponent(EntityID entity_id, ComponentTypeID component_id) const;
+		NODISC VELOX_API bool IsEntityRegistered(EntityID entity_id) const;
+		NODISC VELOX_API bool HasComponent(EntityID entity_id, ComponentTypeID component_id) const;
 
 		VELOX_API auto RegisterEntity(EntityID entity_id) -> Record&;
 		VELOX_API bool RegisterSystem(LayerType layer, SystemBase* system);
@@ -493,7 +492,7 @@ namespace vlx
 		VELOX_API void DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
 		VELOX_API void DeregisterOnRemoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
 
-		VELOX_API NODISC bool HasShutdown() const;
+		NODISC VELOX_API bool HasShutdown() const;
 		VELOX_API void Shutdown();
 
 	private:
@@ -507,9 +506,9 @@ namespace vlx
 		void UpdateComponentRef(EntityID entity_id, C* new_component) const;
 
 	private:
-		VELOX_API NODISC Archetype* GetArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id);
+		NODISC VELOX_API Archetype* GetArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id);
 
-		VELOX_API NODISC const std::vector<Archetype*>& GetArchetypes(ComponentIDSpan component_ids, ArchetypeID archetype_id) const;
+		NODISC VELOX_API const std::vector<Archetype*>& GetArchetypes(ComponentIDSpan component_ids, ArchetypeID archetype_id) const;
 
 		VELOX_API Archetype* CreateArchetype(ComponentIDSpan component_ids, ArchetypeID archetype_id);
 
@@ -560,23 +559,18 @@ namespace vlx
 
 		// TODO: maybe make entity admin thread-safe
 	};
-}
 
-#include "ComponentAlloc.hpp"
-
-namespace vlx
-{
 	template<IsComponent C>
-	inline static constexpr ComponentTypeID EntityAdmin::GetComponentID()
+	inline constexpr ComponentTypeID EntityAdmin::GetComponentID()
 	{
-		return ComponentAlloc<C>::GetTypeID();
+		return id::Type<C>::ID();
 	}
 
 	template<IsComponent C>
 	inline void EntityAdmin::RegisterComponent()
 	{
-		auto insert = m_component_map.try_emplace(GetComponentID<C>(), std::make_unique<ComponentAlloc<C>>());
-		assert(insert.second && "Component is already registered");
+		auto [it, inserted] = m_component_map.try_emplace(GetComponentID<C>(), std::make_unique<ComponentAlloc<C>>());
+		assert(inserted && "Component is already registered");
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -617,7 +611,7 @@ namespace vlx
 			if (ait == old_archetype->edges.end())
 			{
 				ComponentIDs new_archetype_id = old_archetype->type; // create copy
-				if (!cu::InsertSorted<ComponentTypeID>(new_archetype_id, add_component_id)) // insert while keeping the vector sorted
+				if (!cu::InsertUniqueSorted<ComponentTypeID>(new_archetype_id, add_component_id)) // insert while keeping the vector sorted
 					return nullptr;
 
 				new_archetype = GetArchetype(new_archetype_id, cu::ContainerHash<ComponentTypeID>()(new_archetype_id));
@@ -747,8 +741,8 @@ namespace vlx
 	{
 		assert(IsComponentsRegistered<Cs...>() && "Components is not registered");
 
-		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
+		static constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		static constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		AddComponents(entity_id, component_ids, archetype_id);
 	}
@@ -770,8 +764,8 @@ namespace vlx
 	{
 		assert(IsComponentsRegistered<Cs...>() && "Components is not registered");
 
-		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+		static constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		static constexpr auto archetype_id = cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
 		return RemoveComponents(entity_id, component_ids, archetype_id);
 	}
@@ -787,7 +781,7 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr ComponentTypeID component_id = GetComponentID<C>();
+		static constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto& record = m_entity_archetype_map.at(entity_id);
 		const auto* archetype = record.archetype;
@@ -923,7 +917,7 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr ComponentTypeID component_id = GetComponentID<C>();
+		static constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto CheckComponentPtr = [this, entity_id, &component]<IsComponent C>()
 		{
@@ -941,7 +935,7 @@ namespace vlx
 		const auto cit = references.find(component_id);
 		if (cit == references.end()) // it does not yet exist
 		{
-			CheckComponentPtr.operator()<C>();
+			CheckComponentPtr.template operator()<C>();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(component);
@@ -958,7 +952,7 @@ namespace vlx
 		DataRef& data = cit->second;
 		if ((data.flag & DataRef::R_Component) == DataRef::R_Component && data.component_ptr.expired())
 		{
-			CheckComponentPtr.operator()<C>();
+			CheckComponentPtr.template operator()<C>();
 
 			std::shared_ptr<void*> ptr
 				= std::make_shared<void*>(component);
@@ -990,7 +984,7 @@ namespace vlx
 		const auto cit = component_refs.find(child_component_id);
 		if (cit == component_refs.end()) // it does not yet exist
 		{
-			CheckBasePtr.operator()<B>();
+			CheckBasePtr.template operator()<B>();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(base);
@@ -1008,7 +1002,7 @@ namespace vlx
 		DataRef& data = cit->second;
 		if ((data.flag & DataRef::R_Base) == DataRef::R_Base && data.base_ptr.expired())
 		{
-			CheckBasePtr.operator()<B>();
+			CheckBasePtr.template operator()<B>();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(base);
@@ -1058,7 +1052,7 @@ namespace vlx
 
 			C* components = reinterpret_cast<C*>(&record.archetype->component_data[arch_record.column][0]);
 			std::get<N>(result) = &components[record.index];
-		}.operator()<Cs, traits::IndexInTuple<Cs, ComponentTypes>::value>()), ...);
+		}.template operator()<Cs, traits::IndexInTuple<Cs, ComponentTypes>::value>()), ...);
 
 		return result;
 	}
@@ -1086,8 +1080,8 @@ namespace vlx
 	{
 		using C = std::tuple_element_t<0, std::tuple<Cs...>>; // the component that is meant to be sorted
 
-		constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id		= cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
+		static constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		static constexpr auto archetype_id	= cu::ContainerHash<ArrComponentIDs<Cs...>>()(component_ids);
 
 		const auto it = m_archetype_map.find(archetype_id);
 		if (it == m_archetype_map.end())
@@ -1113,8 +1107,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline std::vector<EntityID> EntityAdmin::GetEntitiesWith(bool restricted) const
 	{
-		constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id		= cu::ContainerHash<ComponentTypeID>()(component_ids);
+		static constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		static constexpr auto archetype_id	= cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		return GetEntitiesWith(component_ids, archetype_id, restricted);
 	}
@@ -1128,8 +1122,8 @@ namespace vlx
 	template<class... Cs> requires IsComponents<Cs...>
 	inline void EntityAdmin::Reserve(std::size_t component_count)
 	{
-		constexpr auto component_ids = cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
-		constexpr auto archetype_id = cu::ContainerHash<ComponentTypeID>()(component_ids);
+		static constexpr auto component_ids	= cu::Sort<ArrComponentIDs<Cs...>>({ GetComponentID<Cs>()... });
+		static constexpr auto archetype_id	= cu::ContainerHash<ComponentTypeID>()(component_ids);
 
 		Reserve(component_ids, archetype_id, component_count);
 	}
@@ -1145,7 +1139,8 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr auto component_id = GetComponentID<C>();
+		static constexpr auto component_id = GetComponentID<C>();
+
 		return	(m_events_add[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
 				{
 					func(entity_id, *reinterpret_cast<C*>(ptr));
@@ -1157,7 +1152,8 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr auto component_id = GetComponentID<C>();
+		static constexpr auto component_id = GetComponentID<C>();
+
 		return	(m_events_move[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
 				{ 
 					func(entity_id, *reinterpret_cast<C*>(ptr));
@@ -1169,7 +1165,8 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr auto component_id = GetComponentID<C>();
+		static constexpr auto component_id = GetComponentID<C>();
+
 		return	(m_events_remove[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
 				{
 					func(entity_id, *reinterpret_cast<C*>(ptr));
@@ -1181,7 +1178,8 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr auto component_id = GetComponentID<C>();
+		static constexpr auto component_id = GetComponentID<C>();
+
 		DeregisterOnAddListener(component_id, id);
 	}
 
@@ -1190,7 +1188,8 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr auto component_id = GetComponentID<C>();
+		static constexpr auto component_id = GetComponentID<C>();
+
 		DeregisterOnMoveListener(component_id, id);
 	}
 
@@ -1199,7 +1198,8 @@ namespace vlx
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		constexpr auto component_id = GetComponentID<C>();
+		static constexpr auto component_id = GetComponentID<C>();
+
 		DeregisterOnRemoveListener(component_id, id);
 	}
 

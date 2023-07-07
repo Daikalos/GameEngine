@@ -3,7 +3,9 @@
 #include <queue>
 #include <variant>
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/SystemAction.h>
+#include <Velox/ECS/System.hpp>
+
 #include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 

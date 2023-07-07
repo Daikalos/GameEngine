@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/SystemAction.h>
+#include <Velox/ECS/System.hpp>
 
 #include <Velox/Graphics/Components/Sprite.h>
 #include <Velox/Graphics/Components/Animation.h>
