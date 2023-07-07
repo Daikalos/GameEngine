@@ -12,8 +12,6 @@ namespace vlx
 	class CameraDrag final : public CameraBehavior
 	{
 	public:
-		using CameraBehavior::CameraBehavior;
-
 		CameraDrag(ID id, Camera& camera, const Context& context, const GameMouse& mouse) 
 			: CameraBehavior(id, camera, context), m_func(mouse), m_mouse_input(&mouse)
 		{

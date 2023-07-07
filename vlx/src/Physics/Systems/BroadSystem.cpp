@@ -1,5 +1,8 @@
 #include <Velox/Physics/Systems/BroadSystem.h>
 
+#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/ECS/EntityAdmin.h>
+
 using namespace vlx;
 
 BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :

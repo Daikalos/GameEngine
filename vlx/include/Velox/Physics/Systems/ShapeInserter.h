@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Velox/ECS/System.hpp>
-#include <Velox/ECS/EntityAdmin.h>
 #include <Velox/Physics/Shapes/Shape.h>
 
 #include "../Collider.h"

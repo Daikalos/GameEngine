@@ -47,12 +47,12 @@ namespace vlx
 		JoystickInput();
 
 	public:
-		NODISC bool Held(uint32 id, ButtonType button) const;
-		NODISC bool Pressed(uint32 id, ButtonType button) const;
-		NODISC bool Released(uint32 id, ButtonType button) const;
-		NODISC float Axis(uint32 id, sf::Joystick::Axis axis) const;
+		NODISC bool Held(		uint32 id, ButtonType button) const;
+		NODISC bool Pressed(	uint32 id, ButtonType button) const;
+		NODISC bool Released(	uint32 id, ButtonType button) const;
+		NODISC float Axis(		uint32 id, sf::Joystick::Axis axis) const;
 
-		std::vector<uint32> GetAvailable() const;
+		std::vector<uint32> GetConnected() const;
 
 		void ConnectAll();
 		void DisconnectAll();

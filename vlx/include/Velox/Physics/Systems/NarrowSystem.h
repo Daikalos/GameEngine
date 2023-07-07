@@ -3,15 +3,6 @@
 #include <vector>
 #include <unordered_set>
 
-#include <Velox/ECS.hpp>
-
-#include <Velox/Physics/Shapes/Shape.h>
-#include <Velox/Physics/Shapes/Circle.h>
-#include <Velox/Physics/Shapes/Box.h>
-#include <Velox/Physics/Shapes/Polygon.h>
-
-#include <Velox/Utility/ContainerUtils.h>
-
 #include "../CollisionObject.h"
 #include "../CollisionResult.h"
 #include "../CollisionArbiter.h"
@@ -23,6 +14,8 @@
 
 namespace vlx
 {
+	class EntityAdmin;
+
 	class VELOX_API NarrowSystem final
 	{
 	private:
@@ -65,7 +58,7 @@ namespace vlx
 		};
 
 	public:
-		NarrowSystem(EntityAdmin& entity_admin, const LayerType id);
+		NarrowSystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
 		void Update(BroadSystem& broad);

@@ -45,9 +45,17 @@ float JoystickInput::Axis(uint32 id, sf::Joystick::Axis axis) const
 	return joystick->axis[axis];
 }
 
-std::vector<uint32> vlx::JoystickInput::GetAvailable() const
+std::vector<uint32> JoystickInput::GetConnected() const
 {
-	return std::vector<uint32>();
+	std::vector<uint32> result;
+
+	for (auto& joystick : m_joysticks)
+	{
+		if (joystick != nullptr) 
+			result.emplace_back(joystick->id);
+	}
+
+	return result;
 }
 
 void JoystickInput::ConnectAll()

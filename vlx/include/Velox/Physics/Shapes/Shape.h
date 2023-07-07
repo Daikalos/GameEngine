@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Velox/Graphics/Components/TransformMatrix.h>
 #include <Velox/System/Rectangle.hpp>
+#include <Velox/System/Vector2.hpp>
 #include <Velox/System/Mat2f.hpp>
 #include <Velox/Config.hpp>
 

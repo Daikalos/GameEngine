@@ -3,13 +3,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Velox/ECS/System.hpp>
-#include <Velox/ECS/EntityAdmin.h>
-
-#include <Velox/Graphics/Components/Transform.h>
-
 #include <Velox/Algorithms/LQuadTree.hpp>
-#include <Velox/Algorithms/QTElement.hpp>
 #include <Velox/Algorithms/FreeVector.hpp>
 
 #include <Velox/Physics/Shapes/Shape.h>
@@ -30,15 +24,14 @@
 
 namespace vlx
 {
+	class EntityAdmin;
+
 	class VELOX_API BroadSystem final 
 	{
 	private:
 		static constexpr int OBJ_SIZE = 6;
 
 	public:
-		using ColliderSystem		= System<Collider, Transform>;
-		using ColliderSystemEvent	= SystemEvent<Collider, Transform>;
-
 		using CollisionPair			= std::pair<uint32, uint32>;
 		using CollisionList			= std::vector<CollisionPair>;
 

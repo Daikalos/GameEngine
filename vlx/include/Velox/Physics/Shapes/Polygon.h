@@ -4,11 +4,9 @@
 #include <span>
 
 #include <Velox/System/Mat4f.hpp>
-
 #include <Velox/Utility/PolygonUtils.h>
-
-#include <Velox/Config.hpp>
 #include <Velox/Types.hpp>
+#include <Velox/Config.hpp>
 
 #include "Shape.h"
 

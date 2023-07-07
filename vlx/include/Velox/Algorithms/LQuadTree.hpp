@@ -177,7 +177,7 @@ namespace vlx
 		if (!m_root_rect.Contains(rect.Center())) // dont attempt to add if outside boundary
 			return -1;
 
-		const auto index = m_elements.emplace(rect, T(std::forward<Args>(args)...));
+		const int index = static_cast<int>(m_elements.emplace(rect, T(std::forward<Args>(args)...)));
 		InsertHelper(rect.Center(), (int)m_elements_ptr.emplace(index));
 
 		return index;

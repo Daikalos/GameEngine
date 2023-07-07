@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Velox/ECS/Identifiers.hpp>
+
 #include "Shapes/Shape.h"
 
 namespace vlx

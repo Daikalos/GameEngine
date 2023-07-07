@@ -1,8 +1,10 @@
 #include <Velox/Physics/Systems/NarrowSystem.h>
 
+#include <Velox/ECS/EntityAdmin.h>
+
 using namespace vlx;
 
-NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, const LayerType id) 
+NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, LayerType id) 
 	: m_entity_admin(&entity_admin) {}
 
 void NarrowSystem::Update(BroadSystem& broad)

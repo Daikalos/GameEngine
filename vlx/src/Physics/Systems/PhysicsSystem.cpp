@@ -78,9 +78,9 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 		});
 
 	m_pre_solve.Each(
-		[](EntityID entity_id, PhysicsBodyTransform& pbt, Transform& transform)
+		[](EntityID entity_id, PhysicsBodyTransform& pbt, Transform& transform) // possible because a physics body is not allowed to have a parent
 		{
-			pbt.m_last_pos = transform.GetPosition(); // possible because a physics body is not allowed to have a parent
+			pbt.m_last_pos = transform.GetPosition();
 			pbt.m_last_rot = transform.GetRotation();
 		});
 }

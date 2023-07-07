@@ -17,7 +17,6 @@
 
 #include "Identifiers.hpp"
 #include "Archetype.hpp"
-
 #include "SystemBase.h"
 #include "EntityAdmin.h"
 

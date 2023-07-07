@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Shape.h"
-
 #include <Velox/Graphics/Components/Transform.h>
-
 #include <Velox/Config.hpp>
+
+#include "Shape.h"
 
 namespace vlx
 {
