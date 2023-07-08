@@ -10,10 +10,11 @@
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
-#include <Velox/Types.hpp>
-#include <Velox/Config.hpp>
 
 #include <Velox/Utility/PolygonUtils.h>
+
+#include <Velox/Types.hpp>
+#include <Velox/Config.hpp>
 
 #include "IBatchable.h"
 

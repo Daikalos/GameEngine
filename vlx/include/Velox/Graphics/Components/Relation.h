@@ -6,10 +6,14 @@
 #include <Velox/ECS/EntityAdmin.h>
 #include <Velox/ECS/Identifiers.hpp>
 #include <Velox/ECS/ComponentRef.hpp>
+#include <Velox/ECS/ComponentEvents.h>
+
 #include <Velox/Config.hpp>
 
 namespace vlx
 {
+	class EntityAdmin;
+
 	/// Represents the relationship between entities
 	/// 
 	class Relation : public EventSet<Relation, CopiedEvent, AlteredEvent, DestroyedEvent>
@@ -66,16 +70,16 @@ namespace vlx
 	template<class C>
 	inline void Relation::IterateChildren(const CompFunc<C>& func, const EntityAdmin& entity_admin, bool include_descendants) const
 	{
-		for (const Ref& ptr : m_children)
+		for (const Ref& ref : m_children)
 		{
-			const auto component = entity_admin.TryGetComponent<std::decay_t<C>>(ptr.entity_id);
+			const auto component = entity_admin.TryGetComponent<std::decay_t<C>>(ref.entity_id);
 
 			if (!component || !func(*component))
 				continue;
 
 			if (include_descendants) // continue iterating descendants
 			{
-				ptr->IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
+				ref.ptr->IterateChildren<std::decay_t<C>>(func, entity_admin, include_descendants);
 			}
 		}
 	}
@@ -103,7 +107,7 @@ namespace vlx
 		{
 			for (const Ref& ref : m_children)
 			{
-				ref->SortChildren(func, entity_admin, include_descendants);
+				ref.ptr->SortChildren(func, entity_admin, include_descendants);
 			}
 		}
 	}

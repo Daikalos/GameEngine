@@ -5,8 +5,6 @@
 
 #include <Velox/Utility/ContainerUtils.h>
 
-#include "InputHandler.h"
-
 namespace vlx
 {
 	enum ButtonTrigger : uint8

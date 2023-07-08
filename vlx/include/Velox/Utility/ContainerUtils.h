@@ -21,10 +21,10 @@ namespace vlx::cu
 
 		const auto pack = [&data, &offset](const auto& arg)
 		{
-			const auto& arg_size = sizeof(arg);
+			constexpr auto size = sizeof(arg);
 
-			std::memcpy(data.data() + offset, &arg, arg_size);
-			offset += arg_size;
+			std::memcpy(data.data() + offset, &arg, size);
+			offset += size;
 		};
 
 		(pack(args), ...);
@@ -33,7 +33,7 @@ namespace vlx::cu
 	}
 
 	template<typename... Args> requires (std::is_trivially_copyable_v<std::remove_reference_t<Args>> && ...)
-	NODISC inline void UnpackArray(const std::vector<std::byte>& data, Args&... args)
+	inline void UnpackArray(const std::vector<std::byte>& data, Args&... args)
 	{
 		if (data.size() != (sizeof(Args) + ... + 0))
 			throw std::runtime_error("not the same size");
@@ -42,13 +42,19 @@ namespace vlx::cu
 
 		const auto unpack = [&data, &offset](auto& arg)
 		{
-			const auto& arg_size = sizeof(arg);
+			constexpr auto size = sizeof(arg);
 
-			std::memcpy(&arg, data.data() + offset, arg_size);
-			offset += arg_size;
+			std::memcpy(&arg, data.data() + offset, size);
+			offset += size;
 		};
 
 		(unpack(args), ...);
+	}
+
+	template<typename It, typename Func>
+	inline auto ForEachUntil(It begin, It end, Func&& func)
+	{
+		return std::all_of(begin, end, std::forward<Func>(func));
 	}
 
 	template<typename T>
@@ -111,6 +117,12 @@ namespace vlx::cu
 		if (vector.empty() || i >= vector.size())
 			return false;
 
+		if (i == vector.size() - 1) // if popping last, no need to move item
+		{
+			vector.pop_back();
+			return true;
+		}
+
 		vector[i] = std::move(vector.back());
 		vector.pop_back();
 
@@ -137,7 +149,7 @@ namespace vlx::cu
 		if (lb != v.cend() && *lb == item)
 		{
 			const auto ub = std::upper_bound(lb, v.end(), item);
-			v.erase(lb, ub);
+			v.erase(lb, ub); // remove all equal elements in range
 
 			return true;
 		}
@@ -153,7 +165,7 @@ namespace vlx::cu
 		if (lb != v.cend() && *lb == item)
 		{
 			const auto ub = std::upper_bound(lb, v.end(), item, std::forward<Comp>(comparison));
-			v.erase(lb, ub);
+			v.erase(lb, ub); // remove all equal elements in range
 
 			return true;
 		}
@@ -264,7 +276,7 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	NODISC inline constexpr void HashCombine(uint64& seed, const T& v)
+	inline constexpr void HashCombine(uint64& seed, const T& v)
 	{
 		seed ^= static_cast<uint64>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}

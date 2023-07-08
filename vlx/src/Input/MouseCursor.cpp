@@ -1,15 +1,18 @@
 #include <Velox/Input/MouseCursor.h>
 
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Image.hpp>
+
 using namespace vlx;
 
 MouseCursor::MouseCursor(Window& window) 
-	: MouseCursor(window, m_sensitivity, m_locked) {}
+	: m_window(&window) {}
 
 MouseCursor::MouseCursor(Window& window, bool locked) 
-	: MouseCursor(window, m_sensitivity, locked) {}
+	: m_window(&window), m_locked(locked) {}
 
 MouseCursor::MouseCursor(Window& window, float sensitivity)
-	: MouseCursor(window, sensitivity, m_locked) {}
+	: m_window(&window), m_sensitivity(sensitivity) {}
 
 MouseCursor::MouseCursor(Window& window, float sensitivity, bool locked)
 	: m_window(&window), m_sensitivity(sensitivity), m_locked(locked)

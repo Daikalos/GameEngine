@@ -3,8 +3,7 @@
 using namespace vlx;
 
 Application::Application(std::string name) 
-	: 
-	m_world(std::move(name)), 
+	: m_world(std::move(name)), 
 
 	m_keyboard(m_world.GetInputs().Keyboard()), 
 	m_mouse(m_world.GetInputs().Mouse()) { }

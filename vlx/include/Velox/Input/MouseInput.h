@@ -1,14 +1,11 @@
 #pragma once
 
-#include <unordered_map>
-
 #include <SFML/Window/Mouse.hpp>
-#include <SFML/Window/Event.hpp>
 
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
-#include "Binds.hpp"
 
 namespace vlx
 {

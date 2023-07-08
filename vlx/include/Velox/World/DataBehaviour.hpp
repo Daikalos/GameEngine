@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include <Velox/ECS.hpp>
+#include <Velox/ECS/System.hpp>
 
 #include "Object.h"
 

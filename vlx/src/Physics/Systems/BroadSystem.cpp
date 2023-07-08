@@ -128,7 +128,7 @@ int BroadSystem::TryAddNewObject(EntityID eid)
 		m_bodies.emplace_back(eid);
 		m_entity_body_map.emplace(eid, m_bodies.size() - 1);
 
-		return m_bodies.size() - 1;
+		return static_cast<int>(m_bodies.size() - 1);
 	}
 
 	return it->second;
@@ -145,7 +145,7 @@ bool BroadSystem::TryRemoveEmptyObject(uint32 index)
 	assert(it != m_entity_body_map.end() && "Entity should be in the map");
 
 	if (m_bodies[it->second].collider)
-		m_bodies[it->second].collider->Update(index);
+		m_bodies[it->second].collider->Update(index); // update the index in the quad tree
 
 	it->second = index;
 

@@ -2,7 +2,9 @@
 
 #include <string_view>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/VideoMode.hpp>
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Utility/NonCopyable.h>
@@ -25,23 +27,23 @@ namespace vlx
 	{
 	public:
 		Window(
+			std::string name);
+
+		Window(
+			std::string name,
+			const sf::VideoMode& mode);
+
+		Window(
+			std::string name,
+			const sf::VideoMode& mode,
+			const WindowBorder& window_border);
+
+		Window(
 			std::string name,
 			const sf::VideoMode& mode, 
 			const WindowBorder& window_border, 
 			const sf::ContextSettings& settings, 
 			bool vertical_sync, int frame_rate);
-
-		Window(
-			std::string name);
-
-		Window(
-			std::string name, 
-			const sf::VideoMode& mode);
-
-		Window(
-			std::string name, 
-			const sf::VideoMode& mode,
-			const WindowBorder& window_border);
 
 	public:
 		

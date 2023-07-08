@@ -1,16 +1,10 @@
 #pragma once
 
-#include <unordered_map>
-#include <typeindex>
-#include <memory>
-
 #include <SFML/Window/Event.hpp>
 
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/System/Time.h>
 #include <Velox/Config.hpp>
-
-#include "Binds.hpp"
 
 namespace vlx
 {

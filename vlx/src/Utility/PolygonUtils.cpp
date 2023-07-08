@@ -167,9 +167,6 @@ namespace vlx::py
 		if (count < 3)
 			return WO_None;
 
-		if (vertices[0] == vertices[count - 1])
-			--count;
-
 		int min_vertex = -1;
 
 		float min_y = FLT_MAX;
@@ -230,8 +227,8 @@ namespace vlx::py
 		Vector2f cp = Vector2f::Direction(c, p);
 
 		float c1 = ab.Cross(ap);
-		float c2 = bc.Cross(ap);
-		float c3 = ca.Cross(ap);
+		float c2 = bc.Cross(bp);
+		float c3 = ca.Cross(cp);
 
 		return !(c1 > 0.0f || c2 > 0.0f || c3 > 0.0f);
 	}

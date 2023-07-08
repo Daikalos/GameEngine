@@ -3,17 +3,19 @@
 #include <memory>
 #include <functional>
 
+#include <SFML/Window/Event.hpp>
+
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/System/Time.h>
-#include <Velox/Input.hpp>
+
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
-
-#include "Window.h"
 
 namespace vlx
 {
 	class Camera;
+	class Window;
+	class InputHolder;
 
 	/// Behaviour for the camera, e.g., attach, dragging, lerp, shake, letterboxview, etc. 
 	/// The idea for CameraBehaviour is to allow for multiple types of behaviours or effects 

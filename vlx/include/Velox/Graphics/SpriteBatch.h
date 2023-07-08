@@ -9,6 +9,8 @@
 
 #include <Velox/Graphics/Components/IBatchable.h>
 #include <Velox/System/Mat4f.hpp>
+
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx

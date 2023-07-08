@@ -70,9 +70,9 @@ private:
 class StateTest : public vlx::State
 {
 public:
-	StateTest(vlx::StateStack& state_stack, vlx::World& world, vlx::StateID id);
+	StateTest(vlx::StateID id, vlx::StateStack& state_stack, vlx::World& world);
 
-	void OnCreated() override;
+	void OnCreate() override;
 
 public:
 	bool HandleEvent(const sf::Event& event) override;

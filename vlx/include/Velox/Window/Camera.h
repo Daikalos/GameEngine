@@ -6,9 +6,15 @@
 #include <concepts>
 #include <type_traits>
 
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Window/WindowBase.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Mat4f.hpp>
+
 #include <Velox/Utility/ContainerUtils.h>
+
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 

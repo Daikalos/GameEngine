@@ -3,10 +3,10 @@
 #include <memory>
 #include <functional>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Window/Event.hpp>
 
-#include <Velox/Config.hpp>
 #include <Velox/System/Time.h>
+#include <Velox/Config.hpp>
 
 #include "Identifiers.h"
 
@@ -22,7 +22,7 @@ namespace vlx
 		using Func = std::function<Ptr()>;
 
 	public:
-		State(StateStack& state_stack, World& world, StateID id);
+		State(StateID id, StateStack& state_stack, World& world);
 		virtual ~State() = default;
 
 	public:
@@ -38,7 +38,7 @@ namespace vlx
 	public:
 		///	OnCreated is called when first constructed
 		/// 
-		virtual void OnCreated() {}
+		virtual void OnCreate() {}
 
 		///	OnActivate is called whenever the state is put as last in the stack
 		/// 
@@ -59,8 +59,8 @@ namespace vlx
 		virtual void Draw() = 0;
 
 	private:
+		StateID		m_id			{-1};
 		StateStack* m_state_stack	{nullptr};
 		World*		m_world			{nullptr};
-		StateID		m_id			{-1};
 	};
 }

@@ -2,6 +2,15 @@
 
 using namespace vlx;
 
+Window::Window(std::string name)
+	: m_name(std::move(name)) { }
+
+Window::Window(std::string name, const sf::VideoMode& mode)
+	: m_name(std::move(name)), m_mode(mode) { }
+
+Window::Window(std::string name, const sf::VideoMode& mode, const WindowBorder& border)
+	: m_name(std::move(name)), m_mode(mode), m_border(border) { }
+
 Window::Window(
 	std::string name, 
 	const sf::VideoMode& mode, 
@@ -16,15 +25,6 @@ Window::Window(
 	m_settings		(settings), 
 	m_vertical_sync	(vertical_sync), 
 	m_frame_rate	(frame_rate) { }
-
-Window::Window(std::string name)
-	: m_name(std::move(name)) { }
-
-Window::Window(std::string name, const sf::VideoMode& mode)
-	: m_name(std::move(name)), m_mode(mode) { }
-
-Window::Window(std::string name, const sf::VideoMode& mode, const WindowBorder& border)
-	: m_name(std::move(name)), m_mode(mode), m_border(border) { }
 
 const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 {

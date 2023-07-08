@@ -1,4 +1,5 @@
 #include <Velox/Graphics/Components/Animation.h>
+#include <Velox/Utility/ArithmeticUtils.h>
 
 using namespace vlx;
 

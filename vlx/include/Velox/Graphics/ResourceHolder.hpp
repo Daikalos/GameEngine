@@ -26,7 +26,7 @@ namespace vlx
 		};
 	}
 
-	/// Holds resources, for example, fonts, textures, sounds.
+	/// Holds resources, for example, fonts, textures, and sounds.
 	///
 	template <class R, typename I>
 	class ResourceHolder : private NonCopyable
@@ -167,7 +167,7 @@ namespace vlx
 	{
 		ResourcePtr resource = loader();
 		if (!resource)
-			throw std::runtime_error("Failed to load resource \"" + loader.GetInfo() + "\"");
+			throw std::runtime_error("Failed to load resource");
 
 		return Insert(id, resource);
 	}

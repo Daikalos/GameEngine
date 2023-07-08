@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Cursor.hpp>
 
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Window/Window.h>

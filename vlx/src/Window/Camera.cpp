@@ -94,7 +94,7 @@ void Camera::SetSize(const Vector2f& size)
 
 void Camera::HandleEvent(const sf::Event& event)
 {
-	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+	cu::ForEachUntil(m_stack.rbegin(), m_stack.rend(),
 		[&event](const BehaviorPtr& ptr)
 		{
 			return ptr->HandleEvent(event);
@@ -105,7 +105,7 @@ void Camera::HandleEvent(const sf::Event& event)
 
 void Camera::Start(const Time& time)
 {
-	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+	cu::ForEachUntil(m_stack.rbegin(), m_stack.rend(),
 		[&time](const BehaviorPtr& ptr)
 		{
 			return ptr->Start(time);
@@ -116,7 +116,7 @@ void Camera::Start(const Time& time)
 
 void Camera::PreUpdate(const Time& time)
 {
-	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+	cu::ForEachUntil(m_stack.rbegin(), m_stack.rend(),
 		[&time](const BehaviorPtr& ptr)
 		{
 			return ptr->PreUpdate(time);
@@ -126,7 +126,7 @@ void Camera::PreUpdate(const Time& time)
 }
 void Camera::Update(const Time& time)
 {
-	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+	cu::ForEachUntil(m_stack.rbegin(), m_stack.rend(),
 		[&time](const BehaviorPtr& ptr)
 		{
 			return ptr->Update(time);
@@ -136,7 +136,7 @@ void Camera::Update(const Time& time)
 }
 void Camera::FixedUpdate(const Time& time)
 {
-	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+	cu::ForEachUntil(m_stack.rbegin(), m_stack.rend(),
 		[&time](const BehaviorPtr& ptr)
 		{
 			return ptr->FixedUpdate(time);
@@ -146,7 +146,7 @@ void Camera::FixedUpdate(const Time& time)
 }
 void Camera::PostUpdate(const Time& time)
 {
-	(void)std::all_of(m_stack.rbegin(), m_stack.rend(),
+	cu::ForEachUntil(m_stack.rbegin(), m_stack.rend(),
 		[&time](const BehaviorPtr& ptr)
 		{
 			return ptr->PostUpdate(time);
@@ -193,7 +193,7 @@ void Camera::ApplyPendingChanges()
 		switch (change.action)
 		{
 		case Action::Push:
-			m_stack.push_back(CreateBehavior(change.behavior_id));
+			m_stack.emplace_back(CreateBehavior(change.behavior_id));
 			m_stack.back()->OnCreate(change.data);
 			break;
 		case Action::Pop:

@@ -2,15 +2,14 @@
 
 #include <array>
 #include <unordered_map>
+#include <memory>
 
 #include <SFML/Window/Joystick.hpp>
-#include <SFML/Window/Event.hpp>
 
-#include <Velox/Algorithms/FreeVector.hpp>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
-#include "Binds.hpp"
 
 namespace vlx
 {

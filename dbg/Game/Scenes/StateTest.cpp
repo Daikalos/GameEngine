@@ -2,13 +2,13 @@
 
 using namespace vlx;
 
-StateTest::StateTest(StateStack& state_stack, World& world, StateID id)
-	: State(state_stack, world, id), ply(world) //, sys(world.GetEntityAdmin(), 100)
+StateTest::StateTest(StateID id, StateStack& state_stack, World& world)
+	: State(id, state_stack, world), ply(world)
 {
 
 }
 
-void StateTest::OnCreated()
+void StateTest::OnCreate()
 {
     m_entity_admin = &GetWorld().GetEntityAdmin();
 

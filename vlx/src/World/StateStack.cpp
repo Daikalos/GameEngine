@@ -122,43 +122,67 @@ void StateStack::Clear()
 	m_pending_list.push_back(PendingChange(Action::Clear));
 }
 
-auto StateStack::CreateState(StateID state_id) -> typename State::Ptr
+auto StateStack::CreateState(StateID state_id) -> StatePtr
 {
-	auto found = m_factory.find(state_id);
-	assert(found != m_factory.end());
+	const auto it = m_factory.find(state_id);
+	if (it == m_factory.end())
+		throw std::runtime_error("State could not be found");
 
-	auto ptr = found->second();
-	ptr->OnCreated();
-
-	return std::move(ptr);
+	return it->second();
 }
 
 void StateStack::ApplyPendingChanges()
 {
+	const auto PopState = [this]()
+	{
+		m_stack.back()->OnDestroy();
+		m_stack.pop_back();
+
+		if (!m_stack.empty())
+			m_stack.back()->OnActivate();
+	};
+
 	for (const PendingChange& change : m_pending_list)
 	{
 		switch (change.action)
 		{
 		case Action::Push:
-			m_stack.push_back(CreateState(change.state_id));
+			m_stack.emplace_back(CreateState(change.state_id));
+			m_stack.back()->OnCreate();
 			break;
 		case Action::Pop:
-		{
-			m_stack.back()->OnDestroy();
-			m_stack.pop_back();
+			PopState();
+			break;
+		case Action::Erase:
+			{
+				auto it = std::find_if(m_stack.begin(), m_stack.end(),
+					[&change](const StatePtr& ptr)
+					{
+						return ptr->GetID() == change.state_id;
+					});
 
-			if (!m_stack.empty())
-				m_stack.back()->OnActivate();
-		}
-		break;
+				if (it == m_stack.end())
+					break;
+
+				if (it != m_stack.end() - 1) // if not last
+				{
+					(*it)->OnDestroy();
+					m_stack.erase(it);
+				}
+				else PopState(); // if this is the last
+			}
+			break;
+			break;
 		case Action::Clear:
 		{
-			for (typename State::Ptr& state : m_stack)
+			for (StatePtr& state : m_stack)
 				state->OnDestroy();
 
 			m_stack.clear();
 		}
 		break;
+		default:
+			throw std::runtime_error("Invalid action");
 		}
 	}
 

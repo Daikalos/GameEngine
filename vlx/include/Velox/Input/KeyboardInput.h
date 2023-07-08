@@ -1,15 +1,11 @@
 #pragma once
 
-#include <unordered_map>
-
 #include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Event.hpp>
 
-#include <Velox/System/IDGenerator.h>
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "InputHandler.h"
-#include "Binds.hpp"
 
 namespace vlx
 {
