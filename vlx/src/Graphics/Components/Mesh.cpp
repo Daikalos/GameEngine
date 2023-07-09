@@ -147,7 +147,7 @@ void Mesh::Assign(std::span<const Vector2f> polygon)
         for (std::size_t i = 0; i < polygon.size(); ++i)
             m_vertices.emplace_back(polygon[i]);
 
-        m_indices = std::move(indices.value());
+        m_indices = indices.value();
     }
 }
 

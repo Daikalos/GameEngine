@@ -4,7 +4,6 @@
 #include <unordered_map>
 
 #include <Velox/Algorithms/LQuadTree.hpp>
-#include <Velox/Algorithms/FreeVector.hpp>
 
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Circle.h>

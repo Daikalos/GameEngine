@@ -131,8 +131,8 @@
     <ClInclude Include="include\Velox\Window.hpp" />
     <ClInclude Include="include\Velox\World\Identifiers.h" />
     <ClInclude Include="include\Velox\World\EngineBinds.h" />
-    <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
-    <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
+    <ClInclude Include="include\Velox\Structures\FreeVector.hpp" />
+    <ClInclude Include="include\Velox\Structures\SmallVector.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Relation.h" />
     <ClInclude Include="include\Velox\Components\Parent.h" />
@@ -161,7 +161,7 @@
     <ClInclude Include="include\Velox\Physics\Collider.h" />
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
-    <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
+    <ClInclude Include="include\Velox\Structures\KDTree.hpp" />
     <ClInclude Include="include\Velox\Physics\CollisionContact.h" />
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
     <ClInclude Include="include\Velox\System\Mat2f.hpp" />
@@ -196,6 +196,8 @@
     <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
     <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
+    <ClInclude Include="include\Velox\Structures\PriorityQueue.hpp" />
+    <ClInclude Include="include\Velox\Structures\RBTree.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

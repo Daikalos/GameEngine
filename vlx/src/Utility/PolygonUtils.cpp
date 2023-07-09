@@ -3,13 +3,17 @@
 #include <numeric>
 
 #include <Velox/Utility/ArithmeticUtils.h>
+#include <Velox/Structures/PriorityQueue.hpp>
+#include <Velox/Structures/RBTree.hpp>
+
+#include <Velox/Utility/Random.h>
 
 namespace vlx::py
 {
 	RectFloat ComputeAABB(std::span<const sf::Vertex> vertices)
 	{
 		float left{ FLT_MAX }, top{ FLT_MAX }, right{ -FLT_MAX }, bot{ -FLT_MAX };
-		for (uint32 i = 0; i < vertices.size(); ++i) // build aabb from vertices
+		for (uint64 i = 0; i < vertices.size(); ++i) // build aabb from vertices
 		{
 			Vector2f pos = vertices[i].position;
 
@@ -32,7 +36,7 @@ namespace vlx::py
 	RectFloat ComputeAABB(std::span<const Vector2f> vertices)
 	{
 		float left{ FLT_MAX }, top{ FLT_MAX }, right{ -FLT_MAX }, bot{ -FLT_MAX };
-		for (uint32 i = 0; i < vertices.size(); ++i) // build aabb from vertices
+		for (uint64 i = 0; i < vertices.size(); ++i) // build aabb from vertices
 		{
 			Vector2f pos = vertices[i];
 
@@ -104,22 +108,22 @@ namespace vlx::py
 			return false;
 		};
 
-		std::vector<uint32> indices(vertices.size());
+		std::vector<uint64> indices(vertices.size());
 
-		uint32 hull = 0;
-		for (uint32 i = 1; i < vertices.size(); ++i)
+		uint64 hull = 0;
+		for (uint64 i = 1; i < vertices.size(); ++i)
 			if (ComparePoints(vertices[i], vertices[hull]))
 				hull = i;
 
-		uint32 count = 0;
-		uint32 next = 0;
+		uint64 count = 0;
+		uint64 next = 0;
 
 		do
 		{
 			indices[count++] = hull;
 
 			next = 0;
-			for (uint32 i = 1; i < vertices.size(); ++i)
+			for (uint64 i = 1; i < vertices.size(); ++i)
 			{
 				if (next == hull)
 				{
@@ -144,7 +148,7 @@ namespace vlx::py
 			return result;
 
 		result.resize(count);
-		for (uint32 i = 0; i < count; ++i)
+		for (uint64 i = 0; i < count; ++i)
 			result[i] = vertices[indices[i]];
 
 		return result;
@@ -152,6 +156,12 @@ namespace vlx::py
 
 	bool IsSimplePolygon(std::span<const Vector2f> vertices)
 	{
+		PriorityQueue<Vector2f> queue;
+		RBTree<float> test;
+		
+		for (int i = 0; i < 1000; ++i)
+			test.Insert(rnd::random(0.0f, 1000.0f));
+
 		return false;
 	}
 
@@ -162,17 +172,17 @@ namespace vlx::py
 
 	WindingOrder ComputePolygonWindingOrder(std::span<const Vector2f> vertices)
 	{
-		uint32 count = vertices.size();
+		uint64 count = vertices.size();
 
 		if (count < 3)
 			return WO_None;
 
-		int min_vertex = -1;
+		uint64 min_vertex = 0;
 
 		float min_y = FLT_MAX;
 		float min_x = FLT_MAX;
 
-		for (uint32 i = 0; i < vertices.size(); ++i)
+		for (uint64 i = 0; i < vertices.size(); ++i)
 		{
 			const Vector2f& v = vertices[i];
 			if (v.y < min_y || (v.y == min_y && v.x < min_x))
@@ -183,9 +193,11 @@ namespace vlx::py
 			}
 		}
 
+		assert((min_y != FLT_MAX && min_x != FLT_MAX) && "This should not happen");
+
 		const Vector2f& a = vertices[min_vertex];
-		const Vector2f& b = vertices[au::WrapLower((int32)min_vertex - 1, (int32)count)];
-		const Vector2f& c = vertices[au::WrapUpper((int32)min_vertex + 1, (int32)count)];
+		const Vector2f& b = vertices[au::WrapLower<int64>(min_vertex - 1, count)];
+		const Vector2f& c = vertices[au::WrapUpper<int64>(min_vertex + 1, count)];
 
 		Vector2f ab = Vector2f::Direction(a, b);
 		Vector2f ac = Vector2f::Direction(a, c);
@@ -233,7 +245,7 @@ namespace vlx::py
 		return !(c1 > 0.0f || c2 > 0.0f || c3 > 0.0f);
 	}
 
-	std::optional<std::vector<uint32>> Triangulate(std::span<const Vector2f> vertices)
+	std::optional<std::vector<uint64>> Triangulate(std::span<const Vector2f> vertices)
 	{
 		if (vertices.size() < 3 || IsSimplePolygon(vertices) || ContainsColinearEdges(vertices))
 			return std::nullopt;
@@ -245,22 +257,22 @@ namespace vlx::py
 
 		//bool reverse = (order == WO_CounterClockwise);
 
-		std::vector<uint32> open(vertices.size());
+		std::vector<uint64> open(vertices.size());
 		std::iota(open.begin(), open.end(), 0);
 
-		uint32 total_triangle_count = vertices.size() - 2;
-		uint32 total_triangle_index_count = total_triangle_count * 3;
+		uint64 total_triangle_count = vertices.size() - 2;
+		uint64 total_triangle_index_count = total_triangle_count * 3;
 
-		std::vector<uint32> indices;
+		std::vector<uint64> indices;
 		indices.reserve(total_triangle_index_count);
 
 		while (open.size() > 3)
 		{
-			for (uint32 i = 0; i < open.size(); ++i)
+			for (uint64 i = 0; i < open.size(); ++i)
 			{
-				uint32 a = open[i];
-				uint32 b = open[au::WrapLower((int32)i - 1, (int32)open.size())];
-				uint32 c = open[au::WrapUpper((int32)i + 1, (int32)open.size())];
+				uint64 a = open[i];
+				uint64 b = open[au::WrapLower<int64>(i - 1, open.size())];
+				uint64 c = open[au::WrapUpper<int64>(i + 1, open.size())];
 
 				const Vector2f& va = vertices[a];
 				const Vector2f& vb = vertices[b];
@@ -273,7 +285,7 @@ namespace vlx::py
 					continue;
 
 				bool is_ear = true;
-				for (uint32 j = 0; j < open.size(); ++j) // does ear contain any vertex, TODO: Optimize
+				for (uint64 j = 0; j < open.size(); ++j) // does ear contain any vertex, TODO: Optimize
 				{
 					if (j == a || j == b || j == c)
 						continue;

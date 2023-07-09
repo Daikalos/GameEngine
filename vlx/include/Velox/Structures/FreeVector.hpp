@@ -123,17 +123,18 @@ namespace vlx
 			m_first_free	= std::get<int64>(m_data[m_first_free]);
 			m_data[index]	= { std::in_place_index<0>, T(std::forward<Args>(args)...) };
 
+			++m_count;
+
 			return index;
 		}
 		else
 		{
-			//assert(m_data.size() == m_count); // should be the same if no more available space
+			assert(m_data.size() == m_count); // should be the same if no more available space
 
 			m_data.emplace_back(std::in_place_index<0>, std::forward<Args>(args)...);
-			return m_data.size() - 1;
-		}
 
-		++m_count;
+			return m_count++;
+		}
 	}
 
 	template<class T>

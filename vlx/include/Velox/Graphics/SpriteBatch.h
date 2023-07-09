@@ -28,12 +28,10 @@ namespace vlx
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
 	private:
-		using SizeType = uint32;
-
 		using VertexSpan = std::span<const sf::Vertex>;
-		using IndicesSpan = std::span<const uint32>;
+		using IndicesSpan = std::span<const uint64>;
 
-		static constexpr SizeType TRIANGLE_COUNT = 3;
+		static constexpr auto TRIANGLE_COUNT = 3;
 
 		struct VELOX_API Triangle
 		{
@@ -56,7 +54,7 @@ namespace vlx
 		{
 			const sf::Texture*	texture	{nullptr};
 			const sf::Shader*	shader	{nullptr};
-			SizeType			count	{0};
+			uint64				count	{0};
 		};
 
 	public:
@@ -99,22 +97,18 @@ namespace vlx
 		void Clear();
 
 	private:
-		bool CompareBackToFront(const Triangle& lhs, const Triangle& rhs) const;
-		bool CompareFrontToBack(const Triangle& lhs, const Triangle& rhs) const;
-		bool CompareTexture(const Triangle& lhs, const Triangle& rhs) const;
-
 		void SortTriangles() const;
 		void CreateBatches() const;
 
 	private:
-		std::vector<Triangle>				m_triangles;
+		std::vector<Triangle>			m_triangles;
 
-		mutable std::vector<BatchInfo>		m_batches;
-		mutable std::vector<SizeType>		m_indices;
-		mutable sf::VertexArray				m_vertices;
+		mutable std::vector<BatchInfo>	m_batches;
+		mutable std::vector<uint64>		m_indices;
+		mutable sf::VertexArray			m_vertices;
 
-		BatchMode							m_batch_mode		{BatchMode::Deferred};
-		mutable bool						m_update_required	{true};
+		BatchMode						m_batch_mode		{BatchMode::Deferred};
+		mutable bool					m_update_required	{true};
 	};
 }
 

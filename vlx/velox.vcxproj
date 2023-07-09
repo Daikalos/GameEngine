@@ -180,6 +180,8 @@
     <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
     <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
+    <ClInclude Include="include\Velox\Structures\PriorityQueue.hpp" />
+    <ClInclude Include="include\Velox\Structures\RBTree.hpp" />
     <ClInclude Include="include\Velox\UI.hpp" />
     <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBodyTransform.h" />
@@ -189,9 +191,9 @@
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
     <ClInclude Include="include\Velox\Utility\PolygonUtils.h" />
     <ClInclude Include="include\Velox\Types.hpp" />
-    <ClInclude Include="include\Velox\Algorithms\FreeVector.hpp" />
-    <ClInclude Include="include\Velox\Algorithms\KDTree.hpp" />
-    <ClInclude Include="include\Velox\Algorithms\SmallVector.hpp" />
+    <ClInclude Include="include\Velox\Structures\FreeVector.hpp" />
+    <ClInclude Include="include\Velox\Structures\KDTree.hpp" />
+    <ClInclude Include="include\Velox\Structures\SmallVector.hpp" />
     <ClInclude Include="include\Velox\Components\Parent.h" />
     <ClInclude Include="include\Velox\Graphics\Components\Transform.h" />
     <ClInclude Include="include\Velox\Components\Child.h" />

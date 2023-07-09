@@ -37,5 +37,5 @@ namespace vlx::py
 
 	NODISC VELOX_API bool IsPointInTriangle(const Vector2f& p, const Vector2f& a, const Vector2f& b, const Vector2f& c);
 
-	NODISC VELOX_API std::optional<std::vector<uint32>> Triangulate(std::span<const Vector2f> vertices);
+	NODISC VELOX_API std::optional<std::vector<uint64>> Triangulate(std::span<const Vector2f> vertices);
 }

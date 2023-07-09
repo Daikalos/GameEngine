@@ -70,7 +70,7 @@ void JoystickInput::ConnectAll()
 void JoystickInput::DisconnectAll()
 {
 	for (auto& joystick : m_joysticks)
-		joystick.release();
+		joystick.reset();
 }
 
 void JoystickInput::Update(const Time& time, bool focus)
@@ -122,5 +122,5 @@ void JoystickInput::Connect(uint32 id)
 
 void JoystickInput::Disconnect(uint32 id)
 {
-	m_joysticks[id].release();
+	m_joysticks[id].reset();
 }

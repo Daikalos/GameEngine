@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Velox/Algorithms/SmallVector.hpp>
+#include <Velox/Structures/SmallVector.hpp>
 
 #include "Identifiers.hpp"
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include <span>
 
-#include <Velox/Algorithms/SmallVector.hpp>
+#include <Velox/Structures/SmallVector.hpp>
 #include <Velox/System/Concepts.h>
 #include <Velox/Types.hpp>
 

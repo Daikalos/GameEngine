@@ -7,10 +7,11 @@
 
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Vector2.hpp>
-#include <Velox/Config.hpp>
 
-#include "FreeVector.hpp"
-#include "SmallVector.hpp"
+#include <Velox/Structures/FreeVector.hpp>
+#include <Velox/Structures/SmallVector.hpp>
+
+#include <Velox/Config.hpp>
 
 namespace vlx
 {

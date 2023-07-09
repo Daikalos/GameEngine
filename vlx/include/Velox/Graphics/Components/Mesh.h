@@ -24,10 +24,10 @@ namespace vlx
 	{
 	private:
 		using VertexList	= std::vector<sf::Vertex>;
-		using IndicesList	= std::vector<uint32>;
+		using IndicesList	= std::vector<uint64>;
 
 		using VertexSpan	= std::span<const sf::Vertex>;
-		using IndicesSpan	= std::span<const uint32>;
+		using IndicesSpan	= std::span<const uint64>;
 
 		static constexpr uint8 TRIANGLE_COUNT = 3;
 

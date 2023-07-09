@@ -24,7 +24,8 @@ Window::Window(
 	m_border		(border), 
 	m_settings		(settings), 
 	m_vertical_sync	(vertical_sync), 
-	m_frame_rate	(frame_rate) { }
+	m_frame_rate	(frame_rate) 
+{}
 
 const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
 {

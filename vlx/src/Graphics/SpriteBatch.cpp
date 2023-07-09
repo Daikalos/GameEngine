@@ -38,7 +38,7 @@ void SpriteBatch::AddTriangle(const Mat4f& transform,
 		sf::Vertex(transform * v1.position, v1.color, v1.texCoords),
 		sf::Vertex(transform * v2.position, v2.color, v2.texCoords), texture, shader, depth);
 
-	m_indices.push_back((SizeType)m_triangles.size() - 1);
+	m_indices.emplace_back(m_triangles.size() - 1);
 
 	m_update_required = true;
 }
@@ -88,7 +88,7 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 	}
 
 	sf::RenderStates states_copy(states);
-	for (SizeType i = 0, start = 0; i < m_batches.size(); ++i)
+	for (uint64 i = 0, start = 0; i < m_batches.size(); ++i)
 	{
 		states_copy.texture = m_batches[i].texture;
 		states_copy.shader = m_batches[i].shader;
@@ -99,49 +99,51 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 	}
 }
 
-bool SpriteBatch::CompareBackToFront(const Triangle& lhs, const Triangle& rhs) const
-{
-	if (lhs.depth != rhs.depth)
-		return (lhs.depth > rhs.depth);
-
-	return CompareTexture(lhs, rhs);
-}
-bool SpriteBatch::CompareFrontToBack(const Triangle& lhs, const Triangle& rhs) const
-{
-	if (lhs.depth != rhs.depth)
-		return (lhs.depth < rhs.depth);
-
-	return CompareTexture(lhs, rhs);
-}
-bool SpriteBatch::CompareTexture(const Triangle& lhs, const Triangle& rhs) const
-{
-	if (lhs.texture != rhs.texture)
-		return (lhs.texture < rhs.texture);
-
-	return (lhs.shader < rhs.shader);
-}
-
 void SpriteBatch::SortTriangles() const
 {
+	const auto CompareTexture = [](const Triangle& lhs, const Triangle& rhs)
+	{
+		if (lhs.texture != rhs.texture)
+			return (lhs.texture < rhs.texture);
+
+		return (lhs.shader < rhs.shader);
+	};
+
+	const auto CompareFrontToBack = [&CompareTexture](const Triangle& lhs, const Triangle& rhs)
+	{
+		if (lhs.depth != rhs.depth)
+			return (lhs.depth < rhs.depth);
+
+		return CompareTexture(lhs, rhs);
+	};
+
+	const auto CompareBackToFront = [&CompareTexture](const Triangle& lhs, const Triangle& rhs)
+	{
+		if (lhs.depth != rhs.depth)
+			return (lhs.depth > rhs.depth);
+
+		return CompareTexture(lhs, rhs);
+	};
+
 	switch (m_batch_mode)
 	{
 	case BatchMode::BackToFront:
 		std::ranges::stable_sort(m_indices.begin(), m_indices.end(),
-			[this](const auto i0, const auto i1)
+			[this, &CompareBackToFront](uint64 i0, uint64 i1)
 			{ 
 				return CompareBackToFront(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::FrontToBack:
 		std::ranges::stable_sort(m_indices.begin(), m_indices.end(),
-			[this](const auto i0, const auto i1)
+			[this, &CompareFrontToBack](uint64 i0, uint64 i1)
 			{
 				return CompareFrontToBack(m_triangles[i0], m_triangles[i1]);
 			});
 		break;
 	case BatchMode::Texture:
 		std::ranges::stable_sort(m_indices.begin(), m_indices.end(),
-			[this](const auto i0, const auto i1)
+			[this, &CompareTexture](uint64 i0, uint64 i1)
 			{
 				return CompareTexture(m_triangles[i0], m_triangles[i1]);
 			});
@@ -161,7 +163,7 @@ void SpriteBatch::CreateBatches() const
 	auto last_texture = m_triangles[m_indices.front()].texture;
 	auto last_shader = m_triangles[m_indices.front()].shader;
 
-	SizeType start = 0, next = 0;
+	uint64 start = 0, next = 0;
 	for (; next < m_triangles.size(); ++next)
 	{
 		const Triangle& triangle = m_triangles[m_indices[next]];
@@ -176,14 +178,14 @@ void SpriteBatch::CreateBatches() const
 			start = next;
 		}
 
-		for (SizeType i = 0; i < TRIANGLE_COUNT; ++i)
-			m_vertices[(std::size_t)next * TRIANGLE_COUNT + i] = triangle.vertices[i];
+		for (uint64 i = 0; i < TRIANGLE_COUNT; ++i)
+			m_vertices[next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 
 	if (start != m_triangles.size()) // deal with leftover
 	{
 		const Triangle& triangle = m_triangles[m_indices[start]];
-		m_batches.emplace_back(triangle.texture, triangle.shader, ((SizeType)m_triangles.size() - start) * TRIANGLE_COUNT);
+		m_batches.emplace_back(triangle.texture, triangle.shader, (m_triangles.size() - start) * TRIANGLE_COUNT);
 	}
 }
 
