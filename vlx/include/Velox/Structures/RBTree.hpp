@@ -32,30 +32,40 @@ namespace vlx
 		RBTree() = default;
 
 	public:
-		std::optional<const T&> Search(const T& key) const;
+		const T* Search(const T& key) const;
 
 		void Insert(const T& key);
-		void Delete(const T& key);
+		bool Delete(const T& key);
+
+		void Clear();
 
 	private:
+		auto SearchImpl1(const T& key) const -> Node*;
+		auto SearchImpl2(Node* ptr, const T& key) const -> Node*;
+
 		void RotateLeft(NodePtr&& ptr);
 		void RotateRight(NodePtr&& ptr);
 
-		auto SearchImpl1(const T& key) const -> const Node*;
-		auto SearchImpl2(const Node* ptr, const T& key) const -> const Node*;
-
 		void InsertImpl(NodePtr ptr);
 		void InsertFixup(NodePtr&& ptr);
+
+		void DeleteImpl(Node* ptr);
+		void DeleteFixup(Node* ptr, Node* parent);
+
+		auto Transplant(Node* u, NodePtr&& v) -> NodePtr;
+		auto Minimum(Node* ptr) -> Node*;
+
+		auto GetUniquePtr(Node* ptr) -> NodePtr&;
 
 	private:
 		NodePtr m_root;
 	};
 
 	template<typename T>
-	inline std::optional<const T&> RBTree<T>::Search(const T& key) const
+	inline const T* RBTree<T>::Search(const T& key) const
 	{
-		const Node* node = SearchHelper1(key);
-		return node ? std::make_optional(node->key) : std::nullopt;
+		const Node* node = SearchImpl1(key);
+		return node ? &node->key : nullptr;
 	}
 
 	template<typename T>
@@ -65,63 +75,30 @@ namespace vlx
 	}
 
 	template<typename T>
-	inline void RBTree<T>::Delete(const T& key)
+	inline bool RBTree<T>::Delete(const T& key)
 	{
+		Node* node = SearchImpl1(key);
+		if (node == nullptr)
+			return false;
+
+		DeleteImpl(node);
+
+		return true;
 	}
 
 	template<typename T>
-	inline void RBTree<T>::RotateLeft(NodePtr&& ptr)
+	inline void RBTree<T>::Clear()
 	{
-		assert(ptr->right != nullptr);
-
-		NodePtr right_child = std::move(ptr->right);
-		ptr->right = std::move(right_child->left);
-
-		if (ptr->right)
-			ptr->right->parent = ptr.get();
-
-		right_child->parent = ptr->parent;
-
-		NodePtr& node = (!ptr->parent) ? m_root : ((ptr == ptr->parent->left) ?
-			ptr->parent->left : ptr->parent->right);
-
-		Node* temp = ptr.release();
-		node = std::move(right_child);
-
-		node->left = NodePtr(temp);
-		node->left->parent = node.get();
+		m_root.reset();
 	}
 
 	template<typename T>
-	inline void RBTree<T>::RotateRight(NodePtr&& ptr)
-	{
-		assert(ptr->left != nullptr);
-
-		NodePtr left_child = std::move(ptr->left);
-		ptr->left = std::move(left_child->right);
-
-		if (ptr->left)
-			ptr->left->parent = ptr.get();
-
-		left_child->parent = ptr->parent;
-
-		NodePtr& node = (!ptr->parent) ? m_root : ((ptr == ptr->parent->left) ?
-			ptr->parent->left : ptr->parent->right);
-
-		Node* temp = ptr.release();
-		node = std::move(left_child);
-
-		node->right = NodePtr(temp);
-		node->right->parent = node.get();
-	}
-
-	template<typename T>
-	inline auto RBTree<T>::SearchImpl1(const T& key) const -> const Node*
+	inline auto RBTree<T>::SearchImpl1(const T& key) const -> Node*
 	{
 		return SearchImpl2(m_root.get(), key);
 	}
 	template<typename T>
-	inline auto RBTree<T>::SearchImpl2(const Node* ptr, const T& key) const -> const Node*
+	inline auto RBTree<T>::SearchImpl2(Node* ptr, const T& key) const -> Node*
 	{
 		if (!ptr || ptr->key == key)
 			return ptr;
@@ -132,8 +109,67 @@ namespace vlx
 	}
 
 	template<typename T>
+	inline void RBTree<T>::RotateLeft(NodePtr&& ptr)
+	{
+		assert(ptr->right != nullptr && "Right child should exist if rotating left");
+
+		NodePtr right_child = std::move(ptr->right);
+		ptr->right = std::move(right_child->left);
+
+		if (ptr->right)
+			ptr->right->parent = ptr.get();
+
+		right_child->parent = ptr->parent;
+
+		assert((ptr->parent && ptr == ptr->parent->left) ||
+			   (ptr->parent && ptr == ptr->parent->right) ||
+			   (!ptr->parent && ptr == m_root));
+
+		Node* temp = ptr.release();
+		ptr = std::move(right_child);
+
+		assert(ptr->left == nullptr);
+
+		ptr->left = NodePtr(temp);
+		ptr->left->parent = ptr.get();
+	}
+
+	template<typename T>
+	inline void RBTree<T>::RotateRight(NodePtr&& ptr)
+	{
+		assert(ptr->left != nullptr && "Left child should exist if rotating right");
+
+		NodePtr left_child = std::move(ptr->left);
+		ptr->left = std::move(left_child->right);
+
+		if (ptr->left)
+			ptr->left->parent = ptr.get();
+
+		left_child->parent = ptr->parent;
+
+		assert((ptr->parent && ptr == ptr->parent->left) ||
+			   (ptr->parent && ptr == ptr->parent->right) ||
+			   (!ptr->parent && ptr == m_root));
+
+		Node* temp = ptr.release();
+		ptr = std::move(left_child);
+
+		assert(ptr->right == nullptr);
+
+		ptr->right = NodePtr(temp);
+		ptr->right->parent = ptr.get();
+	}
+
+	template<typename T>
 	inline void RBTree<T>::InsertImpl(NodePtr ptr)
 	{
+		if (m_root == nullptr) // first insert
+		{
+			m_root			= std::move(ptr);
+			m_root->color	= Color::Black;
+			return;
+		}
+
 		Node* y = nullptr; 
 		Node* x = m_root.get();
 
@@ -143,10 +179,12 @@ namespace vlx
 			x = (ptr->key < x->key) ? x->left.get() : x->right.get();
 		}
 
+		assert(y != nullptr && "Should always exist a parent for a leaf (disregarding first insert)");
+
 		ptr->parent = y;
 
-		NodePtr& node = !y ? m_root : ((ptr->key < y->key) ? y->left : y->right);
-		assert(node == nullptr); // should be leaf
+		NodePtr& node = (ptr->key < y->key) ? y->left : y->right;
+		assert(node == nullptr && "Leaf should not exist yet");
 
 		node = std::move(ptr);
 		InsertFixup(std::move(node));
@@ -180,10 +218,7 @@ namespace vlx
 					parent->color		= Color::Black;
 					grandparent->color	= Color::Red;
 
-					NodePtr& node = (!grandparent->parent) ? m_root : ((grandparent == grandparent->parent->left.get()) ?
-						grandparent->parent->left : grandparent->parent->right);
-
-					RotateRight(std::move(node));
+					RotateRight(std::move(GetUniquePtr(grandparent)));
 				}
 			}
 			else
@@ -207,14 +242,57 @@ namespace vlx
 					parent->color		= Color::Black;
 					grandparent->color	= Color::Red;
 
-					NodePtr& node = (!grandparent->parent) ? m_root : ((grandparent == grandparent->parent->left.get()) ?
-						grandparent->parent->left : grandparent->parent->right);
-
-					RotateLeft(std::move(node));
+					RotateLeft(std::move(GetUniquePtr(grandparent)));
 				}
 			}
 		}
 
 		m_root->color = Color::Black;
+	}
+
+	template<typename T>
+	inline void RBTree<T>::DeleteImpl(Node* ptr)
+	{
+		if (!ptr)
+			return;
+
+		Color original = ptr->color;
+
+	}
+	template<typename T>
+	inline void RBTree<T>::DeleteFixup(Node* ptr, Node* parent)
+	{
+
+	}
+
+	template<typename T>
+	inline auto RBTree<T>::Transplant(Node* u, NodePtr&& v) -> NodePtr
+	{
+		assert(u != nullptr && v != nullptr);
+
+		v->parent = u->parent;
+
+		NodePtr& node = GetUniquePtr(u);
+
+		Node* ptr = node.release();
+		node = std::move(v);
+
+		return NodePtr(ptr);
+	}
+	template<typename T>
+	inline auto RBTree<T>::Minimum(Node* ptr) -> Node*
+	{
+		if (!ptr)
+			return ptr;
+
+		return Minimum(ptr->left.get());
+	}
+
+	template<typename T>
+	inline auto RBTree<T>::GetUniquePtr(Node* ptr) -> NodePtr&
+	{
+		assert(ptr != nullptr);
+		return (!ptr->parent) ? m_root : ((ptr == ptr->parent->left.get()) ?
+			ptr->parent->left : ptr->parent->right);
 	}
 }

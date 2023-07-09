@@ -157,10 +157,12 @@ namespace vlx::py
 	bool IsSimplePolygon(std::span<const Vector2f> vertices)
 	{
 		PriorityQueue<Vector2f> queue;
-		RBTree<float> test;
+		RBTree<int> test;
 		
-		for (int i = 0; i < 1000; ++i)
-			test.Insert(rnd::random(0.0f, 1000.0f));
+		for (int i = 0; i < 100000; ++i)
+			test.Insert(rnd::random(7, 1000));
+
+		const int* abc = test.Search(10001);
 
 		return false;
 	}
