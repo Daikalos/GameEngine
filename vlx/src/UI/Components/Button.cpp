@@ -4,12 +4,15 @@ using namespace vlx::ui;
 
 void Button::Click()
 {
-    m_call_clicked = m_pressed;
+    if (m_pressed)
+        m_flags |= E_Clicked;
 }
 
 void Button::Press()
 {
-    m_call_pressed = !m_pressed;
+    if (!m_pressed)
+        m_flags |= E_Pressed;
+
     m_pressed = true;
 }
 
@@ -17,14 +20,16 @@ void Button::Release()
 {
     if (m_pressed)
     {
-        m_call_released = true;
+        m_flags |= E_Released;
         m_pressed = false;
     }
 }
 
 void Button::Enter()
 {
-    m_call_entered = !m_entered;
+    if (!m_entered)
+        m_flags |= E_Entered;
+
     m_entered = true;
 }
 
@@ -32,7 +37,7 @@ void Button::Exit()
 {
     if (m_entered)
     {
-        m_call_exited = true;
+        m_flags |= E_Exited;
         m_entered = false;
     }
 }

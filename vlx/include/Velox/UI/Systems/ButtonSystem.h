@@ -24,20 +24,10 @@ namespace vlx::ui
 	class VELOX_API ButtonSystem final : public SystemAction
 	{
 	private:
-		enum class ButtonEvent : int8
-		{
-			None = -1,
-			Click,
-			Press,
-			Release,
-			Enter,
-			Exit
-		};
-
 		struct ButtonEntityCallback
 		{
 			EntityID	entity_id {NULL_ENTITY};
-			ButtonEvent type;
+			uint8		flags;
 		};
 
 	public:

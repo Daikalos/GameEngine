@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 namespace vlx::ui
@@ -12,6 +13,16 @@ namespace vlx::ui
 	class VELOX_API Button
 	{
 	public:
+		enum Event : uint8
+		{
+			E_Pressed	= 1 << 0,
+			E_Clicked	= 1 << 1,
+			E_Released	= 1 << 2,
+			E_Entered	= 1 << 3,
+			E_Exited	= 1 << 4
+		};
+
+	public:
 		void Click();
 		void Press();
 		void Release();
@@ -19,14 +30,10 @@ namespace vlx::ui
 		void Exit();
 
 	private:
-		bool m_call_pressed		{false};
-		bool m_call_clicked		{false};
-		bool m_call_released	{false};
-		bool m_call_entered		{false};
-		bool m_call_exited		{false};
+		uint8	m_flags;
 
-		bool m_pressed	{false};
-		bool m_entered	{false};
+		bool	m_pressed	{false};
+		bool	m_entered	{false};
 
 		friend class ButtonSystem;
 	};

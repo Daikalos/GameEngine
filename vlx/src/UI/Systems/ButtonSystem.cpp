@@ -25,11 +25,7 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 				auto& base			= us[i];
 				auto& button		= bs[i];
 
-				button.m_call_pressed	= false;
-				button.m_call_clicked	= false;
-				button.m_call_released	= false;
-				button.m_call_entered	= false;
-				button.m_call_exited	= false;
+				button.m_flags = NULL;
 
 				if (object.GetActive())
 				{
@@ -62,20 +58,8 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 
 	m_register.Each([this](EntityID entity_id, Button& button)
 		{
-			if (button.m_call_pressed)
-				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Press);
-
-			if (button.m_call_clicked)
-				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Click);
-
-			if (button.m_call_released)
-				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Release);
-
-			if (button.m_call_entered)
-				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Enter);
-
-			if (button.m_call_exited)
-				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Exit);
+			if (button.m_flags)
+				m_button_callbacks.emplace_back(entity_id, button.m_flags);
 		});
 }
 
@@ -89,26 +73,20 @@ void ButtonSystem::ExecuteCallbacks()
 {
 	for (ButtonEntityCallback& callback : m_button_callbacks)
 	{
-		switch (callback.type)
-		{
-		case ButtonEvent::Click:
+		if ((callback.flags & Button::E_Clicked) == Button::E_Clicked)
 			CallClick(callback.entity_id);
-			break;
-		case ButtonEvent::Press:
+
+		if ((callback.flags & Button::E_Pressed) == Button::E_Pressed)
 			CallPress(callback.entity_id);
-			break;
-		case ButtonEvent::Release:
+
+		if ((callback.flags & Button::E_Released) == Button::E_Released)
 			CallRelease(callback.entity_id);
-			break;
-		case ButtonEvent::Enter:
+
+		if ((callback.flags & Button::E_Entered) == Button::E_Entered)
 			CallEnter(callback.entity_id);
-			break;
-		case ButtonEvent::Exit:
+
+		if ((callback.flags & Button::E_Exited) == Button::E_Exited)
 			CallExit(callback.entity_id);
-			break;
-		case ButtonEvent::None:
-			throw std::runtime_error("Invalid event type");
-		}
 	}
 
 	m_button_callbacks.clear();
