@@ -158,11 +158,20 @@ namespace vlx::py
 	{
 		PriorityQueue<Vector2f> queue;
 		RBTree<int> test;
-		
-		for (int i = 0; i < 100000; ++i)
-			test.Insert(rnd::random(7, 1000));
 
-		const int* abc = test.Search(10001);
+		std::array<int, 10000> arr = rnd::array<int, 10000>();
+		
+		for (int i = 0; i < 10000; ++i)
+			test.Insert(i);
+
+		for (int i = 0; i < 10000; ++i)
+		{
+			const int* temp = test.Search(arr[i]);
+			assert(temp != nullptr && *temp == arr[i]);
+		}
+
+		for (int i = 0; i < 10000; ++i)
+			assert(test.Delete(arr[i]));
 
 		return false;
 	}

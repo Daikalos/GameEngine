@@ -3,10 +3,12 @@
 #include <memory>
 #include <optional>
 
+#include <Velox/Utility/NonCopyable.h>
+
 namespace vlx
 {
 	template<typename T>
-	class RBTree
+	class RBTree : private NonCopyable
 	{
 	private:
 		enum class Color : bool
@@ -41,7 +43,7 @@ namespace vlx
 
 	private:
 		auto SearchImpl1(const T& key) const -> Node*;
-		auto SearchImpl2(Node* ptr, const T& key) const -> Node*;
+		auto SearchImpl2(Node* node, const T& key) const -> Node*;
 
 		void RotateLeft(NodePtr&& ptr);
 		void RotateRight(NodePtr&& ptr);
@@ -49,13 +51,13 @@ namespace vlx
 		void InsertImpl(NodePtr ptr);
 		void InsertFixup(NodePtr&& ptr);
 
-		void DeleteImpl(Node* ptr);
-		void DeleteFixup(Node* ptr, Node* parent);
+		void DeleteImpl(Node* node);
+		void DeleteFixup(Node* node, Node* parent);
 
 		auto Transplant(Node* u, NodePtr&& v) -> NodePtr;
-		auto Minimum(Node* ptr) -> Node*;
+		auto Minimum(Node* node) -> Node*;
 
-		auto GetUniquePtr(Node* ptr) -> NodePtr&;
+		auto GetPtr(Node* node) -> NodePtr&;
 
 	private:
 		NodePtr m_root;
@@ -81,6 +83,7 @@ namespace vlx
 		if (node == nullptr)
 			return false;
 
+		assert(node->key == key);
 		DeleteImpl(node);
 
 		return true;
@@ -98,14 +101,14 @@ namespace vlx
 		return SearchImpl2(m_root.get(), key);
 	}
 	template<typename T>
-	inline auto RBTree<T>::SearchImpl2(Node* ptr, const T& key) const -> Node*
+	inline auto RBTree<T>::SearchImpl2(Node* node, const T& key) const -> Node*
 	{
-		if (!ptr || ptr->key == key)
-			return ptr;
+		if (!node || node->key == key)
+			return node;
 
-		return (key < ptr->key) ?
-			SearchImpl2(ptr->left.get(), key) :
-			SearchImpl2(ptr->right.get(), key);
+		return (key < node->key) ?
+			SearchImpl2(node->left.get(), key) :
+			SearchImpl2(node->right.get(), key);
 	}
 
 	template<typename T>
@@ -218,7 +221,7 @@ namespace vlx
 					parent->color		= Color::Black;
 					grandparent->color	= Color::Red;
 
-					RotateRight(std::move(GetUniquePtr(grandparent)));
+					RotateRight(std::move(GetPtr(grandparent)));
 				}
 			}
 			else
@@ -242,7 +245,7 @@ namespace vlx
 					parent->color		= Color::Black;
 					grandparent->color	= Color::Red;
 
-					RotateLeft(std::move(GetUniquePtr(grandparent)));
+					RotateLeft(std::move(GetPtr(grandparent)));
 				}
 			}
 		}
@@ -251,48 +254,199 @@ namespace vlx
 	}
 
 	template<typename T>
-	inline void RBTree<T>::DeleteImpl(Node* ptr)
+	inline void RBTree<T>::DeleteImpl(Node* node)
 	{
-		if (!ptr)
+		if (!node)
 			return;
 
-		Color original = ptr->color;
+		Color original	= node->color;
+		Node* x			= nullptr;
+		Node* xp		= nullptr;
 
+		if (!node->left)
+		{
+			x	= node->right.get();
+			xp	= node->parent;
+
+			Transplant(node, std::move(node->right));
+		}
+		else if (!node->right)
+		{
+			x	= node->left.get();
+			xp	= node->parent;
+
+			Transplant(node, std::move(node->left));
+		}
+		else
+		{
+			Node* y = Minimum(node->right.get());
+			original = y->color;
+
+			x = y->right.get();
+			xp = y;
+
+			if (y->parent == node)
+			{
+				if (x != nullptr)
+					x->parent = y;
+
+				auto pz			= Transplant(node, std::move(node->right));
+				y->left			= std::move(pz->left);
+				y->left->parent = y;
+				y->color		= pz->color;
+			}
+			else 
+			{
+				xp = y->parent;
+
+				NodePtr py			= Transplant(y, std::move(y->right));
+				py->right			= std::move(node->right);
+				py->right->parent	= py.get();
+
+				Node* temp			= py.get();
+
+				NodePtr pz			= Transplant(node, std::move(py));
+				temp->left			= std::move(pz->left);
+				temp->left->parent	= temp;
+				temp->color			= pz->color;
+			}
+		}
+
+		if (original == Color::Black)
+			DeleteFixup(x, xp);
 	}
 	template<typename T>
-	inline void RBTree<T>::DeleteFixup(Node* ptr, Node* parent)
+	inline void RBTree<T>::DeleteFixup(Node* node, Node* parent)
 	{
+		while (node != m_root.get() && (!node || node->color == Color::Black))
+		{
+			if (node == parent->left.get())
+			{
+				Node* sibling = parent->right.get();
+				if (sibling && sibling->color == Color::Red)
+				{
+					sibling->color	= Color::Black;
+					parent->color	= Color::Red;
 
+					RotateLeft(std::move(GetPtr(parent)));
+
+					sibling = parent->right.get();
+				}
+
+				if (sibling && (!sibling->left || sibling->left->color == Color::Black) && (!sibling->right || sibling->right->color == Color::Black)) 
+				{
+					sibling->color	= Color::Red;
+					parent->color	= Color::Black;
+
+					node = parent;
+				}
+				else if (sibling) 
+				{
+					if (!sibling->right || sibling->right->color == Color::Black)
+					{
+						sibling->color			= Color::Red;
+						sibling->left->color	= Color::Black;
+
+						RotateRight(std::move(GetPtr(sibling)));
+
+						sibling = parent->right.get();
+					}
+
+					sibling->color			= parent->color;
+					parent->color			= Color::Black;
+					sibling->right->color	= Color::Black;
+
+					RotateLeft(std::move(GetPtr(parent)));
+
+					node = m_root.get();
+				}
+				else
+				{
+					node = m_root.get();
+				}
+			}
+			else
+			{
+				Node* sibling = parent->left.get();
+				if (sibling && sibling->color == Color::Red)
+				{
+					sibling->color		= Color::Black;
+					parent->color	= Color::Red;
+
+					RotateRight(std::move(GetPtr(parent)));
+
+					sibling = parent->left.get();
+				}
+
+				if (sibling && (!sibling->left || sibling->left->color == Color::Black) && (!sibling->right || sibling->right->color == Color::Black)) 
+				{
+					sibling->color	= Color::Red;
+					parent->color	= Color::Black;
+
+					node = parent;
+				}
+				else if (sibling) 
+				{
+					if (!sibling->left || sibling->left->color == Color::Black)
+					{
+						sibling->color			= Color::Red;
+						sibling->right->color	= Color::Black;
+
+						RotateLeft(std::move(GetPtr(sibling)));
+
+						sibling = parent->left.get();
+					}
+
+					sibling->color			= parent->color;
+					parent->color			= Color::Black;
+					sibling->left->color	= Color::Black;
+
+					RotateRight(std::move(GetPtr(parent)));
+
+					node = m_root.get();
+				}
+				else
+				{
+					node = m_root.get();
+				}
+			}
+		}
+
+		if (node)
+			node->color = Color::Black;
 	}
 
 	template<typename T>
 	inline auto RBTree<T>::Transplant(Node* u, NodePtr&& v) -> NodePtr
 	{
-		assert(u != nullptr && v != nullptr);
+		assert(u != nullptr);
 
-		v->parent = u->parent;
+		if (v != nullptr)
+			v->parent = u->parent;
 
-		NodePtr& node = GetUniquePtr(u);
+		NodePtr& node	= GetPtr(u);
+		Node* temp		= node.release();
+		node			= std::move(v);
 
-		Node* ptr = node.release();
-		node = std::move(v);
-
-		return NodePtr(ptr);
+		return NodePtr(temp);
 	}
 	template<typename T>
-	inline auto RBTree<T>::Minimum(Node* ptr) -> Node*
+	inline auto RBTree<T>::Minimum(Node* node) -> Node*
 	{
-		if (!ptr)
-			return ptr;
+		if (!node)
+			return node;
 
-		return Minimum(ptr->left.get());
+		while (node->left)
+			node = node->left.get();
+
+		return node;
 	}
 
 	template<typename T>
-	inline auto RBTree<T>::GetUniquePtr(Node* ptr) -> NodePtr&
+	inline auto RBTree<T>::GetPtr(Node* node) -> NodePtr&
 	{
-		assert(ptr != nullptr);
-		return (!ptr->parent) ? m_root : ((ptr == ptr->parent->left.get()) ?
-			ptr->parent->left : ptr->parent->right);
+		assert(node != nullptr);
+		return (!node->parent) ? m_root : ((node == node->parent->left.get()) ?
+			node->parent->left : node->parent->right);
 	}
 }
