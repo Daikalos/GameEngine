@@ -5,7 +5,7 @@
 #include "UI/Components/Container.h"
 #include "UI/Components/Label.h"
 #include "UI/Components/TextBox.h"
-#include "UI/Components/UIRenderable.h"
+#include "UI/Components/UIBase.h"
 
 #include "UI/Systems/AnchorSystem.h"
 #include "UI/Systems/ButtonSystem.h"

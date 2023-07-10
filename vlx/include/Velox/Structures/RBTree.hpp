@@ -32,6 +32,9 @@ namespace vlx
 
 	public:
 		RBTree() = default;
+		RBTree(RBTree&& rhs) noexcept;
+
+		RBTree& operator=(RBTree&& rhs) noexcept;
 
 	public:
 		const T* Search(const T& key) const;
@@ -62,6 +65,19 @@ namespace vlx
 	private:
 		NodePtr m_root;
 	};
+
+	template<typename T>
+	inline RBTree<T>::RBTree(RBTree&& rhs) noexcept
+		: m_root(std::move(rhs.m_root))
+	{
+
+	}
+
+	template<typename T>
+	inline RBTree<T>& RBTree<T>::operator=(RBTree&& rhs) noexcept
+	{
+		m_root = std::move(rhs.m_root);
+	}
 
 	template<typename T>
 	inline const T* RBTree<T>::Search(const T& key) const

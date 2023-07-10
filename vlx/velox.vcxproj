@@ -187,7 +187,7 @@
     <ClInclude Include="include\Velox\Physics\PhysicsBodyTransform.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
     <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
-    <ClInclude Include="include\Velox\UI\Components\UIRenderable.h" />
+    <ClInclude Include="include\Velox\UI\Components\UIBase.h" />
     <ClInclude Include="include\Velox\Utility\FPSCounter.h" />
     <ClInclude Include="include\Velox\Utility\PolygonUtils.h" />
     <ClInclude Include="include\Velox\Types.hpp" />
@@ -304,7 +304,7 @@
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
     <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
-    <ClCompile Include="src\UI\Components\UIRenderable.cpp" />
+    <ClCompile Include="src\UI\Components\UIBase.cpp" />
     <ClCompile Include="src\Utility\PolygonUtils.cpp" />
     <ClCompile Include="src\Utility\StringUtils.cpp" />
     <ClCompile Include="src\World\Object.cpp" />

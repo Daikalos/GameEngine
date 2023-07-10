@@ -10,6 +10,9 @@ namespace vlx
 	template<typename Bind, typename Reg>
 	class Binds
 	{
+	protected:
+		Binds() = default;
+
 	public:
 		NODISC Reg& operator[](const Bind& name);
 		NODISC const Reg& operator[](const Bind& name) const;

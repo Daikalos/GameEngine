@@ -1,42 +1,65 @@
 #pragma once
 
-#include <Velox/ECS/Identifiers.hpp>
 #include <Velox/ECS/System.hpp>
+#include <Velox/ECS/SystemAction.h>
 
 #include <Velox/System/Rectangle.hpp>
 
-#include <Velox/Graphics/Components/Renderable.h>
 #include <Velox/Graphics/Components/GlobalTransformTranslation.h>
-
 #include <Velox/UI/Components/Button.h>
+#include <Velox/UI/Components/UIBase.h>
+#include <Velox/Graphics/Components/Renderable.h>
+#include <Velox/World/Object.h>
 
-#include <Velox/Input.hpp>
-#include <Velox/Window.hpp>
-#include <Velox/Config.hpp>
-
-#include <Velox/ECS/SystemAction.h>
+#include <Velox/Input/MouseCursor.h>
+#include <Velox/Window/Camera.h>
 
 #include <Velox/World/EngineBinds.h>
+
+#include <Velox/Types.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx::ui
 {
 	class VELOX_API ButtonSystem final : public SystemAction
 	{
+	private:
+		enum class ButtonEvent : int8
+		{
+			None = -1,
+			Click,
+			Press,
+			Release,
+			Enter,
+			Exit
+		};
+
+		struct ButtonEntityCallback
+		{
+			EntityID	entity_id {NULL_ENTITY};
+			ButtonEvent type;
+		};
+
 	public:
-		ButtonSystem(
-			EntityAdmin& entity_admin, LayerType id, 
+		ButtonSystem(EntityAdmin& entity_admin, LayerType id, 
 			const Camera& camera, const EngineMouse& mouse, const MouseCursor& cursor);
 
 	public:
 		void Update() override;
 
 	private:
-		System<Renderable, GlobalTransformTranslation, Button>	m_buttons;
+		void ExecuteCallbacks();
 
-		System<Button, ButtonClick>		m_buttons_click;
-		System<Button, ButtonPress>		m_buttons_press;
-		System<Button, ButtonRelease>	m_buttons_release;
-		System<Button, ButtonEnter>		m_buttons_enter;
-		System<Button, ButtonExit>		m_buttons_exit;
+		void CallClick(		EntityID entity_id) const;
+		void CallPress(		EntityID entity_id) const;
+		void CallRelease(	EntityID entity_id) const;
+		void CallEnter(		EntityID entity_id) const;
+		void CallExit(		EntityID entity_id) const;
+
+	private:
+		System<Object, Renderable, GlobalTransformTranslation, UIBase, Button>	m_buttons;
+		System<Button> m_register;
+
+		std::vector<ButtonEntityCallback> m_button_callbacks;
 	};
 }

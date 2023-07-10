@@ -134,7 +134,7 @@ namespace vlx
 		template<typename It>
 		NODISC auto Query(const Vector2f& point, It begin, It end) const -> std::vector<value_type>;
 
-		/// Performs a cleanup of the tree; can only be called if erase has been used.
+		/// Performs a cleanup of the tree
 		/// 
 		void Cleanup();
 

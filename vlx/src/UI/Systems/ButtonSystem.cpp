@@ -2,23 +2,14 @@
 
 using namespace vlx::ui;
 
-ButtonSystem::ButtonSystem(
-	EntityAdmin& entity_admin, LayerType id, 
+ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id, 
 	const Camera& camera, const EngineMouse& mouse, const MouseCursor& cursor) : 
 	
-	SystemAction(entity_admin, id),
-
-	m_buttons(entity_admin, id),
-
-	m_buttons_click(entity_admin, id),
-	m_buttons_press(entity_admin, id),
-	m_buttons_release(entity_admin, id),
-	m_buttons_enter(entity_admin, id),
-	m_buttons_exit(entity_admin, id)
+	SystemAction(entity_admin, id), m_buttons(entity_admin, id), m_register(entity_admin, id)
 
 {
 	m_buttons.All(
-		[&camera, &mouse, &cursor](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformTranslation* gtts, Button* buttons)
+		[&camera, &mouse, &cursor](std::span<const EntityID> entities, Object* os, Renderable* rs, GlobalTransformTranslation* gs, UIBase* us, Button* bs)
 		{
 			const bool pressed	= mouse.Pressed(ebn::Button::GUIButton);
 			const bool released = mouse.Released(ebn::Button::GUIButton);
@@ -28,9 +19,11 @@ ButtonSystem::ButtonSystem(
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
-				Renderable& renderable			= renderables[i];
-				GlobalTransformTranslation& gtt	= gtts[i];
-				Button& button					= buttons[i];
+				auto& object		= os[i];
+				auto& renderable	= rs[i];
+				auto& translation	= gs[i];
+				auto& base			= us[i];
+				auto& button		= bs[i];
 
 				button.m_call_pressed	= false;
 				button.m_call_clicked	= false;
@@ -38,72 +31,116 @@ ButtonSystem::ButtonSystem(
 				button.m_call_entered	= false;
 				button.m_call_exited	= false;
 
-				//if (button.IsActive())
-				//{
-				//	const Vector2i position	= Vector2i(gtt.GetPosition());
-				//	const Vector2i size		= Vector2i(button.GetSize());
+				if (object.GetActive())
+				{
+					const Vector2i position	= Vector2i(translation.GetPosition());
+					const Vector2i size		= Vector2i(base.GetSize());
 
-				//	const RectInt rectangle(position, size);
-				//	const bool within_bounds = rectangle.Contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
+					const RectInt rectangle(position, size);
+					const bool within_bounds = rectangle.Contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
 
-				//	if (within_bounds)
-				//	{
-				//		button.Enter();
+					if (within_bounds)
+					{
+						button.Enter();
 
-				//		if (pressed)
-				//			button.Press();
+						if (pressed)
+							button.Press();
 
-				//		if (released) // if released within bounds, click will occur
-				//			button.Click();
-				//	}
-				//	else
-				//	{
-				//		button.Exit();
-				//	}
-				//}
+						if (released) // if released within bounds, click will occur
+							button.Click();
+					}
+					else
+					{
+						button.Exit();
+					}
+				}
 
-				//if (released)
-				//	button.Release();
+				if (released)
+					button.Release();
 			}
 		});
 
-	m_buttons_click.Each(
-		[](EntityID, Button& btn, ButtonClick& btn_click)
+	m_register.Each([this](EntityID entity_id, Button& button)
 		{
-			if (btn.m_call_clicked)
-				btn_click.OnClick();
-		});
+			if (button.m_call_pressed)
+				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Press);
 
-	m_buttons_press.Each(
-		[](EntityID, Button& btn, ButtonPress& btn_press)
-		{
-			if (btn.m_call_pressed)
-				btn_press.OnPress();
-		});
+			if (button.m_call_clicked)
+				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Click);
 
-	m_buttons_release.Each(
-		[](EntityID, Button& btn, ButtonRelease& btn_release)
-		{
-			if (btn.m_call_released)
-				btn_release.OnRelease();
-		});
+			if (button.m_call_released)
+				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Release);
 
-	m_buttons_enter.Each(
-		[](EntityID, Button& btn, ButtonEnter& btn_enter)
-		{
-			if (btn.m_call_entered)
-				btn_enter.OnEnter();
-		});
+			if (button.m_call_entered)
+				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Enter);
 
-	m_buttons_exit.Each(
-		[](EntityID, Button& btn, ButtonExit& btn_exit)
-		{
-			if (btn.m_call_exited)
-				btn_exit.OnExit();
+			if (button.m_call_exited)
+				m_button_callbacks.emplace_back(entity_id, ButtonEvent::Exit);
 		});
 }
 
 void ButtonSystem::Update()
 {
 	Execute();
+	ExecuteCallbacks();
+}
+
+void ButtonSystem::ExecuteCallbacks()
+{
+	for (ButtonEntityCallback& callback : m_button_callbacks)
+	{
+		switch (callback.type)
+		{
+		case ButtonEvent::Click:
+			CallClick(callback.entity_id);
+			break;
+		case ButtonEvent::Press:
+			CallPress(callback.entity_id);
+			break;
+		case ButtonEvent::Release:
+			CallRelease(callback.entity_id);
+			break;
+		case ButtonEvent::Enter:
+			CallEnter(callback.entity_id);
+			break;
+		case ButtonEvent::Exit:
+			CallExit(callback.entity_id);
+			break;
+		case ButtonEvent::None:
+			throw std::runtime_error("Invalid event type");
+		}
+	}
+
+	m_button_callbacks.clear();
+}
+
+void ButtonSystem::CallClick(EntityID entity_id) const
+{
+	ButtonClick* event = m_entity_admin->TryGetComponent<ButtonClick>(entity_id);
+	if (event != nullptr)
+		event->OnClick();
+}
+void ButtonSystem::CallPress(EntityID entity_id) const
+{
+	ButtonPress* event = m_entity_admin->TryGetComponent<ButtonPress>(entity_id);
+	if (event != nullptr)
+		event->OnPress();
+}
+void ButtonSystem::CallRelease(EntityID entity_id) const
+{
+	ButtonRelease* event = m_entity_admin->TryGetComponent<ButtonRelease>(entity_id);
+	if (event != nullptr)
+		event->OnRelease();
+}
+void ButtonSystem::CallEnter(EntityID entity_id) const
+{
+	ButtonEnter* event = m_entity_admin->TryGetComponent<ButtonEnter>(entity_id);
+	if (event != nullptr)
+		event->OnEnter();
+}
+void ButtonSystem::CallExit(EntityID entity_id) const
+{
+	ButtonExit* event = m_entity_admin->TryGetComponent<ButtonExit>(entity_id);
+	if (event != nullptr)
+		event->OnExit();
 }

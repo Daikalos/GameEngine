@@ -59,7 +59,7 @@
     <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
     <ClCompile Include="src\Utility\PolygonUtils.cpp" />
     <ClCompile Include="src\Utility\StringUtils.cpp" />
-    <ClCompile Include="src\UI\Components\UIRenderable.cpp" />
+    <ClCompile Include="src\UI\Components\UIBase.cpp" />
     <ClCompile Include="src\ECS\SystemBase.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -188,7 +188,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
     <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
     <ClInclude Include="include\Velox\UI.hpp" />
-    <ClInclude Include="include\Velox\UI\Components\UIRenderable.h" />
+    <ClInclude Include="include\Velox\UI\Components\UIBase.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceLoader.hpp" />
     <ClInclude Include="include\Velox\Graphics\SFMLLoaders.hpp" />
     <ClInclude Include="include\Velox\ECS\SystemBase.h" />

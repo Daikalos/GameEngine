@@ -99,12 +99,12 @@ void RelationSystem::PostUpdate()
 void RelationSystem::AttachUnpack(EntityID parent_id, EntityID child_id)
 {
 	auto parent = m_entity_admin->TryGetComponent<Relation>(parent_id);
-	if (parent.has_value())
+	if (parent != nullptr)
 	{
 		auto child = m_entity_admin->TryGetComponent<Relation>(child_id);
-		if (child.has_value())
+		if (child != nullptr)
 		{
-			Attach(parent_id, *parent.value(), child_id, *child.value());
+			Attach(parent_id, *parent, child_id, *child);
 		}
 	}
 }
@@ -112,12 +112,12 @@ void RelationSystem::AttachUnpack(EntityID parent_id, EntityID child_id)
 void RelationSystem::DetachUnpack(EntityID parent_id, EntityID child_id)
 {
 	auto parent = m_entity_admin->TryGetComponent<Relation>(parent_id);
-	if (parent.has_value())
+	if (parent != nullptr)
 	{
 		auto child = m_entity_admin->TryGetComponent<Relation>(child_id);
-		if (child.has_value())
+		if (child != nullptr)
 		{
-			Detach(parent_id, *parent.value(), child_id, *child.value());
+			Detach(parent_id, *parent, child_id, *child);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Velox/System/Event.hpp>
+#include <functional>
+
 #include <Velox/ECS/Identifiers.hpp>
 
 #include "CollisionResult.h"
@@ -11,20 +12,20 @@ namespace vlx
 	/// 
 	struct ColliderEnter
 	{
-		Event<const CollisionResult&> OnEnter;
+		std::function<void(const CollisionResult&)> OnEnter;
 	};
 
 	/// Called when collider exits another collider
 	/// 
 	struct ColliderExit
 	{
-		Event<EntityID>	OnExit;
+		std::function<void(EntityID)> OnExit;
 	};
 
 	/// Called when collider overlaps another collider
 	/// 
 	struct ColliderOverlap
 	{
-		Event<const CollisionResult&> OnOverlap;
+		std::function<void(const CollisionResult&)> OnOverlap;
 	};
 }

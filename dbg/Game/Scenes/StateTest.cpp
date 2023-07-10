@@ -78,15 +78,15 @@ void StateTest::OnCreate()
 		ui::ButtonExit>();
 
 	b0.GetComponent<Renderable>().IsGUI = true;
-	//b0.GetComponent<ui::Button>().SetSize({ 128, 128 });
+	b0.GetComponent<ui::UIBase>().SetSize({ 128, 128 });
 	b0.GetComponent<Sprite>().SetSize({ 128, 128 });
 	b0.GetComponent<Transform>().SetPosition({ 100, 100 });
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
-	b0.GetComponent<ui::ButtonClick>().OnClick		+= []() { std::puts("Clicked"); };
-	b0.GetComponent<ui::ButtonPress>().OnPress		+= []() { std::puts("Pressed"); };
-	b0.GetComponent<ui::ButtonRelease>().OnRelease	+= []() { std::puts("Relased"); };
-	b0.GetComponent<ui::ButtonEnter>().OnEnter		+= []() { std::puts("Entered"); };
-	b0.GetComponent<ui::ButtonExit>().OnExit		+= []() { std::puts("Exited"); };
+	b0.GetComponent<ui::ButtonClick>().OnClick		= []() { std::puts("Clicked"); };
+	b0.GetComponent<ui::ButtonPress>().OnPress		= []() { std::puts("Pressed"); };
+	b0.GetComponent<ui::ButtonRelease>().OnRelease	= []() { std::puts("Relased"); };
+	b0.GetComponent<ui::ButtonEnter>().OnEnter		= []() { std::puts("Entered"); };
+	b0.GetComponent<ui::ButtonExit>().OnExit		= []() { std::puts("Exited"); };
 
 	ui::Button& btn = b0.GetComponent<ui::Button>();
 	//btn.Activate();

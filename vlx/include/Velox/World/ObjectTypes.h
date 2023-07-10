@@ -21,6 +21,7 @@
 #include <Velox/UI/Components/Button.h>
 #include <Velox/UI/Components/Label.h>
 #include <Velox/UI/Components/TextBox.h>
+#include <Velox/UI/Components/UIBase.h>
 
 #include <Velox/Algorithms/QTElement.hpp>
 
@@ -47,7 +48,7 @@ namespace vlx
 		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
 		Circle, Box, Collider, Polygon, Point, PhysicsBody, PhysicsBodyTransform,
 		ColliderEnter, ColliderExit, ColliderOverlap,
-		ui::Button, ui::Label,
+		ui::Button, ui::Label, ui::UIBase,
 		ui::ButtonClick, ui::ButtonPress, ui::ButtonRelease, ui::ButtonEnter, ui::ButtonExit>>;
 
 	using ObjectType = std::type_identity<std::tuple<
@@ -61,18 +62,18 @@ namespace vlx
 	{
 		using ContainerType		= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
-			Renderable, Relation>>;
+			Object, Renderable, Relation, ui::UIBase>>;
 
 		using ImageType			= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
-			Renderable, Relation, Sprite>>;
+			Object, Renderable, Relation, Sprite>>;
 
 		using ButtonType		= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
-			Renderable, Relation, Sprite, ui::Button>>;
+			Object, Renderable, Relation, Sprite, ui::UIBase, ui::Button>>;
 
 		using LabelType			= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
-			Renderable, Relation, ui::Label>>;
+			Object, Renderable, Relation, ui::UIBase, ui::Label>>;
 	}
 }

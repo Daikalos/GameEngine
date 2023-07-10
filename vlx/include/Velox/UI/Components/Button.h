@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Velox/System/Event.hpp>
+#include <functional>
+
 #include <Velox/Config.hpp>
 
 namespace vlx::ui
@@ -32,26 +33,26 @@ namespace vlx::ui
 
 	struct VELOX_API ButtonClick
 	{
-		vlx::Event<> OnClick;
+		std::function<void()> OnClick;
 	};
 
 	struct VELOX_API ButtonPress
 	{
-		vlx::Event<> OnPress;
+		std::function<void()> OnPress;
 	};
 
 	struct VELOX_API ButtonRelease
 	{
-		vlx::Event<> OnRelease;
+		std::function<void()> OnRelease;
 	};
 
 	struct VELOX_API ButtonEnter
 	{
-		vlx::Event<> OnEnter;
+		std::function<void()> OnEnter;
 	};
 
 	struct VELOX_API ButtonExit
 	{
-		vlx::Event<> OnExit;
+		std::function<void()> OnExit;
 	};
 }

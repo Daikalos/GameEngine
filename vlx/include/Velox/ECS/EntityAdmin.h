@@ -182,7 +182,7 @@ namespace vlx
 		/// \returns Pointer to component, otherwise std::nullopt.
 		/// 
 		template<IsComponent C>
-		NODISC std::optional<C*> TryGetComponent(EntityID entity_id) const;
+		NODISC C* TryGetComponent(EntityID entity_id) const;
 
 		/// Retrieves multiple components from an entity in one go.
 		/// 
@@ -241,7 +241,7 @@ namespace vlx
 		/// \returns Pointer to base, otherwise std::nullopt.
 		/// 
 		template<class B>
-		NODISC std::optional<B*> TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0) const;
+		NODISC B* TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0) const;
 
 		/// Modifies the existing component with a newly constructed one.
 		/// 
@@ -262,7 +262,7 @@ namespace vlx
 		/// \returns Pointer to the component that was modified, otherwise std::nullopt
 		/// 
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
-		std::optional<C*> TrySetComponent(EntityID entity_id, Args&&... args);
+		C* TrySetComponent(EntityID entity_id, Args&&... args);
 
 		///	Returns a reference for the component whose pointer will remain valid even when the archetype is modified.
 		/// 
@@ -794,29 +794,29 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline std::optional<C*> EntityAdmin::TryGetComponent(EntityID entity_id) const
+	inline C* EntityAdmin::TryGetComponent(EntityID entity_id) const
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto& record		= eit->second;
 		const auto* archetype	= record.archetype;
 
 		if (archetype == nullptr)
-			return std::nullopt;
+			return nullptr;
 
 		constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 		const auto cit = m_component_archetypes_map.find(component_id);
 		if (cit == m_component_archetypes_map.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto& arch_record = ait->second;
 
@@ -843,29 +843,29 @@ namespace vlx
 	}
 
 	template<class B>
-	inline std::optional<B*> EntityAdmin::TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset) const
+	inline B* EntityAdmin::TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset) const
 	{
 		const auto eit = m_entity_archetype_map.find(entity_id);
 		if (eit == m_entity_archetype_map.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto& record = eit->second;
 		const auto* archetype = record.archetype;
 
 		if (archetype == nullptr)
-			return std::nullopt;
+			return nullptr;
 
 		const auto cit = m_component_archetypes_map.find(child_component_id);
 		if (cit == m_component_archetypes_map.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto ait = cit->second.find(archetype->id);
 		if (ait == cit->second.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto iit = m_component_map.find(child_component_id);
 		if (iit == m_component_map.end())
-			return std::nullopt;
+			return nullptr;
 
 		const auto component_size = iit->second->GetSize();
 
@@ -891,17 +891,17 @@ namespace vlx
 		return old_component;
 	}
 
-	template<IsComponent C, typename ...Args> requires std::constructible_from<C, Args...>
-	inline std::optional<C*> EntityAdmin::TrySetComponent(EntityID entity_id, Args&&... args)
+	template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
+	inline C* EntityAdmin::TrySetComponent(EntityID entity_id, Args&&... args)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
-		const auto opt_component = TryGetComponent<C>(entity_id);
+		const auto component = TryGetComponent<C>(entity_id);
 
-		if (!opt_component)
-			return std::nullopt;
+		if (component == nullptr)
+			return nullptr;
 
-		C* old_component = opt_component.value();
+		C* old_component = component;
 		C new_component(std::forward<Args>(args)...);
 
 		if constexpr (HasEvent<C, AlteredEvent>)
@@ -922,12 +922,7 @@ namespace vlx
 		const auto CheckComponentPtr = [this, entity_id, &component]<IsComponent C>()
 		{
 			if (component == nullptr)
-			{
-				std::optional<C*> opt = TryGetComponent<C>(entity_id);
-
-				if (opt.has_value())
-					component = opt.value();
-			}
+				component = TryGetComponent<C>(entity_id);
 		};
 
 		auto& references = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
@@ -973,12 +968,7 @@ namespace vlx
 		const auto CheckBasePtr = [this, entity_id, child_component_id, offset, &base]<class B>()
 		{
 			if (base == nullptr)
-			{
-				std::optional<B*> opt = TryGetBase<B>(entity_id, child_component_id, offset);
-
-				if (opt.has_value())
-					base = opt.value();
-			}
+				base = TryGetBase<B>(entity_id, child_component_id, offset);
 		};
 
 		const auto cit = component_refs.find(child_component_id);

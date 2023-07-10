@@ -98,16 +98,16 @@ void TransformSystem::SetGlobalPosition(EntityID entity, const Vector2f& positio
 	auto transform	= m_entity_admin->TryGetComponent<Transform>(entity);
 	auto relation	= m_entity_admin->TryGetComponent<Relation>(entity);
 
-	if (!transform.has_value())
+	if (transform == nullptr)
 		return;
 
-	if (relation.has_value())
+	if (relation)
 	{
-		SetGlobalPosition(*transform.value(), *relation.value(), position);
+		SetGlobalPosition(*transform, *relation, position);
 	}
 	else // no relation component, set position directly
 	{
-		transform.value()->SetPosition(position);
+		transform->SetPosition(position);
 	}
 }
 void TransformSystem::SetGlobalScale(EntityID entity, const Vector2f& scale)
