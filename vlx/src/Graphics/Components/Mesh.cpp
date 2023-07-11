@@ -189,7 +189,7 @@ bool Mesh::Remove(std::size_t i)
     return true;
 }
 
-void Mesh::Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
+void Mesh::BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
 {
     sprite_batch.Batch(transform, m_vertices, m_indices, m_texture, m_shader, m_depth);
 }

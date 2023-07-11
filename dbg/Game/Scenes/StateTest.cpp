@@ -84,7 +84,7 @@ void StateTest::OnCreate()
 	b0.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	b0.GetComponent<ui::ButtonClick>().OnClick		= []() { std::puts("Clicked"); };
 	b0.GetComponent<ui::ButtonPress>().OnPress		= []() { std::puts("Pressed"); };
-	b0.GetComponent<ui::ButtonRelease>().OnRelease	= []() { std::puts("Relased"); };
+	b0.GetComponent<ui::ButtonRelease>().OnRelease	= []() { std::puts("Released"); };
 	b0.GetComponent<ui::ButtonEnter>().OnEnter		= []() { std::puts("Entered"); };
 	b0.GetComponent<ui::ButtonExit>().OnExit		= []() { std::puts("Exited"); };
 

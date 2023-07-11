@@ -1,11 +1,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Vertex.hpp>
 
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
@@ -15,11 +13,8 @@ namespace vlx::ui
 	///	Thanks to SFML for a similar implementation, sf::Text was not used because of 
 	/// the redundant data which would conflict with the ECS
 	/// 
-	class VELOX_API Label
+	class VELOX_API Text
 	{
-	private:
-		using VertexArray = std::vector<sf::Vertex>;
-
 	public:
 		enum Style
 		{
@@ -43,13 +38,7 @@ namespace vlx::ui
 		sf::Color		m_fill_color			{sf::Color::White};
 		sf::Color		m_outline_color			{sf::Color::Black};
 		float			m_outline_thickness		{0.0f};
-
-		mutable VertexArray		m_vertices;
-		mutable VertexArray		m_outline;
-
-
+		bool			m_update_mesh			{true};
 	};
-
-	constexpr int a = sizeof(Label);
 }
 

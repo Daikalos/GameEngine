@@ -1,15 +1,22 @@
 #pragma once
 
+#include <array>
+
 #include <Velox/Utility/ArithmeticUtils.h>
 #include <Velox/Config.hpp>
 
-#include "Rectangle.hpp"
 #include "Vector2.hpp"
 
 namespace vlx
 {
+	// TODO: document
+
 	class Mat2f
 	{
+	public:
+		static constexpr std::size_t COLUMNS	= 2;
+		static constexpr std::size_t ROWS		= 2;
+
 	public:
 		constexpr Mat2f();
 		constexpr Mat2f(float a00, float a01,
@@ -41,8 +48,8 @@ namespace vlx
 		static const Mat2f Identity;
 
 	private:
-		float m_matrix[4]{1.f, 0.f,
-						  0.f, 1.f};
+		std::array<float, 4> m_matrix {1.0f, 0.0f,
+									   0.0f, 1.0f};
 	};
 
 	constexpr Mat2f::Mat2f() = default;

@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 
-#include <Velox/System/Concepts.h>
 #include <Velox/Config.hpp>
 
 namespace vlx

@@ -7,24 +7,25 @@
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 
+#include <Velox/Graphics/Batchable.h>
+
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
 
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
-#include "IBatchable.h"
-
 namespace vlx
 {
 	static constexpr uint8 QUAD_COUNT = 4;
 
 	class SpriteBatch;
+	class Mat4f;
 
-	///	Custom sprite that is very similar to SFML's except that it has depth 
-	///	and no transform as to be suitable for spritebatch and the ECS design
+	///	Custom sprite that is very similar to SFML's except that it has depth and no transform 
+	/// as to be suitable for the spritebatch and the ECS design.
 	/// 
-	class VELOX_API Sprite : public IBatchable
+	class VELOX_API Sprite : public Batchable<Sprite>
 	{
 	private:
 		using VertexArray = std::array<sf::Vertex, QUAD_COUNT>;
@@ -53,7 +54,7 @@ namespace vlx
 		void SetOpacity(float opacity);
 
 	public:
-		void Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const override;
+		void BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const;
 
 	private:
 		void UpdatePositions(const Vector2f& size);

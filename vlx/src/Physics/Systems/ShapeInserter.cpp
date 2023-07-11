@@ -97,6 +97,8 @@ ShapeInserter<Point>::~ShapeInserter()
 	m_broad.m_entity_admin->DeregisterOnRemoveListener<Point>(m_on_remove_id);
 }
 
-template class ShapeInserter<Circle>;
-template class ShapeInserter<Box>;
-template class ShapeInserter<Polygon>;
+// explicit template instantiations
+
+template class vlx::ShapeInserter<Circle>;
+template class vlx::ShapeInserter<Box>;
+template class vlx::ShapeInserter<Polygon>;

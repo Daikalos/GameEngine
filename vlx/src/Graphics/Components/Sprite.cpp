@@ -1,10 +1,9 @@
 #include <Velox/Graphics/Components/Sprite.h>
 
 #include <Velox/Graphics/SpriteBatch.h>
+#include <Velox/System/Mat4f.hpp>
 
 using namespace vlx;
-
-static constexpr std::size_t VERTEX_COUNT = 4;
 
 Sprite::Sprite(const sf::Texture& texture, float depth) : m_depth(depth)
 {
@@ -28,11 +27,6 @@ Sprite::Sprite(const sf::Texture& texture, const Vector2f& size, const RectFloat
 	SetTextureRect(visible_rect);
 	SetSize(size);
 	SetTexture(texture);
-}
-
-void Sprite::Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
-{
-	sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
 }
 
 const sf::Texture* Sprite::GetTexture() const noexcept
@@ -122,4 +116,9 @@ void Sprite::UpdateTexCoords(const RectFloat& texture_rect)
 	m_vertices[1].texCoords = Vector2f(left,	bottom);
 	m_vertices[2].texCoords = Vector2f(right,	top);
 	m_vertices[3].texCoords = Vector2f(right,	bottom);
+}
+
+void Sprite::BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
+{
+	sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, m_shader, m_depth);
 }

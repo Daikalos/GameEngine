@@ -7,6 +7,14 @@
 
 namespace vlx
 {
+	template<class I>
+	concept HasButtonInput = requires(I input)
+	{
+		{ input.Pressed(typename I::ButtonType()) } -> std::same_as<bool>;
+		{ input.Released(typename I::ButtonType()) } -> std::same_as<bool>;
+		{ input.Held(typename I::ButtonType()) } -> std::same_as<bool>;
+	};
+
 	enum ButtonTrigger : uint8
 	{
 		BT_Pressed,

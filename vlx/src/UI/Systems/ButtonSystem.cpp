@@ -5,7 +5,7 @@ using namespace vlx::ui;
 ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id, 
 	const Camera& camera, const EngineMouse& mouse, const MouseCursor& cursor) : 
 	
-	SystemAction(entity_admin, id), m_buttons(entity_admin, id), m_register(entity_admin, id)
+	SystemAction(entity_admin, id), m_buttons(entity_admin, id), m_check_flags(entity_admin, id)
 
 {
 	m_buttons.All(
@@ -56,7 +56,7 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 			}
 		});
 
-	m_register.Each([this](EntityID entity_id, Button& button)
+	m_check_flags.Each([this](EntityID entity_id, Button& button)
 		{
 			if (button.m_flags)
 				m_button_callbacks.emplace_back(entity_id, button.m_flags);

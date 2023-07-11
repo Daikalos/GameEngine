@@ -43,13 +43,7 @@ void SpriteBatch::AddTriangle(const Mat4f& transform,
 	m_update_required = true;
 }
 
-void SpriteBatch::Batch(const IBatchable& batchable, const Mat4f& transform, float depth)
-{
-	batchable.Batch(*this, transform, depth);
-}
-
-void SpriteBatch::Batch(const Mat4f& transform,
-	VertexSpan vertices, sf::PrimitiveType type,
+void SpriteBatch::Batch(const Mat4f& transform, VertexSpan vertices, sf::PrimitiveType type,
 	const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	switch (type)
@@ -71,9 +65,10 @@ void SpriteBatch::Batch(const Mat4f& transform,
 	}
 }
 
-void SpriteBatch::Batch(const Mat4f& transform, VertexSpan vertices, IndicesSpan indices, const sf::Texture* texture, const sf::Shader* shader, float depth)
+void SpriteBatch::Batch(const Mat4f& transform, VertexSpan vertices, IndicesSpan indices, 
+	const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
-	for (uint64 i = 2; i < indices.size(); i += TRIANGLE_COUNT)
+	for (std::size_t i = 2; i < indices.size(); i += TRIANGLE_COUNT)
 		AddTriangle(transform, vertices[indices[i - 2]], vertices[indices[i - 1]], vertices[indices[i]], texture, shader, depth);
 }
 
@@ -88,7 +83,7 @@ void SpriteBatch::draw(sf::RenderTarget& target, const sf::RenderStates& states)
 	}
 
 	sf::RenderStates states_copy(states);
-	for (uint64 i = 0, start = 0; i < m_batches.size(); ++i)
+	for (std::size_t i = 0, start = 0; i < m_batches.size(); ++i)
 	{
 		states_copy.texture = m_batches[i].texture;
 		states_copy.shader = m_batches[i].shader;
@@ -163,7 +158,7 @@ void SpriteBatch::CreateBatches() const
 	auto last_texture = m_triangles[m_indices.front()].texture;
 	auto last_shader = m_triangles[m_indices.front()].shader;
 
-	uint64 start = 0, next = 0;
+	std::size_t start = 0, next = 0;
 	for (; next < m_triangles.size(); ++next)
 	{
 		const Triangle& triangle = m_triangles[m_indices[next]];

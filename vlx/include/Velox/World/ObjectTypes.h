@@ -19,7 +19,8 @@
 
 #include <Velox/UI/Components/Container.h>
 #include <Velox/UI/Components/Button.h>
-#include <Velox/UI/Components/Label.h>
+#include <Velox/UI/Components/Text.h>
+#include <Velox/UI/Components/TextMesh.h>
 #include <Velox/UI/Components/TextBox.h>
 #include <Velox/UI/Components/UIBase.h>
 
@@ -48,7 +49,7 @@ namespace vlx
 		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
 		Circle, Box, Collider, Polygon, Point, PhysicsBody, PhysicsBodyTransform,
 		ColliderEnter, ColliderExit, ColliderOverlap,
-		ui::Button, ui::Label, ui::UIBase,
+		ui::Button, ui::Text, ui::TextMesh, ui::UIBase,
 		ui::ButtonClick, ui::ButtonPress, ui::ButtonRelease, ui::ButtonEnter, ui::ButtonExit>>;
 
 	using ObjectType = std::type_identity<std::tuple<
@@ -72,8 +73,8 @@ namespace vlx
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
 			Object, Renderable, Relation, Sprite, ui::UIBase, ui::Button>>;
 
-		using LabelType			= std::type_identity<std::tuple<
+		using TextType			= std::type_identity<std::tuple<
 			Transform, TransformMatrix, GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, 
-			Object, Renderable, Relation, ui::UIBase, ui::Label>>;
+			Object, Renderable, Relation, ui::UIBase, ui::Text, ui::TextMesh>>;
 	}
 }

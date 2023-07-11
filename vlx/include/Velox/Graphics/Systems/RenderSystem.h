@@ -31,7 +31,7 @@ namespace vlx
 		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, PhysicsBodyTransform, Transform, TransformMatrix>;
 
 	public:
-		RenderSystem(EntityAdmin& entity, LayerType id, Time& time);
+		RenderSystem(EntityAdmin& entity, LayerType id, const Time& time);
 
 	public:
 		void SetBatchMode(BatchMode batch_mode);
@@ -54,16 +54,17 @@ namespace vlx
 		void DrawGUI(Window& window) const override;
 
 	private:
+		template<IsBatchable T>
 		void BatchEntity(
 			const Renderable& renderable, 
-			const IBatchable& batchable, 
+			const T& batchable, 
 			const Mat4f& transform, 
 			float depth = 0.0f);
 
+		template<IsBatchable T>
 		void BatchBody(
-			const Time& time, 
 			const Renderable& renderable, 
-			const IBatchable& batchable, 
+			const T& batchable, 
 			const PhysicsBody& pb,
 			const PhysicsBodyTransform& pbt,
 			const Transform& t, 
@@ -71,6 +72,8 @@ namespace vlx
 			float depth = 0.0f);
 
 	private:
+		const Time*			m_time {nullptr};
+
 		SpriteSystem		m_sprites;
 		MeshSystem			m_meshes;
 

@@ -21,13 +21,13 @@ namespace vlx::rnd
 		return uid(dre);
 	}
 
-	template<std::floating_point T>
+	template<FloatingPoint T>
 	NODISC inline T random(T min, T max)
 	{
 		std::uniform_real_distribution<T> uid(min, max);
 		return uid(dre);
 	}
-	template<std::integral T>
+	template<Integral T>
 	NODISC inline T random(T min, T max)
 	{
 		std::uniform_int_distribution<T> uid(min, max);

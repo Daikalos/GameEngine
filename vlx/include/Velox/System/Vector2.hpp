@@ -17,7 +17,7 @@ namespace vlx
 	public:
 		constexpr Vector2();
 		constexpr Vector2(T x, T y);
-		constexpr Vector2(const sf::Vector2<T>& rhs);
+		constexpr Vector2(const sf::Vector2<T>& rhs); // allow implicit cast
 
 		template <Arithmetic U>
 		constexpr explicit Vector2(const Vector2<U>& rhs);
@@ -52,30 +52,30 @@ namespace vlx
 		NODISC constexpr bool operator!=(const Vector2& rhs) const;
 
 	public:
-		NODISC static constexpr auto Cross(const Vector2& lhs, T scalar);
-		NODISC static constexpr auto Cross(T scalar, const Vector2& lhs);
+		NODISC constexpr static auto Cross(const Vector2& lhs, T scalar);
+		NODISC constexpr static auto Cross(T scalar, const Vector2& lhs);
 
 		/// \returns Directional vector pointing between from and to.
 		/// 
-		NODISC static constexpr Vector2 Direction(const Vector2& from, const Vector2& to);
+		NODISC constexpr static Vector2 Direction(const Vector2& from, const Vector2& to);
 
 		/// Linear interpolation.
 		/// 
-		/// \param Alpha: Determines state of interpolation, where 0.0f yield lhs, and 1.0f yield rhs.
+		/// \param Alpha: Determines state of interpolation, where 0.0f yield lhs, and 1.0f yield rhs
 		/// 
-		/// \returns Interpolated vector that ranges between lhs and rhs given by alpha value.
+		/// \returns Interpolated vector that ranges between lhs and rhs given by alpha value
 		///
-		NODISC static constexpr Vector2 Lerp(const Vector2& lhs, const Vector2& rhs, float alpha);
+		NODISC constexpr static Vector2 Lerp(const Vector2& lhs, const Vector2& rhs, float alpha);
 
 		/// Rotates point around center.
 		/// 
-		/// \param Point: Point to rotate.
-		/// \param Center: Point to rotate around.
-		/// \param Angle: Number of degrees to rotate point.
+		/// \param Point: Point to rotate
+		/// \param Center: Point to rotate around
+		/// \param Angle: Number of degrees to rotate point
 		/// 
-		/// \returns Rotated vector.
+		/// \returns Rotated vector
 		///
-		NODISC static constexpr Vector2 RotatePoint(const Vector2& point, const Vector2& center, sf::Angle angle);
+		NODISC VELOX_API static Vector2 RotatePoint(const Vector2& point, const Vector2& center, sf::Angle angle) requires FloatingPoint<T>;
 
 	public:
 		///	Length of the vector; only works if the vector is of floating point type.
@@ -88,33 +88,32 @@ namespace vlx
 
 		/// Computes a normalized vector; only works if the vector is of floating point type.
 		/// 
-		/// \param Radius: Length of the normalized vector.
+		/// \param Radius: Length of the normalized vector
 		/// 
-		/// \returns Normalized vector.
+		/// \returns Normalized vector
 		/// 
 		NODISC constexpr Vector2<T> Normalize(T radius = 1.0f) const requires FloatingPoint<T>;
 
 		/// Computes a normalized vector; only works if the vector is of floating point type.
 		/// 
-		/// \param Length: Optimization param for when length has already been calculated.
-		/// \param Radius: Length of the normalized vector.
+		/// \param Length: Optimization param for when length has already been calculated
+		/// \param Radius: Length of the normalized vector
 		/// 
-		/// \returns Normalized vector.
+		/// \returns Normalized vector
 		/// 
 		NODISC constexpr Vector2<T> Normalize(T length, T radius) const requires FloatingPoint<T>;
 
 		/// Signed angle starting from +X or (1,0) vector; only works if the vector is of floating point type.
 		/// 
-		/// \returns Angle in the range of (-180, 180).
+		/// \returns Angle in the range of (-180, 180)
 		/// 
-		NODISC constexpr sf::Angle Angle() const requires FloatingPoint<T>;
+		NODISC VELOX_API sf::Angle Angle() const requires FloatingPoint<T>;
 
 		/// Signed angle going from this to rhs; only works if the vector is of floating point type.
 		/// 
-		/// \returns Smallest angle which rotates this to rhs, which can be either positive or negative.
-		/// Result lies in the range (-180, 180)
+		/// \returns Smallest angle which rotates this to rhs, which can be either positive or negative, lies in the range (-180, 180)
 		/// 
-		NODISC constexpr sf::Angle AngleTo(const Vector2& rhs) const requires FloatingPoint<T>;
+		NODISC VELOX_API sf::Angle AngleTo(const Vector2& rhs) const requires FloatingPoint<T>;
 
 		/// Dot product of two vectors.
 		/// 
@@ -122,19 +121,19 @@ namespace vlx
 
 		/// Cross product of two vectors.
 		/// 
-		/// \returns The Z axis value.
+		/// \returns The Z axis value
 		/// 
 		NODISC constexpr T Cross(const Vector2& rhs) const;
 
 		/// Rotate vector clockwise by angle; only works if the vector is of floating point type.
 		/// 
-		/// \returns Vector with different direction.
+		/// \returns Vector with different direction
 		/// 
-		NODISC constexpr Vector2 RotatedBy(sf::Angle phi) const requires FloatingPoint<T>;
+		NODISC VELOX_API Vector2 RotatedBy(sf::Angle phi) const requires FloatingPoint<T>;
 
 		/// Projects this vector onto axis; only works if the vector is of floating point type.
 		/// 
-		/// \returns Projected vector.
+		/// \returns Projected vector
 		/// 
 		NODISC constexpr Vector2 ProjectedOnto(const Vector2& axis) const requires FloatingPoint<T>;
 
@@ -152,48 +151,48 @@ namespace vlx
 
 		/// Limits the length of the vector to a certain length; only works if the vector is of floating point type.
 		/// 
-		/// \param MaxLength: Length to limit by.
+		/// \param MaxLength: Length to limit by
 		/// 
-		/// \returns Clamped vector if above length, otherwise returns an exact copy.
+		/// \returns Clamped vector if above length, otherwise returns an exact copy
 		/// 
 		NODISC constexpr Vector2 Limit(T max_length) const requires FloatingPoint<T>;
 
 		/// Limits the length of the vector to a certain length; only works if the vector is of floating point type.
 		/// 
-		/// \param Length: Optimization param for when length has already been calculated.
-		/// \param MaxLength: Length to limit by.
+		/// \param Length: Optimization param for when length has already been calculated
+		/// \param MaxLength: Length to limit by
 		/// 
-		/// \returns Clamped vector if above length, otherwise returns an exact copy.
+		/// \returns Clamped vector if above length, otherwise returns an exact copy
 		/// 
 		NODISC constexpr Vector2 Limit(T length, T max_length) const requires FloatingPoint<T>;
 
 		/// Clamps vector x and y coordinates by the corresponding coordinates in min and max.
 		/// 
-		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
+		/// \returns Clamped vector if outside min or max, an exact copy otherwise
 		/// 
 		NODISC constexpr Vector2 Clamp(const Vector2& min, const Vector2& max) const;
 
 		/// Clamps vector length by max length and min length.
 		/// 
-		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
+		/// \returns Clamped vector if outside min or max, an exact copy otherwise
 		/// 
 		NODISC constexpr Vector2 Clamp(T max_length, T min_length) const;
 
 		/// Clamps vector length by max length and min length.
 		/// 
-		/// \param Length: Optimization param for when length has already been calculated.
+		/// \param Length: Optimization param for when length may already been calculated
 		/// 
-		/// \returns Clamped vector if outside min or max, an exact copy otherwise.
+		/// \returns Clamped vector if outside min or max, an exact copy otherwise
 		/// 
 		NODISC constexpr Vector2 Clamp(T length, T max_length, T min_length) const;
 
-		/// \returns Vector containing the absolute values of this coordinates.
+		/// \returns Vector containing the absolute values of this coordinates
 		///
-		NODISC constexpr Vector2 Abs() const;
+		NODISC VELOX_API Vector2 Abs() const requires FloatingPoint<T>;
 
-		/// \returns Vector containing the floor values of this coordinates.
+		/// \returns Vector containing the floor values of this coordinates
 		///
-		NODISC constexpr Vector2 Floor() const;
+		NODISC VELOX_API Vector2 Floor() const requires FloatingPoint<T>;
 
 	public:
 		union
@@ -216,67 +215,70 @@ namespace vlx
 		static const Vector2<T> Right;
 	};
 
+	// using declarations
+
 	using Vector2f = Vector2<float>;
+	using Vector2d = Vector2<double>;
 	using Vector2i = Vector2<int>;
 	using Vector2u = Vector2<unsigned int>;
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::UnitX(static_cast<T>(1), static_cast<T>(0));
+	inline const Vector2<T> Vector2<T>::UnitX(	static_cast<T>(1), static_cast<T>(0));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::UnitY(static_cast<T>(0), static_cast<T>(1));
+	inline const Vector2<T> Vector2<T>::UnitY(	static_cast<T>(0), static_cast<T>(1));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::Zero(static_cast<T>(0), static_cast<T>(0));
+	inline const Vector2<T> Vector2<T>::Zero(	static_cast<T>(0), static_cast<T>(0));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::One(static_cast<T>(1), static_cast<T>(1));
+	inline const Vector2<T> Vector2<T>::One(	static_cast<T>(1), static_cast<T>(1));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::Up(static_cast<T>(0), static_cast<T>(1));
+	inline const Vector2<T> Vector2<T>::Up(		static_cast<T>(0), static_cast<T>(1));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::Down(static_cast<T>(0), static_cast<T>(-1));
+	inline const Vector2<T> Vector2<T>::Down(	static_cast<T>(0), static_cast<T>(-1));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::Left(static_cast<T>(-1), static_cast<T>(0));
+	inline const Vector2<T> Vector2<T>::Left(	static_cast<T>(-1), static_cast<T>(0));
 
 	template<Arithmetic T>
-	inline const Vector2<T> Vector2<T>::Right(static_cast<T>(0), static_cast<T>(1));
+	inline const Vector2<T> Vector2<T>::Right(	static_cast<T>(0), static_cast<T>(1));
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>::Vector2() = default;
+	constexpr Vector2<T>::Vector2() = default;
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>::Vector2(T x, T y)					: v(x, y) { }
+	constexpr Vector2<T>::Vector2(T x, T y)						: v(x, y) { }
 	template<Arithmetic T>
-	inline constexpr Vector2<T>::Vector2(const sf::Vector2<T>& rhs) : v(rhs) { }
+	constexpr Vector2<T>::Vector2(const sf::Vector2<T>& rhs)	: v(rhs) { }
 
 	template<Arithmetic T> template<Arithmetic U>
-	inline constexpr Vector2<T>::Vector2(const Vector2<U>& rhs)		: v(static_cast<T>(rhs.x), static_cast<T>(rhs.y)) { }
+	constexpr Vector2<T>::Vector2(const Vector2<U>& rhs)		: x(static_cast<T>(rhs.x)), y(static_cast<T>(rhs.y)) { }
 	template<Arithmetic T> template<Arithmetic U>
-	inline constexpr Vector2<T>::Vector2(const sf::Vector2<U>& rhs) : v(rhs) { }
+	constexpr Vector2<T>::Vector2(const sf::Vector2<U>& rhs)	: v(rhs) { }
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>::operator sf::Vector2<T>&()
+	constexpr Vector2<T>::operator sf::Vector2<T>&()
 	{
 		return v;
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>::operator const sf::Vector2<T>&() const
+	constexpr Vector2<T>::operator const sf::Vector2<T>&() const
 	{
 		return v;
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator-() const
+	constexpr Vector2<T> Vector2<T>::operator-() const
 	{
 		return Vector2<T>(-x, -y);
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator+=(const Vector2& rhs)
+	constexpr Vector2<T>& Vector2<T>::operator+=(const Vector2& rhs)
 	{
 		x += rhs.x;
 		y += rhs.y;
@@ -284,13 +286,13 @@ namespace vlx
 		return *this;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator-=(const Vector2& rhs)
+	constexpr Vector2<T>& Vector2<T>::operator-=(const Vector2& rhs)
 	{
 		return (*this += -rhs);
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator*=(T rhs)
+	constexpr Vector2<T>& Vector2<T>::operator*=(T rhs)
 	{
 		x *= rhs;
 		y *= rhs;
@@ -298,7 +300,7 @@ namespace vlx
 		return *this;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator/=(T rhs)
+	constexpr Vector2<T>& Vector2<T>::operator/=(T rhs)
 	{
 		x /= rhs;
 		y /= rhs;
@@ -307,7 +309,7 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator*=(const Vector2& rhs)
+	constexpr Vector2<T>& Vector2<T>::operator*=(const Vector2& rhs)
 	{
 		x *= rhs.x;
 		y *= rhs.y;
@@ -315,7 +317,7 @@ namespace vlx
 		return *this;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T>& Vector2<T>::operator/=(const Vector2& rhs)
+	constexpr Vector2<T>& Vector2<T>::operator/=(const Vector2& rhs)
 	{
 		x /= rhs.x;
 		y /= rhs.y;
@@ -324,106 +326,92 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator+(const Vector2& rhs) const
+	constexpr Vector2<T> Vector2<T>::operator+(const Vector2& rhs) const
 	{
 		return Vector2(*this) += rhs;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator-(const Vector2& rhs) const
+	constexpr Vector2<T> Vector2<T>::operator-(const Vector2& rhs) const
 	{
 		return Vector2(*this) -= rhs;
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator*(T rhs) const
+	constexpr Vector2<T> Vector2<T>::operator*(T rhs) const
 	{
 		return Vector2(*this) *= rhs;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator/(T rhs) const
+	constexpr Vector2<T> Vector2<T>::operator/(T rhs) const
 	{
 		return Vector2(*this) /= rhs;
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator*(const Vector2& rhs) const
+	constexpr Vector2<T> Vector2<T>::operator*(const Vector2& rhs) const
 	{
 		return Vector2(*this) *= rhs;
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::operator/(const Vector2& rhs) const
+	constexpr Vector2<T> Vector2<T>::operator/(const Vector2& rhs) const
 	{
 		return Vector2(*this) /= rhs;
 	}
 
 	template<Arithmetic T>
-	inline constexpr bool Vector2<T>::operator==(const Vector2& rhs) const 
+	constexpr bool Vector2<T>::operator==(const Vector2& rhs) const 
 	{
 		return v == rhs.v;
 	}
 	template<Arithmetic T>
-	inline constexpr bool Vector2<T>::operator!=(const Vector2& rhs) const
+	constexpr bool Vector2<T>::operator!=(const Vector2& rhs) const
 	{
 		return v != rhs.v;
 	}
 
 	template<Arithmetic T>
-	inline constexpr auto Vector2<T>::Cross(const Vector2<T>& lhs, T scalar)
+	constexpr auto Vector2<T>::Cross(const Vector2<T>& lhs, T scalar)
 	{
 		return Vector2<T>(scalar * lhs.y, -scalar * lhs.x);
 	}
 	template<Arithmetic T>
-	inline constexpr auto Vector2<T>::Cross(T scalar, const Vector2<T>& lhs)
+	constexpr auto Vector2<T>::Cross(T scalar, const Vector2<T>& lhs)
 	{
 		return Vector2<T>(-scalar * lhs.y, scalar * lhs.x);
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Direction(const Vector2<T>& from, const Vector2<T>& to)
+	constexpr Vector2<T> Vector2<T>::Direction(const Vector2<T>& from, const Vector2<T>& to)
 	{
 		return Vector2<T>(to.x - from.x, to.y - from.y);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Lerp(const Vector2<T>& lhs, const Vector2<T>& rhs, float alpha)
+	constexpr Vector2<T> Vector2<T>::Lerp(const Vector2<T>& lhs, const Vector2<T>& rhs, float alpha)
 	{
 		return Vector2<T>(
 			au::Lerp(lhs.x, rhs.x, alpha),
 			au::Lerp(lhs.y, rhs.y, alpha));
 	}
-	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::RotatePoint(const Vector2<T>& point, const Vector2<T>& center, sf::Angle angle)
-	{
-		const Vector2<T> dir = Direction(center, point);
-
-		float rad = angle.asRadians();
-
-		float s = std::sin(rad);
-		float c = std::cos(rad);
-
-		return Vector2<T>(
-			(dir.x * c - dir.y * s) + center.x,
-			(dir.x * s + dir.y * c) + center.y);
-	}
 
 	template<Arithmetic T>
-	inline constexpr T Vector2<T>::Length() const requires FloatingPoint<T>
+	constexpr T Vector2<T>::Length() const requires FloatingPoint<T>
 	{
 		return v.length();
 	}
 
 	template<Arithmetic T>
-	inline constexpr T Vector2<T>::LengthSq() const requires FloatingPoint<T>
+	constexpr T Vector2<T>::LengthSq() const requires FloatingPoint<T>
 	{
 		return v.lengthSq();
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Normalize(T radius) const requires FloatingPoint<T>
+	constexpr Vector2<T> Vector2<T>::Normalize(T radius) const requires FloatingPoint<T>
 	{
 		return Normalize(v.length(), radius);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Normalize(T length, T radius) const requires FloatingPoint<T>
+	constexpr Vector2<T> Vector2<T>::Normalize(T length, T radius) const requires FloatingPoint<T>
 	{
 		if (length < FLT_EPSILON || std::abs(length - radius) < FLT_EPSILON)
 			return *this;
@@ -432,60 +420,43 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr sf::Angle Vector2<T>::Angle() const requires FloatingPoint<T>
-	{
-		return v.angle();
-	}
-
-	template<Arithmetic T>
-	inline constexpr sf::Angle Vector2<T>::AngleTo(const Vector2& rhs) const requires FloatingPoint<T>
-	{
-		return v.angleTo(rhs);
-	}
-
-	template<Arithmetic T>
-	inline constexpr T Vector2<T>::Dot(const Vector2& rhs) const
+	constexpr T Vector2<T>::Dot(const Vector2& rhs) const
 	{
 		return v.dot(rhs);
 	}
 
 	template<Arithmetic T>
-	inline constexpr T Vector2<T>::Cross(const Vector2& rhs) const
+	constexpr T Vector2<T>::Cross(const Vector2& rhs) const
 	{
 		return v.cross(rhs);
 	}
 
-	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::RotatedBy(sf::Angle phi) const requires FloatingPoint<T>
-	{
-		return v.rotatedBy(phi);
-	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::ProjectedOnto(const Vector2<T>& axis) const requires FloatingPoint<T>
+	constexpr Vector2<T> Vector2<T>::ProjectedOnto(const Vector2<T>& axis) const requires FloatingPoint<T>
 	{
 		return v.projectedOnto(axis);
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Perpendicular() const
+	constexpr Vector2<T> Vector2<T>::Perpendicular() const
 	{
 		return v.perpendicular();
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Orthogonal() const
+	constexpr Vector2<T> Vector2<T>::Orthogonal() const
 	{
 		return -v.perpendicular();
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Limit(T max_length) const requires FloatingPoint<T>
+	constexpr Vector2<T> Vector2<T>::Limit(T max_length) const requires FloatingPoint<T>
 	{
 		return Limit(v.length(), max_length);
 	}
 	template<Arithmetic T> 
-	inline constexpr Vector2<T> Vector2<T>::Limit(T length, T max_length) const requires FloatingPoint<T>
+	constexpr Vector2<T> Vector2<T>::Limit(T length, T max_length) const requires FloatingPoint<T>
 	{
 		if (length > max_length)
 			return Normalize(length, max_length);
@@ -494,19 +465,19 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(const Vector2<T>& min, const Vector2<T>& max) const
+	constexpr Vector2<T> Vector2<T>::Clamp(const Vector2<T>& min, const Vector2<T>& max) const
 	{ 
 		return Vector2<T>(
 			std::clamp(x, min.x, max.x),
 			std::clamp(y, min.y, max.y));
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(T max_length, T min_length) const
+	constexpr Vector2<T> Vector2<T>::Clamp(T max_length, T min_length) const
 	{
 		return Clamp(v.length(), max_length, min_length);
 	}
 	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Clamp(T length, T max_length, T min_length) const
+	constexpr Vector2<T> Vector2<T>::Clamp(T length, T max_length, T min_length) const
 	{
 		if (length > max_length)
 			return Normalize(length, max_length);
@@ -516,31 +487,22 @@ namespace vlx
 		return *this;
 	}
 
-	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Abs() const
-	{
-		return Vector2<T>(std::abs(x), std::abs(y));
-	}
-	template<Arithmetic T>
-	inline constexpr Vector2<T> Vector2<T>::Floor() const
-	{
-		return Vector2<T>(std::floor(x), std::floor(y));
-	}
+	// GLOBAL OPERATORS
 
 	template <Arithmetic T>
-	inline static constexpr Vector2<T> operator *(T lhs, const Vector2<T>& rhs)
+	constexpr Vector2<T> operator *(T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs * rhs.x, lhs * rhs.y };
 	}
 
 	template <Arithmetic T>
-	inline static constexpr Vector2<T> operator -(const sf::Vector2<T> lhs, const Vector2<T>& rhs)
+	constexpr Vector2<T> operator -(const sf::Vector2<T> lhs, const Vector2<T>& rhs)
 	{
 		return Vector2<T>(lhs) - rhs;
 	}
 
 	template <Arithmetic T>
-	inline static constexpr Vector2<T> operator /(T lhs, const Vector2<T>& rhs)
+	constexpr Vector2<T> operator /(T lhs, const Vector2<T>& rhs)
 	{
 		return { lhs / rhs.x, lhs / rhs.y };
 	}

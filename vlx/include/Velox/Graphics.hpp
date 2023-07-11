@@ -7,8 +7,8 @@
 
 #include "Graphics/SpriteAtlas.h"
 #include "Graphics/SpriteBatch.h"
+#include "Graphics/Batchable.h"
 
-#include "Graphics/Components/IBatchable.h"
 #include "Graphics/Components/GlobalTransformDirty.h"
 #include "Graphics/Components/GlobalTransformMatrix.h"
 #include "Graphics/Components/GlobalTransformMatrixInverse.h"

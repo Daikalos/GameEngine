@@ -8,7 +8,6 @@
 
 #include <Velox/System/Event.hpp>
 #include <Velox/System/IDGenerator.h>
-#include <Velox/System/Concepts.h>
 
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/Utility/ContainerUtils.h>

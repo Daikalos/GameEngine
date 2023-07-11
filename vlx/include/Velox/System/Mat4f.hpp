@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/System/Angle.hpp>
 
@@ -13,6 +15,10 @@ namespace vlx
 {
 	class Mat4f
 	{
+	public:
+		static constexpr std::size_t COLUMNS	= 4;
+		static constexpr std::size_t ROWS		= 4;
+
 	public:
 		constexpr Mat4f() = default;
 		constexpr Mat4f(float a00, float a01, float a02,
@@ -200,7 +206,7 @@ namespace vlx
 		union
 		{
 			sf::Transform m_transform{};
-			float m_matrix[4 * 4];
+			std::array<float, 4 * 4> m_matrix;
 		};
 	};
 
@@ -253,11 +259,11 @@ namespace vlx
 
 	constexpr const float* Mat4f::GetMatrix() const noexcept 
 	{
-		return m_matrix;
+		return m_matrix.data();
 	}
 	constexpr float Mat4f::Get(int x, int y) const
 	{
-		return m_matrix[x + y * 4];
+		return m_matrix[x + y * COLUMNS];
 	}
 
 	constexpr Vector2f Mat4f::GetTranslation() const

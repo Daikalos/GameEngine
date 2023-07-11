@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\UI\Components\Label.cpp" />
+    <ClCompile Include="src\UI\Components\Text.cpp" />
     <ClCompile Include="src\Graphics\SpriteBatch.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Input\InputHolder.cpp" />
@@ -61,6 +61,9 @@
     <ClCompile Include="src\Utility\StringUtils.cpp" />
     <ClCompile Include="src\UI\Components\UIBase.cpp" />
     <ClCompile Include="src\ECS\SystemBase.cpp" />
+    <ClCompile Include="src\UI\Components\TextMesh.cpp" />
+    <ClCompile Include="src\UI\Systems\TextSystem.cpp" />
+    <ClCompile Include="src\System\Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -72,7 +75,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\Animation.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceHolder.hpp" />
     <ClInclude Include="include\Velox\Graphics\SpriteBatch.h" />
-    <ClInclude Include="include\Velox\UI\Components\Label.h" />
+    <ClInclude Include="include\Velox\UI\Components\Text.h" />
     <ClInclude Include="include\Velox\Input\Binds.hpp" />
     <ClInclude Include="include\Velox\Input\InputHolder.h" />
     <ClInclude Include="include\Velox\Input\InputHandler.h" />
@@ -105,7 +108,7 @@
     <ClInclude Include="include\Velox\System\WeakEvent.hpp" />
     <ClInclude Include="include\Velox\Input\ButtonEvent.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrix.h" />
-    <ClInclude Include="include\Velox\Graphics\Components\IBatchable.h" />
+    <ClInclude Include="include\Velox\Graphics\Batchable.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
     <ClInclude Include="include\Velox\World\ObjectSystem.h" />
@@ -198,6 +201,8 @@
     <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
     <ClInclude Include="include\Velox\Structures\PriorityQueue.hpp" />
     <ClInclude Include="include\Velox\Structures\RBTree.hpp" />
+    <ClInclude Include="include\Velox\UI\Components\TextMesh.h" />
+    <ClInclude Include="include\Velox\UI\Systems\TextSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

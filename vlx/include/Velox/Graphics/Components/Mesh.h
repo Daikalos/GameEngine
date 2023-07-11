@@ -8,6 +8,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Shader.hpp>
 
+#include <Velox/Graphics/Batchable.h>
+
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Rectangle.hpp>
 
@@ -16,11 +18,9 @@
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
-#include "IBatchable.h"
-
 namespace vlx
 {
-	class VELOX_API Mesh : public IBatchable
+	class VELOX_API Mesh : public Batchable<Mesh>
 	{
 	private:
 		using VertexList	= std::vector<sf::Vertex>;
@@ -43,11 +43,11 @@ namespace vlx
 		const sf::Vertex& operator[](std::size_t i) const;
 
 	public:
-		NODISC const sf::Texture*			GetTexture() const noexcept;
-		NODISC const sf::Shader*			GetShader() const noexcept;
-		NODISC auto							GetVertices() const noexcept -> const VertexList&;
-		NODISC float						GetDepth() const noexcept;
-		NODISC float						GetOpacity() const noexcept;
+		NODISC const sf::Texture*	GetTexture() const noexcept;
+		NODISC const sf::Shader*	GetShader() const noexcept;
+		NODISC auto					GetVertices() const noexcept -> const VertexList&;
+		NODISC float				GetDepth() const noexcept;
+		NODISC float				GetOpacity() const noexcept;
 
 		void SetTexture(const sf::Texture& texture);
 		void SetColor(const sf::Color& color);
@@ -73,7 +73,7 @@ namespace vlx
 		bool Remove(std::size_t i);
 
 	public:
-		void Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const override;
+		void BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const;
 
 	private:
 		const sf::Texture*	m_texture	{nullptr};

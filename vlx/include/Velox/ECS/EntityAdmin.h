@@ -8,7 +8,6 @@
 #include <optional>
 #include <cassert>
 
-#include <Velox/System/Concepts.h>
 #include <Velox/System/Event.hpp>
 #include <Velox/System/IDGenerator.h>
 #include <Velox/Utility/NonCopyable.h>

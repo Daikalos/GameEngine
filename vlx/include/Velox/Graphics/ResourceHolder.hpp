@@ -6,7 +6,6 @@
 #include <thread>
 #include <shared_mutex>
 
-#include <Velox/System/Concepts.h>
 #include <Velox/Utility/NonCopyable.h>
 
 #include <Velox/Config.hpp>
@@ -104,7 +103,7 @@ namespace vlx
 		switch (strat)
 		{
 		case res::LoadStrategy::New:
-			throw std::runtime_error("Failed to load, aleady exists in container");
+			throw std::runtime_error("Failed to load, already exists in container");
 		case res::LoadStrategy::Reload:
 			Release(id);
 			return Load(id, loader);
@@ -117,7 +116,7 @@ namespace vlx
 	inline auto ResourceHolder<R, I>::AcquireAsync(const I& id, const ResourceLoader<R>& loader, res::LoadStrategy strat) -> std::future<ReturnType>
 	{
 		return std::async(std::launch::async, 
-			[this, id, loader, strat]() -> ReturnType // capture all parameters by value
+			[this](I id, ResourceLoader<R> loader, res::LoadStrategy strat) -> ReturnType
 			{
 				ResourcePtr resource = loader(); // we load it first for async benefits
 
@@ -133,14 +132,14 @@ namespace vlx
 				switch (strat)
 				{
 				case res::LoadStrategy::New:
-					throw std::runtime_error("Failed to load, aleady exists in container");
+					throw std::runtime_error("Failed to load, already exists in container");
 				case res::LoadStrategy::Reload:
 					Release(id);
 					return Insert(id, resource);
 				default: // reuse as default
 					return *it->second;
 				}
-			});
+			}, id, loader, strat);
 	}
 
 	template<class R, typename I>
@@ -175,7 +174,7 @@ namespace vlx
 	template<class R, typename I>
 	inline auto ResourceHolder<R, I>::Insert(const I& id, ResourcePtr& resource) -> ReturnType
 	{
-		return *m_resources.emplace(id, std::move(resource)).first->second;
+		return *m_resources.try_emplace(id, std::move(resource)).first->second;
 	}
 }
 

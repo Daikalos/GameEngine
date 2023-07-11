@@ -5,13 +5,21 @@
 #include <array>
 #include <span>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 
-#include <Velox/Graphics/Components/IBatchable.h>
 #include <Velox/System/Mat4f.hpp>
 
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
+
+#include "Batchable.h"
 
 namespace vlx
 {
@@ -23,7 +31,7 @@ namespace vlx
 		Texture,
 	};
 
-	/// SpriteBatch used to combine similar textures or shaders to reduce number of drawcalls. 
+	/// SpriteBatch used to combine similar textures to reduce number of draw-calls. 
 	///
 	class VELOX_API SpriteBatch final : public sf::Drawable
 	{
@@ -54,7 +62,7 @@ namespace vlx
 		{
 			const sf::Texture*	texture	{nullptr};
 			const sf::Shader*	shader	{nullptr};
-			uint64				count	{0};
+			std::size_t			count	{0};
 		};
 
 	public:
@@ -71,8 +79,9 @@ namespace vlx
 			const sf::Shader* shader, 
 			float depth = 0.0f);
 
+		template<IsBatchable T>
 		void Batch(
-			const IBatchable& batchable, 
+			const Batchable<T>& batchable,
 			const Mat4f& transform,
 			float depth = 0.0f);
 
@@ -110,5 +119,11 @@ namespace vlx
 		BatchMode						m_batch_mode		{BatchMode::Deferred};
 		mutable bool					m_update_required	{true};
 	};
+
+	template<IsBatchable T>
+	inline void SpriteBatch::Batch(const Batchable<T>& batchable, const Mat4f& transform, float depth)
+	{
+		batchable.Batch(*this, transform, depth);
+	}
 }
 

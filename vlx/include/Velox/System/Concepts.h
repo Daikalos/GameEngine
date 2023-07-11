@@ -65,21 +65,4 @@ namespace vlx // concepts is the best thing ever
 
 	template<class T, class... Args>
 	concept Contains = std::disjunction_v<std::is_same<T, Args>...>;
-
-	// UNIQUE
-
-
-	template<class I>
-	concept HasButtonInput = requires(I input)
-	{
-		{ input.Pressed(typename I::ButtonType()) } -> std::same_as<bool>;
-		{ input.Released(typename I::ButtonType()) } -> std::same_as<bool>;
-		{ input.Held(typename I::ButtonType()) } -> std::same_as<bool>;
-	};
-
-	template<class C>
-	concept IsComponent = std::is_class_v<C> && std::semiregular<C> && sizeof(C) >= 1 && sizeof(C) <= std::numeric_limits<uint32>::max();
-
-	template<class... Cs>
-	concept IsComponents = (IsComponent<Cs> && ...) && Exists<Cs...> && NoDuplicates<Cs...>;
 }
