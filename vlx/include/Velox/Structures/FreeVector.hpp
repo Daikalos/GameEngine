@@ -9,6 +9,8 @@
 
 namespace vlx
 {
+	// TODO: add docs
+
 	template<class T>
 	class FreeVector
 	{
@@ -34,6 +36,7 @@ namespace vlx
 
 		NODISC constexpr bool empty() const noexcept;
 		NODISC constexpr auto size() const noexcept -> size_type;
+		NODISC constexpr auto count() const noexcept -> size_type;
 
 		NODISC constexpr auto max_size() const noexcept -> size_type;
 
@@ -100,6 +103,12 @@ namespace vlx
 
 	template<class T>
 	inline constexpr auto FreeVector<T>::size() const noexcept -> size_type
+	{
+		return static_cast<size_type>(m_data.size());
+	}
+
+	template<class T>
+	inline constexpr auto FreeVector<T>::count() const noexcept -> size_type
 	{
 		return m_count;
 	}

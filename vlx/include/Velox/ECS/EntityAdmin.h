@@ -724,7 +724,7 @@ namespace vlx
 		}
 
 		new_archetype->entities.emplace_back(entity_id);
-		record.index		= IDType(new_archetype->entities.size() - 1);
+		record.index		= static_cast<IDType>(new_archetype->entities.size() - 1);
 		record.archetype	= new_archetype;
 
 		if constexpr (HasEvent<C, CreatedEvent>) // call associated event
@@ -918,7 +918,7 @@ namespace vlx
 
 		static constexpr ComponentTypeID component_id = GetComponentID<C>();
 
-		const auto CheckComponentPtr = [this, entity_id, &component]<IsComponent C>()
+		const auto CheckComponentPtr = [this, entity_id, &component]()
 		{
 			if (component == nullptr)
 				component = TryGetComponent<C>(entity_id);
@@ -929,16 +929,16 @@ namespace vlx
 		const auto cit = references.find(component_id);
 		if (cit == references.end()) // it does not yet exist
 		{
-			CheckComponentPtr.template operator()<C>();
+			CheckComponentPtr();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(component);
 
 			DataRef data{};
-			data.component_ptr = ptr;
-			data.flag = DataRef::R_Component;
+			data.component_ptr	= ptr;
+			data.flag			= DataRef::R_Component;
 
-			references.emplace(component_id, data);
+			references.try_emplace(component_id, data);
 
 			return ComponentRef<C>(ptr);
 		}
@@ -946,7 +946,7 @@ namespace vlx
 		DataRef& data = cit->second;
 		if ((data.flag & DataRef::R_Component) == DataRef::R_Component && data.component_ptr.expired())
 		{
-			CheckComponentPtr.template operator()<C>();
+			CheckComponentPtr();
 
 			std::shared_ptr<void*> ptr
 				= std::make_shared<void*>(component);
@@ -964,7 +964,7 @@ namespace vlx
 	{
 		auto& component_refs = m_entity_component_ref_map[entity_id]; // will construct new if it does not exist
 
-		const auto CheckBasePtr = [this, entity_id, child_component_id, offset, &base]<class B>()
+		const auto CheckBasePtr = [this, entity_id, child_component_id, offset, &base]()
 		{
 			if (base == nullptr)
 				base = TryGetBase<B>(entity_id, child_component_id, offset);
@@ -973,7 +973,7 @@ namespace vlx
 		const auto cit = component_refs.find(child_component_id);
 		if (cit == component_refs.end()) // it does not yet exist
 		{
-			CheckBasePtr.template operator()<B>();
+			CheckBasePtr();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(base);
@@ -991,7 +991,7 @@ namespace vlx
 		DataRef& data = cit->second;
 		if ((data.flag & DataRef::R_Base) == DataRef::R_Base && data.base_ptr.expired())
 		{
-			CheckBasePtr.template operator()<B>();
+			CheckBasePtr();
 
 			std::shared_ptr<void*> ptr 
 				= std::make_shared<void*>(base);

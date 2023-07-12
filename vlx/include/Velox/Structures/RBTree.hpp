@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 
+#include <Velox/System/Concepts.h>
 #include <Velox/Utility/NonCopyable.h>
 
 namespace vlx

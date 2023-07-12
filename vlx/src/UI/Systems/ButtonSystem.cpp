@@ -25,7 +25,7 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 				auto& base			= us[i];
 				auto& button		= bs[i];
 
-				button.m_flags = NULL;
+				button.m_flags = Button::E_None;
 
 				if (object.GetActive())
 				{

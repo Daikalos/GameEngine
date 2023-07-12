@@ -93,7 +93,7 @@ void BroadSystem::GatherCollisions()
 			if (!rhs.collider->GetEnabled() || !lhs.collider->layer.HasAny(rhs.collider->layer)) // enabled and matching layer
 				continue;
 
-			if (lhs.body != nullptr && rhs.body != nullptr) // if both are physics body, do an early check to see if valid
+			if (lhs.body != nullptr && rhs.body != nullptr) // if both have a physics body, do an early check to see if valid
 			{
 				const bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
 				const bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
@@ -163,8 +163,8 @@ void BroadSystem::RemoveBody(EntityID eid)
 
 	it2->second = it1->second;
 
-	m_entity_body_map.erase(eid);
 	cu::SwapPopAt(m_bodies, it1->second);
+	m_entity_body_map.erase(it1);
 }
 
 bool BroadSystem::HasDataForCollision(const CollisionObject& object)

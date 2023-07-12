@@ -15,6 +15,7 @@ namespace vlx::ui
 	public:
 		enum Event : uint8
 		{
+			E_None		= 0,
 			E_Pressed	= 1 << 0,
 			E_Clicked	= 1 << 1,
 			E_Released	= 1 << 2,
@@ -30,7 +31,7 @@ namespace vlx::ui
 		void Exit();
 
 	private:
-		uint8	m_flags;
+		uint8	m_flags		{E_None};
 
 		bool	m_pressed	{false};
 		bool	m_entered	{false};

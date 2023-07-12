@@ -30,10 +30,10 @@ namespace vlx
 	{
 		C* data_location = new (data) C();
 
+		static constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
+
 		if constexpr (HasEvent<C, CreatedEvent>)
 			data_location->Created(entity_admin, entity_id);
-
-		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
 
 		entity_admin.CallOnAddEvent(component_id, entity_id, static_cast<void*>(data_location));
 	}
@@ -43,10 +43,10 @@ namespace vlx
 	{
 		C* data_location = std::launder(reinterpret_cast<C*>(data)); // launder allows for changing the type of object (makes the type cast legal in certain cases)
 
+		static constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
+
 		if constexpr (HasEvent<C, DestroyedEvent>)
 			data_location->Destroyed(entity_admin, entity_id); // call associated event
-
-		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
 
 		entity_admin.CallOnRemoveEvent(component_id, entity_id, static_cast<void*>(data_location));
 		entity_admin.EraseComponentRef(entity_id, component_id); // make sure that current references are reset
@@ -59,10 +59,10 @@ namespace vlx
 	{
 		C* data_location = new (destination) C(std::move(*reinterpret_cast<C*>(source))); // move the data in src by constructing a object at dest with the values from src
 
+		static constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
+
 		if constexpr (HasEvent<C, MovedEvent>)
 			data_location->Moved(entity_admin, entity_id); // call associated event
-
-		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
 
 		entity_admin.CallOnMoveEvent(component_id, entity_id, static_cast<void*>(data_location));
 		entity_admin.UpdateComponentRef(entity_id, component_id, static_cast<void*>(data_location)); // update the current references
@@ -82,7 +82,7 @@ namespace vlx
 	{
 		// * not really used right now, could be handy in the future
 
-		constexpr auto size = sizeof(C);
+		static constexpr auto size = sizeof(C);
 
 		std::byte temp[size];
 		std::memcpy(temp, d0, size);
@@ -108,10 +108,10 @@ namespace vlx
 		C* source_location	= std::launder(reinterpret_cast<C*>(source));		// Retrieve pointer to source location
 		C* dest_location	= new (destination) C(std::move(*source_location));	// move the data in src by constructing a object at dest with the values from src
 
+		static constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
+
 		if constexpr (HasEvent<C, MovedEvent>)
 			dest_location->Moved(entity_admin, entity_id);	// call associated event
-
-		constexpr auto component_id = ComponentAlloc<C>::GetTypeID();
 
 		entity_admin.CallOnMoveEvent(component_id, entity_id, static_cast<void*>(dest_location));
 		entity_admin.UpdateComponentRef(entity_id, component_id, static_cast<void*>(dest_location)); // update the current references with the new data
