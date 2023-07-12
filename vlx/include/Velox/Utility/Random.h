@@ -34,7 +34,7 @@ namespace vlx::rnd
 		return uid(dre);
 	}
 
-	///	Creates a numerically increasing list of values up to size that are then shuffled and finally returned
+	///	Creates a numerically increasing list of values up to size that are then shuffled and returned
 	/// 
 	template<Arithmetic T>
 	NODISC inline auto vector(T size)
@@ -48,7 +48,7 @@ namespace vlx::rnd
 		return result;
 	}
 
-	///	Creates a numerically increasing list of values up to size that are then shuffled and finally returned
+	///	Creates a numerically increasing list of values up to size that are then shuffled and returned
 	/// 
 	template<Arithmetic T, std::size_t N>
 	NODISC inline auto array()

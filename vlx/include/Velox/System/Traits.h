@@ -55,7 +55,7 @@ namespace vlx::traits
 
     namespace details
     {
-        template<uint64 Index, typename T, typename Tuple>
+        template<std::size_t Index, typename T, typename Tuple>
         static constexpr uint64 IndexInTupleFn()
         {
             static_assert(Index < std::tuple_size_v<Tuple>, "The element is not in the tuple");
@@ -75,7 +75,7 @@ namespace vlx::traits
     template<typename T, typename Tuple>
     struct IndexInTuple
     {
-        static constexpr uint64 value = details::IndexInTupleFn<0, T, Tuple>();
+        static constexpr std::size_t value = details::IndexInTupleFn<0, T, Tuple>();
     };
 
     /// Sorts a tuple given a comparator, e.g., DescendingID

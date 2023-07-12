@@ -4,7 +4,13 @@
 
 using namespace vlx::ui;
 
-//void TextMesh::Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
-//{
-//	//sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_t )
-//}
+void TextMesh::BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const
+{
+	if (m_texture)
+	{
+		if (m_draw_outline)
+			sprite_batch.Batch(transform, m_outline, GetPrimitive(), m_texture, nullptr, m_depth);
+
+		sprite_batch.Batch(transform, m_vertices, GetPrimitive(), m_texture, nullptr, m_depth);
+	}
+}

@@ -401,9 +401,9 @@ void EntityAdmin::AddComponents(EntityID entity_id, ComponentIDSpan component_id
 		}
 	}
 
-	new_archetype->entities.push_back(entity_id);
-	record.index = IDType(new_archetype->entities.size() - 1);
-	record.archetype = new_archetype;
+	new_archetype->entities.emplace_back(entity_id);
+	record.index		= static_cast<IDType>(new_archetype->entities.size() - 1);
+	record.archetype	= new_archetype;
 }
 
 bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id)
@@ -417,8 +417,8 @@ bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component
 	if (eit == m_entity_archetype_map.end())
 		return false;
 
-	Record& record = eit->second;
-	Archetype* old_archetype = record.archetype;
+	Record& record				= eit->second;
+	Archetype* old_archetype	= record.archetype;
 
 	if (old_archetype == nullptr) // not registered anyways, nothing to remove from
 		return false;
@@ -462,10 +462,10 @@ bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component
 	}
 
 	old_archetype->entities.pop_back();
-	new_archetype->entities.push_back(entity_id);
+	new_archetype->entities.emplace_back(entity_id);
 
-	record.index = IDType(new_archetype->entities.size() - 1);
-	record.archetype = new_archetype;
+	record.index		= static_cast<IDType>(new_archetype->entities.size() - 1);
+	record.archetype	= new_archetype;
 
 	return true;
 }
@@ -545,7 +545,7 @@ Archetype* EntityAdmin::CreateArchetype(ComponentIDSpan component_ids, Archetype
 		new_archetype->component_data.emplace_back(std::make_unique_for_overwrite<ByteArray>(DEFAULT_BYTE_SIZE));
 		new_archetype->component_data_size.emplace_back(DEFAULT_BYTE_SIZE);
 
-		m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = ColumnType(i);
+		m_component_archetypes_map[new_archetype->type[i]][archetype_id].column = static_cast<ColumnType>(i);
 	}
 
 	m_archetype_cache.clear(); // unfortunately for now, we'll have to clear the cache whenever an archetype has been added
@@ -606,10 +606,9 @@ EntityID EntityAdmin::Duplicate(EntityID entity_id)
 			&archetype->component_data[i][current_size]);
 	}
 
-	archetype->entities.push_back(new_entity_id);
-
-	new_record.index = IDType(archetype->entities.size() - 1);
-	new_record.archetype = archetype;
+	archetype->entities.emplace_back(new_entity_id);
+	new_record.index		= static_cast<IDType>(archetype->entities.size() - 1);
+	new_record.archetype	= archetype;
 
 	return new_entity_id;
 }

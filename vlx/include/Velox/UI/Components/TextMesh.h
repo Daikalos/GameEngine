@@ -12,20 +12,29 @@
 
 namespace vlx::ui
 {
-	class VELOX_API TextMesh final
+	class VELOX_API TextMesh final : public Batchable<TextMesh>
 	{
 	private:
 		using VertexArray = std::vector<sf::Vertex>;
 
 	public:
+		TextMesh() = default;
+
+	public:
 		NODISC constexpr sf::PrimitiveType GetPrimitive() const noexcept;
 
 	public:
-		//void Batch(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const override;
+		void BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const;
 
 	private:
-		mutable VertexArray	m_vertices;
-		mutable VertexArray	m_outline;
+		const sf::Texture*		m_texture;
+		float					m_depth			{0.0f};
+		bool					m_draw_outline	{false};
+
+		mutable VertexArray		m_vertices;
+		mutable VertexArray		m_outline;
+
+		friend class TextSystem;
 	};
 
 	constexpr sf::PrimitiveType	TextMesh::GetPrimitive() const noexcept

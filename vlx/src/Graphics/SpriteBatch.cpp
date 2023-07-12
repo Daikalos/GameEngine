@@ -3,12 +3,12 @@
 using namespace vlx;
 
 SpriteBatch::Triangle::Triangle(
-	sf::Vertex&& v0, 
-	sf::Vertex&& v1, 
-	sf::Vertex&& v2, 
+	const sf::Vertex& v0,
+	const sf::Vertex& v1,
+	const sf::Vertex& v2,
 	const sf::Texture* t, 
 	const sf::Shader* s, 
-	float d) : vertices{ std::move(v0), std::move(v1), std::move(v2) }, texture(t), shader(s), depth(d) { }
+	float d) : vertices{ v0, v1, v2 }, texture(t), shader(s), depth(d) { }
 
 void SpriteBatch::SetBatchMode(BatchMode batch_mode)
 {
@@ -163,8 +163,8 @@ void SpriteBatch::CreateBatches() const
 	{
 		const Triangle& triangle = m_triangles[m_indices[next]];
 
-		auto next_texture = triangle.texture;
-		auto next_shader = triangle.shader;
+		const auto next_texture	= triangle.texture;
+		const auto next_shader	= triangle.shader;
 
 		if (next_texture != last_texture || next_shader != last_shader)
 		{
@@ -173,7 +173,7 @@ void SpriteBatch::CreateBatches() const
 			start = next;
 		}
 
-		for (uint64 i = 0; i < TRIANGLE_COUNT; ++i)
+		for (std::size_t i = 0; i < TRIANGLE_COUNT; ++i)
 			m_vertices[next * TRIANGLE_COUNT + i] = triangle.vertices[i];
 	}
 

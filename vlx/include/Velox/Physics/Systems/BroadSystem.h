@@ -28,7 +28,8 @@ namespace vlx
 	class VELOX_API BroadSystem final 
 	{
 	private:
-		static constexpr int OBJ_SIZE = 6;
+		static constexpr int OBJ_SIZE	= 6;
+		static constexpr int NULL_BODY	= -1;
 
 	public:
 		using CollisionPair			= std::pair<uint32, uint32>;
@@ -54,12 +55,14 @@ namespace vlx
 		CollisionObject& GetBody(uint32 i) noexcept;
 
 	private:
-		void GatherPossibleCollisions();
-
+		void GatherCollisions();
 		void CullDuplicates();
 
-		int TryAddNewObject(EntityID eid);
-		bool TryRemoveEmptyObject(uint32 index);
+		int CreateBody(EntityID eid, Shape* shape, typename Shape::Type type);
+		int FindBody(EntityID eid);
+		void RemoveBody(EntityID eid);
+
+		static bool HasDataForCollision(const CollisionObject& object);
 
 		void RegisterEvents();
 		void DeregisterEvents();
@@ -76,7 +79,7 @@ namespace vlx
 		ShapeInserter<Polygon>		m_polygons;
 
 		EntityBodyMap				m_entity_body_map;
-		BodyList					m_bodies;			// TODO: maybe move this data to physics system
+		BodyList					m_bodies;
 
 		CollisionList				m_collisions;
 

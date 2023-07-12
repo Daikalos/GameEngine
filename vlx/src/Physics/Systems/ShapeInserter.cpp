@@ -17,24 +17,18 @@ ShapeInserter<S>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSy
 
 	m_on_add_id = entity_admin.RegisterOnAddListener<S>([this](EntityID eid, S& s)
 		{
-			int i = m_broad.TryAddNewObject(eid);
-			m_broad.m_bodies[i].shape = &s;
-			m_broad.m_bodies[i].type = s.GetType();
+			m_broad.CreateBody(eid, &s, s.GetType());
 		});
 
 	m_on_move_id = entity_admin.RegisterOnMoveListener<S>([this](EntityID eid, S& s)
 		{
-			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
-				m_broad.m_bodies[it->second].shape = &s;
+			if (auto i = m_broad.FindBody(eid); i != BroadSystem::NULL_BODY)
+				m_broad.m_bodies[i].shape = &s;
 		});
 
 	m_on_remove_id = entity_admin.RegisterOnRemoveListener<S>([this](EntityID eid, S& s)
 		{
-			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
-			{
-				m_broad.m_bodies[it->second].shape = nullptr;
-				m_broad.TryRemoveEmptyObject(it->second);
-			}
+			m_broad.RemoveBody(eid);
 		});
 }
 
@@ -69,24 +63,18 @@ ShapeInserter<Point>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, Bro
 {
 	m_on_add_id = entity_admin.RegisterOnAddListener<Point>([this](EntityID eid, Point& p)
 		{
-			int i = m_broad.TryAddNewObject(eid);
-			m_broad.m_bodies[i].shape = &p;
-			m_broad.m_bodies[i].type = p.GetType();
+			m_broad.CreateBody(eid, &p, p.GetType());
 		});
 
 	m_on_move_id = entity_admin.RegisterOnMoveListener<Point>([this](EntityID eid, Point& p)
 		{
-			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
-				m_broad.m_bodies[it->second].shape = &p;
+			if (auto i = m_broad.FindBody(eid); i != BroadSystem::NULL_BODY)
+				m_broad.m_bodies[i].shape = &p;
 		});
 
 	m_on_remove_id = entity_admin.RegisterOnRemoveListener<Point>([this](EntityID eid, Point& p)
 		{
-			if (auto it = m_broad.m_entity_body_map.find(eid); it != m_broad.m_entity_body_map.end())
-			{
-				m_broad.m_bodies[it->second].shape = nullptr;
-				m_broad.TryRemoveEmptyObject(it->second);
-			}
+			m_broad.RemoveBody(eid);
 		});
 }
 

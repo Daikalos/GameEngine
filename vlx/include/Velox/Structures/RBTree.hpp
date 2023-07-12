@@ -306,25 +306,23 @@ namespace vlx
 				if (x != nullptr)
 					x->parent = y;
 
-				auto pz			= Transplant(node, std::move(node->right));
-				y->left			= std::move(pz->left);
+				NodePtr pn		= Transplant(node, std::move(node->right));
+				y->left			= std::move(node->left);
 				y->left->parent = y;
-				y->color		= pz->color;
+				y->color		= node->color;
 			}
 			else 
 			{
 				xp = y->parent;
 
 				NodePtr py			= Transplant(y, std::move(y->right));
-				py->right			= std::move(node->right);
-				py->right->parent	= py.get();
+				y->right			= std::move(node->right);
+				y->right->parent	= y;
 
-				Node* temp			= py.get();
-
-				NodePtr pz			= Transplant(node, std::move(py));
-				temp->left			= std::move(pz->left);
-				temp->left->parent	= temp;
-				temp->color			= pz->color;
+				NodePtr pn			= Transplant(node, std::move(py));
+				y->left				= std::move(node->left);
+				y->left->parent		= y;
+				y->color			= node->color;
 			}
 		}
 

@@ -44,9 +44,9 @@ namespace vlx
 		struct VELOX_API Triangle
 		{
 			Triangle(
-				sf::Vertex&& v0, 
-				sf::Vertex&& v1, 
-				sf::Vertex&& v2, 
+				const sf::Vertex& v0,
+				const sf::Vertex& v1,
+				const sf::Vertex& v2,
 				const sf::Texture* t, 
 				const sf::Shader* s, 
 				float d);

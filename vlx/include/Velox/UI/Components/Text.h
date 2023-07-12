@@ -16,7 +16,7 @@ namespace vlx::ui
 	class VELOX_API Text
 	{
 	public:
-		enum Style
+		enum Style : uint8
 		{
 			Regular			= 0,
 			Bold			= 1 << 0,
@@ -26,7 +26,25 @@ namespace vlx::ui
 		};
 
 	public:
+		const std::string&	GetString() const noexcept;
+		const sf::Font*		GetFont() const noexcept;
+		const uint32		GetCharacterSize() const noexcept;
+		float				GetLetterSpacing() const noexcept;
+		float				GetLineSpacing() const noexcept;
+		float				GetOutlineThickness() const noexcept;
+		sf::Color			GetFillColor() const noexcept;
+		sf::Color			GetOutlineColor() const noexcept;
+		uint8				GetStyle() const noexcept;
 
+		void SetString(				const std::string& text);
+		void SetFont(				const sf::Font* font);
+		void SetCharacterSize(		uint32 character_size);
+		void SetLetterSpacing(		float spacing_factor);
+		void SetLineSpacing(		float spacing_factor);
+		void SetOutlineThickness(	float thickness);
+		void SetFillColor(			const sf::Color& color);
+		void SetOutlineColor(		const sf::Color& color);
+		void SetStyle(				uint8 style);
 
 	private:
 		std::string		m_text;
@@ -34,11 +52,13 @@ namespace vlx::ui
 		uint32			m_character_size		{30};
 		float			m_letter_spacing_factor {1.0f};
 		float			m_line_spacing_factor	{1.0f};
-		uint8			m_style					{Regular};
+		float			m_outline_thickness		{0.0f};
 		sf::Color		m_fill_color			{sf::Color::White};
 		sf::Color		m_outline_color			{sf::Color::Black};
-		float			m_outline_thickness		{0.0f};
+		uint8			m_style					{Regular};
 		bool			m_update_mesh			{true};
+
+		friend class TextSystem;
 	};
 }
 

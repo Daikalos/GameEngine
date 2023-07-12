@@ -723,14 +723,14 @@ namespace vlx
 				C(std::forward<Args>(args)...);
 		}
 
+		new_archetype->entities.emplace_back(entity_id);
+		record.index		= IDType(new_archetype->entities.size() - 1);
+		record.archetype	= new_archetype;
+
 		if constexpr (HasEvent<C, CreatedEvent>) // call associated event
 			add_component->Created(*this, entity_id);
 
 		CallOnAddEvent(add_component_id, entity_id, static_cast<void*>(add_component));
-
-		new_archetype->entities.push_back(entity_id);
-		record.index = IDType(new_archetype->entities.size() - 1);
-		record.archetype = new_archetype;
 
 		return add_component;
 	}

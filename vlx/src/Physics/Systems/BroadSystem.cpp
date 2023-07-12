@@ -31,7 +31,7 @@ void BroadSystem::Update()
 
 	m_quad_tree.Cleanup(); // have to cleanup in case of erase
 
-	GatherPossibleCollisions();
+	GatherCollisions();
 
 	CullDuplicates();
 }
@@ -55,35 +55,39 @@ CollisionObject& BroadSystem::GetBody(uint32 i) noexcept
 	return m_bodies[i];
 }
 
-void BroadSystem::GatherPossibleCollisions()
+void BroadSystem::GatherCollisions()
 {
+	const auto QueryResult = [this](const CollisionObject& object)
+	{
+		switch (object.type)
+		{
+		case Shape::Point:
+			return m_quad_tree.Query(object.shape->GetCenter());
+		default:
+			return m_quad_tree.Query(object.shape->GetAABB());
+		}
+	};
+
 	for (std::size_t i = 0; i < m_bodies.size(); ++i)
 	{
 		const auto& lhs = m_bodies[i];
 
-		if (lhs.shape == nullptr || lhs.collider == nullptr || lhs.transform == nullptr) // safety checks
+		if (!HasDataForCollision(lhs)) [[unlikely]] // unlikely since if you added a shape, you will likely have the other data as well
 			continue;
 
 		if (!lhs.collider->GetEnabled())
 			continue;
 
-		std::vector<QuadTreeType::value_type> query;
+		std::vector<QuadTreeType::value_type> query = QueryResult(lhs);
 
-		switch (lhs.type)
+		for (const auto j : query)
 		{
-		case Shape::Point:	query = m_quad_tree.Query(lhs.shape->GetCenter()); break;
-		default:			query = m_quad_tree.Query(lhs.shape->GetAABB()); break;
-		}
+			const auto& rhs = m_bodies[j];
 
-		for (std::size_t j = 0; j < query.size(); ++j)
-		{
-			const auto elt = query[j];
-			const auto& rhs = m_bodies[elt];
-
-			if (i == elt) // skip same body
+			if (lhs.entity_id == rhs.entity_id) // skip same body
 				continue;
 
-			if (rhs.shape == nullptr || rhs.collider == nullptr || rhs.transform == nullptr)
+			if (!HasDataForCollision(rhs)) [[unlikely]]
 				continue;
 
 			if (!rhs.collider->GetEnabled() || !lhs.collider->layer.HasAny(rhs.collider->layer)) // enabled and matching layer
@@ -91,14 +95,14 @@ void BroadSystem::GatherPossibleCollisions()
 
 			if (lhs.body != nullptr && rhs.body != nullptr) // if both are physics body, do an early check to see if valid
 			{
-				bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
-				bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
+				const bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
+				const bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
 
 				if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
 					continue;
 			}
 
-			m_collisions.emplace_back(i, elt);
+			m_collisions.emplace_back(i, j);
 		}
 	}
 }
@@ -120,39 +124,52 @@ void BroadSystem::CullDuplicates()
 	m_collisions.erase(first, last);
 }
 
-int BroadSystem::TryAddNewObject(EntityID eid)
+int BroadSystem::CreateBody(EntityID eid, Shape* shape, typename Shape::Type type)
 {
-	const auto it = m_entity_body_map.find(eid);
-	if (it == m_entity_body_map.end())
-	{
-		m_bodies.emplace_back(eid);
-		m_entity_body_map.emplace(eid, m_bodies.size() - 1);
+	assert(!m_entity_body_map.contains(eid));
 
-		return static_cast<int>(m_bodies.size() - 1);
-	}
+	CollisionObject& object = m_bodies.emplace_back(eid, type);
 
-	return it->second;
+	object.shape		= shape;
+	object.collider		= m_entity_admin->TryGetComponent<Collider>(eid);
+	object.body			= m_entity_admin->TryGetComponent<PhysicsBody>(eid);
+	object.transform	= m_entity_admin->TryGetComponent<Transform>(eid);
+
+	object.enter		= m_entity_admin->TryGetComponent<ColliderEnter>(eid);
+	object.exit			= m_entity_admin->TryGetComponent<ColliderExit>(eid);
+	object.overlap		= m_entity_admin->TryGetComponent<ColliderOverlap>(eid);
+
+	return m_entity_body_map.try_emplace(eid, m_bodies.size() - 1).first->second;
 }
 
-bool BroadSystem::TryRemoveEmptyObject(uint32 index)
+int BroadSystem::FindBody(EntityID eid)
 {
-	const CollisionObject& object = m_bodies[index];
+	if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
+		return it->second;
 
-	if (object.body || object.collider || object.shape || object.enter || object.exit || object.overlap)
-		return false;
+	return NULL_BODY;
+}
 
-	const auto it = m_entity_body_map.find(m_bodies.back().entity_id);
-	assert(it != m_entity_body_map.end() && "Entity should be in the map");
+void BroadSystem::RemoveBody(EntityID eid)
+{
+	const auto it1 = m_entity_body_map.find(eid);
+	assert(it1 != m_entity_body_map.end() && "Entity should be in the map");
 
-	if (m_bodies[it->second].collider)
-		m_bodies[it->second].collider->Update(index); // update the index in the quad tree
+	const auto it2 = m_entity_body_map.find(m_bodies.back().entity_id);
+	assert(it2 != m_entity_body_map.end() && "Entity should be in the map");
 
-	it->second = index;
+	if (m_bodies[it2->second].collider)
+		m_bodies[it2->second].collider->Update(it1->second); // update the index in the quad tree
 
-	m_entity_body_map.erase(object.entity_id);
-	cu::SwapPopAt(m_bodies, index);
+	it2->second = it1->second;
 
-	return true;
+	m_entity_body_map.erase(eid);
+	cu::SwapPopAt(m_bodies, it1->second);
+}
+
+bool BroadSystem::HasDataForCollision(const CollisionObject& object)
+{
+	return object.shape != nullptr && object.collider != nullptr && object.transform != nullptr; // safety checks
 }
 
 void BroadSystem::RegisterEvents()
@@ -160,145 +177,127 @@ void BroadSystem::RegisterEvents()
 	m_add_ids[0] = m_entity_admin->RegisterOnAddListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
-			int i = TryAddNewObject(eid);
-			m_bodies[i].collider = &c;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].collider = &c;
 		});
 
 	m_add_ids[1] = m_entity_admin->RegisterOnAddListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
-			int i = TryAddNewObject(eid);
-			m_bodies[i].body = &pb;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				 m_bodies[i].body = &pb;
 		});
 
 	m_add_ids[2] = m_entity_admin->RegisterOnAddListener<Transform>(
 		[this](EntityID eid, Transform& t)
 		{
-			int i = TryAddNewObject(eid);
-			m_bodies[i].transform = &t;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].transform = &t;
 		});
 
 	m_add_ids[3] = m_entity_admin->RegisterOnAddListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
-			int i = TryAddNewObject(eid);
-			m_bodies[i].enter = &e;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].enter = &e;
 		});
 
 	m_add_ids[4] = m_entity_admin->RegisterOnAddListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
-			int i = TryAddNewObject(eid);
-			m_bodies[i].exit = &e;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].exit = &e;
 		});
 
 	m_add_ids[5] = m_entity_admin->RegisterOnAddListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
-			int i = TryAddNewObject(eid);
-			m_bodies[i].overlap = &o;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].overlap = &o;
 		});
 
 	m_mov_ids[0] = m_entity_admin->RegisterOnMoveListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-				m_bodies[it->second].collider = &c;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].collider = &c;
 		});
 
 	m_mov_ids[1] = m_entity_admin->RegisterOnMoveListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-				m_bodies[it->second].body = &pb;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].body = &pb;
 		});
 
 	m_mov_ids[2] = m_entity_admin->RegisterOnMoveListener<Transform>(
 		[this](EntityID eid, Transform& t)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-				m_bodies[it->second].transform = &t;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].transform = &t;
 		});
 
 	m_mov_ids[3] = m_entity_admin->RegisterOnMoveListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-				m_bodies[it->second].enter = &e;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].enter = &e;
 		});
 
 	m_mov_ids[4] = m_entity_admin->RegisterOnMoveListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-				m_bodies[it->second].exit = &e;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].exit = &e;
 		});
 
 	m_mov_ids[5] = m_entity_admin->RegisterOnMoveListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-				m_bodies[it->second].overlap = &o;
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].overlap = &o;
 		});
 
 	m_rmv_ids[0] = m_entity_admin->RegisterOnRemoveListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-			{
-				m_bodies[it->second].collider = nullptr;
-				TryRemoveEmptyObject(it->second);
-			}
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].collider = nullptr;
 		});
 
 	m_rmv_ids[1] = m_entity_admin->RegisterOnRemoveListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-			{
-				m_bodies[it->second].body = nullptr;
-				TryRemoveEmptyObject(it->second);
-			}
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].body = nullptr;
 		});
 
 	m_rmv_ids[2] = m_entity_admin->RegisterOnRemoveListener<Transform>(
 		[this](EntityID eid, Transform& t)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-			{
-				m_bodies[it->second].transform = nullptr;
-				TryRemoveEmptyObject(it->second);
-			}
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].transform = nullptr;
 		});
 
 	m_rmv_ids[3] = m_entity_admin->RegisterOnRemoveListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-			{
-				m_bodies[it->second].enter = nullptr;
-				TryRemoveEmptyObject(it->second);
-			}
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].enter = nullptr;
 		});
 
 	m_rmv_ids[4] = m_entity_admin->RegisterOnRemoveListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-			{
-				m_bodies[it->second].exit = nullptr;
-				TryRemoveEmptyObject(it->second);
-			}
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].exit = nullptr;
 		});
 
 	m_rmv_ids[5] = m_entity_admin->RegisterOnRemoveListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
-			if (auto it = m_entity_body_map.find(eid); it != m_entity_body_map.end())
-			{
-				m_bodies[it->second].overlap = nullptr;
-				TryRemoveEmptyObject(it->second);
-			}
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].overlap = nullptr;
 		});
 
 	m_comp_ids[0] = m_entity_admin->GetComponentID<Collider>();

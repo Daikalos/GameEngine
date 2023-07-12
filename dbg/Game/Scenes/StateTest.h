@@ -41,14 +41,17 @@ public:
 		{
 			data.jump = false;
 		};
+
+		data.body->SetFriction(0.0f);
 	}
 	void Update(vlx::EntityID entity_id, PlayerData& data)
 	{
 		if (m_keyboard->Held(sf::Keyboard::A))
-			data.transform->Move({ -50.0f * m_time->GetDT(), 0.0f });
-
-		if (m_keyboard->Held(sf::Keyboard::D))
-			data.transform->Move({ 50.0f * m_time->GetDT(), 0.0f });
+			data.body->SetVelocity( { -50.0f, data.body->GetVelocity().y });
+		else if (m_keyboard->Held(sf::Keyboard::D))
+			data.body->SetVelocity({ 50.0f, data.body->GetVelocity().y });
+		else 
+			data.body->SetVelocity({ 0.0f, data.body->GetVelocity().y });
 
 		if (data.jump && m_keyboard->Pressed(sf::Keyboard::Space))
 		{
