@@ -68,9 +68,9 @@ namespace vlx
 
 	private:
 		ComponentRef<GlobalTransformTranslation> m_target;
-		Vector2f m_current;
-		Vector2f m_offset;
-		float m_smooth_speed {5.0f};
-		bool m_should_smooth {true};
+		Vector2f	m_current;
+		Vector2f	m_offset;
+		float		m_smooth_speed {5.0f};
+		bool		m_should_smooth {true};
 	};
 }

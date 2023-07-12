@@ -135,7 +135,6 @@ void StateTest::OnCreate()
 	player.AddComponents<PlayerData>();
 	player.AddComponent<Box>(size);
 	player.AddComponents<vlx::ColliderOverlap, vlx::ColliderExit>();
-	GetWorld().GetSystem<RelationSystem>().Detach(player.GetComponent<Relation>().GetParent().entity_id, player, RelationSystem::S_Instant);
 
 	//entity.GetComponent<Circle>().radius = 32.0f;
 	player.GetComponent<PhysicsBody>().SetMass(1.0f);

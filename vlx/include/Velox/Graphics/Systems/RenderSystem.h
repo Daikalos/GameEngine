@@ -2,6 +2,7 @@
 
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
+#include <Velox/ECS/SystemExclude.hpp>
 
 #include <Velox/Window.hpp>
 

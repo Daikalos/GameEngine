@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include <Velox/ECS/System.hpp>
+#include <Velox/ECS/SystemEvent.hpp>
 
 #include "Object.h"
 

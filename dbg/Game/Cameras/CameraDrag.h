@@ -24,8 +24,8 @@ namespace vlx
 			m_window = GetContext().window;
 			m_mouse_cursor = &GetContext().inputs->Cursor();
 
-			m_func.Add(bn::Button::Drag, BT_Pressed, &CameraDrag::Select, this, 1.0f);
-			m_func.Add(bn::Button::Drag, BT_Held, &CameraDrag::Drag, this);
+			m_func.Add(bn::Button::Drag, BT_Pressed, 1.0f, &CameraDrag::Select, this, std::placeholders::_1);
+			m_func.Add(bn::Button::Drag, BT_Held, 1.0f, &CameraDrag::Drag, this, std::placeholders::_1);
 		}
 
 		bool HandleEvent(const sf::Event& event) override 
@@ -55,19 +55,19 @@ namespace vlx
 			//	m_prev_scale = GetCamera().GetScale();
 			//}
 
-			m_func();
+			m_func(m_mouse_cursor->GetPosition());
 
 			return true;
 		}
 
-		void Select()
+		void Select(const Vector2i& pos)
 		{
-			m_drag_pos = Vector2f(m_mouse_cursor->GetPosition());
+			m_drag_pos = Vector2f(pos);
 		}
 
-		void Drag()
+		void Drag(const Vector2i& pos)
 		{
-			Vector2f mouse_pos = Vector2f(m_mouse_cursor->GetPosition());
+			Vector2f mouse_pos = Vector2f(pos);
 			Vector2f offset = m_drag_pos - mouse_pos;
 			m_drag_pos = mouse_pos;
 
@@ -82,6 +82,6 @@ namespace vlx
 
 		Vector2f m_drag_pos;
 
-		ButtonEvent<GameMouse> m_func;
+		ButtonEvent<GameMouse, const Vector2i&> m_func;
 	};
 }

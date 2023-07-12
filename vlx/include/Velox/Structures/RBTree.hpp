@@ -144,12 +144,12 @@ namespace vlx
 			   (ptr->parent && ptr == ptr->parent->right) ||
 			   (!ptr->parent && ptr == m_root));
 
-		Node* temp = ptr.release();
+		NodePtr temp = std::move(ptr);
 		ptr = std::move(right_child);
 
 		assert(ptr->left == nullptr);
 
-		ptr->left = NodePtr(temp);
+		ptr->left = std::move(temp);
 		ptr->left->parent = ptr.get();
 	}
 
@@ -170,12 +170,12 @@ namespace vlx
 			   (ptr->parent && ptr == ptr->parent->right) ||
 			   (!ptr->parent && ptr == m_root));
 
-		Node* temp = ptr.release();
+		NodePtr temp = std::move(ptr);
 		ptr = std::move(left_child);
 
 		assert(ptr->right == nullptr);
 
-		ptr->right = NodePtr(temp);
+		ptr->right = std::move(temp);
 		ptr->right->parent = ptr.get();
 	}
 
@@ -347,14 +347,18 @@ namespace vlx
 					sibling = parent->right.get();
 				}
 
-				if (sibling && (!sibling->left || sibling->left->color == Color::Black) && (!sibling->right || sibling->right->color == Color::Black)) 
+				if (!sibling)
+				{
+					node = m_root.get();
+				}
+				else if ((!sibling->left || sibling->left->color == Color::Black) && (!sibling->right || sibling->right->color == Color::Black)) 
 				{
 					sibling->color	= Color::Red;
 					parent->color	= Color::Black;
 
 					node = parent;
 				}
-				else if (sibling) 
+				else
 				{
 					if (!sibling->right || sibling->right->color == Color::Black)
 					{
@@ -374,17 +378,14 @@ namespace vlx
 
 					node = m_root.get();
 				}
-				else
-				{
-					node = m_root.get();
-				}
 			}
 			else
 			{
 				Node* sibling = parent->left.get();
+
 				if (sibling && sibling->color == Color::Red)
 				{
-					sibling->color		= Color::Black;
+					sibling->color	= Color::Black;
 					parent->color	= Color::Red;
 
 					RotateRight(std::move(GetPtr(parent)));
@@ -392,14 +393,18 @@ namespace vlx
 					sibling = parent->left.get();
 				}
 
-				if (sibling && (!sibling->left || sibling->left->color == Color::Black) && (!sibling->right || sibling->right->color == Color::Black)) 
+				if (!sibling)
+				{
+					node = m_root.get();
+				}
+				else if ((!sibling->left || sibling->left->color == Color::Black) && (!sibling->right || sibling->right->color == Color::Black)) 
 				{
 					sibling->color	= Color::Red;
 					parent->color	= Color::Black;
 
 					node = parent;
 				}
-				else if (sibling) 
+				else
 				{
 					if (!sibling->left || sibling->left->color == Color::Black)
 					{
@@ -419,10 +424,6 @@ namespace vlx
 
 					node = m_root.get();
 				}
-				else
-				{
-					node = m_root.get();
-				}
 			}
 		}
 
@@ -439,10 +440,10 @@ namespace vlx
 			v->parent = u->parent;
 
 		NodePtr& node	= GetPtr(u);
-		Node* temp		= node.release();
+		NodePtr temp	= std::move(node);
 		node			= std::move(v);
 
-		return NodePtr(temp);
+		return temp;
 	}
 	template<typename T>
 	inline auto RBTree<T>::Minimum(Node* node) -> Node*

@@ -166,6 +166,9 @@
     <ClInclude Include="include\Velox\Algorithms\UQuadTree.hpp" />
     <ClInclude Include="include\Velox\ECS\IComponentAlloc.hpp" />
     <ClInclude Include="include\Velox\ECS\SystemBase.h" />
+    <ClInclude Include="include\Velox\ECS\SystemEvent.hpp" />
+    <ClInclude Include="include\Velox\ECS\SystemExclude.hpp" />
+    <ClInclude Include="include\Velox\ECS\SystemRequire.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformDirty.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformRotation.h" />

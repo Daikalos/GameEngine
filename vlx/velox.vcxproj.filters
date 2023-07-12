@@ -203,6 +203,9 @@
     <ClInclude Include="include\Velox\Structures\RBTree.hpp" />
     <ClInclude Include="include\Velox\UI\Components\TextMesh.h" />
     <ClInclude Include="include\Velox\UI\Systems\TextSystem.h" />
+    <ClInclude Include="include\Velox\ECS\SystemEvent.hpp" />
+    <ClInclude Include="include\Velox\ECS\SystemRequire.hpp" />
+    <ClInclude Include="include\Velox\ECS\SystemExclude.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -6,13 +6,13 @@ using namespace vlx;
 TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 	: SystemAction(entity_admin, id, true), 
 
-	m_sync(entity_admin, id),
-	m_dirty(entity_admin, id),
+	m_sync(				entity_admin, id),
+	m_dirty(			entity_admin, id),
 	m_dirty_descendants(entity_admin, id),
-	m_update_global(entity_admin, id),
-	m_update_pos(entity_admin, id),
-	m_update_rot(entity_admin, id),
-	m_update_scl(entity_admin, id)
+	m_update_global(	entity_admin, id),
+	m_update_pos(		entity_admin, id),
+	m_update_rot(		entity_admin, id),
+	m_update_scl(		entity_admin, id)
 {
 	m_sync.Each(
 		[](EntityID, Transform& t, TransformMatrix& tm)
@@ -162,11 +162,11 @@ void TransformSystem::PostUpdate()
 	// TODO: figure out how to keep cache at reasonable size
 }
 
-void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation::Children& children) const
+void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const typename Relation::Children& children) const
 {
-	const auto RecursiveClean = [this](GlobalTransformDirty& gtd, const Relation::Children& children)
+	const auto RecursiveClean = [this](GlobalTransformDirty& gtd, const typename Relation::Children& children)
 	{
-		auto RecursiveImpl = [this](GlobalTransformDirty& gtd, const Relation::Children& children, auto& recursive_ref) mutable -> void
+		auto RecursiveImpl = [this](GlobalTransformDirty& gtd, const typename Relation::Children& children, auto& recursive_ref) mutable -> void
 		{
 			gtd.m_dirty = true; // all of the children needs their transform to be updated
 			for (const auto& child : children)
@@ -176,7 +176,7 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation
 				if (!opt.has_value())
 					continue;
 
-				GlobalTransformDirty* child_dirty = opt.value()->Get<GlobalTransformDirty>();
+				GlobalTransformDirty* child_dirty = opt.value().Get<GlobalTransformDirty>();
 
 				if (child_dirty != nullptr && !child_dirty->m_dirty)
 					recursive_ref(*child_dirty, child.ptr->GetChildren(), recursive_ref);
@@ -188,7 +188,7 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const Relation
 
 	RecursiveClean(gtd, children);
 }
-void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, const Relation::Parent& parent) const
+void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, const typename Relation::Parent& parent) const
 {
 	if (!parent.ptr.IsValid())
 	{
@@ -203,7 +203,7 @@ void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty
 		return;
 	}
 
-	CacheSet& parent_set = *opt.value();
+	CacheSet& parent_set = opt.value();
 
 	TransformMatrix* ptm		= parent_set.Get<TransformMatrix>();
 	GlobalTransformDirty* pgtd	= parent_set.Get<GlobalTransformDirty>();
@@ -249,15 +249,13 @@ void TransformSystem::UpdateToLocal(TransformMatrix& tm, GlobalTransformDirty& g
 	//global_transform.m_rotation	= transform.m_rotation;
 }
 
-auto TransformSystem::CheckCache(EntityID entity_id) const -> std::optional<CacheSet*>
+auto TransformSystem::CheckCache(EntityID entity_id) const -> std::optional<CacheSet>
 {
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())
 	{
 		CacheSet set = m_entity_admin->GetComponentsRef(entity_id, CacheTuple{});
-		const auto [eit, success] = m_cache.emplace(entity_id, set);
-
-		return &eit->second;
+		return std::make_optional(m_cache.try_emplace(entity_id, set).first->second);
 	}
 
 	if (!it->second.IsAllValid())
@@ -266,5 +264,5 @@ auto TransformSystem::CheckCache(EntityID entity_id) const -> std::optional<Cach
 		return std::nullopt;
 	}
 
-	return &it->second;
+	return std::make_optional(it->second);
 }

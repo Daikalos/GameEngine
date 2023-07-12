@@ -131,7 +131,7 @@ namespace vlx
 			index = m_first_free;
 
 			m_first_free	= std::get<int64>(m_data[m_first_free]);
-			m_data[index]	= { std::in_place_index<0>, T(std::forward<Args>(args)...) };
+			m_data[index]	= { std::in_place_index<0>, T{ std::forward<Args>(args)... } };
 		}
 		else
 		{
@@ -189,7 +189,7 @@ namespace vlx
 		{
 			std::size_t diff = size - m_count;
 			for (std::size_t i = 0; i < diff; ++i)
-				emplace(T());
+				emplace(T{});
 		}
 		else
 		{

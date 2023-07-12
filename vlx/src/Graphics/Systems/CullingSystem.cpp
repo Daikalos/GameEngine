@@ -5,7 +5,7 @@ using namespace vlx;
 CullingSystem::CullingSystem(EntityAdmin& entity_admin, LayerType id, const Camera& camera)
 	: SystemAction(entity_admin, id), m_cull_sprites(entity_admin, id), m_cull_meshes(entity_admin, id), m_camera(&camera)
 {
-	m_cull_sprites.All([this, &camera](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites)
+	m_cull_sprites.All([this, &camera](EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites)
 		{
 			const Vector2f camera_size = camera.GetSize() / camera.GetScale();
 			const Vector2f camera_pos = camera.GetPosition() - camera_size / 2.0f;
@@ -36,7 +36,7 @@ CullingSystem::CullingSystem(EntityAdmin& entity_admin, LayerType id, const Came
 			}
 		});
 
-	m_cull_meshes.All([this, &camera](std::span<const EntityID> entities, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes)
+	m_cull_meshes.All([this, &camera](EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes)
 		{
 			const Vector2f camera_size = camera.GetSize() / camera.GetScale();
 			const Vector2f camera_pos = camera.GetPosition() - camera_size / 2.0f;

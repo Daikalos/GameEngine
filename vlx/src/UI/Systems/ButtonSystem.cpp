@@ -9,7 +9,7 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 
 {
 	m_buttons.All(
-		[&camera, &mouse, &cursor](std::span<const EntityID> entities, Object* os, Renderable* rs, GlobalTransformTranslation* gs, UIBase* us, Button* bs)
+		[&camera, &mouse, &cursor](EntitySpan entities, Object* os, Renderable* rs, GlobalTransformTranslation* gs, UIBase* us, Button* bs)
 		{
 			const bool pressed	= mouse.Pressed(ebn::Button::GUIButton);
 			const bool released = mouse.Released(ebn::Button::GUIButton);
@@ -56,7 +56,7 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 			}
 		});
 
-	m_check_flags.Each([this](EntityID entity_id, Button& button)
+	m_check_flags.Each([this](EntityID entity_id, const Button& button)
 		{
 			if (button.m_flags)
 				m_button_callbacks.emplace_back(entity_id, button.m_flags);

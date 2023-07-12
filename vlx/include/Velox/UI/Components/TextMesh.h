@@ -27,7 +27,7 @@ namespace vlx::ui
 		void BatchImpl(SpriteBatch& sprite_batch, const Mat4f& transform, float depth) const;
 
 	private:
-		const sf::Texture*		m_texture;
+		const sf::Texture*		m_texture		{nullptr};
 		float					m_depth			{0.0f};
 		bool					m_draw_outline	{false};
 

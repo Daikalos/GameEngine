@@ -6,13 +6,16 @@
 #include <iostream>
 #include <thread>
 #include <queue>
-#include <mutex>
-#include <string_view>
+#include <shared_mutex>
+#include <string>
 #include <iomanip>
 
 #include <Windows.h>
 #include <Psapi.h>
 #include <Pdh.h>
+
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Clock.hpp>
 
 #include "ArithmeticUtils.h"
 #include "StringUtils.h"
@@ -25,20 +28,19 @@ namespace vlx::bm
 	static constexpr long double Megabyte(const long double bytes) { return Kilobyte(bytes) / 1024.0L; }
 	static constexpr long double Gigabyte(const long double bytes) { return Megabyte(bytes) / 1024.0L; }
 
-	class MeasureSystem
+	class Benchmark
 	{
 	public:
-		using Ptr = std::unique_ptr<MeasureSystem>;
+		using Ptr = std::unique_ptr<Benchmark>;
 
 	public:
-		MeasureSystem(const std::string_view message) 
-			: m_message(message)
+		Benchmark(std::string message) : m_message(std::move(message))
 		{ 
 			m_active = true;
-			m_thread = std::jthread(&MeasureSystem::Loop, this);
+			m_thread = std::jthread(&Benchmark::Loop, this);
 		}
 
-		~MeasureSystem()
+		~Benchmark()
 		{
 			m_active = false;
 		}
@@ -103,10 +105,12 @@ namespace vlx::bm
 			ram_curr = Megabyte((long double)pmc.WorkingSetSize);
 			ram_diff = ram_curr - initial_ram;
 
-			// -- print relevant information --
+			// -- print information --
 
-			const std::function<std::string(long double, int)> print = [](const long double val, const int places) -> std::string
-				{ return su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(val, places))); };
+			const auto print = [](const long double val, const int places) -> std::string
+			{ 
+				return su::RemoveTrailingZeroes(std::to_string(au::SetPrecision(val, places))); 
+			};
 
 			std::puts(m_message.data());
 			std::puts("");
@@ -130,7 +134,7 @@ namespace vlx::bm
 			std::puts("TOTAL RUN TIME");
 			std::cout << microseconds << "ns\n";
 			std::cout << milliseconds << "ms\n";
-			std::cout << "\n";
+			std::puts("");
 
 			std::puts("---------------------");
 		}
@@ -152,9 +156,9 @@ namespace vlx::bm
 			percent /= ((long double)now.QuadPart - (long double)m_last_cpu.QuadPart);
 			percent /= m_num_processors;
 
-			m_last_cpu = now;
+			m_last_cpu		= now;
 			m_last_user_cpu = user;
-			m_last_sys_cpu = sys;
+			m_last_sys_cpu	= sys;
 
 			if (isnan(percent) || isinf(percent))
 				return 0.0;
@@ -163,34 +167,34 @@ namespace vlx::bm
 		}
 
 	private:
-		const std::string_view					m_message;
+		std::string		m_message;
 
-		std::jthread							m_thread;
-		bool									m_active{false};
+		std::jthread	m_thread;
+		bool			m_active{false};
 
-		ULARGE_INTEGER							m_last_cpu;
-		ULARGE_INTEGER							m_last_sys_cpu;
-		ULARGE_INTEGER							m_last_user_cpu;
-		int										m_num_processors;
+		ULARGE_INTEGER	m_last_cpu;
+		ULARGE_INTEGER	m_last_sys_cpu;
+		ULARGE_INTEGER	m_last_user_cpu;
+		int				m_num_processors;
 	};
 
-	static std::queue<MeasureSystem::Ptr> queue;
-	static std::mutex mutex;
+	static std::queue<Benchmark> benchmarks;
+	static std::shared_mutex mutex;
 
-	static void Begin(const std::string_view message = "BENCHMARK PROFILE")
+	static void Begin(std::string message = "BENCHMARK PROFILE")
 	{
-		std::lock_guard<std::mutex> lock(mutex);
-		queue.push(std::make_unique<MeasureSystem>(message));
+		std::lock_guard lock(mutex);
+		benchmarks.emplace(std::move(message));
 	}
 
 	static void End()
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard lock(mutex);
 
-		if (queue.empty())
-			throw std::runtime_error("cant end something when there is no beginning");
+		if (benchmarks.empty())
+			throw std::runtime_error("No benchmark to pop");
 
-		queue.pop();
+		benchmarks.pop();
 	}
 
 	template<class F, typename... Args>

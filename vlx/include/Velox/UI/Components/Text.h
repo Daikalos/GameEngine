@@ -42,8 +42,8 @@ namespace vlx::ui
 		void SetLetterSpacing(		float spacing_factor);
 		void SetLineSpacing(		float spacing_factor);
 		void SetOutlineThickness(	float thickness);
-		void SetFillColor(			const sf::Color& color);
-		void SetOutlineColor(		const sf::Color& color);
+		void SetFillColor(			sf::Color color);
+		void SetOutlineColor(		sf::Color color);
 		void SetStyle(				uint8 style);
 
 	private:
@@ -55,8 +55,11 @@ namespace vlx::ui
 		float			m_outline_thickness		{0.0f};
 		sf::Color		m_fill_color			{sf::Color::White};
 		sf::Color		m_outline_color			{sf::Color::Black};
+		uint64			m_texture_id			{0};
 		uint8			m_style					{Regular};
 		bool			m_update_mesh			{true};
+		bool			m_update_fill			{true};
+		bool			m_update_outline		{true};
 
 		friend class TextSystem;
 	};

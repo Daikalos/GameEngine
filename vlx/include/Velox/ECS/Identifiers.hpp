@@ -11,7 +11,7 @@
 namespace vlx
 {
 	template<class C>
-	concept IsComponent = std::is_class_v<C> && std::semiregular<C> && sizeof(C) >= 1 && sizeof(C) <= std::numeric_limits<uint32>::max();
+	concept IsComponent = std::is_class_v<C> && std::semiregular<std::remove_const_t<C>> && sizeof(C) >= 1 && sizeof(C) <= std::numeric_limits<uint32>::max();
 
 	template<class... Cs>
 	concept IsComponents = (IsComponent<Cs> && ...) && Exists<Cs...> && NoDuplicates<Cs...>;
@@ -32,6 +32,8 @@ namespace vlx
 	using ArrComponentIDs	= std::array<ComponentTypeID, sizeof...(Cs)>;
 
 	using ComponentIDSpan	= std::span<const ComponentTypeID>;
+
+	using EntitySpan		= std::span<const EntityID>;
 
 	inline constexpr EntityID			NULL_ENTITY		= NULL;
 	inline constexpr ComponentTypeID	NULL_COMPONENT	= NULL;

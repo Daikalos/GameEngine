@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Velox/Config.hpp>
-
 namespace vlx
 {
 	class SpriteBatch;

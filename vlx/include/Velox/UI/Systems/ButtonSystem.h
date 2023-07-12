@@ -48,7 +48,7 @@ namespace vlx::ui
 
 	private:
 		System<Object, Renderable, GlobalTransformTranslation, UIBase, Button>	m_buttons;
-		System<Button> m_check_flags;
+		System<const Button> m_check_flags;
 
 		std::vector<ButtonEntityCallback> m_button_callbacks;
 	};

@@ -90,6 +90,8 @@ namespace vlx
 		EntityAdmin() = default;
 		VELOX_API ~EntityAdmin();
 
+		// TODO: Add constructors and assignment operators
+
 	public: 
 		/// \returns The ID of the component
 		///
@@ -113,32 +115,32 @@ namespace vlx
 
 		///	Adds a component to the specified entity.
 		/// 
-		/// \param EntityID: ID of the entity to add the component to.
-		/// \param Args: Optional constructor aruguments.
+		/// \param EntityID: ID of the entity to add the component to
+		/// \param Args: Optional constructor arguments
 		///	
-		/// \returns Pointer to the added component if it was successful, otherwise nullptr.
+		/// \returns Pointer to the added component if it was successful, otherwise nullptr
 		///
 		template<IsComponent C, typename... Args> requires std::constructible_from<C, Args...>
 		C* AddComponent(EntityID entity_id, Args&&... args);
 
 		///	Optimized for quickly adding multiple components to an entity.
 		/// 
-		/// \param EntityID: ID of the entity to add the component to.
+		/// \param EntityID: ID of the entity to add the component to
 		///
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(EntityID entity_id);
 
 		///	Optimized for quickly adding multiple components to an entity.
 		/// 
-		/// \param EntityID: ID of the entity to add the component to.
-		/// \param Tuple: To automatically deduce the template arguments.
+		/// \param EntityID: ID of the entity to add the component to
+		/// \param Tuple: To automatically deduce the template arguments
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		void AddComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>);
 
 		/// Removes a component from the specified entity. Will return true if it succeeded in doing such, otherwise false.
 		/// 
-		/// \param EntityID: ID of the entity to remove the component from.
+		/// \param EntityID: ID of the entity to remove the component from
 		/// 
 		/// \returns True if it succeeded in removing component, otherwise false
 		/// 
@@ -147,19 +149,19 @@ namespace vlx
 
 		/// Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
 		///	
-		/// \param EntityID: ID of the entity to remove the components from.
+		/// \param EntityID: ID of the entity to remove the components from
 		/// 
-		/// \returns Whether if it was able to remove any component from the entity.
+		/// \returns Whether if it was able to remove any component from the entity
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		bool RemoveComponents(EntityID entity_id);
 
 		///	Optimized for quickly removing multiple components to an entity. If the entity does not hold a given component, it will be skipped.
 		///	
-		/// \param EntityID: ID of the entity to remove the components from.
-		/// \param Tuple: To automatically deduce the template arguments.
+		/// \param EntityID: ID of the entity to remove the components from
+		/// \param Tuple: To automatically deduce the template arguments
 		/// 
-		/// \returns Whether if it was able to remove any component from the entity.
+		/// \returns Whether if it was able to remove any component from the entity
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		bool RemoveComponents(EntityID entity_id, std::type_identity<std::tuple<Cs...>>);
@@ -167,18 +169,18 @@ namespace vlx
 		///	GetComponent is designed to be as fast as possible without checks to see if it exists, otherwise, will throw error. 
 		/// Therefore, take some caution when using this function. Use instead: TryGetComponent or GetComponentRef for better safety.
 		/// 
-		/// \param EntityID: ID of the entity to retrieve the component from.
+		/// \param EntityID: ID of the entity to retrieve the component from
 		/// 
-		/// \returns Reference to component.
+		/// \returns Reference to component
 		/// 
 		template<IsComponent C>
 		NODISC C& GetComponent(EntityID entity_id) const;
 
 		/// Tries to get the component. May fail if the entity does not exist or hold the component.
 		/// 
-		/// \param EntityID: ID of the entity to retrieve the component from.
+		/// \param EntityID: ID of the entity to retrieve the component from
 		/// 
-		/// \returns Pointer to component, otherwise std::nullopt.
+		/// \returns Pointer to component, otherwise nullptr
 		/// 
 		template<IsComponent C>
 		NODISC C* TryGetComponent(EntityID entity_id) const;
@@ -199,19 +201,19 @@ namespace vlx
 
 		///	Constructs a ComponentSet that contains a set of component references that ensures that they remain valid.
 		///
-		/// \param EntityID: ID of the entity to retrieve the components from.
-		/// 
-		/// \returns A ComponentSet constructed from the specified components.
+		/// \param EntityID: ID of the entity to retrieve the components from
+		///
+		/// \returns A ComponentSet constructed from the specified components
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC ComponentSet<Cs...> GetComponentsRef(EntityID entity_id) const;
 
 		///	Constructs a ComponentSet that contains a set of component references that ensures that they remain valid.
 		///
-		/// \param EntityID: ID of the entity to retrieve the components from.
-		/// \param Tuple: To automatically deduce the template arguments.
+		/// \param EntityID: ID of the entity to retrieve the components from
+		/// \param Tuple: To automatically deduce the template arguments
 		/// 
-		/// \returns A ComponentSet constructed from the specified components.
+		/// \returns A ComponentSet constructed from the specified components
 		/// 
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC ComponentSet<Cs...> GetComponentsRef(EntityID entity_id, std::type_identity<std::tuple<Cs...>>) const;
@@ -219,25 +221,25 @@ namespace vlx
 		///	Allows for you to retrieve any base class without having to know the type of the child.
 		/// 
 		/// [Incredibly risky, requires base to be first in inheritance, other base classes cannot be automatically 
-		/// found without using voodoo magic, for now, offset can be specified to find the correct base class in the 
+		/// found without using black magic, for now, offset can be specified to find the correct base class in the 
 		/// inheritance order, for example, "class Component : B, A", to find A you pass offset with sizeof(B)]
 		/// 
-		/// \param EntityID: ID of the entity to retrieve the child from.
-		/// \param ChildComponentID: ID of the child component to upcast to base.
-		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
+		/// \param EntityID: ID of the entity to retrieve the child from
+		/// \param ChildComponentID: ID of the child component to upcast to base
+		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order
 		/// 
-		/// \returns Reference to base.
+		/// \returns Reference to base
 		/// 
 		template<class B>
 		NODISC B& GetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0) const;
 
 		/// Tries to get the base. May fail if entity does not exist or hold the child component.
 		/// 
-		/// \param EntityID: ID of the entity to retrieve the child from.
-		/// \param ChildComponentID: ID of the child component to upcast to base.
-		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order.
+		/// \param EntityID: ID of the entity to retrieve the child from
+		/// \param ChildComponentID: ID of the child component to upcast to base
+		/// \param Offset: Offset in bytes to specify the location of base in the inheritance order
 		/// 
-		/// \returns Pointer to base, otherwise std::nullopt.
+		/// \returns Pointer to base, otherwise nullptr
 		/// 
 		template<class B>
 		NODISC B* TryGetBase(EntityID entity_id, ComponentTypeID child_component_id, uint16 offset = 0) const;
@@ -348,7 +350,7 @@ namespace vlx
 		template<IsComponent C, class Comp> requires SameTypeParamDecay<Comp, C, 0, 1>
 		bool SortComponents(EntityID entity_id, Comp&& comparison);
 
-		///	Returns a duplicated entity with the same properties as the specified one
+		///	Returns a duplicated entity with the same properties as the specified one.
 		/// 
 		/// \param EntityID: entity id of the one to copy the components from
 		/// 
@@ -356,7 +358,7 @@ namespace vlx
 		///
 		NODISC VELOX_API EntityID Duplicate(EntityID entity_id);
 
-		/// Searches for entities that contains the specified components
+		/// Searches for entities that contains the specified components.
 		/// 
 		/// \param Restricted: Returns all entities that exactly match the provided components
 		/// 
@@ -365,10 +367,10 @@ namespace vlx
 		template<class... Cs> requires IsComponents<Cs...>
 		NODISC std::vector<EntityID> GetEntitiesWith(bool restricted = false) const;
 
-		/// Searches for entities that contains the specified components
+		/// Searches for entities that contains the specified components.
 		/// 
 		/// \param Restricted: Returns all entities that exactly match the provided components
-		/// \param Tuple: To automatically deduce the template arguments.
+		/// \param Tuple: To automatically deduce the template arguments
 		/// 
 		/// \returns Entities that contains the components
 		/// 
@@ -442,21 +444,21 @@ namespace vlx
 		template<IsComponent C, typename Func>
 		NODISC auto RegisterOnRemoveListener(Func&& func);
 
-		///	Deregister on add listener
+		///	Deregister on add listener.
 		/// 
 		/// \param IDType: ID of the event to be removed
 		/// 
 		template<IsComponent C>
 		void DeregisterOnAddListener(typename EventHandler<>::IDType id);
 
-		///	Deregister on move listener
+		///	Deregister on move listener.
 		/// 
 		/// \param IDType: ID of the event to be removed
 		/// 
 		template<IsComponent C>
 		void DeregisterOnMoveListener(typename EventHandler<>::IDType id);
 
-		///	Deregister on remove listener
+		///	Deregister on remove listener.
 		/// 
 		/// \param IDType: ID of the event to be removed
 		/// 

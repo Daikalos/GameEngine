@@ -31,8 +31,8 @@ namespace vlx
 		constexpr operator sf::Transform&();
 		constexpr operator const sf::Transform&() const;
 
-		NODISC constexpr bool operator==(const Mat4f& rhs);
-		NODISC constexpr bool operator!=(const Mat4f& rhs);
+		NODISC constexpr bool operator==(const Mat4f& rhs) const;
+		NODISC constexpr bool operator!=(const Mat4f& rhs) const;
 
 		constexpr Mat4f operator*(const Mat4f& rhs) const;
 		constexpr Mat4f& operator*=(const Mat4f& rhs);
@@ -229,11 +229,11 @@ namespace vlx
 		return m_transform;
 	}
 
-	constexpr bool Mat4f::operator==(const Mat4f& rhs) 
+	constexpr bool Mat4f::operator==(const Mat4f& rhs) const
 	{
 		return m_transform == rhs.m_transform;
 	}
-	constexpr bool Mat4f::operator!=(const Mat4f& rhs) 
+	constexpr bool Mat4f::operator!=(const Mat4f& rhs) const
 	{
 		return m_transform != rhs.m_transform;
 	}

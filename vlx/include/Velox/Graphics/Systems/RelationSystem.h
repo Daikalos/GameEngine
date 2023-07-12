@@ -1,6 +1,6 @@
 #pragma once
 
-#include <queue>
+#include <vector>
 #include <variant>
 
 #include <Velox/ECS/SystemAction.h>
@@ -42,7 +42,7 @@ namespace vlx
 
 	private:
 		using Command = std::variant<AttachData, DetachData>;
-		using CommandTable = std::array<std::queue<Command>, S_Count>;
+		using CommandTable = std::array<std::vector<Command>, S_Count>;
 
 	public:
 		using SystemAction::SystemAction;
@@ -66,8 +66,10 @@ namespace vlx
 		void AttachUnpack(EntityID parent_id, EntityID child_id);
 		void DetachUnpack(EntityID parent_id, EntityID child_id);
 
+		static void AttachImpl(EntityID parent_id, ComponentRef<Relation> parent, EntityID child_id, ComponentRef<Relation> child);
+		static EntityID DetachImpl(EntityID parent_id, ComponentRef<Relation> parent, EntityID child_id, ComponentRef<Relation> child);
+
 		void ExecuteCommands(ExecutionStage stage);
-		void VisitCommand(const Command& command);
 
 	private:
 		CommandTable m_commands_table;

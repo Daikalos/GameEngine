@@ -34,9 +34,9 @@ void SpriteBatch::AddTriangle(const Mat4f& transform,
 	const sf::Texture* texture, const sf::Shader* shader, float depth)
 {
 	m_triangles.emplace_back(
-		sf::Vertex(transform * v0.position, v0.color, v0.texCoords),
-		sf::Vertex(transform * v1.position, v1.color, v1.texCoords),
-		sf::Vertex(transform * v2.position, v2.color, v2.texCoords), texture, shader, depth);
+		sf::Vertex{transform * v0.position, v0.color, v0.texCoords},
+		sf::Vertex{transform * v1.position, v1.color, v1.texCoords},
+		sf::Vertex{transform * v2.position, v2.color, v2.texCoords}, texture, shader, depth);
 
 	m_indices.emplace_back(m_triangles.size() - 1);
 

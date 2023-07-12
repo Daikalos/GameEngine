@@ -1,13 +1,13 @@
 #pragma once
 
-#include <queue>
+#include <vector>
 #include <tuple>
 #include <optional>
 
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
 
-#include <Velox/Config.hpp>
+#include <Velox/System/Vector2.hpp>
 
 #include <Velox/Graphics/Components/GlobalTransformTranslation.h>
 #include <Velox/Graphics/Components/GlobalTransformRotation.h>
@@ -22,13 +22,13 @@
 
 #include <Velox/Physics/PhysicsBody.h>
 
+#include <Velox/Config.hpp>
+
 namespace vlx
 {
 	class VELOX_API TransformSystem final : public SystemAction
 	{
 	private:
-		using EntityPair = std::pair<EntityID, EntityID>;
-
 		using CacheTuple = std::type_identity<std::tuple<
 			TransformMatrix,
 			GlobalTransformDirty, 
@@ -62,20 +62,20 @@ namespace vlx
 	private:
 		void DirtyDescendants(
 			GlobalTransformDirty& gtd, 
-			const Relation::Children& children) const;
+			const typename Relation::Children& children) const;
 
 		void UpdateTransforms(
 			TransformMatrix& tm, 
 			GlobalTransformDirty& gtd, 
 			GlobalTransformMatrix& gtm, 
-			const Relation::Parent& parent) const;
+			const typename Relation::Parent& parent) const;
 
 		void UpdateToLocal(
 			TransformMatrix& tm, 
 			GlobalTransformDirty& gtd,
 			GlobalTransformMatrix& gtm) const;
 
-		auto CheckCache(EntityID entity_id) const -> std::optional<CacheSet*>;
+		auto CheckCache(EntityID entity_id) const -> std::optional<CacheSet>;
 
 	private:
 		System<
@@ -111,9 +111,6 @@ namespace vlx
 			GlobalTransformMatrix,
 			GlobalTransformScale>			m_update_scl;
 
-		std::queue<EntityPair>	m_attachments;
-		std::queue<EntityPair>	m_detachments;
-		
 		mutable std::unordered_map<EntityID, CacheSet> m_cache;
 	};
 }
