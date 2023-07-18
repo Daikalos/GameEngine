@@ -68,9 +68,9 @@ namespace vlx
 
 		NODISC const Mat4f& GetViewMatrix() const;
 		NODISC Vector2f ViewToWorld(const Vector2f& position) const;
-		NODISC Vector2f GetMouseWorldPosition(const Vector2f& relative_pos) const;
-		NODISC Vector2i GetMouseWorldPosition(const Vector2i& relative_pos) const;
-		NODISC Vector2f GetMouseWorldPosition(const sf::WindowBase& window) const;
+		NODISC Vector2f LocalToWorldPosition(const Vector2f& local_pos) const;
+		NODISC Vector2i LocalToWorldPosition(const Vector2i& local_pos) const;
+		NODISC Vector2f MouseWorldPosition(const sf::WindowBase& window) const;
 
 		NODISC const Vector2f& GetPosition() const noexcept;
 		NODISC const Vector2f& GetScale() const noexcept;

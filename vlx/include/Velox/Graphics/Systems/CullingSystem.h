@@ -29,9 +29,13 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
+		void CullSprites(EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites) const;
+		void CullMeshes(EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes) const;
+
+	private:
+		const Camera*	m_camera {nullptr};
+
 		SpriteSystem	m_cull_sprites;
 		MeshSystem		m_cull_meshes;
-
-		const Camera*	m_camera {nullptr};
 	};
 }

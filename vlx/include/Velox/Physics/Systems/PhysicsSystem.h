@@ -15,6 +15,7 @@
 #include "../CollisionArbiter.h"
 #include "../PhysicsBodyTransform.h"
 #include "../PhysicsCommon.hpp"
+#include "../CollisionSolver.h"
 
 #include "BroadSystem.h"
 #include "NarrowSystem.h"
@@ -36,17 +37,24 @@ namespace vlx
 		void SetIterations(int iterations);
 
 	private:
+		void PreSolve(EntityID entity_id, PhysicsBodyTransform& pbt, const Transform& t) const;
+		void IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const;
+		void IntegratePosition(EntityID entity_id, PhysicsBody& pb, Transform& t) const;
+		void SleepBodies(EntityID entity_id, PhysicsBody& pb) const;
+
+	private:
 		Time*			m_time			{nullptr};
 		Vector2f		m_gravity		{0.0f, 60.82f};
 		int				m_iterations	{20};
 
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;
+		CollisionSolver	m_collision_solver;
+
+		System<PhysicsBodyTransform, const Transform> m_pre_solve;
 
 		System<PhysicsBody>				m_integrate_velocity;
 		System<PhysicsBody, Transform>	m_integrate_position;
 		System<PhysicsBody>				m_sleep_bodies;
-
-		System<PhysicsBodyTransform, Transform> m_pre_solve;
 	};
 }

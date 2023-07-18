@@ -68,10 +68,10 @@ namespace vlx
 		auto GetArbiters() noexcept -> CollisionArbiters&;
 
 	private:
-		void CheckCollision(const CollisionObject& lhs, const CollisionObject& rhs);
+		void CheckCollision(CollisionObject& A, CollisionObject& B);
 
 	private:
-		EntityAdmin* m_entity_admin	{nullptr};
+		EntityAdmin*			m_entity_admin	{nullptr};
 
 		CollisionArbiters		m_arbiters;
 

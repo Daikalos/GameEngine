@@ -29,8 +29,10 @@ namespace vlx
 		constexpr virtual ~Shape() = default; // may not be needed
 
 	public:
-		const RectFloat& GetAABB() const;
-		const Vector2f& GetCenter() const;
+		const RectFloat& GetAABB() const noexcept;
+		const Vector2f& GetCenter() const noexcept;;
+		float GetRadius() const noexcept;
+		float GetRadiusSqr() const noexcept;
 
 	public:
 		constexpr virtual auto GetType() const noexcept -> Shape::Type = 0;
@@ -45,6 +47,9 @@ namespace vlx
 	protected:
 		RectFloat	m_aabb;		// aabb for queries
 		Vector2f	m_center;	// center of shape
+
+		float		m_radius	 {P_POLYGON_RADIUS};			// radius for shape, P_POLYGON_RADIUS for polygons
+		float		m_radius_sqr {au::Sqr(P_POLYGON_RADIUS)};	// square radius
 
 		friend class PhysicsDirtySystem;
 	};

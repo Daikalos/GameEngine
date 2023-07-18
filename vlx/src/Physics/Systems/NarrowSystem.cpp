@@ -58,31 +58,26 @@ auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
 	return m_arbiters;
 }
 
-void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObject& B)
+void NarrowSystem::CheckCollision(CollisionObject& A, CollisionObject& B)
 {
 	CollisionArbiter arbiter;
 	CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
 
-	if (arbiter.contacts_count) // successfully collided if not null
+	if (arbiter.manifold.contacts_count) // successfully collided if not null
 	{
 		PhysicsBody* AB = A.body;
 		PhysicsBody* BB = B.body;
 
 		if (AB && BB && (AB->GetType() == BodyType::Dynamic || BB->GetType() == BodyType::Dynamic)) // only resolve if both entities has a physics body and either is dynamic
 		{
-			arbiter.APB = AB;
-			arbiter.BPB = BB;
-			arbiter.AT = A.transform;
-			arbiter.BT = B.transform;
+			arbiter.A = &A;
+			arbiter.B = &B;
 
 			m_arbiters.emplace_back(arbiter);
 		}
 
-		Collider& AC = *A.collider; // dont worry if nullptr, should only ever collide if both have colliders anyways
-		Collider& BC = *B.collider;
-
-		bool has_enter		= (A.enter	 && A.enter->OnEnter)	  || (B.enter	&& B.enter->OnEnter);
-		bool has_exit		= (A.exit	 && A.exit->OnExit)		  || (B.exit	&& B.exit->OnExit);
+		bool has_enter		= (A.enter	 && A.enter->OnEnter)	  || (B.enter && B.enter->OnEnter);
+		bool has_exit		= (A.exit	 && A.exit->OnExit)		  || (B.exit  && B.exit->OnExit);
 		bool has_overlap	= (A.overlap && A.overlap->OnOverlap);
 
 		if (has_enter || has_exit || has_overlap)
@@ -91,19 +86,19 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 				EntityPair(A.entity_id, B.entity_id) :
 				EntityPair(B.entity_id, A.entity_id);
 
-			CollisionResult a_result(B.entity_id); // store other entity
-			CollisionResult b_result(A.entity_id);
+			CollisionResult a_result{B.entity_id}; // store other entity
+			CollisionResult b_result{A.entity_id};
 
-			for (uint8 i = 0; i < arbiter.contacts_count; ++i)
-			{
-				a_result.contacts[i].hit			= arbiter.contacts[i].position;
-				a_result.contacts[i].normal			= arbiter.contacts[i].normal;
-				a_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
+			//for (uint8 i = 0; i < arbiter.contacts_count; ++i)
+			//{
+			//	a_result.contacts[i].hit			= arbiter.contacts[i].position;
+			//	a_result.contacts[i].normal			= arbiter.contacts[i].normal;
+			//	a_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
 
-				b_result.contacts[i].hit			= arbiter.contacts[i].position;
-				b_result.contacts[i].normal			= -arbiter.contacts[i].normal; // flip normal for other
-				b_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
-			}
+			//	b_result.contacts[i].hit			= arbiter.contacts[i].position;
+			//	b_result.contacts[i].normal			= -arbiter.contacts[i].normal; // flip normal for other
+			//	b_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
+			//}
 
 			if (has_enter || has_exit)
 			{
@@ -125,4 +120,3 @@ void NarrowSystem::CheckCollision(const CollisionObject& A, const CollisionObjec
 		}
 	}
 }
-

@@ -37,15 +37,18 @@ namespace vlx
 			cu::ContainerHash<ComponentTypeID>()(SystemIDs);
 
 	public:
-		System() = delete;
 		System(EntityAdmin& entity_admin);
 		System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer = true);
 
+		System() = delete;
+		System(System&& rhs) noexcept;
 		~System();
 
+		auto operator=(System&& rhs) noexcept -> System&;
+
 	public:
-		const EntityAdmin* GetEntityAdmin() const noexcept;
-		EntityAdmin* GetEntityAdmin() noexcept;
+		NODISC const EntityAdmin* GetEntityAdmin() const noexcept;
+		NODISC EntityAdmin* GetEntityAdmin() noexcept;
 
 		NODISC virtual ArchetypeID GetIDKey() const override;
 		NODISC virtual const ComponentIDs& GetArchKey() const override;
@@ -132,10 +135,34 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
+	inline System<Cs...>::System(System&& rhs) noexcept
+		: m_entity_admin(rhs.m_entity_admin), m_layer(rhs.m_layer), m_registered(rhs.m_registered), m_func(std::move(rhs.m_func))
+	{
+		rhs.m_entity_admin	= nullptr;
+		rhs.m_layer			= LYR_NONE;
+		rhs.m_registered	= false;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
 	inline System<Cs...>::~System()
 	{
 		if (m_registered && m_entity_admin != nullptr)
 			m_entity_admin->RemoveSystem(m_layer, this);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline auto System<Cs...>::operator=(System&& rhs) noexcept -> System&
+	{
+		m_entity_admin	= rhs.m_entity_admin;
+		m_layer			= rhs.m_layer;
+		m_registered	= rhs.m_registered;
+		m_func			= std::move(m_func);
+
+		rhs.m_entity_admin	= nullptr;
+		rhs.m_layer			= LYR_NONE;
+		rhs.m_registered	= false;
+
+		return *this;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

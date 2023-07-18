@@ -837,8 +837,8 @@ namespace vlx
 		const auto component = m_component_map.at(child_component_id).get();
 		const auto component_size = component->GetSize();
 
-		auto ptr = &archetype->component_data[arch_record.column][record.index * component_size];
-		B* base_component = reinterpret_cast<B*>(ptr + offset);	
+		DataPtr ptr = &archetype->component_data[arch_record.column][record.index * component_size];
+		B* base_component = reinterpret_cast<B*>(ptr + offset);
 
 		return *base_component;
 	}
@@ -870,7 +870,7 @@ namespace vlx
 
 		const auto component_size = iit->second->GetSize();
 
-		auto ptr = &archetype->component_data[ait->second.column][record.index * component_size];
+		DataPtr ptr = &archetype->component_data[ait->second.column][record.index * component_size];
 		B* base_component = reinterpret_cast<B*>(ptr + offset);
 
 		return base_component;

@@ -2,14 +2,10 @@
 
 using namespace vlx;
 
-const RectFloat& Shape::GetAABB() const
-{
-	return m_aabb;
-}
-const Vector2f& Shape::GetCenter() const
-{
-	return m_center;
-}
+const RectFloat& Shape::GetAABB() const noexcept	{ return m_aabb; }
+const Vector2f& Shape::GetCenter() const noexcept	{ return m_center; }
+float Shape::GetRadius() const noexcept				{ return m_radius; }
+float Shape::GetRadiusSqr() const noexcept			{ return m_radius_sqr; }
 
 void Shape::UpdateAABB(const RectFloat& aabb)
 {

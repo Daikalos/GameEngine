@@ -17,6 +17,9 @@ namespace vlx
 		static constexpr std::size_t COLUMNS	= 2;
 		static constexpr std::size_t ROWS		= 2;
 
+	private:
+		using Matrix = std::array<float, ROWS * COLUMNS>;
+
 	public:
 		constexpr Mat2f();
 		constexpr Mat2f(float a00, float a01,
@@ -48,8 +51,8 @@ namespace vlx
 		static const Mat2f Identity;
 
 	private:
-		std::array<float, 4> m_matrix {1.0f, 0.0f,
-									   0.0f, 1.0f};
+		Matrix m_matrix {1.0f, 0.0f,
+						 0.0f, 1.0f};
 	};
 
 	constexpr Mat2f::Mat2f() = default;
@@ -97,12 +100,12 @@ namespace vlx
 					 m_matrix[2], m_matrix[3]);
 	}
 
-	constexpr Mat2f& Mat2f::Combine(const Mat2f& transform)
+	constexpr Mat2f& Mat2f::Combine(const Mat2f& rhs)
 	{
-		*this = Mat2f(m_matrix[0] * transform.m_matrix[0] + m_matrix[2] * transform.m_matrix[1],
-					  m_matrix[0] * transform.m_matrix[2] + m_matrix[2] * transform.m_matrix[3],
-					  m_matrix[1] * transform.m_matrix[0] + m_matrix[3] * transform.m_matrix[1],
-					  m_matrix[1] * transform.m_matrix[2] + m_matrix[3] * transform.m_matrix[3]);
+		*this = Mat2f(m_matrix[0] * rhs.m_matrix[0] + m_matrix[2] * rhs.m_matrix[1],
+					  m_matrix[0] * rhs.m_matrix[2] + m_matrix[2] * rhs.m_matrix[3],
+					  m_matrix[1] * rhs.m_matrix[0] + m_matrix[3] * rhs.m_matrix[1],
+					  m_matrix[1] * rhs.m_matrix[2] + m_matrix[3] * rhs.m_matrix[3]);
 
 		return *this;
 	}

@@ -144,6 +144,9 @@ void StateTest::OnCreate()
 	player.GetComponent<PhysicsBody>().SetGravityScale(1.5f);
 	player.GetComponent<PhysicsBody>().SetFriction(100000.0f);
 	player.GetComponent<PhysicsBody>().SetSleepingAllowed(false);
+
+	player.GetComponent<PhysicsBody>().SetEnabled(false);
+
 	player.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	player.GetComponent<Sprite>().SetSize(size);
 	player.GetComponent<Sprite>().SetColor(sf::Color::Blue);
@@ -192,7 +195,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
 	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num2))
@@ -215,7 +218,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<Transform>().SetOrigin(size / 2.0f);
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
 	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num3))
@@ -241,14 +244,22 @@ bool StateTest::Update(Time& time)
 
 		mesh->Assign(poly->GetVertices());
 
+		mesh->SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
+		for (int i = 0; i < mesh->GetSize() - 3; i += 3)
+		{
+			sf::Color color = sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255));
+			(*mesh)[i + 0].color = color;
+			(*mesh)[i + 1].color = color;
+			(*mesh)[i + 2].color = color;
+		}
+
 		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
 		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
 		//entity.GetComponent<Transform>().SetOrigin(poly->GetLocalCenter());
 		mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::White));
-		mesh->SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-			GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()));
+			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
 	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num4))
@@ -267,7 +278,7 @@ bool StateTest::Update(Time& time)
 			entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
 			GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
-				GetWorld().GetCamera().GetMouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
+				GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
 		}
 	}
 

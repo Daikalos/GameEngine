@@ -47,7 +47,17 @@ namespace vlx::ui
 		void CallExit(		EntityID entity_id) const;
 
 	private:
-		System<Object, Renderable, GlobalTransformTranslation, UIBase, Button>	m_buttons;
+		void Interaction(EntityID entity_id, const Renderable& r, const GlobalTransformTranslation& gtt, const UIBase& ui, Button& button);
+		void CheckFlag(EntityID entity_id, const Button& button);
+
+	private:
+		System<
+			const Object, 
+			const Renderable,
+			const GlobalTransformTranslation, 
+			const UIBase, 
+			Button>	m_buttons;
+
 		System<const Button> m_check_flags;
 
 		std::vector<ButtonEntityCallback> m_button_callbacks;

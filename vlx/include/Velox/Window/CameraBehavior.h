@@ -38,7 +38,7 @@ namespace vlx
 		};
 
 	public:
-		CameraBehavior(ID id, Camera& camera, const Context& context);
+		explicit CameraBehavior(ID id, Camera& camera, const Context& context);
 		virtual ~CameraBehavior() = default;
 
 		NODISC auto GetID() const noexcept -> ID;

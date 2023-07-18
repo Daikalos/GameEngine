@@ -120,7 +120,7 @@ namespace vlx
 		float			m_sleep_time		{0.0f};
 
 		friend class PhysicsSystem;
-		friend class CollisionArbiter;
+		friend class CollisionSolver;
 	};
 
 	constexpr BodyType PhysicsBody::GetType() const noexcept				{ return m_type; }

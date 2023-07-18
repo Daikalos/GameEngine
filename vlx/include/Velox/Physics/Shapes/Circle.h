@@ -11,12 +11,9 @@ namespace vlx
 	{
 	public:
 		constexpr Circle();
-		constexpr Circle(float radius);
+		constexpr explicit Circle(float radius);
 
 	public:
-		constexpr float GetRadius() const noexcept;
-		constexpr float GetRadiusSqr() const noexcept;
-
 		constexpr void SetRadius(float radius);
 
 	public:
@@ -25,19 +22,17 @@ namespace vlx
 
 	public:
 		VELOX_API RectFloat ComputeAABB(const Transform& transform) const;
-
-	private:
-		float m_radius		{16.0f};
-		float m_radius_sqr	{256.0f};
 	};
 
-	constexpr Circle::Circle() {};
+	constexpr Circle::Circle() 
+	{
+		SetRadius(16.0f);
+	};
 
 	constexpr Circle::Circle(float radius) 
-		: m_radius(radius), m_radius_sqr(au::Sqr(radius)) {}
-
-	constexpr float Circle::GetRadius() const noexcept		{ return m_radius; }
-	constexpr float Circle::GetRadiusSqr() const noexcept	{ return m_radius_sqr; }
+	{
+		SetRadius(radius);
+	}
 
 	constexpr void Circle::SetRadius(float radius)
 	{

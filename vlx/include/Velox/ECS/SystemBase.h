@@ -44,7 +44,7 @@ namespace vlx
 	private:
 		float	m_priority		{0.0f};		// priority is for controlling the underlying order of calls inside a layer
 		bool	m_run_parallel	{false};	// determines if whether to parallelize archetypes when being run
-		bool	m_enabled		{true};		// enables or disables system being run
+		bool	m_enabled		{true};		// enables or disables the system from being run
 
 		friend class EntityAdmin;
 	};

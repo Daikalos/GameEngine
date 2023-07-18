@@ -22,6 +22,9 @@ namespace vlx::ui
 		void Update() override;
 
 	private:
+		void SyncText(EntityID entity_id, Text& text, TextMesh& mesh);
+
+	private:
 		static void AddLine(
 			std::vector<sf::Vertex>& m_vertices,
 			float line_length,
@@ -38,6 +41,6 @@ namespace vlx::ui
 			float italic_shear);
 
 	private:
-
+		System<Text, TextMesh> m_sync;
 	};
 }

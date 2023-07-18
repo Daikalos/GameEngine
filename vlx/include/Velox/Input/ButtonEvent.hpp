@@ -42,9 +42,9 @@ namespace vlx
 		};
 
 	public:
-		ButtonEvent() = default;
 		ButtonEvent(const T& input);
 
+		ButtonEvent() = default;
 		ButtonEvent(const ButtonEvent& rhs);
 		ButtonEvent(ButtonEvent&& rhs) noexcept;
 

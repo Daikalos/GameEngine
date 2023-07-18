@@ -413,7 +413,7 @@ namespace vlx
 	template<Arithmetic T>
 	constexpr Vector2<T> Vector2<T>::Normalize(T length, T radius) const requires FloatingPoint<T>
 	{
-		if (length < FLT_EPSILON || std::abs(length - radius) < FLT_EPSILON)
+		if (length < FLT_EPSILON)
 			return *this;
 
 		return (*this) * (radius / length);

@@ -736,7 +736,11 @@ void EntityAdmin::UpdateComponentRef(EntityID entity_id, ComponentTypeID compone
 		{
 			component_map.erase(component_id);
 		}
-		else *ref.base_ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base_offset);
+		else
+		{
+			*ref.base_ptr.lock() = static_cast<void*>(
+				static_cast<std::byte*>(new_component) + ref.base_offset);
+		}
 	}
 	break;
 	case DataRef::R_All:
@@ -748,7 +752,8 @@ void EntityAdmin::UpdateComponentRef(EntityID entity_id, ComponentTypeID compone
 		else
 		{
 			*ref.component_ptr.lock() = new_component;
-			*ref.base_ptr.lock() = reinterpret_cast<void*>((char*)new_component + ref.base_offset);
+			*ref.base_ptr.lock() = static_cast<void*>(
+				static_cast<std::byte*>(new_component) + ref.base_offset);
 		}
 	}
 	break;
@@ -970,7 +975,7 @@ void EntityAdmin::Destruct(
 void EntityAdmin::MakeRoom(Archetype* archetype, const IComponentAlloc* component, std::size_t data_size, std::size_t i) const
 {
 	std::size_t new_size = 2 * archetype->component_data_size[i] + data_size;
-	auto new_data = std::make_unique<ByteArray>(new_size);
+	auto new_data = std::make_unique_for_overwrite<ByteArray>(new_size);
 
 	for (std::size_t j = 0; j < archetype->entities.size(); ++j)
 	{

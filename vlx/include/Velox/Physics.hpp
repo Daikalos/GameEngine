@@ -8,7 +8,6 @@
 
 #include "Physics/Collider.h"
 #include "Physics/CollisionArbiter.h"
-#include "Physics/CollisionContact.h"
 #include "Physics/CollisionLayer.h"
 #include "Physics/CollisionObject.h"
 #include "Physics/CollisionResult.h"

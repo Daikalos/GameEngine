@@ -27,14 +27,9 @@ Window::Window(
 	m_frame_rate	(frame_rate) 
 {}
 
-const std::vector<sf::VideoMode>& Window::GetValidModes(bool update) const
+const std::vector<sf::VideoMode>& Window::GetFullscreenModes() const
 {
-	static std::vector<sf::VideoMode> m_modes;
-
-	if (update || m_modes.empty())
-		m_modes = sf::VideoMode::getFullscreenModes();
-
-	return m_modes;
+	return sf::VideoMode::getFullscreenModes();
 }
 
 Vector2i Window::GetOrigin() const noexcept
@@ -63,15 +58,15 @@ void Window::onCreate()
 
 void Window::Initialize()
 {
-	std::vector<sf::VideoMode> modes = GetValidModes();
+	auto& modes = sf::VideoMode::getFullscreenModes();
 
-	if (!modes.size())
-		throw std::runtime_error("unable to retrieve supported video modes");
+	if (modes.empty())
+		throw std::runtime_error("Unable to retrieve supported video modes");
 
 	Build(m_border, modes.front(), m_settings);
 
 	if (!setActive(true))
-		throw std::runtime_error("window could not be activated");
+		throw std::runtime_error("Window could not be activated");
 }
 
 void Window::HandleEvent(const sf::Event& event)
@@ -100,10 +95,10 @@ void Window::SetVerticalSync(bool flag)
 
 void Window::SetResolution(int index)
 {
-	const auto& modes = GetValidModes();
+	auto& modes = GetFullscreenModes();
 
 	if (index >= modes.size())
-		throw std::runtime_error("index is out of range");
+		throw std::runtime_error("Index is out of range");
 
 	SetMode(modes[index]);
 }

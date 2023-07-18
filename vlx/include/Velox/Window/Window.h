@@ -23,9 +23,11 @@ namespace vlx
 
 	///	Expanded to allow for toggle fullscreen, change resolution, and other settings
 	/// 
-	class VELOX_API Window final : public sf::RenderWindow, NonCopyable
+	class VELOX_API Window final : public sf::RenderWindow, private NonCopyable
 	{
 	public:
+		Window() = delete;
+
 		Window(
 			std::string name);
 
@@ -46,10 +48,9 @@ namespace vlx
 			bool vertical_sync, int frame_rate);
 
 	public:
-		
-		///	Only gets modes that match the aspect ratio of the desktop
+		///	Retrieves all valid modes
 		///
-		NODISC const std::vector<sf::VideoMode>& GetValidModes(bool update = false) const;
+		NODISC const std::vector<sf::VideoMode>& GetFullscreenModes() const;
 
 		NODISC Vector2i GetOrigin() const noexcept;
 		NODISC const Vector2f& GetRatioCmp() const noexcept;

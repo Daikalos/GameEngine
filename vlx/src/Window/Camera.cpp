@@ -26,17 +26,17 @@ Vector2f Camera::ViewToWorld(const Vector2f& position) const
 { 
 	return GetViewMatrix() * position; 
 }
-Vector2f Camera::GetMouseWorldPosition(const Vector2f& relative_pos) const
+Vector2f Camera::LocalToWorldPosition(const Vector2f& local_pos) const
 {
-	return ViewToWorld(relative_pos);
+	return ViewToWorld(local_pos);
 }
-Vector2i Camera::GetMouseWorldPosition(const Vector2i& relative_pos) const
+Vector2i Camera::LocalToWorldPosition(const Vector2i& local_pos) const
 {
-	return Vector2i(GetMouseWorldPosition(Vector2f(relative_pos)));
+	return Vector2i(LocalToWorldPosition(Vector2f(local_pos)));
 }
-Vector2f Camera::GetMouseWorldPosition(const sf::WindowBase& window) const 
+Vector2f Camera::MouseWorldPosition(const sf::WindowBase& window) const
 { 
-	return GetMouseWorldPosition(Vector2f(sf::Mouse::getPosition(window)));
+	return LocalToWorldPosition(Vector2f(sf::Mouse::getPosition(window)));
 }
 
 const Vector2f& Camera::GetPosition() const noexcept

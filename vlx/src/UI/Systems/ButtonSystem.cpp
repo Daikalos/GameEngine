@@ -9,13 +9,13 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 
 {
 	m_buttons.All(
-		[&camera, &mouse, &cursor](EntitySpan entities, Object* os, Renderable* rs, GlobalTransformTranslation* gs, UIBase* us, Button* bs)
+		[&camera, &mouse, &cursor](EntitySpan entities, const Object* os, const Renderable* rs, const GlobalTransformTranslation* gs, const UIBase* us, Button* bs)
 		{
 			const bool pressed	= mouse.Pressed(ebn::Button::GUIButton);
 			const bool released = mouse.Released(ebn::Button::GUIButton);
 
 			const Vector2i mouse_pos = cursor.GetPosition();
-			const Vector2i global_mouse_pos = camera.GetMouseWorldPosition(mouse_pos);
+			const Vector2i world_mouse_pos = camera.LocalToWorldPosition(mouse_pos);
 
 			for (std::size_t i = 0; i < entities.size(); ++i)
 			{
@@ -32,8 +32,8 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 					const Vector2i position	= Vector2i(translation.GetPosition());
 					const Vector2i size		= Vector2i(base.GetSize());
 
-					const RectInt rectangle(position, size);
-					const bool within_bounds = rectangle.Contains(renderable.IsGUI ? mouse_pos : global_mouse_pos);
+					const bool within_bounds = RectInt(position, size)
+						.Contains(renderable.IsGUI ? mouse_pos : world_mouse_pos);
 
 					if (within_bounds)
 					{
@@ -56,11 +56,7 @@ ButtonSystem::ButtonSystem(EntityAdmin& entity_admin, LayerType id,
 			}
 		});
 
-	m_check_flags.Each([this](EntityID entity_id, const Button& button)
-		{
-			if (button.m_flags)
-				m_button_callbacks.emplace_back(entity_id, button.m_flags);
-		});
+	m_check_flags.Each(&ButtonSystem::CheckFlag, this);
 }
 
 void ButtonSystem::Update()
@@ -121,4 +117,10 @@ void ButtonSystem::CallExit(EntityID entity_id) const
 	ButtonExit* event = m_entity_admin->TryGetComponent<ButtonExit>(entity_id);
 	if (event != nullptr)
 		event->OnExit();
+}
+
+void ButtonSystem::CheckFlag(EntityID entity_id, const Button& button)
+{
+	if (button.m_flags)
+		m_button_callbacks.emplace_back(entity_id, button.m_flags);
 }

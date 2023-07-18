@@ -17,7 +17,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 	m_sync.Each(
 		[](EntityID, Transform& t, TransformMatrix& tm)
 		{
-			// TODO: consider implementing TransformChanging that tracks changes to the component instead of doing it brute-force as it is now
+			// TODO: consider implementing TransformChanging component that tracks changes instead of doing it brute-force as it is now
 
 			if (t.m_update_rot)
 			{

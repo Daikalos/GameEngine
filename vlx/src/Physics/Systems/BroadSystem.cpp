@@ -78,7 +78,13 @@ void BroadSystem::GatherCollisions()
 		if (!lhs.collider->GetEnabled())
 			continue;
 
-		std::vector<QuadTreeType::value_type> query = QueryResult(lhs);
+		std::vector<typename QuadTreeType::ValueType> query = QueryResult(lhs);
+
+		// if both have a physics body, do an early check to see if valid
+		const bool lhs_active = (lhs.body ? (lhs.body->IsAwake() && lhs.body->IsEnabled()) : true);
+
+		// in case of no physics body, check if this has any events stored
+		const bool lhs_events = lhs.body || (lhs.enter || lhs.overlap || lhs.exit);
 
 		for (const auto j : query)
 		{
@@ -93,14 +99,14 @@ void BroadSystem::GatherCollisions()
 			if (!rhs.collider->GetEnabled() || !lhs.collider->layer.HasAny(rhs.collider->layer)) // enabled and matching layer
 				continue;
 
-			if (lhs.body != nullptr && rhs.body != nullptr) // if both have a physics body, do an early check to see if valid
-			{
-				const bool lhs_active = (lhs.body->IsAwake() && lhs.body->IsEnabled());
-				const bool rhs_active = (rhs.body->IsAwake() && rhs.body->IsEnabled());
+			const bool rhs_active = (rhs.body ? (rhs.body->IsAwake() && rhs.body->IsEnabled()) : true);
+			const bool rhs_events = rhs.body || (rhs.enter || rhs.overlap || rhs.exit);
 
-				if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
-					continue;
-			}
+			if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
+				continue;
+			
+			if (!lhs_events && !rhs_events) [[unlikely]] // skip collision if both don't have any listeners, unlikely since why else would you use a collider
+				continue;
 
 			m_collisions.emplace_back(i, j);
 		}
@@ -118,7 +124,7 @@ void BroadSystem::CullDuplicates()
 	const auto [first, last] = std::ranges::unique(m_collisions.begin(), m_collisions.end(),
 		[](const CollisionPair& x, const CollisionPair& y)
 		{
-			return x.first == y.first && y.second == x.second;
+			return x == y;
 		});
 
 	m_collisions.erase(first, last);

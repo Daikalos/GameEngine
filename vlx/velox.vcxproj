@@ -183,8 +183,13 @@
     <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
     <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
+    <ClInclude Include="include\Velox\Physics\CollisionSolver.h" />
+    <ClInclude Include="include\Velox\Physics\LocalManifold.h" />
+    <ClInclude Include="include\Velox\Physics\WorldManifold.h" />
     <ClInclude Include="include\Velox\Structures\PriorityQueue.hpp" />
     <ClInclude Include="include\Velox\Structures\RBTree.hpp" />
+    <ClInclude Include="include\Velox\System\Rot2f.h" />
+    <ClInclude Include="include\Velox\System\SimpleTransform.h" />
     <ClInclude Include="include\Velox\UI.hpp" />
     <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBodyTransform.h" />
@@ -205,7 +210,6 @@
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
     <ClInclude Include="include\Velox\Physics\Collider.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionContact.h" />
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Point.h" />
@@ -308,7 +312,11 @@
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
+    <ClCompile Include="src\Physics\CollisionSolver.cpp" />
+    <ClCompile Include="src\Physics\WorldManifold.cpp" />
     <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
+    <ClCompile Include="src\System\Rot2f.cpp" />
+    <ClCompile Include="src\System\SimpleTransform.cpp" />
     <ClCompile Include="src\System\Vector2.cpp" />
     <ClCompile Include="src\UI\Components\TextMesh.cpp" />
     <ClCompile Include="src\UI\Components\UIBase.cpp" />
@@ -317,7 +325,6 @@
     <ClCompile Include="src\Utility\StringUtils.cpp" />
     <ClCompile Include="src\World\Object.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
-    <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />

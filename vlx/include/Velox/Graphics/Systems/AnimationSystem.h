@@ -21,6 +21,11 @@ namespace vlx
 		void Update() override;
 
 	private:
+		void UpdateAnimation(EntityID entity_id, Renderable& renderable, Sprite& sprite, Animation& animation);
+
+	private:
+		const Time* m_time {nullptr};
+
 		System<Renderable, Sprite, Animation> m_animation;
 	};
 }

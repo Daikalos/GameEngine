@@ -65,12 +65,7 @@ namespace vlx
 		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
 
 	private:
-		static constexpr bool BoxBiasGreaterThan(float a, float b, float c);
 		static constexpr bool BiasGreaterThan(float a, float b);
-
-	private:
-		static auto BoxFindIncidentFace(const Mat2f& rot, const Mat2f& rot_tsp, 
-			const Vector2f& half, const Vector2f& pos, const Vector2f& normal) -> Face;
 
 	private:
 		static Vector2f GetSupport(VectorSpan vertices, const Vector2f& dir);
@@ -88,14 +83,6 @@ namespace vlx
 	private:
 		static Matrix table;
 	};
-
-	constexpr bool CollisionTable::BoxBiasGreaterThan(float a, float b, float c)
-	{
-		constexpr float k_bias_relative = 0.95f;
-		constexpr float k_bias_absolute = 0.01f;
-
-		return a >= b * k_bias_relative + c * k_bias_absolute;
-	}
 
 	constexpr bool CollisionTable::BiasGreaterThan(float a, float b)
 	{

@@ -137,7 +137,7 @@ namespace vlx
 	inline bool QTElement<T>::Contains(const RectFloat& aabb)
 	{
 		if (IsInserted())
-			return m_quad_tree->Get(m_index).rect.Contains(aabb);
+			return m_quad_tree->GetRect(m_index).Contains(aabb);
 
 		return false;
 	}
@@ -146,13 +146,13 @@ namespace vlx
 	inline const T& QTElement<T>::Get() const
 	{
 		assert(IsInserted());
-		return m_quad_tree->Get(m_index).item;
+		return m_quad_tree->Get(m_index);
 	}
 	template<std::equality_comparable T>
 	inline T& QTElement<T>::Get()
 	{
 		assert(IsInserted());
-		return m_quad_tree->Get(m_index).item;
+		return m_quad_tree->Get(m_index);
 	}
 
 	template<std::equality_comparable T>

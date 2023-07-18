@@ -46,7 +46,6 @@
     <ClCompile Include="src\System\Mat4f.cpp" />
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
-    <ClCompile Include="src\Physics\CollisionArbiter.cpp" />
     <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
     <ClCompile Include="src\Physics\Collider.cpp" />
     <ClCompile Include="src\Utility\FPSCounter.cpp" />
@@ -64,6 +63,10 @@
     <ClCompile Include="src\UI\Components\TextMesh.cpp" />
     <ClCompile Include="src\UI\Systems\TextSystem.cpp" />
     <ClCompile Include="src\System\Vector2.cpp" />
+    <ClCompile Include="src\System\Rot2f.cpp" />
+    <ClCompile Include="src\System\SimpleTransform.cpp" />
+    <ClCompile Include="src\Physics\WorldManifold.cpp" />
+    <ClCompile Include="src\Physics\CollisionSolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -165,7 +168,6 @@
     <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
     <ClInclude Include="include\Velox\Structures\KDTree.hpp" />
-    <ClInclude Include="include\Velox\Physics\CollisionContact.h" />
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
     <ClInclude Include="include\Velox\System\Mat2f.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Point.h" />
@@ -206,6 +208,11 @@
     <ClInclude Include="include\Velox\ECS\SystemEvent.hpp" />
     <ClInclude Include="include\Velox\ECS\SystemRequire.hpp" />
     <ClInclude Include="include\Velox\ECS\SystemExclude.hpp" />
+    <ClInclude Include="include\Velox\System\SimpleTransform.h" />
+    <ClInclude Include="include\Velox\System\Rot2f.h" />
+    <ClInclude Include="include\Velox\Physics\WorldManifold.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionSolver.h" />
+    <ClInclude Include="include\Velox\Physics\LocalManifold.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

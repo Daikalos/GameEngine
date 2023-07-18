@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+
 namespace vlx
 {
 	class SpriteBatch;
@@ -8,7 +10,7 @@ namespace vlx
 	template<class T>
 	concept IsBatchable = requires(const T& batchable, SpriteBatch& sprite_batch, const Mat4f& transform, float depth)
 	{
-		batchable.BatchImpl(sprite_batch, transform, depth);
+		{ batchable.BatchImpl(sprite_batch, transform, depth) } -> std::same_as<void>;
 	};
 
 	template<class T>
