@@ -28,6 +28,7 @@ namespace vlx
 		void Set(const Vector2f& position, sf::Angle angle);
 
 		void SetPosition(const Vector2f& position);
+		void SetRotation(const Rot2f& rotation);
 		void SetRotation(sf::Angle angle);
 
 		const Vector2f& GetPosition() const noexcept;

@@ -51,6 +51,10 @@ void SimpleTransform::SetPosition(const Vector2f& position)
 {
 	m_pos = position;
 }
+void SimpleTransform::SetRotation(const Rot2f& rotation)
+{
+	m_rot = rotation;
+}
 void SimpleTransform::SetRotation(sf::Angle angle)
 {
 	m_rot.Set(angle);

@@ -65,6 +65,11 @@ namespace vlx
 		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
 
 	private:
+		static void CollidePolygons(CollisionArbiter& arbiter,
+			const ShapeRotatable& A, VectorSpan vs1, VectorSpan ns1,
+			const ShapeRotatable& B, VectorSpan vs2, VectorSpan ns2);
+
+	private:
 		static constexpr bool BiasGreaterThan(float a, float b);
 
 	private:

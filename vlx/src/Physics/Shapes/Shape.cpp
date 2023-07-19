@@ -17,7 +17,7 @@ void Shape::UpdateCenter(const Vector2f& center)
 	m_center = center;
 }
 
-const Mat2f& ShapeRotatable::GetOrientation() const
+const Rot2f& ShapeRotatable::GetOrientation() const
 {
 	if (m_update)
 	{

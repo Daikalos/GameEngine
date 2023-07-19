@@ -40,12 +40,11 @@ void WorldManifold::Initialize(const LocalManifold& manifold,
 
 			Vector2f a_center = AW.GetPosition();
 			Vector2f contact = BW.Transform(manifold.point);
-
 			Vector2f dir = Vector2f::Direction(a_center, contact);
 			float dist = dir.Length();
 
 			contacts[0]		= contact;
-			penetrations[0] = (AR + BR) - dist;
+			penetrations[0] = -(dist - AR - BR);
 		}
 		break;
 	case LocalManifold::Type::BoxCircle:
@@ -59,9 +58,7 @@ void WorldManifold::Initialize(const LocalManifold& manifold,
 			float dist = dir.Length();
 
 			contacts[0]		= contact;
-			penetrations[0] = (AR + BR) - dist;
-
-			normal = -normal;
+			penetrations[0] = -(dist - AR - BR);
 		}
 		break;
 	case LocalManifold::Type::FaceA:

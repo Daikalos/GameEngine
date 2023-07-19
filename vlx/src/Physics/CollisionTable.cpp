@@ -46,18 +46,102 @@ void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1, 
 }
 void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	//const Circle& A = reinterpret_cast<const Circle&>(s1);
+	//const Box& B = reinterpret_cast<const Box&>(s2);
+
+	//const Vector2f a_center = A.GetCenter();
+	//const Vector2f b_center = B.GetCenter();
+
+	//const Vector2f center = B.GetOrientation().Inverse(a_center - b_center); // transform circle to polygon model space
+
+	//const float radius = A.GetRadius() + B.GetRadius();
+
+	//float separation = -FLT_MAX;
+	//uint32 face = 0;
+
+	//for (uint32 i = 0; i < B.GetVertices().size(); ++i)
+	//{
+	//	const Vector2f dir = Vector2f::Direction(B.GetVertices()[i], center);
+	//	const float s = Box::NORMALS[i].Dot(dir);
+
+	//	if (s > radius)
+	//		return;
+
+	//	if (s > separation)
+	//	{
+	//		separation = s;
+	//		face = i;
+	//	}
+	//}
+
+	//const uint32 face2 = (face + 1) == B.GetVertices().size() ? 0 : face + 1;
+
+	//const Vector2f v1 = B.GetVertices()[face];
+	//const Vector2f v2 = B.GetVertices()[face2];
+
+	//if (separation < FLT_EPSILON)
+	//{
+	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
+	//	arbiter.manifold.contacts_count	= 1;
+	//	arbiter.manifold.normal			= Box::NORMALS[face];
+	//	arbiter.manifold.point			= 0.5f * (v1 + v2);
+
+	//	return;
+	//}
+
+	//const Vector2f dir1 = Vector2f::Direction(v1, center);
+	//const Vector2f dir2 = Vector2f::Direction(v2, center);
+
+	//const float dot1 = dir1.Dot(Vector2f::Direction(v1, v2));
+	//const float dot2 = dir2.Dot(Vector2f::Direction(v2, v1));
+
+	//if (dot1 <= 0.0f)
+	//{
+	//	if (dir1.LengthSq() > radius * radius)
+	//		return;
+
+	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
+	//	arbiter.manifold.contacts_count	= 1;
+	//	arbiter.manifold.normal			= dir1.Normalize();
+	//	arbiter.manifold.point			= v1;
+	//}
+	//else if (dot2 <= 0.0f)
+	//{
+	//	if (dir2.LengthSq() > radius * radius)
+	//		return;
+
+	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
+	//	arbiter.manifold.contacts_count	= 1;
+	//	arbiter.manifold.normal			= dir2.Normalize();
+	//	arbiter.manifold.point			= v2;
+	//}
+	//else
+	//{
+	//	const Vector2f face_center = 0.5f * (v1 + v2);
+	//	const Vector2f dir3 = Vector2f::Direction(face_center, center);
+
+	//	if (dir3.Dot(Box::NORMALS[face]) > radius)
+	//		return;
+
+	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
+	//	arbiter.manifold.contacts_count	= 1;
+	//	arbiter.manifold.normal			= Box::NORMALS[face];
+	//	arbiter.manifold.point			= face_center;
+	//}
+
 	const Circle& A = reinterpret_cast<const Circle&>(s1);
 	const Box& B	= reinterpret_cast<const Box&>(s2);
 
 	const float radius = A.GetRadius() + B.GetRadius();
 	
 	const Vector2f half_extends(
-		B.GetWidth() / 2.0f, B.GetHeight() / 2.0f);
+		B.GetRadius() + (B.GetWidth() / 2.0f), 
+		B.GetRadius() + (B.GetHeight() / 2.0f));
 
 	Vector2f a_center = A.GetCenter();
 	Vector2f b_center = B.GetCenter();
 
-	Vector2f n = B.GetOrientation().GetTranspose() * (a_center - b_center); // transform circle to box model space
+	Vector2f n = B.GetOrientation().Inverse(a_center - b_center); // transform circle to box model space
 	Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
 
 	bool inside = false;
@@ -71,16 +155,17 @@ void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, con
 			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	}
 
-	Vector2f point = b_center + B.GetOrientation() * clamped;
+	Vector2f point = b_center + B.GetOrientation().Transform(clamped);
 	Vector2f normal = Vector2f::Direction(a_center, point);
 	float dist = normal.LengthSq();
 
 	if ((dist > radius * radius) && !inside)
 		return;
 
-	n = (dist > FLT_EPSILON) ? B.GetOrientation().GetTranspose() * (normal / std::sqrt(dist)) : Vector2f::UnitX;
+	n = (dist > FLT_EPSILON * FLT_EPSILON) ? 
+		-B.GetOrientation().Inverse(normal / std::sqrt(dist)) : Vector2f::UnitX;
 
-	arbiter.manifold.type			= LocalManifold::Type::CircleBox;
+	arbiter.manifold.type			= LocalManifold::Type::FaceB;
 	arbiter.manifold.contacts_count = 1;
 	arbiter.manifold.point			= clamped;
 	arbiter.manifold.normal			= (inside ? -n : n);
@@ -109,7 +194,7 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 	const Vector2f a_center = A.GetCenter();
 	const Vector2f b_center = B.GetCenter();
 
-	const Vector2f center = B.GetOrientation().GetTranspose() * (a_center - b_center); // transform circle to polygon model space
+	const Vector2f center = B.GetOrientation().Inverse(a_center - b_center); // transform circle to polygon model space
 
 	const float radius = A.GetRadius() + B.GetRadius();
 
@@ -131,13 +216,14 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 		}
 	}
 
-	const Vector2f v1 = B.GetVertices()[face];
 	const uint32 face2 = (face + 1) == B.GetVertices().size() ? 0 : face + 1;
+
+	const Vector2f v1 = B.GetVertices()[face];
 	const Vector2f v2 = B.GetVertices()[face2];
 
 	if (separation < FLT_EPSILON)
 	{
-		arbiter.manifold.type			= LocalManifold::Type::FaceA;
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
 		arbiter.manifold.contacts_count	= 1;
 		arbiter.manifold.normal			= B.GetNormals()[face];
 		arbiter.manifold.point			= 0.5f * (v1 + v2);
@@ -156,7 +242,7 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 		if (dir1.LengthSq() > radius * radius)
 			return;
 
-		arbiter.manifold.type			= LocalManifold::Type::FaceA;
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
 		arbiter.manifold.contacts_count	= 1;
 		arbiter.manifold.normal			= dir1.Normalize();
 		arbiter.manifold.point			= v1;
@@ -166,7 +252,7 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 		if (dir2.LengthSq() > radius * radius)
 			return;
 
-		arbiter.manifold.type			= LocalManifold::Type::FaceA;
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
 		arbiter.manifold.contacts_count	= 1;
 		arbiter.manifold.normal			= dir2.Normalize();
 		arbiter.manifold.point			= v2;
@@ -176,10 +262,10 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 		const Vector2f face_center = 0.5f * (v1 + v2);
 		const Vector2f dir3 = Vector2f::Direction(face_center, center);
 
-		if (dir3.Dot(B.GetNormals()[face]) > radius * radius)
+		if (dir3.Dot(B.GetNormals()[face]) > radius)
 			return;
 
-		arbiter.manifold.type			= LocalManifold::Type::FaceA;
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
 		arbiter.manifold.contacts_count	= 1;
 		arbiter.manifold.normal			= B.GetNormals()[face];
 		arbiter.manifold.point			= face_center;
@@ -189,103 +275,16 @@ void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 void CollisionTable::BoxToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	CircleToBox(arbiter, s2, s1);
-	arbiter.manifold.type = LocalManifold::Type::BoxCircle;
+	arbiter.manifold.type = LocalManifold::Type::FaceA;
 }
 void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	const Box& A = reinterpret_cast<const Box&>(s1);
 	const Box& B = reinterpret_cast<const Box&>(s2);
 
-	const float radius = A.GetRadius() + B.GetRadius();
-
-	auto [penetration_a, face_a] = FindAxisLeastPenetration(
+	CollidePolygons(arbiter, 
 		A, A.GetVertices(), Box::NORMALS,
 		B, B.GetVertices(), Box::NORMALS);
-
-	if (penetration_a >= radius)
-		return;
-
-	auto [penetration_b, face_b] = FindAxisLeastPenetration(
-		B, B.GetVertices(), Box::NORMALS,
-		A, A.GetVertices(), Box::NORMALS);
-
-	if (penetration_b >= radius)
-		return;
-
-	const ShapeRotatable* ref_shape = nullptr;
-	VectorSpan ref_vertices;
-
-	const ShapeRotatable* inc_shape = nullptr;
-	VectorSpan inc_vertices;
-
-	uint32 ref_idx = 0;
-
-	if (BiasGreaterThan(penetration_a, penetration_b))
-	{
-		ref_shape		= &A;
-		ref_vertices	= A.GetVertices();
-
-		inc_shape		= &B;
-		inc_vertices	= B.GetVertices();
-
-		ref_idx			= face_a;
-
-		arbiter.manifold.type = LocalManifold::Type::FaceA;
-	}
-	else
-	{
-		ref_shape		= &B;
-		ref_vertices	= B.GetVertices();
-
-		inc_shape		= &A;
-		inc_vertices	= A.GetVertices();
-
-		ref_idx			= face_b;
-
-		arbiter.manifold.type = LocalManifold::Type::FaceB;
-	}
-
-	Face incident_face = FindIncidentFace(
-		*inc_shape, inc_vertices, Box::NORMALS,
-		*ref_shape, Box::NORMALS[ref_idx]);
-
-	Vector2f l1 = ref_vertices[ref_idx];
-	Vector2f v1 = ref_shape->GetCenter() + ref_shape->GetOrientation() * l1;
-
-	ref_idx = ((ref_idx + 1) == (uint32)ref_vertices.size()) ? 0 : ref_idx + 1;
-
-	Vector2f l2 = ref_vertices[ref_idx];
-	Vector2f v2 = ref_shape->GetCenter() + ref_shape->GetOrientation() * l2;
-
-	Vector2f side_normal = Vector2f::Direction(v1, v2).Normalize();
-
-	float neg_side = -side_normal.Dot(v1) + radius;
-	float pos_side =  side_normal.Dot(v2) + radius;
-
-	if (Clip(incident_face, -side_normal, neg_side) < 2)
-		return;
-
-	if (Clip(incident_face,  side_normal, pos_side) < 2)
-		return;
-
-	arbiter.manifold.normal = Vector2f::Direction(l1, l2).Normalize().Orthogonal();
-	arbiter.manifold.point	= 0.5f * (l1 + l2);
-
-	Vector2f face_normal = side_normal.Orthogonal();
-	float front = face_normal.Dot(v1);
-
-	uint32 cp = 0;
-	for (int i = 0; i < 2; ++i)
-	{
-		float penetration = front - face_normal.Dot(incident_face[i]);
-		if (penetration >= radius)
-		{
-			typename LocalManifold::Point& contact = arbiter.manifold.contacts[cp++];
-			contact.point = inc_shape->GetOrientation().GetTranspose() * (incident_face[i] - inc_shape->GetCenter());
-		}
-	}
-
-	arbiter.manifold.contacts_count = cp;
 }
 void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -298,7 +297,7 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 	Vector2f a_center = A.GetCenter();
 	Vector2f b_center = B.GetCenter();
 
-	Vector2f n = A.GetOrientation().GetTranspose() * Vector2f::Direction(a_center, b_center); // transform circle to box model space
+	Vector2f n = A.GetOrientation().Inverse(Vector2f::Direction(a_center, b_center)); // transform circle to box model space
 	Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
 
 	bool inside = false;
@@ -317,7 +316,7 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 	if (!inside)
 		return;
 
-	Vector2f point = a_center + A.GetOrientation() * clamped;
+	Vector2f point = a_center + A.GetOrientation().Transform(clamped);
 	Vector2f normal = Vector2f::Direction(b_center, point);
 	float dist = normal.Length();
 
@@ -334,102 +333,9 @@ void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, con
 	const Box& A = reinterpret_cast<const Box&>(s1);
 	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
 
-	const float radius = A.GetRadius() + B.GetRadius();
-
-	auto [penetration_a, face_a] = FindAxisLeastPenetration(
-		A, A.GetVertices(), Box::NORMALS,
+	CollidePolygons(arbiter, 
+		A, A.GetVertices(), Box::NORMALS, 
 		B, B.GetVertices(), B.GetNormals());
-
-	if (penetration_a >= radius)
-		return;
-
-	auto [penetration_b, face_b] = FindAxisLeastPenetration(
-		B, B.GetVertices(), B.GetNormals(),
-		A, A.GetVertices(), Box::NORMALS);
-
-	if (penetration_b >= radius)
-		return;
-
-	const ShapeRotatable* ref_shape = nullptr;
-	VectorSpan ref_vertices;
-	VectorSpan ref_normals;
-
-	const ShapeRotatable* inc_shape = nullptr;
-	VectorSpan inc_vertices;
-	VectorSpan inc_normals;
-
-	uint32 ref_idx = 0;
-
-	if (BiasGreaterThan(penetration_a, penetration_b))
-	{
-		ref_shape		= &A;
-		ref_vertices	= A.GetVertices();
-		ref_normals		= Box::NORMALS;
-
-		inc_shape		= &B;
-		inc_vertices	= B.GetVertices();
-		inc_normals		= B.GetNormals();
-
-		ref_idx			= face_a;
-
-		arbiter.manifold.type = LocalManifold::Type::FaceA;
-	}
-	else
-	{
-		ref_shape		= &B;
-		ref_vertices	= B.GetVertices();
-		ref_normals		= B.GetNormals();
-
-		inc_shape		= &A;
-		inc_vertices	= A.GetVertices();
-		inc_normals		= Box::NORMALS;
-
-		ref_idx			= face_b;
-
-		arbiter.manifold.type = LocalManifold::Type::FaceB;
-	}
-
-	Face incident_face = FindIncidentFace(
-		*inc_shape, inc_vertices, inc_normals,
-		*ref_shape, ref_normals[ref_idx]);
-
-	Vector2f l1 = ref_vertices[ref_idx];
-	Vector2f v1 = ref_shape->GetCenter() + ref_shape->GetOrientation() * l1;
-
-	ref_idx = ((ref_idx + 1) == (uint32)ref_vertices.size()) ? 0 : ref_idx + 1;
-
-	Vector2f l2 = ref_vertices[ref_idx];
-	Vector2f v2 = ref_shape->GetCenter() + ref_shape->GetOrientation() * l2;
-
-	Vector2f side_normal = Vector2f::Direction(v1, v2).Normalize();
-
-	float neg_side = -side_normal.Dot(v1) + radius;
-	float pos_side =  side_normal.Dot(v2) + radius;
-
-	if (Clip(incident_face, -side_normal, neg_side) < 2)
-		return;
-
-	if (Clip(incident_face,  side_normal, pos_side) < 2)
-		return;
-
-	arbiter.manifold.normal = Vector2f::Direction(l1, l2).Normalize().Orthogonal();
-	arbiter.manifold.point	= 0.5f * (l1 + l2);
-
-	Vector2f face_normal = side_normal.Orthogonal();
-	float front = face_normal.Dot(v1);
-
-	uint32 cp = 0;
-	for (int i = 0; i < 2; ++i)
-	{
-		float penetration = front - face_normal.Dot(incident_face[i]);
-		if (penetration >= radius)
-		{
-			typename LocalManifold::Point& contact = arbiter.manifold.contacts[cp++];
-			contact.point = inc_shape->GetOrientation().GetTranspose() * (incident_face[i] - inc_shape->GetCenter());
-		}
-	}
-
-	arbiter.manifold.contacts_count = cp;
 }
 
 void CollisionTable::PointToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
@@ -453,12 +359,11 @@ void CollisionTable::PointToConvex(CollisionArbiter&, const Shape&, const Shape&
 void CollisionTable::ConvexToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	CircleToConvex(arbiter, s2, s1);
+	arbiter.manifold.type = LocalManifold::Type::FaceA;
 }
 void CollisionTable::ConvexToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
 	BoxToConvex(arbiter, s2, s1);
-
-	// swap type
 	arbiter.manifold.type = (arbiter.manifold.type == LocalManifold::Type::FaceA) ? LocalManifold::Type::FaceB : LocalManifold::Type::FaceA;
 }
 void CollisionTable::ConvexToPoint(CollisionArbiter&, const Shape& s1, const Shape& s2)
@@ -470,81 +375,103 @@ void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 	const Polygon& A = reinterpret_cast<const Polygon&>(s1);
 	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
 
+	CollidePolygons(arbiter, 
+		A, A.GetVertices(), A.GetNormals(), 
+		B, B.GetVertices(), B.GetNormals());
+}
+
+void CollisionTable::CollidePolygons(CollisionArbiter& arbiter, 
+	const ShapeRotatable& A, VectorSpan vs1, VectorSpan ns1, 
+	const ShapeRotatable& B, VectorSpan vs2, VectorSpan ns2)
+{
 	const float radius = A.GetRadius() + B.GetRadius();
 
-	auto [penetration_a, face_a] = FindAxisLeastPenetration(
-		A, A.GetVertices(), A.GetNormals(),
-		B, B.GetVertices(), B.GetNormals());
+	auto [penetration_a, face_a] = FindAxisLeastPenetration(A, vs1, ns1, B, vs2, ns2);
 
 	if (penetration_a > radius)
 		return;
 
-	auto [penetration_b, face_b] = FindAxisLeastPenetration(
-		B, B.GetVertices(), B.GetNormals(),
-		A, A.GetVertices(), A.GetNormals());
+	auto [penetration_b, face_b] = FindAxisLeastPenetration(B, vs2, ns2, A, vs1, ns1);
 
 	if (penetration_b > radius)
 		return;
 
-	const Polygon* ref_poly = nullptr;
-	const Polygon* inc_poly = nullptr;
+	const ShapeRotatable* ref_shape = nullptr;
+	VectorSpan ref_vertices;
+	VectorSpan ref_normals;
+
+	const ShapeRotatable* inc_shape = nullptr;
+	VectorSpan inc_vertices;
+	VectorSpan inc_normals;
+
 	uint32 ref_idx = 0;
 
 	if (BiasGreaterThan(penetration_a, penetration_b))
 	{
-		ref_poly	= &A;
-		inc_poly	= &B;
-		ref_idx		= face_a;
+		ref_shape		= &A;
+		ref_vertices	= vs1;
+		ref_normals		= ns1;
+
+		inc_shape		= &B;
+		inc_vertices	= vs2;
+		inc_normals		= ns2;
+
+		ref_idx = face_a;
 
 		arbiter.manifold.type = LocalManifold::Type::FaceA;
 	}
 	else
 	{
-		ref_poly	= &B;
-		inc_poly	= &A;
-		ref_idx		= face_b;
+		ref_shape		= &B;
+		ref_vertices	= vs2;
+		ref_normals		= ns2;
+
+		inc_shape		= &A;
+		inc_vertices	= vs1;
+		inc_normals		= ns1;
+
+		ref_idx = face_b;
 
 		arbiter.manifold.type = LocalManifold::Type::FaceB;
 	}
 
 	Face incident_face = FindIncidentFace(
-		*inc_poly, inc_poly->GetVertices(), inc_poly->GetNormals(),
-		*ref_poly, ref_poly->GetNormals()[ref_idx]);
+		*inc_shape, inc_vertices, inc_normals,
+		*ref_shape, ref_normals[ref_idx]);
 
-	Vector2f l1 = ref_poly->GetVertices()[ref_idx];
-	Vector2f v1 = ref_poly->GetCenter() + ref_poly->GetOrientation() * l1;
+	Vector2f l1 = ref_vertices[ref_idx];
+	Vector2f v1 = ref_shape->GetCenter() + ref_shape->GetOrientation().Transform(l1);
 
-	ref_idx = ((ref_idx + 1) == (uint32)ref_poly->GetVertices().size()) ? 0 : ref_idx + 1;
+	ref_idx = ((ref_idx + 1) == (uint32)ref_vertices.size()) ? 0 : ref_idx + 1;
 
-	Vector2f l2 = ref_poly->GetVertices()[ref_idx];
-	Vector2f v2 = ref_poly->GetCenter() + ref_poly->GetOrientation() * l2;
+	Vector2f l2 = ref_vertices[ref_idx];
+	Vector2f v2 = ref_shape->GetCenter() + ref_shape->GetOrientation().Transform(l2);
 
-	Vector2f tangent = Vector2f::Direction(v1, v2).Normalize();
+	Vector2f side_normal = Vector2f::Direction(v1, v2).Normalize();
 
-	float neg_side = -tangent.Dot(v1) + radius;
-	float pos_side =  tangent.Dot(v2) + radius;
+	float neg_side = -side_normal.Dot(v1) + radius;
+	float pos_side = side_normal.Dot(v2) + radius;
 
-	if (Clip(incident_face, -tangent, neg_side) < 2)
+	if (Clip(incident_face, -side_normal, neg_side) < 2)
 		return;
 
-	if (Clip(incident_face,  tangent, pos_side) < 2)
+	if (Clip(incident_face, side_normal, pos_side) < 2)
 		return;
 
 	arbiter.manifold.normal = Vector2f::Direction(l1, l2).Normalize().Orthogonal();
-	arbiter.manifold.point	= 0.5f * (l1 + l2);
+	arbiter.manifold.point = 0.5f * (l1 + l2);
 
-	Vector2f face_normal = tangent.Orthogonal();
+	Vector2f face_normal = side_normal.Orthogonal();
 	float front = face_normal.Dot(v1);
 
 	uint32 cp = 0;
 	for (int i = 0; i < 2; ++i)
 	{
 		float penetration = front - face_normal.Dot(incident_face[i]);
-		if (penetration >= radius)
+		if (penetration >= -radius)
 		{
-			typename LocalManifold::Point& contact = arbiter.manifold.contacts[cp];
-			contact.point = inc_poly->GetOrientation().GetTranspose() * (incident_face[i] - inc_poly->GetCenter());
-			++cp;
+			typename LocalManifold::Point& contact = arbiter.manifold.contacts[cp++];
+			contact.point = inc_shape->GetOrientation().Inverse(incident_face[i] - inc_shape->GetCenter());
 		}
 	}
 
@@ -569,8 +496,6 @@ Vector2f CollisionTable::GetSupport(VectorSpan vertices, const Vector2f& dir)
 	return vertices[best_index];
 }
 
-#include <Velox/System/Rot2f.h>
-
 std::tuple<float, uint32> CollisionTable::FindAxisLeastPenetration(
 	const ShapeRotatable& s1, VectorSpan v1, VectorSpan n1,
 	const ShapeRotatable& s2, VectorSpan v2, VectorSpan n2)
@@ -578,16 +503,15 @@ std::tuple<float, uint32> CollisionTable::FindAxisLeastPenetration(
 	float best_distance = -FLT_MAX;
 	uint32 best_index = 0;
 
-	Mat2f s2t = s2.GetOrientation().GetTranspose();
-	Mat2f wt2 = s2t * s1.GetOrientation(); // combined matrix transforming to world -> model space of s2
+	Rot2f wt2 = s2.GetOrientation().Inverse(s1.GetOrientation()); // combined matrix transforming to world -> model space of s2
 
 	Vector2f dir = Vector2f::Direction(s2.GetCenter(), s1.GetCenter());
 
 	for (uint32 i = 0; i < v1.size(); ++i)
 	{
-		Vector2f vertex = s2t * (s1.GetOrientation() * v1[i] + dir); // model space of s1 -> model space of s2
+		Vector2f vertex = s2.GetOrientation().Inverse(s1.GetOrientation().Transform(v1[i]) + dir); // model space of s1 -> model space of s2
 
-		Vector2f normal = wt2 * n1[i]; // normal to world space -> model space of s2
+		Vector2f normal = wt2.Transform(n1[i]); // normal to world space -> model space of s2
 		Vector2f support = GetSupport(v2, -normal); // support from s2 along -normal
 		
 		float d = normal.Dot(support - vertex); // penetration distance in s2 space
@@ -607,8 +531,8 @@ auto CollisionTable::FindIncidentFace(
 	const ShapeRotatable& ref, const Vector2f& ref_normal) -> Face
 {
 	// calculate normal in the incident's space
-	Vector2f normal = inc.GetOrientation().GetTranspose() * 
-		(ref.GetOrientation() * ref_normal); // world space -> incident model space
+	Vector2f normal = inc.GetOrientation().Inverse(
+		ref.GetOrientation().Transform(ref_normal)); // world space -> incident model space
 
 	float min_dot = FLT_MAX;
 	uint32 face_index = 0;
@@ -626,9 +550,9 @@ auto CollisionTable::FindIncidentFace(
 	Face face;
 	Vector2f pos = inc.GetCenter();
 
-	face[0] = pos + inc.GetOrientation() * inc_vertices[face_index];
+	face[0] = pos + inc.GetOrientation().Transform(inc_vertices[face_index]);
 	face_index = (face_index + 1) == (uint32)inc_normals.size() ? 0 : face_index + 1;
-	face[1] = pos + inc.GetOrientation() * inc_vertices[face_index];
+	face[1] = pos + inc.GetOrientation().Transform(inc_vertices[face_index]);
 
 	return face;
 }

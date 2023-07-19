@@ -32,9 +32,14 @@ void PhysicsSystem::SetGravity(const Vector2f& gravity)
 	m_gravity = gravity;
 }
 
-void PhysicsSystem::SetIterations(int iterations)
+void PhysicsSystem::SetVelocityIterations(int iterations)
 {
-	m_iterations = iterations;
+	m_velocity_iterations = iterations;
+}
+
+void PhysicsSystem::SetPositionIterations(int iterations)
+{
+	m_position_iterations = iterations;
 }
 
 void PhysicsSystem::FixedUpdate()
@@ -49,15 +54,14 @@ void PhysicsSystem::FixedUpdate()
 	Execute(m_integrate_velocity);
 
 	m_collision_solver.CreateConstraints(arbiters);
-
 	m_collision_solver.SetupConstraints(arbiters, *m_time, m_gravity);
 
-	for (int i = 0; i < m_iterations; ++i)
+	for (int i = 0; i < m_velocity_iterations; ++i)
 		m_collision_solver.ResolveVelocity(arbiters);
 
 	Execute(m_integrate_position);
 
-	for (int i = 0; i < m_iterations; ++i)
+	for (int i = 0; i < m_position_iterations; ++i)
 	{
 		if (m_collision_solver.ResolvePosition(arbiters))
 			break;

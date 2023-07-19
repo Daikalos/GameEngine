@@ -34,7 +34,8 @@ namespace vlx
 		const Vector2f& GetGravity() const;
 		void SetGravity(const Vector2f& gravity);
 
-		void SetIterations(int iterations);
+		void SetVelocityIterations(int iterations);
+		void SetPositionIterations(int iterations);
 
 	private:
 		void PreSolve(EntityID entity_id, PhysicsBodyTransform& pbt, const Transform& t) const;
@@ -45,7 +46,9 @@ namespace vlx
 	private:
 		Time*			m_time			{nullptr};
 		Vector2f		m_gravity		{0.0f, 60.82f};
-		int				m_iterations	{20};
+
+		int				m_velocity_iterations	{20};
+		int				m_position_iterations	{10};
 
 		BroadSystem		m_broad_system;
 		NarrowSystem	m_narrow_system;

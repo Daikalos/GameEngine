@@ -2,7 +2,7 @@
 
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Vector2.hpp>
-#include <Velox/System/Mat2f.hpp>
+#include <Velox/System/Rot2f.h>
 #include <Velox/Config.hpp>
 
 #include "../PhysicsBody.h"
@@ -46,10 +46,10 @@ namespace vlx
 
 	protected:
 		RectFloat	m_aabb;		// aabb for queries
-		Vector2f	m_center;	// center of shape
+		Vector2f	m_center;
 
 		float		m_radius	 {P_POLYGON_RADIUS};			// radius for shape, P_POLYGON_RADIUS for polygons
-		float		m_radius_sqr {au::Sqr(P_POLYGON_RADIUS)};	// square radius
+		float		m_radius_sqr {au::Sqr(P_POLYGON_RADIUS)};
 
 		friend class PhysicsDirtySystem;
 	};
@@ -57,14 +57,14 @@ namespace vlx
 	class VELOX_API ShapeRotatable : public Shape
 	{
 	public:
-		const Mat2f& GetOrientation() const;
+		const Rot2f& GetOrientation() const;
 
 	private:
 		void UpdateOrientation(sf::Angle angle);
 
 	private:
-		mutable Mat2f	m_orientation;		// rotation matrix
-		sf::Angle		m_angle;			// cache orientation
+		mutable Rot2f	m_orientation;		
+		sf::Angle		m_angle;			
 		mutable bool	m_update {true};
 
 		friend class PhysicsDirtySystem;

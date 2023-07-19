@@ -77,12 +77,8 @@ void CollisionSolver::SetupConstraints(std::span<const CollisionArbiter> arbiter
 				contact.mass_normal = (k_normal > 0.0f) ? (1.0f / k_normal) : 0.0f;
 			}
 
-			Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
-						  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
-
 			{
-				Vector2f tangent = rv - (vc.normal * rv.Dot(vc.normal));
-				tangent = tangent.Normalize();
+				Vector2f tangent = Vector2f::Cross(vc.normal, 1.0f);
 
 				float rta = contact.ra.Cross(tangent);
 				float rtb = contact.rb.Cross(tangent);
@@ -92,6 +88,9 @@ void CollisionSolver::SetupConstraints(std::span<const CollisionArbiter> arbiter
 
 				contact.mass_tangent = (k_tangent > 0.0f) ? (1.0f / k_tangent) : 0.0f;
 			}
+
+			Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
+						  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
 
 			if (rv.LengthSq() < (gravity * time.GetFixedDT()).LengthSq() + FLT_EPSILON)
 				vc.restitution = 0.0f;
@@ -115,70 +114,73 @@ void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
 		const float ai = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvInertia() : 0.0f;
 		const float bi = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvInertia() : 0.0f;
 
-		// friction
-		for (int32 j = 0; j < vc.contacts_count; ++j)
-		{
-			typename VelocityConstraint::Contact& contact = vc.contacts[j];
-
-			const Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
-								AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
-
-			Vector2f tangent = rv - (vc.normal * rv.Dot(vc.normal));
-			tangent = tangent.Normalize();
-
-			float lambda = -rv.Dot(tangent) * contact.mass_tangent;
-
-			const float max_friction = vc.friction * contact.impulse_normal;
-			const float new_impulse = std::clamp(contact.impulse_tangent + lambda, -max_friction, max_friction);
-			lambda = new_impulse - contact.impulse_tangent;
-			contact.impulse_tangent = new_impulse;
-
-			const Vector2f P = tangent * lambda;
-
-			if (AB.IsAwake() && AB.IsEnabled())
-			{
-				AB.m_velocity -= P * am;
-				AB.m_angular_velocity -= contact.ra.Cross(P) * ai;
-			}
-
-			if (BB.IsAwake() && BB.IsEnabled())
-			{
-				BB.m_velocity += P * bm;
-				BB.m_angular_velocity += contact.rb.Cross(P) * bi;
-			}
-		}
+		Vector2f tangent = Vector2f::Cross(vc.normal, 1.0f);
 
 		for (int32 j = 0; j < vc.contacts_count; ++j)
 		{
 			typename VelocityConstraint::Contact& contact = vc.contacts[j];
 
-			const Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
-								AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
+			Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
+						  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
 
 			const float vel_along_normal = rv.Dot(vc.normal);
 
 			if (vel_along_normal >= 0.0f) // no need to resolve if they are separating
 				continue;
 
-			float lambda = -vel_along_normal * (1.0f + vc.restitution) * contact.mass_normal;
-			//dpn = std::max(dpn, 0.0f);
+			float dpt = -rv.Dot(tangent) * contact.mass_tangent;
 
-			const float new_impulse = std::max(contact.impulse_normal + lambda, 0.0f);
-			lambda = new_impulse - contact.impulse_normal;
-			contact.impulse_normal = new_impulse;
+			const float max_pt = vc.friction * contact.mass_normal;
 
-			const Vector2f P = vc.normal * lambda;
+			const float pt0 = contact.impulse_tangent;
+			contact.impulse_tangent = std::clamp(pt0 + dpt, -max_pt, max_pt);
+			dpt = contact.impulse_tangent - pt0;
+
+			const Vector2f pt = tangent * dpt;
 
 			if (AB.IsAwake() && AB.IsEnabled())
 			{
-				AB.m_velocity -= P * am;
-				AB.m_angular_velocity -= contact.ra.Cross(P) * ai;
+				AB.m_velocity			-= pt * am;
+				AB.m_angular_velocity	-= contact.ra.Cross(pt) * ai;
 			}
 
 			if (BB.IsAwake() && BB.IsEnabled())
 			{
-				BB.m_velocity += P * bm;
-				BB.m_angular_velocity += contact.rb.Cross(P) * bi;
+				BB.m_velocity			+= pt * bm;
+				BB.m_angular_velocity	+= contact.rb.Cross(pt) * bi;
+			}
+		}
+		
+		for (int32 j = 0; j < vc.contacts_count; ++j)
+		{
+			typename VelocityConstraint::Contact& contact = vc.contacts[j];
+
+			Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
+						  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
+
+			const float vel_along_normal = rv.Dot(vc.normal);
+
+			if (vel_along_normal >= 0.0f) // no need to resolve if they are separating
+				continue;
+
+			float dpn = -vel_along_normal * (1.0f + vc.restitution) * contact.mass_normal;
+			
+			float pn0 = contact.impulse_normal;
+			contact.impulse_normal = std::max(pn0 + dpn, 0.0f);
+			dpn = contact.impulse_normal - pn0;
+
+			const Vector2f pn = vc.normal * dpn;
+
+			if (AB.IsAwake() && AB.IsEnabled())
+			{
+				AB.m_velocity			-= pn * am;
+				AB.m_angular_velocity	-= contact.ra.Cross(pn) * ai;
+			}
+
+			if (BB.IsAwake() && BB.IsEnabled())
+			{
+				BB.m_velocity			+= pn * bm;
+				BB.m_angular_velocity	+= contact.rb.Cross(pn) * bi;
 			}
 		}
 	}
@@ -231,6 +233,7 @@ bool CollisionSolver::ResolvePosition(std::span<CollisionArbiter> arbiters)
 			const Vector2f rb = contact - BT.GetPosition();
 
 			const float correction = std::clamp(P_BAUMGARTE * (penetration - P_SLOP), 0.0f, P_MAX_CORRECTION);
+			//const float correction = std::max(penetration - P_SLOP, 0.0f);
 
 			const float rna = ra.Cross(normal);
 			const float rnb = rb.Cross(normal);
@@ -243,13 +246,13 @@ bool CollisionSolver::ResolvePosition(std::span<CollisionArbiter> arbiters)
 			if (AB.IsAwake() && AB.IsEnabled())
 			{
 				AT.Move(-p * am);
-				//AT.Rotate(-sf::radians(ai * ra.Cross(p)));
+				AT.Rotate(-sf::radians(ai * ra.Cross(p)));
 			}
 
 			if (BB.IsAwake() && BB.IsEnabled())
 			{
 				BT.Move(p * bm);
-				//BT.Rotate(sf::radians(bi * rb.Cross(p)));
+				BT.Rotate(sf::radians(bi * rb.Cross(p)));
 			}
 		}
 	}
@@ -285,7 +288,7 @@ void PositionSolverManifold::Initialize(const LocalManifold& manifold, const Sim
 			Vector2f dir = Vector2f::Direction(a_center, contact);
 			float dist = dir.Length();
 
-			penetration = AR - dist;
+			penetration = -(dist - AR - BR);
 		}
 		break;
 	case LocalManifold::Type::BoxCircle:
@@ -298,7 +301,7 @@ void PositionSolverManifold::Initialize(const LocalManifold& manifold, const Sim
 			Vector2f dir = Vector2f::Direction(b_center, contact);
 			float dist = dir.Length();
 
-			penetration = BR - dist;
+			penetration = -(dist - AR - BR);
 
 			normal = -normal;
 		}
