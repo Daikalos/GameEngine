@@ -123,11 +123,6 @@ void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
 			Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
 						  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
 
-			const float vel_along_normal = rv.Dot(vc.normal);
-
-			if (vel_along_normal >= 0.0f) // no need to resolve if they are separating
-				continue;
-
 			float dpt = -rv.Dot(tangent) * contact.mass_tangent;
 
 			const float max_pt = vc.friction * contact.mass_normal;
