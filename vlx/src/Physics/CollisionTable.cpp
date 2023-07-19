@@ -46,129 +46,51 @@ void CollisionTable::CircleToCircle(CollisionArbiter& arbiter, const Shape& s1, 
 }
 void CollisionTable::CircleToBox(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
+	const Circle& A = reinterpret_cast<const Circle&>(s1);
+	const Box& B = reinterpret_cast<const Box&>(s2);
+
+	CircleToPolygon(arbiter, A, B, B.GetVertices(), Box::NORMALS);
+
 	//const Circle& A = reinterpret_cast<const Circle&>(s1);
-	//const Box& B = reinterpret_cast<const Box&>(s2);
-
-	//const Vector2f a_center = A.GetCenter();
-	//const Vector2f b_center = B.GetCenter();
-
-	//const Vector2f center = B.GetOrientation().Inverse(a_center - b_center); // transform circle to polygon model space
+	//const Box& B	= reinterpret_cast<const Box&>(s2);
 
 	//const float radius = A.GetRadius() + B.GetRadius();
+	//
+	//const Vector2f half_extends(
+	//	B.GetRadius() + (B.GetWidth() / 2.0f), 
+	//	B.GetRadius() + (B.GetHeight() / 2.0f));
 
-	//float separation = -FLT_MAX;
-	//uint32 face = 0;
+	//Vector2f a_center = A.GetCenter();
+	//Vector2f b_center = B.GetCenter();
 
-	//for (uint32 i = 0; i < B.GetVertices().size(); ++i)
+	//Vector2f n = B.GetOrientation().Inverse(a_center - b_center); // transform circle to box model space
+	//Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
+
+	//bool inside = false;
+
+	//if (n == clamped)
 	//{
-	//	const Vector2f dir = Vector2f::Direction(B.GetVertices()[i], center);
-	//	const float s = Box::NORMALS[i].Dot(dir);
-
-	//	if (s > radius)
-	//		return;
-
-	//	if (s > separation)
-	//	{
-	//		separation = s;
-	//		face = i;
-	//	}
+	//	inside = true;
+	//	if (std::abs(n.x) > std::abs(n.y))
+	//		clamped.x = (clamped.x > 0.0f) ? half_extends.x : -half_extends.x;
+	//	else
+	//		clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
 	//}
 
-	//const uint32 face2 = (face + 1) == B.GetVertices().size() ? 0 : face + 1;
+	//Vector2f point = b_center + B.GetOrientation().Transform(clamped);
+	//Vector2f normal = Vector2f::Direction(a_center, point);
+	//float dist = normal.LengthSq();
 
-	//const Vector2f v1 = B.GetVertices()[face];
-	//const Vector2f v2 = B.GetVertices()[face2];
-
-	//if (separation < FLT_EPSILON)
-	//{
-	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
-	//	arbiter.manifold.contacts_count	= 1;
-	//	arbiter.manifold.normal			= Box::NORMALS[face];
-	//	arbiter.manifold.point			= 0.5f * (v1 + v2);
-
+	//if ((dist > radius * radius) && !inside)
 	//	return;
-	//}
 
-	//const Vector2f dir1 = Vector2f::Direction(v1, center);
-	//const Vector2f dir2 = Vector2f::Direction(v2, center);
+	//n = (dist > FLT_EPSILON * FLT_EPSILON) ? 
+	//	-B.GetOrientation().Inverse(normal / std::sqrt(dist)) : Vector2f::UnitX;
 
-	//const float dot1 = dir1.Dot(Vector2f::Direction(v1, v2));
-	//const float dot2 = dir2.Dot(Vector2f::Direction(v2, v1));
-
-	//if (dot1 <= 0.0f)
-	//{
-	//	if (dir1.LengthSq() > radius * radius)
-	//		return;
-
-	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
-	//	arbiter.manifold.contacts_count	= 1;
-	//	arbiter.manifold.normal			= dir1.Normalize();
-	//	arbiter.manifold.point			= v1;
-	//}
-	//else if (dot2 <= 0.0f)
-	//{
-	//	if (dir2.LengthSq() > radius * radius)
-	//		return;
-
-	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
-	//	arbiter.manifold.contacts_count	= 1;
-	//	arbiter.manifold.normal			= dir2.Normalize();
-	//	arbiter.manifold.point			= v2;
-	//}
-	//else
-	//{
-	//	const Vector2f face_center = 0.5f * (v1 + v2);
-	//	const Vector2f dir3 = Vector2f::Direction(face_center, center);
-
-	//	if (dir3.Dot(Box::NORMALS[face]) > radius)
-	//		return;
-
-	//	arbiter.manifold.type			= LocalManifold::Type::FaceB;
-	//	arbiter.manifold.contacts_count	= 1;
-	//	arbiter.manifold.normal			= Box::NORMALS[face];
-	//	arbiter.manifold.point			= face_center;
-	//}
-
-	const Circle& A = reinterpret_cast<const Circle&>(s1);
-	const Box& B	= reinterpret_cast<const Box&>(s2);
-
-	const float radius = A.GetRadius() + B.GetRadius();
-	
-	const Vector2f half_extends(
-		B.GetRadius() + (B.GetWidth() / 2.0f), 
-		B.GetRadius() + (B.GetHeight() / 2.0f));
-
-	Vector2f a_center = A.GetCenter();
-	Vector2f b_center = B.GetCenter();
-
-	Vector2f n = B.GetOrientation().Inverse(a_center - b_center); // transform circle to box model space
-	Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
-
-	bool inside = false;
-
-	if (n == clamped)
-	{
-		inside = true;
-		if (std::abs(n.x) > std::abs(n.y))
-			clamped.x = (clamped.x > 0.0f) ? half_extends.x : -half_extends.x;
-		else
-			clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
-	}
-
-	Vector2f point = b_center + B.GetOrientation().Transform(clamped);
-	Vector2f normal = Vector2f::Direction(a_center, point);
-	float dist = normal.LengthSq();
-
-	if ((dist > radius * radius) && !inside)
-		return;
-
-	n = (dist > FLT_EPSILON * FLT_EPSILON) ? 
-		-B.GetOrientation().Inverse(normal / std::sqrt(dist)) : Vector2f::UnitX;
-
-	arbiter.manifold.type			= LocalManifold::Type::FaceB;
-	arbiter.manifold.contacts_count = 1;
-	arbiter.manifold.point			= clamped;
-	arbiter.manifold.normal			= (inside ? -n : n);
+	//arbiter.manifold.type			= LocalManifold::Type::FaceB;
+	//arbiter.manifold.contacts_count = 1;
+	//arbiter.manifold.point			= clamped;
+	//arbiter.manifold.normal			= (inside ? -n : n);
 }
 void CollisionTable::CircleToPoint(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
@@ -188,88 +110,10 @@ void CollisionTable::CircleToPoint(CollisionArbiter& arbiter, const Shape& s1, c
 }
 void CollisionTable::CircleToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
-	const Circle& A = reinterpret_cast<const Circle&>(s1);
-	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
+	const Circle& A		= reinterpret_cast<const Circle&>(s1);
+	const Polygon& B	= reinterpret_cast<const Polygon&>(s2);
 
-	const Vector2f a_center = A.GetCenter();
-	const Vector2f b_center = B.GetCenter();
-
-	const Vector2f center = B.GetOrientation().Inverse(a_center - b_center); // transform circle to polygon model space
-
-	const float radius = A.GetRadius() + B.GetRadius();
-
-	float separation = -FLT_MAX;
-	uint32 face = 0;
-
-	for (uint32 i = 0; i < B.GetVertices().size(); ++i)
-	{
-		const Vector2f dir = Vector2f::Direction(B.GetVertices()[i], center);
-		const float s = B.GetNormals()[i].Dot(dir);
-
-		if (s > radius)
-			return;
-
-		if (s > separation)
-		{
-			separation = s;
-			face = i;
-		}
-	}
-
-	const uint32 face2 = (face + 1) == B.GetVertices().size() ? 0 : face + 1;
-
-	const Vector2f v1 = B.GetVertices()[face];
-	const Vector2f v2 = B.GetVertices()[face2];
-
-	if (separation < FLT_EPSILON)
-	{
-		arbiter.manifold.type			= LocalManifold::Type::FaceB;
-		arbiter.manifold.contacts_count	= 1;
-		arbiter.manifold.normal			= B.GetNormals()[face];
-		arbiter.manifold.point			= 0.5f * (v1 + v2);
-
-		return;
-	}
-
-	const Vector2f dir1 = Vector2f::Direction(v1, center);
-	const Vector2f dir2 = Vector2f::Direction(v2, center);
-
-	const float dot1 = dir1.Dot(Vector2f::Direction(v1, v2));
-	const float dot2 = dir2.Dot(Vector2f::Direction(v2, v1));
-
-	if (dot1 <= 0.0f)
-	{
-		if (dir1.LengthSq() > radius * radius)
-			return;
-
-		arbiter.manifold.type			= LocalManifold::Type::FaceB;
-		arbiter.manifold.contacts_count	= 1;
-		arbiter.manifold.normal			= dir1.Normalize();
-		arbiter.manifold.point			= v1;
-	}
-	else if (dot2 <= 0.0f)
-	{
-		if (dir2.LengthSq() > radius * radius)
-			return;
-
-		arbiter.manifold.type			= LocalManifold::Type::FaceB;
-		arbiter.manifold.contacts_count	= 1;
-		arbiter.manifold.normal			= dir2.Normalize();
-		arbiter.manifold.point			= v2;
-	}
-	else
-	{
-		const Vector2f face_center = 0.5f * (v1 + v2);
-		const Vector2f dir3 = Vector2f::Direction(face_center, center);
-
-		if (dir3.Dot(B.GetNormals()[face]) > radius)
-			return;
-
-		arbiter.manifold.type			= LocalManifold::Type::FaceB;
-		arbiter.manifold.contacts_count	= 1;
-		arbiter.manifold.normal			= B.GetNormals()[face];
-		arbiter.manifold.point			= face_center;
-	}
+	CircleToPolygon(arbiter, A, B, B.GetVertices(), B.GetNormals());
 }
 
 void CollisionTable::BoxToCircle(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
@@ -282,7 +126,7 @@ void CollisionTable::BoxToBox(CollisionArbiter& arbiter, const Shape& s1, const 
 	const Box& A = reinterpret_cast<const Box&>(s1);
 	const Box& B = reinterpret_cast<const Box&>(s2);
 
-	CollidePolygons(arbiter, 
+	PolygonToPolygon(arbiter,
 		A, A.GetVertices(), Box::NORMALS,
 		B, B.GetVertices(), Box::NORMALS);
 }
@@ -323,17 +167,17 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 	if ((dist > A.GetRadiusSqr()) && !inside)
 		return;
 
-	arbiter.manifold.type			= LocalManifold::Type::CircleBox;
+	arbiter.manifold.type			= LocalManifold::Type::FaceB;
 	arbiter.manifold.contacts_count = 1;
 	arbiter.manifold.point			= clamped;
 
 }
 void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const Shape& s2)
 {
-	const Box& A = reinterpret_cast<const Box&>(s1);
-	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
+	const Box& A		= reinterpret_cast<const Box&>(s1);
+	const Polygon& B	= reinterpret_cast<const Polygon&>(s2);
 
-	CollidePolygons(arbiter, 
+	PolygonToPolygon(arbiter,
 		A, A.GetVertices(), Box::NORMALS, 
 		B, B.GetVertices(), B.GetNormals());
 }
@@ -375,12 +219,96 @@ void CollisionTable::ConvexToConvex(CollisionArbiter& arbiter, const Shape& s1, 
 	const Polygon& A = reinterpret_cast<const Polygon&>(s1);
 	const Polygon& B = reinterpret_cast<const Polygon&>(s2);
 
-	CollidePolygons(arbiter, 
+	PolygonToPolygon(arbiter,
 		A, A.GetVertices(), A.GetNormals(), 
 		B, B.GetVertices(), B.GetNormals());
 }
 
-void CollisionTable::CollidePolygons(CollisionArbiter& arbiter, 
+void CollisionTable::CircleToPolygon(CollisionArbiter& arbiter, const Shape& A,
+	const ShapeRotatable& B, VectorSpan vertices, VectorSpan normals)
+{
+	const Vector2f a_center = A.GetCenter();
+	const Vector2f b_center = B.GetCenter();
+
+	const Vector2f center = B.GetOrientation().Inverse(a_center - b_center); // transform circle to polygon model space
+
+	const float radius = A.GetRadius() + B.GetRadius();
+
+	float separation = -FLT_MAX;
+	uint32 face = 0;
+
+	for (uint32 i = 0; i < vertices.size(); ++i)
+	{
+		const Vector2f dir = Vector2f::Direction(vertices[i], center);
+		const float s = normals[i].Dot(dir);
+
+		if (s > radius)
+			return;
+
+		if (s > separation)
+		{
+			separation = s;
+			face = i;
+		}
+	}
+
+	const uint32 face2 = (face + 1) == vertices.size() ? 0 : face + 1;
+
+	const Vector2f v1 = vertices[face];
+	const Vector2f v2 = vertices[face2];
+
+	if (separation < FLT_EPSILON)
+	{
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
+		arbiter.manifold.contacts_count	= 1;
+		arbiter.manifold.normal			= normals[face];
+		arbiter.manifold.point			= 0.5f * (v1 + v2);
+
+		return;
+	}
+
+	const Vector2f dir1 = Vector2f::Direction(v1, center);
+	const Vector2f dir2 = Vector2f::Direction(v2, center);
+
+	const float dot1 = dir1.Dot(Vector2f::Direction(v1, v2));
+	const float dot2 = dir2.Dot(Vector2f::Direction(v2, v1));
+
+	if (dot1 <= 0.0f)
+	{
+		if (dir1.LengthSq() > radius * radius)
+			return;
+
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
+		arbiter.manifold.contacts_count	= 1;
+		arbiter.manifold.normal			= dir1.Normalize();
+		arbiter.manifold.point			= v1;
+	}
+	else if (dot2 <= 0.0f)
+	{
+		if (dir2.LengthSq() > radius * radius)
+			return;
+
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
+		arbiter.manifold.contacts_count	= 1;
+		arbiter.manifold.normal			= dir2.Normalize();
+		arbiter.manifold.point			= v2;
+	}
+	else
+	{
+		const Vector2f face_center = 0.5f * (v1 + v2);
+		const Vector2f dir3 = Vector2f::Direction(face_center, center);
+
+		if (dir3.Dot(normals[face]) > radius)
+			return;
+
+		arbiter.manifold.type			= LocalManifold::Type::FaceB;
+		arbiter.manifold.contacts_count	= 1;
+		arbiter.manifold.normal			= normals[face];
+		arbiter.manifold.point			= face_center;
+	}
+}
+
+void CollisionTable::PolygonToPolygon(CollisionArbiter& arbiter,
 	const ShapeRotatable& A, VectorSpan vs1, VectorSpan ns1, 
 	const ShapeRotatable& B, VectorSpan vs2, VectorSpan ns2)
 {

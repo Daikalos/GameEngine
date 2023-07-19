@@ -65,7 +65,10 @@ namespace vlx
 		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
 
 	private:
-		static void CollidePolygons(CollisionArbiter& arbiter,
+		static void CircleToPolygon(CollisionArbiter& arbiter, const Shape& A, 
+			const ShapeRotatable& B, VectorSpan vertices, VectorSpan normals);
+
+		static void PolygonToPolygon(CollisionArbiter& arbiter,
 			const ShapeRotatable& A, VectorSpan vs1, VectorSpan ns1,
 			const ShapeRotatable& B, VectorSpan vs2, VectorSpan ns2);
 

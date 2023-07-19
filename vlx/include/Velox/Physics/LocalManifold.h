@@ -23,8 +23,6 @@ namespace vlx
 		{
 			None = -1,
 			Circles,
-			CircleBox,
-			BoxCircle,
 			FaceA,
 			FaceB
 		};

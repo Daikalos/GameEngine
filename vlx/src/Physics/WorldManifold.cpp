@@ -34,33 +34,6 @@ void WorldManifold::Initialize(const LocalManifold& manifold,
 			penetrations[0] = -Vector2f::Direction(a_contact, b_contact).Dot(normal);
 		}
 		break;
-	case LocalManifold::Type::CircleBox:
-		{
-			normal = BW.GetRotation().Transform(manifold.normal);
-
-			Vector2f a_center = AW.GetPosition();
-			Vector2f contact = BW.Transform(manifold.point);
-			Vector2f dir = Vector2f::Direction(a_center, contact);
-			float dist = dir.Length();
-
-			contacts[0]		= contact;
-			penetrations[0] = -(dist - AR - BR);
-		}
-		break;
-	case LocalManifold::Type::BoxCircle:
-		{
-			normal = AW.GetRotation().Transform(manifold.normal);
-
-			Vector2f b_center = BW.GetPosition();
-			Vector2f contact = AW.Transform(manifold.point);
-
-			Vector2f dir = Vector2f::Direction(b_center, contact);
-			float dist = dir.Length();
-
-			contacts[0]		= contact;
-			penetrations[0] = -(dist - AR - BR);
-		}
-		break;
 	case LocalManifold::Type::FaceA:
 		{
 			normal = AW.GetRotation().Transform(manifold.normal);

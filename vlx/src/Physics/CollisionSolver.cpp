@@ -278,34 +278,6 @@ void PositionSolverManifold::Initialize(const LocalManifold& manifold, const Sim
 			penetration = -(dir.Dot(normal) - AR - BR);
 		}
 		break;
-	case LocalManifold::Type::CircleBox:
-		{
-			normal = BW.GetRotation().Transform(manifold.normal);
-
-			Vector2f a_center = AW.GetPosition();
-			contact = BW.Transform(manifold.point);
-
-			Vector2f dir = Vector2f::Direction(a_center, contact);
-			float dist = dir.Length();
-
-			penetration = -(dist - AR - BR);
-		}
-		break;
-	case LocalManifold::Type::BoxCircle:
-		{
-			normal = AW.GetRotation().Transform(manifold.normal);
-
-			Vector2f b_center = BW.GetPosition();
-			contact = AW.Transform(manifold.point);
-
-			Vector2f dir = Vector2f::Direction(b_center, contact);
-			float dist = dir.Length();
-
-			penetration = -(dist - AR - BR);
-
-			normal = -normal;
-		}
-		break;
 	case LocalManifold::Type::FaceA:
 		{
 			normal = AW.GetRotation().Transform(manifold.normal);
