@@ -13,7 +13,6 @@ namespace vlx
 	private:
 		struct Contact
 		{
-			Vector2f		normal;
 			Vector2f		hit;
 			float			penetration {0.0f};
 		};
@@ -24,6 +23,7 @@ namespace vlx
 	public:
 		EntityID	other			{NULL_ENTITY};
 		Contacts	contacts;
+		Vector2f	normal;
 		uint8		contacts_count	{0};
 	};
 }

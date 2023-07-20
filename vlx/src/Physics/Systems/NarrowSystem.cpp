@@ -1,5 +1,8 @@
 #include <Velox/Physics/Systems/NarrowSystem.h>
 
+#include <Velox/System/SimpleTransform.h>
+#include <Velox/Physics/LocalManifold.h>
+#include <Velox/Physics/WorldManifold.h>
 #include <Velox/ECS/EntityAdmin.h>
 
 using namespace vlx;
@@ -89,16 +92,29 @@ void NarrowSystem::CheckCollision(CollisionObject& A, CollisionObject& B)
 			CollisionResult a_result{B.entity_id}; // store other entity
 			CollisionResult b_result{A.entity_id};
 
-			//for (uint8 i = 0; i < arbiter.contacts_count; ++i)
-			//{
-			//	a_result.contacts[i].hit			= arbiter.contacts[i].position;
-			//	a_result.contacts[i].normal			= arbiter.contacts[i].normal;
-			//	a_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
+			SimpleTransform AW;
+			SimpleTransform BW;
 
-			//	b_result.contacts[i].hit			= arbiter.contacts[i].position;
-			//	b_result.contacts[i].normal			= -arbiter.contacts[i].normal; // flip normal for other
-			//	b_result.contacts[i].penetration	= arbiter.contacts[i].penetration;
-			//}
+			AW.SetRotation(A.transform->GetRotation());
+			BW.SetRotation(B.transform->GetRotation());
+
+			AW.SetPosition(A.transform->GetPosition());
+			BW.SetPosition(B.transform->GetPosition());
+
+			WorldManifold world;
+			world.Initialize(arbiter.manifold, AW, A.shape->GetRadius(), BW, B.shape->GetRadius());
+
+			for (uint8 i = 0; i < arbiter.manifold.contacts_count; ++i)
+			{
+				a_result.contacts[i].hit			= world.contacts[i];
+				a_result.contacts[i].penetration	= world.penetrations[i];
+
+				b_result.contacts[i].hit			= world.contacts[i];
+				b_result.contacts[i].penetration	= world.penetrations[i];
+			}
+
+			a_result.normal =  world.normal;
+			b_result.normal = -world.normal; // flip normal for other
 
 			if (has_enter || has_exit)
 			{

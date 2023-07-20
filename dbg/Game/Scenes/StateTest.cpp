@@ -145,7 +145,7 @@ void StateTest::OnCreate()
 	player.GetComponent<PhysicsBody>().SetFriction(100000.0f);
 	player.GetComponent<PhysicsBody>().SetSleepingAllowed(false);
 
-	player.GetComponent<PhysicsBody>().SetEnabled(false);
+	//player.GetComponent<PhysicsBody>().SetEnabled(false);
 
 	player.GetComponent<Sprite>().SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::Square));
 	player.GetComponent<Sprite>().SetSize(size);

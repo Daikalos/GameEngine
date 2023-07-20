@@ -34,7 +34,7 @@ public:
 
 		data.overlap->OnOverlap = [&data](const vlx::CollisionResult& result)
 		{
-			data.jump = result.contacts[0].normal.Dot(vlx::Vector2f::Up) > 0.8f;
+			data.jump = result.normal.Dot(vlx::Vector2f::Up) > 0.8f;
 		};
 
 		data.exit->OnExit = [&data](vlx::EntityID entity_id)

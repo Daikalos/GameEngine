@@ -115,36 +115,6 @@ void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
 		const float bi = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvInertia() : 0.0f;
 
 		Vector2f tangent = Vector2f::Cross(vc.normal, 1.0f);
-
-		for (int32 j = 0; j < vc.contacts_count; ++j)
-		{
-			typename VelocityConstraint::Contact& contact = vc.contacts[j];
-
-			Vector2f rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
-						  AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
-
-			float dpt = -rv.Dot(tangent) * contact.mass_tangent;
-
-			const float max_pt = vc.friction * contact.mass_normal;
-
-			const float pt0 = contact.impulse_tangent;
-			contact.impulse_tangent = std::clamp(pt0 + dpt, -max_pt, max_pt);
-			dpt = contact.impulse_tangent - pt0;
-
-			const Vector2f pt = tangent * dpt;
-
-			if (AB.IsAwake() && AB.IsEnabled())
-			{
-				AB.m_velocity			-= pt * am;
-				AB.m_angular_velocity	-= contact.ra.Cross(pt) * ai;
-			}
-
-			if (BB.IsAwake() && BB.IsEnabled())
-			{
-				BB.m_velocity			+= pt * bm;
-				BB.m_angular_velocity	+= contact.rb.Cross(pt) * bi;
-			}
-		}
 		
 		for (int32 j = 0; j < vc.contacts_count; ++j)
 		{
@@ -177,7 +147,33 @@ void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
 				BB.m_velocity			+= pn * bm;
 				BB.m_angular_velocity	+= contact.rb.Cross(pn) * bi;
 			}
+
+			rv = BB.GetVelocity() + Vector2f::Cross(BB.GetAngularVelocity(), contact.rb) -
+				 AB.GetVelocity() - Vector2f::Cross(AB.GetAngularVelocity(), contact.ra);
+
+			float dpt = -rv.Dot(tangent) * contact.mass_tangent;
+
+			const float max_pt = vc.friction * contact.impulse_normal;
+
+			const float pt0 = contact.impulse_tangent;
+			contact.impulse_tangent = std::clamp(pt0 + dpt, -max_pt, max_pt);
+			dpt = contact.impulse_tangent - pt0;
+
+			const Vector2f pt = tangent * dpt;
+
+			if (AB.IsAwake() && AB.IsEnabled())
+			{
+				AB.m_velocity			-= pt * am;
+				AB.m_angular_velocity	-= contact.ra.Cross(pt) * ai;
+			}
+
+			if (BB.IsAwake() && BB.IsEnabled())
+			{
+				BB.m_velocity			+= pt * bm;
+				BB.m_angular_velocity	+= contact.rb.Cross(pt) * bi;
+			}
 		}
+
 	}
 }
 
