@@ -7,18 +7,18 @@ namespace vlx
 {
 	/// Only used for tracking the previous position and angle
 	/// 
-	class VELOX_API PhysicsBodyTransform
+	class VELOX_API BodyTransform
 	{
 	public:
-		const Vector2f& GetLastPosition() const noexcept;
-		sf::Angle GetLastRotation() const noexcept;
+		const Vector2f& GetPosition() const noexcept;
+		sf::Angle GetRotation() const noexcept;
 
 	private:
-		Vector2f	m_last_pos;
-		sf::Angle	m_last_rot;
+		Vector2f	m_position;
+		sf::Angle	m_rotation;
 
 		friend class PhysicsSystem;
 		friend class RenderSystem;
-		friend class CollisionArbiter;
+		friend class CollisionSolver;
 	};
 }

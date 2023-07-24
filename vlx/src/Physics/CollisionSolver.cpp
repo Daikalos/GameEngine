@@ -1,9 +1,13 @@
 #include <Velox/Physics/CollisionSolver.h>
 
-#include <Velox/Physics/Shapes/Shape.h>
-#include <Velox/Graphics/Components/Transform.h>
-#include <Velox/Physics/WorldManifold.h>
 #include <Velox/System/SimpleTransform.h>
+
+#include <Velox/Physics/Shapes/Shape.h>
+#include <Velox/Physics/WorldManifold.h>
+#include <Velox/Physics/CollisionBody.h>
+#include <Velox/Physics/CollisionArbiter.h>
+#include <Velox/Physics/BodyTransform.h>
+#include <Velox/Physics/PhysicsBody.h>
 
 using namespace vlx;
 
@@ -31,8 +35,8 @@ void CollisionSolver::SetupConstraints(std::span<const CollisionArbiter> arbiter
 		PhysicsBody& AB = *arbiter.A->body;
 		PhysicsBody& BB = *arbiter.B->body;
 
-		const Transform& AT = *arbiter.A->transform;
-		const Transform& BT = *arbiter.B->transform;
+		const BodyTransform& AT = *arbiter.A->transform;
+		const BodyTransform& BT = *arbiter.B->transform;
 
 		vc.restitution	= std::min(AB.GetRestitution(), BB.GetRestitution());
 		vc.friction		= std::sqrt(AB.GetFriction() * BB.GetFriction());
@@ -173,7 +177,6 @@ void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
 				BB.m_angular_velocity	+= contact.rb.Cross(pt) * bi;
 			}
 		}
-
 	}
 }
 
@@ -189,8 +192,8 @@ bool CollisionSolver::ResolvePosition(std::span<CollisionArbiter> arbiters)
 		const PhysicsBody& AB = *arbiter.A->body;
 		const PhysicsBody& BB = *arbiter.B->body;
 
-		Transform& AT = *arbiter.A->transform;
-		Transform& BT = *arbiter.B->transform;
+		BodyTransform& AT = *arbiter.A->transform;
+		BodyTransform& BT = *arbiter.B->transform;
 
 		const float am = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvMass() : 0.0f;
 		const float bm = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvMass() : 0.0f;
@@ -224,7 +227,6 @@ bool CollisionSolver::ResolvePosition(std::span<CollisionArbiter> arbiters)
 			const Vector2f rb = contact - BT.GetPosition();
 
 			const float correction = std::clamp(P_BAUMGARTE * (penetration - P_SLOP), 0.0f, P_MAX_CORRECTION);
-			//const float correction = std::max(penetration - P_SLOP, 0.0f);
 
 			const float rna = ra.Cross(normal);
 			const float rnb = rb.Cross(normal);
@@ -236,14 +238,14 @@ bool CollisionSolver::ResolvePosition(std::span<CollisionArbiter> arbiters)
 
 			if (AB.IsAwake() && AB.IsEnabled())
 			{
-				AT.Move(-p * am);
-				AT.Rotate(-sf::radians(ai * ra.Cross(p)));
+				AT.m_position -= p * am;
+				AT.m_rotation -= sf::radians(ai * ra.Cross(p));
 			}
 
 			if (BB.IsAwake() && BB.IsEnabled())
 			{
-				BT.Move(p * bm);
-				BT.Rotate(sf::radians(bi * rb.Cross(p)));
+				BT.m_position += p * bm;
+				BT.m_rotation += sf::radians(bi * rb.Cross(p));
 			}
 		}
 	}

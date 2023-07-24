@@ -1,13 +1,11 @@
 #pragma once
 
 #include <Velox/Algorithms/QTElement.hpp>
+
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
 #include "CollisionLayer.h"
-
-#include <Velox/System/Event.hpp>
-#include "CollisionResult.h"
 
 namespace vlx
 {
@@ -27,8 +25,5 @@ namespace vlx
 		bool dirty		{true}; // if should update the AABB in the quadtree
 
 		friend class PhysicsDirtySystem;
-		friend class BroadSystem;
-		friend class NarrowSystem;
-		friend class PhysicsSystem;
 	};
 }

@@ -15,7 +15,8 @@
 #include <Velox/Graphics/SpriteBatch.h>
 
 #include <Velox/Physics/PhysicsBody.h>
-#include <Velox/Physics/PhysicsBodyTransform.h>
+#include <Velox/Physics/BodyTransform.h>
+#include <Velox/Physics/BodyLastTransform.h>
 
 #include <Velox/System/Time.h>
 #include <Velox/Config.hpp>
@@ -28,8 +29,8 @@ namespace vlx
 		using SpriteSystem	= SystemExclude<Renderable, Sprite, GlobalTransformMatrix>;
 		using MeshSystem	= SystemExclude<Renderable, Mesh, GlobalTransformMatrix>;
 
-		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, PhysicsBodyTransform, Transform, TransformMatrix>;
-		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, PhysicsBodyTransform, Transform, TransformMatrix>;
+		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, BodyTransform, BodyLastTransform, Transform, TransformMatrix>;
+		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, BodyTransform, BodyLastTransform, Transform, TransformMatrix>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, LayerType id, const Time& time);
@@ -67,7 +68,8 @@ namespace vlx
 			const Renderable& renderable, 
 			const T& batchable, 
 			const PhysicsBody& pb,
-			const PhysicsBodyTransform& pbt,
+			const BodyTransform& bt,
+			const BodyLastTransform& blt,
 			const Transform& t, 
 			const TransformMatrix& tm, 
 			float depth = 0.0f);

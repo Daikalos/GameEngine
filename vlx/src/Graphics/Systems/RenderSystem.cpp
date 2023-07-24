@@ -24,19 +24,19 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, const Time& 
 		});
 
 	m_sprites_bodies.Each(
-		[this](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, PhysicsBodyTransform& pbt, Transform& t, TransformMatrix& tm)
+		[this](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, BodyTransform& bt, BodyLastTransform& blt, Transform& t, TransformMatrix& tm)
 		{
-			BatchBody<Sprite>(r, s, pb, pbt, t, tm, s.GetDepth());
+			BatchBody<Sprite>(r, s, pb, bt, blt, t, tm, s.GetDepth());
 		});
 
 	m_meshes_bodies.Each(
-		[this](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, PhysicsBodyTransform& pbt, Transform& t, TransformMatrix& tm)
+		[this](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, BodyTransform& bt, BodyLastTransform& blt, Transform& t, TransformMatrix& tm)
 		{
-			BatchBody<Mesh>(r, m, pb, pbt, t, tm, m.GetDepth());
+			BatchBody<Mesh>(r, m, pb, bt, blt, t, tm, m.GetDepth());
 		});
 
-	m_sprites.Exclude<PhysicsBody, PhysicsBodyTransform>();
-	m_meshes.Exclude<PhysicsBody, PhysicsBodyTransform>();
+	m_sprites.Exclude<PhysicsBody, BodyTransform>();
+	m_meshes.Exclude<PhysicsBody, BodyTransform>();
 }
 
 void RenderSystem::SetBatchMode(BatchMode batch_mode)
@@ -146,7 +146,8 @@ void RenderSystem::BatchBody(
 	const Renderable& renderable,
 	const T& batchable,
 	const PhysicsBody& pb,
-	const PhysicsBodyTransform& pbt,
+	const BodyTransform& bt,
+	const BodyLastTransform& blt,
 	const Transform& t,
 	const TransformMatrix& tm,
 	float depth)
@@ -155,14 +156,14 @@ void RenderSystem::BatchBody(
 	{
 		BatchEntity<T>(renderable, batchable, tm.matrix, depth);
 	}
-	else if (t.GetPosition() == pbt.GetLastPosition() && t.GetRotation() == pbt.GetLastRotation()) // draw normally if haven't moved at all
+	else if (bt.GetPosition() == blt.GetPosition() && bt.GetRotation() == blt.GetRotation()) // draw normally if haven't moved at all
 	{
 		BatchEntity<T>(renderable, batchable, tm.matrix, depth);
 	}
 	else
 	{
-		Vector2f lerp_pos = Vector2f::Lerp(pbt.GetLastPosition(), t.GetPosition(), m_time->GetAlpha());
-		sf::Angle lerp_rot = au::Lerp(pbt.GetLastRotation(), t.GetRotation(), m_time->GetAlpha());
+		Vector2f lerp_pos = Vector2f::Lerp(blt.GetPosition(), bt.GetPosition(), m_time->GetAlpha());
+		sf::Angle lerp_rot = au::Lerp(blt.GetRotation(), bt.GetRotation(), m_time->GetAlpha());
 
 		Mat4f transform;
 		transform.Build(lerp_pos, t.GetOrigin(), t.GetScale(), lerp_rot);
@@ -173,8 +174,8 @@ void RenderSystem::BatchBody(
 
 // explicit template instantiations
 
-template void vlx::RenderSystem::BatchEntity<Sprite>(	const Renderable&, const Sprite&, const Mat4f&, float);
-template void vlx::RenderSystem::BatchEntity<Mesh>(		const Renderable&, const Mesh&, const Mat4f&, float);
+template void vlx::RenderSystem::BatchEntity<Sprite>( const Renderable&, const Sprite&, const Mat4f&, float);
+template void vlx::RenderSystem::BatchEntity<Mesh>(	  const Renderable&, const Mesh&, const Mat4f&, float);
 
-template void vlx::RenderSystem::BatchBody<Sprite>(		const Renderable&, const Sprite&, const PhysicsBody&, const PhysicsBodyTransform&, const Transform&, const TransformMatrix&, float);
-template void vlx::RenderSystem::BatchBody<Mesh>(		const Renderable&, const Mesh&, const PhysicsBody&, const PhysicsBodyTransform&, const Transform&, const TransformMatrix&, float);
+template void vlx::RenderSystem::BatchBody<Sprite>( const Renderable&, const Sprite&, const PhysicsBody&, const BodyTransform&, const BodyLastTransform&, const Transform&, const TransformMatrix&, float);
+template void vlx::RenderSystem::BatchBody<Mesh>(   const Renderable&, const Mesh&, const PhysicsBody&, const BodyTransform&, const BodyLastTransform&, const Transform&, const TransformMatrix&, float);

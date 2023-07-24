@@ -14,16 +14,12 @@
 #include <Velox/Config.hpp>
 #include <Velox/Types.hpp>
 
-#include "../PhysicsBody.h"
-#include "../CollisionObject.h"
-#include "../Collider.h"
-#include "../ColliderEvents.h"
-
 #include "ShapeInserter.h"
 
 namespace vlx
 {
 	class EntityAdmin;
+	class CollisionBody;
 
 	class VELOX_API BroadSystem final 
 	{
@@ -36,9 +32,9 @@ namespace vlx
 		using CollisionList			= std::vector<CollisionPair>;
 
 		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
-		using BodyList				= std::vector<CollisionObject>;
+		using BodyList				= std::vector<CollisionBody>;
 
-		using QuadTreeType			= LQuadTree<QTCollider::value_type>;
+		using QuadTreeType			= LQuadTree<QTCollider::ValueType>;
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, LayerType id);
@@ -51,8 +47,8 @@ namespace vlx
 		auto GetCollisions() const noexcept -> const CollisionList&;
 		auto GetCollisions() noexcept -> CollisionList&;
 
-		const CollisionObject& GetBody(uint32 i) const noexcept;
-		CollisionObject& GetBody(uint32 i) noexcept;
+		const CollisionBody& GetBody(uint32 i) const noexcept;
+		CollisionBody& GetBody(uint32 i) noexcept;
 
 	private:
 		void GatherCollisions();
@@ -62,7 +58,7 @@ namespace vlx
 		int FindBody(EntityID eid);
 		void RemoveBody(EntityID eid);
 
-		static bool HasDataForCollision(const CollisionObject& object);
+		static bool HasDataForCollision(const CollisionBody& body);
 
 		void RegisterEvents();
 		void DeregisterEvents();

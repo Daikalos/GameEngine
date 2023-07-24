@@ -4,17 +4,18 @@
 #include <array>
 #include <span>
 
-#include <Velox/System/SimpleTransform.h>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/System/Time.h>
 
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
-#include "CollisionArbiter.h"
-
 namespace vlx
 {
+	class CollisionArbiter;
+	class SimpleTransform;
+	class LocalManifold;
+
 	struct VELOX_API VelocityConstraint
 	{
 		struct Contact

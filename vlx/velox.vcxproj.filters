@@ -55,7 +55,7 @@
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransformTranslation.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransformRotation.cpp" />
-    <ClCompile Include="src\Physics\PhysicsBodyTransform.cpp" />
+    <ClCompile Include="src\Physics\BodyTransform.cpp" />
     <ClCompile Include="src\Utility\PolygonUtils.cpp" />
     <ClCompile Include="src\Utility\StringUtils.cpp" />
     <ClCompile Include="src\UI\Components\UIBase.cpp" />
@@ -67,6 +67,7 @@
     <ClCompile Include="src\System\SimpleTransform.cpp" />
     <ClCompile Include="src\Physics\WorldManifold.cpp" />
     <ClCompile Include="src\Physics\CollisionSolver.cpp" />
+    <ClCompile Include="src\Physics\BodyLastTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -165,7 +166,7 @@
     <ClInclude Include="include\Velox\Physics.hpp" />
     <ClInclude Include="include\Velox\System.hpp" />
     <ClInclude Include="include\Velox\Physics\Collider.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionObject.h" />
+    <ClInclude Include="include\Velox\Physics\CollisionBody.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
     <ClInclude Include="include\Velox\Structures\KDTree.hpp" />
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
@@ -185,7 +186,7 @@
     <ClInclude Include="include\Velox\Graphics\Systems\AnimationSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Components\TransformMatrix.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformDirty.h" />
-    <ClInclude Include="include\Velox\Physics\PhysicsBodyTransform.h" />
+    <ClInclude Include="include\Velox\Physics\BodyTransform.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Components\TransformMatrixInverse.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformTranslation.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="include\Velox\Physics\WorldManifold.h" />
     <ClInclude Include="include\Velox\Physics\CollisionSolver.h" />
     <ClInclude Include="include\Velox\Physics\LocalManifold.h" />
+    <ClInclude Include="include\Velox\Physics\BodyLastTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

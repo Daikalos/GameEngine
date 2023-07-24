@@ -3,18 +3,15 @@
 #include <vector>
 #include <unordered_set>
 
-#include "../CollisionObject.h"
-#include "../CollisionResult.h"
-#include "../CollisionArbiter.h"
-#include "../CollisionTable.h"
-#include "../Collider.h"
-#include "../PhysicsBody.h"
-
 #include "BroadSystem.h"
+
+#include "../CollisionArbiter.h"
 
 namespace vlx
 {
 	class EntityAdmin;
+	class CollisionBody;
+	class ColliderExit;
 
 	class VELOX_API NarrowSystem final
 	{
@@ -68,7 +65,7 @@ namespace vlx
 		auto GetArbiters() noexcept -> CollisionArbiters&;
 
 	private:
-		void CheckCollision(CollisionObject& A, CollisionObject& B);
+		void CheckCollision(CollisionBody& A, CollisionBody& B);
 
 	private:
 		EntityAdmin*			m_entity_admin	{nullptr};

@@ -10,16 +10,19 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 	m_broad_system(			entity_admin, LYR_BROAD_PHASE),
 	m_narrow_system(		entity_admin, LYR_NARROW_PHASE),
 
-	m_pre_solve(			entity_admin),
 	m_integrate_velocity(	entity_admin),
 	m_integrate_position(	entity_admin),
-	m_sleep_bodies(			entity_admin)
+	m_sleep_bodies(			entity_admin),
+
+	m_pre_solve(			entity_admin),
+	m_post_solve(			entity_admin)
 
 {
-	m_pre_solve.Each(&PhysicsSystem::PreSolve, this);
 	m_integrate_velocity.Each(&PhysicsSystem::IntegrateVelocity, this);
 	m_integrate_position.Each(&PhysicsSystem::IntegratePosition, this);
 	m_sleep_bodies.Each(&PhysicsSystem::SleepBodies, this);
+	m_pre_solve.Each(&PhysicsSystem::PreSolve, this);
+	m_post_solve.Each(&PhysicsSystem::PostSolve, this);
 }
 
 const Vector2f& PhysicsSystem::GetGravity() const
@@ -68,13 +71,8 @@ void PhysicsSystem::FixedUpdate()
 	}
 
 	Execute(m_sleep_bodies);
-}
 
-void PhysicsSystem::PreSolve(EntityID entity_id, PhysicsBodyTransform& pbt, const Transform& t) const
-{
-	// possible because a physics body is not allowed to have a parent
-	pbt.m_last_pos = t.GetPosition();
-	pbt.m_last_rot = t.GetRotation();
+	Execute(m_post_solve);
 }
 
 void PhysicsSystem::IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const
@@ -94,7 +92,7 @@ void PhysicsSystem::IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const
 	pb.m_angular_velocity	*= (1.0f / (1.0f + m_time->GetFixedDT() * pb.GetAngularDamping()));
 }
 
-void PhysicsSystem::IntegratePosition(EntityID entity_id, PhysicsBody& pb, Transform& t) const
+void PhysicsSystem::IntegratePosition(EntityID entity_id, PhysicsBody& pb, BodyTransform& bt) const
 {
 	if (!pb.IsAwake() || !pb.IsEnabled())
 		return;
@@ -102,8 +100,8 @@ void PhysicsSystem::IntegratePosition(EntityID entity_id, PhysicsBody& pb, Trans
 	if (pb.GetType() == BodyType::Static)
 		return;
 
-	t.Move(pb.GetVelocity() * m_time->GetFixedDT());
-	t.Rotate(sf::radians(pb.GetAngularVelocity() * m_time->GetFixedDT()));
+	bt.m_position += pb.GetVelocity() * m_time->GetFixedDT();
+	bt.m_rotation += sf::radians(pb.GetAngularVelocity() * m_time->GetFixedDT());
 
 	pb.m_force = Vector2f::Zero;
 	pb.m_torque = 0.0f;
@@ -133,4 +131,17 @@ void PhysicsSystem::SleepBodies(EntityID entity_id, PhysicsBody& pb) const
 
 	if (pb.m_sleep_time >= 0.5f)
 		pb.SetAwake(false);
+}
+
+void PhysicsSystem::PreSolve(EntityID entity_id, BodyTransform& bt, BodyLastTransform& blt, const Transform& t) const
+{
+	// possible because a physics body is not allowed to have a parent
+	bt.m_position = blt.m_position = t.GetPosition();
+	bt.m_rotation = blt.m_rotation = t.GetRotation();
+}
+
+void PhysicsSystem::PostSolve(EntityID entity_id, const BodyTransform& bt, Transform& t) const
+{
+	t.SetPosition(bt.m_position);
+	t.SetRotation(bt.m_rotation);
 }

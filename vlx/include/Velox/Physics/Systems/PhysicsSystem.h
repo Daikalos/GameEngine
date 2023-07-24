@@ -3,17 +3,19 @@
 #include <vector>
 #include <span>
 
-#include <Velox/Graphics/Components/Transform.h>
 #include <Velox/ECS/SystemAction.h>
 #include <Velox/ECS/System.hpp>
+
+#include <Velox/Graphics/Components/Transform.h>
+
 #include <Velox/System/Time.h>
+
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
-#include "../Collider.h"
-#include "../CollisionObject.h"
-#include "../CollisionArbiter.h"
-#include "../PhysicsBodyTransform.h"
+#include "../PhysicsBody.h"
+#include "../BodyTransform.h"
+#include "../BodyLastTransform.h"
 #include "../PhysicsCommon.hpp"
 #include "../CollisionSolver.h"
 
@@ -38,10 +40,12 @@ namespace vlx
 		void SetPositionIterations(int iterations);
 
 	private:
-		void PreSolve(EntityID entity_id, PhysicsBodyTransform& pbt, const Transform& t) const;
 		void IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const;
-		void IntegratePosition(EntityID entity_id, PhysicsBody& pb, Transform& t) const;
+		void IntegratePosition(EntityID entity_id, PhysicsBody& pb, BodyTransform& bt) const;
 		void SleepBodies(EntityID entity_id, PhysicsBody& pb) const;
+
+		void PreSolve(EntityID entity_id, BodyTransform& pbt, BodyLastTransform& blt, const Transform& t) const;
+		void PostSolve(EntityID entity_id, const BodyTransform& pbt, Transform& t) const;
 
 	private:
 		Time*			m_time			{nullptr};
@@ -54,10 +58,11 @@ namespace vlx
 		NarrowSystem	m_narrow_system;
 		CollisionSolver	m_collision_solver;
 
-		System<PhysicsBodyTransform, const Transform> m_pre_solve;
+		System<PhysicsBody>					m_integrate_velocity;
+		System<PhysicsBody, BodyTransform>	m_integrate_position;
+		System<PhysicsBody>					m_sleep_bodies;
 
-		System<PhysicsBody>				m_integrate_velocity;
-		System<PhysicsBody, Transform>	m_integrate_position;
-		System<PhysicsBody>				m_sleep_bodies;
+		System<BodyTransform, BodyLastTransform, const Transform>	m_pre_solve;
+		System<const BodyTransform, Transform>						m_post_solve;
 	};
 }

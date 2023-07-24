@@ -8,32 +8,32 @@ namespace vlx
 {
 	class Collider;
 	class PhysicsBody;
-	class Transform;
+	class BodyTransform;
 	struct ColliderEnter;
 	struct ColliderExit;
 	struct ColliderOverlap;
 
-	/// Contains the data that represents an object for collision
+	/// Contains the needed data for an object when colliding
 	/// 
-	class CollisionObject
+	class CollisionBody
 	{
 	private:
-		using Type = typename Shape::Type;
+		using ShapeType = typename Shape::Type;
 
 	public:
 		EntityID		entity_id	{NULL_ENTITY};
-		Type			type		{Type::None};
+		ShapeType		type		{ShapeType::None};
 
 		Shape*			shape		{nullptr};
 		Collider*		collider	{nullptr};
 		PhysicsBody*	body		{nullptr};
-		Transform*		transform	{nullptr};
+		BodyTransform*	transform	{nullptr};
 		
 		ColliderEnter*		enter	{nullptr};
 		ColliderExit*		exit	{nullptr};
 		ColliderOverlap*	overlap	{nullptr};
 
-		constexpr bool operator==(const CollisionObject& rhs) const
+		constexpr bool operator==(const CollisionBody& rhs) const
 		{
 			return entity_id == rhs.entity_id;
 		}

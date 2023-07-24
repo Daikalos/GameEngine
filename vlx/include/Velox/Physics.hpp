@@ -9,7 +9,7 @@
 #include "Physics/Collider.h"
 #include "Physics/CollisionArbiter.h"
 #include "Physics/CollisionLayer.h"
-#include "Physics/CollisionObject.h"
+#include "Physics/CollisionBody.h"
 #include "Physics/CollisionResult.h"
 #include "Physics/CollisionTable.h"
 #include "Physics/PhysicsBody.h"

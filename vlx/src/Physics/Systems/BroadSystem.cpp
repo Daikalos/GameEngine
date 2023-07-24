@@ -1,7 +1,11 @@
 #include <Velox/Physics/Systems/BroadSystem.h>
 
-#include <Velox/Graphics/Components/Transform.h>
 #include <Velox/ECS/EntityAdmin.h>
+
+#include <Velox/Physics/BodyTransform.h>
+#include <Velox/Physics/PhysicsBody.h>
+#include <Velox/Physics/CollisionBody.h>
+#include <Velox/Physics/ColliderEvents.h>
 
 using namespace vlx;
 
@@ -45,19 +49,19 @@ auto BroadSystem::GetCollisions() noexcept -> CollisionList&
 	return m_collisions;
 }
 
-const CollisionObject& BroadSystem::GetBody(uint32 i) const noexcept
+const CollisionBody& BroadSystem::GetBody(uint32 i) const noexcept
 {
 	return m_bodies[i];
 }
 
-CollisionObject& BroadSystem::GetBody(uint32 i) noexcept
+CollisionBody& BroadSystem::GetBody(uint32 i) noexcept
 {
 	return m_bodies[i];
 }
 
 void BroadSystem::GatherCollisions()
 {
-	const auto QueryResult = [this](const CollisionObject& object)
+	const auto QueryResult = [this](const CollisionBody& object)
 	{
 		switch (object.type)
 		{
@@ -78,13 +82,11 @@ void BroadSystem::GatherCollisions()
 		if (!lhs.collider->GetEnabled())
 			continue;
 
-		std::vector<typename QuadTreeType::ValueType> query = QueryResult(lhs);
+		auto query = QueryResult(lhs);
 
 		// if both have a physics body, do an early check to see if valid
-		const bool lhs_active = (lhs.body ? (lhs.body->IsAwake() && lhs.body->IsEnabled()) : true);
-
-		// in case of no physics body, check if this has any events stored
-		const bool lhs_events = lhs.body || (lhs.enter || lhs.overlap || lhs.exit);
+		const bool lhs_active = (lhs.body ? (lhs.body->IsAwake() && lhs.body->IsEnabled()) : 
+			(lhs.enter || lhs.overlap || lhs.exit));
 
 		for (const auto j : query)
 		{
@@ -99,15 +101,14 @@ void BroadSystem::GatherCollisions()
 			if (!rhs.collider->GetEnabled() || !lhs.collider->layer.HasAny(rhs.collider->layer)) // enabled and matching layer
 				continue;
 
-			const bool rhs_active = (rhs.body ? (rhs.body->IsAwake() && rhs.body->IsEnabled()) : true);
-			const bool rhs_events = rhs.body || (rhs.enter || rhs.overlap || rhs.exit);
+			const bool rhs_active = (rhs.body ? (rhs.body->IsAwake() && rhs.body->IsEnabled()) : 
+				(rhs.enter || rhs.overlap || rhs.exit));
 
-			if (!lhs_active && !rhs_active) // skip attempting collision if both are either asleep or disabled
+			// skip attempting collision if both are either asleep or disabled
+			// in the case of no body, skip collision if both have no listeners
+			if (!lhs_active && !rhs_active) 
 				continue;
-			
-			if (!lhs_events && !rhs_events) [[unlikely]] // skip collision if both don't have any listeners, unlikely since why else would you use a collider
-				continue;
-
+		
 			m_collisions.emplace_back(i, j);
 		}
 	}
@@ -134,16 +135,16 @@ int BroadSystem::CreateBody(EntityID eid, Shape* shape, typename Shape::Type typ
 {
 	assert(!m_entity_body_map.contains(eid));
 
-	CollisionObject& object = m_bodies.emplace_back(eid, type);
+	CollisionBody& body = m_bodies.emplace_back(eid, type);
 
-	object.shape		= shape;
-	object.collider		= m_entity_admin->TryGetComponent<Collider>(eid);
-	object.body			= m_entity_admin->TryGetComponent<PhysicsBody>(eid);
-	object.transform	= m_entity_admin->TryGetComponent<Transform>(eid);
+	body.shape		= shape;
+	body.collider	= m_entity_admin->TryGetComponent<Collider>(eid);
+	body.body		= m_entity_admin->TryGetComponent<PhysicsBody>(eid);
+	body.transform	= m_entity_admin->TryGetComponent<BodyTransform>(eid);
 
-	object.enter		= m_entity_admin->TryGetComponent<ColliderEnter>(eid);
-	object.exit			= m_entity_admin->TryGetComponent<ColliderExit>(eid);
-	object.overlap		= m_entity_admin->TryGetComponent<ColliderOverlap>(eid);
+	body.enter		= m_entity_admin->TryGetComponent<ColliderEnter>(eid);
+	body.exit		= m_entity_admin->TryGetComponent<ColliderExit>(eid);
+	body.overlap	= m_entity_admin->TryGetComponent<ColliderOverlap>(eid);
 
 	return m_entity_body_map.try_emplace(eid, m_bodies.size() - 1).first->second;
 }
@@ -173,7 +174,7 @@ void BroadSystem::RemoveBody(EntityID eid)
 	m_entity_body_map.erase(it1);
 }
 
-bool BroadSystem::HasDataForCollision(const CollisionObject& object)
+bool BroadSystem::HasDataForCollision(const CollisionBody& object)
 {
 	return object.shape != nullptr && object.collider != nullptr && object.transform != nullptr; // safety checks
 }
@@ -194,8 +195,8 @@ void BroadSystem::RegisterEvents()
 				 m_bodies[i].body = &pb;
 		});
 
-	m_add_ids[2] = m_entity_admin->RegisterOnAddListener<Transform>(
-		[this](EntityID eid, Transform& t)
+	m_add_ids[2] = m_entity_admin->RegisterOnAddListener<BodyTransform>(
+		[this](EntityID eid, BodyTransform& t)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].transform = &t;
@@ -236,8 +237,8 @@ void BroadSystem::RegisterEvents()
 				m_bodies[i].body = &pb;
 		});
 
-	m_mov_ids[2] = m_entity_admin->RegisterOnMoveListener<Transform>(
-		[this](EntityID eid, Transform& t)
+	m_mov_ids[2] = m_entity_admin->RegisterOnMoveListener<BodyTransform>(
+		[this](EntityID eid, BodyTransform& t)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].transform = &t;

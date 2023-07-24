@@ -1,16 +1,17 @@
 #pragma once
 
-#include "CollisionObject.h"
 #include "LocalManifold.h"
 
 namespace vlx
 {
+	class CollisionBody;
+
 	class CollisionArbiter
 	{
 	public:
-		CollisionObject* A {nullptr};
-		CollisionObject* B {nullptr};
+		CollisionBody* A {nullptr};
+		CollisionBody* B {nullptr};
 
-		LocalManifold	 manifold;
+		LocalManifold manifold;
 	};
 }

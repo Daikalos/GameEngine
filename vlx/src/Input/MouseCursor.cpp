@@ -88,7 +88,8 @@ void MouseCursor::HandleEvent(const sf::Event& event)
 			if (m_locked)
 				sf::Mouse::setPosition(m_window->GetOrigin(), *m_window); // set cursor to middle of screen to prevent inaccurate delta values
 
-			SetTexture(*m_texture);
+			if (m_texture != nullptr)
+				SetTexture(*m_texture);
 		}
 		break;
 	case sf::Event::LostFocus:

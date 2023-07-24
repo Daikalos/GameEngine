@@ -1,9 +1,14 @@
 #include <Velox/Physics/Systems/NarrowSystem.h>
 
-#include <Velox/System/SimpleTransform.h>
-#include <Velox/Physics/LocalManifold.h>
-#include <Velox/Physics/WorldManifold.h>
 #include <Velox/ECS/EntityAdmin.h>
+
+#include <Velox/System/SimpleTransform.h>
+#include <Velox/Physics/WorldManifold.h>
+
+#include <Velox/Physics/CollisionTable.h>
+#include <Velox/Physics/ColliderEvents.h>
+#include <Velox/Physics/CollisionBody.h>
+#include <Velox/Physics/BodyTransform.h>
 
 using namespace vlx;
 
@@ -61,12 +66,12 @@ auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
 	return m_arbiters;
 }
 
-void NarrowSystem::CheckCollision(CollisionObject& A, CollisionObject& B)
+void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 {
 	CollisionArbiter arbiter;
 	CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
 
-	if (arbiter.manifold.contacts_count) // successfully collided if not null
+	if (arbiter.manifold.contacts_count) // successfully collided if not zero
 	{
 		PhysicsBody* AB = A.body;
 		PhysicsBody* BB = B.body;
@@ -79,9 +84,9 @@ void NarrowSystem::CheckCollision(CollisionObject& A, CollisionObject& B)
 			m_arbiters.emplace_back(arbiter);
 		}
 
-		bool has_enter		= (A.enter	 && A.enter->OnEnter)	  || (B.enter && B.enter->OnEnter);
-		bool has_exit		= (A.exit	 && A.exit->OnExit)		  || (B.exit  && B.exit->OnExit);
-		bool has_overlap	= (A.overlap && A.overlap->OnOverlap);
+		const bool has_enter	= (A.enter && A.enter->OnEnter) || (B.enter && B.enter->OnEnter);
+		const bool has_exit		= (A.exit && A.exit->OnExit) || (B.exit && B.exit->OnExit);
+		const bool has_overlap	= (A.overlap && A.overlap->OnOverlap);
 
 		if (has_enter || has_exit || has_overlap)
 		{
@@ -132,7 +137,7 @@ void NarrowSystem::CheckCollision(CollisionObject& A, CollisionObject& B)
 			}
 
 			if (has_overlap)
-				A.overlap->OnOverlap(a_result); // only needs to call first
+				A.overlap->OnOverlap(a_result); // only needs to be called for A since B overlap will be called later
 		}
 	}
 }

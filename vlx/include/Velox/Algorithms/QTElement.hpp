@@ -14,8 +14,8 @@ namespace vlx
 	class QTElement : public EventSet<QTElement<T>, CopiedEvent, AlteredEvent, DestroyedEvent>
 	{
 	public:
-		using value_type	= T;
-		using Element		= typename LQuadTree<T>::Element;
+		using ValueType	= T;
+		using Element	= typename LQuadTree<T>::Element;
 
 	public:
 		QTElement() = default;
