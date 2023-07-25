@@ -44,7 +44,7 @@ public:
 
 		data.body->SetFriction(0.0f);
 	}
-	void Update(vlx::EntityID entity_id, PlayerData& data)
+	void Update(PlayerData& data)
 	{
 		if (m_keyboard->Held(sf::Keyboard::A))
 			data.body->SetVelocity( { -50.0f, data.body->GetVelocity().y });
@@ -60,7 +60,7 @@ public:
 			data.jump = false;
 		}
 	}
-	void Destroy(vlx::EntityID entity_id, PlayerData& data)
+	void Destroy(PlayerData& data)
 	{
 		std::puts("destroy");
 	}

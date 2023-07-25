@@ -63,6 +63,12 @@ namespace vlx // concepts is the best thing ever
 	template<class Lambda, typename T, std::size_t... Index>
 	concept SameTypeParam = (std::same_as<T, typename traits::FunctionTraits<Lambda>::template arg_type<Index>> && ...);
 
+	template<class Lambda, typename... Ts>
+	concept HasParameters = (std::same_as<std::tuple<Ts...>, typename traits::FunctionTraits<Lambda>::arguments>);
+
+	template<class Lambda, typename... Ts>
+	concept HasParametersDecay = (std::same_as<std::tuple<std::decay_t<Ts>...>, typename traits::FunctionTraits<Lambda>::arguments_decay>);
+
 	template<class T, class... Args>
 	concept Contains = std::disjunction_v<std::is_same<T, Args>...>;
 }

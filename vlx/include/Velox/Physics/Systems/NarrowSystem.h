@@ -11,7 +11,7 @@ namespace vlx
 {
 	class EntityAdmin;
 	class CollisionBody;
-	class ColliderExit;
+	struct ColliderExit;
 
 	class VELOX_API NarrowSystem final
 	{

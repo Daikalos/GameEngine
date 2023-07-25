@@ -29,8 +29,8 @@ namespace vlx
 		void PostUpdate() override;
 
 	private:
-		void CullSprites(EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites) const;
-		void CullMeshes(EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes) const;
+		void CullSprites(std::size_t size, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites) const;
+		void CullMeshes(std::size_t size, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes) const;
 
 	private:
 		const Camera*	m_camera {nullptr};

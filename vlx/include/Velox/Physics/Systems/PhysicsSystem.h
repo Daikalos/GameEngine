@@ -40,12 +40,12 @@ namespace vlx
 		void SetPositionIterations(int iterations);
 
 	private:
-		void IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const;
-		void IntegratePosition(EntityID entity_id, PhysicsBody& pb, BodyTransform& bt) const;
-		void SleepBodies(EntityID entity_id, PhysicsBody& pb) const;
+		void IntegrateVelocity(PhysicsBody& pb) const;
+		void IntegratePosition(PhysicsBody& pb, BodyTransform& bt) const;
+		void SleepBodies(PhysicsBody& pb) const;
 
-		void PreSolve(EntityID entity_id, BodyTransform& pbt, BodyLastTransform& blt, const Transform& t) const;
-		void PostSolve(EntityID entity_id, const BodyTransform& pbt, Transform& t) const;
+		void PreSolve(BodyTransform& pbt, BodyLastTransform& blt, const Transform& t) const;
+		void PostSolve(const BodyTransform& pbt, Transform& t) const;
 
 	private:
 		Time*			m_time			{nullptr};

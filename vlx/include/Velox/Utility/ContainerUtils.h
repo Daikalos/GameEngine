@@ -54,13 +54,13 @@ namespace vlx::cu
 	template<typename It, typename Func>
 	inline auto ForEachUntil(It begin, It end, Func&& func)
 	{
-		return std::all_of(begin, end, std::forward<Func>(func));
+		return std::ranges::all_of(begin, end, std::forward<Func>(func));
 	}
 
 	template<typename T>
 	inline bool Erase(std::vector<T>& vector, const T& compare)
 	{
-		auto it = std::find(vector.begin(), vector.end(), compare);
+		auto it = std::ranges::find(vector.begin(), vector.end(), compare);
 
 		if (it == vector.end())
 			return false;
@@ -73,7 +73,7 @@ namespace vlx::cu
 	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
 	inline bool Erase(std::vector<T>& vector, Pred&& pred)
 	{
-		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
+		auto it = std::ranges::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 
 		if (it == vector.end()) // do not erase if not found
 			return false;
@@ -86,7 +86,7 @@ namespace vlx::cu
 	template<typename T> 
 	inline bool SwapPop(std::vector<T>& vector, const T& item)
 	{
-		auto it = std::find(vector.begin(), vector.end(), item);
+		auto it = std::ranges::find(vector.begin(), vector.end(), item);
 
 		if (it == vector.end())
 			return false;
@@ -100,7 +100,7 @@ namespace vlx::cu
 	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
 	inline bool SwapPop(std::vector<T>& vector, Pred&& pred)
 	{
-		auto it = std::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
+		auto it = std::ranges::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
 
 		if (it == vector.end())
 			return false;
@@ -132,19 +132,19 @@ namespace vlx::cu
 	template<typename T>
 	inline auto InsertSorted(std::vector<T>& v, const T& item)
 	{
-		return v.insert(std::upper_bound(v.begin(), v.end(), item), item);
+		return v.insert(std::ranges::upper_bound(v.begin(), v.end(), item), item);
 	}
 
 	template<typename T, typename Comp>
 	inline auto InsertSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		return v.insert(std::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison)), item);
+		return v.insert(std::ranges::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison)), item);
 	}
 
 	template<typename T>
 	inline bool EraseSorted(std::vector<T>& v, const T& item)
 	{
-		const auto lb = std::lower_bound(v.begin(), v.end(), item);
+		const auto lb = std::ranges::lower_bound(v.begin(), v.end(), item);
 
 		if (lb != v.cend() && *lb == item)
 		{
@@ -160,11 +160,11 @@ namespace vlx::cu
 	template<typename T, typename Comp>
 	inline bool EraseSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		const auto lb = std::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+		const auto lb = std::ranges::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
 
 		if (lb != v.cend() && *lb == item)
 		{
-			const auto ub = std::upper_bound(lb, v.end(), item, std::forward<Comp>(comparison));
+			const auto ub = std::ranges::upper_bound(lb, v.end(), item, std::forward<Comp>(comparison));
 			v.erase(lb, ub); // remove all equal elements in range
 
 			return true;
@@ -176,7 +176,7 @@ namespace vlx::cu
 	template<typename T>
 	inline bool InsertUniqueSorted(std::vector<T>& v, const T& item)
 	{
-		const auto it = std::upper_bound(v.begin(), v.end(), item);
+		const auto it = std::ranges::upper_bound(v.begin(), v.end(), item);
 
 		if (it == v.cend() || *it != item)
 		{
@@ -190,7 +190,7 @@ namespace vlx::cu
 	template<typename T, typename Comp>
 	inline bool InsertUniqueSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		const auto it = std::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+		const auto it = std::ranges::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
 
 		if (it == v.cend() || *it != item)
 		{
@@ -204,7 +204,7 @@ namespace vlx::cu
 	template<typename T>
 	inline bool EraseUniqueSorted(std::vector<T>& v, const T& item)
 	{
-		const auto it = std::lower_bound(v.begin(), v.end(), item);
+		const auto it = std::ranges::lower_bound(v.begin(), v.end(), item);
 
 		if (it != v.cend() && *it == item)
 		{
@@ -218,7 +218,7 @@ namespace vlx::cu
 	template<typename T, typename Comp>
 	inline bool EraseUniqueSorted(std::vector<T>& v, const T& item, Comp&& comparison)
 	{
-		const auto it = std::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+		const auto it = std::ranges::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
 
 		if (it != v.cend() && *it == item)
 		{
@@ -230,53 +230,53 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	inline constexpr void Sort(std::span<const T> items)
+	constexpr void Sort(std::span<const T> items)
 	{
-		std::sort(items.begin(), items.end());
+		std::ranges::sort(items.begin(), items.end());
 	}
 
 	template<typename T>
-	NODISC inline constexpr T& Sort(T& items)
+	NODISC constexpr T& Sort(T& items)
 	{
-		std::sort(std::begin(items), std::end(items));
+		std::ranges::sort(std::begin(items), std::end(items));
 		return items;
 	}
 
 	template<typename T, typename Comp>
-	NODISC inline constexpr T& Sort(T& items, Comp&& comp)
+	NODISC constexpr T& Sort(T& items, Comp&& comp)
 	{
-		std::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
+		std::ranges::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
 		return items;
 	}
 
 	template<typename T>
-	NODISC inline constexpr T Sort(T&& items)
+	NODISC constexpr T Sort(T&& items)
 	{
-		std::sort(std::begin(items), std::end(items));
+		std::ranges::sort(std::begin(items), std::end(items));
 		return items;
 	}
 
 	template<typename T, typename Comp>
-	NODISC inline constexpr T Sort(T&& items, Comp&& comp)
+	NODISC constexpr T Sort(T&& items, Comp&& comp)
 	{
-		std::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
+		std::ranges::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
 		return items;
 	}
 
 	template<typename T>
-	NODISC inline constexpr bool IsSorted(std::span<const T> items)
+	NODISC constexpr bool IsSorted(std::span<const T> items)
 	{
-		return std::is_sorted(items.begin(), items.end());
+		return std::ranges::is_sorted(items.begin(), items.end());
 	}
 
 	template<typename T, typename Comp>
-	NODISC inline constexpr bool IsSorted(std::span<const T> items, Comp&& comp)
+	NODISC constexpr bool IsSorted(std::span<const T> items, Comp&& comp)
 	{
-		return std::is_sorted(items.begin(), items.end(), comp);
+		return std::ranges::is_sorted(items.begin(), items.end(), comp);
 	}
 
 	template<typename T>
-	inline constexpr void HashCombine(uint64& seed, const T& v)
+	constexpr void HashCombine(uint64& seed, const T& v)
 	{
 		seed ^= static_cast<uint64>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}

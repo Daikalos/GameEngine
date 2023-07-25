@@ -113,10 +113,9 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 			{
 				a_result.contacts[i].hit			= world.contacts[i];
 				a_result.contacts[i].penetration	= world.penetrations[i];
-
-				b_result.contacts[i].hit			= world.contacts[i];
-				b_result.contacts[i].penetration	= world.penetrations[i];
 			}
+
+			b_result = a_result;
 
 			a_result.normal =  world.normal;
 			b_result.normal = -world.normal; // flip normal for other

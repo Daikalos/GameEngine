@@ -9,7 +9,7 @@
 
 namespace vlx
 {
-	/// Allows for the user to easily add behaviour for data
+	/// Allows for the user to quickly add game-related behaviour for the data
 	/// 
 	template<class T, class U> requires std::is_standard_layout_v<U>
 	class DataBehaviour
@@ -53,10 +53,33 @@ namespace vlx
 					return;
 
 				// start listening for add events
-				m_on_add_id = GetEntityAdmin()->RegisterOnAddListener<U>(
+				m_on_add_id = GetEntityAdmin()->template RegisterOnAddListener<U>(
 					[this](EntityID entity_id, U& data)
 					{
 						static_cast<T*>(this)->Start(entity_id, data);
+					});
+			};
+		}
+
+		if constexpr (requires(T t, U& u) { t.Start(u); })
+		{
+			m_start.ForceAdd(LYR_OBJECTS_START);
+			m_start.Each(
+				[this](U& data)
+				{
+					static_cast<T*>(this)->Start(data);
+				});
+
+			m_start.OnEnd += [this]() 
+			{
+				if (m_on_add_id != -1)
+					return;
+
+				// start listening for add events
+				m_on_add_id = GetEntityAdmin()->template RegisterOnAddListener<U>(
+					[this](EntityID entity_id, U& data)
+					{
+						static_cast<T*>(this)->Start(data);
 					});
 			};
 		}
@@ -74,6 +97,19 @@ namespace vlx
 				});
 		}
 
+		if constexpr (requires(T t, U & u) { t.PreUpdate(u); })
+		{
+			m_pre_update.ForceAdd(LYR_OBJECTS_PRE);
+			m_pre_update.Each(
+				[this](Object& obj, U& data)
+				{
+					if (!obj.GetActive())
+						return;
+
+					static_cast<T*>(this)->PreUpdate(data);
+				});
+		}
+
 		if constexpr (requires(T t, U& u) { t.Update(EntityID(), u); })
 		{
 			m_update.ForceAdd(LYR_OBJECTS_UPDATE);
@@ -87,6 +123,19 @@ namespace vlx
 				});
 		}
 
+		if constexpr (requires(T t, U & u) { t.Update(u); })
+		{
+			m_update.ForceAdd(LYR_OBJECTS_UPDATE);
+			m_update.Each(
+				[this](Object& obj, U& data)
+				{
+					if (!obj.GetActive())
+						return;
+
+					static_cast<T*>(this)->Update(data);
+				});
+		}
+
 		if constexpr (requires(T t, U& u) { t.FixedUpdate(EntityID(), u); })
 		{
 			m_fixed_update.ForceAdd(LYR_OBJECTS_FIXED);
@@ -97,6 +146,19 @@ namespace vlx
 						return;
 
 					static_cast<T*>(this)->FixedUpdate(entity_id, data);
+				});
+		}
+
+		if constexpr (requires(T t, U & u) { t.FixedUpdate(u); })
+		{
+			m_fixed_update.ForceAdd(LYR_OBJECTS_FIXED);
+			m_fixed_update.Each(
+				[this](Object& obj, U& data)
+				{
+					if (!obj.GetActive())
+						return;
+
+					static_cast<T*>(this)->FixedUpdate(data);
 				});
 		}
 		
@@ -113,12 +175,34 @@ namespace vlx
 				});
 		}
 
+		if constexpr (requires(T t, U & u) { t.PostUpdate(u); })
+		{
+			m_post_update.ForceAdd(LYR_OBJECTS_POST);
+			m_post_update.Each(
+				[this](Object& obj, U& data)
+				{
+					if (!obj.GetActive())
+						return;
+
+					static_cast<T*>(this)->PostUpdate(data);
+				});
+		}
+
 		if constexpr (requires(T t, U& u) { t.Destroy(EntityID(), u); })
 		{
-			m_on_rmv_id = entity_admin.RegisterOnRemoveListener<U>(
+			m_on_rmv_id = GetEntityAdmin()->template RegisterOnRemoveListener<U>(
 				[this](EntityID entity_id, U& data)
 				{
 					static_cast<T*>(this)->Destroy(entity_id, data);
+				});
+		}
+
+		if constexpr (requires(T t, U & u) { t.Destroy(u); })
+		{
+			m_on_rmv_id = GetEntityAdmin()->template RegisterOnRemoveListener<U>(
+				[this](EntityID entity_id, U& data)
+				{
+					static_cast<T*>(this)->Destroy(data);
 				});
 		}
 	}
@@ -126,8 +210,8 @@ namespace vlx
 	template<class T, class U> requires std::is_standard_layout_v<U>
 	inline DataBehaviour<T, U>::~DataBehaviour()
 	{
-		if (m_on_add_id != -1) GetEntityAdmin()->DeregisterOnAddListener<U>(m_on_add_id);
-		if (m_on_rmv_id != -1) GetEntityAdmin()->DeregisterOnRemoveListener<U>(m_on_rmv_id);
+		if (m_on_add_id != -1) GetEntityAdmin()->template DeregisterOnAddListener<U>(m_on_add_id);
+		if (m_on_rmv_id != -1) GetEntityAdmin()->template DeregisterOnRemoveListener<U>(m_on_rmv_id);
 	}
 
 	template<class T, class U> requires std::is_standard_layout_v<U>

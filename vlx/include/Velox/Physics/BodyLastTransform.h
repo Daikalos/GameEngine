@@ -5,6 +5,8 @@
 
 namespace vlx
 {
+	/// Only used for tracking the previous position and angle
+	/// 
 	class VELOX_API BodyLastTransform
 	{
 	public:

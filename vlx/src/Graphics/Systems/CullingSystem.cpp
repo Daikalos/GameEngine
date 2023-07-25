@@ -14,7 +14,7 @@ void CullingSystem::PostUpdate()
 	Execute();
 }
 
-void CullingSystem::CullSprites(EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites) const
+void CullingSystem::CullSprites(std::size_t size, Renderable* renderables, GlobalTransformMatrix* gtms, Sprite* sprites) const
 {
 	const Vector2f camera_size = m_camera->GetSize() / m_camera->GetScale();
 	const Vector2f camera_pos = m_camera->GetPosition() - camera_size / 2.0f;
@@ -34,7 +34,7 @@ void CullingSystem::CullSprites(EntitySpan entities, Renderable* renderables, Gl
 		m_camera->GetSize().y + LENIENCY
 	};
 
-	for (std::size_t i = 0; i < entities.size(); ++i)
+	for (std::size_t i = 0; i < size; ++i)
 	{
 		Renderable&	renderable		= renderables[i];
 		GlobalTransformMatrix& gtm	= gtms[i];
@@ -45,7 +45,7 @@ void CullingSystem::CullSprites(EntitySpan entities, Renderable* renderables, Gl
 	}
 }
 
-void CullingSystem::CullMeshes(EntitySpan entities, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes) const
+void CullingSystem::CullMeshes(std::size_t size, Renderable* renderables, GlobalTransformMatrix* gtms, Mesh* meshes) const
 {
 	const Vector2f camera_size = m_camera->GetSize() / m_camera->GetScale();
 	const Vector2f camera_pos = m_camera->GetPosition() - camera_size / 2.0f;
@@ -65,7 +65,7 @@ void CullingSystem::CullMeshes(EntitySpan entities, Renderable* renderables, Glo
 		m_camera->GetSize().y + LENIENCY
 	};
 
-	for (std::size_t i = 0; i < entities.size(); ++i)
+	for (std::size_t i = 0; i < size; ++i)
 	{
 		Renderable& renderable		= renderables[i];
 		GlobalTransformMatrix& gtm	= gtms[i];

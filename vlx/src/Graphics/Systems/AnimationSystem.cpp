@@ -13,7 +13,7 @@ void AnimationSystem::Update()
     Execute();
 }
 
-void AnimationSystem::UpdateAnimation(EntityID entity_id, Renderable& renderable, Sprite& sprite, Animation& animation)
+void AnimationSystem::UpdateAnimation(Renderable& renderable, Sprite& sprite, Animation& animation)
 {
     if (animation.Update(m_time->GetDT()))
     {

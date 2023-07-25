@@ -6,6 +6,8 @@
 
 #include <Velox/Utility/ContainerUtils.h>
 
+#include <Velox/Config.hpp>
+
 namespace vlx
 {
 	template<class I>
@@ -16,8 +18,9 @@ namespace vlx
 		{ input.Held(typename I::ButtonType()) } -> std::same_as<bool>;
 	};
 
-	enum ButtonTrigger : uint8
+	enum ButtonTrigger
 	{
+		BT_None = -1,
 		BT_Pressed,
 		BT_Released,
 		BT_Held,
@@ -36,8 +39,8 @@ namespace vlx
 		struct ButtonCallback
 		{
 			std::function<void(Args...)>	func;
-			ButtonType						button;				// button type to listen for
-			ButtonTrigger					trigger;			// button trigger to listen for
+			ButtonType						button	 {};		// button type to listen for
+			ButtonTrigger					trigger	 {BT_None};	// button trigger to listen for
 			float							priority {0.0f};	// determines position in callbacks
 		};
 
@@ -50,22 +53,33 @@ namespace vlx
 
 		auto operator=(const ButtonEvent& rhs) -> ButtonEvent&;
 		auto operator=(ButtonEvent&& rhs) noexcept -> ButtonEvent&;
+
+	public:
+		void Execute(Args&&... args);
+		void operator()(Args&&... args);
+
+		void SetInput(const T* input);
 	
 	public:
 		template<typename Func>
 		void Add(ButtonType button, ButtonTrigger trigger, Func&& func, float priority = {})
 		{
-			cu::InsertSorted<ButtonCallback>(m_callbacks, ButtonCallback(std::forward<Func>(func), button, trigger, priority),
-				[](const ButtonCallback& lhs, const ButtonCallback& rhs)
+			const auto it = std::upper_bound(m_callbacks.begin(), m_callbacks.end(), priority,
+				[](float priority, const ButtonCallback& callback)
 				{
-					return lhs.priority > rhs.priority;
+					return priority > callback.priority;
 				});
+
+			m_callbacks.emplace(it, std::forward<Func>(func), button, trigger, priority);
 		}
 
 		template<typename Func, typename... InnerArgs>
-		void Add(ButtonType button, ButtonTrigger trigger, float priority, Func&& func, InnerArgs&&... args)
+		void Add(ButtonType button, ButtonTrigger trigger, float priority, Func&& func, InnerArgs&&... inner_args)
 		{
-			Add(button, trigger, std::bind(std::forward<Func>(func), std::forward<InnerArgs>(args)...), priority);
+			Add(button, trigger, [func = std::forward<Func>(func), ... inner_args = std::forward<InnerArgs>(inner_args)](Args&&... args)
+			{
+				std::invoke(func, inner_args..., std::forward<Args>(args)...);
+			}, priority);
 		}
 
 		template<typename Func, typename... InnerArgs>
@@ -78,13 +92,7 @@ namespace vlx
 		void Remove(ButtonTrigger trigger);
 
 	public:
-		std::size_t Size() const noexcept;
-
-		void Execute(Args&&... args);
-		void operator()(Args&&... args);
-
-		void SetInput(const T* input);
-
+		NODISC std::size_t Size() const noexcept;
 		void Clear();
 
 	private:
@@ -131,6 +139,42 @@ namespace vlx
 	}
 
 	template<class T, typename... Args> requires HasButtonInput<T>
+	inline void ButtonEvent<T, Args...>::Execute(Args&&... args)
+	{
+		if (m_input == nullptr)
+			return;
+
+		const auto CheckTriggered = [this](const ButtonCallback& callback) -> bool
+		{
+			switch (callback.trigger)
+			{
+			case BT_Pressed:	return m_input->Pressed(callback.button);
+			case BT_Released:	return m_input->Released(callback.button);
+			case BT_Held:		return m_input->Held(callback.button);
+			default:			return false;
+			}
+		};
+
+		for (const auto& callback : m_callbacks)
+		{
+			if (CheckTriggered(callback) && callback.func)
+				callback.func(std::forward<Args>(args)...);
+		}
+	}
+
+	template<class T, typename... Args> requires HasButtonInput<T>
+	inline void ButtonEvent<T, Args...>::operator()(Args&&... args)
+	{
+		Execute(std::forward<Args>(args)...);
+	}
+
+	template<class T, typename... Args> requires HasButtonInput<T>
+	inline void ButtonEvent<T, Args...>::SetInput(const T* input)
+	{
+		m_input = input;
+	}
+
+	template<class T, typename... Args> requires HasButtonInput<T>
 	inline void ButtonEvent<T, Args...>::Remove(ButtonType button)
 	{
 		std::erase(std::remove_if(m_callbacks.begin(), m_callbacks.end(), 
@@ -157,45 +201,8 @@ namespace vlx
 	}
 
 	template<class T, typename... Args> requires HasButtonInput<T>
-	inline void ButtonEvent<T, Args...>::Execute(Args&&... args)
-	{
-		if (m_input == nullptr)
-			return;
-
-		const auto CheckTriggered = [this](const ButtonCallback& callback) -> bool
-		{
-			switch (callback.trigger)
-			{
-			case BT_Pressed:	return m_input->Pressed(callback.button);
-			case BT_Released:	return m_input->Released(callback.button);
-			case BT_Held:		return m_input->Held(callback.button);
-			default:			return false;
-			}
-		};
-
-		for (const auto& callback : m_callbacks)
-		{
-			if (CheckTriggered(callback) && callback.func)
-				callback.func(std::forward<Args>(args)...);
-		}
-	}
-	template<class T, typename... Args> requires HasButtonInput<T>
-	inline void ButtonEvent<T, Args...>::operator()(Args&&... args)
-	{
-		Execute(std::forward<Args>(args)...);
-	}
-
-	template<class T, typename... Args> requires HasButtonInput<T>
-	inline void ButtonEvent<T, Args...>::SetInput(const T* input)
-	{
-		m_input = input;
-	}
-
-	template<class T, typename... Args> requires HasButtonInput<T>
 	inline void ButtonEvent<T, Args...>::Clear()
 	{
 		m_callbacks.clear();
 	}
-
-
 }

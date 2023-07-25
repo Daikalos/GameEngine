@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include <Velox/System/Concepts.h>
 #include <Velox/System/IDGenerator.h>
 
 #include <Velox/Utility/NonCopyable.h>
@@ -28,6 +29,7 @@ namespace vlx
 	public:
 		using AllFunc			= std::function<void(EntitySpan, Cs*...)>;
 		using EachFunc			= std::function<void(EntityID, Cs&...)>;
+
 		using ComponentTypes	= std::tuple<std::remove_const_t<Cs>...>;
 
 		static constexpr ArrComponentIDs<std::remove_const_t<Cs>...> SystemIDs =
@@ -62,7 +64,12 @@ namespace vlx
 	public:
 		/// Set function to be called for all the entities when system is run.
 		/// 
-		template<typename Func>
+		template<typename Func> requires HasParameters<Func, EntitySpan, Cs*...>
+		void All(Func&& func);
+
+		/// Set bare function to be called for all the entities when system is run.
+		/// 
+		template<typename Func> requires HasParameters<Func, std::size_t, Cs*...>
 		void All(Func&& func);
 
 		/// Set member function to be called for all the entities when system is run.
@@ -75,9 +82,24 @@ namespace vlx
 		template<class T, class U>
 		void All(void(T::*f)(EntitySpan, Cs*...) const, U p);
 
+		/// Set bare member function to be called for all the entities when system is run.
+		/// 
+		template<class T, class U>
+		void All(void(T::*f)(std::size_t, Cs*...), U p);
+
+		/// Set bare const member function to be called for all the entities when system is run.
+		/// 
+		template<class T, class U>
+		void All(void(T::*f)(std::size_t, Cs*...) const, U p);
+
 		/// Set function to be called for each entity when system is run.
 		/// 
-		template<typename Func>
+		template<typename Func> requires HasParameters<Func, EntityID, Cs&...>
+		void Each(Func&& func);
+
+		/// Set bare function to be called for each entity when system is run.
+		/// 
+		template<typename Func> requires HasParameters<Func, Cs&...>
 		void Each(Func&& func);
 
 		/// Set member function to be called for each entity when system is run.
@@ -89,6 +111,16 @@ namespace vlx
 		/// 
 		template<class T, class U>
 		void Each(void(T::*f)(EntityID, Cs&...) const, U p);
+
+		/// Set bare member function to be called for each entity when system is run.
+		/// 
+		template<class T, class U>
+		void Each(void(T::*f)(Cs&...), U p);
+
+		/// Set bare const member function to be called for each entity when system is run.
+		/// 
+		template<class T, class U>
+		void Each(void(T::*f)(Cs&...) const, U p);
 
 	public:
 		/// Forces this system to run alone, ignoring all others in the layer.
@@ -235,10 +267,20 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	template<typename Func>
+	template<typename Func> requires HasParameters<Func, EntitySpan, Cs*...>
 	inline void System<Cs...>::All(Func&& func)
 	{
 		m_func = std::forward<Func>(func);
+	}
+
+	template<class ...Cs> requires IsComponents<Cs...>
+	template<typename Func> requires HasParameters<Func, std::size_t, Cs*...>
+	inline void System<Cs...>::All(Func&& func)
+	{
+		m_func = [func = std::forward<Func>(func)](EntitySpan entities, Cs*... cs)
+		{
+			func(entities.size(), cs...);
+		};
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -253,7 +295,7 @@ namespace vlx
 
 	template<class... Cs> requires IsComponents<Cs...>
 	template<class T, class U>
-	inline void System<Cs...>::All(void(T::*f)(EntitySpan, Cs *...) const, U p)
+	inline void System<Cs...>::All(void(T::*f)(EntitySpan, Cs*...) const, U p)
 	{
 		m_func = [f, p](EntitySpan entities, Cs*... cs)
 		{
@@ -262,13 +304,44 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	template<typename Func>
+	template<class T, class U>
+	inline void System<Cs...>::All(void(T::*f)(std::size_t, Cs*...), U p)
+	{
+		m_func = [f, p](EntitySpan entities, Cs*... cs)
+		{
+			(p->*f)(entities.size(), cs...);
+		};
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<class T, class U>
+	inline void System<Cs...>::All(void(T::* f)(std::size_t, Cs*...) const, U p)
+	{
+		m_func = [f, p](EntitySpan entities, Cs*... cs)
+		{
+			(p->*f)(entities.size(), cs...);
+		};
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<typename Func> requires HasParameters<Func, EntityID, Cs&...>
 	inline void System<Cs...>::Each(Func&& func)
 	{
 		m_func = [func = std::forward<Func>(func)](EntitySpan entities, Cs*... cs)
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 				func(entities[i], cs[i]...);
+		};
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<typename Func> requires HasParameters<Func, Cs&...>
+	inline void System<Cs...>::Each(Func&& func)
+	{
+		m_func = [func = std::forward<Func>(func)](EntitySpan entities, Cs*... cs)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				func(cs[i]...);
 		};
 	}
 
@@ -291,6 +364,28 @@ namespace vlx
 		{
 			for (std::size_t i = 0; i < entities.size(); ++i)
 				(p->*f)(entities[i], cs[i]...);
+		};
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<class T, class U>
+	inline void System<Cs...>::Each(void(T::* f)(Cs&...), U p)
+	{
+		m_func = [f, p](EntitySpan entities, Cs*... cs)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				(p->*f)(cs[i]...);
+		};
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	template<class T, class U>
+	inline void System<Cs...>::Each(void(T::* f)(Cs&...) const, U p)
+	{
+		m_func = [f, p](EntitySpan entities, Cs*... cs)
+		{
+			for (std::size_t i = 0; i < entities.size(); ++i)
+				(p->*f)(cs[i]...);
 		};
 	}
 

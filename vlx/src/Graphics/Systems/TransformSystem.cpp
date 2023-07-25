@@ -15,7 +15,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 	m_update_scl(		entity_admin, id)
 {
 	m_sync.Each(
-		[](EntityID, Transform& t, TransformMatrix& tm)
+		[](Transform& t, TransformMatrix& tm)
 		{
 			// TODO: consider implementing TransformChanging component that tracks changes instead of doing it brute-force as it is now
 
@@ -33,7 +33,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 		});
 
 	m_dirty.Each(
-		[](EntityID, Transform& t, GlobalTransformDirty& gtd)
+		[](Transform& t, GlobalTransformDirty& gtd)
 		{
 			if (t.m_dirty) // if local is dirty, so is global transform
 			{
@@ -43,21 +43,21 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 		});
 
 	m_dirty_descendants.Each(
-		[this](EntityID, GlobalTransformDirty& gtd, Relation& r)
+		[this](GlobalTransformDirty& gtd, Relation& r)
 		{
 			if (gtd.m_dirty) // all of the children needs their transform to be updated
 				DirtyDescendants(gtd, r.GetChildren());
 		});
 
 	m_update_global.Each(
-		[this](EntityID, TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, Relation& r)
+		[this](TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, Relation& r)
 		{
 			if (gtd.m_dirty)
 				UpdateTransforms(tm, gtd, gtm, r.GetParent());
 		});
 
 	m_update_pos.Each(
-		[](EntityID, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, GlobalTransformTranslation& gtt)
+		[](GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, GlobalTransformTranslation& gtt)
 		{
 			if (gtd.m_update_position)
 			{
@@ -67,7 +67,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 		});
 
 	m_update_rot.Each(
-		[](EntityID, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, GlobalTransformRotation& gtr)
+		[](GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, GlobalTransformRotation& gtr)
 		{
 			if (gtd.m_update_rotation)
 			{
@@ -77,7 +77,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 		});
 
 	m_update_scl.Each(
-		[](EntityID, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, GlobalTransformScale& gts)
+		[](GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, GlobalTransformScale& gts)
 		{
 			if (gtd.m_update_scale)
 			{

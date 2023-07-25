@@ -14,19 +14,19 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 	m_polygons(			entity_admin, id)
 
 {
-	m_dirty_transform.Each([](EntityID entity_id, Collider& c, Transform& t)
+	m_dirty_transform.Each([](Collider& c, Transform& t)
 		{
 			if (t.m_dirty)
 				c.dirty = true;
 		});
 
-	m_dirty_physics.Each([](EntityID entity_id, Collider& c, Transform& t)
+	m_dirty_physics.Each([](Collider& c, Transform& t)
 		{
 			if (t.m_dirty)
 				c.dirty = true;
 		});
 
-	m_circles.Each([](EntityID entity_id, Circle& s, Collider& c, Transform& t)
+	m_circles.Each([](Circle& s, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
@@ -38,7 +38,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
-	m_boxes.Each([](EntityID entity_id, Box& b, Collider& c, Transform& t, TransformMatrix& tm)
+	m_boxes.Each([](Box& b, Collider& c, Transform& t, TransformMatrix& tm)
 		{
 			if (c.dirty)
 			{
@@ -50,7 +50,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
-	m_points.Each([](EntityID entity_id, Point& p, Collider& c, Transform& t)
+	m_points.Each([](Point& p, Collider& c, Transform& t)
 		{
 			if (c.dirty)
 			{
@@ -61,7 +61,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
-	m_polygons.Each([](EntityID entity_id, Polygon& p, Collider& c, Transform& t, TransformMatrix& tm)
+	m_polygons.Each([](Polygon& p, Collider& c, Transform& t, TransformMatrix& tm)
 		{
 			if (c.dirty)
 			{

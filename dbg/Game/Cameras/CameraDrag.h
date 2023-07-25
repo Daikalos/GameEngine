@@ -24,8 +24,8 @@ namespace vlx
 			m_window = GetContext().window;
 			m_mouse_cursor = &GetContext().inputs->Cursor();
 
-			m_func.Add(bn::Button::Drag, BT_Pressed, 1.0f, &CameraDrag::Select, this, std::placeholders::_1);
-			m_func.Add(bn::Button::Drag, BT_Held, 1.0f, &CameraDrag::Drag, this, std::placeholders::_1);
+			m_func.Add(bn::Button::Drag, BT_Pressed, 1.0f, &CameraDrag::Select, this);
+			m_func.Add(bn::Button::Drag, BT_Held, 1.0f, &CameraDrag::Drag, this);
 		}
 
 		bool HandleEvent(const sf::Event& event) override 

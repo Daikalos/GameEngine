@@ -39,6 +39,8 @@ namespace vlx::ui
 		friend class ButtonSystem;
 	};
 
+	// TODO: check out warning C4251
+
 	struct VELOX_API ButtonClick
 	{
 		std::function<void()> OnClick;

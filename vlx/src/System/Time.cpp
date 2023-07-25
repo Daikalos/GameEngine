@@ -13,12 +13,12 @@ long double	Time::GetTotalRunTime() const noexcept	{ return m_total_run_time; }
 int			Time::GetFPS() const noexcept			{ return (int)std::round(1.0f / GetRealDT()); }
 int			Time::GetFixedFPS() const noexcept		{ return (int)std::round(1.0f / GetRealFixedDT()); }
 
-void Time::SetScaledTime(const float value) noexcept
+void Time::SetScaledTime(float value) noexcept
 { 
 	m_scaled_time = value; 
 }
 
-void Time::SetAlpha(const float value) noexcept
+void Time::SetAlpha(float value) noexcept
 {
 	m_alpha = value;
 }
@@ -26,14 +26,15 @@ void Time::SetAlpha(const float value) noexcept
 void Time::Reset()
 {
 	m_clock.restart();
-	m_fixed_delta_time = DEFAULT_FIXED_DELTATIME;
-	m_scaled_time = DEFAULT_SCALED_TIME;
+	m_fixed_delta_time	= T_DEFAULT_FIXED_DELTATIME;
+	m_scaled_time		= T_DEFAULT_SCALED_TIME;
 }
 
 void Time::Update()
 {
-	m_delta_time = m_clock.restart().asSeconds();
+	float dt = m_clock.restart().asSeconds();
+	m_delta_time = (dt > T_MAX_DELTATIME) ? T_MAX_DELTATIME : dt;
 
-	m_total_time += GetRealDT();
-	m_total_run_time += GetDT();
+	m_total_time		+= GetRealDT();
+	m_total_run_time	+= GetDT();
 }

@@ -27,6 +27,7 @@ namespace vlx::traits
     struct FunctionTraits<ReturnType(Args...)>
     {
         using arguments = std::tuple<Args...>;
+        using arguments_decay = std::tuple<std::decay_t<Args>...>;
 
         static constexpr std::size_t arity = std::tuple_size_v<arguments>;
         

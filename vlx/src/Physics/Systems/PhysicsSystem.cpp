@@ -75,7 +75,7 @@ void PhysicsSystem::FixedUpdate()
 	Execute(m_post_solve);
 }
 
-void PhysicsSystem::IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const
+void PhysicsSystem::IntegrateVelocity(PhysicsBody& pb) const
 {
 	if (!pb.IsAwake() || !pb.IsEnabled())
 		return;
@@ -92,7 +92,7 @@ void PhysicsSystem::IntegrateVelocity(EntityID entity_id, PhysicsBody& pb) const
 	pb.m_angular_velocity	*= (1.0f / (1.0f + m_time->GetFixedDT() * pb.GetAngularDamping()));
 }
 
-void PhysicsSystem::IntegratePosition(EntityID entity_id, PhysicsBody& pb, BodyTransform& bt) const
+void PhysicsSystem::IntegratePosition(PhysicsBody& pb, BodyTransform& bt) const
 {
 	if (!pb.IsAwake() || !pb.IsEnabled())
 		return;
@@ -107,7 +107,7 @@ void PhysicsSystem::IntegratePosition(EntityID entity_id, PhysicsBody& pb, BodyT
 	pb.m_torque = 0.0f;
 }
 
-void PhysicsSystem::SleepBodies(EntityID entity_id, PhysicsBody& pb) const
+void PhysicsSystem::SleepBodies(PhysicsBody& pb) const
 {
 	if (!pb.IsAwake() || !pb.IsEnabled())
 		return;
@@ -133,14 +133,14 @@ void PhysicsSystem::SleepBodies(EntityID entity_id, PhysicsBody& pb) const
 		pb.SetAwake(false);
 }
 
-void PhysicsSystem::PreSolve(EntityID entity_id, BodyTransform& bt, BodyLastTransform& blt, const Transform& t) const
+void PhysicsSystem::PreSolve(BodyTransform& bt, BodyLastTransform& blt, const Transform& t) const
 {
 	// possible because a physics body is not allowed to have a parent
 	bt.m_position = blt.m_position = t.GetPosition();
 	bt.m_rotation = blt.m_rotation = t.GetRotation();
 }
 
-void PhysicsSystem::PostSolve(EntityID entity_id, const BodyTransform& bt, Transform& t) const
+void PhysicsSystem::PostSolve(const BodyTransform& bt, Transform& t) const
 {
 	t.SetPosition(bt.m_position);
 	t.SetRotation(bt.m_rotation);

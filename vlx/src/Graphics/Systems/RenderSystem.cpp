@@ -12,25 +12,25 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, const Time& 
 	m_meshes_bodies(entity_admin, id)
 {
 	m_sprites.Each(
-		[this](EntityID eid, Renderable& r, Sprite& s, GlobalTransformMatrix& gtm)
+		[this](Renderable& r, Sprite& s, GlobalTransformMatrix& gtm)
 		{
 			BatchEntity<Sprite>(r, s, gtm.matrix, s.GetDepth());
 		});
 
 	m_meshes.Each(
-		[this](EntityID eid, Renderable& r, Mesh& m, GlobalTransformMatrix& gtm)
+		[this](Renderable& r, Mesh& m, GlobalTransformMatrix& gtm)
 		{
 			BatchEntity<Mesh>(r, m, gtm.matrix, m.GetDepth());
 		});
 
 	m_sprites_bodies.Each(
-		[this](EntityID eid, Renderable& r, Sprite& s, PhysicsBody& pb, BodyTransform& bt, BodyLastTransform& blt, Transform& t, TransformMatrix& tm)
+		[this](Renderable& r, Sprite& s, PhysicsBody& pb, BodyTransform& bt, BodyLastTransform& blt, Transform& t, TransformMatrix& tm)
 		{
 			BatchBody<Sprite>(r, s, pb, bt, blt, t, tm, s.GetDepth());
 		});
 
 	m_meshes_bodies.Each(
-		[this](EntityID eid, Renderable& r, Mesh& m, PhysicsBody& pb, BodyTransform& bt, BodyLastTransform& blt, Transform& t, TransformMatrix& tm)
+		[this](Renderable& r, Mesh& m, PhysicsBody& pb, BodyTransform& bt, BodyLastTransform& blt, Transform& t, TransformMatrix& tm)
 		{
 			BatchBody<Mesh>(r, m, pb, bt, blt, t, tm, m.GetDepth());
 		});
