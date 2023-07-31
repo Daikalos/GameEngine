@@ -10,6 +10,6 @@ namespace vlx
 		bool m_update_rotation	{true};
 		bool m_update_scale		{true};
 
-		friend class TransformSystem;
+		friend class GlobalTransformSystem;
 	};
 }

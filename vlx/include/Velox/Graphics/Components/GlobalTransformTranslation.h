@@ -13,6 +13,6 @@ namespace vlx
 	private:
 		Vector2f m_position;
 
-		friend class TransformSystem;
+		friend class GlobalTransformSystem;
 	};
 }

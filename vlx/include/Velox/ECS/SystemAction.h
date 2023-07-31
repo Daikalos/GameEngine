@@ -56,6 +56,10 @@ namespace vlx
 		///
 		void Execute() const;
 
+		/// Executes all systems located in the specified layer
+		///
+		void Execute(LayerType layer) const;
+
 		/// Executes the specified system
 		///
 		void Execute(const SystemBase& system);

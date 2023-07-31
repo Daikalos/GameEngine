@@ -25,5 +25,6 @@
 #include "Graphics/Systems/CullingSystem.h"
 #include "Graphics/Systems/RelationSystem.h"
 #include "Graphics/Systems/RenderSystem.h"
-#include "Graphics/Systems/TransformSystem.h"
+#include "Graphics/Systems/LocalTransformSystem.h"
+#include "Graphics/Systems/GlobalTransformSystem.h"
 #include "Graphics/Systems/AnimationSystem.h"

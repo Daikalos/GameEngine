@@ -32,6 +32,12 @@ void SystemAction::Execute() const
 		m_entity_admin->RunSystems(m_layer);
 }
 
+void SystemAction::Execute(LayerType layer) const
+{
+	if (GetEnabled())
+		m_entity_admin->RunSystems(layer);
+}
+
 void SystemAction::Execute(const SystemBase& system)
 {
 	if (GetEnabled())

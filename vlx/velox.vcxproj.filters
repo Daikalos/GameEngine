@@ -18,7 +18,7 @@
     <ClCompile Include="src\Graphics\SpriteAtlas.cpp" />
     <ClCompile Include="src\Graphics\Components\Sprite.cpp" />
     <ClCompile Include="src\Graphics\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Graphics\Systems\TransformSystem.cpp" />
+    <ClCompile Include="src\Graphics\Systems\GlobalTransformSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\GlobalTransformScale.cpp" />
     <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\World\World.cpp" />
@@ -68,6 +68,7 @@
     <ClCompile Include="src\Physics\WorldManifold.cpp" />
     <ClCompile Include="src\Physics\CollisionSolver.cpp" />
     <ClCompile Include="src\Physics\BodyLastTransform.cpp" />
+    <ClCompile Include="src\Graphics\Systems\LocalTransformSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -114,7 +115,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrix.h" />
     <ClInclude Include="include\Velox\Graphics\Batchable.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
-    <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
+    <ClInclude Include="include\Velox\Graphics\Systems\GlobalTransformSystem.h" />
     <ClInclude Include="include\Velox\World\ObjectSystem.h" />
     <ClInclude Include="include\Velox\World\Object.h" />
     <ClInclude Include="include\Velox\World\World.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="include\Velox\Physics\CollisionSolver.h" />
     <ClInclude Include="include\Velox\Physics\LocalManifold.h" />
     <ClInclude Include="include\Velox\Physics\BodyLastTransform.h" />
+    <ClInclude Include="include\Velox\Graphics\Systems\LocalTransformSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

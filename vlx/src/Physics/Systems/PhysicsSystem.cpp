@@ -8,7 +8,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 	m_time(&time), 
 
 	m_broad_system(			entity_admin, LYR_BROAD_PHASE),
-	m_narrow_system(		entity_admin, LYR_NARROW_PHASE),
+	m_narrow_system(		entity_admin),
 
 	m_integrate_velocity(	entity_admin),
 	m_integrate_position(	entity_admin),

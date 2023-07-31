@@ -55,7 +55,7 @@ namespace vlx
 		};
 
 	public:
-		NarrowSystem(EntityAdmin& entity_admin, LayerType id);
+		NarrowSystem(EntityAdmin& entity_admin);
 
 	public:
 		void Update(BroadSystem& broad);

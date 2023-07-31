@@ -7,8 +7,7 @@
 
 namespace vlx::ui
 {
-	///	The button contains events for certain behaviours, e.g., press, release, and hover. They are usually 
-	/// called when the GUI component is given the respective inputs, but can be manually called if the user desires to.
+	///	The button contains data to define certain behaviours, e.g., press, release, and hover.
 	/// 
 	class VELOX_API Button
 	{

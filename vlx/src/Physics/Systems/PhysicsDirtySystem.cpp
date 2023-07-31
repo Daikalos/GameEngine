@@ -5,7 +5,7 @@ using namespace vlx;
 PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 	: SystemAction(entity_admin, id, true),
 
-	m_dirty_transform(	entity_admin, LYR_TRANSFORM), // hijack the transform layer muhahaha
+	m_dirty_transform(	entity_admin, LYR_GLOBAL_TRANSFORM),
 	m_dirty_physics(	entity_admin, id),
 
 	m_circles(			entity_admin, id),
@@ -54,7 +54,7 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 		{
 			if (c.dirty)
 			{
-				// no need to update the aabb or orientation matrix
+				// no need to update the AABB or orientation matrix
 				p.UpdateCenter(t.GetPosition());
 
 				c.dirty = false;
@@ -73,10 +73,13 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 			}
 		});
 
+	// TODO: enable global transform support for entities that does not hold any physics body
+
 	m_dirty_transform.SetPriority(10000.0f);
 }
 
 void PhysicsDirtySystem::FixedUpdate()
 {
+	Execute(LYR_LOCAL_TRANSFORM); // update local transformation matrices to update AABBs
 	Execute();
 }

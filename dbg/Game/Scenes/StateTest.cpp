@@ -124,9 +124,7 @@ void StateTest::OnCreate()
 	constexpr int abc = sizeof(PlayerBehaviour);
 	constexpr int abc123 = sizeof(System<Object>);
 
-	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity, {0, 0});
-
-	GetWorld().RemoveSystem<TransformSystem>();
+	GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity, {0, 0});
 
 	vlx::Vector2f size(16.0f, 64.0f);
 
@@ -152,7 +150,7 @@ void StateTest::OnCreate()
 	player.GetComponent<Sprite>().SetColor(sf::Color::Blue);
 	player.GetComponent<Transform>().SetOrigin(size / 2.0f);
 
-	GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(player, { 0, -64 });
+	GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(player, { 0, -64 });
 
 	GetWorld().GetCamera().Push(2);
 	GetWorld().GetCamera().ApplyPendingChanges();
@@ -194,7 +192,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<Sprite>().SetSize({ diameter, diameter });
 		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
-		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+		GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity,
 			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
@@ -217,7 +215,7 @@ bool StateTest::Update(Time& time)
 		entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 		entity.GetComponent<Transform>().SetOrigin(size / 2.0f);
 
-		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+		GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity,
 			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
@@ -258,7 +256,7 @@ bool StateTest::Update(Time& time)
 		//entity.GetComponent<Transform>().SetOrigin(poly->GetLocalCenter());
 		mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::White));
 
-		GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+		GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity,
 			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
@@ -277,7 +275,7 @@ bool StateTest::Update(Time& time)
 			entity.GetComponent<Sprite>().SetSize({ 4, 4 });
 			entity.GetComponent<Sprite>().SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
 
-			GetWorld().GetSystem<TransformSystem>().SetGlobalPosition(entity,
+			GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity,
 				GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()) + sf::Vector2f(-125.0f + i * 5, 0.0f));
 		}
 	}

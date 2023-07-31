@@ -13,6 +13,6 @@ namespace vlx
 	private:
 		sf::Angle m_rotation;
 
-		friend class TransformSystem;
+		friend class GlobalTransformSystem;
 	};
 }

@@ -180,6 +180,7 @@
     <ClInclude Include="include\Velox\Graphics\ResourceLoader.hpp" />
     <ClInclude Include="include\Velox\Graphics\SFMLLoaders.hpp" />
     <ClInclude Include="include\Velox\Graphics\Systems\AnimationSystem.h" />
+    <ClInclude Include="include\Velox\Graphics\Systems\LocalTransformSystem.h" />
     <ClInclude Include="include\Velox\Input\JoystickBindable.hpp" />
     <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
@@ -283,7 +284,7 @@
     <ClInclude Include="include\Velox\World\ObjectSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RelationSystem.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\RenderSystem.h" />
-    <ClInclude Include="include\Velox\Graphics\Systems\TransformSystem.h" />
+    <ClInclude Include="include\Velox\Graphics\Systems\GlobalTransformSystem.h" />
     <ClInclude Include="include\Velox\Utility.hpp" />
     <ClInclude Include="include\Velox\Utility\ArithmeticUtils.h" />
     <ClInclude Include="include\Velox\Utility\Benchmark.h" />
@@ -313,6 +314,7 @@
     <ClCompile Include="src\Graphics\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\Components\Animation.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
+    <ClCompile Include="src\Graphics\Systems\LocalTransformSystem.cpp" />
     <ClCompile Include="src\Physics\BodyLastTransform.cpp" />
     <ClCompile Include="src\Physics\CollisionSolver.cpp" />
     <ClCompile Include="src\Physics\WorldManifold.cpp" />
@@ -369,7 +371,7 @@
     <ClCompile Include="src\World\ObjectSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\RelationSystem.cpp" />
     <ClCompile Include="src\Graphics\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Graphics\Systems\TransformSystem.cpp" />
+    <ClCompile Include="src\Graphics\Systems\GlobalTransformSystem.cpp" />
     <ClCompile Include="src\System\Time.cpp" />
     <ClCompile Include="src\Window\Camera.cpp" />
     <ClCompile Include="src\Window\CameraBehavior.cpp" />

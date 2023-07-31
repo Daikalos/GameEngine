@@ -12,7 +12,7 @@
 
 using namespace vlx;
 
-NarrowSystem::NarrowSystem(EntityAdmin& entity_admin, LayerType id) 
+NarrowSystem::NarrowSystem(EntityAdmin& entity_admin) 
 	: m_entity_admin(&entity_admin) {}
 
 void NarrowSystem::Update(BroadSystem& broad)

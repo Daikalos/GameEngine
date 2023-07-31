@@ -43,7 +43,8 @@ namespace vlx
 		bool		m_update_rot		{true};
 		bool		m_dirty				{true};
 
-		friend class TransformSystem;
+		friend class LocalTransformSystem;
+		friend class GlobalTransformSystem;
 		friend class PhysicsDirtySystem;
 	};
 }

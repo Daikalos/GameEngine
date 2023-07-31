@@ -30,16 +30,17 @@ World::World(std::string name) :
 
 	m_mouse.Set(ebn::Button::GUIButton, sf::Mouse::Left);
 
-	AddSystem<ObjectSystem>(		m_entity_admin,	LYR_NONE);
-	AddSystem<RelationSystem>(		m_entity_admin,	LYR_NONE);
-	AddSystem<TransformSystem>(		m_entity_admin,	LYR_TRANSFORM);
-	AddSystem<CullingSystem>(		m_entity_admin, LYR_CULLING, m_camera);
-	AddSystem<AnchorSystem>(		m_entity_admin,	LYR_ANCHOR, m_window);
-	AddSystem<ui::ButtonSystem>(	m_entity_admin,	LYR_GUI, m_camera, m_mouse, m_inputs.Cursor());
-	AddSystem<RenderSystem>(		m_entity_admin, LYR_RENDERING, m_time);
-	AddSystem<PhysicsDirtySystem>(	m_entity_admin, LYR_DIRTY_PHYSICS);
-	AddSystem<PhysicsSystem>(		m_entity_admin,	LYR_PHYSICS, m_time);
-	AddSystem<AnimationSystem>(		m_entity_admin, LYR_ANIMATION, m_time);
+	AddSystem<ObjectSystem>(			m_entity_admin,	LYR_NONE);
+	AddSystem<RelationSystem>(			m_entity_admin,	LYR_NONE);
+	AddSystem<LocalTransformSystem>(	m_entity_admin, LYR_LOCAL_TRANSFORM);
+	AddSystem<GlobalTransformSystem>(	m_entity_admin,	LYR_GLOBAL_TRANSFORM);
+	AddSystem<CullingSystem>(			m_entity_admin, LYR_CULLING, m_camera);
+	AddSystem<AnchorSystem>(			m_entity_admin,	LYR_ANCHOR, m_window);
+	AddSystem<ui::ButtonSystem>(		m_entity_admin,	LYR_GUI, m_camera, m_mouse, m_inputs.Cursor());
+	AddSystem<RenderSystem>(			m_entity_admin, LYR_RENDERING, m_time);
+	AddSystem<PhysicsDirtySystem>(		m_entity_admin, LYR_DIRTY_PHYSICS);
+	AddSystem<PhysicsSystem>(			m_entity_admin,	LYR_PHYSICS, m_time);
+	AddSystem<AnimationSystem>(			m_entity_admin, LYR_ANIMATION, m_time);
 }
 
 const InputHolder& World::GetInputs() const noexcept			{ return m_inputs; }
@@ -73,7 +74,7 @@ void World::Run()
 
 	float accumulator = 0.0f;
 
-	Start(); // objects ready to be initialized
+	Start();
 
 	while (m_window.isOpen())
 	{
@@ -84,14 +85,14 @@ void World::Run()
 		ProcessEvents();
 
 		if (m_shutdown)
-			continue;
+			break;
 
 		PreUpdate();
 
 		Update();
 
 		accumulator += m_time.GetRealDT();
-		accumulator = std::min(accumulator, 0.2f); // clamp accumulator
+		accumulator = std::min(accumulator, 0.2f); // clamp accumulator to prevent over-shooting
 
 		while (accumulator >= m_time.GetFixedDT())
 		{

@@ -1,12 +1,11 @@
-#include <Velox/Graphics/Systems/TransformSystem.h>
+#include <Velox/Graphics/Systems/GlobalTransformSystem.h>
 #include <Velox/ECS/EntityAdmin.h>
 
 using namespace vlx;
 
-TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
+GlobalTransformSystem::GlobalTransformSystem(EntityAdmin& entity_admin, LayerType id)
 	: SystemAction(entity_admin, id, true), 
 
-	m_sync(				entity_admin, id),
 	m_dirty(			entity_admin, id),
 	m_dirty_descendants(entity_admin, id),
 	m_update_global(	entity_admin, id),
@@ -14,24 +13,6 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 	m_update_rot(		entity_admin, id),
 	m_update_scl(		entity_admin, id)
 {
-	m_sync.Each(
-		[](Transform& t, TransformMatrix& tm)
-		{
-			// TODO: consider implementing TransformChanging component that tracks changes instead of doing it brute-force as it is now
-
-			if (t.m_update_rot)
-			{
-				tm.matrix.Rebuild(t.GetScale(), t.GetRotation());
-				t.m_update_rot = false;
-			}
-
-			if (t.m_update_pos)
-			{
-				tm.matrix.Rebuild(t.GetPosition(), t.GetOrigin());
-				t.m_update_pos = false;
-			}
-		});
-
 	m_dirty.Each(
 		[](Transform& t, GlobalTransformDirty& gtd)
 		{
@@ -93,7 +74,7 @@ TransformSystem::TransformSystem(EntityAdmin& entity_admin, LayerType id)
 	m_update_global.SetPriority(0.0f);
 }
 
-void TransformSystem::SetGlobalPosition(EntityID entity, const Vector2f& position) 
+void GlobalTransformSystem::SetPosition(EntityID entity, const Vector2f& position) 
 {
 	auto transform	= m_entity_admin->TryGetComponent<Transform>(entity);
 	auto relation	= m_entity_admin->TryGetComponent<Relation>(entity);
@@ -103,23 +84,23 @@ void TransformSystem::SetGlobalPosition(EntityID entity, const Vector2f& positio
 
 	if (relation)
 	{
-		SetGlobalPosition(*transform, *relation, position);
+		SetPosition(*transform, *relation, position);
 	}
 	else // no relation component, set position directly
 	{
 		transform->SetPosition(position);
 	}
 }
-void TransformSystem::SetGlobalScale(EntityID entity, const Vector2f& scale)
+void GlobalTransformSystem::SetScale(EntityID entity, const Vector2f& scale)
 {
 
 }
-void TransformSystem::SetGlobalRotation(EntityID entity, const sf::Angle angle)
+void GlobalTransformSystem::SetRotation(EntityID entity, const sf::Angle angle)
 {
 
 }
 
-void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation, const Vector2f& position)
+void GlobalTransformSystem::SetPosition(Transform& transform, Relation& relation, const Vector2f& position)
 {
 	if (relation.HasParent())
 	{
@@ -128,41 +109,21 @@ void TransformSystem::SetGlobalPosition(Transform& transform, Relation& relation
 	}
 	else transform.SetPosition(position);
 }
-void TransformSystem::SetGlobalScale(Transform& transform, Relation& relation, const Vector2f& scale)
+void GlobalTransformSystem::SetScale(Transform& transform, Relation& relation, const Vector2f& scale)
 {
 	// TODO: implement
 }
-void TransformSystem::SetGlobalRotation(Transform& transform, Relation& relation, sf::Angle angle)
+void GlobalTransformSystem::SetRotation(Transform& transform, Relation& relation, sf::Angle angle)
 {
 	// TODO: implement
 }
 
-void TransformSystem::Start()
-{
-
-}
-
-void TransformSystem::PreUpdate()
-{
-
-}
-
-void TransformSystem::Update()
+void GlobalTransformSystem::Update()
 {
 	Execute();
 }
 
-void TransformSystem::FixedUpdate()
-{
-
-}
-
-void TransformSystem::PostUpdate()
-{
-	// TODO: figure out how to keep cache at reasonable size
-}
-
-void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const typename Relation::Children& children) const
+void GlobalTransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const typename Relation::Children& children) const
 {
 	const auto RecursiveClean = [this](GlobalTransformDirty& gtd, const typename Relation::Children& children)
 	{
@@ -188,7 +149,7 @@ void TransformSystem::DirtyDescendants(GlobalTransformDirty& gtd, const typename
 
 	RecursiveClean(gtd, children);
 }
-void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, const typename Relation::Parent& parent) const
+void GlobalTransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm, const typename Relation::Parent& parent) const
 {
 	if (!parent.ptr.IsValid())
 	{
@@ -231,7 +192,7 @@ void TransformSystem::UpdateTransforms(TransformMatrix& tm, GlobalTransformDirty
 	gtd.m_dirty = false;
 }
 
-void TransformSystem::UpdateToLocal(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm) const
+void GlobalTransformSystem::UpdateToLocal(TransformMatrix& tm, GlobalTransformDirty& gtd, GlobalTransformMatrix& gtm) const
 {
 	if (tm.matrix != gtm.matrix) // no need to update if already equal
 	{
@@ -249,7 +210,7 @@ void TransformSystem::UpdateToLocal(TransformMatrix& tm, GlobalTransformDirty& g
 	//global_transform.m_rotation	= transform.m_rotation;
 }
 
-auto TransformSystem::CheckCache(EntityID entity_id) const -> std::optional<CacheSet>
+auto GlobalTransformSystem::CheckCache(EntityID entity_id) const -> std::optional<CacheSet>
 {
 	const auto it = m_cache.find(entity_id);
 	if (it == m_cache.end())

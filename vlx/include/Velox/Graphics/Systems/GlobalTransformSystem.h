@@ -26,7 +26,7 @@
 
 namespace vlx
 {
-	class VELOX_API TransformSystem final : public SystemAction
+	class VELOX_API GlobalTransformSystem final : public SystemAction
 	{
 	private:
 		using CacheTuple = std::type_identity<std::tuple<
@@ -39,25 +39,28 @@ namespace vlx
 			GlobalTransformDirty, 
 			GlobalTransformMatrix>;
 
-	public:
-		TransformSystem(EntityAdmin& entity_admin, LayerType id);
+		using SyncLocalSystem			= System<Transform, TransformMatrix>;
+		using DirtyLocalSystem			= System<Transform, GlobalTransformDirty>;
+		using DirtyDescendantsSystem	= System<GlobalTransformDirty, Relation>;
+		using UpdateGlobalSystem		= System<TransformMatrix, GlobalTransformDirty, GlobalTransformMatrix, Relation>;
+		using UpdatePositionSystem		= System<GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformTranslation>;
+		using UpdateRotationSystem		= System<GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformRotation>;
+		using UpdateScaleSystem			= System<GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformScale>;
 
 	public:
-		void SetGlobalPosition(	EntityID entity, const Vector2f& position);
-		void SetGlobalScale(	EntityID entity, const Vector2f& scale);
-		void SetGlobalRotation(	EntityID entity, const sf::Angle angle);
-
-		void SetGlobalPosition(	Transform& transform, Relation& relation, const Vector2f& position);
-		void SetGlobalScale(	Transform& transform, Relation& relation, const Vector2f& scale);
-		void SetGlobalRotation(	Transform& transform, Relation& relation, const sf::Angle angle);
+		GlobalTransformSystem(EntityAdmin& entity_admin, LayerType id);
 
 	public:
-		void Start() override;
+		void SetPosition(	EntityID entity, const Vector2f& position);
+		void SetScale(		EntityID entity, const Vector2f& scale);
+		void SetRotation(	EntityID entity, const sf::Angle angle);
 
-		void PreUpdate() override;
+		void SetPosition(	Transform& transform, Relation& relation, const Vector2f& position);
+		void SetScale(		Transform& transform, Relation& relation, const Vector2f& scale);
+		void SetRotation(	Transform& transform, Relation& relation, const sf::Angle angle);
+
+	public:
 		void Update() override;
-		void FixedUpdate() override;
-		void PostUpdate() override;
 
 	private:
 		void DirtyDescendants(
@@ -78,38 +81,12 @@ namespace vlx
 		auto CheckCache(EntityID entity_id) const -> std::optional<CacheSet>;
 
 	private:
-		System<
-			Transform, 
-			TransformMatrix>				m_sync;
-
-		System<
-			Transform, 
-			GlobalTransformDirty>			m_dirty;
-			
-		System<
-			GlobalTransformDirty, 
-			Relation>						m_dirty_descendants;
-
-		System<
-			TransformMatrix,
-			GlobalTransformDirty,
-			GlobalTransformMatrix, 
-			Relation>						m_update_global;
-
-		System<
-			GlobalTransformDirty,
-			GlobalTransformMatrix,
-			GlobalTransformTranslation>		m_update_pos;
-
-		System<
-			GlobalTransformDirty,
-			GlobalTransformMatrix,
-			GlobalTransformRotation>		m_update_rot;
-
-		System<
-			GlobalTransformDirty,
-			GlobalTransformMatrix,
-			GlobalTransformScale>			m_update_scl;
+		DirtyLocalSystem		m_dirty;
+		DirtyDescendantsSystem	m_dirty_descendants;
+		UpdateGlobalSystem		m_update_global;
+		UpdatePositionSystem	m_update_pos;
+		UpdateRotationSystem	m_update_rot;
+		UpdateScaleSystem		m_update_scl;
 
 		mutable std::unordered_map<EntityID, CacheSet> m_cache;
 	};
