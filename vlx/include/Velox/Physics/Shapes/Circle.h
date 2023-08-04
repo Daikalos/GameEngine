@@ -21,7 +21,7 @@ namespace vlx
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
 
 	public:
-		VELOX_API RectFloat ComputeAABB(const Transform& transform) const;
+		VELOX_API RectFloat ComputeAABB(const Vector2f& position) const;
 	};
 
 	constexpr Circle::Circle() 

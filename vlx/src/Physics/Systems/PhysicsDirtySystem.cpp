@@ -10,7 +10,6 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 
 	m_circles(			entity_admin, id),
 	m_boxes(			entity_admin, id),
-	m_points(			entity_admin, id),
 	m_polygons(			entity_admin, id)
 
 {
@@ -26,54 +25,34 @@ PhysicsDirtySystem::PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id)
 				c.dirty = true;
 		});
 
-	m_circles.Each([](Circle& s, Collider& c, Transform& t)
+	m_circles.Each([](Circle& s, Collider& c, ColliderAABB& ab, Transform& t)
 		{
 			if (c.dirty)
 			{
-				s.UpdateAABB(s.ComputeAABB(t));
-				// no need to update the orientation matrix
-				s.UpdateCenter(t.GetPosition());
-
+				ab.SetAABB(s.ComputeAABB(t.GetPosition()));
 				c.dirty = false;
 			}
 		});
 
-	m_boxes.Each([](Box& b, Collider& c, Transform& t, TransformMatrix& tm)
+	m_boxes.Each([](Box& b, Collider& c, ColliderAABB& ab, TransformMatrix& tm)
 		{
 			if (c.dirty)
 			{
-				b.UpdateAABB(b.ComputeAABB(tm.matrix));
-				b.UpdateOrientation(t.GetRotation().wrapUnsigned());
-				b.UpdateCenter(t.GetPosition());
-
+				ab.SetAABB(b.ComputeAABB(tm.matrix));
 				c.dirty = false;
 			}
 		});
 
-	m_points.Each([](Point& p, Collider& c, Transform& t)
+	m_polygons.Each([](Polygon& p, Collider& c, ColliderAABB& ab, TransformMatrix& tm)
 		{
 			if (c.dirty)
 			{
-				// no need to update the AABB or orientation matrix
-				p.UpdateCenter(t.GetPosition());
-
+				ab.SetAABB(p.ComputeAABB(tm.matrix));
 				c.dirty = false;
 			}
 		});
 
-	m_polygons.Each([](Polygon& p, Collider& c, Transform& t, TransformMatrix& tm)
-		{
-			if (c.dirty)
-			{
-				p.UpdateAABB(p.ComputeAABB(tm.matrix));
-				p.UpdateOrientation(t.GetRotation().wrapUnsigned());
-				p.UpdateCenter(t.GetPosition());
-
-				c.dirty = false;
-			}
-		});
-
-	// TODO: enable global transform support for entities that does not hold any physics body
+	// TODO: add global transform support for entities that does not hold any physics body
 
 	m_dirty_transform.SetPriority(10000.0f);
 }

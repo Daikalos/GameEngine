@@ -9,9 +9,9 @@
 
 namespace vlx
 {
-	using QTCollider = QTElement<uint32>; 
+	using QTBody = QTElement<uint32>; 
 
-	class VELOX_API Collider : public QTCollider // TODO: remove as parent
+	class VELOX_API Collider
 	{
 	public:
 		bool GetEnabled() const noexcept;

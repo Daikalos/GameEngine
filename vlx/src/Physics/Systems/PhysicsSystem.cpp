@@ -47,12 +47,12 @@ void PhysicsSystem::SetPositionIterations(int iterations)
 
 void PhysicsSystem::FixedUpdate()
 {
+	Execute(m_pre_solve);
+
 	m_broad_system.Update();
 	m_narrow_system.Update(m_broad_system);
 
 	auto& arbiters = m_narrow_system.GetArbiters();
-
-	Execute(m_pre_solve);
 
 	Execute(m_integrate_velocity);
 

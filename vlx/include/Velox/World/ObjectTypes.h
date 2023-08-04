@@ -35,6 +35,7 @@
 #include <Velox/Physics/BodyLastTransform.h>
 #include <Velox/Physics/Collider.h>
 #include <Velox/Physics/ColliderEvents.h>
+#include <Velox/Physics/ColliderAABB.h>
 
 #include <Velox/World/Object.h>
 
@@ -48,7 +49,8 @@ namespace vlx
 		Transform, TransformMatrix, TransformMatrixInverse, 
 		GlobalTransformTranslation, GlobalTransformRotation, GlobalTransformScale,
 		GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse,
-		Circle, Box, Collider, Polygon, Point, PhysicsBody, BodyTransform, BodyLastTransform,
+		Circle, Box, Polygon, Point, QTBody, Collider, ColliderAABB, 
+		PhysicsBody, BodyTransform, BodyLastTransform,
 		ColliderEnter, ColliderExit, ColliderOverlap,
 		ui::Button, ui::Text, ui::TextMesh, ui::UIBase,
 		ui::ButtonClick, ui::ButtonPress, ui::ButtonRelease, ui::ButtonEnter, ui::ButtonExit>>;
@@ -58,7 +60,7 @@ namespace vlx
 		Transform, TransformMatrix, TransformMatrixInverse, 
 		GlobalTransformTranslation, GlobalTransformDirty, GlobalTransformMatrix, GlobalTransformMatrixInverse>>;
 
-	using PhysicsType = std::type_identity<std::tuple<Collider, PhysicsBody, BodyTransform, BodyLastTransform>>;
+	using PhysicsType = std::type_identity<std::tuple<Collider, ColliderAABB, QTBody, PhysicsBody, BodyTransform, BodyLastTransform>>;
 
 	namespace ui
 	{

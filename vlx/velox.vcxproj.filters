@@ -69,6 +69,7 @@
     <ClCompile Include="src\Physics\CollisionSolver.cpp" />
     <ClCompile Include="src\Physics\BodyLastTransform.cpp" />
     <ClCompile Include="src\Graphics\Systems\LocalTransformSystem.cpp" />
+    <ClCompile Include="src\Physics\ColliderAABB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Velox\ECS\Archetype.hpp" />
@@ -217,6 +218,8 @@
     <ClInclude Include="include\Velox\Physics\LocalManifold.h" />
     <ClInclude Include="include\Velox\Physics\BodyLastTransform.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\LocalTransformSystem.h" />
+    <ClInclude Include="include\Velox\Physics\Systems\ShapeCollision.h" />
+    <ClInclude Include="include\Velox\Physics\ColliderAABB.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

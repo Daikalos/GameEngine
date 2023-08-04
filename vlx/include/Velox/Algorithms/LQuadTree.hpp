@@ -59,8 +59,16 @@ namespace vlx
 		/// 
 		/// \returns Index to element, can be used to directly access it when, e.g., erasing it from the tree.
 		/// 
+		auto Insert(const RectFloat& rect, const T& item) -> SizeType;
+
+		/// Emplace construct element into the quadtree.
+		/// 
+		/// \param Element: Element to insert containing the item and bounding rectangle.
+		/// 
+		/// \returns Index to element, can be used to directly access it when, e.g., erasing it from the tree.
+		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
-		auto Insert(const RectFloat& rect, Args&&... args) -> SizeType;
+		auto Emplace(const RectFloat& rect, Args&&... args) -> SizeType;
 
 		/// Attempts to erase element from tree.
 		/// 
@@ -181,15 +189,21 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
+	inline auto LQuadTree<T>::Insert(const RectFloat& rect, const T& item) -> SizeType
+	{
+		return Emplace(rect, item);
+	}
+
+	template<std::equality_comparable T>
 	template<typename... Args> requires std::constructible_from<T, Args...>
-	inline auto LQuadTree<T>::Insert(const RectFloat& rect, Args&&... args) -> SizeType
+	inline auto LQuadTree<T>::Emplace(const RectFloat& rect, Args&&... args) -> SizeType
 	{
 		std::unique_lock lock(m_mutex);
 
 		if (!m_root_rect.Contains(rect.Center())) // dont attempt to add if outside boundary
 			return -1;
 
-		SizeType index = static_cast<SizeType>(m_elements.emplace(rect, T{ std::forward<Args>(args)... }));
+		SizeType index = static_cast<SizeType>(m_elements.emplace(rect, std::forward<Args>(args)...));
 		InsertHelper(rect.Center(), static_cast<SizeType>(m_elements_ptr.emplace(index)));
 
 		return index;

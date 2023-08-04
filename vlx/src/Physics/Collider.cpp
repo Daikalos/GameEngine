@@ -9,11 +9,5 @@ bool Collider::GetEnabled() const noexcept
 
 void Collider::SetEnabled(bool flag)
 {
-	if (enabled == flag)
-		return;
-
-	if (!flag)
-		Erase();
-
 	enabled = flag;
 }

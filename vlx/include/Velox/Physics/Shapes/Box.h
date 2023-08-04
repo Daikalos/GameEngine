@@ -12,7 +12,7 @@
 
 namespace vlx
 {
-	class Box final : public ShapeRotatable
+	class Box final : public Shape
 	{
 	private:
 		using VectorArray = std::array<Vector2f, 4>;

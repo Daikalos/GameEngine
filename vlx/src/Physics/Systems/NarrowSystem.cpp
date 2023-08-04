@@ -69,7 +69,7 @@ auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
 void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 {
 	CollisionArbiter arbiter;
-	CollisionTable::Collide(arbiter, *A.shape, A.type, *B.shape, B.type);
+	CollisionTable::Collide(arbiter, *A.shape, *A.transform, A.type, *B.shape, *B.transform, B.type);
 
 	if (arbiter.manifold.contacts_count) // successfully collided if not zero
 	{
@@ -91,8 +91,8 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 		if (has_enter || has_exit || has_overlap)
 		{
 			EntityPair pair = (A.entity_id < B.entity_id) ?
-				EntityPair(A.entity_id, B.entity_id) :
-				EntityPair(B.entity_id, A.entity_id);
+				EntityPair{ A.entity_id, B.entity_id } :
+				EntityPair{ B.entity_id, A.entity_id };
 
 			CollisionResult a_result{B.entity_id}; // store other entity
 			CollisionResult b_result{A.entity_id};

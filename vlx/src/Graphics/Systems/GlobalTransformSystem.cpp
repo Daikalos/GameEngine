@@ -219,11 +219,10 @@ auto GlobalTransformSystem::CheckCache(EntityID entity_id) const -> std::optiona
 		return std::make_optional(m_cache.try_emplace(entity_id, set).first->second);
 	}
 
-	if (!it->second.IsAllValid())
-	{
-		m_cache.erase(it);
-		return std::nullopt;
-	}
+	if (it->second.IsAnyValid())
+		return std::make_optional(it->second);
 
-	return std::make_optional(it->second);
+	m_cache.erase(it);
+
+	return std::nullopt;
 }

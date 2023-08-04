@@ -1,31 +1,35 @@
 #pragma once
 
 #include <Velox/ECS/System.hpp>
+
 #include <Velox/Physics/Shapes/Shape.h>
+#include <Velox/Physics/Shapes/Point.h>
 
 #include "../Collider.h"
+#include "../ColliderAABB.h"
+
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
 	class BroadSystem;
-	class Point;
 
-	template<class S>
+	template<std::derived_from<Shape> S>
 	class VELOX_API ShapeInserter
 	{
 	public:
-		using ShapeSystem = System<S, Collider>;
+		using InsertSystem = System<S, ColliderAABB, QTBody>;
 
 	public:
 		ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSystem& broad_system);
 		~ShapeInserter();
 
 	private:
-		void InsertShape(EntityID entity_id, Shape* shape, Collider* c);
+		void InsertShape(EntityID entity_id, S& shape, ColliderAABB& ab, QTBody& qtb);
 
 	private:
 		BroadSystem&	m_broad;
-		ShapeSystem		m_insert;
+		InsertSystem	m_insert;
 
 		int				m_on_add_id		{-1};
 		int				m_on_move_id	{-1};

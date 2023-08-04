@@ -6,6 +6,7 @@
 #include <Velox/Physics/PhysicsBody.h>
 #include <Velox/Physics/CollisionBody.h>
 #include <Velox/Physics/ColliderEvents.h>
+#include <Velox/Physics/ColliderAABB.h>
 
 using namespace vlx;
 
@@ -31,7 +32,7 @@ void BroadSystem::Update()
 {
 	m_collisions.clear();
 
-	m_entity_admin->RunSystems(m_layer); // insert all shapes
+	m_entity_admin->RunSystems(m_layer); // insert/erase shapes in quadtree
 
 	m_quad_tree.Cleanup(); // have to cleanup in case of erase
 
@@ -66,9 +67,9 @@ void BroadSystem::GatherCollisions()
 		switch (object.type)
 		{
 		case Shape::Point:
-			return m_quad_tree.Query(object.shape->GetCenter());
+			return m_quad_tree.Query(object.transform->GetPosition());
 		default:
-			return m_quad_tree.Query(object.shape->GetAABB());
+			return m_quad_tree.Query(object.aabb->GetAABB());
 		}
 	};
 
@@ -141,6 +142,7 @@ int BroadSystem::CreateBody(EntityID eid, Shape* shape, typename Shape::Type typ
 	body.collider	= m_entity_admin->TryGetComponent<Collider>(eid);
 	body.body		= m_entity_admin->TryGetComponent<PhysicsBody>(eid);
 	body.transform	= m_entity_admin->TryGetComponent<BodyTransform>(eid);
+	body.aabb		= m_entity_admin->TryGetComponent<ColliderAABB>(eid);
 
 	body.enter		= m_entity_admin->TryGetComponent<ColliderEnter>(eid);
 	body.exit		= m_entity_admin->TryGetComponent<ColliderExit>(eid);
@@ -165,8 +167,9 @@ void BroadSystem::RemoveBody(EntityID eid)
 	const auto it2 = m_entity_body_map.find(m_bodies.back().entity_id);
 	assert(it2 != m_entity_body_map.end() && "Entity should be in the map");
 
-	if (m_bodies[it2->second].collider)
-		m_bodies[it2->second].collider->Update(it1->second); // update the index in the quad tree
+	QTBody* qtb = m_entity_admin->TryGetComponent<QTBody>(it2->second);
+	if (qtb != nullptr)
+		qtb->Update(it1->second); // update the index in the quad tree
 
 	it2->second = it1->second;
 
@@ -176,7 +179,7 @@ void BroadSystem::RemoveBody(EntityID eid)
 
 bool BroadSystem::HasDataForCollision(const CollisionBody& object)
 {
-	return object.shape != nullptr && object.collider != nullptr && object.transform != nullptr; // safety checks
+	return object.shape != nullptr && object.collider != nullptr && object.transform != nullptr && object.aabb != nullptr; // safety checks
 }
 
 void BroadSystem::RegisterEvents()
@@ -202,21 +205,28 @@ void BroadSystem::RegisterEvents()
 				m_bodies[i].transform = &t;
 		});
 
-	m_add_ids[3] = m_entity_admin->RegisterOnAddListener<ColliderEnter>(
+	m_add_ids[3] = m_entity_admin->RegisterOnAddListener<ColliderAABB>(
+		[this](EntityID eid, ColliderAABB& ab)
+		{
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].aabb = &ab;
+		});
+
+	m_add_ids[4] = m_entity_admin->RegisterOnAddListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].enter = &e;
 		});
 
-	m_add_ids[4] = m_entity_admin->RegisterOnAddListener<ColliderExit>(
+	m_add_ids[5] = m_entity_admin->RegisterOnAddListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].exit = &e;
 		});
 
-	m_add_ids[5] = m_entity_admin->RegisterOnAddListener<ColliderOverlap>(
+	m_add_ids[6] = m_entity_admin->RegisterOnAddListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
@@ -244,21 +254,28 @@ void BroadSystem::RegisterEvents()
 				m_bodies[i].transform = &t;
 		});
 
-	m_mov_ids[3] = m_entity_admin->RegisterOnMoveListener<ColliderEnter>(
+	m_mov_ids[3] = m_entity_admin->RegisterOnMoveListener<ColliderAABB>(
+		[this](EntityID eid, ColliderAABB& ab)
+		{
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].aabb = &ab;
+		});
+
+	m_mov_ids[4] = m_entity_admin->RegisterOnMoveListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].enter = &e;
 		});
 
-	m_mov_ids[4] = m_entity_admin->RegisterOnMoveListener<ColliderExit>(
+	m_mov_ids[5] = m_entity_admin->RegisterOnMoveListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].exit = &e;
 		});
 
-	m_mov_ids[5] = m_entity_admin->RegisterOnMoveListener<ColliderOverlap>(
+	m_mov_ids[6] = m_entity_admin->RegisterOnMoveListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
@@ -279,28 +296,35 @@ void BroadSystem::RegisterEvents()
 				m_bodies[i].body = nullptr;
 		});
 
-	m_rmv_ids[2] = m_entity_admin->RegisterOnRemoveListener<Transform>(
-		[this](EntityID eid, Transform& t)
+	m_rmv_ids[2] = m_entity_admin->RegisterOnRemoveListener<BodyTransform>(
+		[this](EntityID eid, BodyTransform& t)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].transform = nullptr;
 		});
 
-	m_rmv_ids[3] = m_entity_admin->RegisterOnRemoveListener<ColliderEnter>(
+	m_rmv_ids[3] = m_entity_admin->RegisterOnRemoveListener<ColliderAABB>(
+		[this](EntityID eid, ColliderAABB& ab)
+		{
+			if (auto i = FindBody(eid); i != NULL_BODY)
+				m_bodies[i].aabb = nullptr;
+		});
+
+	m_rmv_ids[4] = m_entity_admin->RegisterOnRemoveListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].enter = nullptr;
 		});
 
-	m_rmv_ids[4] = m_entity_admin->RegisterOnRemoveListener<ColliderExit>(
+	m_rmv_ids[5] = m_entity_admin->RegisterOnRemoveListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].exit = nullptr;
 		});
 
-	m_rmv_ids[5] = m_entity_admin->RegisterOnRemoveListener<ColliderOverlap>(
+	m_rmv_ids[6] = m_entity_admin->RegisterOnRemoveListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
@@ -310,9 +334,10 @@ void BroadSystem::RegisterEvents()
 	m_comp_ids[0] = m_entity_admin->GetComponentID<Collider>();
 	m_comp_ids[1] = m_entity_admin->GetComponentID<PhysicsBody>();
 	m_comp_ids[2] = m_entity_admin->GetComponentID<Transform>();
-	m_comp_ids[3] = m_entity_admin->GetComponentID<ColliderEnter>();
-	m_comp_ids[4] = m_entity_admin->GetComponentID<ColliderExit>();
-	m_comp_ids[5] = m_entity_admin->GetComponentID<ColliderOverlap>();
+	m_comp_ids[3] = m_entity_admin->GetComponentID<ColliderAABB>();
+	m_comp_ids[4] = m_entity_admin->GetComponentID<ColliderEnter>();
+	m_comp_ids[5] = m_entity_admin->GetComponentID<ColliderExit>();
+	m_comp_ids[6] = m_entity_admin->GetComponentID<ColliderOverlap>();
 }
 
 void BroadSystem::DeregisterEvents()

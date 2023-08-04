@@ -24,7 +24,7 @@ namespace vlx
 	class VELOX_API BroadSystem final 
 	{
 	private:
-		static constexpr int OBJ_SIZE	= 6;
+		static constexpr int OBJ_SIZE	= 7;
 		static constexpr int NULL_BODY	= -1;
 
 	public:
@@ -34,7 +34,7 @@ namespace vlx
 		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
 		using BodyList				= std::vector<CollisionBody>;
 
-		using QuadTreeType			= LQuadTree<QTCollider::ValueType>;
+		using QuadTreeType			= LQuadTree<typename QTBody::ValueType>;
 
 	public:
 		BroadSystem(EntityAdmin& entity_admin, LayerType id);
@@ -68,7 +68,7 @@ namespace vlx
 		LayerType					m_layer			{LYR_NONE};
 
 		QuadTreeType				m_quad_tree;
-		
+
 		ShapeInserter<Circle>		m_circles;
 		ShapeInserter<Box>			m_boxes;
 		ShapeInserter<Point>		m_points;
@@ -84,7 +84,7 @@ namespace vlx
 		std::array<int, OBJ_SIZE> m_rmv_ids;
 		std::array<ComponentTypeID, OBJ_SIZE> m_comp_ids;
 
-		template<class S>
+		template<std::derived_from<Shape> S>
 		friend class ShapeInserter;
 	};
 }

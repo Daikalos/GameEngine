@@ -13,6 +13,8 @@
 #include <Velox/Physics/Shapes/Polygon.h>
 
 #include "../Collider.h"
+#include "../BodyTransform.h"
+#include "../ColliderAABB.h"
 
 namespace vlx
 {
@@ -20,10 +22,10 @@ namespace vlx
 	{
 	public:
 		using DirtyLocalSystem	= System<Collider, Transform>;
-		using CircleSystem		= System<Circle, Collider, Transform>;
-		using BoxSystem			= System<Box, Collider, Transform, TransformMatrix>;
-		using PointSystem		= System<Point, Collider, Transform>;
-		using PolySystem		= System<Polygon, Collider, Transform, TransformMatrix>;
+		using CircleSystem		= System<Circle, Collider, ColliderAABB, Transform>;
+		using BoxSystem			= System<Box, Collider, ColliderAABB, TransformMatrix>;
+		using PointSystem		= System<Point, Collider, ColliderAABB>;
+		using PolySystem		= System<Polygon, Collider, ColliderAABB, TransformMatrix>;
 
 	public:
 		PhysicsDirtySystem(EntityAdmin& entity_admin, LayerType id);
@@ -37,7 +39,6 @@ namespace vlx
 
 		CircleSystem		m_circles;
 		BoxSystem			m_boxes;
-		PointSystem			m_points;
 		PolySystem			m_polygons;
 	};
 }

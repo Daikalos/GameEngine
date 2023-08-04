@@ -12,7 +12,7 @@
 
 namespace vlx
 {
-	class VELOX_API Polygon final : public ShapeRotatable
+	class VELOX_API Polygon final : public Shape
 	{
 	public:
 		using VectorList = std::vector<Vector2f>;

@@ -9,11 +9,18 @@ namespace vlx
 	class Collider;
 	class PhysicsBody;
 	class BodyTransform;
+	class ColliderAABB;
 	struct ColliderEnter;
 	struct ColliderExit;
 	struct ColliderOverlap;
 
 	/// Contains the needed data for an object when colliding
+	/// 
+	/// TODO: maybe remove this due to pointer access being relatively expensive (bodies data storage in broad system makes it so that the data is accessed
+	/// in random order, likely causing poor performance from cache misses). Did use ECS before but felt it was too annoying with dealing with every case, 
+	/// e.g., system for dealing with physics body and without.
+	/// 
+	/// TODO: Measure performance between the two ways, currently just guessing
 	/// 
 	class CollisionBody
 	{
@@ -28,6 +35,7 @@ namespace vlx
 		Collider*		collider	{nullptr};
 		PhysicsBody*	body		{nullptr};
 		BodyTransform*	transform	{nullptr};
+		ColliderAABB*	aabb		{nullptr};
 		
 		ColliderEnter*		enter	{nullptr};
 		ColliderExit*		exit	{nullptr};

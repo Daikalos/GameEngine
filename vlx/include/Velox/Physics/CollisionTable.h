@@ -5,7 +5,7 @@
 #include <span>
 #include <tuple>
 
-#include <Velox/Types.hpp>
+#include <Velox/System/Rot2f.h>
 
 #include "Shapes/Shape.h"
 #include "Shapes/Circle.h"
@@ -14,22 +14,26 @@
 #include "Shapes/Point.h"
 
 #include "CollisionArbiter.h"
+#include "BodyTransform.h"
+
+#include <Velox/Types.hpp>
+#include <Velox/Config.hpp>
 
 namespace vlx
 {
-	class CollisionTable
+	class VELOX_API CollisionTable
 	{
 	public:
-		using Matrix = std::array<std::function<void(
-			CollisionArbiter&, const Shape&, const Shape&)>, Shape::Count * Shape::Count>;
+		using Matrix = std::array<std::function<void(CollisionArbiter&, 
+			const Shape&, const BodyTransform&, const Shape&, const BodyTransform&)>, Shape::Count * Shape::Count>;
 
 		using Face = std::array<Vector2f, 2>;
 		using VectorSpan = std::span<const Vector2f>;
 
 	public:
 		static void Collide(CollisionArbiter&, 
-			const Shape& s1, typename Shape::Type st1, 
-			const Shape& s2, typename Shape::Type st2);
+			const Shape&, const BodyTransform&, typename Shape::Type,
+			const Shape&, const BodyTransform&, typename Shape::Type);
 
 	private:
 		/// <summary>
@@ -44,33 +48,34 @@ namespace vlx
 		///   
 		/// </summary>
 
-		static void CircleToCircle	(CollisionArbiter&, const Shape&, const Shape&);
-		static void CircleToBox		(CollisionArbiter&, const Shape&, const Shape&);
-		static void CircleToPoint	(CollisionArbiter&, const Shape&, const Shape&);
-		static void CircleToConvex	(CollisionArbiter&, const Shape&, const Shape&);
+		static void CircleToCircle	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void CircleToBox		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void CircleToPoint	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void CircleToConvex	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
 
-		static void BoxToCircle		(CollisionArbiter&, const Shape&, const Shape&);
-		static void BoxToBox		(CollisionArbiter&, const Shape&, const Shape&);
-		static void BoxToPoint		(CollisionArbiter&, const Shape&, const Shape&);
-		static void BoxToConvex		(CollisionArbiter&, const Shape&, const Shape&);
+		static void BoxToCircle		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void BoxToBox		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void BoxToPoint		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void BoxToConvex		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
 
-		static void PointToCircle	(CollisionArbiter&, const Shape&, const Shape&);
-		static void PointToBox		(CollisionArbiter&, const Shape&, const Shape&);
-		static void PointToPoint	(CollisionArbiter&, const Shape&, const Shape&);
-		static void PointToConvex	(CollisionArbiter&, const Shape&, const Shape&);
+		static void PointToCircle	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void PointToBox		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void PointToPoint	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void PointToConvex	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
 
-		static void ConvexToCircle	(CollisionArbiter&, const Shape&, const Shape&);
-		static void ConvexToBox		(CollisionArbiter&, const Shape&, const Shape&);
-		static void ConvexToPoint	(CollisionArbiter&, const Shape&, const Shape&);
-		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const Shape&);
+		static void ConvexToCircle	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void ConvexToBox		(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void ConvexToPoint	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
+		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const BodyTransform&, const Shape&, const BodyTransform&);
 
 	private:
-		static void CircleToPolygon(CollisionArbiter& arbiter, const Shape& A, 
-			const ShapeRotatable& B, VectorSpan vertices, VectorSpan normals);
+		static void CircleToPolygon(CollisionArbiter& arbiter, 
+			const Vector2f& pos1, float radius1,
+			const Vector2f& pos2, const Rot2f& rot2, float radius2, VectorSpan vs2, VectorSpan ns2);
 
 		static void PolygonToPolygon(CollisionArbiter& arbiter,
-			const ShapeRotatable& A, VectorSpan vs1, VectorSpan ns1,
-			const ShapeRotatable& B, VectorSpan vs2, VectorSpan ns2);
+			const Vector2f& pos1, const Rot2f& rot1, float radius1, VectorSpan vs1, VectorSpan ns1,
+			const Vector2f& pos2, const Rot2f& rot2, float radius2, VectorSpan vs2, VectorSpan ns2);
 
 	private:
 		static constexpr bool BiasGreaterThan(float a, float b);
@@ -79,12 +84,12 @@ namespace vlx
 		static Vector2f GetSupport(VectorSpan vertices, const Vector2f& dir);
 
 		static std::tuple<float, uint32_t> FindAxisLeastPenetration(
-			const ShapeRotatable& s1, VectorSpan v1, VectorSpan n1,
-			const ShapeRotatable& s2, VectorSpan v2, VectorSpan n2);
+			const Vector2f& pos1, const Rot2f& rot1, VectorSpan vs1, VectorSpan ns1,
+			const Vector2f& pos2, const Rot2f& rot2, VectorSpan vs2, VectorSpan ns2);
 
 		static auto FindIncidentFace(
-			const ShapeRotatable& inc, VectorSpan inc_vertices, VectorSpan inc_normals,
-			const ShapeRotatable& ref, const Vector2f& ref_normal) -> Face;
+			const Vector2f& pos1, const Rot2f& rot1, VectorSpan vs1, VectorSpan ns1,
+			const Vector2f& pos2, const Rot2f& rot2, const Vector2f& n2) -> Face;
 
 		static int Clip(Face& face, const Vector2f& n, float c);
 

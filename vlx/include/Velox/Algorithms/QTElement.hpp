@@ -22,9 +22,22 @@ namespace vlx
 
 	public:
 		bool IsInserted() const noexcept;
+		bool GetEnabled() const noexcept;
 
 	public:
-		/// Attempts to insert an element into the given quad tree.
+		void SetEnabled(bool flag);
+
+		/// Insert an item into the given quad tree.
+		/// 
+		/// \param QuadTree: quad tree to insert element into
+		/// \param Rect: Boundary encompassing element
+		/// \param Item: Item to insert
+		/// 
+		/// \returns If it succeeded in inserting element to quadtree
+		/// 
+		bool Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, const T& item);
+
+		/// Emplace an element into the given quad tree.
 		/// 
 		/// \param QuadTree: quad tree to insert element into
 		/// \param Rect: Boundary encompassing element
@@ -33,7 +46,7 @@ namespace vlx
 		/// \returns If it succeeded in inserting element to quadtree
 		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
-		bool Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args);
+		bool Emplace(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args);
 
 		/// Attempts to update the inserted element in the quad tree with new data.
 		/// 
@@ -44,15 +57,17 @@ namespace vlx
 		template<typename... Args> requires std::constructible_from<T, Args...>
 		bool Update(Args&&... args);
 
-		/// Attempts to erase the inserted element in the quad tree.
+		/// Erases the inserted element in the quad tree.
 		/// 
 		/// \returns If it succeeded in erasing the inserted element
 		/// 
 		bool Erase();
 
+		/// Check if the AABB encompassing item in the quadtree overlaps the specified AABB.
 		/// 
+		/// \param AABB: Rectangle to check if they overlap
 		/// 
-		/// \returns
+		/// \returns If it overlaps AABB encompassing current item
 		/// 
 		bool Contains(const RectFloat& aabb);
 
@@ -65,13 +80,14 @@ namespace vlx
 		T& Get();
 
 	protected:
-		void CopiedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
-		void AlteredImpl(const EntityAdmin& entity_admin, const EntityID entity_id, QTElement& new_data);
-		void DestroyedImpl(const EntityAdmin& entity_admin, const EntityID entity_id);
+		void CopiedImpl(const EntityAdmin& entity_admin, EntityID entity_id);
+		void AlteredImpl(const EntityAdmin& entity_admin, EntityID entity_id, QTElement& new_data);
+		void DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id);
 
 	protected:
 		LQuadTree<T>*	m_quad_tree {nullptr}; // this assumes that the quad tree will live longer than this component
 		int				m_index		{0};
+		bool			m_enabled	{true};
 
 		friend class CopiedEvent<QTElement>;
 		friend class AlteredEvent<QTElement>; 
@@ -85,8 +101,26 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
+	inline bool QTElement<T>::GetEnabled() const noexcept
+	{
+		return m_enabled;
+	}
+
+	template<std::equality_comparable T>
+	inline void QTElement<T>::SetEnabled(bool flag)
+	{
+		m_enabled = flag;
+	}
+
+	template<std::equality_comparable T>
+	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, const T& item)
+	{
+		return Emplace(quad_tree, rect, item);
+	}
+
+	template<std::equality_comparable T>
 	template<typename... Args> requires std::constructible_from<T, Args...>
-	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args)
+	inline bool QTElement<T>::Emplace(LQuadTree<T>& quad_tree, const RectFloat& rect, Args && ...args)
 	{
 		if (!IsInserted())
 		{
@@ -109,7 +143,7 @@ namespace vlx
 		if (IsInserted())
 		{
 			bool result = m_quad_tree->Update(m_index, std::forward<Args>(args)...); 
-			assert(result && "Since it has been inserted, it has to be able to be updated"); // make sure it succeeded
+			assert(result && "Since it has been inserted, it has to be able to be updated");
 
 			return true;
 		}
