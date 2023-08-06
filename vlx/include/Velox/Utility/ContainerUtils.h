@@ -58,98 +58,98 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	inline bool Erase(std::vector<T>& vector, const T& compare)
+	inline bool Erase(std::vector<T>& vec, const T& compare)
 	{
-		auto it = std::ranges::find(vector.begin(), vector.end(), compare);
+		auto it = std::ranges::find(vec, compare);
 
-		if (it == vector.end())
+		if (it == vec.end())
 			return false;
 
-		vector.erase(it);
+		vec.erase(it);
 
 		return true;
 	}
 
 	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	inline bool Erase(std::vector<T>& vector, Pred&& pred)
+	inline bool Erase(std::vector<T>& vec, Pred&& pred)
 	{
-		auto it = std::ranges::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
+		auto it = std::ranges::find_if(vec, std::forward<Pred>(pred));
 
-		if (it == vector.end()) // do not erase if not found
+		if (it == vec.end()) // do not erase if not found
 			return false;
 
-		vector.erase(it);
+		vec.erase(it);
 
 		return true;
 	}
 
 	template<typename T> 
-	inline bool SwapPop(std::vector<T>& vector, const T& item)
+	inline bool SwapPop(std::vector<T>& vec, const T& item)
 	{
-		auto it = std::ranges::find(vector.begin(), vector.end(), item);
+		auto it = std::ranges::find(vec, item);
 
-		if (it == vector.end())
+		if (it == vec.end())
 			return false;
 				
-		*it = std::move(vector.back());
-		vector.pop_back();
+		*it = std::move(vec.back());
+		vec.pop_back();
 
 		return true;
 	}
 
 	template<typename T, class Pred> requires (!std::equality_comparable_with<T, Pred>)
-	inline bool SwapPop(std::vector<T>& vector, Pred&& pred)
+	inline bool SwapPop(std::vector<T>& vec, Pred&& pred)
 	{
-		auto it = std::ranges::find_if(vector.begin(), vector.end(), std::forward<Pred>(pred));
+		auto it = std::ranges::find_if(vec, std::forward<Pred>(pred));
 
-		if (it == vector.end())
+		if (it == vec.end())
 			return false;
 
-		*it = std::move(vector.back());
-		vector.pop_back();
+		*it = std::move(vec.back());
+		vec.pop_back();
 
 		return true;
 	}
 
 	template<typename T>
-	inline bool SwapPopAt(std::vector<T>& vector, std::size_t i)
+	inline bool SwapPopAt(std::vector<T>& vec, std::size_t i)
 	{
-		if (vector.empty() || i >= vector.size())
+		if (vec.empty() || i >= vec.size())
 			return false;
 
-		if (i == vector.size() - 1) // if popping last, no need to move item
+		if (i == vec.size() - 1) // if popping last, no need to move item
 		{
-			vector.pop_back();
+			vec.pop_back();
 			return true;
 		}
 
-		vector[i] = std::move(vector.back());
-		vector.pop_back();
+		vec[i] = std::move(vec.back());
+		vec.pop_back();
 
 		return true;
 	}
 
 	template<typename T>
-	inline auto InsertSorted(std::vector<T>& v, const T& item)
+	inline auto InsertSorted(std::vector<T>& vec, const T& item)
 	{
-		return v.insert(std::ranges::upper_bound(v.begin(), v.end(), item), item);
+		return vec.insert(std::ranges::upper_bound(vec, item), item);
 	}
 
 	template<typename T, typename Comp>
-	inline auto InsertSorted(std::vector<T>& v, const T& item, Comp&& comparison)
+	inline auto InsertSorted(std::vector<T>& vec, const T& item, Comp&& comparison)
 	{
-		return v.insert(std::ranges::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison)), item);
+		return vec.insert(std::ranges::upper_bound(vec, item, std::forward<Comp>(comparison)), item);
 	}
 
 	template<typename T>
-	inline bool EraseSorted(std::vector<T>& v, const T& item)
+	inline bool EraseSorted(std::vector<T>& vec, const T& item)
 	{
-		const auto lb = std::ranges::lower_bound(v.begin(), v.end(), item);
+		const auto lb = std::ranges::lower_bound(vec, item);
 
-		if (lb != v.cend() && *lb == item)
+		if (lb != vec.cend() && *lb == item)
 		{
-			const auto ub = std::upper_bound(lb, v.end(), item);
-			v.erase(lb, ub); // remove all equal elements in range
+			const auto ub = std::upper_bound(lb, vec.end(), item);
+			vec.erase(lb, ub); // remove all equal elements in range
 
 			return true;
 		}
@@ -158,43 +158,15 @@ namespace vlx::cu
 	}
 
 	template<typename T, typename Comp>
-	inline bool EraseSorted(std::vector<T>& v, const T& item, Comp&& comparison)
+	inline bool EraseSorted(std::vector<T>& vec, const T& item, Comp&& comparison)
 	{
-		const auto lb = std::ranges::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+		const auto lb = std::ranges::lower_bound(vec, item, std::forward<Comp>(comparison));
 
-		if (lb != v.cend() && *lb == item)
+		if (lb != vec.cend() && *lb == item)
 		{
-			const auto ub = std::ranges::upper_bound(lb, v.end(), item, std::forward<Comp>(comparison));
-			v.erase(lb, ub); // remove all equal elements in range
+			const auto ub = std::ranges::upper_bound(lb, vec.end(), item, std::forward<Comp>(comparison));
+			vec.erase(lb, ub); // remove all equal elements in range
 
-			return true;
-		}
-
-		return false;
-	}
-
-	template<typename T>
-	inline bool InsertUniqueSorted(std::vector<T>& v, const T& item)
-	{
-		const auto it = std::ranges::upper_bound(v.begin(), v.end(), item);
-
-		if (it == v.cend() || *it != item)
-		{
-			v.insert(it, item);
-			return true;
-		}
-
-		return false;
-	}
-
-	template<typename T, typename Comp>
-	inline bool InsertUniqueSorted(std::vector<T>& v, const T& item, Comp&& comparison)
-	{
-		const auto it = std::ranges::upper_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
-
-		if (it == v.cend() || *it != item)
-		{
-			v.insert(it, item);
 			return true;
 		}
 
@@ -202,13 +174,13 @@ namespace vlx::cu
 	}
 
 	template<typename T>
-	inline bool EraseUniqueSorted(std::vector<T>& v, const T& item)
+	inline bool InsertUniqueSorted(std::vector<T>& vec, const T& item)
 	{
-		const auto it = std::ranges::lower_bound(v.begin(), v.end(), item);
+		const auto it = std::ranges::upper_bound(vec, item);
 
-		if (it != v.cend() && *it == item)
+		if (it == vec.cend() || *it != item)
 		{
-			v.erase(it);
+			vec.insert(it, item);
 			return true;
 		}
 
@@ -216,13 +188,41 @@ namespace vlx::cu
 	}
 
 	template<typename T, typename Comp>
-	inline bool EraseUniqueSorted(std::vector<T>& v, const T& item, Comp&& comparison)
+	inline bool InsertUniqueSorted(std::vector<T>& vec, const T& item, Comp&& comparison)
 	{
-		const auto it = std::ranges::lower_bound(v.begin(), v.end(), item, std::forward<Comp>(comparison));
+		const auto it = std::ranges::upper_bound(vec, item, std::forward<Comp>(comparison));
 
-		if (it != v.cend() && *it == item)
+		if (it == vec.cend() || *it != item)
 		{
-			v.erase(it);
+			vec.insert(it, item);
+			return true;
+		}
+
+		return false;
+	}
+
+	template<typename T>
+	inline bool EraseUniqueSorted(std::vector<T>& vec, const T& item)
+	{
+		const auto it = std::ranges::lower_bound(vec, item);
+
+		if (it != vec.cend() && *it == item)
+		{
+			vec.erase(it);
+			return true;
+		}
+
+		return false;
+	}
+
+	template<typename T, typename Comp>
+	inline bool EraseUniqueSorted(std::vector<T>& vec, const T& item, Comp&& comparison)
+	{
+		const auto it = std::ranges::lower_bound(vec, item, std::forward<Comp>(comparison));
+
+		if (it != vec.cend() && *it == item)
+		{
+			vec.erase(it);
 			return true;
 		}
 
@@ -232,47 +232,55 @@ namespace vlx::cu
 	template<typename T>
 	constexpr void Sort(std::span<const T> items)
 	{
-		std::ranges::sort(items.begin(), items.end());
+		std::ranges::sort(items);
 	}
 
 	template<typename T>
 	NODISC constexpr T& Sort(T& items)
 	{
-		std::ranges::sort(std::begin(items), std::end(items));
+		std::ranges::sort(items);
 		return items;
 	}
 
 	template<typename T, typename Comp>
 	NODISC constexpr T& Sort(T& items, Comp&& comp)
 	{
-		std::ranges::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
+		std::ranges::sort(items, std::forward<Comp>(comp));
 		return items;
 	}
 
 	template<typename T>
 	NODISC constexpr T Sort(T&& items)
 	{
-		std::ranges::sort(std::begin(items), std::end(items));
+		std::ranges::sort(items);
 		return items;
 	}
 
 	template<typename T, typename Comp>
 	NODISC constexpr T Sort(T&& items, Comp&& comp)
 	{
-		std::ranges::sort(std::begin(items), std::end(items), std::forward<Comp>(comp));
+		std::ranges::sort(items, std::forward<Comp>(comp));
 		return items;
 	}
 
 	template<typename T>
 	NODISC constexpr bool IsSorted(std::span<const T> items)
 	{
-		return std::ranges::is_sorted(items.begin(), items.end());
+		return std::ranges::is_sorted(items);
 	}
 
 	template<typename T, typename Comp>
 	NODISC constexpr bool IsSorted(std::span<const T> items, Comp&& comp)
 	{
-		return std::ranges::is_sorted(items.begin(), items.end(), comp);
+		return std::ranges::is_sorted(items, std::forward<Comp>(comp));
+	}
+
+	template<typename T, typename U, typename V>
+	NODISC constexpr V Merge(const T& r1, const U& r2)
+	{
+		V result;
+		std::ranges::set_union(r1, r2, std::begin(result));
+		return result;
 	}
 
 	template<typename T>

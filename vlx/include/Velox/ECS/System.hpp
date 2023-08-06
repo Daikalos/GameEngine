@@ -30,10 +30,12 @@ namespace vlx
 		using AllFunc			= std::function<void(EntitySpan, Cs*...)>;
 		using EachFunc			= std::function<void(EntityID, Cs&...)>;
 
+		using ArrComponentIDs	= ArrComponentIDs<std::remove_const_t<Cs>...>;
+
 		using ComponentTypes	= std::tuple<std::remove_const_t<Cs>...>;
 
-		static constexpr ArrComponentIDs<std::remove_const_t<Cs>...> SystemIDs =
-			cu::Sort<ArrComponentIDs<std::remove_const_t<Cs>...>>({ id::Type<std::remove_const_t<Cs>>::ID()... });
+		static constexpr ArrComponentIDs SystemIDs =
+			cu::Sort<ArrComponentIDs>({ id::Type<std::remove_const_t<Cs>>::ID()... });
 
 		static constexpr ArchetypeID SystemID =
 			cu::ContainerHash<ComponentTypeID>()(SystemIDs);
@@ -53,7 +55,7 @@ namespace vlx
 		NODISC EntityAdmin* GetEntityAdmin() noexcept;
 
 		NODISC virtual ArchetypeID GetIDKey() const override;
-		NODISC virtual const ComponentIDs& GetArchKey() const override;
+		NODISC virtual ComponentIDSpan GetArchKey() const override;
 
 		/// Determines the priority of the system in the layer.
 		/// 
@@ -215,10 +217,9 @@ namespace vlx
 	}	
 
 	template<class... Cs> requires IsComponents<Cs...>
-	inline const ComponentIDs& System<Cs...>::GetArchKey() const
+	inline ComponentIDSpan System<Cs...>::GetArchKey() const
 	{
-		static ComponentIDs	arch_key = { SystemIDs.begin(), SystemIDs.end() };
-		return arch_key;
+		return SystemIDs;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

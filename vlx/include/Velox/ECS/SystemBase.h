@@ -24,7 +24,7 @@ namespace vlx
 
 	public:
 		NODISC virtual ArchetypeID GetIDKey() const = 0;
-		NODISC virtual const ComponentIDs& GetArchKey() const = 0;
+		NODISC virtual ComponentIDSpan GetArchKey() const = 0;
 
 		NODISC float GetPriority() const noexcept;
 		NODISC bool IsRunningParallel() const noexcept;

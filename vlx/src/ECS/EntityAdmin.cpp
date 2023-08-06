@@ -195,7 +195,7 @@ void EntityAdmin::SortSystems(LayerType layer)
 	if (m_system_lock)
 		throw std::runtime_error("Systems are currently locked from modifications");
 
-	std::ranges::stable_sort(it->second.begin(), it->second.end(),
+	std::ranges::stable_sort(it->second,
 		[](const SystemBase* lhs, const SystemBase* rhs)
 		{
 			return *lhs > *rhs;
@@ -223,7 +223,7 @@ void EntityAdmin::RunSystem(const SystemBase* system) const
 	}
 	else
 	{
-		std::ranges::for_each(archetypes.begin(), archetypes.end(),
+		std::ranges::for_each(archetypes,
 			[&system](const Archetype* const archetype)
 			{
 				system->Run(archetype);
@@ -520,7 +520,7 @@ const std::vector<Archetype*>& EntityAdmin::GetArchetypes(ComponentIDSpan compon
 
 	for (const ArchetypePtr& archetype : m_archetypes)
 	{
-		if (std::ranges::includes(archetype->type.begin(), archetype->type.end(), component_ids.begin(), component_ids.end()))
+		if (std::ranges::includes(archetype->type, component_ids))
 			result.push_back(archetype.get());
 	}
 
@@ -762,7 +762,7 @@ void EntityAdmin::UpdateComponentRef(EntityID entity_id, ComponentTypeID compone
 
 void EntityAdmin::ClearEmptyEntityArchetypes()
 {
-	const auto [first, last] = std::ranges::remove_if(m_archetypes.begin(), m_archetypes.end(),
+	const auto [first, last] = std::ranges::remove_if(m_archetypes,
 		[this](const ArchetypePtr& archetype)
 		{
 			if (archetype == nullptr)
@@ -790,7 +790,7 @@ void EntityAdmin::ClearEmptyEntityArchetypes()
 }
 void EntityAdmin::ClearEmptyTypeArchetypes()
 {
-	const auto [first, last] = std::ranges::remove_if(m_archetypes.begin(), m_archetypes.end(),
+	const auto [first, last] = std::ranges::remove_if(m_archetypes,
 		[this](const ArchetypePtr& archetype)
 		{
 			if (archetype == nullptr)

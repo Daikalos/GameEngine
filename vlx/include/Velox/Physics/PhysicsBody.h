@@ -103,7 +103,7 @@ namespace vlx
 		Vector2f		m_force;							// force being applied on body
 		float			m_torque			{0.0f};			// torque being applied on body
 
-		PhysicsMaterial	m_material			{1.0f, 0.2f};	// the material this body is made of
+		PhysicsMaterial	m_material;							// the material this body is made of
 
 		float			m_mass				{0.0f};			// mass of body
 		float			m_inv_mass			{0.0f};			// inverse mass

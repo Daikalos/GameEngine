@@ -1220,7 +1220,7 @@ namespace vlx
 		std::vector<uint32> indices(archetype->entities.size());
 		std::iota(indices.begin(), indices.end(), 0);
 
-		std::ranges::sort(indices.begin(), indices.end(),
+		std::ranges::sort(indices,
 			[&comparison, &components](uint32 lhs, uint32 rhs)
 			{
 				return std::forward<Comp>(comparison)(components[lhs], components[rhs]);

@@ -4,41 +4,32 @@
 
 namespace vlx
 {
-	template<class... Cs> requires IsComponents<Cs...>
-	class SystemRequire final : public virtual System<Cs...>
+	template<class S, class... Cs>
+	class SystemRequire;
+
+	template<class... Cs1, class... Cs2> requires IsComponents<Cs1...> && IsComponents<Cs2...> && (!Contains<Cs2, Cs1...> && ...)
+	class SystemRequire<System<Cs1...>, Cs2...> final : public virtual System<Cs1...>
 	{
-	public:
-		using System<Cs...>::System; // bring into scope
-
-	public:
-		const ComponentIDs& GetArchKey() const override;
-
-	public:
-		///	Require that the entities also holds these components, but don't care about updating them
-		/// 
-		template<class... Cs2> requires IsComponents<Cs2...> && (!Contains<Cs2, Cs...> && ...)
-		void Require();
-
 	private:
-		ComponentIDs m_require;
+		using ReqComponentIDs		= ArrComponentIDs<std::remove_const_t<Cs2>...>;
+		using MergedComponentIDs	= ArrComponentIDs<std::remove_const_t<Cs1>..., std::remove_const_t<Cs2>...>;
+
+		static constexpr ReqComponentIDs RequireIDs =
+			cu::Sort<ReqComponentIDs>({ id::Type<std::remove_const_t<Cs2>>::ID()... });
+
+		static constexpr MergedComponentIDs MergedIDs =
+			cu::Merge<typename System<Cs1...>::ArrComponentIDs, ReqComponentIDs, MergedComponentIDs>(System<Cs1...>::SystemIDs, RequireIDs);
+
+	public:
+		using System<Cs1...>::System; // bring into scope
+
+	public:
+		ComponentIDSpan GetArchKey() const override;
 	};
 
-	template<class... Cs> requires IsComponents<Cs...>
-	inline const ComponentIDs& SystemRequire<Cs...>::GetArchKey() const
+	template<class... Cs1, class... Cs2> requires IsComponents<Cs1...>&& IsComponents<Cs2...> && (!Contains<Cs2, Cs1...> && ...)
+	inline ComponentIDSpan SystemRequire<System<Cs1...>, Cs2...>::GetArchKey() const
 	{
-		return m_require;
-	}
-
-	template<class... Cs1> requires IsComponents<Cs1...>
-	template<class... Cs2> requires IsComponents<Cs2...> && (!Contains<Cs2, Cs1...> && ...)
-	inline void SystemRequire<Cs1...>::Require()
-	{
-		static constexpr ArrComponentIDs<Cs2...> component_ids
-			= cu::Sort<ArrComponentIDs<Cs2...>>({ id::Type<Cs2>::ID()... });
-
-		std::ranges::merge(component_ids.begin(), component_ids.end(), 
-			System<Cs1...>::SystemIDs.begin(), System<Cs1...>::SystemIDs.end(), m_require.begin());
-
-		// TODO: check if it even works
+		return MergedIDs; // TODO: check if it even works
 	}
 }

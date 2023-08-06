@@ -26,11 +26,11 @@ namespace vlx
 	class VELOX_API RenderSystem final : public SystemAction
 	{
 	private:
-		using SpriteSystem	= SystemExclude<Renderable, Sprite, GlobalTransformMatrix>;
-		using MeshSystem	= SystemExclude<Renderable, Mesh, GlobalTransformMatrix>;
+		using SpriteSystem		= SystemExclude<System<Renderable, Sprite, GlobalTransformMatrix>, PhysicsBody, BodyTransform>;
+		using MeshSystem		= SystemExclude<System<Renderable, Mesh, GlobalTransformMatrix>, PhysicsBody, BodyTransform>;
 
-		using SpriteBodySystem = System<Renderable, Sprite, PhysicsBody, BodyTransform, BodyLastTransform, Transform, TransformMatrix>;
-		using MeshBodySystem = System<Renderable, Mesh, PhysicsBody, BodyTransform, BodyLastTransform, Transform, TransformMatrix>;
+		using SpriteBodySystem	= System<Renderable, Sprite, PhysicsBody, BodyTransform, BodyLastTransform, Transform, TransformMatrix>;
+		using MeshBodySystem	= System<Renderable, Mesh, PhysicsBody, BodyTransform, BodyLastTransform, Transform, TransformMatrix>;
 
 	public:
 		RenderSystem(EntityAdmin& entity, LayerType id, const Time& time);

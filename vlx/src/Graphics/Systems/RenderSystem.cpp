@@ -34,9 +34,6 @@ RenderSystem::RenderSystem(EntityAdmin& entity_admin, LayerType id, const Time& 
 		{
 			BatchBody<Mesh>(r, m, pb, bt, blt, t, tm, m.GetDepth());
 		});
-
-	m_sprites.Exclude<PhysicsBody, BodyTransform>();
-	m_meshes.Exclude<PhysicsBody, BodyTransform>();
 }
 
 void RenderSystem::SetBatchMode(BatchMode batch_mode)
