@@ -12,9 +12,9 @@
 #include <Velox/Physics/Shapes/Point.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 
-#include "../Collider.h"
+#include "../Collider/Collider.h"
+#include "../Collider/ColliderAABB.h"
 #include "../BodyTransform.h"
-#include "../ColliderAABB.h"
 
 namespace vlx
 {

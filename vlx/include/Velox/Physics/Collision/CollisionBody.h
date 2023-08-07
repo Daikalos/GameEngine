@@ -2,7 +2,7 @@
 
 #include <Velox/ECS/Identifiers.hpp>
 
-#include "Shapes/Shape.h"
+#include "../Shapes/Shape.h"
 
 namespace vlx
 {

@@ -5,7 +5,7 @@
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
-#include "CollisionLayer.h"
+#include "../Collision/CollisionLayer.h"
 
 namespace vlx
 {

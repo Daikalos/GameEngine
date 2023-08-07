@@ -4,9 +4,11 @@
 
 #include <Velox/Physics/BodyTransform.h>
 #include <Velox/Physics/PhysicsBody.h>
-#include <Velox/Physics/CollisionBody.h>
-#include <Velox/Physics/ColliderEvents.h>
-#include <Velox/Physics/ColliderAABB.h>
+
+#include <Velox/Physics/Collision/CollisionBody.h>
+
+#include <Velox/Physics/Collider/ColliderEvents.h>
+#include <Velox/Physics/Collider/ColliderAABB.h>
 
 using namespace vlx;
 

@@ -4,7 +4,7 @@
 
 #include <Velox/ECS/Identifiers.hpp>
 
-#include "CollisionResult.h"
+#include "../Collision/CollisionResult.h"
 
 namespace vlx
 {

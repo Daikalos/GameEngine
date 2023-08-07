@@ -5,7 +5,7 @@
 
 #include "BroadSystem.h"
 
-#include "../CollisionArbiter.h"
+#include "../Collision/CollisionArbiter.h"
 
 namespace vlx
 {

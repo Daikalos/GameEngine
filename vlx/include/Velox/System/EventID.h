@@ -14,11 +14,11 @@ namespace vlx
 		explicit EventID(IEvent& event, evnt::IDType id);
 		~EventID();
 
-		EventID(EventID&& event_id);
-		EventID(const EventID& event_id) = delete;
+		EventID(EventID&& rhs) noexcept;
+		EventID(const EventID&) = delete;
 
-		EventID& operator=(EventID&& event_id);
-		EventID& operator=(const EventID& event_id) = delete;
+		EventID& operator=(EventID&& rhs) noexcept;
+		EventID& operator=(const EventID&) = delete;
 
 	public:
 		bool IsConnected() const noexcept;

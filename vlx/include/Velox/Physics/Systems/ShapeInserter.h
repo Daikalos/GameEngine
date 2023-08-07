@@ -7,8 +7,8 @@
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Point.h>
 
-#include "../Collider.h"
-#include "../ColliderAABB.h"
+#include "../Collider/Collider.h"
+#include "../Collider/ColliderAABB.h"
 
 #include <Velox/Config.hpp>
 
@@ -32,9 +32,9 @@ namespace vlx
 		BroadSystem&	m_broad;
 		InsertSystem	m_insert;
 
-		EventID			m_on_add_id;
-		EventID			m_on_move_id;
-		EventID			m_on_remove_id;
+		EventID	m_on_add_id;
+		EventID	m_on_move_id;
+		EventID	m_on_remove_id;
 	};
 
 	template<>

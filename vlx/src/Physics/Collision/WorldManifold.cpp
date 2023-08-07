@@ -1,6 +1,6 @@
-#include <Velox/Physics/WorldManifold.h>
+#include <Velox/Physics/Collision/WorldManifold.h>
 
-#include <Velox/Physics/LocalManifold.h>
+#include <Velox/Physics/Collision/LocalManifold.h>
 #include <Velox/System/SimpleTransform.h>
 
 using namespace vlx;

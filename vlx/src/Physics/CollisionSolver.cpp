@@ -3,9 +3,11 @@
 #include <Velox/System/SimpleTransform.h>
 
 #include <Velox/Physics/Shapes/Shape.h>
-#include <Velox/Physics/WorldManifold.h>
-#include <Velox/Physics/CollisionBody.h>
-#include <Velox/Physics/CollisionArbiter.h>
+
+#include <Velox/Physics/Collision/WorldManifold.h>
+#include <Velox/Physics/Collision/CollisionBody.h>
+#include <Velox/Physics/Collision/CollisionArbiter.h>
+
 #include <Velox/Physics/BodyTransform.h>
 #include <Velox/Physics/PhysicsBody.h>
 

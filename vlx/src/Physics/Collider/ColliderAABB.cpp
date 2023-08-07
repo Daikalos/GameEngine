@@ -1,4 +1,4 @@
-#include <Velox/Physics/ColliderAABB.h>
+#include <Velox/Physics/Collider/ColliderAABB.h>
 
 using namespace vlx;
 

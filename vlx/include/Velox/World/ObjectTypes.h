@@ -30,12 +30,14 @@
 #include <Velox/Physics/Shapes/Box.h>
 #include <Velox/Physics/Shapes/Polygon.h>
 #include <Velox/Physics/Shapes/Point.h>
+
 #include <Velox/Physics/PhysicsBody.h>
 #include <Velox/Physics/BodyTransform.h>
 #include <Velox/Physics/BodyLastTransform.h>
-#include <Velox/Physics/Collider.h>
-#include <Velox/Physics/ColliderEvents.h>
-#include <Velox/Physics/ColliderAABB.h>
+
+#include <Velox/Physics/Collider/Collider.h>
+#include <Velox/Physics/Collider/ColliderEvents.h>
+#include <Velox/Physics/Collider/ColliderAABB.h>
 
 #include <Velox/World/Object.h>
 

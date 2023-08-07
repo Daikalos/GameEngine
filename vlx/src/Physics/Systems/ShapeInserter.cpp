@@ -1,7 +1,7 @@
 #include <Velox/Physics/Systems/ShapeInserter.h>
 
 #include <Velox/Physics/Systems/BroadSystem.h>
-#include <Velox/Physics/CollisionBody.h>
+#include <Velox/Physics/Collision/CollisionBody.h>
 
 using namespace vlx;
 

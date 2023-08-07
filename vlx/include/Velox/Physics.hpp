@@ -6,12 +6,16 @@
 #include "Physics/Shapes/Point.h"
 #include "Physics/Shapes/Polygon.h"
 
-#include "Physics/Collider.h"
-#include "Physics/CollisionArbiter.h"
-#include "Physics/CollisionLayer.h"
-#include "Physics/CollisionBody.h"
-#include "Physics/CollisionResult.h"
-#include "Physics/CollisionTable.h"
+#include "Physics/Collider/Collider.h"
+#include "Physics/Collider/ColliderAABB.h"
+#include "Physics/Collider/ColliderEvents.h"
+
+#include "Physics/Collision/CollisionLayer.h"
+#include "Physics/Collision/CollisionResult.h"
+#include "Physics/Collision/CollisionTable.h"
+#include "Physics/Collision/CollisionArbiter.h"
+#include "Physics/Collision/CollisionBody.h"
+
 #include "Physics/PhysicsBody.h"
 #include "Physics/PhysicsCommon.hpp"
 #include "Physics/PhysicsMaterial.h"

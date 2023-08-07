@@ -35,7 +35,7 @@
     <ClCompile Include="src\Graphics\Components\Transform.cpp" />
     <ClCompile Include="src\Graphics\Systems\CullingSystem.cpp" />
     <ClCompile Include="src\Physics\Shapes\Circle.cpp" />
-    <ClCompile Include="src\Physics\CollisionTable.cpp" />
+    <ClCompile Include="src\Physics\Collision\CollisionTable.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Physics\Shapes\Polygon.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
@@ -47,7 +47,7 @@
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
-    <ClCompile Include="src\Physics\Collider.cpp" />
+    <ClCompile Include="src\Physics\Collider\Collider.cpp" />
     <ClCompile Include="src\Utility\FPSCounter.cpp" />
     <ClCompile Include="src\World\Object.cpp" />
     <ClCompile Include="src\Graphics\Components\Mesh.cpp" />
@@ -65,11 +65,11 @@
     <ClCompile Include="src\System\Vector2.cpp" />
     <ClCompile Include="src\System\Rot2f.cpp" />
     <ClCompile Include="src\System\SimpleTransform.cpp" />
-    <ClCompile Include="src\Physics\WorldManifold.cpp" />
+    <ClCompile Include="src\Physics\Collision\WorldManifold.cpp" />
     <ClCompile Include="src\Physics\CollisionSolver.cpp" />
     <ClCompile Include="src\Physics\BodyLastTransform.cpp" />
     <ClCompile Include="src\Graphics\Systems\LocalTransformSystem.cpp" />
-    <ClCompile Include="src\Physics\ColliderAABB.cpp" />
+    <ClCompile Include="src\Physics\Collider\ColliderAABB.cpp" />
     <ClCompile Include="src\System\EventID.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,14 +152,14 @@
     <ClInclude Include="include\Velox\Graphics\Systems\CullingSystem.h" />
     <ClInclude Include="include\Velox\Utility\PolicySelect.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsBody.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionResult.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\CollisionResult.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Shape.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Circle.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionTable.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\CollisionTable.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionLayer.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionArbiter.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\CollisionLayer.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\CollisionArbiter.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />
@@ -168,8 +168,8 @@
     <ClInclude Include="include\Velox\Graphics\Components\Renderable.h" />
     <ClInclude Include="include\Velox\Physics.hpp" />
     <ClInclude Include="include\Velox\System.hpp" />
-    <ClInclude Include="include\Velox\Physics\Collider.h" />
-    <ClInclude Include="include\Velox\Physics\CollisionBody.h" />
+    <ClInclude Include="include\Velox\Physics\Collider\Collider.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\CollisionBody.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsDirtySystem.h" />
     <ClInclude Include="include\Velox\Structures\KDTree.hpp" />
     <ClInclude Include="include\Velox\System\Mat4f.hpp" />
@@ -195,7 +195,7 @@
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformTranslation.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformRotation.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformScale.h" />
-    <ClInclude Include="include\Velox\Physics\ColliderEvents.h" />
+    <ClInclude Include="include\Velox\Physics\Collider\ColliderEvents.h" />
     <ClInclude Include="include\Velox\UI.hpp" />
     <ClInclude Include="include\Velox\UI\Components\UIBase.h" />
     <ClInclude Include="include\Velox\Graphics\ResourceLoader.hpp" />
@@ -214,13 +214,13 @@
     <ClInclude Include="include\Velox\ECS\SystemExclude.hpp" />
     <ClInclude Include="include\Velox\System\SimpleTransform.h" />
     <ClInclude Include="include\Velox\System\Rot2f.h" />
-    <ClInclude Include="include\Velox\Physics\WorldManifold.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\WorldManifold.h" />
     <ClInclude Include="include\Velox\Physics\CollisionSolver.h" />
-    <ClInclude Include="include\Velox\Physics\LocalManifold.h" />
+    <ClInclude Include="include\Velox\Physics\Collision\LocalManifold.h" />
     <ClInclude Include="include\Velox\Physics\BodyLastTransform.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\LocalTransformSystem.h" />
     <ClInclude Include="include\Velox\Physics\Systems\ShapeCollision.h" />
-    <ClInclude Include="include\Velox\Physics\ColliderAABB.h" />
+    <ClInclude Include="include\Velox\Physics\Collider\ColliderAABB.h" />
     <ClInclude Include="include\Velox\System\EventID.h" />
     <ClInclude Include="include\Velox\System\IEvent.hpp" />
     <ClInclude Include="include\Velox\System\EventIdentifiers.h" />

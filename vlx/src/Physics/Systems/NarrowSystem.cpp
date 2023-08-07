@@ -3,11 +3,13 @@
 #include <Velox/ECS/EntityAdmin.h>
 
 #include <Velox/System/SimpleTransform.h>
-#include <Velox/Physics/WorldManifold.h>
 
-#include <Velox/Physics/CollisionTable.h>
-#include <Velox/Physics/ColliderEvents.h>
-#include <Velox/Physics/CollisionBody.h>
+#include <Velox/Physics/Collision/CollisionTable.h>
+#include <Velox/Physics/Collision/WorldManifold.h>
+#include <Velox/Physics/Collision/CollisionBody.h>
+
+#include <Velox/Physics/Collider/ColliderEvents.h>
+
 #include <Velox/Physics/BodyTransform.h>
 
 using namespace vlx;
@@ -68,8 +70,17 @@ auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
 
 void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 {
+	SimpleTransform AW;
+	SimpleTransform BW;
+
+	AW.SetPosition(A.transform->GetPosition());
+	BW.SetPosition(B.transform->GetPosition());
+
+	AW.SetRotation(A.transform->GetRotation());
+	BW.SetRotation(B.transform->GetRotation());
+
 	CollisionArbiter arbiter;
-	CollisionTable::Collide(arbiter, *A.shape, *A.transform, A.type, *B.shape, *B.transform, B.type);
+	CollisionTable::Collide(arbiter, *A.shape, AW, A.type, *B.shape, BW, B.type);
 
 	if (arbiter.manifold.contacts_count) // successfully collided if not zero
 	{
@@ -96,15 +107,6 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 
 			CollisionResult a_result{B.entity_id}; // store other entity
 			CollisionResult b_result{A.entity_id};
-
-			SimpleTransform AW;
-			SimpleTransform BW;
-
-			AW.SetRotation(A.transform->GetRotation());
-			BW.SetRotation(B.transform->GetRotation());
-
-			AW.SetPosition(A.transform->GetPosition());
-			BW.SetPosition(B.transform->GetPosition());
 
 			WorldManifold world;
 			world.Initialize(arbiter.manifold, AW, A.shape->GetRadius(), BW, B.shape->GetRadius());
