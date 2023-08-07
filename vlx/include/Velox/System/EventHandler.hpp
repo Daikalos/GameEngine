@@ -5,6 +5,8 @@
 
 #include <Velox/Types.hpp>
 
+#include "EventIdentifiers.h"
+
 namespace vlx
 {
 	template<typename... Args>
@@ -12,10 +14,6 @@ namespace vlx
 	{
 	public:
 		using FuncType	= std::function<void(Args...)>;
-		using IDType	= uint32;
-
-	private:
-		using AtomicID	= std::atomic<IDType>;
 
 	public:
 		explicit EventHandler(const FuncType& func);
@@ -32,13 +30,13 @@ namespace vlx
 		bool operator!=(const EventHandler& other) const;
 
 	public:
-		auto GetID() const noexcept -> IDType;
+		auto GetID() const noexcept -> evnt::IDType;
 
 	private:
-		FuncType		m_func;
-		IDType			m_id {NULL};
+		FuncType	 m_func;
+		evnt::IDType m_id {NULL};
 
-		static AtomicID m_id_counter;
+		static evnt::AtomicID m_id_counter;
 	};
 
 	template<typename... Args>
@@ -98,7 +96,7 @@ namespace vlx
 	}
 
 	template<typename... Args>
-	inline auto EventHandler<Args...>::GetID() const noexcept -> IDType
+	inline auto EventHandler<Args...>::GetID() const noexcept -> evnt::IDType
 	{
 		return m_id;
 	}

@@ -34,14 +34,6 @@ ShapeInserter<S>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSy
 }
 
 template<std::derived_from<Shape> S>
-ShapeInserter<S>::~ShapeInserter()
-{
-	m_broad.m_entity_admin->DeregisterOnAddListener<S>(m_on_add_id);
-	m_broad.m_entity_admin->DeregisterOnMoveListener<S>(m_on_move_id);
-	m_broad.m_entity_admin->DeregisterOnRemoveListener<S>(m_on_remove_id);
-}
-
-template<std::derived_from<Shape> S>
 void ShapeInserter<S>::InsertShape(EntityID entity_id, S& shape, ColliderAABB& ab, QTBody& qtb)
 {
 	if (!qtb.GetEnabled())
@@ -81,13 +73,6 @@ ShapeInserter<Point>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, Bro
 		{
 			m_broad.RemoveBody(eid);
 		});
-}
-
-ShapeInserter<Point>::~ShapeInserter()
-{
-	m_broad.m_entity_admin->DeregisterOnAddListener<Point>(m_on_add_id);
-	m_broad.m_entity_admin->DeregisterOnMoveListener<Point>(m_on_move_id);
-	m_broad.m_entity_admin->DeregisterOnRemoveListener<Point>(m_on_remove_id);
 }
 
 // explicit template instantiations

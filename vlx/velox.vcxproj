@@ -192,6 +192,9 @@
     <ClInclude Include="include\Velox\Physics\WorldManifold.h" />
     <ClInclude Include="include\Velox\Structures\PriorityQueue.hpp" />
     <ClInclude Include="include\Velox\Structures\RBTree.hpp" />
+    <ClInclude Include="include\Velox\System\EventID.h" />
+    <ClInclude Include="include\Velox\System\EventIdentifiers.h" />
+    <ClInclude Include="include\Velox\System\IEvent.hpp" />
     <ClInclude Include="include\Velox\System\Rot2f.h" />
     <ClInclude Include="include\Velox\System\SimpleTransform.h" />
     <ClInclude Include="include\Velox\UI.hpp" />
@@ -322,6 +325,7 @@
     <ClCompile Include="src\Physics\CollisionSolver.cpp" />
     <ClCompile Include="src\Physics\WorldManifold.cpp" />
     <ClCompile Include="src\Physics\BodyTransform.cpp" />
+    <ClCompile Include="src\System\EventID.cpp" />
     <ClCompile Include="src\System\Rot2f.cpp" />
     <ClCompile Include="src\System\SimpleTransform.cpp" />
     <ClCompile Include="src\System\Vector2.cpp" />

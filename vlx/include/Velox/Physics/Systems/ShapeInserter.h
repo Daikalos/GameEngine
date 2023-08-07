@@ -2,6 +2,8 @@
 
 #include <Velox/ECS/System.hpp>
 
+#include <Velox/System/EventID.h>
+
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Point.h>
 
@@ -22,7 +24,6 @@ namespace vlx
 
 	public:
 		ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSystem& broad_system);
-		~ShapeInserter();
 
 	private:
 		void InsertShape(EntityID entity_id, S& shape, ColliderAABB& ab, QTBody& qtb);
@@ -31,9 +32,9 @@ namespace vlx
 		BroadSystem&	m_broad;
 		InsertSystem	m_insert;
 
-		int				m_on_add_id		{-1};
-		int				m_on_move_id	{-1};
-		int				m_on_remove_id	{-1};
+		EventID			m_on_add_id;
+		EventID			m_on_move_id;
+		EventID			m_on_remove_id;
 	};
 
 	template<>
@@ -41,13 +42,12 @@ namespace vlx
 	{
 	public:
 		ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSystem& broad_system);
-		~ShapeInserter();
 
 	private:
 		BroadSystem&	m_broad;
 
-		int				m_on_add_id		{-1};
-		int				m_on_move_id	{-1};
-		int				m_on_remove_id	{-1};
+		EventID			m_on_add_id;
+		EventID			m_on_move_id;
+		EventID			m_on_remove_id;
 	};
 }

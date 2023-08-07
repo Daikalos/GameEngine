@@ -24,8 +24,7 @@ namespace vlx
 	class VELOX_API BroadSystem final 
 	{
 	private:
-		static constexpr int OBJ_SIZE	= 7;
-		static constexpr int NULL_BODY	= -1;
+		static constexpr int NULL_BODY = -1;
 
 	public:
 		using CollisionPair			= std::pair<uint32, uint32>;
@@ -79,10 +78,7 @@ namespace vlx
 
 		CollisionList				m_collisions;
 
-		std::array<int, OBJ_SIZE> m_add_ids;
-		std::array<int, OBJ_SIZE> m_mov_ids;
-		std::array<int, OBJ_SIZE> m_rmv_ids;
-		std::array<ComponentTypeID, OBJ_SIZE> m_comp_ids;
+		std::vector<EventID>		m_event_ids;
 
 		template<std::derived_from<Shape> S>
 		friend class ShapeInserter;

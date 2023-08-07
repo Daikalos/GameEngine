@@ -470,19 +470,19 @@ bool EntityAdmin::RemoveComponents(EntityID entity_id, ComponentIDSpan component
 	return true;
 }
 
-void EntityAdmin::DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
+void EntityAdmin::DeregisterOnAddListener(ComponentTypeID component_id, evnt::IDType id)
 {
 	if (auto it = m_events_add.find(component_id); it != m_events_add.end())
 		it->second -= id;
 }
 
-void EntityAdmin::DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
+void EntityAdmin::DeregisterOnMoveListener(ComponentTypeID component_id, evnt::IDType id)
 {
 	if (auto it = m_events_move.find(component_id); it != m_events_move.end())
 		it->second -= id;
 }
 
-void EntityAdmin::DeregisterOnRemoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id)
+void EntityAdmin::DeregisterOnRemoveListener(ComponentTypeID component_id, evnt::IDType id)
 {
 	if (auto it = m_events_remove.find(component_id); it != m_events_remove.end())
 		it->second -= id;

@@ -16,7 +16,6 @@ namespace vlx
 	{
 	public:
 		DataBehaviour(EntityAdmin& entity_admin);
-		~DataBehaviour();
 
 	protected:
 		const EntityAdmin* GetEntityAdmin() const noexcept;
@@ -28,8 +27,8 @@ namespace vlx
 		System<Object, U>	m_update;
 		System<Object, U>	m_fixed_update;
 		System<Object, U>	m_post_update;
-		int					m_on_add_id		{-1};
-		int					m_on_rmv_id		{-1};
+		EventID				m_on_add_id;
+		EventID				m_on_rmv_id;
 	};
 
 	template<class T, class U> requires std::is_standard_layout_v<U>
@@ -49,7 +48,7 @@ namespace vlx
 
 			m_start.OnEnd += [this]() 
 			{
-				if (m_on_add_id != -1)
+				if (m_on_add_id.IsConnected())
 					return;
 
 				// start listening for add events
@@ -72,7 +71,7 @@ namespace vlx
 
 			m_start.OnEnd += [this]() 
 			{
-				if (m_on_add_id != -1)
+				if (m_on_add_id.IsConnected())
 					return;
 
 				// start listening for add events
@@ -205,13 +204,6 @@ namespace vlx
 					static_cast<T*>(this)->Destroy(data);
 				});
 		}
-	}
-
-	template<class T, class U> requires std::is_standard_layout_v<U>
-	inline DataBehaviour<T, U>::~DataBehaviour()
-	{
-		if (m_on_add_id != -1) GetEntityAdmin()->template DeregisterOnAddListener<U>(m_on_add_id);
-		if (m_on_rmv_id != -1) GetEntityAdmin()->template DeregisterOnRemoveListener<U>(m_on_rmv_id);
 	}
 
 	template<class T, class U> requires std::is_standard_layout_v<U>

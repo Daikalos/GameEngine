@@ -184,168 +184,156 @@ bool BroadSystem::HasDataForCollision(const CollisionBody& object)
 
 void BroadSystem::RegisterEvents()
 {
-	m_add_ids[0] = m_entity_admin->RegisterOnAddListener<Collider>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].collider = &c;
-		});
+		}));
 
-	m_add_ids[1] = m_entity_admin->RegisterOnAddListener<PhysicsBody>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				 m_bodies[i].body = &pb;
-		});
+		}));
 
-	m_add_ids[2] = m_entity_admin->RegisterOnAddListener<BodyTransform>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<BodyTransform>(
 		[this](EntityID eid, BodyTransform& t)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].transform = &t;
-		});
+		}));
 
-	m_add_ids[3] = m_entity_admin->RegisterOnAddListener<ColliderAABB>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<ColliderAABB>(
 		[this](EntityID eid, ColliderAABB& ab)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].aabb = &ab;
-		});
+		}));
 
-	m_add_ids[4] = m_entity_admin->RegisterOnAddListener<ColliderEnter>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].enter = &e;
-		});
+		}));
 
-	m_add_ids[5] = m_entity_admin->RegisterOnAddListener<ColliderExit>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].exit = &e;
-		});
+		}));
 
-	m_add_ids[6] = m_entity_admin->RegisterOnAddListener<ColliderOverlap>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].overlap = &o;
-		});
+		}));
 
-	m_mov_ids[0] = m_entity_admin->RegisterOnMoveListener<Collider>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].collider = &c;
-		});
+		}));
 
-	m_mov_ids[1] = m_entity_admin->RegisterOnMoveListener<PhysicsBody>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].body = &pb;
-		});
+		}));
 
-	m_mov_ids[2] = m_entity_admin->RegisterOnMoveListener<BodyTransform>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<BodyTransform>(
 		[this](EntityID eid, BodyTransform& t)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].transform = &t;
-		});
+		}));
 
-	m_mov_ids[3] = m_entity_admin->RegisterOnMoveListener<ColliderAABB>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<ColliderAABB>(
 		[this](EntityID eid, ColliderAABB& ab)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].aabb = &ab;
-		});
+		}));
 
-	m_mov_ids[4] = m_entity_admin->RegisterOnMoveListener<ColliderEnter>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].enter = &e;
-		});
+		}));
 
-	m_mov_ids[5] = m_entity_admin->RegisterOnMoveListener<ColliderExit>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].exit = &e;
-		});
+		}));
 
-	m_mov_ids[6] = m_entity_admin->RegisterOnMoveListener<ColliderOverlap>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].overlap = &o;
-		});
+		}));
 
-	m_rmv_ids[0] = m_entity_admin->RegisterOnRemoveListener<Collider>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<Collider>(
 		[this](EntityID eid, Collider& c)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].collider = nullptr;
-		});
+		}));
 
-	m_rmv_ids[1] = m_entity_admin->RegisterOnRemoveListener<PhysicsBody>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<PhysicsBody>(
 		[this](EntityID eid, PhysicsBody& pb)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].body = nullptr;
-		});
+		}));
 
-	m_rmv_ids[2] = m_entity_admin->RegisterOnRemoveListener<BodyTransform>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<BodyTransform>(
 		[this](EntityID eid, BodyTransform& t)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].transform = nullptr;
-		});
+		}));
 
-	m_rmv_ids[3] = m_entity_admin->RegisterOnRemoveListener<ColliderAABB>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<ColliderAABB>(
 		[this](EntityID eid, ColliderAABB& ab)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].aabb = nullptr;
-		});
+		}));
 
-	m_rmv_ids[4] = m_entity_admin->RegisterOnRemoveListener<ColliderEnter>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<ColliderEnter>(
 		[this](EntityID eid, ColliderEnter& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].enter = nullptr;
-		});
+		}));
 
-	m_rmv_ids[5] = m_entity_admin->RegisterOnRemoveListener<ColliderExit>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<ColliderExit>(
 		[this](EntityID eid, ColliderExit& e)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].exit = nullptr;
-		});
+		}));
 
-	m_rmv_ids[6] = m_entity_admin->RegisterOnRemoveListener<ColliderOverlap>(
+	m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<ColliderOverlap>(
 		[this](EntityID eid, ColliderOverlap& o)
 		{
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].overlap = nullptr;
-		});
-
-	m_comp_ids[0] = m_entity_admin->GetComponentID<Collider>();
-	m_comp_ids[1] = m_entity_admin->GetComponentID<PhysicsBody>();
-	m_comp_ids[2] = m_entity_admin->GetComponentID<Transform>();
-	m_comp_ids[3] = m_entity_admin->GetComponentID<ColliderAABB>();
-	m_comp_ids[4] = m_entity_admin->GetComponentID<ColliderEnter>();
-	m_comp_ids[5] = m_entity_admin->GetComponentID<ColliderExit>();
-	m_comp_ids[6] = m_entity_admin->GetComponentID<ColliderOverlap>();
+		}));
 }
 
 void BroadSystem::DeregisterEvents()
 {
-	for (std::size_t i = 0; i < OBJ_SIZE; ++i)
-	{
-		m_entity_admin->DeregisterOnAddListener(m_comp_ids[i], m_add_ids[i]);
-		m_entity_admin->DeregisterOnMoveListener(m_comp_ids[i], m_mov_ids[i]);
-		m_entity_admin->DeregisterOnRemoveListener(m_comp_ids[i], m_rmv_ids[i]);
-	}
+	for (EventID& event_id : m_event_ids)
+		event_id.Disconnect();
 }

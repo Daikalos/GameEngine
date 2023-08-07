@@ -7,6 +7,7 @@
 #include <Velox/Config.hpp>
 
 #include "EventHandler.hpp"
+#include "IEvent.hpp"
 
 namespace vlx
 {
@@ -18,7 +19,7 @@ namespace vlx
 	/// \param Args: Parameters for function
 	/// 
 	template<typename... Args>
-	class Event
+	class Event : public IEvent
 	{
 	public:
 		using HandlerType = EventHandler<Args...>;
@@ -39,24 +40,24 @@ namespace vlx
 
 		void operator()(Args... params) const;
 
-		auto operator+=(const HandlerType& handler) -> typename HandlerType::IDType;
-		auto operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
+		evnt::IDType operator+=(const HandlerType& handler);
+		evnt::IDType operator+=(const typename HandlerType::FuncType& handler);
 
-		auto operator-=(const HandlerType& handler) -> typename HandlerType::IDType;
-		auto operator-=(typename HandlerType::IDType handler_id) -> typename HandlerType::IDType;
+		evnt::IDType operator-=(const HandlerType& handler);
+		evnt::IDType operator-=(evnt::IDType handler_id) override;
 
 	public:
-		NODISC constexpr std::size_t Count() const noexcept;
-		NODISC constexpr bool IsEmpty() const noexcept;
+		NODISC std::size_t Count() const noexcept override;
+		NODISC bool IsEmpty() const noexcept override;
 
-		void Reserve(const std::size_t size);
-		void Clear() noexcept;
+		void Reserve(std::size_t size) override;
+		void Clear() noexcept override;
 
-		auto Add(const HandlerType& handler) -> typename HandlerType::IDType;
-		auto Add(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType;
+		evnt::IDType Add(const HandlerType& handler);
+		evnt::IDType Add(const typename HandlerType::FuncType& handler);
 
 		bool Remove(const HandlerType& handler);
-		bool RemoveID(typename HandlerType::IDType handler_id);
+		bool RemoveID(evnt::IDType handler_id) override;
 
 		void Call(Args... params) const;
 		void CallMain(Args... params) const;
@@ -72,18 +73,18 @@ namespace vlx
 	};
 
 	template<typename... Args>
-	inline constexpr std::size_t Event<Args...>::Count() const noexcept
+	inline std::size_t Event<Args...>::Count() const noexcept
 	{
 		return m_handlers.size();
 	}
 	template<typename... Args>
-	inline constexpr bool Event<Args...>::IsEmpty() const noexcept
+	inline bool Event<Args...>::IsEmpty() const noexcept
 	{
 		return m_handlers.empty();
 	}
 
 	template<typename... Args>
-	inline void Event<Args...>::Reserve(const std::size_t size)
+	inline void Event<Args...>::Reserve(std::size_t size)
 	{
 		m_handlers.reserve(size);
 	}
@@ -141,29 +142,29 @@ namespace vlx
 	}
 
 	template<typename... Args>
-	inline auto Event<Args...>::operator+=(const HandlerType& handler) -> typename HandlerType::IDType
+	inline evnt::IDType Event<Args...>::operator+=(const HandlerType& handler)
 	{
 		return Add(handler);
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::operator+=(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType
+	inline evnt::IDType Event<Args...>::operator+=(const typename HandlerType::FuncType& handler)
 	{
 		return Add(handler);
 	}
 
 	template<typename... Args>
-	inline auto Event<Args...>::operator-=(const HandlerType& handler) -> typename HandlerType::IDType
+	inline evnt::IDType Event<Args...>::operator-=(const HandlerType& handler)
 	{
 		return Remove(handler);
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::operator-=(typename HandlerType::IDType handler_id) -> typename HandlerType::IDType
+	inline evnt::IDType Event<Args...>::operator-=(evnt::IDType handler_id)
 	{
 		return RemoveID(handler_id);
 	}
 
 	template<typename... Args>
-	inline auto Event<Args...>::Add(const HandlerType& handler) -> typename HandlerType::IDType
+	inline evnt::IDType Event<Args...>::Add(const HandlerType& handler)
 	{
 		std::lock_guard lock(m_lock);
 
@@ -172,7 +173,7 @@ namespace vlx
 		return handler.GetID();
 	}
 	template<typename... Args>
-	inline auto Event<Args...>::Add(const typename HandlerType::FuncType& handler) -> typename HandlerType::IDType
+	inline evnt::IDType Event<Args...>::Add(const typename HandlerType::FuncType& handler)
 	{
 		return Add(HandlerType(handler));
 	}
@@ -192,7 +193,7 @@ namespace vlx
 		return true;
 	}
 	template<typename... Args>
-	inline bool Event<Args...>::RemoveID(typename HandlerType::IDType handler_id)
+	inline bool Event<Args...>::RemoveID(evnt::IDType handler_id)
 	{
 		std::lock_guard lock(m_lock);
 

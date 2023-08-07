@@ -9,6 +9,7 @@
 #include <cassert>
 
 #include <Velox/System/Event.hpp>
+#include <Velox/System/EventID.h>
 #include <Velox/System/IDGenerator.h>
 #include <Velox/Utility/NonCopyable.h>
 #include <Velox/Utility/ContainerUtils.h>
@@ -424,7 +425,7 @@ namespace vlx
 		/// \returns ID for the event, so that it may also be deregistered
 		/// 
 		template<IsComponent C, typename Func>
-		NODISC auto RegisterOnAddListener(Func&& func);
+		NODISC EventID RegisterOnAddListener(Func&& func);
 
 		///	Register listener for when a specific component is moved in memory for an entity.
 		/// 
@@ -433,7 +434,7 @@ namespace vlx
 		/// \returns ID for the event, so that it may also be deregistered
 		/// 
 		template<IsComponent C, typename Func>
-		NODISC auto RegisterOnMoveListener(Func&& func);
+		NODISC EventID RegisterOnMoveListener(Func&& func);
 
 		///	Register listener for when a specific component is removed from an entity.
 		/// 
@@ -442,28 +443,28 @@ namespace vlx
 		/// \returns ID for the event, so that it may also be deregistered
 		/// 
 		template<IsComponent C, typename Func>
-		NODISC auto RegisterOnRemoveListener(Func&& func);
+		NODISC EventID RegisterOnRemoveListener(Func&& func);
 
 		///	Deregister on add listener.
 		/// 
 		/// \param IDType: ID of the event to be removed
 		/// 
 		template<IsComponent C>
-		void DeregisterOnAddListener(typename EventHandler<>::IDType id);
+		void DeregisterOnAddListener(evnt::IDType id);
 
 		///	Deregister on move listener.
 		/// 
 		/// \param IDType: ID of the event to be removed
 		/// 
 		template<IsComponent C>
-		void DeregisterOnMoveListener(typename EventHandler<>::IDType id);
+		void DeregisterOnMoveListener(evnt::IDType id);
 
 		///	Deregister on remove listener.
 		/// 
 		/// \param IDType: ID of the event to be removed
 		/// 
 		template<IsComponent C>
-		void DeregisterOnRemoveListener(typename EventHandler<>::IDType id);
+		void DeregisterOnRemoveListener(evnt::IDType id);
 
 	public:
 		NODISC VELOX_API EntityID GetNewEntityID();
@@ -489,9 +490,9 @@ namespace vlx
 		VELOX_API void AddComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id);
 		VELOX_API bool RemoveComponents(EntityID entity_id, ComponentIDSpan component_ids, ArchetypeID archetype_id);
 
-		VELOX_API void DeregisterOnAddListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
-		VELOX_API void DeregisterOnMoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
-		VELOX_API void DeregisterOnRemoveListener(ComponentTypeID component_id, typename EventHandler<>::IDType id);
+		VELOX_API void DeregisterOnAddListener(ComponentTypeID component_id, evnt::IDType id);
+		VELOX_API void DeregisterOnMoveListener(ComponentTypeID component_id, evnt::IDType id);
+		VELOX_API void DeregisterOnRemoveListener(ComponentTypeID component_id, evnt::IDType id);
 
 		NODISC VELOX_API bool HasShutdown() const;
 		VELOX_API void Shutdown();
@@ -1126,46 +1127,61 @@ namespace vlx
 	}
 
 	template<IsComponent C, typename Func>
-	inline auto EntityAdmin::RegisterOnAddListener(Func&& func)
+	inline EventID EntityAdmin::RegisterOnAddListener(Func&& func)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		static constexpr auto component_id = GetComponentID<C>();
 
-		return	(m_events_add[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
-				{
-					func(entity_id, *reinterpret_cast<C*>(ptr));
-				});
+		auto& event = m_events_add[component_id];
+
+		auto id = event.Add(
+			[func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
+			{
+				func(entity_id, *reinterpret_cast<C*>(ptr));
+			});
+
+		return EventID(event, id);
 	}
 
 	template<IsComponent C, typename Func>
-	inline auto EntityAdmin::RegisterOnMoveListener(Func&& func)
+	inline EventID EntityAdmin::RegisterOnMoveListener(Func&& func)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		static constexpr auto component_id = GetComponentID<C>();
 
-		return	(m_events_move[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
-				{ 
-					func(entity_id, *reinterpret_cast<C*>(ptr));
-				});
+		auto& event = m_events_move[component_id];
+
+		auto id = event.Add(
+			[func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
+			{
+				func(entity_id, *reinterpret_cast<C*>(ptr));
+			});
+
+		return EventID(event, id);
 	}
 
 	template<IsComponent C, typename Func>
-	inline auto EntityAdmin::RegisterOnRemoveListener(Func&& func)
+	inline EventID EntityAdmin::RegisterOnRemoveListener(Func&& func)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
 		static constexpr auto component_id = GetComponentID<C>();
 
-		return	(m_events_remove[component_id] += [func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
-				{
-					func(entity_id, *reinterpret_cast<C*>(ptr));
-				});
+		auto& event = m_events_remove[component_id];
+
+		auto id = event.Add(
+			[func = std::forward<Func>(func)](EntityID entity_id, void* ptr)
+			{
+				func(entity_id, *reinterpret_cast<C*>(ptr));
+			});
+
+		return EventID(event, id);
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnAddListener(typename EventHandler<>::IDType id)
+	inline void EntityAdmin::DeregisterOnAddListener(evnt::IDType id)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
@@ -1175,7 +1191,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnMoveListener(typename EventHandler<>::IDType id)
+	inline void EntityAdmin::DeregisterOnMoveListener(evnt::IDType id)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
@@ -1185,7 +1201,7 @@ namespace vlx
 	}
 
 	template<IsComponent C>
-	inline void EntityAdmin::DeregisterOnRemoveListener(typename EventHandler<>::IDType id)
+	inline void EntityAdmin::DeregisterOnRemoveListener(evnt::IDType id)
 	{
 		assert(IsComponentRegistered<C>() && "Component is not registered");
 
