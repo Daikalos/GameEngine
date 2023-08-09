@@ -219,11 +219,11 @@
     <ClInclude Include="include\Velox\Physics\Collision\LocalManifold.h" />
     <ClInclude Include="include\Velox\Physics\BodyLastTransform.h" />
     <ClInclude Include="include\Velox\Graphics\Systems\LocalTransformSystem.h" />
-    <ClInclude Include="include\Velox\Physics\Systems\ShapeCollision.h" />
     <ClInclude Include="include\Velox\Physics\Collider\ColliderAABB.h" />
     <ClInclude Include="include\Velox\System\EventID.h" />
     <ClInclude Include="include\Velox\System\IEvent.hpp" />
     <ClInclude Include="include\Velox\System\EventIdentifiers.h" />
+    <ClInclude Include="include\Velox\Physics\BodyMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

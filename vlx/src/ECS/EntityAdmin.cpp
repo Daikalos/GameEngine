@@ -94,8 +94,8 @@ EntityID EntityAdmin::GetNewEntityID()
 	{
 		if (!m_reusable_entity_ids.empty())
 		{
-			EntityID entity_id = m_reusable_entity_ids.front();
-			m_reusable_entity_ids.pop();
+			EntityID entity_id = m_reusable_entity_ids.back();
+			m_reusable_entity_ids.pop_back();
 
 			return entity_id;
 		}
@@ -258,7 +258,7 @@ bool EntityAdmin::RemoveEntity(EntityID entity_id)
 	if (archetype == nullptr) // entity has not been assigned an archetype anyways
 	{
 		m_entity_archetype_map.erase(entity_id);
-		m_reusable_entity_ids.push(entity_id);
+		m_reusable_entity_ids.emplace_back(entity_id);
 
 		return true;
 	}
@@ -300,7 +300,7 @@ bool EntityAdmin::RemoveEntity(EntityID entity_id)
 	archetype->entities.pop_back();
 
 	m_entity_archetype_map.erase(entity_id);
-	m_reusable_entity_ids.push(entity_id);
+	m_reusable_entity_ids.emplace_back(entity_id);
 
 	return true;
 }
@@ -811,7 +811,7 @@ void EntityAdmin::ClearEmptyTypeArchetypes()
 				for (EntityID entity_id : archetype->entities)
 				{
 					m_entity_archetype_map.erase(entity_id);
-					m_reusable_entity_ids.push(entity_id);
+					m_reusable_entity_ids.emplace_back(entity_id);
 				}
 
 				return true;

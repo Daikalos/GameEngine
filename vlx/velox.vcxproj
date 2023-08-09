@@ -185,10 +185,10 @@
     <ClInclude Include="include\Velox\Input\KeyboardBindable.hpp" />
     <ClInclude Include="include\Velox\Input\MouseBindable.hpp" />
     <ClInclude Include="include\Velox\Physics\BodyLastTransform.h" />
+    <ClInclude Include="include\Velox\Physics\BodyMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Collider\ColliderAABB.h" />
     <ClInclude Include="include\Velox\Physics\CollisionSolver.h" />
     <ClInclude Include="include\Velox\Physics\Collision\LocalManifold.h" />
-    <ClInclude Include="include\Velox\Physics\Systems\ShapeCollision.h" />
     <ClInclude Include="include\Velox\Physics\Collision\WorldManifold.h" />
     <ClInclude Include="include\Velox\Structures\PriorityQueue.hpp" />
     <ClInclude Include="include\Velox\Structures\RBTree.hpp" />

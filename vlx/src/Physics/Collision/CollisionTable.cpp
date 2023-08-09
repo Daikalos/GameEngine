@@ -143,38 +143,7 @@ void CollisionTable::BoxToPoint(CollisionArbiter& arbiter, const Shape& s1, cons
 	const Box& A = reinterpret_cast<const Box&>(s1);
 	const Point& B = reinterpret_cast<const Point&>(s2);
 
-	//const Vector2f half_extends(
-	//	A.GetWidth() / 2.0f, A.GetHeight() / 2.0f);
 
-	//Vector2f n = A.GetOrientation().Inverse(Vector2f::Direction(t1.GetPosition(), t2.GetPosition())); // transform circle to box model space
-	//Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
-
-	//bool inside = false;
-
-	//if (n == clamped)
-	//{
-	//	n /= half_extends;
-
-	//	inside = true;
-	//	if (std::abs(n.x) > std::abs(n.y))
-	//		clamped.x = (clamped.x > 0.0f) ? half_extends.x : -half_extends.x;
-	//	else
-	//		clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
-	//}
-
-	//if (!inside)
-	//	return;
-
-	//Vector2f point = a_center + A.GetOrientation().Transform(clamped);
-	//Vector2f normal = Vector2f::Direction(b_center, point);
-	//float dist = normal.Length();
-
-	//if ((dist > A.GetRadiusSqr()) && !inside)
-	//	return;
-
-	//arbiter.manifold.type			= LocalManifold::Type::FaceB;
-	//arbiter.manifold.contacts_count = 1;
-	//arbiter.manifold.point			= clamped;
 
 }
 void CollisionTable::BoxToConvex(CollisionArbiter& arbiter, const Shape& s1, const SimpleTransform& t1, const Shape& s2, const SimpleTransform& t2)
@@ -515,3 +484,38 @@ int CollisionTable::Clip(Face& face, const Vector2f& normal, float offset)
 
 	return op;
 }
+
+// POINT BOX COLLISION
+// 
+//const Vector2f half_extends(
+//	A.GetWidth() / 2.0f, A.GetHeight() / 2.0f);
+
+//Vector2f n = A.GetOrientation().Inverse(Vector2f::Direction(t1.GetPosition(), t2.GetPosition())); // transform circle to box model space
+//Vector2f clamped = n.Clamp(-half_extends, half_extends); // then clamp vector to get the point on the boundary
+
+//bool inside = false;
+
+//if (n == clamped)
+//{
+//	n /= half_extends;
+
+//	inside = true;
+//	if (std::abs(n.x) > std::abs(n.y))
+//		clamped.x = (clamped.x > 0.0f) ? half_extends.x : -half_extends.x;
+//	else
+//		clamped.y = (clamped.y > 0.0f) ? half_extends.y : -half_extends.y;
+//}
+
+//if (!inside)
+//	return;
+
+//Vector2f point = a_center + A.GetOrientation().Transform(clamped);
+//Vector2f normal = Vector2f::Direction(b_center, point);
+//float dist = normal.Length();
+
+//if ((dist > A.GetRadiusSqr()) && !inside)
+//	return;
+
+//arbiter.manifold.type				= LocalManifold::Type::FaceB;
+//arbiter.manifold.contacts_count	= 1;
+//arbiter.manifold.point			= clamped;

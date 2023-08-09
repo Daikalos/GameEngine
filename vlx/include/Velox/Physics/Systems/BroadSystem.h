@@ -46,8 +46,8 @@ namespace vlx
 		auto GetCollisions() const noexcept -> const CollisionList&;
 		auto GetCollisions() noexcept -> CollisionList&;
 
-		const CollisionBody& GetBody(uint32 i) const noexcept;
-		CollisionBody& GetBody(uint32 i) noexcept;
+		const CollisionBody& GetBody(uint32 i) const;
+		CollisionBody& GetBody(uint32 i);
 
 	private:
 		void GatherCollisions();

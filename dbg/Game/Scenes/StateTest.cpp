@@ -219,44 +219,47 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num3))
+	for (int i = 0; i < 50; ++i)
 	{
-		Entity& entity = m_entities.emplace_back(e0.Duplicate());
-		entity.AddComponents(PhysicsType{});
-		entity.RemoveComponent<Sprite>();
-
-		std::vector<Vector2f> vertices;
-		vertices.resize(rnd::random(3, 24));
-
-		for (int i = 0; i < vertices.size(); ++i)
+		if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num3))
 		{
-			vertices[i] = Vector2f(
-				rnd::random(-100.0f, 100.0f),
-				rnd::random(-100.0f, 100.0f));
+			Entity& entity = m_entities.emplace_back(e0.Duplicate());
+			entity.AddComponents(PhysicsType{});
+			entity.RemoveComponent<Sprite>();
+
+			std::vector<Vector2f> vertices;
+			vertices.resize(rnd::random(3, 24));
+
+			for (int i = 0; i < vertices.size(); ++i)
+			{
+				vertices[i] = Vector2f(
+					rnd::random(-100.0f, 100.0f),
+					rnd::random(-100.0f, 100.0f));
+			}
+
+			entity.AddComponent<vlx::Polygon>(vertices);
+			Mesh* mesh = entity.AddComponent<Mesh>();
+
+			vlx::Polygon* poly = &entity.GetComponent<vlx::Polygon>(); // have to get component since it changed location in memory
+
+			mesh->Assign(poly->GetVertices());
+
+			mesh->SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
+			for (int i = 0; i < mesh->GetSize() - 3; i += 3)
+			{
+				sf::Color color = sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255));
+				(*mesh)[i + 0].color = color;
+				(*mesh)[i + 1].color = color;
+				(*mesh)[i + 2].color = color;
+			}
+
+			entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
+			entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
+			mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::White));
+
+			GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity,
+				GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 		}
-
-		entity.AddComponent<vlx::Polygon>(vertices);
-		Mesh* mesh = entity.AddComponent<Mesh>();
-
-		vlx::Polygon* poly = &entity.GetComponent<vlx::Polygon>(); // have to get component since it changed location in memory
-
-		mesh->Assign(poly->GetVertices());
-
-		mesh->SetColor(sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255)));
-		for (int i = 0; i < mesh->GetSize() - 3; i += 3)
-		{
-			sf::Color color = sf::Color(rnd::random(0, 255), rnd::random(0, 255), rnd::random(0, 255));
-			(*mesh)[i + 0].color = color;
-			(*mesh)[i + 1].color = color;
-			(*mesh)[i + 2].color = color;
-		}
-
-		entity.GetComponent<PhysicsBody>().SetMass(5.0f + rnd::random(0.0f, 15.0f));
-		entity.GetComponent<PhysicsBody>().SetInertia(500.0f + rnd::random(0.0f, 1000.0f));
-		mesh->SetTexture(GetWorld().GetTextureHolder().Get(Texture::ID::White));
-
-		GetWorld().GetSystem<GlobalTransformSystem>().SetPosition(entity,
-			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
 	if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num4))

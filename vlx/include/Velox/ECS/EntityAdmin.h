@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
-#include <queue>
 #include <execution>
 #include <optional>
 #include <cassert>
@@ -97,7 +96,7 @@ namespace vlx
 		/// \returns The ID of the component
 		///
 		template<IsComponent C>
-		NODISC static constexpr ComponentTypeID GetComponentID();
+		NODISC static consteval ComponentTypeID GetComponentID();
 
 		/// Register the component for later usage. Has to be done before the component can be used in the ECS.
 		///
@@ -536,7 +535,7 @@ namespace vlx
 
 	private:
 		EntityID				m_entity_id_counter {1};	// current id counter for entities
-		std::queue<EntityID>	m_reusable_entity_ids;		// reusable ids of entities that have been destroyed
+		std::vector<EntityID>	m_reusable_entity_ids;		// reusable ids of entities that have been destroyed
 
 		SystemsArrayMap			m_systems;						// map layer to array of systems (layer allows for controlling the order of calls)
 		ArchetypesArray			m_archetypes;					// find matching archetype to update matching entities
@@ -563,7 +562,7 @@ namespace vlx
 	};
 
 	template<IsComponent C>
-	inline constexpr ComponentTypeID EntityAdmin::GetComponentID()
+	consteval ComponentTypeID EntityAdmin::GetComponentID()
 	{
 		return id::Type<C>::ID();
 	}

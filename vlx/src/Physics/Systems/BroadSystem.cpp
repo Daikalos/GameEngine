@@ -52,12 +52,12 @@ auto BroadSystem::GetCollisions() noexcept -> CollisionList&
 	return m_collisions;
 }
 
-const CollisionBody& BroadSystem::GetBody(uint32 i) const noexcept
+const CollisionBody& BroadSystem::GetBody(uint32 i) const
 {
 	return m_bodies[i];
 }
 
-CollisionBody& BroadSystem::GetBody(uint32 i) noexcept
+CollisionBody& BroadSystem::GetBody(uint32 i)
 {
 	return m_bodies[i];
 }
@@ -169,8 +169,7 @@ void BroadSystem::RemoveBody(EntityID eid)
 	const auto it2 = m_entity_body_map.find(m_bodies.back().entity_id);
 	assert(it2 != m_entity_body_map.end() && "Entity should be in the map");
 
-	QTBody* qtb = m_entity_admin->TryGetComponent<QTBody>(it2->second);
-	if (qtb != nullptr)
+	if (QTBody* qtb = m_entity_admin->TryGetComponent<QTBody>(it2->second); qtb != nullptr)
 		qtb->Update(it1->second); // update the index in the quad tree
 
 	it2->second = it1->second;
