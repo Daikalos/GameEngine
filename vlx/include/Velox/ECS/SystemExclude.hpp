@@ -51,10 +51,7 @@ namespace vlx
 			if (IsArchetypeExcluded(archetype)) // check that it is not excluded
 				return;
 
-			System<Cs1...>::Run(
-				archetype->type,
-				archetype->entities,
-				archetype->component_data);
+			System<Cs1...>::RunImpl(archetype);
 		}
 	}
 

@@ -38,7 +38,7 @@ namespace vlx
 			cu::Sort<ArrComponentIDs>({ id::Type<std::remove_const_t<Cs>>::ID()... });
 
 		static constexpr ArchetypeID SystemID =
-			cu::ContainerHash<ComponentTypeID>()(SystemIDs);
+			cu::ContainerHash<ComponentTypeID>{}(SystemIDs);
 
 	public:
 		System(EntityAdmin& entity_admin);
@@ -140,11 +140,8 @@ namespace vlx
 	protected:
 		virtual void Run(const Archetype* const archetype) const override;
 
-		template<std::size_t Index = 0, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-		void Run(const ComponentIDs& component_ids, EntitySpan entities, T& t, Ts... ts) const;
-
-		template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-		void Run(const ComponentIDs& component_ids, EntitySpan entities, T& t, Ts... ts) const;
+		template<typename... Ts> requires (sizeof...(Ts) < sizeof...(Cs))
+		void RunImpl(const Archetype* const archetype, Ts... ts) const;
 
 	protected:	
 		EntityAdmin*	m_entity_admin	{nullptr};
@@ -396,38 +393,34 @@ namespace vlx
 		assert(IsEnabled() && "System is disabled and cannot be run (EntityAdmin checks for this condition beforehand)");
 
 		if (m_func) // check if func stores callable object
-		{
-			Run(archetype->type, 
-				archetype->entities,
-				archetype->component_data);
-		}
+			RunImpl(archetype);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
-	template<std::size_t Index, typename T, typename... Ts> requires (Index != sizeof...(Cs))
-	inline void System<Cs...>::Run(const ComponentIDs& component_ids, EntitySpan entities, T& c, Ts... cs) const
+	template<typename... Ts> requires (sizeof...(Ts) < sizeof...(Cs))
+	inline void System<Cs...>::RunImpl(const Archetype* const archetype, Ts... cs) const
 	{
-		using ComponentType = std::tuple_element_t<Index, ComponentTypes>; // get type of component at index in system components
+		using ComponentType = std::tuple_element_t<sizeof...(Ts), ComponentTypes>; // get type of component at index in system components
 		static constexpr auto component_id = EntityAdmin::GetComponentID<ComponentType>();
 
 		std::size_t i = 0;
-		ComponentTypeID archetype_comp_id = component_ids[i];
-		while (archetype_comp_id != component_id && i < component_ids.size())	// iterate until matching component is found
+		ComponentTypeID archetype_comp_id = archetype->type[i];
+		while (archetype_comp_id != component_id && i < archetype->type.size())	// iterate until matching component is found
 		{
-			archetype_comp_id = component_ids[++i];
+			archetype_comp_id = archetype->type[++i];
 		}
 
-		assert(i != component_ids.size() && "System was ran against an invalid archetype");
+		assert(i != archetype->type.size() && "System was ran against an invalid archetype");
 
-		Run<Index + 1>(component_ids, entities, c, cs..., reinterpret_cast<ComponentType*>(&c[i][0])); // run again on next component, or call final Run
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	template<std::size_t Index, typename T, typename... Ts> requires (Index == sizeof...(Cs))
-	inline void System<Cs...>::Run(const ComponentIDs& component_ids, EntitySpan entities, T& t, Ts... ts) const
-	{
-		if (m_func)
-			m_func(entities, ts...);
+		// run again on next component, or call func
+		if constexpr ((sizeof...(Ts) + 1) != sizeof...(Cs))
+		{
+			RunImpl(archetype, cs..., reinterpret_cast<ComponentType*>(&archetype->component_data[i][0]));
+		}
+		else
+		{
+			m_func(archetype->entities, cs..., reinterpret_cast<ComponentType*>(&archetype->component_data[i][0]));
+		}
 	}
 }
 
