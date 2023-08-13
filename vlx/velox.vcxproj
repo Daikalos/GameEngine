@@ -168,6 +168,7 @@
     <ClInclude Include="include\Velox\ECS\SystemBase.h" />
     <ClInclude Include="include\Velox\ECS\SystemEvent.hpp" />
     <ClInclude Include="include\Velox\ECS\SystemExclude.hpp" />
+    <ClInclude Include="include\Velox\ECS\SystemOptional.hpp" />
     <ClInclude Include="include\Velox\ECS\SystemRequire.hpp" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformDirty.h" />
     <ClInclude Include="include\Velox\Graphics\Components\GlobalTransformMatrixInverse.h" />

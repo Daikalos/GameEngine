@@ -224,6 +224,7 @@
     <ClInclude Include="include\Velox\System\IEvent.hpp" />
     <ClInclude Include="include\Velox\System\EventIdentifiers.h" />
     <ClInclude Include="include\Velox\Physics\BodyMaterial.h" />
+    <ClInclude Include="include\Velox\ECS\SystemOptional.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="header">

@@ -31,7 +31,6 @@ namespace vlx
 		using EachFunc			= std::function<void(EntityID, Cs&...)>;
 
 		using ArrComponentIDs	= ArrComponentIDs<std::remove_const_t<Cs>...>;
-
 		using ComponentTypes	= std::tuple<std::remove_const_t<Cs>...>;
 
 		static constexpr ArrComponentIDs SystemIDs =
@@ -41,11 +40,13 @@ namespace vlx
 			cu::ContainerHash<ComponentTypeID>{}(SystemIDs);
 
 	public:
+		System() = delete;
+
 		System(EntityAdmin& entity_admin);
 		System(EntityAdmin& entity_admin, LayerType layer, bool add_to_layer = true);
 
-		System() = delete;
 		System(System&& rhs) noexcept;
+
 		~System();
 
 		auto operator=(System&& rhs) noexcept -> System&;
@@ -141,7 +142,7 @@ namespace vlx
 		virtual void Run(const Archetype* const archetype) const override;
 
 		template<typename... Ts> requires (sizeof...(Ts) < sizeof...(Cs))
-		void RunImpl(const Archetype* const archetype, Ts... ts) const;
+		void RunImpl(const Archetype* const archetype, Ts... cs) const;
 
 	protected:	
 		EntityAdmin*	m_entity_admin	{nullptr};
@@ -224,44 +225,6 @@ namespace vlx
 	{
 		SystemBase::SetPriority(val);
 		m_entity_admin->SortSystems(m_layer);
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline void System<Cs...>::ForceRun()
-	{
-		m_entity_admin->RunSystem(this);
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline bool System<Cs...>::ForceAdd(LayerType layer)
-	{
-		if (!m_registered && layer != LYR_NONE)
-		{
-			m_entity_admin->RegisterSystem(layer, this);
-
-			m_layer = layer;
-			m_registered = true;
-
-			return true;
-		}
-
-		return false;
-	}
-
-	template<class... Cs> requires IsComponents<Cs...>
-	inline bool System<Cs...>::ForceRemove()
-	{
-		if (m_registered && m_layer != LYR_NONE)
-		{
-			m_entity_admin->RemoveSystem(m_layer, this);
-
-			m_layer = LYR_NONE;
-			m_registered = false;
-
-			return true;
-		}
-
-		return false;
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
@@ -388,9 +351,48 @@ namespace vlx
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>
+	inline void System<Cs...>::ForceRun()
+	{
+		m_entity_admin->RunSystem(this);
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool System<Cs...>::ForceAdd(LayerType layer)
+	{
+		if (!m_registered && layer != LYR_NONE)
+		{
+			m_entity_admin->RegisterSystem(layer, this);
+
+			m_layer = layer;
+			m_registered = true;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
+	inline bool System<Cs...>::ForceRemove()
+	{
+		if (m_registered && m_layer != LYR_NONE)
+		{
+			m_entity_admin->RemoveSystem(m_layer, this);
+
+			m_layer = LYR_NONE;
+			m_registered = false;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	template<class... Cs> requires IsComponents<Cs...>
 	inline void System<Cs...>::Run(const Archetype* const archetype) const
 	{
 		assert(IsEnabled() && "System is disabled and cannot be run (EntityAdmin checks for this condition beforehand)");
+		assert(archetype != nullptr && !archetype->type.empty() && "Has to be a valid archetype");
 
 		if (m_func) // check if func stores callable object
 			RunImpl(archetype);
@@ -401,16 +403,16 @@ namespace vlx
 	inline void System<Cs...>::RunImpl(const Archetype* const archetype, Ts... cs) const
 	{
 		using ComponentType = std::tuple_element_t<sizeof...(Ts), ComponentTypes>; // get type of component at index in system components
-		static constexpr auto component_id = EntityAdmin::GetComponentID<ComponentType>();
+		static constexpr auto find_id = EntityAdmin::GetComponentID<ComponentType>();
 
-		std::size_t i = 0;
-		ComponentTypeID archetype_comp_id = archetype->type[i];
-		while (archetype_comp_id != component_id && i < archetype->type.size())	// iterate until matching component is found
+		auto i			{0};
+		auto curr_id	{archetype->type[i]};
+
+		while (curr_id != find_id)	// iterate until matching component is found
 		{
-			archetype_comp_id = archetype->type[++i];
+			assert((i + 1) < archetype->type.size() && "System ran against an invalid archetype");
+			curr_id = archetype->type[++i];
 		}
-
-		assert(i != archetype->type.size() && "System was ran against an invalid archetype");
 
 		// run again on next component, or call func
 		if constexpr ((sizeof...(Ts) + 1) != sizeof...(Cs))
