@@ -139,7 +139,8 @@ namespace vlx
 		/// Set bare const member function to be called for all the entities when system is run.
 		/// 
 		template<class T, class U>
-		void All(void(T::* f)(std::size_t, Cs1*..., Cs2*...) const, U p) {
+		void All(void(T::* f)(std::size_t, Cs1*..., Cs2*...) const, U p) 
+		{
 			m_func = [f, p](EntitySpan entities, Cs1*... cs1, Cs2*... cs2)
 			{
 				(p->*f)(entities.size(), cs1..., cs2...);

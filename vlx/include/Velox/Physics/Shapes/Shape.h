@@ -32,9 +32,6 @@ namespace vlx
 		float GetRadius() const noexcept;
 		float GetRadiusSqr() const noexcept;
 
-	public:
-		constexpr virtual auto GetType() const noexcept -> Shape::Type = 0;
-
 	protected:
 		virtual void AdjustBody(PhysicsBody& body) const = 0;
 

@@ -5,6 +5,7 @@
 
 #include <Velox/System/Mat4f.hpp>
 #include <Velox/Utility/PolygonUtils.h>
+
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
 
@@ -31,7 +32,7 @@ namespace vlx
 		const RectFloat& GetBoundary() const noexcept;
 
 	public:
-		constexpr auto GetType() const noexcept -> Type override;
+		static consteval auto GetType() noexcept -> Type;
 		void AdjustBody(PhysicsBody& body) const noexcept override;
 
 	public:
@@ -43,7 +44,7 @@ namespace vlx
 		RectFloat	m_vertices_aabb;
 	};
 
-	constexpr auto Polygon::GetType() const noexcept -> Type
+	consteval auto Polygon::GetType() noexcept -> Type
 	{
 		return Type::Convex;
 	}

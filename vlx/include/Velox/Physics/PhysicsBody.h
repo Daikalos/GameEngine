@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Velox/System/Vector2.hpp>
+
 #include <Velox/Utility/ArithmeticUtils.h>
+
 #include <Velox/Config.hpp>
 
 #include "PhysicsMaterial.h"

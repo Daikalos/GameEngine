@@ -25,28 +25,19 @@ namespace vlx
 	/// 
 	/// TODO: Measure performance between the two ways, currently just guessing
 	/// 
-	class CollisionBody
+	struct CollisionBody
 	{
-	private:
-		using ShapeType = typename Shape::Type;
+		EntityID			entity_id;
+		Shape::Type			type;
 
-	public:
-		EntityID		entity_id	{NULL_ENTITY};
-		ShapeType		type		{ShapeType::None};
-
-		Shape*			shape		{nullptr};
-		Collider*		collider	{nullptr};
-		PhysicsBody*	body		{nullptr};
-		BodyTransform*	transform	{nullptr};
-		ColliderAABB*	aabb		{nullptr};
+		Shape*				shape;
+		Collider*			collider;
+		PhysicsBody*		body;
+		BodyTransform*		transform;
+		ColliderAABB*		aabb;
 		
-		ColliderEnter*		enter	{nullptr};
-		ColliderExit*		exit	{nullptr};
-		ColliderOverlap*	overlap	{nullptr};
-
-		constexpr bool operator==(const CollisionBody& rhs) const
-		{
-			return entity_id == rhs.entity_id;
-		}
+		ColliderEnter*		enter;
+		ColliderExit*		exit;
+		ColliderOverlap*	overlap;
 	};
 }

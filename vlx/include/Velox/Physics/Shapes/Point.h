@@ -9,11 +9,11 @@ namespace vlx
 	class Point final : public Shape
 	{
 	public:
-		constexpr auto GetType() const noexcept -> Type override;
+		static consteval auto GetType() noexcept -> Type;
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
 	};
 
-	constexpr auto Point::GetType() const noexcept -> Type
+	consteval auto Point::GetType() noexcept -> Type
 	{
 		return Type::Point;
 	}

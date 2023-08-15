@@ -52,7 +52,7 @@ namespace vlx
 		constexpr void SetBottom(float bottom);
 
 	public:
-		constexpr auto GetType() const noexcept -> Type override;
+		static consteval auto GetType() noexcept -> Type;
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
 
 	public:
@@ -144,7 +144,7 @@ namespace vlx
 		m_vertices[3].y = m_vertices[0].y + bottom;
 	}
 
-	constexpr Shape::Type Box::GetType() const noexcept
+	consteval Shape::Type Box::GetType() noexcept
 	{
 		return Shape::Box;
 	}

@@ -16,6 +16,8 @@
 
 #include "ShapeInserter.h"
 
+#include "../Collider/Collider.h"
+
 namespace vlx
 {
 	class EntityAdmin;

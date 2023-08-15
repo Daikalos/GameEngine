@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Velox/Graphics/Components/Transform.h>
+#include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
 
 #include "Shape.h"
@@ -17,7 +17,7 @@ namespace vlx
 		constexpr void SetRadius(float radius);
 
 	public:
-		constexpr auto GetType() const noexcept -> Type override;
+		static consteval auto GetType() noexcept -> Type;
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
 
 	public:
@@ -40,7 +40,7 @@ namespace vlx
 		m_radius_sqr = au::Sqr(radius);
 	}
 
-	constexpr auto Circle::GetType() const noexcept -> Type
+	consteval auto Circle::GetType() noexcept -> Type
 	{
 		return Type::Circle;
 	}

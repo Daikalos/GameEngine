@@ -16,7 +16,7 @@ ShapeInserter<S>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, BroadSy
 	m_on_add_id = entity_admin.RegisterOnAddListener<S>(
 		[this](EntityID eid, S& s)
 		{
-			m_broad.CreateBody(eid, &s, s.GetType());
+			m_broad.CreateBody(eid, &s, S::GetType());
 		});
 
 	m_on_move_id = entity_admin.RegisterOnMoveListener<S>(
@@ -58,7 +58,7 @@ ShapeInserter<Point>::ShapeInserter(EntityAdmin& entity_admin, LayerType id, Bro
 	m_on_add_id = entity_admin.RegisterOnAddListener<Point>(
 		[this](EntityID eid, Point& p)
 		{
-			m_broad.CreateBody(eid, &p, p.GetType());
+			m_broad.CreateBody(eid, &p, Point::GetType());
 		});
 
 	m_on_move_id = entity_admin.RegisterOnMoveListener<Point>(
