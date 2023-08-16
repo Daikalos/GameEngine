@@ -24,9 +24,7 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 	m_points(	entity_admin, *this),
 	m_polygons(	entity_admin, *this)
 {
-	m_insert.Each(&BroadSystem::InsertShape, this);
-
-	m_insert.SetPriority(2.0f);
+	m_insert.Each(&BroadSystem::InsertAABB, this);
 
 	RegisterEvents();
 }
@@ -35,7 +33,7 @@ void BroadSystem::Update()
 {
 	m_collisions.clear();
 
-	m_entity_admin->RunSystems(m_layer); // insert/erase shapes in quadtree
+	m_insert.ForceRun(); // insert/erase AABBs in quadtree
 
 	m_quad_tree.Cleanup(); // have to cleanup in case of erase
 
@@ -63,7 +61,7 @@ CollisionBody& BroadSystem::GetBody(uint32 i)
 	return m_bodies[i];
 }
 
-void BroadSystem::InsertShape(EntityID entity_id, ColliderAABB& ab, QTBody& qtb)
+void BroadSystem::InsertAABB(EntityID entity_id, ColliderAABB& ab, QTBody& qtb)
 {
 	if (!qtb.GetEnabled())
 		return;

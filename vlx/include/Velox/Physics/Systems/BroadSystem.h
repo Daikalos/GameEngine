@@ -62,7 +62,7 @@ namespace vlx
 		CollisionBody& GetBody(uint32 i);
 
 	private:
-		void InsertShape(EntityID entity_id, ColliderAABB& ab, QTBody& qtb);
+		void InsertAABB(EntityID entity_id, ColliderAABB& ab, QTBody& qtb);
 
 		void GatherCollisions();
 		void CullDuplicates();
