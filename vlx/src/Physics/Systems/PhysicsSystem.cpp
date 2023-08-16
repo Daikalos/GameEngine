@@ -61,7 +61,7 @@ void PhysicsSystem::FixedUpdate()
 	m_collision_solver.SetupConstraints(arbiters, manifolds, *m_time, m_gravity);
 
 	for (int i = 0; i < m_velocity_iterations; ++i)
-		m_collision_solver.ResolveVelocity(arbiters, manifolds);
+		m_collision_solver.ResolveVelocity(arbiters);
 
 	Execute(m_integrate_position);
 

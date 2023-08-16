@@ -103,7 +103,7 @@ void CollisionSolver::SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifo
 	}
 }
 
-void CollisionSolver::ResolveVelocity(ArbiterSpan arbiters, ManifoldSpan manifolds)
+void CollisionSolver::ResolveVelocity(ArbiterSpan arbiters)
 {
 	for (int32 i = 0; i < arbiters.size(); ++i)
 	{

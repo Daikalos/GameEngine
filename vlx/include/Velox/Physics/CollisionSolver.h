@@ -54,7 +54,7 @@ namespace vlx
 		void CreateConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds);
 		void SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds, const Time& time, const Vector2f& gravity);
 
-		void ResolveVelocity(ArbiterSpan arbiters, ManifoldSpan manifolds);
+		void ResolveVelocity(ArbiterSpan arbiters);
 		bool ResolvePosition(ArbiterSpan arbiters, ManifoldSpan manifolds);
 
 	private:
