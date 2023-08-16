@@ -13,7 +13,7 @@
 #include "../Shapes/Polygon.h"
 #include "../Shapes/Point.h"
 
-#include "CollisionArbiter.h"
+#include "LocalManifold.h"
 
 #include <Velox/Types.hpp>
 #include <Velox/Config.hpp>
@@ -23,14 +23,14 @@ namespace vlx
 	class VELOX_API CollisionTable
 	{
 	public:
-		using Matrix = std::array<std::function<void(CollisionArbiter&, 
+		using Matrix = std::array<std::function<LocalManifold(
 			const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&)>, Shape::Count * Shape::Count>;
 
 		using Face = std::array<Vector2f, 2>;
 		using VectorSpan = std::span<const Vector2f>;
 
 	public:
-		static void Collide(CollisionArbiter&, 
+		static LocalManifold Collide(
 			const Shape&, const SimpleTransform&, typename Shape::Type,
 			const Shape&, const SimpleTransform&, typename Shape::Type);
 
@@ -47,32 +47,32 @@ namespace vlx
 		///   
 		/// </summary>
 
-		static void CircleToCircle	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void CircleToBox		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void CircleToPoint	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void CircleToConvex	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold CircleToCircle	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold CircleToBox	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold CircleToPoint	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold CircleToConvex	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
 
-		static void BoxToCircle		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void BoxToBox		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void BoxToPoint		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void BoxToConvex		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold BoxToCircle	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold BoxToBox		(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold BoxToPoint		(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold BoxToConvex	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
 
-		static void PointToCircle	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void PointToBox		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void PointToPoint	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void PointToConvex	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold PointToCircle	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold PointToBox		(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold PointToPoint	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold PointToConvex	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
 
-		static void ConvexToCircle	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void ConvexToBox		(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void ConvexToPoint	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
-		static void ConvexToConvex	(CollisionArbiter&, const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold ConvexToCircle	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold ConvexToBox	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold ConvexToPoint	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
+		static LocalManifold ConvexToConvex	(const Shape&, const SimpleTransform&, const Shape&, const SimpleTransform&);
 
 	private:
-		static void CircleToPolygon(CollisionArbiter& arbiter, 
+		static LocalManifold CircleToPolygon(
 			const Vector2f& pos1, float radius1,
 			const SimpleTransform& t2, float radius2, VectorSpan vs2, VectorSpan ns2);
 
-		static void PolygonToPolygon(CollisionArbiter& arbiter,
+		static LocalManifold PolygonToPolygon(
 			const SimpleTransform& t1, float radius1, VectorSpan vs1, VectorSpan ns1,
 			const SimpleTransform& t2, float radius2, VectorSpan vs2, VectorSpan ns2);
 

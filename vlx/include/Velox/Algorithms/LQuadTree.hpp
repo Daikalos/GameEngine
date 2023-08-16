@@ -402,7 +402,7 @@ namespace vlx
 			else // branch
 			{
 				for (SizeType i = 0; i < CHILD_COUNT; ++i)
-					to_process.push_back(node.first_child + i);
+					to_process.emplace_back(node.first_child + i);
 			}
 		}
 
@@ -522,7 +522,7 @@ namespace vlx
 			{
 				node.count = -2;
 				for (SizeType i = 0; i < CHILD_COUNT; ++i)
-					to_process.push_back(node.first_child + i);
+					to_process.emplace_back(node.first_child + i);
 			}
 			else if (node.count == -2) // branch with elements that has been processed
 			{

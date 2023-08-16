@@ -1,7 +1,5 @@
 #pragma once
 
-#include "LocalManifold.h"
-
 namespace vlx
 {
 	class CollisionBody;
@@ -9,9 +7,7 @@ namespace vlx
 	class CollisionArbiter
 	{
 	public:
-		CollisionBody* A {nullptr};
-		CollisionBody* B {nullptr};
-
-		LocalManifold manifold;
+		CollisionBody* A;
+		CollisionBody* B;
 	};
 }

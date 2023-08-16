@@ -6,6 +6,7 @@
 #include "BroadSystem.h"
 
 #include "../Collision/CollisionArbiter.h"
+#include "../Collision/LocalManifold.h"
 
 namespace vlx
 {
@@ -19,6 +20,7 @@ namespace vlx
 		using EntityPair = std::pair<EntityID, EntityID>;
 
 		using CollisionArbiters = std::vector<CollisionArbiter>;
+		using LocalManifolds	= std::vector<LocalManifold>;
 
 	private:
 		struct CollisionEventPair
@@ -64,6 +66,9 @@ namespace vlx
 		auto GetArbiters() const noexcept -> const CollisionArbiters&;
 		auto GetArbiters() noexcept -> CollisionArbiters&;
 
+		auto GetManifolds() const noexcept -> const LocalManifolds&;
+		auto GetManifolds() noexcept -> LocalManifolds&;
+
 	private:
 		void CheckCollision(CollisionBody& A, CollisionBody& B);
 
@@ -71,6 +76,7 @@ namespace vlx
 		EntityAdmin*			m_entity_admin	{nullptr};
 
 		CollisionArbiters		m_arbiters;
+		LocalManifolds			m_manifolds;
 
 		std::vector<EntityPair> m_curr_collisions;
 		std::vector<EntityPair> m_prev_collisions;

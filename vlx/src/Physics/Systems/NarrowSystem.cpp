@@ -20,6 +20,7 @@ NarrowSystem::NarrowSystem(EntityAdmin& entity_admin)
 void NarrowSystem::Update(BroadSystem& broad)
 {
 	m_arbiters.clear();
+	m_manifolds.clear();
 
 	for (const auto& pair : broad.GetCollisions())
 	{
@@ -62,10 +63,18 @@ auto NarrowSystem::GetArbiters() const noexcept -> const CollisionArbiters&
 {
 	return m_arbiters;
 }
-
 auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
 {
 	return m_arbiters;
+}
+
+auto NarrowSystem::GetManifolds() const noexcept -> const LocalManifolds&
+{
+	return m_manifolds;
+}
+auto NarrowSystem::GetManifolds() noexcept -> LocalManifolds&
+{
+	return m_manifolds;
 }
 
 void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
@@ -79,20 +88,17 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 	AW.SetRotation(A.transform->GetRotation());
 	BW.SetRotation(B.transform->GetRotation());
 
-	CollisionArbiter arbiter;
-	CollisionTable::Collide(arbiter, *A.shape, AW, A.type, *B.shape, BW, B.type);
+	LocalManifold lm = CollisionTable::Collide(*A.shape, AW, A.type, *B.shape, BW, B.type);
 
-	if (arbiter.manifold.contacts_count) // successfully collided if not zero
+	if (lm.contacts_count) // successfully collided if not zero
 	{
 		PhysicsBody* AB = A.body;
 		PhysicsBody* BB = B.body;
 
 		if (AB && BB && (AB->GetType() == BodyType::Dynamic || BB->GetType() == BodyType::Dynamic)) // only resolve if both entities has a physics body and either one is dynamic
 		{
-			arbiter.A = &A;
-			arbiter.B = &B;
-
-			m_arbiters.emplace_back(arbiter);
+			m_arbiters.emplace_back(&A, &B);
+			m_manifolds.emplace_back(lm);
 		}
 
 		const bool has_enter	= (A.enter && A.enter->OnEnter) || (B.enter && B.enter->OnEnter);
@@ -102,16 +108,16 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 		if (has_enter || has_exit || has_overlap)
 		{
 			EntityPair pair = (A.entity_id < B.entity_id) ?
-				EntityPair{ A.entity_id, B.entity_id } :
-				EntityPair{ B.entity_id, A.entity_id };
+				EntityPair{A.entity_id, B.entity_id} :
+				EntityPair{B.entity_id, A.entity_id};
 
 			CollisionResult a_result{B.entity_id}; // store other entity
 			CollisionResult b_result{A.entity_id};
 
 			WorldManifold world;
-			world.Initialize(arbiter.manifold, AW, A.shape->GetRadius(), BW, B.shape->GetRadius());
+			world.Initialize(lm, AW, A.shape->GetRadius(), BW, B.shape->GetRadius());
 
-			for (uint8 i = 0; i < arbiter.manifold.contacts_count; ++i)
+			for (uint8 i = 0; i < lm.contacts_count; ++i)
 			{
 				a_result.contacts[i].hit			= world.contacts[i];
 				a_result.contacts[i].penetration	= world.penetrations[i];

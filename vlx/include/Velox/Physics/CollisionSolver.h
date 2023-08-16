@@ -46,12 +46,16 @@ namespace vlx
 
 	class VELOX_API CollisionSolver
 	{
-	public:
-		void CreateConstraints(std::span<const CollisionArbiter> arbiters);
-		void SetupConstraints(std::span<const CollisionArbiter> arbiters, const Time& time, const Vector2f& gravity);
+	private:
+		using ArbiterSpan = std::span<const CollisionArbiter>;
+		using ManifoldSpan = std::span<const LocalManifold>;
 
-		void ResolveVelocity(std::span<CollisionArbiter> arbiters);
-		bool ResolvePosition(std::span<CollisionArbiter> arbiters);
+	public:
+		void CreateConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds);
+		void SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds, const Time& time, const Vector2f& gravity);
+
+		void ResolveVelocity(ArbiterSpan arbiters, ManifoldSpan manifolds);
+		bool ResolvePosition(ArbiterSpan arbiters, ManifoldSpan manifolds);
 
 	private:
 		std::vector<VelocityConstraint> m_velocity_constraints;

@@ -7,27 +7,26 @@
 #include <Velox/Physics/Collision/WorldManifold.h>
 #include <Velox/Physics/Collision/CollisionBody.h>
 #include <Velox/Physics/Collision/CollisionArbiter.h>
+#include <Velox/Physics/Collision/LocalManifold.h>
 
 #include <Velox/Physics/BodyTransform.h>
 #include <Velox/Physics/PhysicsBody.h>
 
 using namespace vlx;
 
-void CollisionSolver::CreateConstraints(std::span<const CollisionArbiter> arbiters)
+void CollisionSolver::CreateConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds)
 {
 	m_velocity_constraints.clear();
 	m_velocity_constraints.resize(arbiters.size());
 
 	for (int32 i = 0; i < arbiters.size(); ++i)
 	{
-		const LocalManifold& manifold = arbiters[i].manifold;
 		VelocityConstraint& vc = m_velocity_constraints[i];
-
-		vc.contacts_count = manifold.contacts_count;
+		vc.contacts_count = manifolds[i].contacts_count;
 	}
 }
 
-void CollisionSolver::SetupConstraints(std::span<const CollisionArbiter> arbiters, const Time& time, const Vector2f& gravity)
+void CollisionSolver::SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds, const Time& time, const Vector2f& gravity)
 {
 	for (int32 i = 0; i < arbiters.size(); ++i)
 	{
@@ -60,7 +59,7 @@ void CollisionSolver::SetupConstraints(std::span<const CollisionArbiter> arbiter
 		BW.SetPosition(BT.GetPosition());
 
 		WorldManifold manifold;
-		manifold.Initialize(arbiter.manifold, 
+		manifold.Initialize(manifolds[i],
 			AW, arbiter.A->shape->GetRadius(), 
 			BW, arbiter.B->shape->GetRadius());
 
@@ -104,7 +103,7 @@ void CollisionSolver::SetupConstraints(std::span<const CollisionArbiter> arbiter
 	}
 }
 
-void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
+void CollisionSolver::ResolveVelocity(ArbiterSpan arbiters, ManifoldSpan manifolds)
 {
 	for (int32 i = 0; i < arbiters.size(); ++i)
 	{
@@ -182,14 +181,14 @@ void CollisionSolver::ResolveVelocity(std::span<CollisionArbiter> arbiters)
 	}
 }
 
-bool CollisionSolver::ResolvePosition(std::span<CollisionArbiter> arbiters)
+bool CollisionSolver::ResolvePosition(ArbiterSpan arbiters, ManifoldSpan manifolds)
 {
 	float max_penetration = 0.0f;
 
 	for (int32 i = 0; i < arbiters.size(); ++i)
 	{
 		const CollisionArbiter& arbiter = arbiters[i];
-		const LocalManifold& lm = arbiter.manifold;
+		const LocalManifold& lm = manifolds[i];
 
 		const PhysicsBody& AB = *arbiter.A->body;
 		const PhysicsBody& BB = *arbiter.B->body;

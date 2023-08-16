@@ -53,20 +53,21 @@ void PhysicsSystem::FixedUpdate()
 	m_narrow_system.Update(m_broad_system);
 
 	auto& arbiters = m_narrow_system.GetArbiters();
+	auto& manifolds = m_narrow_system.GetManifolds();
 
 	Execute(m_integrate_velocity);
 
-	m_collision_solver.CreateConstraints(arbiters);
-	m_collision_solver.SetupConstraints(arbiters, *m_time, m_gravity);
+	m_collision_solver.CreateConstraints(arbiters, manifolds);
+	m_collision_solver.SetupConstraints(arbiters, manifolds, *m_time, m_gravity);
 
 	for (int i = 0; i < m_velocity_iterations; ++i)
-		m_collision_solver.ResolveVelocity(arbiters);
+		m_collision_solver.ResolveVelocity(arbiters, manifolds);
 
 	Execute(m_integrate_position);
 
 	for (int i = 0; i < m_position_iterations; ++i)
 	{
-		if (m_collision_solver.ResolvePosition(arbiters))
+		if (m_collision_solver.ResolvePosition(arbiters, manifolds))
 			break;
 	}
 
