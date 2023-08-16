@@ -338,7 +338,6 @@
     <ClCompile Include="src\World\Object.cpp" />
     <ClCompile Include="src\Physics\Collider\Collider.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
-    <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
     <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />

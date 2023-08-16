@@ -124,6 +124,7 @@ namespace vlx
 	inline constexpr auto FreeVector<T>::emplace(Args&&... args) -> size_type
 	{
 		size_type index = 0;
+
 		if (m_first_free != -1)
 		{
 			assert(!valid(m_first_free));
@@ -131,7 +132,7 @@ namespace vlx
 			index = m_first_free;
 
 			m_first_free	= std::get<int64>(m_data[m_first_free]);
-			m_data[index]	= { std::in_place_index<0>, T{ std::forward<Args>(args)... } };
+			m_data[index]	= { std::in_place_index<0>, std::forward<Args>(args)... };
 		}
 		else
 		{
@@ -142,6 +143,7 @@ namespace vlx
 		}
 
 		++m_count;
+
 		return index;
 	}
 

@@ -3,6 +3,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include <Velox/ECS/System.hpp>
+
 #include <Velox/Algorithms/LQuadTree.hpp>
 
 #include <Velox/Physics/Shapes/Shape.h>
@@ -16,7 +18,14 @@
 
 #include "ShapeInserter.h"
 
+#include <Velox/Physics/Collision/CollisionBody.h>
+
+#include "../PhysicsBody.h"
+#include "../BodyTransform.h"
+
 #include "../Collider/Collider.h"
+#include "../Collider/ColliderAABB.h"
+#include "../Collider/ColliderEvents.h"
 
 namespace vlx
 {
@@ -37,9 +46,10 @@ namespace vlx
 
 		using QuadTreeType			= LQuadTree<typename QTBody::ValueType>;
 
+		using InsertSystem			= System<ColliderAABB, QTBody>;
+
 	public:
 		BroadSystem(EntityAdmin& entity_admin, LayerType id);
-		~BroadSystem();
 
 	public:
 		void Update();
@@ -52,6 +62,8 @@ namespace vlx
 		CollisionBody& GetBody(uint32 i);
 
 	private:
+		void InsertShape(EntityID entity_id, ColliderAABB& ab, QTBody& qtb);
+
 		void GatherCollisions();
 		void CullDuplicates();
 
@@ -62,11 +74,12 @@ namespace vlx
 		static bool HasDataForCollision(const CollisionBody& body);
 
 		void RegisterEvents();
-		void DeregisterEvents();
 
 	private:
 		EntityAdmin*				m_entity_admin	{nullptr};
 		LayerType					m_layer			{LYR_NONE};
+
+		InsertSystem				m_insert;
 
 		QuadTreeType				m_quad_tree;
 

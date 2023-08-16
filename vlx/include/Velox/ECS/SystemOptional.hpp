@@ -1,9 +1,28 @@
 #pragma once
 
-#include "System.hpp"
+#include <span>
+#include <functional>
+#include <unordered_set>
+#include <algorithm>
+
+#include <Velox/System/Concepts.h>
+#include <Velox/System/IDGenerator.h>
+
+#include <Velox/Utility/NonCopyable.h>
+#include <Velox/Utility/ContainerUtils.h>
+
+#include <Velox/Config.hpp>
+
+#include "Identifiers.hpp"
+#include "Archetype.hpp"
+#include "SystemBase.h"
+#include "EntityAdmin.h"
 
 namespace vlx
 {
+	template<class... Cs> requires IsComponents<Cs...>
+	class System;
+
 	template<class S, class... Cs>
 	class SystemOptional;
 

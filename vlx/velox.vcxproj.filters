@@ -42,7 +42,6 @@
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
-    <ClCompile Include="src\Physics\Shapes\Shape.cpp" />
     <ClCompile Include="src\System\Mat4f.cpp" />
     <ClCompile Include="src\System\Mat2f.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />

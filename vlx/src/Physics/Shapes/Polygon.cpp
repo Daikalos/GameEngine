@@ -50,6 +50,11 @@ const RectFloat& Polygon::GetBoundary() const noexcept
 	return m_vertices_aabb;
 }
 
+auto Polygon::GetTypePmr() const noexcept -> Type
+{
+	return GetType();
+}
+
 void Polygon::AdjustBody(PhysicsBody& body) const noexcept
 {
 

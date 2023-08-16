@@ -63,11 +63,11 @@ namespace vlx
 		/// 
 		bool Erase();
 
-		/// Check if the AABB encompassing item in the quadtree overlaps the specified AABB.
+		/// Checks if the AABB encompassing the item in the quadtree overlaps the specified AABB.
 		/// 
 		/// \param AABB: Rectangle to check if they overlap
 		/// 
-		/// \returns If it overlaps AABB encompassing current item
+		/// \returns If it overlaps the AABB
 		/// 
 		bool Contains(const RectFloat& aabb);
 

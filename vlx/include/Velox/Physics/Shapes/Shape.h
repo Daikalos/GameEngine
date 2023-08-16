@@ -26,19 +26,27 @@ namespace vlx
 		};
 
 	public:
+		constexpr Shape(); // for some weird reason, constexpr constructors cannot be defaulted
 		constexpr virtual ~Shape() = default; // may not be needed
 
 	public:
-		float GetRadius() const noexcept;
-		float GetRadiusSqr() const noexcept;
+		virtual auto GetTypePmr() const noexcept -> Type = 0;
+
+		constexpr float GetRadius() const noexcept;
+		constexpr float GetRadiusSqr() const noexcept;
 
 	protected:
 		virtual void AdjustBody(PhysicsBody& body) const = 0;
 
 	protected:
-		float m_radius		{P_POLYGON_RADIUS};			// radius for shape, P_POLYGON_RADIUS for polygons
-		float m_radius_sqr	{au::Sqr(P_POLYGON_RADIUS)};
+		float m_radius;		// radius for shape, P_POLYGON_RADIUS for polygons
+		float m_radius_sqr;
 
 		friend class PhysicsDirtySystem;
 	};
+
+	constexpr Shape::Shape() : m_radius(P_POLYGON_RADIUS), m_radius_sqr(au::Sqr(P_POLYGON_RADIUS)) {}
+
+	constexpr float Shape::GetRadius() const noexcept		{ return m_radius; }
+	constexpr float Shape::GetRadiusSqr() const noexcept	{ return m_radius_sqr; }
 }

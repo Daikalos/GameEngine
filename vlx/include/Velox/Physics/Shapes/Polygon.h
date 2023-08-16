@@ -33,6 +33,8 @@ namespace vlx
 
 	public:
 		static consteval auto GetType() noexcept -> Type;
+
+		auto GetTypePmr() const noexcept -> Type override;
 		void AdjustBody(PhysicsBody& body) const noexcept override;
 
 	public:

@@ -2,6 +2,11 @@
 
 using namespace vlx;
 
+auto Box::GetTypePmr() const noexcept -> Type
+{
+	return GetType();
+}
+
 void Box::AdjustBody(PhysicsBody& body) const
 {
 	body.SetMass(GetWidth() * GetHeight() * body.GetDensity());

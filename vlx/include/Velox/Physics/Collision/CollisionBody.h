@@ -25,10 +25,14 @@ namespace vlx
 	/// 
 	/// TODO: Measure performance between the two ways, currently just guessing
 	/// 
-	struct CollisionBody
+	class CollisionBody
 	{
+	private:
+		using ShapeType = typename Shape::Type;
+
+	public:
 		EntityID			entity_id;
-		Shape::Type			type;
+		ShapeType			type;
 
 		Shape*				shape;
 		Collider*			collider;

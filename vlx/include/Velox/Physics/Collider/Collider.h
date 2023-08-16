@@ -21,7 +21,7 @@ namespace vlx
 		CollisionLayer layer;
 
 	private:
-		bool enabled	{true};
+		bool enabled	{true};	// TODO: remove element from quad tree when disabled
 		bool dirty		{true}; // if should update the AABB in the quadtree
 
 		friend class PhysicsDirtySystem;

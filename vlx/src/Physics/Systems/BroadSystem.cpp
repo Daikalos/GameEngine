@@ -15,19 +15,20 @@ using namespace vlx;
 BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 	m_entity_admin(&entity_admin), m_layer(id),
 
+	m_insert(entity_admin, id),
+
 	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }), // hard set size for now
 
-	m_circles(	entity_admin, id, *this),
-	m_boxes(	entity_admin, id, *this),
-	m_points(	entity_admin, id, *this),
-	m_polygons( entity_admin, id, *this)
+	m_circles(	entity_admin, *this),
+	m_boxes(	entity_admin, *this),
+	m_points(	entity_admin, *this),
+	m_polygons(	entity_admin, *this)
 {
-	RegisterEvents();
-}
+	m_insert.Each(&BroadSystem::InsertShape, this);
 
-BroadSystem::~BroadSystem()
-{
-	DeregisterEvents();
+	m_insert.SetPriority(2.0f);
+
+	RegisterEvents();
 }
 
 void BroadSystem::Update()
@@ -60,6 +61,24 @@ const CollisionBody& BroadSystem::GetBody(uint32 i) const
 CollisionBody& BroadSystem::GetBody(uint32 i)
 {
 	return m_bodies[i];
+}
+
+void BroadSystem::InsertShape(EntityID entity_id, ColliderAABB& ab, QTBody& qtb)
+{
+	if (!qtb.GetEnabled())
+		return;
+
+	if (!qtb.Contains(ab.GetAABB()))
+	{
+		const auto it = m_entity_body_map.find(entity_id);
+		if (it == m_entity_body_map.end())
+			return;
+
+		assert(it->second != BroadSystem::NULL_BODY);
+
+		qtb.Erase();
+		qtb.Insert(m_quad_tree, ab.GetAABB().Inflate(P_AABB_INFLATE), it->second);
+	}
 }
 
 void BroadSystem::GatherCollisions()
@@ -331,10 +350,4 @@ void BroadSystem::RegisterEvents()
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].overlap = nullptr;
 		}));
-}
-
-void BroadSystem::DeregisterEvents()
-{
-	for (EventID& event_id : m_event_ids)
-		event_id.Disconnect();
 }

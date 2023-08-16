@@ -28,11 +28,12 @@ namespace vlx
 
 	public:
 		constexpr Box();
-		constexpr Box(const RectFloat& rect);
-		constexpr Box(const Vector2f& min, const Vector2f& max);
-		constexpr Box(float min_x, float min_y, float max_x, float max_y);
-		constexpr Box(const Vector2f& size);
-		constexpr Box(float width, float height);
+
+		constexpr explicit Box(const RectFloat& rect);
+		constexpr explicit Box(const Vector2f& min, const Vector2f& max);
+		constexpr explicit Box(float min_x, float min_y, float max_x, float max_y);
+		constexpr explicit Box(const Vector2f& size);
+		constexpr explicit Box(float width, float height);
 
 	public:
 		constexpr auto GetVertices() const noexcept -> const VectorArray&;
@@ -53,6 +54,8 @@ namespace vlx
 
 	public:
 		static consteval auto GetType() noexcept -> Type;
+
+		VELOX_API auto GetTypePmr() const noexcept -> Type override;
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
 
 	public:
@@ -62,7 +65,8 @@ namespace vlx
 		VectorArray m_vertices;
 	};
 
-	constexpr Box::Box() {};
+	constexpr Box::Box() : m_vertices() {}
+
 	constexpr Box::Box(const RectFloat& box)
 	{
 		SetBox(box);

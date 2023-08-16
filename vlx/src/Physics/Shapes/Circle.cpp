@@ -2,6 +2,11 @@
 
 using namespace vlx;
 
+auto Circle::GetTypePmr() const noexcept -> Type
+{
+    return GetType();
+}
+
 void Circle::AdjustBody(PhysicsBody& body) const
 {
     body.SetMass(au::PI<> * m_radius_sqr * body.GetDensity());
