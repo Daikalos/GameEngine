@@ -80,6 +80,8 @@ LocalManifold CollisionTable::CircleToPoint(
 
 	lm.type = LocalManifold::Type::Circles;
 	lm.contacts_count = 1;
+
+	return lm;
 }
 LocalManifold CollisionTable::CircleToConvex(
 	const Shape& s1, const SimpleTransform& t1,
