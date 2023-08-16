@@ -17,12 +17,7 @@ BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
 
 	m_insert(entity_admin, id),
 
-	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }), // hard set size for now
-
-	m_circles(	entity_admin, *this),
-	m_boxes(	entity_admin, *this),
-	m_points(	entity_admin, *this),
-	m_polygons(	entity_admin, *this)
+	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }) // hard set size for now
 {
 	m_insert.Each(&BroadSystem::InsertAABB, this);
 
@@ -348,4 +343,31 @@ void BroadSystem::RegisterEvents()
 			if (auto i = FindBody(eid); i != NULL_BODY)
 				m_bodies[i].overlap = nullptr;
 		}));
+
+	const auto RegisterShapeEvents = [this]<std::derived_from<Shape> S>()
+	{
+		m_event_ids.emplace_back(m_entity_admin->RegisterOnAddListener<S>(
+			[this](EntityID eid, S& s)
+			{
+				CreateBody(eid, &s, S::GetType());
+			}));
+
+		m_event_ids.emplace_back(m_entity_admin->RegisterOnMoveListener<S>(
+			[this](EntityID eid, S& s)
+			{
+				if (auto i = FindBody(eid); i != BroadSystem::NULL_BODY)
+					m_bodies[i].shape = &s;
+			}));
+
+		m_event_ids.emplace_back(m_entity_admin->RegisterOnRemoveListener<S>(
+			[this](EntityID eid, S& s)
+			{
+				RemoveBody(eid);
+			}));
+	};
+
+	RegisterShapeEvents.operator()<Box>();
+	RegisterShapeEvents.operator()<Circle>();
+	RegisterShapeEvents.operator()<Point>();
+	RegisterShapeEvents.operator()<Polygon>();
 }

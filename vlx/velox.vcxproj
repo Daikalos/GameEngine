@@ -202,7 +202,6 @@
     <ClInclude Include="include\Velox\Physics\Collider\ColliderEvents.h" />
     <ClInclude Include="include\Velox\Physics\BodyTransform.h" />
     <ClInclude Include="include\Velox\Physics\PhysicsCommon.hpp" />
-    <ClInclude Include="include\Velox\Physics\Systems\ShapeInserter.h" />
     <ClInclude Include="include\Velox\UI\Components\TextMesh.h" />
     <ClInclude Include="include\Velox\UI\Components\UIBase.h" />
     <ClInclude Include="include\Velox\UI\Systems\TextSystem.h" />
@@ -339,7 +338,6 @@
     <ClCompile Include="src\Physics\Collider\Collider.cpp" />
     <ClCompile Include="src\Physics\Shapes\Point.cpp" />
     <ClCompile Include="src\Physics\Shapes\Box.cpp" />
-    <ClCompile Include="src\Physics\Systems\ShapeInserter.cpp" />
     <ClCompile Include="src\Physics\Systems\BroadSystem.cpp" />
     <ClCompile Include="src\Physics\Systems\PhysicsDirtySystem.cpp" />
     <ClCompile Include="src\Physics\Systems\NarrowSystem.cpp" />

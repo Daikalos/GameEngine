@@ -16,8 +16,6 @@
 #include <Velox/Config.hpp>
 #include <Velox/Types.hpp>
 
-#include "ShapeInserter.h"
-
 #include <Velox/Physics/Collision/CollisionBody.h>
 
 #include "../PhysicsBody.h"
@@ -76,24 +74,19 @@ namespace vlx
 		void RegisterEvents();
 
 	private:
-		EntityAdmin*				m_entity_admin	{nullptr};
-		LayerType					m_layer			{LYR_NONE};
+		EntityAdmin*			m_entity_admin	{nullptr};
+		LayerType				m_layer			{LYR_NONE};
 
-		InsertSystem				m_insert;
+		InsertSystem			m_insert;
 
-		QuadTreeType				m_quad_tree;
+		QuadTreeType			m_quad_tree;
 
-		ShapeInserter<Circle>		m_circles;
-		ShapeInserter<Box>			m_boxes;
-		ShapeInserter<Point>		m_points;
-		ShapeInserter<Polygon>		m_polygons;
+		EntityBodyMap			m_entity_body_map;
+		BodyList				m_bodies;
 
-		EntityBodyMap				m_entity_body_map;
-		BodyList					m_bodies;
+		CollisionList			m_collisions;
 
-		CollisionList				m_collisions;
-
-		std::vector<EventID>		m_event_ids;
+		std::vector<EventID>	m_event_ids;
 
 		template<std::derived_from<Shape> S>
 		friend class ShapeInserter;
