@@ -6,6 +6,7 @@
 #include <execution>
 #include <optional>
 #include <cassert>
+#include <tuple>
 
 #include <Velox/System/Event.hpp>
 #include <Velox/System/EventID.h>
@@ -185,19 +186,33 @@ namespace vlx
 		template<IsComponent C>
 		NODISC C* TryGetComponent(EntityID entity_id) const;
 
-		/// Retrieves multiple components from an entity in one go.
+		/// Retrieves multiple components from an entity.
 		/// 
 		/// \param EntityID: ID of the entity to retrieve the components from.
 		/// 
 		/// \returns Tuple containing pointers to component
 		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
-		NODISC std::tuple<Cs*...> GetComponents(EntityID entity_id) const;
+		NODISC std::tuple<Cs&...> GetComponents(EntityID entity_id) const;
 
 		/// Defaults to GetComponent if GetComponents only specifies one type.
 		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
 		NODISC std::tuple_element_t<0, std::tuple<Cs...>>& GetComponents(EntityID entity_id) const;
+
+		/// Attempts to retrieve multiple components from an entity.
+		/// 
+		/// \param EntityID: ID of the entity to retrieve the components from.
+		/// 
+		/// \returns Tuple containing pointers to component
+		/// 
+		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
+		NODISC std::tuple<Cs*...> TryGetComponents(EntityID entity_id) const;
+
+		/// Defaults to TryGetComponent if TryGetComponents only specifies one type.
+		/// 
+		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
+		NODISC std::tuple_element_t<0, std::tuple<Cs...>>* TryGetComponents(EntityID entity_id) const;
 
 		///	Constructs a ComponentSet that contains a set of component references that ensures that they remain valid.
 		///
@@ -1026,32 +1041,60 @@ namespace vlx
 	}
 
 	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
-	inline std::tuple<Cs*...> EntityAdmin::GetComponents(EntityID entity_id) const
+	inline std::tuple<Cs&...> EntityAdmin::GetComponents(EntityID entity_id) const
 	{
-		using ComponentTypes = std::tuple<Cs...>;
-
-		std::tuple<Cs*...> result;
-
 		const auto& record = m_entity_archetype_map.at(entity_id);
 
-		(([this, &result, &record]<class C, std::size_t N>() -> void
+		const auto GetComponent = [this]<class C>(const Record& record) -> C&
 		{
-			constexpr ComponentTypeID component_id = GetComponentID<C>();
+			static constexpr ComponentTypeID component_id = GetComponentID<C>();
 
 			const auto& map = m_component_archetypes_map.at(component_id);
 			const auto& arch_record = map.at(record.archetype->id);
 
 			C* components = reinterpret_cast<C*>(&record.archetype->component_data[arch_record.column][0]);
-			std::get<N>(result) = &components[record.index];
-		}.template operator()<Cs, traits::IndexInTuple<Cs, ComponentTypes>::value>()), ...);
+			return components[record.index];
+		};
 
-		return result;
+		return std::tie(GetComponent.template operator()<Cs>(record)...);
 	}
 
 	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
 	inline std::tuple_element_t<0, std::tuple<Cs...>>& EntityAdmin::GetComponents(EntityID entity_id) const
 	{
 		return GetComponent<Cs...>(entity_id);
+	}
+
+	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
+	inline std::tuple<Cs*...> EntityAdmin::TryGetComponents(EntityID entity_id) const
+	{
+		const auto it = m_entity_archetype_map.find(entity_id);
+		if (it == m_entity_archetype_map.end())
+			return {};
+
+		const auto GetComponent = [this]<class C>(const Record& record) -> C*
+		{
+			static constexpr ComponentTypeID component_id = GetComponentID<C>();
+
+			const auto cit = m_component_archetypes_map.find(component_id);
+			if (cit == m_component_archetypes_map.end())
+				return nullptr;
+
+			const auto ait = cit->second.find(record.archetype->id);
+			if (ait == cit->second.end())
+				return nullptr;
+
+			C* components = reinterpret_cast<C*>(&record.archetype->component_data[ait->second.column][0]);
+			return &components[record.index];
+		};
+
+		return std::make_tuple(GetComponent.template operator()<Cs>(it->second)...);
+	}
+
+	template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) == 1)
+	inline std::tuple_element_t<0, std::tuple<Cs...>>* EntityAdmin::TryGetComponents(EntityID entity_id) const
+	{
+		return TryGetComponent<Cs...>(entity_id);
 	}
 
 	template<class... Cs> requires IsComponents<Cs...>

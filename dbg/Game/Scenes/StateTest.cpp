@@ -219,7 +219,7 @@ bool StateTest::Update(Time& time)
 			GetWorld().GetCamera().MouseWorldPosition(GetWorld().GetWindow()));
 	}
 
-	for (int i = 0; i < 50; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		if (GetWorld().GetInputs().Keyboard().Pressed(sf::Keyboard::Num3))
 		{

@@ -97,13 +97,11 @@ void BroadSystem::GatherCollisions()
 		if (!lhs.collider->GetEnabled())
 			continue;
 
-		auto query = QueryResult(lhs);
-
 		// if both have a physics body, do an early check to see if valid
 		const bool lhs_active = (lhs.body ? (lhs.body->IsAwake() && lhs.body->IsEnabled()) : 
 			(lhs.enter || lhs.overlap || lhs.exit));
 
-		for (const auto j : query)
+		for (const auto j : QueryResult(lhs))
 		{
 			const auto& rhs = m_bodies[j];
 
@@ -152,15 +150,19 @@ int BroadSystem::CreateBody(EntityID eid, Shape* shape, typename Shape::Type typ
 
 	CollisionBody& body = m_bodies.emplace_back(eid, type);
 
-	body.shape		= shape;
-	body.collider	= m_entity_admin->TryGetComponent<Collider>(eid);
-	body.body		= m_entity_admin->TryGetComponent<PhysicsBody>(eid);
-	body.transform	= m_entity_admin->TryGetComponent<BodyTransform>(eid);
-	body.aabb		= m_entity_admin->TryGetComponent<ColliderAABB>(eid);
+	auto components = m_entity_admin->TryGetComponents<
+		Collider, PhysicsBody, BodyTransform, ColliderAABB, 
+		ColliderEnter, ColliderExit, ColliderOverlap>(eid);
 
-	body.enter		= m_entity_admin->TryGetComponent<ColliderEnter>(eid);
-	body.exit		= m_entity_admin->TryGetComponent<ColliderExit>(eid);
-	body.overlap	= m_entity_admin->TryGetComponent<ColliderOverlap>(eid);
+	body.shape		= shape;
+	body.collider	= std::get<Collider*>(components);
+	body.body		= std::get<PhysicsBody*>(components);
+	body.transform	= std::get<BodyTransform*>(components);
+	body.aabb		= std::get<ColliderAABB*>(components);
+
+	body.enter		= std::get<ColliderEnter*>(components);
+	body.exit		= std::get<ColliderExit*>(components);
+	body.overlap	= std::get<ColliderOverlap*>(components);
 
 	return m_entity_body_map.try_emplace(eid, m_bodies.size() - 1).first->second;
 }
