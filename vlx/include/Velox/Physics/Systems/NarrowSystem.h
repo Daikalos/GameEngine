@@ -5,8 +5,10 @@
 
 #include "BroadSystem.h"
 
-#include "../Collision/CollisionArbiter.h"
 #include "../Collision/LocalManifold.h"
+
+#include <Velox/Config.hpp>
+#include <Velox/Types.hpp>
 
 namespace vlx
 {
@@ -17,9 +19,10 @@ namespace vlx
 	class VELOX_API NarrowSystem final
 	{
 	private:
-		using EntityPair = std::pair<EntityID, EntityID>;
+		using EntityPair		= std::pair<EntityID, EntityID>;
+		using CollisionPair		= std::pair<uint32, uint32>;
 
-		using CollisionArbiters = std::vector<CollisionArbiter>;
+		using CollisionList		= std::vector<CollisionPair>;
 		using LocalManifolds	= std::vector<LocalManifold>;
 
 	private:
@@ -63,25 +66,25 @@ namespace vlx
 		void Update(BroadSystem& broad);
 
 	public:
-		auto GetArbiters() const noexcept -> const CollisionArbiters&;
-		auto GetArbiters() noexcept -> CollisionArbiters&;
+		auto GetCollisions() const noexcept -> const CollisionList&;
+		auto GetCollisions() noexcept -> CollisionList&;
 
 		auto GetManifolds() const noexcept -> const LocalManifolds&;
 		auto GetManifolds() noexcept -> LocalManifolds&;
 
 	private:
-		void CheckCollision(CollisionBody& A, CollisionBody& B);
+		void CheckCollision(BroadSystem& broad, uint32 l, uint32 r);
 
 	private:
 		EntityAdmin*			m_entity_admin	{nullptr};
 
-		CollisionArbiters		m_arbiters;
+		CollisionList			m_collisions;
 		LocalManifolds			m_manifolds;
 
-		std::vector<EntityPair> m_curr_collisions;
+		std::vector<EntityPair> m_curr_collisions; // TODO: fix this
 		std::vector<EntityPair> m_prev_collisions;
 		std::vector<EntityPair> m_difference;
 
-		std::unordered_set<CollisionEventPair, CollisionEventPairHash> m_collisions;
+		std::unordered_set<CollisionEventPair, CollisionEventPairHash> m_collision_map;
 	};
 }

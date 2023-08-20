@@ -13,7 +13,6 @@
 #include "Physics/Collision/CollisionLayer.h"
 #include "Physics/Collision/CollisionResult.h"
 #include "Physics/Collision/CollisionTable.h"
-#include "Physics/Collision/CollisionArbiter.h"
 #include "Physics/Collision/CollisionBody.h"
 
 #include "Physics/PhysicsBody.h"

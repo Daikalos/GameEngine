@@ -6,7 +6,6 @@
 
 #include <Velox/Physics/Collision/WorldManifold.h>
 #include <Velox/Physics/Collision/CollisionBody.h>
-#include <Velox/Physics/Collision/CollisionArbiter.h>
 #include <Velox/Physics/Collision/LocalManifold.h>
 
 #include <Velox/Physics/BodyTransform.h>
@@ -14,30 +13,33 @@
 
 using namespace vlx;
 
-void CollisionSolver::CreateConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds)
+void CollisionSolver::CreateConstraints(BodiesSpan bodies, CollisionSpan collisions, ManifoldSpan manifolds)
 {
 	m_velocity_constraints.clear();
-	m_velocity_constraints.resize(arbiters.size());
+	m_velocity_constraints.resize(collisions.size());
 
-	for (int32 i = 0; i < arbiters.size(); ++i)
+	for (int32 i = 0; i < collisions.size(); ++i)
 	{
 		VelocityConstraint& vc = m_velocity_constraints[i];
 		vc.contacts_count = manifolds[i].contacts_count;
 	}
 }
 
-void CollisionSolver::SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifolds, const Time& time, const Vector2f& gravity)
+void CollisionSolver::SetupConstraints(BodiesSpan bodies, CollisionSpan collisions, ManifoldSpan manifolds, const Time& time, const Vector2f& gravity)
 {
-	for (int32 i = 0; i < arbiters.size(); ++i)
+	for (int32 i = 0; i < collisions.size(); ++i)
 	{
-		const CollisionArbiter& arbiter = arbiters[i];
+		const CollisionPair& pair = collisions[i];
 		VelocityConstraint& vc = m_velocity_constraints[i];
 
-		PhysicsBody& AB = *arbiter.A->body;
-		PhysicsBody& BB = *arbiter.B->body;
+		const CollisionBody& A = bodies[pair.first];
+		const CollisionBody& B = bodies[pair.second];
 
-		const BodyTransform& AT = *arbiter.A->transform;
-		const BodyTransform& BT = *arbiter.B->transform;
+		PhysicsBody& AB = *A.body;
+		PhysicsBody& BB = *B.body;
+
+		const BodyTransform& AT = *A.transform;
+		const BodyTransform& BT = *B.transform;
 
 		vc.restitution	= std::min(AB.GetRestitution(), BB.GetRestitution());
 		vc.friction		= std::sqrt(AB.GetFriction() * BB.GetFriction());
@@ -60,8 +62,8 @@ void CollisionSolver::SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifo
 
 		WorldManifold manifold;
 		manifold.Initialize(manifolds[i],
-			AW, arbiter.A->shape->GetRadius(), 
-			BW, arbiter.B->shape->GetRadius());
+			AW, A.shape->GetRadius(), 
+			BW, B.shape->GetRadius());
 
 		vc.normal = manifold.normal;
 
@@ -103,15 +105,18 @@ void CollisionSolver::SetupConstraints(ArbiterSpan arbiters, ManifoldSpan manifo
 	}
 }
 
-void CollisionSolver::ResolveVelocity(ArbiterSpan arbiters)
+void CollisionSolver::ResolveVelocity(BodiesSpan bodies, CollisionSpan collisions)
 {
-	for (int32 i = 0; i < arbiters.size(); ++i)
+	for (int32 i = 0; i < collisions.size(); ++i)
 	{
-		const CollisionArbiter& arbiter = arbiters[i];
+		const CollisionPair& pair = collisions[i];
 		VelocityConstraint& vc = m_velocity_constraints[i];
 
-		PhysicsBody& AB = *arbiter.A->body;
-		PhysicsBody& BB = *arbiter.B->body;
+		const CollisionBody& A = bodies[pair.first];
+		const CollisionBody& B = bodies[pair.second];
+
+		PhysicsBody& AB = *A.body;
+		PhysicsBody& BB = *B.body;
 
 		const float am = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvMass() : 0.0f;
 		const float bm = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvMass() : 0.0f;
@@ -181,20 +186,23 @@ void CollisionSolver::ResolveVelocity(ArbiterSpan arbiters)
 	}
 }
 
-bool CollisionSolver::ResolvePosition(ArbiterSpan arbiters, ManifoldSpan manifolds)
+bool CollisionSolver::ResolvePosition(BodiesSpan bodies, CollisionSpan collisions, ManifoldSpan manifolds)
 {
 	float max_penetration = 0.0f;
 
-	for (int32 i = 0; i < arbiters.size(); ++i)
+	for (int32 i = 0; i < collisions.size(); ++i)
 	{
-		const CollisionArbiter& arbiter = arbiters[i];
+		const CollisionPair& pair = collisions[i];
 		const LocalManifold& lm = manifolds[i];
 
-		const PhysicsBody& AB = *arbiter.A->body;
-		const PhysicsBody& BB = *arbiter.B->body;
+		const CollisionBody& A = bodies[pair.first];
+		const CollisionBody& B = bodies[pair.second];
 
-		BodyTransform& AT = *arbiter.A->transform;
-		BodyTransform& BT = *arbiter.B->transform;
+		const PhysicsBody& AB = *A.body;
+		const PhysicsBody& BB = *B.body;
+
+		BodyTransform& AT = *A.transform;
+		BodyTransform& BT = *B.transform;
 
 		const float am = (AB.GetType() == BodyType::Dynamic) ? AB.GetInvMass() : 0.0f;
 		const float bm = (BB.GetType() == BodyType::Dynamic) ? BB.GetInvMass() : 0.0f;
@@ -215,8 +223,8 @@ bool CollisionSolver::ResolvePosition(ArbiterSpan arbiters, ManifoldSpan manifol
 
 			PositionSolverManifold psm;
 			psm.Initialize(lm,
-				AW, arbiter.A->shape->GetRadius(), 
-				BW, arbiter.B->shape->GetRadius(), j);
+				AW, A.shape->GetRadius(), 
+				BW, B.shape->GetRadius(), j);
 
 			const auto& normal		= psm.normal;
 			const auto& contact		= psm.contact;

@@ -12,10 +12,8 @@
 
 using namespace vlx;
 
-BroadSystem::BroadSystem(EntityAdmin& entity_admin, LayerType id) :
-	m_entity_admin(&entity_admin), m_layer(id),
-
-	m_insert(entity_admin, id),
+BroadSystem::BroadSystem(EntityAdmin& entity_admin) :
+	m_entity_admin(&entity_admin), m_insert(entity_admin),
 
 	m_quad_tree({ -4096, -4096, 4096 * 2, 4096 * 2 }) // hard set size for now
 {
@@ -35,6 +33,15 @@ void BroadSystem::Update()
 	GatherCollisions();
 
 	CullDuplicates();
+}
+
+auto BroadSystem::GetBodies() const noexcept -> const BodyList&
+{
+	return m_bodies;
+}
+auto BroadSystem::GetBodies() noexcept -> BodyList&
+{
+	return m_bodies;
 }
 
 auto BroadSystem::GetCollisions() const noexcept -> const CollisionList&

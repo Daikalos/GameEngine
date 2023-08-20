@@ -190,7 +190,7 @@ namespace vlx
 		/// 
 		/// \param EntityID: ID of the entity to retrieve the components from.
 		/// 
-		/// \returns Tuple containing pointers to component
+		/// \returns Tuple containing references to component
 		/// 
 		template<class... Cs> requires (IsComponents<Cs...> && sizeof...(Cs) > 1)
 		NODISC std::tuple<Cs&...> GetComponents(EntityID entity_id) const;

@@ -47,12 +47,15 @@ namespace vlx
 		using InsertSystem			= System<ColliderAABB, QTBody>;
 
 	public:
-		BroadSystem(EntityAdmin& entity_admin, LayerType id);
+		BroadSystem(EntityAdmin& entity_admin);
 
 	public:
 		void Update();
 
 	public:
+		auto GetBodies() const noexcept -> const BodyList&;
+		auto GetBodies() noexcept -> BodyList&;
+
 		auto GetCollisions() const noexcept -> const CollisionList&;
 		auto GetCollisions() noexcept -> CollisionList&;
 
@@ -75,14 +78,12 @@ namespace vlx
 
 	private:
 		EntityAdmin*			m_entity_admin	{nullptr};
-		LayerType				m_layer			{LYR_NONE};
-
 		InsertSystem			m_insert;
 
 		QuadTreeType			m_quad_tree;
 
 		EntityBodyMap			m_entity_body_map;
-		BodyList				m_bodies;
+		BodyList				m_bodies; // TODO: maybe separate to distinct class?
 
 		CollisionList			m_collisions;
 

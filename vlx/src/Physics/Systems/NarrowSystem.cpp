@@ -19,37 +19,31 @@ NarrowSystem::NarrowSystem(EntityAdmin& entity_admin)
 
 void NarrowSystem::Update(BroadSystem& broad)
 {
-	m_arbiters.clear();
+	m_collisions.clear();
 	m_manifolds.clear();
 
 	for (const auto& pair : broad.GetCollisions())
-	{
-		CheckCollision(
-			broad.GetBody(pair.first),
-			broad.GetBody(pair.second));
-	}
+		CheckCollision(broad, pair.first, pair.second);
 
 	const auto cmp = [](const EntityPair& lhs, const EntityPair& rhs)
 	{
 		return (lhs.first < rhs.first) || (lhs.first == rhs.first && lhs.second < rhs.second);
 	};
 
-	std::ranges::sort(
-		m_curr_collisions.begin(), m_curr_collisions.end(), cmp); // sort to quickly allow for finding the differences between previous and current
+	std::ranges::sort(m_curr_collisions, cmp); // sort to quickly allow for finding the differences between previous and current
 
 	std::ranges::set_difference(
-		m_prev_collisions.begin(), m_prev_collisions.end(),
-		m_curr_collisions.begin(), m_curr_collisions.end(), std::inserter(m_difference, m_difference.begin()), cmp);
+		m_prev_collisions, m_curr_collisions, std::back_inserter(m_difference), cmp);
 
 	for (const EntityPair& pair : m_difference)
 	{
-		const auto it = m_collisions.find(pair);
-		if (it != m_collisions.end())
+		const auto it = m_collision_map.find(pair);
+		if (it != m_collision_map.end())
 		{
 			if (it->lhs_exit) it->lhs_exit->OnExit(it->rhs_eid);
 			if (it->rhs_exit) it->rhs_exit->OnExit(it->lhs_eid);
 
-			m_collisions.erase(it);
+			m_collision_map.erase(it);
 		}
 	}
 
@@ -59,13 +53,13 @@ void NarrowSystem::Update(BroadSystem& broad)
 	m_difference.clear();
 }
 
-auto NarrowSystem::GetArbiters() const noexcept -> const CollisionArbiters&
+auto NarrowSystem::GetCollisions() const noexcept -> const CollisionList&
 {
-	return m_arbiters;
+	return m_collisions;
 }
-auto NarrowSystem::GetArbiters() noexcept -> CollisionArbiters&
+auto NarrowSystem::GetCollisions() noexcept -> CollisionList&
 {
-	return m_arbiters;
+	return m_collisions;
 }
 
 auto NarrowSystem::GetManifolds() const noexcept -> const LocalManifolds&
@@ -77,8 +71,11 @@ auto NarrowSystem::GetManifolds() noexcept -> LocalManifolds&
 	return m_manifolds;
 }
 
-void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
+void NarrowSystem::CheckCollision(BroadSystem& broad, uint32 l, uint32 r)
 {
+	const CollisionBody& A = broad.GetBody(l);
+	const CollisionBody& B = broad.GetBody(r);
+
 	SimpleTransform AW;
 	SimpleTransform BW;
 
@@ -97,7 +94,7 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 
 		if (AB && BB && (AB->GetType() == BodyType::Dynamic || BB->GetType() == BodyType::Dynamic)) // only resolve if both entities has a physics body and either one is dynamic
 		{
-			m_arbiters.emplace_back(&A, &B);
+			m_collisions.emplace_back(l, r);
 			m_manifolds.emplace_back(lm);
 		}
 
@@ -130,12 +127,12 @@ void NarrowSystem::CheckCollision(CollisionBody& A, CollisionBody& B)
 
 			if (has_enter || has_exit)
 			{
-				if (auto ait = m_collisions.find(pair); ait == m_collisions.end()) // first time
+				if (auto ait = m_collision_map.find(pair); ait == m_collision_map.end()) // first time
 				{
  					if (A.enter) A.enter->OnEnter(a_result);
 					if (B.enter) B.enter->OnEnter(b_result);
 
-					m_collisions.emplace(
+					m_collision_map.emplace(
 						m_entity_admin->GetComponentRef(A.entity_id, A.exit),
 						m_entity_admin->GetComponentRef(B.entity_id, B.exit), A.entity_id, B.entity_id);
 				}

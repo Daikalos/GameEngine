@@ -157,7 +157,6 @@
     <ClInclude Include="include\Velox\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Velox\Physics\Systems\PhysicsSystem.h" />
     <ClInclude Include="include\Velox\Physics\Collision\CollisionLayer.h" />
-    <ClInclude Include="include\Velox\Physics\Collision\CollisionArbiter.h" />
     <ClInclude Include="include\Velox\Velox.hpp" />
     <ClInclude Include="include\Velox\Physics\Shapes\Polygon.h" />
     <ClInclude Include="include\Velox\Physics\Shapes\Box.h" />

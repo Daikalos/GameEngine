@@ -79,6 +79,6 @@ namespace vlx
 		sf::ContextSettings m_settings;									// settings
 		Vector2f			m_ratio_cmp;								// current ratio in percentage when compared to default desktop mode
 		bool				m_vertical_sync	{false};					// vertical sync
-		int					m_frame_rate	{300};						// maximum frame rate
+		int					m_frame_rate	{0};						// maximum frame rate
 	};
 }

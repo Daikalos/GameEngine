@@ -7,7 +7,7 @@ PhysicsSystem::PhysicsSystem(EntityAdmin& entity_admin, LayerType id, Time& time
 
 	m_time(&time), 
 
-	m_broad_system(			entity_admin, LYR_BROAD_PHASE),
+	m_broad_system(			entity_admin),
 	m_narrow_system(		entity_admin),
 
 	m_integrate_velocity(	entity_admin),
@@ -52,22 +52,23 @@ void PhysicsSystem::FixedUpdate()
 	m_broad_system.Update();
 	m_narrow_system.Update(m_broad_system);
 
-	auto& arbiters = m_narrow_system.GetArbiters();
-	auto& manifolds = m_narrow_system.GetManifolds();
+	const auto& bodies		= m_broad_system.GetBodies();
+	const auto& collisions	= m_narrow_system.GetCollisions();
+	const auto& manifolds	= m_narrow_system.GetManifolds();
 
 	Execute(m_integrate_velocity);
 
-	m_collision_solver.CreateConstraints(arbiters, manifolds);
-	m_collision_solver.SetupConstraints(arbiters, manifolds, *m_time, m_gravity);
+	m_collision_solver.CreateConstraints(bodies, collisions, manifolds);
+	m_collision_solver.SetupConstraints(bodies, collisions, manifolds, *m_time, m_gravity);
 
 	for (int i = 0; i < m_velocity_iterations; ++i)
-		m_collision_solver.ResolveVelocity(arbiters);
+		m_collision_solver.ResolveVelocity(bodies, collisions);
 
 	Execute(m_integrate_position);
 
 	for (int i = 0; i < m_position_iterations; ++i)
 	{
-		if (m_collision_solver.ResolvePosition(arbiters, manifolds))
+		if (m_collision_solver.ResolvePosition(bodies, collisions, manifolds))
 			break;
 	}
 
