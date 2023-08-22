@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-auto Circle::GetTypePmr() const noexcept -> Type
+auto Circle::GetTypeV() const noexcept -> Type
 {
     return GetType();
 }

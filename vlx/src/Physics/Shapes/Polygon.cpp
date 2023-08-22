@@ -50,7 +50,7 @@ const RectFloat& Polygon::GetBoundary() const noexcept
 	return m_vertices_aabb;
 }
 
-auto Polygon::GetTypePmr() const noexcept -> Type
+auto Polygon::GetTypeV() const noexcept -> Type
 {
 	return GetType();
 }

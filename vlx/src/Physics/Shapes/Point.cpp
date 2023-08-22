@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-auto Point::GetTypePmr() const noexcept -> Type
+auto Point::GetTypeV() const noexcept -> Type
 {
     return GetType();
 }

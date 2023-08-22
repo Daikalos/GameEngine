@@ -30,7 +30,7 @@ namespace vlx
 		constexpr virtual ~Shape() = default; // may not be needed
 
 	public:
-		virtual auto GetTypePmr() const noexcept -> Type = 0;
+		virtual auto GetTypeV() const noexcept -> Type = 0;
 
 		constexpr float GetRadius() const noexcept;
 		constexpr float GetRadiusSqr() const noexcept;

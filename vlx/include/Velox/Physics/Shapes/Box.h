@@ -55,7 +55,7 @@ namespace vlx
 	public:
 		static consteval auto GetType() noexcept -> Type;
 
-		VELOX_API auto GetTypePmr() const noexcept -> Type override;
+		VELOX_API auto GetTypeV() const noexcept -> Type override;
 		VELOX_API void AdjustBody(PhysicsBody& body) const override;
 
 	public:

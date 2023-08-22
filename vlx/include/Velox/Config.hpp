@@ -20,7 +20,7 @@
 #endif
 
 #if !defined(NDEBUG)
-#	define VELOX_DEBUG
+#	define VELOX_DEBUG 1
 #endif
 
 #if defined(_MSC_VER)

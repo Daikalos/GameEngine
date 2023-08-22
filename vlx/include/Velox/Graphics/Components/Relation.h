@@ -12,8 +12,6 @@
 
 namespace vlx
 {
-	class EntityAdmin;
-
 	/// Represents the relationship between entities
 	/// 
 	class Relation : public EventSet<Relation, CopiedEvent, AlteredEvent, DestroyedEvent>

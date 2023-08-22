@@ -2,7 +2,7 @@
 
 using namespace vlx;
 
-auto Box::GetTypePmr() const noexcept -> Type
+auto Box::GetTypeV() const noexcept -> Type
 {
 	return GetType();
 }
