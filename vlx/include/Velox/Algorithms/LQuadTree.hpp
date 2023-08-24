@@ -556,14 +556,14 @@ namespace vlx
 		struct ElementReg // elements to process
 		{
 			Vector2f point;
-			SizeType idx;
+			SizeType idx {0};
 		};
 
 		struct NodeReg // nodes to process
 		{
 			RectFloat rect;
-			SizeType idx;
-			SizeType depth;
+			SizeType idx   {0};
+			SizeType depth {0};
 		};
 
 		std::vector<ElementReg> elements;

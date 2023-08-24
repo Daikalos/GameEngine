@@ -2,6 +2,7 @@
 
 #include <Velox/Algorithms/QuadTree.hpp>
 #include <Velox/Algorithms/LQuadTree.hpp>
+
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/ECS/ComponentEvents.h>
 #include <Velox/Config.hpp>

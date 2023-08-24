@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <shared_mutex>
+#include <concepts>
 
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Vector2.hpp>
@@ -40,8 +41,8 @@ namespace vlx
 		struct NodeReg
 		{
 			RectFloat rect;
-			SizeType index;
-			SizeType depth;
+			SizeType index {0};
+			SizeType depth {0};
 		};
 
 		struct ElementPtr
@@ -372,6 +373,8 @@ namespace vlx
 		if (m_nodes[nr.index].count == m_max_elements && nr.depth < m_max_depth)
 		{
 			std::vector<SizeType> elements;
+			elements.reserve(m_max_elements);
+
 			while (m_nodes[nr.index].first_child != -1)
 			{
 				const auto index = m_nodes[nr.index].first_child;

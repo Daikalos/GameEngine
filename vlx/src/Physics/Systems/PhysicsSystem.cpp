@@ -117,12 +117,9 @@ void PhysicsSystem::SleepBodies(PhysicsBody& pb) const
 	if (pb.GetType() == BodyType::Static)
 		return;
 
-	constexpr float vel_sleep_tolerance = au::Sqr(P_VEL_SLEEP_TOLERANCE);
-	constexpr float ang_sleep_tolerance = au::Sqr(P_ANG_SLEEP_TOLERANCE);
-
 	if ((pb.m_flags & PhysicsBody::B_AutoSleep) == 0 ||
-		au::Sqr(pb.GetAngularVelocity()) > ang_sleep_tolerance ||
-		pb.GetVelocity().LengthSq() > vel_sleep_tolerance)
+		au::Sqr(pb.GetAngularVelocity()) > P_ANG_SLEEP_TOLERANCE_SQR ||
+		pb.GetVelocity().LengthSq() > P_VEL_SLEEP_TOLERANCE_SQR)
 	{
 		pb.m_sleep_time = 0.0f;
 	}
