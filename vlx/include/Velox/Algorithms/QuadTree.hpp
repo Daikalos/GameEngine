@@ -358,13 +358,13 @@ namespace vlx
 			{
 				const auto index = node.first_child;
 
-				const auto next_idx = m_elements_ptr[index].next;
-				const auto elt_idx = m_elements_ptr[index].element;
+				const auto next = m_elements_ptr[index].next;
+				const auto elt = m_elements_ptr[index].element;
 
-				node.first_child = next_idx;
+				node.first_child = next;
 				m_elements_ptr.erase(index);
 
-				elements.emplace_back(elt_idx);
+				elements.emplace_back(elt);
 			}
 
 			const auto fc = m_nodes.emplace();
