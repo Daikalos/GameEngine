@@ -5,8 +5,6 @@
 
 #include <Velox/ECS/System.hpp>
 
-#include <Velox/Algorithms/LQuadTree.hpp>
-
 #include <Velox/Physics/Shapes/Shape.h>
 #include <Velox/Physics/Shapes/Circle.h>
 #include <Velox/Physics/Shapes/Box.h>
@@ -42,7 +40,7 @@ namespace vlx
 		using EntityBodyMap			= std::unordered_map<EntityID, uint32>;
 		using BodyList				= std::vector<CollisionBody>;
 
-		using QuadTreeType			= LQuadTree<typename QTBody::ValueType>;
+		using QuadTreeType			= typename QTBody::QuadTreeType;
 
 		using InsertSystem			= System<ColliderAABB, QTBody>;
 

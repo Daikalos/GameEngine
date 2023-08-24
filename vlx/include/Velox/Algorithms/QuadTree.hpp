@@ -1,16 +1,13 @@
 #pragma once
 
 #include <vector>
-#include <memory>
-#include <optional>
 #include <shared_mutex>
 
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/System/Vector2.hpp>
 #include <Velox/Config.hpp>
 
-#include "FreeVector.hpp"
-#include "SmallVector.hpp"
+#include <Velox/Structures/FreeVector.hpp>
 
 namespace vlx
 {
@@ -20,8 +17,9 @@ namespace vlx
 	class QuadTree
 	{
 	public:
-		using element_type = T;
-		using value_type = std::remove_const_t<T>;
+		using ElementType	= T;
+		using ValueType		= std::remove_const_t<T>;
+		using SizeType		= int;
 
 		static constexpr int CHILD_COUNT = 4;
 
@@ -29,20 +27,27 @@ namespace vlx
 		struct Element
 		{		
 			RectFloat rect;			// rectangle encompassing the item
-			T item;
+			ValueType item;
 		};
 
 	private:
 		struct Node
 		{
-			int first_child	{-1};	// points to first sub-branch or first element index
-			int count		{0};	// -1 for branch or it's a leaf and count means number of elements
+			SizeType first_child {-1};	// points to first sub-branch or first element index
+			SizeType count		 {0};	// -1 for branch or it's a leaf and count means number of elements
+		};
+
+		struct NodeReg
+		{
+			RectFloat rect;
+			SizeType index;
+			SizeType depth;
 		};
 
 		struct ElementPtr
 		{
-			int elt_idx {-1};		// points to item in elements, not sure if even needed, seems to always be aligned anyways
-			int next	{-1};		// points to next elt ptr, or -1 means end of items
+			SizeType elt_idx {-1};	// points to item in elements, not sure if even needed, seems to always be aligned anyways
+			SizeType next	 {-1};	// points to next elt ptr, or -1 means end of items
 		};
 
 	public:
@@ -64,7 +69,7 @@ namespace vlx
 		/// 
 		/// \returns True if successfully removed the element, otherwise false.
 		/// 
-		bool Erase(const int elt_idx);
+		bool Erase(SizeType elt_idx);
 
 		/// Attempts to erase element from tree.
 		/// 
@@ -82,19 +87,25 @@ namespace vlx
 		/// \returns True if successfully updated the element, otherwise false.
 		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
-		bool Update(const int idx, Args&&... args);
+		bool Update(SizeType idx, Args&&... args);
 
 		/// Retrieves an element.
 		/// 
 		/// \param Index: index to element.
 		/// 
-		NODISC auto Get(const int idx) -> Element&;
+		NODISC auto Get(SizeType idx) -> ValueType&;
 
 		/// Retrieves an element.
 		/// 
 		/// \param Index: index to element.
 		/// 
-		NODISC auto Get(const int idx) const -> const Element&;
+		NODISC auto Get(SizeType idx) const -> const ValueType&;
+
+		/// Retrieves the rectangle encompassing item.
+		/// 
+		/// \param Index: index to item.
+		/// 
+		NODISC auto GetRect(SizeType idx) const -> const RectFloat&;
 
 		/// Queries the tree for elements.
 		/// 
@@ -102,7 +113,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained within the bounding rectangle.
 		/// 
-		NODISC auto Query(const RectFloat& rect) const -> std::vector<Element>;
+		NODISC auto Query(const RectFloat& rect) const -> std::vector<ValueType>;
 
 		/// Queries the tree for elements.
 		/// 
@@ -110,34 +121,37 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained at the point.
 		/// 
-		NODISC auto Query(const Vector2f& point) const-> std::vector<Element>;
+		NODISC auto Query(const Vector2f& point) const-> std::vector<ValueType>;
 
 		/// Performs a lazy cleanup of the tree; can only be called if erase has been used.
 		/// 
 		void Cleanup();
 
-		/// Completely clears the tree
+		/// Clears the tree
 		/// 
 		void Clear();
 
 	private:
-		void NodeInsert(const int ptr_idx, int depth, const RectFloat& rect);
-		void LeafInsert(int ptr_idx, int depth)
-		std::vector<int> FindLeaves(Node& node, const RectFloat& rect) const;
+		void NodeInsert(const NodeReg& node, SizeType elt_idx);
+		void LeafInsert(const NodeReg& node, SizeType elt_idx);
 
-		void SplitLeaf(Node& node);
+		auto FindLeaves(const NodeReg& node, const RectFloat& rect) const -> std::vector<NodeReg>;
+
+		static bool IsLeaf(const Node& node);
+		static bool IsBranch(const Node& node);
 
 	private:
 		FreeVector<Element>		m_elements;		// all the elements
 		FreeVector<ElementPtr>	m_elements_ptr;	// all the element ptrs
-		std::vector<Node>		m_nodes;
+		FreeVector<Node>		m_nodes;
 
-		RectFloat m_root_rect;
+		RectFloat	m_root_rect;
 
-		int		m_free_node			{-1};
-		int		m_max_elements		{8}; // max elements before subdivision
-		int		m_max_depth			{8};  // max depth before no more leaves will be created
+		SizeType	m_free_node			{-1};
+		SizeType	m_max_elements		{8}; // max elements before subdivision
+		SizeType	m_max_depth			{8};  // max depth before no more leaves will be created
 
+		mutable std::vector<bool> m_visited;
 		mutable std::shared_mutex m_mutex;
 	};
 
@@ -145,7 +159,7 @@ namespace vlx
 	inline QuadTree<T>::QuadTree(const RectFloat& root_rect, int max_elements, int max_depth)
 		: m_root_rect(root_rect), m_max_elements(max_elements), m_max_depth(max_depth)
 	{
-		m_nodes.emplace_back();
+		m_nodes.emplace();
 	}
 
 	template<std::equality_comparable T>
@@ -157,51 +171,55 @@ namespace vlx
 		if (!m_root_rect.Overlaps(rect)) // dont attempt to add if outside boundary
 			return -1;
 
-		const auto idx = m_elements.emplace(rect, T(std::forward<Args>(args)...));
-		InsertHelper(rect, m_elements_ptr.emplace(idx));
+		const auto idx = static_cast<SizeType>(m_elements.emplace(rect, std::forward<Args>(args)...));
+		NodeInsert({ m_root_rect, 0, 0 }, idx);
 
 		return idx;
 	}
 
 	template<std::equality_comparable T>
-	inline bool QuadTree<T>::Erase(const int elt_idx)
+	inline bool QuadTree<T>::Erase(SizeType elt_idx)
 	{
 		std::unique_lock lock(m_mutex);
 
-		assert(m_elements.valid(elt_idx));
-		const auto& element = m_elements[elt_idx];
+		const RectFloat& rect = m_elements[elt_idx].rect;
+		const auto& leaves = FindLeaves({ m_root_rect, 0, 0 }, rect);
 
-		int leaf_node_index = FindLeaf(element.rect.Center());
-		Node& node = m_nodes[leaf_node_index];
-
-		assert(node.count != -1); // we should have reached a leaf
-
-		if (node.count == 0)
+		if (leaves.empty())
 			return false;
 
-		int* cur = &node.first_child, i = 0;
-		while (*cur != -1) // search through all elements
+		for (const auto& leaf : leaves)
 		{
-			i = *cur;
+			const auto nd_index = leaf.index;
 
-			if (elt_idx == m_elements_ptr[i].elt_idx)
+			auto node_index = m_nodes[nd_index].first_child;
+			auto prev_index = -1;
+
+			while (node_index != -1 && m_elements_ptr[node_index].elt_idx != elt_idx)
 			{
-				*cur = m_elements_ptr[i].next;
-
-				m_elements.erase(m_elements_ptr[i].elt_idx);
-				m_elements_ptr.erase(i);
-
-				--node.count;
-
-				assert(node.count >= 0);
-
-				return true;
+				prev_index = node_index;
+				node_index = m_elements_ptr[node_index].next;
 			}
 
-			cur = &m_elements_ptr[i].next;
+			if (node_index != -1)
+			{
+				const auto next_index = m_elements_ptr[node_index].next;
+
+				if (prev_index == -1)
+					m_nodes[nd_index].first_child = next_index;
+				else
+					m_elements_ptr[prev_index].next = next_index;
+
+				m_elements_ptr.erase(node_index);
+
+				--m_nodes[nd_index].count;
+				assert(m_nodes[nd_index].count >= 0);
+			}
 		}
 
-		return false;
+		m_elements.erase(elt_idx);
+
+		return true;
 	}
 
 	template<std::equality_comparable T>
@@ -209,148 +227,81 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
-		int leaf_node_index = FindLeaf(element.rect.Center());
-		Node& node = m_nodes[leaf_node_index];
 
-		assert(node.count != -1); // we should have reached a leaf
-
-		if (node.count == 0)
-			return false;
-
-		int* cur = &node.first_child, i = 0;
-		while (*cur != -1) // search through all elements
-		{
-			i = *cur;
-
-			Element& elt = m_elements[m_elements_ptr[i].elt_idx];
-			if (elt.item == element.item)
-			{
-				*cur = m_elements_ptr[i].next;
-
-				m_elements.erase(m_elements_ptr[i].elt_idx);
-				m_elements_ptr.erase(i);
-
-				--node.count;
-
-				assert(node.count >= 0);
-
-				return true;
-			}
-
-			cur = &m_elements_ptr[i].next;
-		}
 
 		return false;
 	}
 
 	template<std::equality_comparable T>
 	template<typename... Args> requires std::constructible_from<T, Args...>
-	inline bool QuadTree<T>::Update(const int idx, Args&&... args)
+	inline bool QuadTree<T>::Update(SizeType idx, Args&&... args)
 	{
 		std::unique_lock lock(m_mutex);
 
 		if (idx >= m_elements.size() || !m_elements.valid(idx))
 			return false;
 
-		m_elements[idx].item = T(std::forward<Args>(args)...);
+		m_elements[idx].item = T{std::forward<Args>(args)...};
 
 		return true;
 	}
 
 	template<std::equality_comparable T>
-	auto QuadTree<T>::Get(const int idx) -> Element&
+	auto QuadTree<T>::Get(SizeType idx) -> ValueType&
 	{
 		return m_elements[idx];
 	}
 
 	template<std::equality_comparable T>
-	auto QuadTree<T>::Get(const int idx) const -> const Element&
+	auto QuadTree<T>::Get(SizeType idx) const -> const ValueType&
 	{
 		return m_elements[idx];
 	}
 
 	template<std::equality_comparable T>
-	inline auto QuadTree<T>::Query(const RectFloat& rect) const -> std::vector<Element>
+	inline auto QuadTree<T>::GetRect(SizeType idx) const -> const RectFloat&
+	{
+		return m_elements[idx].rect;
+	}
+
+	template<std::equality_comparable T>
+	inline auto QuadTree<T>::Query(const RectFloat& rect) const -> std::vector<ValueType>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<Element> result{};
+		std::vector<ValueType> result;
 
-		SmallVector<int, 64> to_process;
-		to_process.push_back(0); // push root
+		m_visited.resize(m_elements.size());
 
-		while (!to_process.empty())
+		for (const NodeReg& leaf : FindLeaves({ m_root_rect, 0, 0 }, rect))
 		{
-			const Node& node = m_nodes[to_process.back()];
-			to_process.pop_back();
-
-			if (!rect.Overlaps(node.rect))
-				continue;
-
-			if (node.count != -1) // leaf
+			const auto nd_index = leaf.index;
+			
+			auto elt_node_index = m_nodes[nd_index].first_child;
+			while (elt_node_index != -1)
 			{
-				int child = node.first_child;
-				while (child != -1) // iterate over all children
+				const auto elt_idx	= m_elements_ptr[elt_node_index].elt_idx;
+				const auto& elt		= m_elements[elt_idx];
+
+				if (!m_visited[elt_idx] && elt.rect.Overlaps(rect))
 				{
-					const auto& elt_ptr = m_elements_ptr[child];
-					const auto& elt		= m_elements[elt_ptr.elt_idx];
-
-					if (elt.rect.Overlaps(rect))
-						result.push_back(elt);
-
-					child = elt_ptr.next;
+					result.emplace_back(elt.item);
+					m_visited[elt_idx] = true;
 				}
-			}
-			else // it's a branch
-			{
-				for (int i = 0; i < CHILD_COUNT; ++i)
-					to_process.push_back(node.first_child + i);
+
+				elt_node_index = m_elements_ptr[elt_node_index].next;
 			}
 		}
+
+		std::fill(m_visited.begin(), m_visited.end(), false); // TODO: FIX
 
 		return result;
 	}
 
 	template<std::equality_comparable T>
-	inline auto QuadTree<T>::Query(const Vector2f& point) const -> std::vector<Element>
+	inline auto QuadTree<T>::Query(const Vector2f& point) const -> std::vector<ValueType>
 	{
-		std::shared_lock lock(m_mutex);
-
-		std::vector<Element> result{};
-
-		SmallVector<int> to_process;
-		to_process.push_back(0); // push root
-
-		while (!to_process.empty())
-		{
-			const Node& node = m_nodes[to_process.back()];
-			to_process.pop_back();
-
-			if (!node.rect.Contains(point))
-				continue;
-
-			if (node.count != -1) // leaf
-			{
-				int child = node.first_child;
-				while (child != -1) // iterate over all children
-				{
-					const auto& elt_ptr = m_elements_ptr[child];
-					const auto& elt		= m_elements[elt_ptr.elt_idx];
-
-					if (elt.rect.Contains(point))
-						result.emplace_back(elt);
-
-					child = elt_ptr.next;
-				}
-			}
-			else // branch
-			{
-				for (int i = 0; i < CHILD_COUNT; ++i)
-					to_process.push_back(node.first_child + i);
-			}
-		}
-
-		return result;
+		return Query(RectFloat(point.x, point.y, 0.f, 0.f));
 	}
 
 	template<std::equality_comparable T>
@@ -358,23 +309,22 @@ namespace vlx
 	{
 		std::unique_lock lock(m_mutex);
 
-		if (!m_cleanup_required)
-			return;
+		assert(!m_nodes.empty());
 
-		SmallVector<int> to_process;
-		if (m_nodes.front().count == -1)
+		std::vector<int> to_process;
+		if (m_nodes[0].count == -1)
 			to_process.push_back(0); // push root
-
-		std::vector<RectFloat*> rects;
 
 		while (!to_process.empty())
 		{
-			Node& node = m_nodes[to_process.back()];
+			const auto node_index = to_process.back();
+			const auto first_child = m_nodes[node_index].first_child;
+			to_process.pop_back();
 
 			int num_empty = 0;
 			for (int i = 0; i < CHILD_COUNT; ++i)
 			{
-				const int child_index	= node.first_child + i;
+				const int child_index	= first_child + i;
 				const Node& child		= m_nodes[child_index];
 
 				if (child.count == -1)
@@ -385,15 +335,14 @@ namespace vlx
 
 			if (num_empty == CHILD_COUNT)
 			{
-				m_nodes[node.first_child].first_child = m_free_node;
-				m_free_node = node.first_child;
+				m_nodes.erase(first_child + 3);
+				m_nodes.erase(first_child + 2);
+				m_nodes.erase(first_child + 1);
+				m_nodes.erase(first_child + 0);
 
-				node.first_child = -1;
-				node.count = 0;
+				m_nodes[node_index] = {}; // reset
 			}
 		}
-
-		m_cleanup_required = false;
 	}
 
 	template<std::equality_comparable T>
@@ -407,168 +356,103 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline void QuadTree<T>::SplitLeaf(Node& node)
+	inline void QuadTree<T>::NodeInsert(const NodeReg& nr, SizeType elt_idx)
 	{
-		assert(node.count != -1); // cant split branch
+		const RectFloat& rect = m_elements[elt_idx].rect;
+		for (const auto& leaf : FindLeaves(nr, rect))
+			LeafInsert(leaf, elt_idx);
+	}
 
-		node.count = -1; // now a branch
+	template<std::equality_comparable T>
+	inline void QuadTree<T>::LeafInsert(const NodeReg& nr, SizeType elt_idx)
+	{
+		const auto nd_fc = m_nodes[nr.index].first_child;
+		m_nodes[nr.index].first_child = m_elements_ptr.emplace(elt_idx, nd_fc);
 
-		if (m_free_node != -1)
+		if (m_nodes[nr.index].count == m_max_elements && nr.depth < m_max_depth)
 		{
-			node.first_child = m_free_node;
-			m_free_node = m_nodes[node.first_child].first_child;
+			std::vector<SizeType> elements;
+			while (m_nodes[nr.index].first_child != -1)
+			{
+				const auto index = m_nodes[nr.index].first_child;
+				const auto next_index = m_elements_ptr[index].next;
+				const auto elt = m_elements_ptr[index].elt_idx;
 
-			for (int i = 0; i < CHILD_COUNT; ++i)
-				m_nodes[node.first_child + i] = {};
+				m_nodes[nr.index].first_child = next_index;
+				m_elements_ptr.erase(index);
+
+				elements.emplace_back(elt);
+			}
+
+			const auto fc = m_nodes.emplace();
+			m_nodes.emplace();
+			m_nodes.emplace();
+			m_nodes.emplace();
+
+			m_nodes[nr.index].first_child = fc;
+			m_nodes[nr.index].count = -1; // set as branch
+
+			for (const auto elt : elements)
+				NodeInsert(nr, elt);
 		}
 		else
-		{
-			node.first_child = static_cast<int>(m_nodes.size());
-			for (int i = 0; i < CHILD_COUNT; ++i)
-				m_nodes.emplace_back();
-		}
+			++m_nodes[nr.index].count;
 	}
 
 	template<std::equality_comparable T>
-	inline void QuadTree<T>::InsertHelper(const Vector2f& elt_center, const int ptr_idx)
+	inline auto QuadTree<T>::FindLeaves(const NodeReg& nr, const RectFloat& rect) const -> std::vector<NodeReg>
 	{
-		struct ElementReg // elements to process
+		std::vector<NodeReg> leaves;
+		std::vector<NodeReg> to_process;
+
+		to_process.emplace_back(nr);
+
+		while (!to_process.empty())
 		{
-			Vector2f point;
-			int idx		{0};
-		};
+			const NodeReg nd = to_process.back();
+			to_process.pop_back();
 
-		struct NodeReg // nodes to process
-		{
-			RectFloat rect;
-			int idx		{0};
-			int depth	{0};
-		};
-
-		std::vector<ElementReg> elements;
-		std::vector<NodeReg> nodes;
-
-		elements.emplace_back(elt_center, ptr_idx);
-		nodes.emplace_back(m_root_rect, 0, 1);
-
-		while (!elements.empty() && !nodes.empty())
-		{
-			const ElementReg& elt_reg = elements.back();
-			const NodeReg& node_reg = nodes.back();
-
-			Node& node = m_nodes[node_reg.idx];
-			if (node_reg.rect.Contains(elt_reg.point))
-			{
-				if (node.count == -1) // traverse branch
-				{
-					Vector2f center = node_reg.rect.Center();
-					Vector2f half_extends = node_reg.rect.Size() / 2.0f;
-
-					if (elt_reg.point.x >= center.x)
-					{
-						if (elt_reg.point.y >= center.y)
-						{
-							nodes.emplace_back(RectFloat(center.x, center.y,
-								half_extends.x, half_extends.y), node.first_child + 3, node_reg.depth + 1);
-						}
-						else
-						{
-							nodes.emplace_back(RectFloat(center.x, center.y - half_extends.y,
-								half_extends.x, half_extends.y), node.first_child + 2, node_reg.depth + 1);
-						}
-					}
-					else
-					{
-						if (elt_reg.point.y >= center.y)
-						{
-							nodes.emplace_back(RectFloat(center.x - half_extends.x, center.y,
-								half_extends.x, half_extends.y), node.first_child + 1, node_reg.depth + 1);
-						}
-						else
-						{
-							nodes.emplace_back(RectFloat(center.x - half_extends.x, center.y - half_extends.y,
-								half_extends.x, half_extends.y), node.first_child + 0, node_reg.depth + 1);
-						}
-					}
-				}
-				else if (node.count < m_max_elements || node_reg.depth == m_max_depth) // insert element into node
-				{
-					++node.count;
-
-					m_elements_ptr[elt_reg.idx].next = node.first_child;
-					node.first_child = elt_reg.idx;
-
-					UpdateRect(m_nodes[node_reg.idx], m_elements[m_elements_ptr[elt_reg.idx].elt_idx].rect);
-
-					elements.pop_back();
-				}
-				else // otherwise, make space by splitting leaf and reinserting current elements
-				{
-					assert(node_reg.depth < m_max_depth); // we should only ever split leaf if above depth
-
-					int child = node.first_child;
-					while (child != -1)
-					{
-						elements.emplace_back(m_elements[m_elements_ptr[child].elt_idx].rect.Center(), child);
-						child = m_elements_ptr[child].next;
-					}
-
-					SplitLeaf(node);
-				}
-			}
+			if (IsLeaf(m_nodes[nd.index]))
+				leaves.emplace_back(nd);
 			else
 			{
-				nodes.pop_back();
-			}
-		}
-	}
+				const auto fc	= m_nodes[nd.index].first_child;
+				const auto hx	= nd.rect.width / 2.0f;
+				const auto hy	= nd.rect.height / 2.0f;
+				const auto l	= nd.rect.left - hx;
+				const auto t	= nd.rect.top - hy;
+				const auto r	= nd.rect.left + hx;
+				const auto b	= nd.rect.top + hy;
 
-	template<std::equality_comparable T>
-	inline int QuadTree<T>::FindLeaf(const Vector2f& point) const
-	{
-		Vector2f offset	{ m_root_rect.width / 2.0f, m_root_rect.height / 2.0f };
-		Vector2f node_center = m_root_rect.Center();
-
-		int node_index = 0;
-		while (m_nodes[node_index].count == -1) // continue on branches, will exit when leaf
-		{
-			const Node& node = m_nodes[node_index];
-			offset /= 2.0f;
-
-			if (point.x >= node_center.x)
-			{
-				if (point.y >= node_center.y) // bottom right
+				if (rect.top <= nd.rect.top)
 				{
-					node_index = node.first_child + 3;
-					node_center += offset;
+					if (rect.left <= nd.rect.left)
+						to_process.emplace_back(RectFloat(l, t, hx, hy), fc + 0, nd.depth + 1);
+					if (rect.Right() > nd.rect.left)
+						to_process.emplace_back(RectFloat(r, t, hx, hy), fc + 1, nd.depth + 1);
 				}
-				else // top right
+				if (rect.Bottom() > nd.rect.top)
 				{
-					node_index = node.first_child + 2;
-					node_center += { offset.x, -offset.y };
-				}
-			}
-			else
-			{
-				if (point.y >= node_center.y) // bottom left
-				{
-					node_index = node.first_child + 1;
-					node_center += { -offset.x, offset.y };
-				}
-				else // top left
-				{
-					node_index = node.first_child + 0;
-					node_center -= offset;
+					if (rect.left <= nd.rect.left)
+						to_process.emplace_back(RectFloat(l, b, hx, hy), fc + 2, nd.depth + 1);
+					if (rect.Right() > nd.rect.left)
+						to_process.emplace_back(RectFloat(r, b, hx, hy), fc + 3, nd.depth + 1);
 				}
 			}
 		}
 
-		return node_index;
+		return leaves;
 	}
 
 	template<std::equality_comparable T>
-	inline void QuadTree<T>::UpdateRect(Node& node, const RectFloat& elt_rect)
+	inline bool QuadTree<T>::IsLeaf(const Node& node)
 	{
-		node.rect = (node.count == 1) ? elt_rect : node.rect.Union(elt_rect);
+		return node.count != -1;
+	}
+
+	template<std::equality_comparable T>
+	inline bool QuadTree<T>::IsBranch(const Node& node)
+	{
+		return node.count == -1;
 	}
 }

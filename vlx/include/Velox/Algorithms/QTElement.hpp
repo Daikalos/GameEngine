@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Velox/Algorithms/QuadTree.hpp>
 #include <Velox/Algorithms/LQuadTree.hpp>
 #include <Velox/System/Rectangle.hpp>
 #include <Velox/ECS/ComponentEvents.h>
@@ -14,8 +15,9 @@ namespace vlx
 	class QTElement : public EventSet<QTElement<T>, CopiedEvent, AlteredEvent, DestroyedEvent>
 	{
 	public:
-		using ValueType	= T;
-		using Element	= typename LQuadTree<T>::Element;
+		using ValueType		= T;
+		using QuadTreeType	= QuadTree<T>;
+		using Element		= typename QuadTreeType::Element;
 
 	public:
 		QTElement() = default;
@@ -35,7 +37,7 @@ namespace vlx
 		/// 
 		/// \returns If it succeeded in inserting element to quadtree
 		/// 
-		bool Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, const T& item);
+		bool Insert(QuadTreeType& quad_tree, const RectFloat& rect, const T& item);
 
 		/// Emplace an element into the given quad tree.
 		/// 
@@ -46,7 +48,7 @@ namespace vlx
 		/// \returns If it succeeded in inserting element to quadtree
 		/// 
 		template<typename... Args> requires std::constructible_from<T, Args...>
-		bool Emplace(LQuadTree<T>& quad_tree, const RectFloat& rect, Args&&... args);
+		bool Emplace(QuadTreeType& quad_tree, const RectFloat& rect, Args&&... args);
 
 		/// Attempts to update the inserted element in the quad tree with new data.
 		/// 
@@ -85,7 +87,7 @@ namespace vlx
 		void DestroyedImpl(const EntityAdmin& entity_admin, EntityID entity_id);
 
 	protected:
-		LQuadTree<T>*	m_quad_tree {nullptr}; // this assumes that the quad tree will live longer than this component
+		QuadTreeType*	m_quad_tree {nullptr}; // this assumes that the quad tree will live longer than this component
 		int				m_index		{0};
 		bool			m_enabled	{true};
 
@@ -113,14 +115,14 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline bool QTElement<T>::Insert(LQuadTree<T>& quad_tree, const RectFloat& rect, const T& item)
+	inline bool QTElement<T>::Insert(QuadTreeType& quad_tree, const RectFloat& rect, const T& item)
 	{
 		return Emplace(quad_tree, rect, item);
 	}
 
 	template<std::equality_comparable T>
 	template<typename... Args> requires std::constructible_from<T, Args...>
-	inline bool QTElement<T>::Emplace(LQuadTree<T>& quad_tree, const RectFloat& rect, Args && ...args)
+	inline bool QTElement<T>::Emplace(QuadTreeType& quad_tree, const RectFloat& rect, Args && ...args)
 	{
 		if (!IsInserted())
 		{

@@ -162,7 +162,7 @@ namespace vlx
 	template<class T>
 	inline constexpr void FreeVector<T>::erase(size_type n)
 	{
-		assert(n >= 0 && n < m_data.size());
+		assert(n >= 0 && n < m_data.size() && valid(n));
 
 		m_data[n] = m_first_free;
 		m_first_free = n;
