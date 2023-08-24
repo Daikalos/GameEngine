@@ -110,7 +110,7 @@ void BroadSystem::GatherCollisions()
 
 		for (const auto j : QueryResult(lhs))
 		{
-			const auto& rhs = m_bodies[j];
+			const auto& rhs = m_bodies[m_quad_tree.Get(j)];
 
 			if (lhs.entity_id == rhs.entity_id) // skip same body
 				continue;

@@ -106,7 +106,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained within the bounding rectangle.
 		/// 
-		NODISC auto Query(const RectFloat& rect) const -> std::vector<ValueType>;
+		NODISC auto Query(const RectFloat& rect) const -> std::vector<SizeType>;
 
 		/// Queries the tree for elements.
 		/// 
@@ -114,7 +114,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained at the point.
 		/// 
-		NODISC auto Query(const Vector2f& point) const-> std::vector<ValueType>;
+		NODISC auto Query(const Vector2f& point) const-> std::vector<SizeType>;
 
 		/// Performs a lazy cleanup of the tree; can only be called if erase has been used.
 		/// 
@@ -248,11 +248,11 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto QuadTree<T>::Query(const RectFloat& rect) const -> std::vector<ValueType>
+	inline auto QuadTree<T>::Query(const RectFloat& rect) const -> std::vector<SizeType>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<ValueType> result;
+		std::vector<SizeType> result;
 
 		m_visited.resize(m_elements.size());
 
@@ -268,7 +268,7 @@ namespace vlx
 
 				if (!m_visited[elt_idx] && elt.rect.Overlaps(rect))
 				{
-					result.emplace_back(elt.item);
+					result.emplace_back(elt_idx);
 					m_visited[elt_idx] = true;
 				}
 
@@ -276,13 +276,14 @@ namespace vlx
 			}
 		}
 
-		std::fill(m_visited.begin(), m_visited.end(), false); // TODO: FIX
+		for (const auto elt_idx : result)
+			m_visited[elt_idx] = false;
 
 		return result;
 	}
 
 	template<std::equality_comparable T>
-	inline auto QuadTree<T>::Query(const Vector2f& point) const -> std::vector<ValueType>
+	inline auto QuadTree<T>::Query(const Vector2f& point) const -> std::vector<SizeType>
 	{
 		return Query(RectFloat(point.x, point.y, 0.f, 0.f));
 	}
@@ -296,7 +297,7 @@ namespace vlx
 
 		std::vector<int> to_process;
 		if (m_nodes[0].count == -1)
-			to_process.push_back(0); // push root
+			to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{

@@ -307,7 +307,7 @@ namespace vlx
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect))
-						result.emplace_back(elt.item);
+						result.emplace_back(elt_ptr.element);
 
 					child = elt_ptr.next;
 				}
@@ -358,7 +358,7 @@ namespace vlx
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect) && std::forward<Func>(func)(elt.item))
-						result.emplace_back(elt.item);
+						result.emplace_back(elt_ptr.element);
 
 					child = elt_ptr.next;
 				}
