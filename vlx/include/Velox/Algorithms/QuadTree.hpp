@@ -72,14 +72,6 @@ namespace vlx
 		/// 
 		bool Erase(SizeType elt_idx);
 
-		/// Attempts to erase element from tree.
-		/// 
-		/// \param Element: Element to erase.
-		/// 
-		/// \returns True if successfully removed the element, otherwise false.
-		/// 
-		bool Erase(const Element& element);
-
 		/// Updates the given element with new data.
 		/// 
 		/// \param Index: index to element.
@@ -114,7 +106,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained within the bounding rectangle.
 		/// 
-		NODISC auto Query(const RectFloat& rect) const -> std::vector<ValueType>;
+		NODISC auto Query(const RectFloat& rect) const -> std::vector<SizeType>;
 
 		/// Queries the tree for elements.
 		/// 
@@ -122,7 +114,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained at the point.
 		/// 
-		NODISC auto Query(const Vector2f& point) const-> std::vector<ValueType>;
+		NODISC auto Query(const Vector2f& point) const-> std::vector<SizeType>;
 
 		/// Performs a lazy cleanup of the tree; can only be called if erase has been used.
 		/// 
@@ -225,16 +217,6 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline bool QuadTree<T>::Erase(const Element& element)
-	{
-		std::unique_lock lock(m_mutex);
-
-
-
-		return false;
-	}
-
-	template<std::equality_comparable T>
 	template<typename... Args> requires std::constructible_from<T, Args...>
 	inline bool QuadTree<T>::Update(SizeType idx, Args&&... args)
 	{
@@ -251,13 +233,13 @@ namespace vlx
 	template<std::equality_comparable T>
 	auto QuadTree<T>::Get(SizeType idx) -> ValueType&
 	{
-		return m_elements[idx];
+		return m_elements[idx].item;
 	}
 
 	template<std::equality_comparable T>
 	auto QuadTree<T>::Get(SizeType idx) const -> const ValueType&
 	{
-		return m_elements[idx];
+		return m_elements[idx].item;
 	}
 
 	template<std::equality_comparable T>
@@ -267,39 +249,39 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto QuadTree<T>::Query(const RectFloat& rect) const -> std::vector<ValueType>
+	inline auto QuadTree<T>::Query(const RectFloat& rect) const -> std::vector<SizeType>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<ValueType> result;
+		std::vector<SizeType> result;
 
 		m_visited.resize(m_elements.size());
 
 		for (const NodeReg& leaf : FindLeaves({ m_root_rect, 0, 0 }, rect))
 		{
-			auto elt_node_index = m_nodes[leaf.index].first_child;
-			while (elt_node_index != -1)
+			for (auto child = m_nodes[leaf.index].first_child; child != -1;)
 			{
-				const auto elt_idx	= m_elements_ptr[elt_node_index].element;
-				const Element& elt	= m_elements[elt_idx];
+				const auto& elt_ptr = m_elements_ptr[child];
+				const auto& elt		= m_elements[elt_ptr.element];
 
-				if (!m_visited[elt_idx] && elt.rect.Overlaps(rect))
+				if (!m_visited[elt_ptr.element] && elt.rect.Overlaps(rect))
 				{
-					result.emplace_back(elt.item);
-					m_visited[elt_idx] = true;
+					result.emplace_back(elt_ptr.element);
+					m_visited[elt_ptr.element] = true;
 				}
 
-				elt_node_index = m_elements_ptr[elt_node_index].next;
+				child = elt_ptr.next;
 			}
 		}
 
-		std::fill(m_visited.begin(), m_visited.end(), false); // TODO: FIX
+		for (const auto elt_idx : result)
+			m_visited[elt_idx] = false;
 
 		return result;
 	}
 
 	template<std::equality_comparable T>
-	inline auto QuadTree<T>::Query(const Vector2f& point) const -> std::vector<ValueType>
+	inline auto QuadTree<T>::Query(const Vector2f& point) const -> std::vector<SizeType>
 	{
 		return Query(RectFloat(point.x, point.y, 0.f, 0.f));
 	}
@@ -313,7 +295,7 @@ namespace vlx
 
 		std::vector<int> to_process;
 		if (m_nodes[0].count == -1)
-			to_process.push_back(0); // push root
+			to_process.emplace_back(0); // push root
 
 		while (!to_process.empty())
 		{

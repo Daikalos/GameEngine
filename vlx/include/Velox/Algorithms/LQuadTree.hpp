@@ -78,14 +78,6 @@ namespace vlx
 		/// 
 		bool Erase(SizeType ei);
 
-		/// Attempts to erase element from tree.
-		/// 
-		/// \param Element: Element to erase.
-		/// 
-		/// \returns True if successfully removed the element, otherwise false.
-		/// 
-		bool Erase(const Element& element);
-
 		/// Updates the given element with new data.
 		/// 
 		/// \param Index: index to element.
@@ -120,7 +112,7 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained within the bounding rectangle.
 		/// 
-		NODISC auto Query(const RectFloat& rect) const -> std::vector<ValueType>;
+		NODISC auto Query(const RectFloat& rect) const -> std::vector<SizeType>;
 
 		/// Queries the tree for elements.
 		/// 
@@ -128,9 +120,9 @@ namespace vlx
 		/// 
 		/// \returns List of entities contained at the point.
 		/// 
-		NODISC auto Query(const Vector2f& point) const-> std::vector<ValueType>;
+		NODISC auto Query(const Vector2f& point) const-> std::vector<SizeType>;
 
-		/// Queries the tree for elements, while also omitting elements provided by iterators.
+		/// Queries the tree for elements, while also omitting elements that does not fulfill the user-provided function.
 		/// Content must be sorted before being passed.
 		/// 
 		/// \param Point: Point to search for overlapping elements.
@@ -138,9 +130,9 @@ namespace vlx
 		/// \returns List of entities contained at the point.
 		/// 
 		template<typename Func>
-		NODISC auto Query(const RectFloat& rect, Func&& func) const -> std::vector<ValueType>;
+		NODISC auto Query(const RectFloat& rect, Func&& func) const -> std::vector<SizeType>;
 
-		/// Queries the tree for elements, while also omitting element indicies provided by iterators.
+		/// Queries the tree for elements, while also omitting elements that does not fulfill the user-provided function.
 		/// Content must be sorted before being passed.
 		/// 
 		/// \param Point: Point to search for overlapping elements.
@@ -148,7 +140,7 @@ namespace vlx
 		/// \returns List of entities contained at the point.
 		/// 
 		template<typename Func>
-		NODISC auto Query(const Vector2f& point, Func&& func) const -> std::vector<ValueType>;
+		NODISC auto Query(const Vector2f& point, Func&& func) const -> std::vector<SizeType>;
 
 		/// Performs a cleanup of the tree
 		/// 
@@ -215,78 +207,43 @@ namespace vlx
 		std::unique_lock lock(m_mutex);
 
 		assert(m_elements.valid(ei));
-		const auto& element = m_elements[ei];
 
-		SizeType leaf_node_index = FindLeaf(element.rect.Center());
+		SizeType leaf_node_index = FindLeaf(m_elements[ei].rect.Center());
 		Node& node = m_nodes[leaf_node_index];
 
-		assert(node.count != -1); // we should have reached a leaf
+		assert(node.count != -1 && node.first_child != -1); // we should have reached a leaf
 
 		if (node.count == 0)
 			return false;
 
-		SizeType* cur = &node.first_child, i = 0;
-		while (*cur != -1) // search through all elements
+		auto ptr_idx = node.first_child;
+		auto prv_idx = -1;
+
+		// search for index to element ptr
+		while (ptr_idx != -1 && m_elements_ptr[ptr_idx].element != ei)
 		{
-			i = *cur;
-
-			if (m_elements_ptr[i].element == ei)
-			{
-				*cur = m_elements_ptr[i].next;
-
-				m_elements.erase(m_elements_ptr[i].element);
-				m_elements_ptr.erase(i);
-
-				--node.count;
-
-				assert(node.count >= 0);
-
-				return true;
-			}
-
-			cur = &m_elements_ptr[i].next;
+			prv_idx = ptr_idx;
+			ptr_idx = m_elements_ptr[ptr_idx].next;
 		}
 
-		return false;
-	}
-
-	template<std::equality_comparable T>
-	inline bool LQuadTree<T>::Erase(const Element& element)
-	{
-		std::unique_lock lock(m_mutex);
-
-		SizeType leaf_node_index = FindLeaf(element.rect.Center());
-		Node& node = m_nodes[leaf_node_index];
-
-		assert(IsLeaf(node) && "Should have reached a leaf");
-
-		if (node.count == 0)
+		if (ptr_idx == -1) // element was not found
 			return false;
 
-		SizeType* cur = &node.first_child, i = 0;
-		while (*cur != -1) // search through all elements
-		{
-			i = *cur;
+		const auto next_index = m_elements_ptr[ptr_idx].next;
 
-			Element& elt = m_elements[m_elements_ptr[i].element];
-			if (elt.item == element.item)
-			{
-				*cur = m_elements_ptr[i].next;
+		if (prv_idx == -1)
+			node.first_child = next_index;
+		else
+			m_elements_ptr[prv_idx].next = next_index;
 
-				m_elements.erase(m_elements_ptr[i].element);
-				m_elements_ptr.erase(i);
+		m_elements_ptr.erase(ptr_idx);
+		m_elements.erase(ei);
 
-				--node.count;
+		--node.count;
 
-				assert(node.count >= 0);
+		assert(node.count >= 0);
 
-				return true;
-			}
-
-			cur = &m_elements_ptr[i].next;
-		}
-
-		return false;
+		return true;
 	}
 
 	template<std::equality_comparable T>
@@ -322,11 +279,11 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto LQuadTree<T>::Query(const RectFloat& rect) const -> std::vector<ValueType>
+	inline auto LQuadTree<T>::Query(const RectFloat& rect) const -> std::vector<SizeType>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<ValueType> result;
+		std::vector<SizeType> result;
 		std::vector<SizeType> to_process;
 
 		result.reserve(m_max_elements);
@@ -344,13 +301,13 @@ namespace vlx
 
 			if (IsLeaf(node))
 			{
-				for (SizeType child = node.first_child; child != -1;) // iterate over all children
+				for (auto child = node.first_child; child != -1;) // iterate over all children
 				{
 					const auto& elt_ptr = m_elements_ptr[child];
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect))
-						result.emplace_back(elt.item);
+						result.emplace_back(elt_ptr.element);
 
 					child = elt_ptr.next;
 				}
@@ -366,18 +323,18 @@ namespace vlx
 	}
 
 	template<std::equality_comparable T>
-	inline auto LQuadTree<T>::Query(const Vector2f& point) const -> std::vector<ValueType>
+	inline auto LQuadTree<T>::Query(const Vector2f& point) const -> std::vector<SizeType>
 	{
 		return Query(RectFloat(point.x, point.y, 0.f, 0.f));
 	}
 
 	template<std::equality_comparable T>
 	template<typename Func>
-	inline auto LQuadTree<T>::Query(const RectFloat& rect, Func&& func) const -> std::vector<ValueType>
+	inline auto LQuadTree<T>::Query(const RectFloat& rect, Func&& func) const -> std::vector<SizeType>
 	{
 		std::shared_lock lock(m_mutex);
 
-		std::vector<Element> result;
+		std::vector<SizeType> result;
 		std::vector<SizeType> to_process;
 
 		result.reserve(m_max_elements);
@@ -401,7 +358,7 @@ namespace vlx
 					const auto& elt		= m_elements[elt_ptr.element];
 
 					if (elt.rect.Overlaps(rect) && std::forward<Func>(func)(elt.item))
-						result.emplace_back(elt.item);
+						result.emplace_back(elt_ptr.element);
 
 					child = elt_ptr.next;
 				}
@@ -418,7 +375,7 @@ namespace vlx
 
 	template<std::equality_comparable T>
 	template<typename Func>
-	inline auto LQuadTree<T>::Query(const Vector2f& point, Func&& func) const -> std::vector<ValueType>
+	inline auto LQuadTree<T>::Query(const Vector2f& point, Func&& func) const -> std::vector<SizeType>
 	{
 		return Query(RectFloat(point.x, point.y, 0.f, 0.f), std::forward<Func>(func));
 	}
@@ -445,7 +402,7 @@ namespace vlx
 			if (IsBranch(node)) // branch with elements that need to be processed
 			{
 				node.count = -2;
-				for (SizeType i = 0; i < CHILD_COUNT; ++i)
+				for (int i = 0; i < CHILD_COUNT; ++i)
 					to_process.emplace_back(node.first_child + i);
 			}
 			else if (node.count == -2) // branch with elements that has been processed
@@ -453,7 +410,7 @@ namespace vlx
 				to_process.pop_back();
 
 				bool init = false;
-				for (std::size_t i = 0; i < CHILD_COUNT; ++i) // check all four children
+				for (int i = 0; i < CHILD_COUNT; ++i) // check all four children
 				{
 					const RectReg& reg = process_rects.back();
 
