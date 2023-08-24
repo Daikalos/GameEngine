@@ -96,7 +96,7 @@ void BroadSystem::GatherCollisions()
 
 	for (std::size_t i = 0; i < m_bodies.size(); ++i)
 	{
-		const auto& lhs = m_bodies[m_quad_tree.Get(i)];
+		const auto& lhs = m_bodies[i];
 
 		if (!HasDataForCollision(lhs)) [[unlikely]] // unlikely since if you added a shape, you will likely have the other data as well
 			continue;
@@ -110,7 +110,7 @@ void BroadSystem::GatherCollisions()
 
 		for (const auto j : QueryResult(lhs))
 		{
-			const auto& rhs = m_bodies[m_quad_tree.Get(j)];
+			const auto& rhs = m_bodies[j];
 
 			if (lhs.entity_id == rhs.entity_id) // skip same body
 				continue;
