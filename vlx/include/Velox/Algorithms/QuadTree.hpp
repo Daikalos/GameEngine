@@ -183,30 +183,30 @@ namespace vlx
 
 		for (const auto& leaf : leaves)
 		{
-			const auto nd_index = leaf.index;
+			Node& node = m_nodes[leaf.index];
 
-			auto node_index = m_nodes[nd_index].first_child;
-			auto prev_index = -1;
+			auto ptr_idx = node.first_child;
+			auto prv_idx = -1;
 
-			while (node_index != -1 && m_elements_ptr[node_index].element != elt_idx)
+			while (ptr_idx != -1 && m_elements_ptr[ptr_idx].element != elt_idx)
 			{
-				prev_index = node_index;
-				node_index = m_elements_ptr[node_index].next;
+				prv_idx = ptr_idx;
+				ptr_idx = m_elements_ptr[ptr_idx].next;
 			}
-
-			if (node_index != -1)
+			if (ptr_idx != -1)
 			{
-				const auto next_index = m_elements_ptr[node_index].next;
+				const auto next_index = m_elements_ptr[ptr_idx].next;
 
-				if (prev_index == -1)
-					m_nodes[nd_index].first_child = next_index;
+				if (prv_idx == -1)
+					node.first_child = next_index;
 				else
-					m_elements_ptr[prev_index].next = next_index;
+					m_elements_ptr[prv_idx].next = next_index;
 
-				m_elements_ptr.erase(node_index);
+				m_elements_ptr.erase(ptr_idx);
 
-				--m_nodes[nd_index].count;
-				assert(m_nodes[nd_index].count >= 0);
+				--node.count;
+
+				assert(node.count >= 0);
 			}
 		}
 
@@ -260,10 +260,9 @@ namespace vlx
 		{
 			const auto nd_index = leaf.index;
 			
-			auto elt_node_index = m_nodes[nd_index].first_child;
-			while (elt_node_index != -1)
+			for (auto child = m_nodes[nd_index].first_child; child != -1;)
 			{
-				const auto elt_idx	= m_elements_ptr[elt_node_index].element;
+				const auto elt_idx	= m_elements_ptr[child].element;
 				const auto& elt		= m_elements[elt_idx];
 
 				if (!m_visited[elt_idx] && elt.rect.Overlaps(rect))
@@ -272,7 +271,7 @@ namespace vlx
 					m_visited[elt_idx] = true;
 				}
 
-				elt_node_index = m_elements_ptr[elt_node_index].next;
+				child = m_elements_ptr[child].next;
 			}
 		}
 
@@ -301,14 +300,13 @@ namespace vlx
 
 		while (!to_process.empty())
 		{
-			const auto node_index = to_process.back();
-			const auto first_child = m_nodes[node_index].first_child;
+			Node& node = m_nodes[to_process.back()];
 			to_process.pop_back();
 
 			int num_empty = 0;
 			for (int i = 0; i < CHILD_COUNT; ++i)
 			{
-				const int child_index	= first_child + i;
+				const int child_index	= node.first_child + i;
 				const Node& child		= m_nodes[child_index];
 
 				if (child.count == -1)
@@ -319,12 +317,12 @@ namespace vlx
 
 			if (num_empty == CHILD_COUNT)
 			{
-				m_nodes.erase(first_child + 3);
-				m_nodes.erase(first_child + 2);
-				m_nodes.erase(first_child + 1);
-				m_nodes.erase(first_child + 0);
+				m_nodes.erase(node.first_child + 3);
+				m_nodes.erase(node.first_child + 2);
+				m_nodes.erase(node.first_child + 1);
+				m_nodes.erase(node.first_child + 0);
 
-				m_nodes[node_index] = {}; // reset
+				node = {}; // reset
 			}
 		}
 	}
@@ -350,22 +348,23 @@ namespace vlx
 	template<std::equality_comparable T>
 	inline void QuadTree<T>::LeafInsert(const NodeReg& nr, SizeType elt_idx)
 	{
-		const auto nd_fc = m_nodes[nr.index].first_child;
-		m_nodes[nr.index].first_child = m_elements_ptr.emplace(elt_idx, nd_fc);
+		Node& node = m_nodes[nr.index];
+		node.first_child = m_elements_ptr.emplace(elt_idx, node.first_child);
 
-		if (m_nodes[nr.index].count == m_max_elements && nr.depth < m_max_depth)
+		if (node.count == m_max_elements && nr.depth < m_max_depth)
 		{
 			std::vector<SizeType> elements;
-			while (m_nodes[nr.index].first_child != -1)
+			while (node.first_child != -1)
 			{
-				const auto index = m_nodes[nr.index].first_child;
-				const auto next_index = m_elements_ptr[index].next;
-				const auto elt = m_elements_ptr[index].element;
+				const auto index = node.first_child;
 
-				m_nodes[nr.index].first_child = next_index;
+				const auto next_idx = m_elements_ptr[index].next;
+				const auto elt_idx = m_elements_ptr[index].element;
+
+				node.first_child = next_idx;
 				m_elements_ptr.erase(index);
 
-				elements.emplace_back(elt);
+				elements.emplace_back(elt_idx);
 			}
 
 			const auto fc = m_nodes.emplace();
@@ -373,14 +372,14 @@ namespace vlx
 			m_nodes.emplace();
 			m_nodes.emplace();
 
-			m_nodes[nr.index].first_child = fc;
-			m_nodes[nr.index].count = -1; // set as branch
+			node.first_child = fc;
+			node.count = -1; // set as branch
 
 			for (const auto elt : elements)
 				NodeInsert(nr, elt);
 		}
 		else
-			++m_nodes[nr.index].count;
+			++node.count;
 	}
 
 	template<std::equality_comparable T>
