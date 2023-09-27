@@ -77,7 +77,7 @@ void BroadSystem::InsertAABB(EntityID entity_id, ColliderAABB& ab, QTBody& qtb)
 		assert(it->second != BroadSystem::NULL_BODY);
 
 		qtb.Erase();
-		qtb.Insert(m_quad_tree, ab.GetAABB().Inflate(P_AABB_INFLATE), it->second);
+		qtb.Insert(m_quad_tree, ab.GetAABB().Inflate(P_AABB_INFLATE), it->second); // TODO: inflate based on velocity
 	}
 }
 

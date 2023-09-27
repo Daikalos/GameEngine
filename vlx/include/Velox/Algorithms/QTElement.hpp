@@ -17,7 +17,7 @@ namespace vlx
 	{
 	public:
 		using ValueType		= T;
-		using QuadTreeType	= QuadTree<T>;
+		using QuadTreeType	= LQuadTree<T>;
 		using Element		= typename QuadTreeType::Element;
 
 	public:

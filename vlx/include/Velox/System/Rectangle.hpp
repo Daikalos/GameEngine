@@ -66,8 +66,8 @@ namespace vlx
 		NODISC constexpr bool Contains(const Vector2<T>& point) const;
 		NODISC constexpr bool Contains(const Rect& other) const;
 
-		NODISC constexpr Rect<T> Inflate(const Vector2f& m) const;
-		NODISC constexpr Rect<T> Inflate(const float multiplier) const;
+		NODISC constexpr Rect<T> Inflate(const Vector2<T>& m) const;
+		NODISC constexpr Rect<T> Inflate(T multiplier) const;
 
 		union
 		{
@@ -242,24 +242,24 @@ namespace vlx
 	}
 
 	template<Arithmetic T>
-	inline constexpr Rect<T> Rect<T>::Inflate(const Vector2f& m) const
+	inline constexpr Rect<T> Rect<T>::Inflate(const Vector2<T>& m) const
 	{
 		Rect result(*this);
 
-		float prev_width = result.width;
-		float prev_height = result.height;
+		float prev_width	= result.width;
+		float prev_height	= result.height;
 
-		result.width *= m.x;
-		result.height *= m.y;
+		result.width		*= m.x;
+		result.height		*= m.y;
 
-		result.left -= (result.width - prev_width) / T(2);
-		result.top -= (result.height - prev_height) / T(2);
+		result.left			-= (result.width - prev_width) / static_cast<T>(2);
+		result.top			-= (result.height - prev_height) / static_cast<T>(2);
 
 		return result;
 	}
 
 	template<Arithmetic T>
-	inline constexpr Rect<T> Rect<T>::Inflate(const float multiplier) const
+	inline constexpr Rect<T> Rect<T>::Inflate(T multiplier) const
 	{
 		return Inflate({ multiplier, multiplier });
 	}
