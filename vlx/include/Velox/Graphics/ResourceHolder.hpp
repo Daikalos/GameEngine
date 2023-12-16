@@ -50,15 +50,16 @@ namespace vlx
 
 		void Release(const I& id);
 
-		bool Contains(const I& id);
+		bool Contains(const I& id) const;
 
 	private:
+		void ReleaseImpl(const I& id);
 		auto Load(const I& id, const ResourceLoader<R>& loader) -> ReturnType;
 		auto Insert(const I& id, ResourcePtr& resource) -> ReturnType;
 
 	private:
 		std::unordered_map<I, ResourcePtr> m_resources;
-		std::shared_mutex m_mutex;
+		mutable std::shared_mutex m_mutex;
 	};
 
 	template<class R, typename I>
@@ -105,7 +106,7 @@ namespace vlx
 		case res::LoadStrategy::New:
 			throw std::runtime_error("Failed to load, already exists in container");
 		case res::LoadStrategy::Reload:
-			Release(id);
+			ReleaseImpl(id);
 			return Load(id, loader);
 		default: // reuse as default
 			return *it->second;
@@ -134,7 +135,7 @@ namespace vlx
 				case res::LoadStrategy::New:
 					throw std::runtime_error("Failed to load, already exists in container");
 				case res::LoadStrategy::Reload:
-					Release(id);
+					ReleaseImpl(id);
 					return Insert(id, resource);
 				default: // reuse as default
 					return *it->second;
@@ -146,19 +147,24 @@ namespace vlx
 	inline void ResourceHolder<R, I>::Release(const I& id)
 	{
 		std::lock_guard lock(m_mutex);
+		ReleaseImpl(id);
+	}
 
+	template<class R, typename I>
+	inline bool ResourceHolder<R, I>::Contains(const I& id) const
+	{
+		std::shared_lock lock(m_mutex);
+		return m_resources.contains(id);
+	}
+
+	template<class R, typename I>
+	inline void ResourceHolder<R, I>::ReleaseImpl(const I& id)
+	{
 		const auto it = m_resources.find(id);
 		if (it == m_resources.end())
 			throw std::runtime_error("Resource does not exist");
 
 		m_resources.erase(it);
-	}
-
-	template<class R, typename I>
-	inline bool ResourceHolder<R, I>::Contains(const I& id)
-	{
-		std::shared_lock lock(m_mutex);
-		return m_resources.contains(id);
 	}
 
 	template<class R, typename I>
